@@ -12,6 +12,7 @@
 		<c:set var="titol"><spring:message code="expedient.document.modificar"/></c:set>
 	</c:otherwise>
 </c:choose>
+<c:url value="/v3/expedient/document/firma/validate" var="validateFirmaUrl"/>
 <html>
 <head>
 	<title>${titol}</title>
@@ -70,6 +71,12 @@ $(document).ready( function() {
 	$('#firmaNom').on('click', function() {
 		$('input[name=firma]').click();
 	});
+	
+	$('.input-group:has( > #arxiuNom)').on('click', showLoader);
+	$('.input-group:has( > #firmaNom)').on('click', showLoader);
+	$('input[name=arxiu]').on('cancel', hideLoader);
+	$('input[name=firma]').on('cancel', hideLoader);
+	
 	$('input[type=checkbox][name=ambFirma]').on('change', function() {
 		if($(this).prop("checked") == true){
 			$('#input-firma').removeClass('hidden');
@@ -85,6 +92,10 @@ $(document).ready( function() {
 			$('#input-firma-arxiu').addClass('hidden');
 		}
 	});
+	
+	$('input[name=arxiu]').on('change', function(e) { validateFirma('arxiu')});
+	$('input[name=firma]').on('change', function(e) { validateFirma('firma')});
+	
 	$('input[type=checkbox][name=ambFirma]').change();
 	$('input[type=radio][name=tipusFirma]:checked').change();
 	
@@ -95,7 +106,72 @@ $(document).ready( function() {
 		$('#firmaNom').val($(this).val().split('\\').pop());
 	});
 }); 
-		
+
+
+function validateFirma(tipus) {
+	var formData = new FormData($('#documentExpedientCommand')[0]);
+	$('#firmaAlert').hide();
+	$('#firmaError').hide();
+	if(tipus == 'arxiu' && $(ambFirma).prop('checked')) {
+		$(ambFirma).trigger('click');
+		$('#clearFirmes').val(false);
+	}
+	$.ajax({
+		url: '${validateFirmaUrl}',
+		type: 'POST',
+		data: formData,
+		async: false,
+		success: function (data) {
+			if((data.firmat && data.valid && !$(ambFirma).prop('checked')) || 
+			   ($(ambFirma).prop('checked') && !data.firmat && !data.valid)) {
+				$(ambFirma).trigger('click');
+			}
+			
+			if(tipus == 'arxiu') {
+				$('input[name="tipusFirma"][value="ADJUNT"]').prop('disabled', !data.valid);
+				if((!data.firmat || !data.valid) && $('input[name="tipusFirma"]').val() == 'ADJUNT') {
+					$('input[name="tipusFirma"][value="ADJUNT"]').parent().removeClass('active');
+					$('input[name="tipusFirma"][value="SEPARAT"]').trigger('click').parent().addClass('active');					
+				} 
+				if(data.firmat && data.valid) {
+					$('input[name="tipusFirma"][value="ADJUNT"]').trigger('click').parent().addClass('active');
+					$('input[name="tipusFirma"][value="SEPARAT"]').parent().removeClass('active');
+				}
+			}
+			
+			if(data.alert)
+				$('#firmaAlert').html('<i class="fa fa-exclamation-triangle pr-2" />' + data.alert).show();
+			
+			if(data.error)
+				$('#firmaError').html(data.error).show();
+			
+			if(tipus == 'arxiu' && !data.firmat)
+				$('#clearFirmes').val(true);
+			
+			if(tipus == 'firma' && !data.firmat) {
+				esFirmaValida = false;
+			} else {
+				$('button[name="accio"]', window.parent.document).removeAttr('disabled');
+			}
+			
+			hideLoader();
+			
+		},
+		cache: false,
+		contentType: false,
+		processData: false
+	});
+}
+
+function showLoader() {
+	$('input', this).val(undefined);
+	$('button[name="accio"]', window.parent.document).attr('disabled', true);
+	$('.div-dades-carregant', window.parent.document).show();
+}
+
+function hideLoader() {
+	$('.div-dades-carregant', window.parent.document).hide();
+}
 		
 // ]]>
 </script>
@@ -151,6 +227,8 @@ $(document).ready( function() {
 						<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="arxiu"/></p></c:if>
 					</div>
 				</div>
+				
+				<div class="alert alert-warning" id="firmaAlert" style="display: none;"></div>
 				
 				<hel:inputCheckbox name="ambFirma" textKey="expedient.document.form.camp.amb.firma"></hel:inputCheckbox>
 					<div id="input-firma" class="hidden">

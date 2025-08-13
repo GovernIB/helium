@@ -2278,7 +2278,7 @@ public class PluginHelper {
 				firmaValidacio = validaSignaturaObtenirDetalls(arxiu.getContingut(), null);
 			
 			if(firmaValidacio != null && !firmaValidacio.isValid()) {
-				contingut = documentHelperV3.removeSignaturesPdfUsingPdfWriterCopyPdf(contingut, "");
+				contingut = documentHelperV3.removeSignaturesPdfUsingPdfWriterCopyPdf(contingut, arxiu.getTipusMime());
 			}
 
 			FirmaResposta firmaResposta = getFirmaPlugin().firmar(
@@ -3679,10 +3679,21 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					IntegracioParametreDto.toIntegracioParametres(accioParams));
-			throw tractarExcepcioEnSistemaExtern(
-					MonitorIntegracioHelper.INTCODI_VALIDASIG,
-					errorDescripcio, 
-					ex);
+			
+			Throwable throwable = ExceptionHelper.getRootCauseOrItself(ex);
+			if (throwable.getMessage().contains("El formato de la firma no es valido(urn:oasis:names:tc:dss:1.0:resultmajor:RequesterError)")
+					|| throwable.getMessage().contains("El formato de la firma no es válido(urn:oasis:names:tc:dss:1.0:resultmajor:RequesterError)")
+					|| throwable.getMessage().contains("El documento OOXML no está firmado(urn:oasis:names:tc:dss:1.0:resultmajor:ResponderError)")
+					|| throwable.getMessage().contains("El documento OOXML no está firmado.(urn:oasis:names:tc:dss:1.0:resultmajor:ResponderError)")
+					|| throwable.getMessage().contains("La firma proporcionada no contiene un nodo <ds:Signature>")
+					|| throwable.getMessage().contains("(VALIDATION) Se ha producido un error accediendo a la revisión del diccionario con nombre")) {
+				return new ArxiuFirmaValidacioDetallDto(false, throwable.getMessage(), null);
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_VALIDASIG,
+						errorDescripcio,
+						ex);
+			}
 		}
 	}
 	

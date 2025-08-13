@@ -397,6 +397,23 @@
 					($('input[name=ambFirma]', form).prop('checked') && !data.valid && !data.firmat)) {
 					$('input[name=ambFirma]', form).trigger('click');
 				}
+				
+				if(tipus == 'arxiu') {
+					if(data.valid) {
+						$('input[name="tipusFirma"][value="ADJUNT"]', form).parent().show();
+					} else {
+						$('input[name="tipusFirma"][value="ADJUNT"]', form).parent().hide();
+					}
+					if((!data.firmat || !data.valid) && $('input[name="tipusFirma"]', form).val() == 'ADJUNT') {
+						$('input[name="tipusFirma"][value="ADJUNT"]', form).parent().removeClass('active');
+						$('input[name="tipusFirma"][value="SEPARAT"]', form).trigger('click').parent().addClass('active');					
+					} 
+					if(data.firmat && data.valid) {
+						$('input[name="tipusFirma"][value="ADJUNT"]', form).trigger('click').parent().addClass('active');
+						$('input[name="tipusFirma"][value="SEPARAT"]', form).parent().removeClass('active');
+					}
+				}
+				
 				if(data.alert) {
 					form.prepend('<div id="firmaAlert" class="alert alert-warning"> <i class="fa fa-exclamation-triangle pr-2" />' + data.alert + '</div>');
 				}
@@ -419,7 +436,6 @@
 			contentType: false,
 			processData: false
 		});
-		
 	}
 	
 	function showLoader() {

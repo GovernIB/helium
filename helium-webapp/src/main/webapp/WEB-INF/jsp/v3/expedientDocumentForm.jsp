@@ -240,6 +240,18 @@ function validateFirma(tipus) {
 			if(data.alert)
 				$('#firmaAlert').html('<i class="fa fa-exclamation-triangle pr-2" />' + data.alert).show();
 			
+			if(tipus == 'arxiu') {
+				$('input[name="tipusFirma"][value="ADJUNT"]').prop('disabled', !data.valid);
+				if((!data.firmat || !data.valid) && $('input[name="tipusFirma"]').val() == 'ADJUNT') {
+					$('input[name="tipusFirma"][value="ADJUNT"]').parent().removeClass('active');
+					$('input[name="tipusFirma"][value="SEPARAT"]').trigger('click').parent().addClass('active');					
+				} 
+				if(data.firmat && data.valid) {
+					$('input[name="tipusFirma"][value="ADJUNT"]').trigger('click').parent().addClass('active');
+					$('input[name="tipusFirma"][value="SEPARAT"]').parent().removeClass('active');
+				}
+			}
+			
 			if(data.error)
 				$('#firmaError').html(data.error).show();
 			
