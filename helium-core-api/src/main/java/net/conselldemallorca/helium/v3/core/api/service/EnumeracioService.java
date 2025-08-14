@@ -88,9 +88,7 @@ public interface EnumeracioService {
 	
 	public void valorDelete(
 			Long valorId) throws NoTrobatException, PermisDenegatException;
-	
-	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException, InUseException;
-	
+		
 	public ExpedientTipusEnumeracioValorDto valorFindAmbCodi(
 			Long expedientTipusId,
 			Long enumeracioId,

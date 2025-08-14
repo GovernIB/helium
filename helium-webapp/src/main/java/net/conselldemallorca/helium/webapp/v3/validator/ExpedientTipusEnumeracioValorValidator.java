@@ -41,7 +41,20 @@ public class ExpedientTipusEnumeracioValorValidator implements ConstraintValidat
 						.addConstraintViolation();	
 				valid = false;
 			}
+			// comprova si canvia el codi i està en ús
+			if (command.getId() != null) {
+				ExpedientTipusEnumeracioValorDto valor = enumeracioService.valorFindAmbId(command.getId());
+				if (!valor.getCodi().equals(command.getCodi())
+						&& enumeracioService.valorInUse(valor.getId())) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.en.us", null))
+							.addNode("codi")
+							.addConstraintViolation();	
+					valid = false;
+				}
+			}
 		}
+		
 		if (!valid)
 			context.disableDefaultConstraintViolation();
 

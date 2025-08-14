@@ -496,35 +496,6 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				enumeracioValorsRepository.save(entity),
 				ExpedientTipusEnumeracioValorDto.class);
 	}
-	
-	@Override
-	@Transactional
-	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException, InUseException {
-		logger.debug(
-				"Esborrant els valors de l'enumeració (" +
-				"enumeracioId=" + enumeracioId +  ")");
-		
-		Enumeracio entity = enumeracioRepository.findOne(enumeracioId);
-		if (entity == null)
-			throw new NoTrobatException(Enumeracio.class, enumeracioId);
-				
-		//Es llançará un PermisDenegatException si escau
-		if (entity.getExpedientTipus() != null)
-			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(entity.getExpedientTipus().getId());
-		else
-			entornHelper.getEntornComprovantPermisos(entity.getEntorn().getId(), true, true);
-		
-		List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(entity.getId());
-		
-		// Comprovam que no hi hagui cap valor en us
-		for(EnumeracioValors valor : valors) {
-			BigDecimal count = enumeracioValorsRepository.countValueUsage(enumeracioId, valor.getCodi()).get(0);
-			if(count.compareTo(BigDecimal.ZERO) > 0)
-				continue;
-			enumeracioValorsRepository.delete(valor);
-		}
-		enumeracioValorsRepository.flush();
-	}	
 
 	@Override
 	@Transactional

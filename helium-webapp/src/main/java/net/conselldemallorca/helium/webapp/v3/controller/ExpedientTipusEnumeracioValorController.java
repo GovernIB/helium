@@ -105,7 +105,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 		ompleDadesModel(request, expedientTipusId, enumeracioId, model, false);
 		model.addAttribute("expedientTipusEnumeracioValorCommand", command);
 		model.addAttribute("mostraUpdate", true);
-		model.addAttribute("inUse", enumeracioService.valorInUse(id));
+		//model.addAttribute("inUse", enumeracioService.valorInUse(id));
 		return "v3/expedientTipusEnumeracioValors";
 	}
 	
@@ -233,9 +233,6 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 								request,
 								"error.especificar.arxiu.importar"));
 			} else {
-				if (eliminarValorsAntics != null && eliminarValorsAntics) {
-					enumeracioService.enumeracioDeleteAllByEnumeracio(enumeracioId);
-				}
 				List<ExpedientTipusEnumeracioValorDto> valors = new ArrayList<ExpedientTipusEnumeracioValorDto>();
 				Set<String> valorsCodis = new HashSet<String>();
 				BufferedReader br = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()));
@@ -250,16 +247,8 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			        	while (!codi.matches("^\\w.*")) {
 			        		codi = codi.substring(1);
 			        	}
-			        	
 			        	enumeracioValors.setCodi(codi);
 			        	enumeracioValors.setNom(columnes[1]);
-			        	// Comprova que no existeixi ja
-//			        	if( enumeracioService.valorFindAmbCodi(expedientTipusId, enumeracioId, codi) != null)
-//			        		throw new ValidacioException(
-//			        				getMessage(
-//											request,
-//											"expedient.tipus.enumeracio.valors.importats.duplicat",
-//											new Object[] {codi}));
 			        	// Valida que no s'importin dos codis
 			        	if (valorsCodis.contains(codi))
 			        		throw new ValidacioException(
@@ -280,6 +269,28 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 						getMessage(
 								request,
 								"expedient.tipus.enumeracio.valors.importats"));
+
+				if (eliminarValorsAntics) {
+					List<String> valorsEnUs = new ArrayList<String>();
+					for (ExpedientTipusEnumeracioValorDto valor : enumeracioService.valorsFind(enumeracioId)) {
+						if (!valorsCodis.contains(valor.getCodi())) {
+							if (enumeracioService.valorInUse(valor.getId())) {
+								valorsEnUs.add(valor.getCodi());
+							} else {
+								enumeracioService.valorDelete(valor.getId());
+							}
+						}
+					}
+					if (!valorsEnUs.isEmpty()){
+						MissatgesHelper.error(
+								request,
+								getMessage(
+										request,
+										"expedient.tipus.enumeracio.valors.importar.eliminar.anterior.en.us",
+										new Object[] { valorsEnUs }));
+					}
+				}
+
 			}
 		} catch (InUseException ex) {
 			MissatgesHelper.error(
