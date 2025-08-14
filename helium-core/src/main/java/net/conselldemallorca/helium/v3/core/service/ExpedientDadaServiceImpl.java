@@ -441,6 +441,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 							.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
 							.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
 							.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
+							.obligatoriEntrada(campFormProperties != null ? campFormProperties.isObligatoriEntrada() : false)
 							.valor(DadaValorDto.builder().build())
 							.build());
 			} else {

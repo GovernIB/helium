@@ -151,6 +151,7 @@ public class ReglaHelper {
                         .visible(campFormProperties.isVisible())
                         .editable(campFormProperties.isEditable())
                         .obligatori(campFormProperties.isObligatori())
+                        .obligatoriEntrada(campFormProperties.isObligatoriEntrada())
                         .build();
                 facts.put("fact", variableFact);
                 rulesEngine.fire(rules, facts);
@@ -198,6 +199,7 @@ public class ReglaHelper {
                         .visible(campFormProperties.isVisible())
                         .editable(campFormProperties.isEditable())
                         .obligatori(campFormProperties.isObligatori())
+                        .obligatoriEntrada(campFormProperties.isObligatoriEntrada())
                         .build();
                 facts.put("fact", variableFact);
                 rulesEngine.fire(rules, facts);

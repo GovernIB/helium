@@ -103,7 +103,7 @@
 						{{/for}}
 					</script>
 				</th>
-				<th data-col-name="accio" data-template="#cellAccioTemplate" width="20%">
+				<th data-col-name="accio" data-template="#cellAccioTemplate" style="min-width: 190px;">
 					<spring:message code="expedient.tipus.regla.form.camp.accio"/>
 					<script id="cellAccioTemplate" type="text/x-jsrender">
 					{{if accio == 'MOSTRAR'}}
@@ -116,6 +116,8 @@
 						<span class="label label-warning label-accio"><span class="fa fa-lock"></span> <spring:message code="enum.regla.accio.BLOQUEJAR"/></span>
 					{{else accio == 'REQUERIR'}}
 						<span class="label label-primary label-accio"><span class="fa fa-asterisk"></span> <spring:message code="enum.regla.accio.REQUERIR"/></span>
+					{{else accio == 'REQUERIR_ENTRAR'}}
+						<span class="label label-primary label-accio"><span class="fa fa-asterisk"></span> <spring:message code="enum.regla.accio.REQUERIR_ENTRAR"/></span>
 					{{else}}
 						<span class="label label-default label-accio">{{>accio}}</span>
 					{{/if}}
