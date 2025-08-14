@@ -31,7 +31,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -2369,9 +2368,10 @@ public class ExpedientHelper {
 	 */
 	private String getHandlerClassPerRecurs(
 			String processInstanceId, 
-			String recurs) {
+			String classe) {
 		String handlerClass = null;
 		try {
+			String recurs = this.handlerToResource(classe);
 			DefinicioProces dp = findDefinicioProcesByProcessInstanceId(processInstanceId);
 			byte[] handlerContingut = jbpmHelper.getResourceBytes(
 					dp.getJbpmId(), 
@@ -2381,11 +2381,47 @@ public class ExpedientHelper {
 			handlerClass = ctClass.getName();
 			ctClass.detach();
 		} catch(Exception e) {
-			throw new RuntimeException("No s'ha pogut recuperar la classe del handler pel recurs " + recurs + ": " + e.getMessage());
+			throw new RuntimeException("No s'ha pogut recuperar el recurs del handler " + classe + ": " + e.getMessage());
 		}
 		return handlerClass;
 	}
 
+	/** Adapta el nom de la classe d'un chandler a nom de recurs de tipus "classes/[package].[nomHandler].class"
+	 * 
+	 * @return
+	 */
+	public String handlerToResource(String handler) {
+		String recurs = handler;
+		if (recurs.endsWith(".class")) {
+			recurs = recurs.substring(0, recurs.length() - ".class".length());
+		}
+		recurs = recurs.replace('.', '/');
+		if (!recurs.startsWith("classes/")) {
+			recurs = "classes/" + recurs;
+		}
+		if (!recurs.endsWith(".class")) {
+			recurs += ".class";
+		}
+		return recurs;
+	}
+
+	/** Adapta el nom de la classe d'un chandler a nom de recurs de tipus "classes/[package].[nomHandler].class"
+	 * 
+	 * @return
+	 */
+	public String resourceToHandler(String resource) {
+		String handler = resource;
+		if (handler.startsWith("classes/")) {
+			handler = handler.substring("classes/".length());
+		}
+		if (handler.endsWith(".class")) {
+			handler = handler.substring(0, handler.length() - ".class".length());
+		}
+		handler = handler.replace("/", ".");
+		return handler;
+	}
+
+	
 	/** Compta els expedients que existeixen per un expedientTipusId
 	 * Id
 	 * @param expedientTipusId

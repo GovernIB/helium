@@ -21,12 +21,12 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.util.IoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.asm.ClassReader;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
@@ -206,10 +206,13 @@ public class DissenyServiceImpl implements DissenyService {
 	}
 
     @Override
+	@Transactional(readOnly = true)
     public List<String> findHandlersJbpmOrdenats(Long definicioProcesId) {
 		Set<String> recursosNom = getHandlersNom(definicioProcesId);
-		List<String> handlers = new ArrayList<String>(recursosNom);
-		handlers.remove("processdefinition.xml");
+		List<String> handlers = new ArrayList<String>();
+		for (String recurs : recursosNom) {
+			handlers.add(expedientHelper.resourceToHandler(recurs));
+		}
 		java.util.Collections.sort(handlers);
 		return handlers;
     }
@@ -217,7 +220,9 @@ public class DissenyServiceImpl implements DissenyService {
     @Override
     public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler) {
 		List<ParellaCodiValorDto> parametres = new ArrayList<ParellaCodiValorDto>();
-		byte[] handlerContingut = getRecursContingut(definicioProcesId, handler);
+
+		String recurs = expedientHelper.handlerToResource(handler);
+		byte[] handlerContingut = getRecursContingut(definicioProcesId, recurs);
 
 		try {
 			ClassPool cp = ClassPool.getDefault();
@@ -937,15 +942,10 @@ public class DissenyServiceImpl implements DissenyService {
 		ZipEntry ze;
 		try {
 			DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
-			Map<String, Integer> existingResources = new HashMap<String, Integer>();
 			for (String recursNom : recursosNoms) {
 				recursContingut = this.getRecursContingut(definicioProces.getJbpmId(), recursNom);
 				if (recursContingut != null) {
-					String key = recursNom.replaceAll("\\.class$", "").replaceAll("/", ".");
-					Integer num = existingResources.get(key);
-					existingResources.put(key, num != null? num + 1 : 1);
-					String zipRecursNom = packageResource(recursNom, recursContingut, num);
-					ze = new ZipEntry(zipRecursNom);
+					ze = new ZipEntry(recursNom);
 					out.putNextEntry(ze);
 					out.write(recursContingut);
 					out.closeEntry();
@@ -960,19 +960,6 @@ public class DissenyServiceImpl implements DissenyService {
 		return baos.toByteArray();
 	}
 
-	private String packageResource(String resource, byte[] content, Integer num) {
-		if(content.length < 4)
-			return resource;
-		// Es comprova que el fitxer es un class de java
-		byte[] magicNumbers = {-54,-2,-70,-66};
-		for(int i = 0; i < 4; i++) {
-			if(magicNumbers[i] != content[i]) {
-				return resource;
-			}
-		}
-		
-		return  resource.replaceAll("\\.class$", "").replaceAll("\\.", "/") + (num != null? num : "") + ".class";
-	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -1264,11 +1251,13 @@ public class DissenyServiceImpl implements DissenyService {
 
 		try {
 			ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
-			Map<String, byte[]> handlers = processJarHandlersFile(zipInputStream);
+			Map<String, byte[]> recursos = processJarHandlersFile(zipInputStream);
 			// Actualitza els handlers de la darrera versió de la definició de procés
-			if (!handlers.isEmpty()) {
-				jbpmHelper.updateHandlers(Long.parseLong(definicioProces.getJbpmId()), handlers);
-				nomsHandlers.addAll(handlers.keySet());
+			if (!recursos.isEmpty()) {
+				jbpmHelper.updateHandlers(Long.parseLong(definicioProces.getJbpmId()), recursos);
+				for(String recurs : recursos.keySet()) {
+					nomsHandlers.add(expedientHelper.resourceToHandler(recurs));
+				}
 			}
 		} catch (Exception e) {
 			throw new DeploymentException(messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
@@ -1277,6 +1266,7 @@ public class DissenyServiceImpl implements DissenyService {
 
     }
 
+    /** Tracta les entrades del .zip i assegura que el nom del recurs sigui del tipus classes/package/nom.class.*/
 	private Map<String,byte[]> processJarHandlersFile(ZipInputStream zipInputStream) throws IOException {
 		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
 
@@ -1284,14 +1274,11 @@ public class DissenyServiceImpl implements DissenyService {
 		while (zipEntry != null) {
 			String nom = zipEntry.getName();
 			if (nom.endsWith(".class")) {
+				// Assegura que tingui el nom de recurs
+				nom = expedientHelper.handlerToResource(nom);
 				byte[] bytes = IoUtil.readBytes(zipInputStream);
 				if (bytes != null) {
-					ClassReader cr = new ClassReader(bytes);
-					//if ("net/conselldemallorca/helium/jbpm3/api/HeliumActionHandler".equalsIgnoreCase(cr.getSuperName())) {
-					//	handlers.put(nom.replace("/", ".").substring(0, nom.length() - 6), bytes);
-					//}
-					//handlers.put(nom.replace("/", ".").substring(0, nom.length() - 6), bytes);
-					handlers.put(nom.substring(0, nom.length() - 6), bytes);
+					handlers.put(nom, bytes);
 				}
 			}
 			zipEntry = zipInputStream.getNextEntry();
