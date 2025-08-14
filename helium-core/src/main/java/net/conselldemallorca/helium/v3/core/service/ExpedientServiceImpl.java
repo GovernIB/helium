@@ -3413,7 +3413,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		
 		try {
 			// Consulta l'arbre de processos
-			List<InstanciaProcesDto> arbreProcessos = expedientHelper.getArbreInstanciesProces(String.valueOf(expedient.getProcessInstanceId()));
+			String procesPrincipalId = String.valueOf(expedient.getProcessInstanceId());
+			List<InstanciaProcesDto> arbreProcessos = expedientHelper.getArbreInstanciesProces(procesPrincipalId);
 			// Llistat de noms dins del zip per no repetir-los.
 			Set<String> nomsArxius = new HashSet<String>();
 			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
@@ -3425,7 +3426,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						// Consulta l'arxiu del document
 						DocumentStore documentStore = documentStoreRepository.findOne(document.getId());
 						if (documentStore == null) {
-							errors.add("No s'ha pogut obtenir i adjuntar l'adjunt '" + document.getDocumentNom() + "'.");
+							errors.add("No s'ha pogut obtenir i adjuntar " + this.getZipDocumentErrorDesc(document, instanciaProces, procesPrincipalId) + ".");
 							continue;
 							//throw new NoTrobatException(DocumentStore.class, document.getId());
 						}
@@ -3445,9 +3446,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						if(arxiu == null) {
 							try {
 								arxiu = jbpm3HeliumService.getArxiuVersioOriginal(expedientId, document.getId());
-								avisos.add("No s'ha pogut obtenir la versió imprimible del document \"" + document.getDocumentNom() + "\", s'ha obtingut la versió original.");
+								avisos.add("No s'ha pogut obtenir la versió imprimible de " + this.getZipDocumentErrorDesc(document, instanciaProces, procesPrincipalId) + ", s'ha obtingut la versió original.");
 							} catch (Exception ex) {
-								errors.add("No s'ha pogut obtenir i adjuntar l'adjunt " + document.getDocumentNom() + ".");
+								errors.add("No s'ha pogut obtenir i adjuntar " + this.getZipDocumentErrorDesc(document, instanciaProces, procesPrincipalId) + ".");
 								continue;
 							}
 						}
@@ -3499,6 +3500,24 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		return baos.toByteArray();
 	}
 	
+    /** Mètode privat per completar la informació de l'error d'obtenció d'un document o adjunt segons si és del procés principal o no. */
+	private String getZipDocumentErrorDesc(ExpedientDocumentDto document, InstanciaProcesDto instanciaProces,
+			String procesPrincipalId) {
+		
+		StringBuilder documentDesc = new StringBuilder();
+		// Documento o adjunt
+		if (document.isAdjunt()) {
+			documentDesc.append("l'adjunt \"").append(document.getAdjuntTitol()).append("\"");
+		} else {
+			documentDesc.append("el document \"").append(document.getDocumentNom()).append("\"");
+		}
+		// Subprocés
+		if (!procesPrincipalId.equals(instanciaProces.getId())) {
+			documentDesc.append(" del subprocés ").append(instanciaProces.getId() + " - " + instanciaProces.getTitol());
+		}
+		return documentDesc.toString();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
