@@ -2272,14 +2272,14 @@ public class PluginHelper {
 			
 			
 			byte[] contingut = arxiu.getContingut();
-			ArxiuFirmaValidacioDetallDto firmaValidacio = null;
-			
-			if(arxiu.getTipusMime().equalsIgnoreCase("application/pdf"))
-				firmaValidacio = validaSignaturaObtenirDetalls(arxiu.getContingut(), null);
-			
-			if(firmaValidacio != null && !firmaValidacio.isValid()) {
-				contingut = documentHelperV3.removeSignaturesPdfUsingPdfWriterCopyPdf(contingut, arxiu.getTipusMime());
-			}
+//			ArxiuFirmaValidacioDetallDto firmaValidacio = null;
+//			
+//			if(arxiu.getTipusMime().equalsIgnoreCase("application/pdf"))
+//				firmaValidacio = validaSignaturaObtenirDetalls(arxiu.getContingut(), null);
+//			
+//			if(firmaValidacio != null && !firmaValidacio.isValid()) {
+//				contingut = documentHelperV3.removeSignaturesPdfUsingPdfWriterCopyPdf(contingut, arxiu.getTipusMime());
+//			}
 
 			FirmaResposta firmaResposta = getFirmaPlugin().firmar(
 					documentStore.getId().toString(),
