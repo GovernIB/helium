@@ -373,12 +373,14 @@
     }
 	
 	function validateFirma(self, tipus) {
+
+		var form = $(self).closest('form');
 		if(!${isArxiuActiu}) {
-			hideLoader();		
+			hideLoader();
+			$('button[type=submit]', form).removeAttr('disabled');
 			return;
 		}
 		
-		var form = $(self).closest('form');
 		var formData = new FormData(form[0]);
 		$('#firmaAlert').remove();
 		$('#firmaError').remove();

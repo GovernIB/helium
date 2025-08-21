@@ -74,7 +74,7 @@ div.procesDocument:hover {
 										<spring:message code="expedient.boto.nou_document"/>
 									</a>
 								</li>
-								<c:if test="${isPinbalActiu}">
+								<c:if test="${expedient.tipus.pinbalActiu}">
 									<li>
 										<a	id="a_nou_document_${proces.id}"
 											href="../../v3/expedient/${expedientId}/proces/${proces.id}/documentPinbal/new" 

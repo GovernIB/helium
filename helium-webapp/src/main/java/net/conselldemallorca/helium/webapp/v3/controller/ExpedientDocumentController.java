@@ -390,7 +390,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
 		model.addAttribute("portasignaturesPendent", portasignaturesPendent);
-		model.addAttribute("isPinbalActiu", expedient.getTipus().isPinbalActiu());
 		return "v3/procesDocuments";
 	}
 
@@ -1848,11 +1847,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				codisDocumentsExistents.add(documentExpedient.getDocumentCodi());
 			// Mira quins documents no s'han utilitzat i els retorna
 			for(DocumentDto document: documents) 
-				if (!codisDocumentsExistents.contains(document.getCodi())) // && !document.isPinbalActiu()
+				if (!codisDocumentsExistents.contains(document.getCodi()))
 					documentsNoUtilitzats.add(toDocumentInfo(document));
 		} else {
 			for(DocumentDto document: documents)
-//				if (!document.isPinbalActiu())
 					documentsNoUtilitzats.add(toDocumentInfo(document));
 		}
 		
