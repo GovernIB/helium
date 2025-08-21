@@ -159,17 +159,17 @@ $(document).ready(function() {
 			</div>
 			<div class="col-sm-3">
 				<div class="form-group">
-							<select title="expedientTipusId" id="expedientTipusId" name="expedientTipusId" class="form-control select2-allowclear">
-								<option value="" style="color:#999"><spring:message code="expedient.llistat.filtre.camp.expedient.tipus"/></option>
-								<c:forEach items="${expTipusAgrupatsPerEntornTableData}" var="expTipusEntorn">
-										<optgroup label="${expTipusEntorn.key.nom}">
-											<c:forEach items="${expTipusEntorn.value}" var="expTipus">
-												<option value="${expTipus.id}" ${expedientTipusEstadisticaCommand.expedientTipusId == expTipus.id? "selected='selected'" : ""} >${expTipus.nom}</option>
-											</c:forEach>			
-										</optgroup>
-								</c:forEach>										
-							</select>	
-					</div>
+					<select title="expedientTipusId" id="expedientTipusId" name="expedientTipusId" class="form-control select2-allowclear">
+						<option value="" style="color:#999"><spring:message code="expedient.llistat.filtre.camp.expedient.tipus"/></option>
+						<c:forEach items="${expTipusAgrupatsPerEntornTableData}" var="expTipusEntorn">
+								<optgroup label="${expTipusEntorn.key.nom}">
+									<c:forEach items="${expTipusEntorn.value}" var="expTipus">
+										<option value="${expTipus.id}" ${expedientTipusEstadisticaCommand.expedientTipusId == expTipus.id? "selected='selected'" : ""} >${expTipus.nom}</option>
+									</c:forEach>
+								</optgroup>
+						</c:forEach>
+					</select>
+				</div>
 			</div>
 			
 			<div class="col-md-4">

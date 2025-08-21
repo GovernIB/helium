@@ -119,7 +119,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		if(filtreCommand.getExpedientTipusId()!=null) {
 			expedientTipusSeleccionat= expedientTipusService.findAmbId(filtreCommand.getExpedientTipusId());
 		}		
-		LinkedHashMap<EntornDto, List<ExpedientTipusDto>> expTipusAgrupatsPerEntorn = new LinkedHashMap<EntornDto, List<ExpedientTipusDto>>();	
+		LinkedHashMap<EntornDto, List<ExpedientTipusDto>> expTipusAgrupatsPerEntorn = new LinkedHashMap<EntornDto, List<ExpedientTipusDto>>();
 		for(EntornDto entorn: entorns) {
 				expTipusAgrupatsPerEntorn.put(entorn,  expedientTipusService.findAmbEntorn(entorn.getId(),
 						(persona != null && persona.isAdmin())? false : true
@@ -145,11 +145,15 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NOMES_ANULATS))
 				anulats = true;
 			else if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NO))
-				anulats = false;			
+				anulats = false;
+		}
+		
+		if(persona == null || !persona.isAdmin()) {
+			filtreCommand.setEntornId(SessionHelper.getSessionManager(request).getEntornActual().getId());
 		}
 		
 		// Filtra els entorns
-		List<EntornDto>	entornsFiltre = new ArrayList<EntornDto>();
+		List<EntornDto> entornsFiltre = new ArrayList<EntornDto>();
 		if (filtreCommand.getEntornId() != null || expedientTipusSeleccionat!=null) {
 		// Cerca el dto de l'entorn
 			for (EntornDto entornFiltre : entorns) {
@@ -167,7 +171,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		//Reiniciem variables locals
 		estadisticaPerEntorn = new LinkedHashMap<String, Object>();
 		expTipusAgrupatsPerEntornTableData =  new LinkedHashMap<EntornDto, List<ExpedientTipusDto>>();
-
+		
 		for(EntornDto entornFiltre: entornsFiltre) {
 			for(EntornDto entorn: expTipusAgrupatsPerEntorn.keySet()) {
 				if(entorn.getId().equals(entornFiltre.getId())) {

@@ -20,6 +20,7 @@ import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -158,6 +159,13 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 						MissatgesHelper.error(
 			        			request,
 			        			getMessage(request, "error.iniciar.expedient") + " : " + ((TramitacioHandlerException)ex).getPublicMessage());
+					} else if (ex instanceof TransactionSystemException) {
+						Throwable appEx = ((TransactionSystemException)ex).getApplicationException();
+						if(appEx == null)
+							appEx = ex;
+						MissatgesHelper.error(
+								request,
+								getMessage(request, "error.iniciar.expedient") + " : " + appEx.getMessage());
 					} else {
 						MissatgesHelper.error(
 			        			request,
