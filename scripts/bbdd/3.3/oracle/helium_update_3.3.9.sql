@@ -1,3 +1,6 @@
+-- Helium 3.3.9
+
+-- #1887 Nova tasca en 2n pla per guardar expedients i documents pendents d'Arxiu
 ALTER TABLE HEL_EXPEDIENT ADD SYNC_REINTENTS NUMBER(19, 0);
 ALTER TABLE HEL_EXPEDIENT ADD SYNC_REINTENT_DATA TIMESTAMP(6);
 
