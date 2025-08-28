@@ -825,7 +825,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	}
 	
 	/**
-	 * Mètode per cercar i intentar mirgrar a arxiu tots els expedients pendents
+	 * Mètode per cercar i intentar mirgrar a arxiu tots els expedients pendents amb reintents
 	 */
 	@Override
 	@Transactional
@@ -833,6 +833,9 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		try {
 			String value = GlobalProperties.getInstance().getProperty("app.arxiu.migracio.reintents");
 			Long maxReintents = (value == null || value.isEmpty())? 0L : Long.parseLong(value);
+			if (maxReintents == 0L) {
+				return;
+			}
 			// Provam de migrar els expedients que pertanyen a un tipus amb integració amb arxiu activat 
 			// i no estiguin sicronitzats amb Arxiu
 			List<Long> expedientsPendents = expedientRepository.findPendentsArxiu(maxReintents);

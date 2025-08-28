@@ -652,12 +652,13 @@ public class AnotacioController extends BaseExpedientController {
 		try {
 			Throwable error = anotacioService.reprocessar(id);
 			if (error == null) {
+				AnotacioDto anotacio = anotacioService.findAmbId(id);
 				MissatgesHelper.success(
 						request,
 						getMessage(
 								request,
 								"anotacio.llistat.accio.reprocessar.success",
-								new Object[] {id}));
+								new Object[] {anotacio.getIdentificador()}));
 			} else {
 				MissatgesHelper.error(
 						request,

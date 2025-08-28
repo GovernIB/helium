@@ -919,9 +919,6 @@ public class ExpedientHelper {
         			&& pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
 	            // Obre de nou l'expedient tancat a l'arxiu.
 	            pluginHelper.arxiuExpedientReobrir(expedient.getArxiuUuid());
-	        } else {
-	            // Migra l'expedient a l'arxiu
-	        	migrarArxiu(expedient);
 	        }
         }
 	}
@@ -1013,11 +1010,6 @@ public class ExpedientHelper {
 			} catch(Exception ex) {
 				documentStore.setDocumentError(ex.getMessage());
 			}
-		}
-
-		if (expedient.getDataFi() != null) {
-			//Tancam expedient al arxiu, firmant els documents sense firma amb firma servidor
-			tancarExpedientArxiu(expedient, true);
 		}
 	}
 	

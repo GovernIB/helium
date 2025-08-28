@@ -1947,9 +1947,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				dto.setProcInstIds(
 						expedientService.findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 											entornId,
-											definicioExportat.getDefinicioProcesDto().getExpedientTipus() != null? 
-													definicioExportat.getDefinicioProcesDto().getExpedientTipus().getId() : null,
-													definicioExportat.getDefinicioProcesDto().getJbpmKey()));
+											command.getId(),
+											definicioExportat.getDefinicioProcesDto().getJbpmKey()));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					numExpRefrescar += dto.getProcInstIds().size();
 				} catch(Exception e) {

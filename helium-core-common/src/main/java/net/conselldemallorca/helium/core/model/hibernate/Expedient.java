@@ -173,7 +173,9 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	@MaxLength(32)
 	private String arxiuUuid;
 	
+	/** Data del darrer intent de sincronització amb l'Arxiu. */
 	private Date syncReintentData;
+	/** Número d'intents de sincronització amb l'Arxiu. */
 	private Long syncReintents;
 
 	public Expedient() {}

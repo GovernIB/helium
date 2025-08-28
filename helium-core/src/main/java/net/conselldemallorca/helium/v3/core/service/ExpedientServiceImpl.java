@@ -1606,16 +1606,22 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		if(isCurrentlyMigrating(id))
 			return;
 		
-		logger.debug("Migrar l'expedient (id=" + id + ") a l'arxiu");
+		Expedient expedient = null;
+		Long reintents = 1L;
 		try {
 			addCurrentlyMigrating(id);
-			self.syncArxiu(id, true);
-			self.syncDocumentsArxiu(id, true);
+			expedient = expedientRepository.findOne(id);
+			if (expedient.getSyncReintents() != null) {
+				reintents = expedient.getSyncReintents() + 1L;				
+			}
+			logger.debug("Intent " + reintents + " de sincronització de l'expedient (id=" + id + ") a l'Arxiu");
+			self.syncArxiu(id, false);
+			self.syncDocumentsArxiu(id, false);
 		} catch(Exception e) {
-			Expedient expedient = expedientRepository.findOne(id);
-			Long reintents = expedient.getSyncReintents();
-			expedient.setSyncReintentData(new Date());
-			expedient.setSyncReintents(reintents != null? reintents + 1 : 1);
+			if (expedient != null) {
+				expedient.setSyncReintentData(new Date());
+				expedient.setSyncReintents(reintents != null? reintents + 1 : 1);
+			}
 		} finally {
 			deleteCurrentlyMigrating(id);
 		}

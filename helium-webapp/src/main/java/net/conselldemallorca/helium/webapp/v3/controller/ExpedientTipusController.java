@@ -688,6 +688,9 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				definicioProcesService.relacionarDarreresVersions(expedientTipus.getId());
 				
 				if(command.isDesplegarDefinicions() && command.isActualitzarExistents()) {
+					if (command.getId() == null) {
+						command.setId(expedientTipus.getId());
+					}
 					int numExpRefrescar = expedientTipusService.refrescaProcessExpedients(
 							entornActual.getId(),
 							expCommandDto,
