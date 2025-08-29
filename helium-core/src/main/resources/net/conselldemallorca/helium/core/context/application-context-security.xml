@@ -37,6 +37,12 @@
 		<intercept-url pattern="/rest/portafib/callback/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/rest/portafib/callback/event" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/rest/portafib/callback/versio" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		
+		<!-- API Salut -->
+		<intercept-url pattern="/rest/appInfo" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/salut" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/salutPerformance" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		
 		<!-- Selenium-integraciones.begin -->
 		<intercept-url pattern="/ws/CustodiaDocumentos" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/portafirmas" access="IS_AUTHENTICATED_ANONYMOUSLY" />

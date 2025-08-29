@@ -19,6 +19,7 @@
 		<pattern>/v3/metrics*</pattern>
 		<pattern>/rest/notib*</pattern>
 		<pattern>/rest/portafib*</pattern>
+		<pattern>/rest/salutPerformance*</pattern>
 	</excludes>
 	<decorator name="viewerPdfDecorator" page="viewerPdfDecorator.jsp">
 		<pattern>*/viewer.html*</pattern>

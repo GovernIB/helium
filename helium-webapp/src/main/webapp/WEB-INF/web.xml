@@ -184,6 +184,10 @@
 			<url-pattern>/rol/test.html</url-pattern>
 			<!-- Integració Distribucio -->
 			<url-pattern>/ws/distribucio/backoffice</url-pattern>
+			<!-- API Salut -->
+			<url-pattern>/rest/appInfo</url-pattern>
+			<url-pattern>/rest/salut</url-pattern>
+			<url-pattern>/rest/salutPerformance</url-pattern>
 		</web-resource-collection>
 	</security-constraint>
 	<!-- security-constraint.end -->
