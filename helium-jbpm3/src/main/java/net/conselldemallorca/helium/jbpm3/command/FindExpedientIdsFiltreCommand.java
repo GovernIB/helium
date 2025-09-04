@@ -461,7 +461,9 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			int firstResult,
 			int maxResults) {
 		query.setParameter("entornId", entornId);
-		query.setParameterList("tipusIdPermesos", tipusIdPermesos);
+		if (tipusIdPermesos != null && !tipusIdPermesos.isEmpty()) {
+			query.setParameterList("tipusIdPermesos", tipusIdPermesos);
+		}
 		if(unitatsPerTipusComu !=null && !unitatsPerTipusComu.isEmpty()) {
 			// en subllistes
 			List<Long> codisUos;
