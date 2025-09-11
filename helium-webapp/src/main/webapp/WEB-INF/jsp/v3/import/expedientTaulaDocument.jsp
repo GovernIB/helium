@@ -59,13 +59,6 @@
 											<td class="tableDocumentsTd">
 											
 												<c:if test="${document.arxiuExtensio == 'pdf' or document.arxiuExtensio == 'pdt' or document.arxiuExtensio == 'docx' or document.arxiuExtensio == 'odt'}">
-													<!-- <a	href="JavaScript:;"
-														name="previsDocLink${document.id}"
-														onclick="previsualitzaDocument('${expedient.id}', '${document.id}', this, '${document.arxiuExtensio}');"
-														class="previs-icon fa-stack"
-														style="font-size:1.31em; margin-top:-5px;">
-														  <i class="fa fa-file-o fa-stack-2x"></i><i class="fa fa-search fa-stack-1x" title="Previsualitzar"></i>
-													</a> -->
 													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/preview"
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-maximize="true"
