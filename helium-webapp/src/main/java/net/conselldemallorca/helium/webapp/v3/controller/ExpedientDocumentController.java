@@ -886,6 +886,42 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "v3/expedientDocumentForm";
 	}
 
+	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/preview", method = RequestMethod.GET)
+	public String previewDocGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		return previewGet(request, expedientId, null, documentStoreId, model);
+	}
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/preview", method = RequestMethod.GET)
+	public String previewGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+
+		model.addAttribute("expedientId", expedientId);
+		model.addAttribute("documentStoreId", documentStoreId);
+		model.addAttribute("processInstanceId", processInstanceId);
+		
+		String documentNom = null;
+		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+				expedientId,
+				processInstanceId,
+				documentStoreId);
+		if (document.isAdjunt()) {
+			documentNom = document.getAdjuntTitol();
+		} else {
+			documentNom = document.getDocumentNom();
+		}
+		
+		model.addAttribute("documentNom", documentNom);
+		
+		return "v3/expedientDocumentPreview";
+	}
+	
 	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/update", method = RequestMethod.POST)
 	public String updateDocPost(
 			HttpServletRequest request,
