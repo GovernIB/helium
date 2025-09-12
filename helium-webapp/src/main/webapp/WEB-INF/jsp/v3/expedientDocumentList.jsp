@@ -279,8 +279,9 @@
 					{{if anotacioId != null}}<span id="anotacio_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.info.etiqueta.anotacio.title' arguments='{{:anotacioIdf}}'/>"><spring:message code="expedient.document.info.etiqueta.anotacio"/></span>{{/if}}
 					<%--Doc Invàlid--%>
 					{{if !docValid}}
-						<span class="label label-danger label-doc" title="<spring:message code='expedient.document.invalid' arguments='{{:docError}}'/>"><span class="fa fa-exclamation-triangle></span></span>
+						<span class="label label-danger label-doc" title="<spring:message code='expedient.document.invalid' arguments='{{:docError}}'/>"><span class="fa fa-exclamation-triangle"></span></span>
 					{{/if}}
+					
 				{{/if}}
 			</script>
 		</th>
