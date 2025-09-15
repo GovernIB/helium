@@ -707,6 +707,7 @@ dd.subproc {
 				<c:if test="${expedient.tipus.notibActiu}">
 					<li id="pipella-notificacions"><a href="#contingut-notificacions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.notificacions"/></a></li>
 				</c:if>
+				<li id="pipella-signatures"><a href="#contingut-signatures" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.signatura"/></a></li>
 				<c:if test="${expedient.tipus.distribucioActiu}">
 					<li id="pipella-anotacions"><a href="#contingut-anotacions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.anotacions"/></a></li>
 				</c:if>
@@ -761,6 +762,9 @@ dd.subproc {
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>
+				<div id="contingut-signatures" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/signatures"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>
 				<c:if test="${expedient.tipus.distribucioActiu}">
 					<div id="contingut-anotacions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/anotacio"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
