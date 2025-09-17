@@ -99,7 +99,7 @@ public class MonitorTasquesServiceImpl implements MonitorTasquesService {
 
 
 	@Override
-	public void reiniciarTasquesEnSegonPla() {
+	public void reiniciarTasquesEnSegonPla(String codiTasca) {
 		List<MonitorTascaInfo> tasques = this.findAll();
 		for (MonitorTascaInfo tasca : tasques) {
 			tasca.setEstat(MonitorTascaEstatEnum.EN_ESPERA);

@@ -1,11 +1,15 @@
 package net.conselldemallorca.helium.v3.core.config;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
@@ -25,17 +29,39 @@ import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 @EnableScheduling
 public class TascaProgramadaConfig implements SchedulingConfigurer {
 
-    @Autowired
-    TaskScheduler taskScheduler;
+	public static final String comprovarExecucionsMassives = "comprovarExecucionsMassives";
+	public static final String comprovarReindexacioAsincrona = "comprovarReindexacioAsincrona";
+	public static final String comprovarAnotacionsPendents = "comprovarAnotacionsPendents";
+	public static final String processarAnotacionsAutomatiques = "processarAnotacionsAutomatiques";
+	public static final String actualitzarUnitatsIProcediments = "actualitzarUnitatsIProcediments";
+	public static final String updatePeticionsAsincronesPinbal = "updatePeticionsAsincronesPinbal";
+	public static final String comprovarEmailAnotacionsNoAgrupats = "comprovarEmailAnotacionsNoAgrupats";
+	public static final String comprovarEmailAnotacionsAgrupats = "comprovarEmailAnotacionsAgrupats";
+	public static final String migrarExpedientsArxiu = "migrarExpedientsArxiu";
+
+	@Autowired
+    private TaskScheduler taskScheduler;
+	@Autowired
+	private ApplicationContext applicationContext;
 
     @Autowired
     private MonitorTasquesService monitorTasquesService;
     
-    @Autowired
-    private TascaProgramadaService tascaProgramadaService;
+    /** Per evitar referÃ¨ncies circulars. */
+    private TascaProgramadaService tascaProgramadaService = null;
+    private TascaProgramadaService getTascaProgramadaService() {
+    	if (tascaProgramadaService == null ) {
+    		tascaProgramadaService = applicationContext.getBean(TascaProgramadaService.class);
+    	}
+    	return tascaProgramadaService;
+    }
     
     private ScheduledTaskRegistrar taskRegistrar;
     
+    // Map amb les tasques enregistrades i les planificacions
+    private final Map<String, Runnable> tasks = new HashMap<String, Runnable>();
+    private final Map<String, ScheduledFuture<?>> scheduledTasks = new HashMap<String, ScheduledFuture<?>>();
+
     
     public void reiniciarTasquesSegonPla() {
     	if (taskRegistrar != null) {

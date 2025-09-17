@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.scheduling.annotation.Async;
@@ -77,6 +78,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
+import net.conselldemallorca.helium.v3.core.config.TascaProgramadaConfig;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioEmailRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
@@ -102,6 +104,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		self = applicationContext.getBean(TascaProgramadaService.class);
 	}
 
+	@Autowired
+	private TascaProgramadaConfig tascaProgramadaConfig;
 	
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
@@ -864,5 +868,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		}
 	}
 			
-	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
+	@Override
+	public void restartSchedulledTasks(String taskCodi) {
+		tascaProgramadaConfig.restartSchedulledTasks(taskCodi);
+	}
+
+	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);	
 }

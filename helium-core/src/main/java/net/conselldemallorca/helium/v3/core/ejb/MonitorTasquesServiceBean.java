@@ -9,11 +9,7 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AvisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MonitorTascaInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.service.AvisService;
 import net.conselldemallorca.helium.v3.core.api.service.MonitorTasquesService;
 
 /**
@@ -75,8 +71,8 @@ public class MonitorTasquesServiceBean implements MonitorTasquesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void reiniciarTasquesEnSegonPla() {
-		delegate.reiniciarTasquesEnSegonPla();
+	public void reiniciarTasquesEnSegonPla(String codiTasca) {
+		delegate.reiniciarTasquesEnSegonPla(codiTasca);
 	}
 
 
