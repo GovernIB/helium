@@ -102,7 +102,9 @@ public class MonitorTasquesServiceImpl implements MonitorTasquesService {
 	public void reiniciarTasquesEnSegonPla(String codiTasca) {
 		List<MonitorTascaInfo> tasques = this.findAll();
 		for (MonitorTascaInfo tasca : tasques) {
-			tasca.setEstat(MonitorTascaEstatEnum.EN_ESPERA);
+			if (tasca.getCodi().equals(codiTasca) || "totes".equals(codiTasca)) {
+				tasca.setEstat(MonitorTascaEstatEnum.EN_ESPERA);
+			}
 		}
 	}
 	private static final Logger logger = LoggerFactory.getLogger(MonitorTasquesServiceImpl.class);

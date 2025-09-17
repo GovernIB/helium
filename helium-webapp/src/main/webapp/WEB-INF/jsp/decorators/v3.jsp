@@ -410,7 +410,7 @@
 									  <li><a 
 									     data-toggle="modal"
 									     data-maximized="true"
-									     href="<c:url value='/modal/v3/tasca-segon-pla'/>">
+									     href="<c:url value='/modal/v3/tascaSegonPla'/>">
 									     <spring:message code='decorator.menu.administracio.tasques.segonPla' />
 									  </a></li>
 									</c:if>

@@ -50,5 +50,9 @@ public interface TascaProgramadaService {
 	 * Mètode periòdic per migrar expedients i documents a Arxiu
 	 */
 	public void migrarExpedientsDocumentsArxiu();
+
+	/** Reinicia una tasca programada. */
+	void restartSchedulledTasks(String taskCodi);
+
 	
 }

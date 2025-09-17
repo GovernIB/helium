@@ -25,16 +25,15 @@ import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 
 /**
- * Controlador per a la pàgina d'informació de l'expedient.
+ * Controlador per poder llistar, consultar i reiniciar les diferents tasques en segon pla d'Helium.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/tasca-segon-pla")
-public class ScheduledController extends BaseController {
+@RequestMapping("/v3/tascaSegonPla")
+public class TascaSegonPlaController extends BaseController {
 
 	@Autowired
 	private MonitorTasquesService monitorTasquesService;
@@ -44,7 +43,7 @@ public class ScheduledController extends BaseController {
 	    
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String schedulingGet(HttpServletRequest request, Model model) {
-    	return "v3/segonPla";
+    	return "v3/tascaSegonPla";
     }  
     
     @RequestMapping(value = "/datatable", method = RequestMethod.GET)
@@ -74,10 +73,9 @@ public class ScheduledController extends BaseController {
     	
     	try {
     		//Posa la tasca en espera
-    		monitorTasquesService.reiniciarTasquesEnSegonPla(id);
-    		
+    		monitorTasquesService.reiniciarTasquesEnSegonPla(id);    		
     		//Reprograma la tasca
-//    		tascaProgramadaService.restartSchedulledTasks(id);
+    		tascaProgramadaService.restartSchedulledTasks(id);
     		
     		if (!"totes".equals(id)) {
     			String nomTasca = getMessage(request, "administracio.tasquesSegonPla.codi."+id);

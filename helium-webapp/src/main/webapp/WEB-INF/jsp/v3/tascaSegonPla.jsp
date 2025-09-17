@@ -33,7 +33,7 @@
 			if (!codi || codi==null) codi='totes';
 			$.ajax({
 				type: 'GET',
-				url: '<c:url value="/v3/tasca-segon-pla/restart/' + codi + '"/>',
+				url: '<c:url value="/v3/tascaSegonPla/restart/' + codi + '"/>',
 				async: true,
 				success: function(data) {
 				        webutilRefreshMissatges();
@@ -55,7 +55,7 @@
 	<table 
 		id="tasquesTable" 
 		data-toggle="datatable"
-		data-url="<c:url value="/v3/tasca-segon-pla/datatable"/>" 
+		data-url="<c:url value="/v3/tascaSegonPla/datatable"/>" 
 		data-search-enabled="false"
 		data-botons-template="#tasquesTableBotoTots"
 		data-save-state="true"
