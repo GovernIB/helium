@@ -1755,7 +1755,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.signat(document.isSignat())
 				.registrat(document.isRegistrat())
 				.deAnotacio(document.getAnotacioId() != null)
-				.notificat(document.isNotificat())
+				//.notificat(document.isNotificat())
 				.deAnotacio(document.getAnotacioId() != null);
 
 
@@ -1880,14 +1880,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 
 		// Notificacio
-		if (document.isNotificat()) {
-			 List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+		 List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+		 if (!enviaments.isEmpty()) {
 			 List<DadesNotificacioDto> notificaionsDetalls = new ArrayList<DadesNotificacioDto>();
 			 for (DocumentNotificacio enviament: enviaments) {
 				 notificaionsDetalls.add(notificacioHelper.toDadesNotificacioDto(enviament, expedient.isArxiuActiu()));
 			 }
 			 documentDetallBuilder.notificacions(notificaionsDetalls);
-		}
+			 documentDetallBuilder.notificat(!notificaionsDetalls.isEmpty());
+		 }
 
 		return documentDetallBuilder.build();
 	}
