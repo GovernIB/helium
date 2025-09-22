@@ -509,14 +509,16 @@
 					<span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/>
 			</a>
 								</li>
-								<li>
-									<a 	id="a_nou_document_${proces.id}"
-										href="${expedient.id}/documentPinbal/new"
-										data-toggle="modal">
-										<span class="fa fa-file-text-o"></span>
-										<spring:message code="expedient.boto.nou_documentPinbal"/>
-									</a>
-								</li>
+								<c:if test="${isPinbalActiu}">
+									<li>
+										<a 	id="a_nou_document_${proces.id}"
+											href="${expedient.id}/documentPinbal/new"
+											data-toggle="modal">
+											<span class="fa fa-file-text-o"></span>
+											<spring:message code="expedient.boto.nou_documentPinbal"/>
+										</a>
+									</li>
+								</c:if>
 							</ul>
 						</div>
 
