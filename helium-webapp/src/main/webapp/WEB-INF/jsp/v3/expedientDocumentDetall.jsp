@@ -192,12 +192,12 @@
 					<c:if test="${not empty psigna.motiuRebuig}">
 					<tr><td><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></td>			<td>${psignaMotiu}</td>	</tr>
 					</c:if>
-					<c:if test="${not empty psigna.dataProcessamentPrimer}">
+					<%-- <c:if test="${not empty psigna.dataProcessamentPrimer}"> --%>
 					<tr><td><spring:message code="common.icones.doc.psigna.data.proces.primer"/></td>	<td>${psignaPrimer}</td></tr>
-					</c:if>
-					<c:if test="${not empty psigna.dataProcessamentDarrer}">
+					<%-- </c:if>
+					<c:if test="${not empty psigna.dataProcessamentDarrer}"> --%>
 					<tr><td><spring:message code="common.icones.doc.psigna.data.proces.darrer"/></td>	<td>${psignaDarrer}</td></tr>
-					</c:if>
+					<%-- </c:if> --%>
 				</tbody>
 			</table>
 
@@ -212,7 +212,7 @@
 							<p class="mb-0">Document amb error: <span class="text-danger text-sm font-weight-bolder"><spring:message code="expedient.document.rebutjat.psigna.error" /></span></p>
 						</c:when>
 						<c:otherwise>
-							<p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">PENDENT de Portasignatures</span></p>
+							<p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">${psignaEstat} de Portasignatures</span></p>
 						</c:otherwise>
 					</c:choose>
 				</c:when>
