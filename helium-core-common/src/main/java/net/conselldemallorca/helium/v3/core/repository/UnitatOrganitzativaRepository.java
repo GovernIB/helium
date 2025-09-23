@@ -151,5 +151,8 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 			@Param("esNullFiltreCodi") boolean esNullFiltreCodi,
 			@Param("filtre") String filtre);
 	
-	
+	@Query("select uo.codi from UnitatOrganitzativa uo "
+			)
+	List<String> findAllCodis();
+
 }

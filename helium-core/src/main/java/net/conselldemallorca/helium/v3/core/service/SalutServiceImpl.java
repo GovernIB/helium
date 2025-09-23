@@ -9,9 +9,14 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
@@ -21,25 +26,29 @@ import org.hyperic.sigar.FileSystem;
 import org.hyperic.sigar.FileSystemUsage;
 import org.hyperic.sigar.Mem;
 import org.hyperic.sigar.Sigar;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 
-import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Avis;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.AppInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.ContextInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.DetallSalut;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.EstatSalut;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.EstatSalutEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.IntegracioApp;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.IntegracioInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.IntegracioSalut;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.Manual;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.MissatgeSalut;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.SalutInfo;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.AppInfo;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.ContextInfo;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.DetallSalut;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.EstatSalut;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.EstatSalutEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioApp;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioInfo;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioPeticions;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioSalut;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.Manual;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.MissatgeSalut;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.SalutInfo;
 import net.conselldemallorca.helium.v3.core.api.service.SalutService;
 import net.conselldemallorca.helium.v3.core.repository.AvisRepository;
 
@@ -48,11 +57,14 @@ public class SalutServiceImpl implements SalutService {
 
 	private static final int MAX_CONNECTION_RETRY = 3;
 	
-	@Autowired
-	private PluginHelper pluginHelper;
-
+//	@Autowired
+//	private PluginHelper pluginHelper;
+	
 	@Resource
 	private AvisRepository avisRepository;
+	@Resource
+	MonitorIntegracioHelper monitorIntegracioHelper;
+	
 	
 	@Override
 	public List<IntegracioInfo> getIntegracions() {
@@ -113,7 +125,7 @@ public class SalutServiceImpl implements SalutService {
 		}
 
 		return SalutInfo.builder()
-				.codi("NOT")
+				.codi("HEL")
 				.versio(versio)
 				.data(new Date())
 				.estat(estatSalut)
@@ -131,7 +143,7 @@ public class SalutServiceImpl implements SalutService {
 
 		long start = System.currentTimeMillis();
 		EstatSalutEnum estat = EstatSalutEnum.UP;
-		String response = null;
+		//String response = null;
 		for (int i = 1; i <= MAX_CONNECTION_RETRY; i++) {
 			try {
 				// restTemplate.getForObject(performanceUrl, String.class);
@@ -151,9 +163,15 @@ public class SalutServiceImpl implements SalutService {
 	}
 
 	private EstatSalut checkDatabase() {
+		long start = System.currentTimeMillis();
 		try {
-			long start = System.currentTimeMillis();
-			JdbcTemplate jdbcTemplate = new JdbcTemplate();
+			Context initContext = new InitialContext();
+			String dataSourceJndi = "java:/es.caib.helium.db";
+			if (isDesplegamentTomcat())
+				dataSourceJndi = "java:/comp/env/jdbc/HeliumDS";
+			DataSource ds = (DataSource)initContext.lookup(dataSourceJndi);
+			
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
 			jdbcTemplate.execute("SELECT 1 AS x FROM DUAL");
 			long end = System.currentTimeMillis();
 			Long latency = end - start;
@@ -162,19 +180,133 @@ public class SalutServiceImpl implements SalutService {
 					.latencia(latency.intValue())
 					.build();
 		} catch (Exception e) {
-			return EstatSalut.builder().estat(EstatSalutEnum.DOWN).build();
+			long end = System.currentTimeMillis();
+			Long latency = end - start;
+			return EstatSalut.builder()
+					.estat(EstatSalutEnum.DOWN)
+					.latencia(latency.intValue())
+					.build();
 		}
+	}
+	
+	private boolean isDesplegamentTomcat() {
+		String desplegamentTomcat = GlobalProperties.getInstance().getProperty("app.domini.desplegament.tomcat");
+		return "true".equalsIgnoreCase(desplegamentTomcat);
 	}
 
 	private List<IntegracioSalut> checkIntegracions() {
-		// TODO: falta implementació
-		return new ArrayList<IntegracioSalut>();
+		Date now = new Date();
+		List<IntegracioSalut> integracions = new ArrayList<IntegracioSalut>();
+		for(IntegracioInfo integracio : getIntegracions()) {
+			Map<String, IntegracioPeticions> peticionsPerEntorn = new HashMap<String, IntegracioPeticions>();
+			Map<String, List<Long>> totalPerEntorn = new HashMap<String, List<Long>>();
+			
+			List<IntegracioAccioDto> requests = monitorIntegracioHelper.findAccionsByIntegracioCodi(getMonitorIntegracioHelper(integracio.getCodi()));
+			Integer latencia = 0;
+			EstatSalutEnum estat = EstatSalutEnum.UNKNOWN;
+			
+			int totalOk = 0;
+			int totalError = 0;
+			long totalTempsMig = 0;
+			Long peticionsOkUltimPeriode = 0l;
+			Long peticionsErrorUltimPeriode = 0l;
+			List<Long> tempsMigUltimPeriode = new ArrayList<Long>();
+			
+			for(IntegracioAccioDto request : requests) {
+				Long entornId = request.getEntornId();
+				String entornIdStr = entornId != null? entornId.toString() : "";
+				IntegracioPeticions entornIntegracions = peticionsPerEntorn.get(entornIdStr);
+				if(entornIntegracions == null) {
+					entornIntegracions = IntegracioPeticions.builder()
+											.totalOk(0l)
+											.totalError(0l)
+											.totalTempsMig(0)
+											.peticionsOkUltimPeriode(0l)
+											.peticionsErrorUltimPeriode(0l)
+											.tempsMigUltimPeriode(0)
+											.build();
+					peticionsPerEntorn.put(entornIdStr, entornIntegracions);
+				}
+				if(totalPerEntorn.get(entornIdStr) == null) {
+					totalPerEntorn.put(entornIdStr, new ArrayList<Long>());
+				}
+				
+				totalTempsMig += request.getTempsResposta();
+				
+				entornIntegracions.setTotalTempsMig(entornIntegracions.getTotalTempsMig() + Long.valueOf(request.getTempsResposta()).intValue());
+//				boolean isInPeriode = DateUtils.truncatedCompareTo(request.getData(), inici, Calendar.DATE) >= 0 
+//										&& DateUtils.truncatedCompareTo(request.getData(), inici, Calendar.DATE) >= 0;
+				
+				boolean isInPeriode = DateUtils.isSameDay(now, request.getData());
+				
+				if(isInPeriode) {
+					tempsMigUltimPeriode.add(request.getTempsResposta());
+				}
+				
+				if(request.getTipus() == IntegracioAccioTipusEnumDto.ENVIAMENT) {
+					latencia = Long.valueOf(request.getTempsResposta()).intValue();
+					if(request.getEstat() == IntegracioAccioEstatEnumDto.OK) {
+						estat = EstatSalutEnum.UP;
+						totalOk++;
+						entornIntegracions.setTotalOk(entornIntegracions.getTotalOk()+1);
+						if(isInPeriode) {
+							entornIntegracions.setPeticionsOkUltimPeriode(entornIntegracions.getPeticionsOkUltimPeriode()+1);
+							peticionsOkUltimPeriode++;
+						}
+					} else {
+						// TODO: S'ha de comprovar a la darrera crida s'ha caigut el sistema extern
+						estat = EstatSalutEnum.DOWN;
+						totalError++;
+						entornIntegracions.setTotalError(entornIntegracions.getTotalError()+1);
+						if(isInPeriode) {
+							entornIntegracions.setPeticionsErrorUltimPeriode(entornIntegracions.getPeticionsErrorUltimPeriode() + 1);
+							peticionsErrorUltimPeriode++;
+						}
+					}
+				}
+			}
+			
+			for(String key : peticionsPerEntorn.keySet()) {
+				IntegracioPeticions integracioEntorn = peticionsPerEntorn.get(key);
+				integracioEntorn.setTempsMigUltimPeriode(calculaMitga(totalPerEntorn.get(key)).intValue());
+			}
+			
+			integracions.add(
+				IntegracioSalut
+					.builder()
+					.codi(integracio.getCodi())
+					.latencia(latencia)
+					.estat(estat)
+					.peticions(IntegracioPeticions
+							.builder()
+							.peticionsPerEntorn(peticionsPerEntorn)
+							.totalError(totalError)
+							.totalOk(totalOk)
+							.totalTempsMig(Long.valueOf(requests.isEmpty()? 0 : totalTempsMig / requests.size()).intValue())
+							.peticionsErrorUltimPeriode(peticionsErrorUltimPeriode)
+							.peticionsOkUltimPeriode(peticionsOkUltimPeriode)
+							.tempsMigUltimPeriode(calculaMitga(tempsMigUltimPeriode).intValue())
+							.endpoint(getIntegracioEndpoint(integracio.getCodi()))
+							.build())
+					.build());
+		}
+		
+		return integracions;
+	}
+	
+	private Long calculaMitga(List<Long> nums) {
+		if(nums == null || nums.isEmpty()) return 0l;
+		long total = 0l;
+		for(Long num : nums) {
+			total += num;
+		}
+		return total / nums.size();
 	}
 
 	public List<DetallSalut> checkAltres() {
 		OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
 		// Nombre de cores (CPU)
-		int availableProcessors = osBean.getAvailableProcessors();
+		//int availableProcessors = osBean.getAvailableProcessors();
 		String os = osBean.getName() + " " + osBean.getVersion() + " (" + osBean.getArch() + ")";
 		
 		try {
@@ -201,11 +333,6 @@ public class SalutServiceImpl implements SalutService {
 					break;
 				}
 			}
-		
-			System.out.println("CPU User Time: " + CpuPerc.format(cpu.getUser()));
-			System.out.println("CPU System Time: " + CpuPerc.format(cpu.getSys()));
-			System.out.println("CPU Idle Time: " + CpuPerc.format(cpu.getIdle()));
-			System.out.println("CPU Combined: " + CpuPerc.format(cpu.getCombined()));
 			
 			return Lists.newArrayList(
 			DetallSalut.builder().codi("PRC").nom("Processadors").valor(String.valueOf(Runtime.getRuntime().availableProcessors())).build(),
@@ -311,6 +438,58 @@ public class SalutServiceImpl implements SalutService {
 
 		// Afegir el directori temporal al java.library.path
 		System.load(tempLib.getAbsolutePath());
+	}
+	
+	private String getMonitorIntegracioHelper(String codi) {
+		if(codi == null) return null;
+		switch(IntegracioApp.valueOf(codi)) {
+		case ARX:
+			return MonitorIntegracioHelper.INTCODI_ARXIU;
+		case AFI:
+			return MonitorIntegracioHelper.INTCODI_FIRMA;
+		case VFI:
+			return MonitorIntegracioHelper.INTCODI_FIRMA_SERV;
+		case NOT:
+			return MonitorIntegracioHelper.INTCODI_NOTIB;
+		case PBL:
+			return MonitorIntegracioHelper.INTCODI_PINBAL;
+		case PFI:
+			return MonitorIntegracioHelper.INTCODI_PFIRMA;
+		case REG:
+			return MonitorIntegracioHelper.INTCODI_REGISTRE;
+		case RSC:
+			return MonitorIntegracioHelper.INTCODI_PROCEDIMENT;
+		case DIS:
+			return MonitorIntegracioHelper.INTCODI_DISTRIBUCIO;
+		default:
+			return null;
+		}
+	}
+	
+	private String getIntegracioEndpoint(String codi) {
+		if(codi == null) return null;
+		switch(IntegracioApp.valueOf(codi)) {
+		case ARX:
+			return GlobalProperties.getInstance().getProperty("app.plugin.arxiu.caib.base.url");
+		case AFI:
+			return GlobalProperties.getInstance().getProperty("app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_url");
+		case VFI:
+			return GlobalProperties.getInstance().getProperty("app.plugins.validatesignature.afirmacxf.endpoint");
+		case NOT:
+			return GlobalProperties.getInstance().getProperty("app.notificacio.plugin.url");
+		case PBL:
+			return GlobalProperties.getInstance().getProperty("app.pinbal.plugin.url");
+		case PFI:
+			return GlobalProperties.getInstance().getProperty("app.plugin.passarelafirma.1.plugins.signatureweb.portafib.apifirmawebsimple.endpoint");
+		case REG:
+			return GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.url");
+		case RSC:
+			return GlobalProperties.getInstance().getProperty("app.plugins.procediments.rolsac.service.url");
+		case DIS:
+			return GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");
+		default:
+			return null;
+		}
 	}
 	
 	private static final Log logger = LogFactory.getLog(SalutServiceImpl.class);

@@ -2,10 +2,10 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.v3.core.api.dto.salut.AppInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.ContextInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.IntegracioInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.SalutInfo;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.AppInfo;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.ContextInfo;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioInfo;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.SalutInfo;
 
 public interface SalutService {
 	public List<IntegracioInfo> getIntegracions();

@@ -230,6 +230,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			@Param("expedientsTipusIds") List<Long> expedientsTipusIds,		
 			Pageable pageable
 			);
-    
+
+	@Query("SELECT et.codi FROM ExpedientTipus et")
+	public List<String> findAllCodis();
 
 }
