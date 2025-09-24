@@ -63,7 +63,8 @@ public class SalutServiceImpl implements SalutService {
 	@Resource
 	private AvisRepository avisRepository;
 	@Resource
-	MonitorIntegracioHelper monitorIntegracioHelper;
+	private MonitorIntegracioHelper monitorIntegracioHelper;
+	private Date lastCheckout;
 	
 	
 	@Override
@@ -195,7 +196,6 @@ public class SalutServiceImpl implements SalutService {
 	}
 
 	private List<IntegracioSalut> checkIntegracions() {
-		Date now = new Date();
 		List<IntegracioSalut> integracions = new ArrayList<IntegracioSalut>();
 		for(IntegracioInfo integracio : getIntegracions()) {
 			Map<String, IntegracioPeticions> peticionsPerEntorn = new HashMap<String, IntegracioPeticions>();
@@ -234,10 +234,8 @@ public class SalutServiceImpl implements SalutService {
 				totalTempsMig += request.getTempsResposta();
 				
 				entornIntegracions.setTotalTempsMig(entornIntegracions.getTotalTempsMig() + Long.valueOf(request.getTempsResposta()).intValue());
-//				boolean isInPeriode = DateUtils.truncatedCompareTo(request.getData(), inici, Calendar.DATE) >= 0 
-//										&& DateUtils.truncatedCompareTo(request.getData(), inici, Calendar.DATE) >= 0;
 				
-				boolean isInPeriode = DateUtils.isSameDay(now, request.getData());
+				boolean isInPeriode = lastCheckout == null || request.getData().after(lastCheckout);
 				
 				if(isInPeriode) {
 					tempsMigUltimPeriode.add(request.getTempsResposta());
@@ -290,7 +288,7 @@ public class SalutServiceImpl implements SalutService {
 							.build())
 					.build());
 		}
-		
+		lastCheckout = new Date();
 		return integracions;
 	}
 	
