@@ -1,4 +1,4 @@
-package net.conselldemallorca.helium.v3.core.api.dto.salut;
+package net.conselldemallorca.helium.v3.core.api.dto.comanda;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DetallSalut {
-	private String codi;
+public class Manual {
 	private String nom;
-	private String valor;
+	private String path;
 }

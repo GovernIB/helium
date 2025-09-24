@@ -1,4 +1,4 @@
-package net.conselldemallorca.helium.v3.core.api.dto.salut;
+package net.conselldemallorca.helium.v3.core.api.dto.comanda;
 
 import java.util.Date;
 import java.util.List;

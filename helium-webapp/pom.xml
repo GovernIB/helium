@@ -873,6 +873,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
+				<version>3.3.2</version>
 				<configuration>
 					<warName>helium</warName>
 					<webXml>target/replace-dir/WEB-INF/web.xml</webXml>
@@ -901,6 +902,15 @@
 							<filtering>true</filtering>
 						</webResource>
 					</webResources>
+					<archive>
+						<manifestEntries>
+							<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+							<Implementation-Vendor>Límit Tecnologies</Implementation-Vendor>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-SCM-Branch>${git.branch}</Implementation-SCM-Branch>
+							<Implementation-SCM-Revision>${git.commit.id}</Implementation-SCM-Revision>
+						</manifestEntries>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>

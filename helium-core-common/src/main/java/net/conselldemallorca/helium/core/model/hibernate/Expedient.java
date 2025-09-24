@@ -233,7 +233,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		this.numeroDefault = numeroDefault;
 	}
 	@ManyToOne(optional=true)
-	@JoinColumn(name="unitat_organitzativa_id")
+	@JoinColumn(name="unitat_organitzativa_id", nullable = true)
 	@ForeignKey(name="hel_unit_org_expedient_fk")
 	public UnitatOrganitzativa getUnitatOrganitzativa() {
 		return unitatOrganitzativa;

@@ -1,4 +1,4 @@
-package net.conselldemallorca.helium.v3.core.api.dto.salut;
+package net.conselldemallorca.helium.v3.core.api.dto.comanda;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubsistemaSalut extends EstatSalut {
-	private String codi;
-	private Long totalOk;
-	private Long totalError;
+public class IntegracioSalut extends EstatSalut {
+    private String codi;
+    private IntegracioPeticions peticions;
 }

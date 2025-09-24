@@ -188,6 +188,14 @@
 			<url-pattern>/rest/appInfo</url-pattern>
 			<url-pattern>/rest/salut</url-pattern>
 			<url-pattern>/rest/salutPerformance</url-pattern>
+			<!-- API Estadistiques-->
+			<url-pattern>/rest/estadistiquesInfo</url-pattern>
+			<url-pattern>/rest/estadistiques</url-pattern>
+			<url-pattern>/rest/estadistiques/*</url-pattern>
+			<url-pattern>/rest/generarDadesExplotacio</url-pattern>
+			<url-pattern>/rest/generarDadesExplotacio/*</url-pattern>
+			<url-pattern>/rest/salutPerformance</url-pattern>
+			<url-pattern>/rest/generarDadesBasiquesExplotacio/*</url-pattern>
 		</web-resource-collection>
 	</security-constraint>
 	<!-- security-constraint.end -->
