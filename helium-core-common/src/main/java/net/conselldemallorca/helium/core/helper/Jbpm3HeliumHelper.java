@@ -252,6 +252,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private MailHelper mailHelper;
 	@Resource
 	private NotificacioHelper notificacioElectronicaHelper;
+	@Resource(name = "permisosHelperV3") 
+	private PermisosHelper permisosHelper;
 
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -3829,6 +3831,26 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		}
 		
 		return arxiu;
+	}
+
+	/** Recorre la llista d'usuaris per deixar només els que tinguin permís de lectura sobre l'expedient. */
+	@Override
+	public String[] filtrarUsuarisAmbPermisComu(Long expedientId, String[] usuaris) {
+		// Itera per tots els usuaris per revisar quins d'ells tenen permís de lectura sobre l'expedient ja sigui
+		// directe o per UO.
+		List<String> usuarisAmbPermis = new ArrayList<String>();
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		if (expedient != null && usuaris != null) {
+			List<String> personesAmbPermis = permisosHelper.findPersonesAmbPermisLectura(expedient);
+			String usuari;
+			for (int i = 0; i<usuaris.length; i++) {
+				usuari = usuaris[i];
+				if (personesAmbPermis.contains(usuari)) {
+					usuarisAmbPermis.add(usuari);
+				}
+			}
+		}
+		return usuarisAmbPermis.toArray(new String[usuarisAmbPermis.size()]);
 	}
 
 

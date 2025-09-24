@@ -58,6 +58,8 @@ import org.jbpm.taskmgmt.def.TaskMgmtDefinition;
 import org.jbpm.taskmgmt.log.TaskCreateLog;
 import org.jbpm.util.Clock;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+
 /**
  * process instance extension for managing tasks on a process instance.
  */
@@ -386,7 +388,11 @@ public class TaskMgmtInstance extends ModuleInstance
       throw new JbpmException("pooled-actors expression '" + pooledActorsExpression + "' didn't resolve to a comma separated String, a Collection or a String[]: '"
           + result + "' (" + result.getClass().getName() + ")");
     }
-
+	if (executionContext.getProcessInstance().getExpedient().getTipus().isProcedimentComu()) {
+    	actorIds = Jbpm3HeliumBridge.getInstanceService().filtrarUsuarisAmbPermisComu(
+    			executionContext.getProcessInstance().getExpedient().getId(), 
+    			actorIds);
+	}
     assignable.setPooledActors(pooledActors);
   }
 

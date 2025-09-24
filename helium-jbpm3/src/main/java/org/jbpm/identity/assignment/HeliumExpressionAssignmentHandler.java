@@ -59,7 +59,6 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 		logger.debug("Expresió a analitzar: '" + expressio + "'");
 		String processInstanceId = new Long(executionContext.getProcessInstance().getId()).toString();
 		if (entornId == null) {
-//			EntornDto entorn = Jbpm3HeliumBridge.getInstanceService().getEntornAmbProcessInstanceId(processInstanceId);
 			EntornDto entorn = Jbpm3HeliumBridge.getInstanceService().getEntornActual();
 			if (entorn == null)
 				throw new RuntimeException("No s'ha trobat l'entorn per la instància de procés " + processInstanceId);
@@ -89,6 +88,11 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 			int index = 0;
 			for (PersonaDto p: persones)
 				actors[index++] = p.getCodi();
+	    	if (executionContext.getProcessInstance().getExpedient().getTipus().isProcedimentComu()) {
+	        	actorIds = Jbpm3HeliumBridge.getInstanceService().filtrarUsuarisAmbPermisComu(
+	        			executionContext.getProcessInstance().getExpedient().getId(), 
+	        			actorIds);
+	    	}
 			assignable.setPooledActors(actors);
 		}
 	}
