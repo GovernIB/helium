@@ -516,6 +516,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		
 		if(interessat.getTipus() == InteressatTipusEnumDto.JURIDICA && (interessat.getRaoSocial() == null || interessat.getRaoSocial().isEmpty())) {
 			interessat.setRaoSocial(interessat.getFullNom());
+			interessat.setNom(null);
+			interessat.setLlinatge1(null); 
+			interessat.setLlinatge2(null);
 		}
 		
 		Interessat interessatEntity = new Interessat(
@@ -575,11 +578,19 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			throw new ValidacioException("Un interessat amb aquest codi no existeix");
 		}
 		
+		if(interessat.getTipus() == InteressatTipusEnumDto.JURIDICA && (interessat.getRaoSocial() == null || interessat.getRaoSocial().isEmpty())) {
+			interessat.setRaoSocial(interessat.getFullNom());
+			interessat.setNom(null);
+			interessat.setLlinatge1(null); 
+			interessat.setLlinatge2(null);
+		}
+		
 		Interessat interessatEntity = interessatRepository.findByCodiAndExpedient(
 				interessat.getCodi(), 
 				expedient);
 		
 		interessatEntity.setNom(interessat.getNom());
+		interessatEntity.setRaoSocial(interessat.getRaoSocial());
 		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());
