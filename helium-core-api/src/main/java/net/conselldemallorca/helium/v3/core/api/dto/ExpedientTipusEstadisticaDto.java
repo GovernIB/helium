@@ -28,6 +28,18 @@ public class ExpedientTipusEstadisticaDto implements Serializable {
 		this.n = n;
 		this.anyInici = anyInici;
 	}
+	
+	public ExpedientTipusEstadisticaDto(
+			Long id,
+			String codi,
+			String nom
+			) {
+		this.id = id;
+		this.codi = codi;
+		this.nom = nom;
+		this.n = 0l;
+		this.anyInici = null;
+	}
 
 	public Long getId() {
 		return id;

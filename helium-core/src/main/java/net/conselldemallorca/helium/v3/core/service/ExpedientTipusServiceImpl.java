@@ -5083,27 +5083,29 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				estatId = null;
 			}
 		}		
-		
-		return expedientTipusRepository.findEstadisticaByFiltre(
-											anyInicial == null,
-											anyInicial,
-											anyFinal == null,
-											anyFinal,
-											entorn,
-											expedientTipus == null,
-											expedientTipus,
-											anulats == null,
-											anulats,
-											numero == null || numero.isEmpty(),
-											numero, 
-											titol == null || titol.isEmpty(),
-											titol, 
-											EstatTipusDto.INICIAT.equals(estatTipus),
-											EstatTipusDto.FINALITZAT.equals(estatTipus),
-											estatId == null,
-											estatId,
-											aturat == null,
-											aturat);
+		List<ExpedientTipusEstadisticaDto> result = expedientTipusRepository.findEstadisticaByFiltre(
+				anyInicial == null,
+				anyInicial,
+				anyFinal == null,
+				anyFinal,
+				entorn,
+				expedientTipus == null,
+				expedientTipus,
+				anulats == null,
+				anulats,
+				numero == null || numero.isEmpty(),
+				numero, 
+				titol == null || titol.isEmpty(),
+				titol, 
+				EstatTipusDto.INICIAT.equals(estatTipus),
+				EstatTipusDto.FINALITZAT.equals(estatTipus),
+				estatId == null,
+				estatId,
+				aturat == null,
+				aturat);
+		// Afeim els tipus d'expedients sense expedients
+		result.addAll(expedientTipusRepository.findEstadisticaBySenseExpedients(entorn));
+		return result;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);

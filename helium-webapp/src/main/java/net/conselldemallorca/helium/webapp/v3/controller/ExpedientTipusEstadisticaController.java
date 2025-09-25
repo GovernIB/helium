@@ -353,14 +353,15 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 					titols.put(nom, element.getNom());
 				if(!ete.containsKey(nom))
 					ete.put(nom, new TreeMap<String,Object>());
-				if(!anys.contains(element.getAnyInici()))
+				if(element.getAnyInici() != null && !anys.contains(element.getAnyInici()))
 					anys.add(element.getAnyInici());
-				if(!totalTipus.containsKey(nom)) {				
+				if(!totalTipus.containsKey(nom)) {
 					totalTipus.put(nom, element.getN());
 				}else {
 					totalTipus.put(nom, totalTipus.get(nom) + element.getN());
 				}
-				ete.get(nom).put(element.getAnyInici(), element.getN());
+				
+				ete.get(nom).put(element.getAnyInici() != null ? element.getAnyInici() : "", element.getN());
 		}
 		
 		Map<String, Object> totalAny =  totalPerAny(ete);

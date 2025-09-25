@@ -161,7 +161,17 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("aturat") Boolean aturat
             );
     
-    /**
+    @Query(   " select new net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto( "
+			+ "		et.id, "
+			+ "		et.codi, "
+			+ "		et.nom) "
+			+ "	from ExpedientTipus et "
+			+ "	where "
+			+ "		et.entorn = :entorn "
+			+ "		and not exists elements(et.expedients) ")
+	List<ExpedientTipusEstadisticaDto> findEstadisticaBySenseExpedients(@Param("entorn") Entorn entorn);
+
+	/**
 	  * Mètode per cercar els tipus d'expedient per cercador de tipologia tant pel seu codi, com pel nom, 
 	     *  com per codiSia (nti_clasificacion) i per número de registre associat a l'anotació o a algún expedient.
 	  * @param isNullCodi
