@@ -89,9 +89,9 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 			for (PersonaDto p: persones)
 				actors[index++] = p.getCodi();
 	    	if (executionContext.getProcessInstance().getExpedient().getTipus().isProcedimentComu()) {
-	        	actorIds = Jbpm3HeliumBridge.getInstanceService().filtrarUsuarisAmbPermisComu(
+	    		actors = Jbpm3HeliumBridge.getInstanceService().filtrarUsuarisAmbPermisComu(
 	        			executionContext.getProcessInstance().getExpedient().getId(), 
-	        			actorIds);
+	        			actors);
 	    	}
 			assignable.setPooledActors(actors);
 		}

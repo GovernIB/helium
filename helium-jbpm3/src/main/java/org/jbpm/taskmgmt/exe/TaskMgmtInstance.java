@@ -389,9 +389,9 @@ public class TaskMgmtInstance extends ModuleInstance
           + result + "' (" + result.getClass().getName() + ")");
     }
 	if (executionContext.getProcessInstance().getExpedient().getTipus().isProcedimentComu()) {
-    	actorIds = Jbpm3HeliumBridge.getInstanceService().filtrarUsuarisAmbPermisComu(
+		pooledActors = Jbpm3HeliumBridge.getInstanceService().filtrarUsuarisAmbPermisComu(
     			executionContext.getProcessInstance().getExpedient().getId(), 
-    			actorIds);
+    			pooledActors);
 	}
     assignable.setPooledActors(pooledActors);
   }
