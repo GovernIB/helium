@@ -16,14 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
-import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
-import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.rest.client.integracio.domini.Estat;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
@@ -81,6 +81,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 			try {
 				anotacio = null;
 				logger.info("Processant la peticio d'anotació amb id " + id.getIndetificador());
+				
 				// Comprova si ja està a BBDD, si ja està comunica l'estat a distribució sense més processament
 				anotacions = anotacioRepository.findByDistribucioIdAndDistribucioClauAcces(id.getIndetificador(), id.getClauAcces());
 				if (!anotacions.isEmpty()) {
@@ -89,69 +90,36 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 					anotacio = anotacions.get(0);
 				}
 				if (anotacio == null) {
+					
 					// Guarda la informació mínima a la taula d'anotacions per a que la tasca en segon pla la consulti i processi
 					distribucioHelper.encuarAnotacio(idWs);
 					logger.info("Anotació " + id.getIndetificador() + " encuada com a pendent de consulta");
+					
 				} else {
+
 					String msg = null;
-					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
-					backofficeUtils.setArxiuPluginListener(this);
-					switch(anotacio.getEstat()) {
-					case PENDENT_AUTO:
-						msg = "La petició està pendent de processar-se automàticament.";
-						estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
-						logger.info("Anotació " + id.getIndetificador() + "." + msg);
-						break;
-					case PENDENT:
-						msg = "La petició està amb estat pendent pendent ";
-						if (anotacio.getExpedientTipus() != null) {
-							msg += " pel tipus d'expedient "  + anotacio.getExpedientTipus().getCodi() + " - " + anotacio.getExpedientTipus().getCodi();
-						}
-						estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
-						logger.info("Anotació " + id.getIndetificador() + "." + msg);
-						break;
-					case ERROR_PROCESSANT:
-						if (anotacio.getExpedientTipus() == null || anotacio.getExpedientTipus().isDistribucioProcesAuto()) {
-							idsAnotacionsReprocessar.add(anotacio.getId());
-							msg = "La petició està en error de processament";
-							logger.info("L'anotació " + id.getIndetificador() + " de moment no es reprocessarà automàticament.");
-						} else {
-							msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar manualment";
-							estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
-							logger.info("Anotació " + id.getIndetificador() + "." + msg);
-						}
-						break;
-					case PROCESSADA:
+					// Si ja existeix primer es mira si ja està processada.
+					if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat())) {
+						// Comunica l'estat de processada a Distribucio
 						estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA;
 						msg = "La petició ja s'ha processat anteriorment.";
 						if (anotacio.getExpedient() != null) {
 							msg += " L'anotació ha estat processada a l'expedient " + anotacio.getExpedient().getIdentificador();
 						}
-						break;
-					case REBUTJADA:
-						estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
-						msg = "L'anotació \"" + anotacio.getIdentificador() + "\" s'havia rebutjat anteriorment " + 
-								(anotacio.getDataProcessament() != null? "amb data " + sdf.format(anotacio.getDataProcessament()) : "") + 
-								"i motiu: " + anotacio.getRebuigMotiu() + ". Es marca com a comunicada per tornar a consultar-la i processar-la.";
-						logger.info(msg);
-						distribucioHelper.resetConsulta(anotacio.getId(), null);
-						logger.info("L'anotació " + id.getIndetificador() + " estava com a rebutjada. Es tornarà a consultar.");
-						break;
-					case COMUNICADA:
-						estatDistribucio = null;
-						// Posa a 0 el número d'intents per a que es torni a processar pel thread de la tasca programada de consultar anotacions pendents
-						distribucioHelper.updateConsulta(
-								anotacio.getId(), 
-								0, 
-								anotacio.getConsultaError(), 
-								anotacio.getConsultaData());
-						logger.info("L'anotació " + id.getIndetificador() + " estava comunicada. Es tornarà a consultar.");
-						break;
+						// guarda el missatge a enviar
+						comunicarEstats.add(new ComunicarEstat(
+								idWs, 
+								estatDistribucio, 
+								msg));
+
+						// Mira si l'anotació està en un estat pendent de que es processi per Helium (comunicada amb reintents sense esgotar o pendent automàtic)
+					} else if (this.anotacioPendentProcessHelium(anotacio)){
+						// No fa res, el processament ja comunicarà el resultat
+					} else {
+						// Posa l'anotació com a comunicada per a que es torni a consultar i processar
+						anotacio.setEstat(AnotacioEstatEnumDto.COMUNICADA);
+						anotacio.setConsultaIntents(0);
 					}
-					comunicarEstats.add(new ComunicarEstat(
-							idWs, 
-							estatDistribucio, 
-							msg));
 				}
 			} catch(Exception e) {
 				logger.error("Error rebent la petició d'anotació de registre amb id=" + id.getIndetificador() + " : " + e.getMessage() + ". Es comunica l'error a Distribucio", e);
@@ -164,7 +132,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 					logger.error("Error comunicant l'error de recepció a Distribucio de la petició amb id : " + id.getIndetificador() + ": " + ed.getMessage(), ed);
 				}
 			}
-		}		
+		}
 		Thread thread = new ComunicarEstatsThread("Comunicar " + comunicarEstats.size(), comunicarEstats);
 		thread.start();	
 		logger.info("Fi del processament de comunicació de " + ids.size() + "anotacions de registre de Distribucio. Es comunicaran " + comunicarEstats.size());		
@@ -184,6 +152,31 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 		}	
 	}
 	
+	/** Comprova si l'anotaicó està en un estat en què Helium la processarà automàticament:
+	 * - En pendent automàtic.
+	 * - Comunicada amb reintents pendents.
+	 * @param anotacio
+	 * @return
+	 */
+	private boolean anotacioPendentProcessHelium(Anotacio anotacio) {
+		return AnotacioEstatEnumDto.PENDENT_AUTO.equals(anotacio.getEstat())
+					|| (AnotacioEstatEnumDto.COMUNICADA.equals(anotacio.getEstat())
+						&& anotacio.getConsultaIntents() < this.getMaxConsultaIntents());
+	}
+
+	private int getMaxConsultaIntents() {
+		int maxConsultaIntents;
+		String valStr = null;
+		try {
+			valStr = GlobalProperties.getInstance().getProperty("app.anotacions.pendents.comprovar.intents", "5");
+			maxConsultaIntents = Integer.valueOf(valStr);
+		} catch(Exception e) {
+			maxConsultaIntents = 5;
+			logger.error("Valor enter per la propietat app.anotacions.pendents.comprovar.intents no és correcte: \"" + valStr + "\". Es posarà per el valor " + maxConsultaIntents);
+		}
+		return maxConsultaIntents;
+	}
+
 	private void comunicarEstats(List<ComunicarEstat> comunicarEstats) {
 		for(ComunicarEstat comunicarEstat: comunicarEstats) {
 			try {
