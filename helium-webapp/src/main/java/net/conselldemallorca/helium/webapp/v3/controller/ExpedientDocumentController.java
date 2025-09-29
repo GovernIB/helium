@@ -441,16 +441,18 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	public String documentPinbalNouGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@RequestParam(value = "codi", required = false) final String codiDocument,
 			Model model) {
-		return nouDocumentPinbalGetFluxe(request, expedientId, null, model);
+		return nouDocumentPinbalGetFluxe(request, expedientId, null, codiDocument, model);
 	}
 	
 	@RequestMapping(value = "/{expedientId}/proces/documentPinbal/new", method = RequestMethod.GET)
 	public String nouDocumentPinbalGetEstats(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@RequestParam(value = "codi", required = false) final String codiDocument,
 			Model model) {
-		return nouDocumentPinbalGetFluxe(request, expedientId, null, model);
+		return nouDocumentPinbalGetFluxe(request, expedientId, null, codiDocument, model);
 	}
 	
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/documentPinbal/new", method = RequestMethod.GET)
@@ -458,11 +460,13 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
+			@RequestParam(value = "codi", required = false) final String codiDocument,
 			Model model) {
 		ExpedientDocumentPinbalDto command = new ExpedientDocumentPinbalDto();
 		command.setExpedientId(expedientId);
 		command.setProcessInstanceId(processInstanceId);
 		omplirModelFormDocumentPinbal(request, model, command, false);
+		model.addAttribute("codiDocumentSeleccionat", codiDocument);
 		return "v3/expedientDocumentPinbalForm";
 	}
 	

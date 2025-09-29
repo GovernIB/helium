@@ -1069,6 +1069,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
 						.obligatoriEntrada(documentFormProperties != null ? documentFormProperties.isObligatoriEntrada() : false)
 						.build();
+				document.setPinbalActiu(dTipExp.isPinbalActiu());
 			} else {
 				document = toDocumentList(expedient, processInstanceId, dTipExp, dExp, dPsigna, documentFormProperties);
 				document.setNotificable(PdfUtils.isArxiuConvertiblePdf(dExp.getArxiuNom()));
@@ -1152,6 +1153,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.notificat(dExp.isNotificat())
 				.arxiuActiu(dExp.isArxiuActiu())
 				.ntiActiu(expedient.isNtiActiu())
+				.pinbalActiu(dExp.isPinbal())
 				.registrat(dExp.isRegistrat())
 				.docValid(dExp.isDocumentValid())
 				.psActiu(dExp.isPortafirmesActiu())

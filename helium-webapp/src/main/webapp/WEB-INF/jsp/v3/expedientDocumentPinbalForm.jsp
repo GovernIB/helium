@@ -38,93 +38,100 @@
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 
 <script type="text/javascript">
-$(document).ready( function() {
-	$('#documentId').on('change', function() {
-		
-		const varDocumentId = $(this).val();
-// 		const botoConsultar = $("#botoPerConsultar");
-// 		botoConsultar.attr("disabled", "disabled");
-// 		botoConsultar.addClass("disabled");
-		
-		//Al canviar el tipus de document Pinbal, refrescar els titulars
-		$.get('<c:url value="/v3/expedient/${expedientDocumentPinbalDto.expedientId}/documentPinbal/' + varDocumentId + '/info"/>')
-		.done(function(data) {
-			
-			<c:if test="${expedientDocumentPinbalDto.commandValidat==false}">
-			if (data.finalitat)  { $("#finalitat").val(data.finalitat); }
-			</c:if>
+var codiDocumentSeleccionat = '${codiDocumentSeleccionat != null ? codiDocumentSeleccionat : ""}';
 
-			if (data.codiServei) { $("#codiServei").val(data.codiServei); }
-			if (data.documentNom) { $("#documentNom").val(data.documentNom); }
-			if (data.documentCodi) { $("#documentCodi").val(data.documentCodi); }
-			
-			//Ocultam totes les dades específiques, tant les del form con les de fora del form
-			$('#datos-especificos').children().each(function () {
-				if (this.nodeName=="DIV") {
-					$(this).hide();
-					$(this).appendTo("#dadesForaDelForm");
-				}
-			});
-			$('#dadesForaDelForm').children().each(function () {
-				if (this.nodeName=="DIV") {
-					$(this).hide();
-				}
-			});
-			
-			//El div de dades específiques correspnent al servei selecciona, es coloca al form i es fa visible.
-			if ($('#div' + data.codiServei).length>0) {
-				$('#div' + data.codiServei).appendTo("#datos-especificos");
-				$('#div' + data.codiServei).show();
-				$('#datos-especificos').show();
-				$('legend').show();
-			} else {
-				$('#datos-especificos').hide();
-				$('legend').hide();
-			}
+$(document).ready(function() {
+    if (codiDocumentSeleccionat) {
+        let optionEncontrada = $('#documentId option').filter(function() {
+            return $(this).text().trim() === codiDocumentSeleccionat;
+        }).first();
+
+        if (optionEncontrada.length) {
+            $('#documentId').val(optionEncontrada.val());
+        } else {
+            console.warn("No se encontró opción para codiDocumentSeleccionat:", codiDocumentSeleccionat);
+        }
+    }
+
+    // Al canviar el tipus de document Pinbal, refrescar els titulars
+    $('#documentId').on('change', function() {
+        const varDocumentId = $(this).val();
+        $.get('<c:url value="/v3/expedient/${expedientDocumentPinbalDto.expedientId}/documentPinbal/' + varDocumentId + '/info"/>')
+        .done(function(data) {
+            <c:if test="${expedientDocumentPinbalDto.commandValidat==false}">
+            if (data.finalitat) { $("#finalitat").val(data.finalitat); }
+            </c:if>
+            if (data.codiServei) { $("#codiServei").val(data.codiServei); }
+            if (data.documentNom) { $("#documentNom").val(data.documentNom); }
+            if (data.documentCodi) { $("#documentCodi").val(data.documentCodi); }
+
+            // Ocultam totes les dades específiques, tant les del form con les de fora del form
+            $('#datos-especificos').children().each(function () {
+                if (this.nodeName=="DIV") {
+                    $(this).hide();
+                    $(this).appendTo("#dadesForaDelForm");
+                }
+            });
+            $('#dadesForaDelForm').children().each(function () {
+                if (this.nodeName=="DIV") {
+                    $(this).hide();
+                }
+            });
+            
+          	// El div de dades específiques correspnent al servei selecciona, es coloca al form i es fa visible.
+            if ($('#div' + data.codiServei).length>0) {
+                $('#div' + data.codiServei).appendTo("#datos-especificos");
+                $('#div' + data.codiServei).show();
+                $('#datos-especificos').show();
+                $('legend').show();
+            } else {
+                $('#datos-especificos').hide();
+                $('legend').hide();
+            }
 
 // 			botoConsultar.removeAttr("disabled");
 // 			botoConsultar.removeClass("disabled");
-			webutilModalAdjustHeight();			
-		})
-		.fail(function() {
-			alert('Error al recuperar les dades del document: '+varDocumentId);
-		});
-	});
-	
-	$('#provinciaNaixament').on('change', function() {
-		var selectMuni = $('#municipiNaixament');
-		$(selectMuni).empty();
-		//Al canviar el tipus de document Pinbal, refrescar els titulars
-		$.get('<c:url value="/v3/expedient/getMunicipisPerProvincia/' + $(this).val() + '"/>')
-		.done(function(data) {
-			if (data) {
-				data.forEach((elemento, indice) => {
-					$(selectMuni).append(new Option(elemento.valor, elemento.codi));
-				});
-				$(selectMuni).trigger('change');
-			}
-		})
-		.fail(function() {
-			alert('Error al recuperar els Municipis Per Provincia: '+$(this).val());
-		});
-	});
-	
-	$('#paisNaixament').on('change', function() {
-		//Han seleccionat espanya
-		if ($(this).val()=='724') {
-			$("#poblacioNaixament").parent().parent().hide();
-			$("#provinciaNaixament").parent().parent().show();
-			$("#municipiNaixament").parent().parent().show();
-			
-		} else {
-			$("#poblacioNaixament").parent().parent().show();
-			$("#provinciaNaixament").parent().parent().hide();
-			$("#municipiNaixament").parent().parent().hide();			
-		}
-	});
-	
-	$('#documentId').trigger('change');
-	$('#paisNaixament').trigger('change');
+            webutilModalAdjustHeight();
+        })
+        .fail(function() {
+            alert('Error al recuperar les dades del document: ' + varDocumentId);
+        });
+    });
+
+    $('#provinciaNaixament').on('change', function() {
+        var selectMuni = $('#municipiNaixament');
+        $(selectMuni).empty();
+      	// Al canviar el tipus de document Pinbal, refrescar els titulars
+        $.get('<c:url value="/v3/expedient/getMunicipisPerProvincia/' + $(this).val() + '"/>')
+        .done(function(data) {
+            if (data) {
+                data.forEach((elemento) => {
+                    $(selectMuni).append(new Option(elemento.valor, elemento.codi));
+                });
+                $(selectMuni).trigger('change');
+            }
+        })
+        .fail(function() {
+            alert('Error al recuperar els Municipis Per Provincia: ' + $('#provinciaNaixament').val());
+        });
+    });
+
+    
+    $('#paisNaixament').on('change', function() {
+    	// Han seleccionat espanya
+        if ($(this).val() == '724') { // España
+            $("#poblacioNaixament").parent().parent().hide();
+            $("#provinciaNaixament").parent().parent().show();
+            $("#municipiNaixament").parent().parent().show();
+        } else {
+            $("#poblacioNaixament").parent().parent().show();
+            $("#provinciaNaixament").parent().parent().hide();
+            $("#municipiNaixament").parent().parent().hide();
+        }
+    });
+
+    $('#documentId').trigger('change');
+    $('#paisNaixament').trigger('change');
 });
 </script>
 

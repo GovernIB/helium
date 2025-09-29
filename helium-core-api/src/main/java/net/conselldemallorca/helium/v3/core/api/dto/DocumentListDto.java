@@ -34,6 +34,7 @@ public class DocumentListDto implements Serializable {
 	private boolean notificat;
 	private boolean arxiuActiu;
 	private boolean ntiActiu;
+	private boolean pinbalActiu;
 	private boolean registrat;
 	private boolean docValid;
 	private boolean psActiu;
