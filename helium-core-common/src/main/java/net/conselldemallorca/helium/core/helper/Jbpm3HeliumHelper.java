@@ -112,6 +112,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaRDSJustificanteDto;
@@ -2825,8 +2826,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					transicioOK,
 					transicioKO,
 					null,
-					portafirmesFluxId!=null ? portafirmesFluxId : document.getPortafirmesFluxId(),
-					document.getPortafirmesFluxTipus());//PortafirmesTipusEnumDto fluxTipus
+					portafirmesFluxId != null ? portafirmesFluxId : document.getPortafirmesFluxId(),
+					portafirmesFluxId != null ? PortafirmesTipusEnumDto.FLUX : document.getPortafirmesFluxTipus());
 	}
 
 	@Override
