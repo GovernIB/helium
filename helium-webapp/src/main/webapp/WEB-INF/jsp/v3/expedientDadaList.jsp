@@ -416,6 +416,17 @@
 		}
 		return mostrar;
 	}
+	
+	function executarAccio(event, botoAccio) {
+		event.preventDefault();
+		if (!confirm("<spring:message code='js.helforms.confirmacio' />")) {
+			return false; 
+		} else { 
+			window.location.href = $(botoAccio).data("href"); 
+			return false; 
+		} 
+	}
+
 </script>
 <style>
 	#expedientDades {border-collapse: collapse !important; margin-bottom: 15px !important;}
@@ -545,7 +556,7 @@
 		<th data-col-name="valor" data-orderable="false" width="70%" data-template="#cellDadaValorTemplate" data-class="varValor">
 			<spring:message code="expedient.nova.data.valor"/>
 			<script id="cellDadaValorTemplate" type="text/x-jsrender">
-				<span id="varVal-{{:campCodi}}" class="varVal {{if editable}}editable{{/if}}" data-codi={{:campCodi}}>
+				<span id="varVal-{{:campCodi}}" class="varVal {{if editable && tipus != 'ACCIO'}}editable{{/if}}" data-codi={{:campCodi}}>
 				{{if valor.registre}}
 					<ul class="list-group registre">
 						<li class="list-group-item d-flex justify-content-between border-0">
@@ -584,6 +595,10 @@
 			{{if editable}}
 				{{if id == null}}
 					<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new?ocultarVar=true" data-toggle="modal" data-adjust-height="false" data-height="350"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
+				{{else tipus == "ACCIO"}}
+					<a href="#" data-href="${expedient.id}/dada/accio/executar/accio" class="btn btn-primary pull-left btn_accio tasca-boto" onclick="return executarAccio(event, this);">
+    					<spring:message code="common.camptasca.executar" />
+					</a>
 				{{else}}
 					<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
 						<button class="btn btn-primary" data-toggle="dropdown" {{if error}}disabled="disabled"{{/if}} style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
