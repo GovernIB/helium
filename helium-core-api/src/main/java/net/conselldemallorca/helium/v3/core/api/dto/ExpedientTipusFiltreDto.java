@@ -18,6 +18,15 @@ public class ExpedientTipusFiltreDto {
 	private String numRegistre;
 	private String codiTipologia;
 	private String nomTipologia;
+	private String rol;
+	
+	public String getRol() {
+		return rol;
+	}
+
+	public void setRol(String rol) {
+		this.rol = rol;
+	}
 	
 	
 	public String getNomTipologia() {

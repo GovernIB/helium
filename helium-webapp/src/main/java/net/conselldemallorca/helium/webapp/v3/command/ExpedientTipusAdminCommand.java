@@ -6,7 +6,19 @@ public class ExpedientTipusAdminCommand {
 	private String nomTipologia;
 	private String codiSIA;
 	private String numRegistre;
+	private String rol;
+	
+	public String getRol() {
+		return rol;
+	}
 
+	public void setRol(String rol) {
+		this.rol = rol;
+	}
+	
+	public String getNomTipologia() {
+		return nomTipologia;
+	}
 
 	public String getCodiTipologia() {
 		return codiTipologia;

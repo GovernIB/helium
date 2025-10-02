@@ -49,7 +49,12 @@
 			<div class="col-md-3">
 				<hel:inputText name="numRegistre" textKey="expedient.tipus.cercador.tipologies.numero.registre.anotacio" placeholderKey="expedient.tipus.cercador.tipologies.numero.registre.anotacio" inline="true"/>
 			</div>
-			<div class="col-md-2 d-flex align-items-end">
+			<div class="col-md-2">
+				<hel:inputText name="rol" textKey="expedient.tipus.cercador.tipologies.rol" placeholderKey="expedient.tipus.cercador.tipologies.rol" inline="true"/>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 d-flex align-items-end">
 				<div class="pull-right">
 					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary" url="" style="display: none;"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default" url=""><spring:message code="comu.filtre.netejar"/></button>
@@ -67,6 +72,7 @@
 			data-ordering="true"
 			data-default-order="1"
 			data-default-dir="asc"
+			data-filtre="expedientTipusAdminCommand"
 			class="table table-striped table-bordered table-hover"
 			style="width:100%">	
 		<thead>	
@@ -83,13 +89,29 @@
 							<span title="{{:entorn.nom}}">{{:entorn.codi}}</span>
 						</script>
 					</th>
+				<th data-col-name="procedimentComu"data-visible="false"/>
 				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
-						<a 
-							href="expedientTipus/{{:id}}?entornCanviarAmbId={{:entorn.id}}" 
-							class="btn btn-default consultar-expedient">
-								<span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.dissenyar"/>
-						</a>
+						<div class="dropdown">
+							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+							<ul class="dropdown-menu pull-right">
+								<li>
+									<a href="expedientTipus/{{:id}}?entornCanviarAmbId={{:entorn.id}}" class="consultar-expedient">
+										<span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.dissenyar"/>
+									</a>
+								</li>
+								{{if permisAdministration || ${potAdministrarEntorn} }}
+									<li>
+										<a href="expedientTipus/{{:id}}/permis" data-toggle=""><span class="fa fa-key"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.permisos"/>&nbsp;<span class="badge">{{:permisCount}}</span></a>
+									</li>
+									{{if  procedimentComu }}
+										<li>
+											<a href="expedientTipus/{{:id}}/permisUO" data-toggle=""><span class="fa fa-key"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.permisos.uo"/>&nbsp;<span class="badge">{{:permisUOCount}}</span></a>
+										</li>
+									{{/if}}
+								{{/if}}
+							</ul>
+						</div>
 					</script>
 				</th>
 				<th data-col-name="entorn.nom" data-visible="false"/>
