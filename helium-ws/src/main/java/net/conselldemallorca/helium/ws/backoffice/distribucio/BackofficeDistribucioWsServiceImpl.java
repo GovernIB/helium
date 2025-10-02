@@ -117,8 +117,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 						// No fa res, el processament ja comunicarà el resultat
 					} else {
 						// Posa l'anotació com a comunicada per a que es torni a consultar i processar
-						anotacio.setEstat(AnotacioEstatEnumDto.COMUNICADA);
-						anotacio.setConsultaIntents(0);
+						distribucioHelper.resetConsulta(anotacio.getId(), null);
 					}
 				}
 			} catch(Exception e) {
