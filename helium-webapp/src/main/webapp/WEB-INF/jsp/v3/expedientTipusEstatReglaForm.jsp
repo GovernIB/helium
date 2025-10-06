@@ -43,6 +43,21 @@
 			if (que === 'TOT' || que === 'DADES' || que === 'DOCUMENTS' || que === 'TERMINIS' || que === '') {
 				$("#queValor").prop("disabled", true);
 			}
+			
+			const $accio = $("#accio");
+			const valoresObligatorios = ["REQUERIR", "REQUERIR_ENTRAR"];
+			
+		    const checkAccio = () => {
+				const val = $accio.val();
+		    	if (valoresObligatorios.includes($accio.val())) {
+		            $("#accioWarning").show();
+		        } else {
+		            $("#accioWarning").hide();
+		        }
+		    };
+
+		    $accio.change(checkAccio);
+		    checkAccio(); // executem en carregar la pàgina (per si està en edició)
 		});
 
 		const updateQui = (qui) => {
@@ -138,6 +153,8 @@
 		const valorsLoadingStop = (el) => {
 			el.find(".valors-load").remove();
 		}
+		
+		
 	</script>
 	<style>
 		.text-left { text-align: left !important; }
@@ -195,6 +212,16 @@
 		<div class="row">
 			<div class="col-xs-12">
 				<hel:inputSelect name="accio" textKey="expedient.tipus.regla.form.camp.accio" emptyOption="true" optionItems="${accioOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" labelSize="2" required="true"/>
+				<div id="accioWarning" style="margin-top:-10px; display:none;">
+					<label class="control-label col-xs-2 hiddenInfoContainer"></label>
+					<div class="col-xs-10">
+						<span class="text-primary">
+							<span class="fa fa-info-circle" style="margin-right: 8px;"></span>
+							<spring:message code="expedient.tipus.regla.form.camp.accio.warning"/>
+						</span>
+					</div>
+            		
+        		</div>
 			</div>
 		</div>
 		<div style="min-height: 150px;"></div>
