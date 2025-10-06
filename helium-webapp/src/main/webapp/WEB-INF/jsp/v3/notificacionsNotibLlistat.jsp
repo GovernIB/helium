@@ -66,10 +66,10 @@
 		<div class="col-md-2">
 			<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="notificacio.llistat.filtre.camp.estat" placeholderKey="notificacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		</div>		
-		<div class="col-md-2">
+		<div class="col-md-3">
 			<hel:inputText name="nomDocument" textKey="notificacio.llistat.filtre.camp.document.nom" placeholderKey="notificacio.llistat.filtre.camp.document.nom" inline="true"/>
 		</div>	
-		<div class="col-md-2">
+		<div class="col-md-3">
 			<hel:inputSuggest 
 					name="unitatOrganitzativaCodi" 
 					urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
@@ -77,18 +77,23 @@
 					placeholderKey="notificacio.llistat.filtre.camp.organ.emissor"
 					inline="true"
 					/>	
-		</div>	
-
-		<div class="col-md-2 pull-right">
-			<div class="pull-right">
-					<button id="consultarHidden" type="submit" name="accio" value="consultar" class="btn btn-primary hidden"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
-					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
-					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
-			</div>		
+		</div>
+		<div class="row">
+			<div class="col-md-12 pull-right">
+				<div class="pull-right">
+						<div id="btnTramitacio" class="btn-group">
+							<a id="btnBdades" class="btn btn-default" href="../v3/notificacionsNotib/descarregardades"><span class="fa fa-download"></span> <spring:message code="expedient.llistat.accio.descarregar"/></a>
+						</div>
+						<button id="consultarHidden" type="submit" name="accio" value="consultar" class="btn btn-primary hidden"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+						<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
+						<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+				</div>		
+			</div>
 		</div>		
 	</div>
 	
 	</form:form>
+	
 	
 	<table	id="notificacionsNotib"
 			data-toggle="datatable"
@@ -286,8 +291,7 @@
 				<th data-col-name="entornCodi" data-visible="false">
 			</tr>
 		</thead>
-	</table>	
-
+	</table>
 	
 	
 	<script id="rowhrefTemplate" type="text/x-jsrender"><c:url value="/v3/notificacionsNotib/{{:id}}/info"/></script>	

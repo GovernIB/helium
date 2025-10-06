@@ -160,6 +160,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			String nom = pf.getDocumentNom();
 			if (document != null) {
 				nom = document.getArxiuNom();
+				pf.setSignaturaUrlVerificacio(document.getSignaturaUrlVerificacio());
 			}
 			pf.setDocumentNom(nom);
 			pf.setDocumentUUID(document.getArxiuUuid());

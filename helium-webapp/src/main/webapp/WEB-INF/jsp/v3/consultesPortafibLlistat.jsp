@@ -74,7 +74,7 @@
 		<div class="col-md-2">
 			<hel:inputDate name="dataPeticioIni" textKey="consultes.potafib.camp.filtreFins" placeholderKey="consultes.potafib.camp.filtreFins" inline="true"/>
 		</div>	
-		<div class="col-md-4">
+		<div class="col-md-3">
 			<hel:inputSelect 
 				inline="true" 
 				name="estat" 
@@ -88,8 +88,11 @@
 		<div class="col-md-2">
 			<hel:inputNumber name="documentId" textKey="consultes.potafib.camp.documentId" placeholderKey="consultes.potafib.camp.documentId" inline="true"/>
 		</div>
-		<div class="col-md-4 pull-right">
+		<div class="col-md-3 pull-right">
 			<div class="pull-right">
+					<div id="btnTramitacio" class="btn-group">
+						<a id="btnBdades" class="btn btn-default" href="../v3/enviamentsPortafib/descarregardades"><span class="fa fa-download"></span> <spring:message code="expedient.llistat.accio.descarregar"/></a>
+					</div>
 					<button id="consultarHidden" type="submit" name="accio" value="consultar" class="btn btn-primary hidden"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
 					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
