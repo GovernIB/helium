@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
+import com.google.common.base.Strings;
+
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -691,24 +693,44 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	
 	/** Comprova si la dada és buida o nula segons el tipus de dada */
 	private boolean dadaBuidaONula(DadaListDto dada) {
-		boolean ret = false;				
-		if (dada == null  || dada.getId() == null) {
-			ret = true;
-		} else {
-			// Comprova el valor
-			if (dada.getValor() == null) {
-				ret = true;
-			} else if (dada.isMultiple()) {
-				if (dada.getValor().getFiles() == 0 || dada.getValor().getValorMultiple() == null || dada.getValor().getValorMultiple().isEmpty()) {
-					// Valor múltiple buit
-					ret = true;
-				}
-			} else {
-				// Valor simple buit
-				ret = dada.getValor().getValorSimple() == null || dada.getValor().getValorSimple().isEmpty();
+		// Comprova el valor
+		if (dada == null || dada.getId() == null || dada.getValor() == null) 
+			return true;
+		
+		// Valor registre buit
+		if (dada.isRegistre())
+			return dada.getValor().getValorBody() == null || isRegistreEmpty(dada.getValor().getValorBody());
+		
+		// Valor múltiple buit
+		if (dada.isMultiple())
+			return dada.getValor().getFiles() == 0 
+					|| dada.getValor().getValorMultiple() == null 
+					|| dada.getValor().getValorMultiple().isEmpty();
+		
+		// Valor simple buit
+		return dada.getValor().getValorSimple() == null || dada.getValor().getValorSimple().isEmpty();
+	}
+	
+	/**
+	 * Comprova si el cos d'una variable de tipus Registre esta buit
+	 * @param body
+	 * @return
+	 */
+	private boolean isRegistreEmpty(List<List<String>> body) {
+		if(body == null || body.isEmpty())
+			return true;
+		for(List<String> row : body) {
+			if(row == null)
+				return true;
+			
+			for(String column : row) {
+				// Si te al menys un camp no buit es retorna com a "not empty"
+				if(!Strings.isNullOrEmpty(column))
+					return false;
 			}
 		}
-		return ret;
+		
+		return true;
 	}
 
 	@RequestMapping(value="/{expedientTipusId}/documentDownload", method = RequestMethod.GET)
