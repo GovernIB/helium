@@ -16,7 +16,9 @@ import net.conselldemallorca.helium.core.helper.ParametreHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
+import net.conselldemallorca.helium.integracio.plugins.dadesext.NivellAdministracio;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
@@ -198,6 +200,12 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 	}
 	
 	@Override
+	public UnitatOrganitzativaDto findByCodiExterna(
+			String unitatOrganitzativaCodi) {
+		return pluginHelper.findByCodi(unitatOrganitzativaCodi);
+	}
+	
+	@Override
 	@Transactional
 	public void synchronize(Long entitatId) {
 		UnitatOrganitzativa unitatOrganitzativa = unitatOrganitzativaRepository.findOne(entitatId);
@@ -353,11 +361,48 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 				unitatOrganitzativaHelper.findAll(),
 				UnitatOrganitzativaDto.class);
 	}
+	
+	public List<UnitatOrganitzativaDto> findByFiltre(
+			String nivell, 
+			String provincia, 
+			String municipi, 
+			String nif, 
+			String nom, 
+			Boolean arrel) {
+		return pluginHelper.cercaUnitats(
+				nif, 
+				nom, 
+				nivell, 
+				null, 
+				null, 
+				arrel, 
+				provincia, 
+				municipi);
+//		return conversioTipusHelper.convertirList(
+//				unitatOrganitzativaRepository.findByFiltre(
+//						pareCodi,
+//						Strings.isNullOrEmpty(pareCodi),
+//						provincia, 
+//						Strings.isNullOrEmpty(provincia),
+//						municipi, 
+//						Strings.isNullOrEmpty(municipi), 
+//						nif,
+//						Strings.isNullOrEmpty(nif),
+//						nom, 
+//						Strings.isNullOrEmpty(nom),
+//						arrel != null? arrel : false),
+//				UnitatOrganitzativaDto.class);
+	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat, List<TipusViaDto> tipusViaList, List<ProvinciaDto> provincies) {
 		unitatOrganitzativaHelper.populateDadesExternesUO(unitat, tipusViaList, provincies);
+	}
+
+	@Override
+	public List<NivellAdministracioDto> nivellAdministracioFindAll() {
+		return pluginHelper.nivellAdministracioFindAll();
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(CarrecServiceImpl.class);

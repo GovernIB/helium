@@ -9,12 +9,15 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
+
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 
 
@@ -56,7 +59,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 	}
 	private String getServiceCercaUrl() {
 		String serviceUrl = GlobalProperties.getInstance().getProperty(
-				"aapp.unitats.organiques.dir3.plugin.service.cerca.url");
+				"app.unitats.organiques.dir3.plugin.service.cerca.url");
 		if (serviceUrl == null) {
 			serviceUrl = GlobalProperties.getInstance().getProperty(
 					"app.unitats.organiques.dir3.plugin.service.url");
@@ -154,11 +157,57 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 		}
 	}
 	
+	@Override
+	public List<NivellAdministracioDto> nivellAdministracioFindAll() throws SistemaExternException {
+		try {
+			return getUnitatsOrganitzativesRestClient().nivellAdministracioFindAll();
+		} catch (Exception ex) {
+			throw new SistemaExternException(
+					"No s'han pogut consultar els nivells d'administració",
+					ex);
+		}
+	}
+	
+	public List<UnitatOrganitzativaDto> cercaUnitats(
+			String codi, 
+			String denominacio, 
+			String nivellAdministracio,
+			Long comunitatAutonoma, 
+			Boolean ambOficines, 
+			Boolean esUnitatArrel, 
+			String provincia, 
+			String municipi)
+			throws SistemaExternException {
+		
+		try {
+			List<UnitatOrganitzativaDto> unitatOrganitzativaDto = new ArrayList<UnitatOrganitzativaDto>();
+			List<Nodo> unidades = getUnitatsOrganitzativesRestClient().cercaUnitats(
+					codi, 
+					denominacio, 
+					nivellAdministracio, 
+					comunitatAutonoma, 
+					ambOficines, 
+					esUnitatArrel, 
+					provincia, 
+					municipi);
+			if (unidades != null) {
+				for (Nodo unidad : unidades) {
+					unitatOrganitzativaDto.add(toUnitatOrganitzativa(unidad));
+				}
+			}
+			
+			return unitatOrganitzativaDto;
+		} catch (Exception ex) {
+			throw new SistemaExternException("Error al accedir al plugin d'unitats organitzatives (" + "codi=" + codi + ")", ex);
+		}
+	}
+	
 	private UnitatsOrganitzativesRestClient getUnitatsOrganitzativesRestClient() {
 		UnitatsOrganitzativesRestClient unitatsOrganitzativesRestClient = new UnitatsOrganitzativesRestClient(
 				getServiceUrl(),
 				getServiceUsername(),
 				getServicePassword());
+		unitatsOrganitzativesRestClient.setCercaUrl(getServiceCercaUrl());
 
 		return unitatsOrganitzativesRestClient;
 	}
@@ -181,6 +230,14 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 				unidad.getNombreVia(), 
 				unidad.getNumVia(),
 				unidad.getHistoricosUO());
+		return unitat;
+	}
+	
+	private UnitatOrganitzativaDto toUnitatOrganitzativa(Nodo unidad) {
+		UnitatOrganitzativaDto unitat = new UnitatOrganitzativaDto(
+				unidad.getCodigo(),
+				StringUtils.isEmpty(unidad.getDenominacionCooficial()) ? unidad.getDenominacion() : unidad.getDenominacionCooficial(),
+				unidad.getCif());
 		return unitat;
 	}
 	

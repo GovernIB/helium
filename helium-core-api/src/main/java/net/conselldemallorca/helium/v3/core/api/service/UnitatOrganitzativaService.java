@@ -2,15 +2,16 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.acls.model.NotFoundException;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
 
 
 /**
@@ -97,6 +98,18 @@ public interface UnitatOrganitzativaService {
 	public List<UnitatOrganitzativaDto> findByCodiAndDenominacioFiltre(String text);
 
 	public List<UnitatOrganitzativaDto> findAll();
+	
+	public List<UnitatOrganitzativaDto> findByFiltre(
+			String nivell, 
+			String provincia, 
+			String municipi, 
+			String nif, 
+			String nom, 
+			Boolean arrel);
 
 	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat, List<TipusViaDto> tipusViaList, List<ProvinciaDto> provincies);
+	
+	public List<NivellAdministracioDto> nivellAdministracioFindAll();
+
+	UnitatOrganitzativaDto findByCodiExterna(String unitatOrganitzativaCodi);
 }

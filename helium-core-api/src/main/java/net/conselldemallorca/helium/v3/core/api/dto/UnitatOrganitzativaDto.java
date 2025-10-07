@@ -82,6 +82,15 @@ public class UnitatOrganitzativaDto {
 	public UnitatOrganitzativaDto(
 			String codi,
 			String denominacio,
+			String nifCif) {
+		this.codi = codi;
+		this.denominacio = denominacio;
+		this.nifCif = nifCif;
+	}
+	
+	public UnitatOrganitzativaDto(
+			String codi,
+			String denominacio,
 			String nifCif,
 			Date dataCreacioOficial,
 			String estat,

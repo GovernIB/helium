@@ -150,6 +150,27 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 	List<UnitatOrganitzativa> findByCodiAndDenominacioFiltre(
 			@Param("esNullFiltreCodi") boolean esNullFiltreCodi,
 			@Param("filtre") String filtre);
+
+	@Query("from UnitatOrganitzativa uo "
+			+ " where " 
+			+ " (:isPareCodiNull = true or uo.codiUnitatSuperior = :pareCodi) and " 
+			+ " (:isProvinciaNull = true or uo.codiProvincia = :provincia) and " 
+			+ " (:isMunicipiNull = true or uo.localitat = :municipi) and "
+			+ " (:isNifNull = true or lower(uo.nifCif) = lower(:nif)) and "
+			+ " (:isNomNull = true or lower(uo.denominacio) like lower('%'||:nom||'%')) and "
+			+ " (:arrel = false or uo.codiUnitatSuperior = uo.codiUnitatArrel) ")
+	public List<UnitatOrganitzativa> findByFiltre(
+			@Param("pareCodi") String pareCodi, 
+			@Param("isPareCodiNull") boolean isPareCodiNull, 
+			@Param("provincia") String provincia, 
+			@Param("isProvinciaNull") boolean isProvinciaNull, 
+			@Param("municipi") String municipi, 
+			@Param("isMunicipiNull") boolean isMunicipiNull, 
+			@Param("nif") String nif,
+			@Param("isNifNull") boolean isNifNull, 
+			@Param("nom") String nom, 
+			@Param("isNomNull") boolean isNomNull, 
+			@Param("arrel") Boolean arrel);
 	
 	
 }
