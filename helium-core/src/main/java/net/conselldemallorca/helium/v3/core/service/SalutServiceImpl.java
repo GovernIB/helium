@@ -104,7 +104,8 @@ public class SalutServiceImpl implements SalutService {
 			ContextInfo.builder()
 				.codi("EXT")
 				.nom("API externa")
-				.api(baseUrl + "/notibapi/externa/rest")
+				.path(baseUrl + "/helium/rest")
+				.api(baseUrl + "/helium/rest")
 				.build()
 		);
 	}
