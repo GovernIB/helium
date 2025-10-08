@@ -214,6 +214,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesErrors,
 			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
+			Set<Long> idsSeleccionats,
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findAmbFiltrePaginat(
 				expedientTipusDtoAccessibles,
@@ -238,6 +239,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesErrors,
 				nomesErrorsArxiu,
 				mostrarAnulats,
+				idsSeleccionats,
 				paginacioParams);
 	}
 

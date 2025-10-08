@@ -15,11 +15,6 @@ public class ExpedientTipusAdminCommand {
 	public void setRol(String rol) {
 		this.rol = rol;
 	}
-	
-	public String getNomTipologia() {
-		return nomTipologia;
-	}
-
 	public String getCodiTipologia() {
 		return codiTipologia;
 	}

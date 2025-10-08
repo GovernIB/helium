@@ -266,6 +266,8 @@ function filtreActiu() {
 		filtre = true;
 	if ($("#nomesAlertesCheck").hasClass("active"))
 		filtre = true;
+	if ($("#nomesSeleccioCheck").hasClass("active"))
+		filtre = true;
 	if ($("#nomesErrorsCheck").hasClass("active"))
 		filtre = true;
 	if ($("#nomesErrorsArxiuCheck").hasClass("active"))
@@ -475,6 +477,7 @@ function refrescaEstatSegonPla() {
 			</div>		
 			<div class="col-md-12">
 				<form:hidden path="nomesAlertes"/>
+				<form:hidden path="nomesSeleccio"/>
 				<form:hidden path="nomesErrors"/>
 				<form:hidden path="nomesErrorsArxiu"/>
 				<form:hidden path="nomesTasquesPersonals"/>
@@ -491,7 +494,8 @@ function refrescaEstatSegonPla() {
 							<span><spring:message code="expedient.tipus.document.form.camp.arxiu"/></span>
 							<span class="fa fa-exclamation-triangle"></span>
 						</button>
-						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa  fa-envelope"></span></button>
+						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa fa-envelope"></span></button>
+						<button id="nomesSeleccioCheck" data-path="nomesSeleccio" title="<spring:message code="expedient.llistat.filtre.camp.seleccio"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesSeleccio}"> active</c:if>" data-toggle="button"><span class="fa fa-check"></span></button>
 					</div>
 					<div class="col-md-6">
 						<div class="pull-right">
