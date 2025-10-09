@@ -276,11 +276,11 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						}
 				} else if (camp.getTipus() == CampTipusDto.ACCIO) {
 					// Comprova que la definició de procés també s'exporti
-					if (!command.getDefinicionsProces().contains(camp.getDefprocJbpmKey()) && !esDefinicioProcesGlobal(definicionsProcesGlobals, camp.getDefprocJbpmKey())) {
+					if (!command.getAccions().contains(camp.getJbpmAction())) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(
-										this.codiMissatge + ".variable.accio", 
-										new Object[] {camp.getCodi(), camp.getDefprocJbpmKey()}))
+										this.codiMissatge + ".variable.accioNull", 
+										new Object[] {camp.getCodi(), camp.getJbpmAction()}))
 						.addNode("variables")
 						.addConstraintViolation();
 						valid = false;
