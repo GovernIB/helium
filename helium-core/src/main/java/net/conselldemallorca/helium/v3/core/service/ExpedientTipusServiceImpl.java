@@ -42,6 +42,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
 import es.caib.distribucio.core.api.exception.SistemaExternException;
 import lombok.SneakyThrows;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
@@ -3368,17 +3371,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant els possibles estats per avançar l'expedient (" +
 				"expedientId=" + expedientId+ ")");
-		Expedient expedient = expedientRepository.findOne(expedientId);		
-		int estatOrdre= 0;
-		if (expedient.getEstat() != null ) {
-			estatOrdre =  expedient.getEstat().getOrdre();
-		} else if (expedient.getDataFi() == null) {
-			estatOrdre = 0;
-		} else {
-			estatOrdre = estatRepository.getSeguentOrdre(expedient.getTipus().getId());
-		}
-		List<Estat> estats = estatRepository.findByExpedientTipusAndOrdre(expedient.getTipus(), estatOrdre + 1);
-		return conversioTipusHelper.convertirList(estats, EstatDto.class);
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		if(expedient.getEstat() == null)
+			return null;
+		return conversioTipusHelper.convertirList(expedient.getEstat().getEstatsSortida(), EstatDto.class);
 
 	}
 
@@ -3388,17 +3384,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant els possibles estats per retrocedir l'expedient (" +
 				"expedientId=" + expedientId+ ")");
-		Expedient expedient = expedientRepository.findOne(expedientId);		
-		int estatOrdre= 0;
-		if (expedient.getEstat() != null ) {
-			estatOrdre =  expedient.getEstat().getOrdre();
-		} else if (expedient.getDataFi() == null) {
-			estatOrdre = 0;
-		} else {
-			estatOrdre = estatRepository.getSeguentOrdre(expedient.getTipus().getId());
-		}
-		List<Estat> estats = estatRepository.findByExpedientTipusAndOrdre(expedient.getTipus(), estatOrdre - 1);
-		return conversioTipusHelper.convertirList(estats, EstatDto.class);
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		// S'espera un string amb el següent format: 1,2,3,4,5,6
+		// representant els estats anteriors
+		String estatsPrevis = expedient.getEstatsPrevis();
+		if(estatsPrevis == null || estatsPrevis.trim().length() == 0)
+			return Collections.emptyList();
+		
+		int lastComma = estatsPrevis.lastIndexOf(",");
+		String darrerEstat = estatsPrevis.substring(lastComma + 1, estatsPrevis.length());
+		Long darrerEstatId = Long.parseLong(darrerEstat.trim());
+		return conversioTipusHelper.convertirList(Lists.newArrayList(estatRepository.findOne(darrerEstatId)), EstatDto.class);
 	}
 
 	private EstatExportacio getEstatExportacio(Estat estat, boolean ambPermisos) {

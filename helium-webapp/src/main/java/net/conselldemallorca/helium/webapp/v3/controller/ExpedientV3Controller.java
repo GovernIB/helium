@@ -610,11 +610,12 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	public String estatCanviar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long estatId) {
+			@PathVariable Long estatId,
+			@RequestParam(defaultValue = "false") boolean retrocedir) {
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			if (this.validarVariablesDocumentsCanviEstat(request, expedient, estatId)) {
-				expedientService.estatCanviar(expedient.getId(), estatId);
+				expedientService.estatCanviar(expedient.getId(), estatId, retrocedir);
 				MissatgesHelper.success(request, getMessage(request, "expedient.info.estat.canviar.correcte"));
 			}
 		} catch (Exception ex) {
