@@ -84,10 +84,23 @@ public class ReglaHelper {
 //                usuariCarrecIds.add(carrec.getCodi());
 //        }
 
-        Facts facts = new Facts();
-        for(Camp dada: dades) {
+     // Per cada camp, revisam totes les regles i acumulem quines accions efectivament s'apliquen
+        for (Camp dada: dades) {
             CampFormProperties campFormProperties = getDefaultCampFormProperties();
-            for(EstatRegla regla: regles) {
+            boolean defaultVisible = true;
+            boolean defaultEditable = true;
+            boolean defaultObligatori = false;
+            boolean defaultObligatoriEntrada = false;
+
+            // Banderes que marquen si hem vist alguna regla aplicable amb una acció determinada
+            boolean seenMostrar = false;
+            boolean seenOcultar = false;
+            boolean seenEditar = false;
+            boolean seenBloquejar = false;
+            boolean seenRequerir = false;
+            boolean seenRequerirEntrada = false;
+
+            for (EstatRegla regla : regles) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
                         .quiValors(getCodiValors(regla.getQuiValor()))
@@ -96,19 +109,54 @@ public class ReglaHelper {
                         .accio(regla.getAccio())
                         .usuariCodi(usuariCodi)
                         .usuariRols(usuariRols)
-//                        .usuariCarrecIds(usuariCarrecIds)
                         .tipus(TipusVarEnum.DADA)
                         .varCodi(dada.getCodi())
                         .agrupacioCodi(dada.getAgrupacio() != null ? dada.getAgrupacio().getCodi() : null)
-                        .visible(campFormProperties.isVisible())
-                        .editable(campFormProperties.isEditable())
-                        .obligatori(campFormProperties.isObligatori())
-                        .obligatoriEntrada(campFormProperties.isObligatoriEntrada())
+                        .visible(defaultVisible)
+                        .editable(defaultEditable)
+                        .obligatori(defaultObligatori)
+                        .obligatoriEntrada(defaultObligatoriEntrada)
                         .build();
+
+                // Usar Facts nou per cada regla (evita contaminacions/residus)
+                Facts facts = new Facts();
                 facts.put("fact", variableFact);
+
+                // Executa el engine per a aquesta combinació (qui+que+accio sobre aquest camp)
                 rulesEngine.fire(rules, facts);
-                campFormProperties = getCampFormProperties(variableFact);
+
+                // Si aplica la regla (es va complir qui->que), marquem l'acció corresponent
+                if (variableFact.isAplicaReglaQue()) {
+                    switch (regla.getAccio()) {
+                        case MOSTRAR: seenMostrar = true; campFormProperties.setVisible(true); break;
+                        case OCULTAR: seenOcultar = true; campFormProperties.setVisible(false); break;
+                        case EDITAR: seenEditar = true; campFormProperties.setEditable(true); break;
+                        case BLOQUEJAR: seenBloquejar = true; campFormProperties.setEditable(false); break;
+                        case REQUERIR: seenRequerir = true; campFormProperties.setObligatori(true); break;
+                        case REQUERIR_ENTRAR: seenRequerirEntrada = true; campFormProperties.setObligatoriEntrada(true); break;
+                        default: break;
+                    }
+                }
             }
+
+            // Combinació determinista d'efectes
+            boolean finalVisible = defaultVisible;
+            if (seenOcultar) {
+                finalVisible = false;
+            } else if (seenMostrar) {
+                finalVisible = true;
+            }
+
+            boolean finalEditable = defaultEditable;
+            if (seenBloquejar) {
+                finalEditable = false;
+            } else if (seenEditar) {
+                finalEditable = true;
+            }
+
+            boolean finalObligatori = defaultObligatori || seenRequerir;
+            boolean finalObligatoriEntrada = defaultObligatoriEntrada || seenRequerirEntrada;
+
             campFormPropertiesMap.put(dada.getCodi(), campFormProperties);
         }
 

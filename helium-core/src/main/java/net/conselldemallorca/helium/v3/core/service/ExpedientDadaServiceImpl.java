@@ -410,7 +410,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		Estat estat = estatId != null? estatRepository.findOne(estatId) : expedient.getEstat();
 		
 		Map<String, CampFormProperties> campsFormProperties = reglaHelper.getCampFormProperties(expedient.getTipus(), estat);
-
 		List<DadaListDto> dades = new ArrayList<DadaListDto>();
 		List<String> dadesCodis = new ArrayList<String>();
 

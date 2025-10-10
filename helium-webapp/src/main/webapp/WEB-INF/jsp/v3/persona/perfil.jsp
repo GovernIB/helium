@@ -48,7 +48,6 @@
 		});	
 
 		$('select[name=expedientTipusDefecteId]').on('change', function () {
-			console.log("hola");
 			$('select[name=consultaId]').empty();
 			$("select[name=consultaId]").append($('<option value=""></option>'));
 			if ($(this).val()) {
