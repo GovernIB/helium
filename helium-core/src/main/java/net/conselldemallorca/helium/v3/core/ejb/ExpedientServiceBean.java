@@ -753,8 +753,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public EstatDto estatCanviar(Long expedientId, Long estatId) {
-		return delegate.estatCanviar(expedientId, estatId);
+	public EstatDto estatCanviar(Long expedientId, Long estatId, boolean retrocedir) {
+		return delegate.estatCanviar(expedientId, estatId, retrocedir);
 	}
 	
 	@Override

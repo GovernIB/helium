@@ -177,6 +177,9 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private Date syncReintentData;
 	/** Número d'intents de sincronització amb l'Arxiu. */
 	private Long syncReintents;
+	
+	private String estatsPrevis;
+	
 
 	public Expedient() {}
 	public Expedient(IniciadorTipus iniciadorTipus, String iniciadorCodi, ExpedientTipus tipus, Entorn entorn, String processInstanceId) {
@@ -833,6 +836,13 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	public void setSyncReintents(Long syncReintents) {
 		this.syncReintents = syncReintents;
+	}
+	@Column(name="ESTATS_PREVIS", nullable=true)
+	public String getEstatsPrevis() {
+		return estatsPrevis;
+	}
+	public void setEstatsPrevis(String estatsPrevis) {
+		this.estatsPrevis = estatsPrevis;
 	}
 	public void addErrorArxiu(String nouErrorArxiu) {
 		if (nouErrorArxiu!=null && !"".equals(nouErrorArxiu)) {

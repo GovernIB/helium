@@ -322,7 +322,7 @@ dd.subproc {
 		<!-- Botons per retrocedir d'estat -->
 		<c:if test="${estatsRetrocedir != null }">
 			<c:forEach var="estat" items="${estatsRetrocedir}">
-				<a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />" class="btn btn-warning"  style="float: left; margin-left: 15px;">
+				<a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar?retrocedir=true" />" class="btn btn-warning"  style="float: left; margin-left: 15px;">
 					<b>&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a>					
 			</c:forEach>
 		</c:if>
@@ -618,7 +618,7 @@ dd.subproc {
 							<c:if test="${perEstats == true }">
 								<li class="divider"></li>
 								<c:forEach var="estat" items="${estatsRetrocedir}">
-									<li><a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />">
+									<li><a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar?retrocedir=true" />">
 										<b>&lt;&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a></li>
 								</c:forEach>
 							

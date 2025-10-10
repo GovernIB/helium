@@ -3834,7 +3834,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	 */
 	@Override
 	@Transactional
-	public EstatDto estatCanviar(Long expedientId, Long estatId) {
+	public EstatDto estatCanviar(Long expedientId, Long estatId, boolean retrocedir) {
 		
 		logger.debug("Canviant l'estat a l'expedient (" +
 				"estatId=" + estatId + ")");
@@ -3846,7 +3846,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false,
 				false);
 
-		Estat estat = expedientHelper.estatCanviar(expedient, estatId);
+		Estat estat = expedientHelper.estatCanviar(expedient, estatId, retrocedir);
 
 		// Reindexa l'expedient
 		expedientHelper.verificarFinalitzacioExpedient(expedient);

@@ -1059,7 +1059,7 @@ public interface ExpedientService {
 	 * @param estatId
 	 * @return
 	 */
-	public EstatDto estatCanviar(Long expedientId, Long estatId);
+	public EstatDto estatCanviar(Long expedientId, Long estatId, boolean retrocedir);
 
 	public void syncArxiu(Long id, boolean esborrarExpSiError);
 

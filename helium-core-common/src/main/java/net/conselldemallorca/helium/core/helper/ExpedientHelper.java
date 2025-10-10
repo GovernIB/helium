@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.core.helper;
 import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -1996,7 +1997,7 @@ public class ExpedientHelper {
 		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
 			List<Estat> estats = estatRepository.findAllAmbHerencia(expedientTipusId);
 			if (estats != null && !estats.isEmpty()) {
-				this.estatCanviar(expedientPerRetornar, estats.get(0).getId());
+				this.estatCanviar(expedientPerRetornar, estats.get(0).getId(), false);
 			}
 		}
 		
@@ -2295,14 +2296,15 @@ public class ExpedientHelper {
 	    return "ES_" + org + "_" + any + "_EXP_HEL" + id;
 	}
 
-	public Estat estatCanviar(Expedient expedient, Long estatId) {
+	public Estat estatCanviar(Expedient expedient, Long estatId, boolean retrocedir) {
 		Estat estatActual = expedient.getEstat();
 		Estat estatFutur = estatRepository.findOne(estatId);
 		if (estatFutur.getExpedientTipus().getId() != expedient.getTipus().getId()) {
 			throw new ValidacioException("L'estat " + estatId + " no pertany al tipus d'expedient de l'expedient " + expedient.getId());
 		}
-
+		Long currentEstat = null;
 		if (expedient.getEstat() != null) {
+			currentEstat = expedient.getEstat().getId();
 			List<EstatAccioSortida> accionsSortida = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estatActual);
 			// Executa les accions de sortida
 			for (EstatAccioSortida estatAccioSortida : accionsSortida) {
@@ -2319,7 +2321,24 @@ public class ExpedientHelper {
 			}
 		}
 		expedient.setEstat(estat);
-
+		String estatsPrevis = expedient.getEstatsPrevis();
+		
+		
+		List<String> estatIds;
+		if(estatsPrevis == null || estatsPrevis.trim().isEmpty()) {
+			estatIds = new ArrayList<String>();
+		} else {
+			estatIds = new ArrayList<String>(Arrays.asList(estatsPrevis.split(",")));
+		}
+		
+		if(retrocedir) {
+			estatIds.remove(estatIds.size() - 1);
+		} else if(currentEstat != null) {
+			estatIds.add(currentEstat.toString());
+		}
+		
+		expedient.setEstatsPrevis(String.join(",", estatIds));
+		
 		expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_ESTAT_CANVIAR,

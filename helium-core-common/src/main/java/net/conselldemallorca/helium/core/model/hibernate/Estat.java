@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -52,7 +55,7 @@ public class Estat implements Serializable, GenericEntity<Long> {
 	@NotNull
 	private ExpedientTipus expedientTipus;
 
-
+	private List<Estat> estatsSortida;
 
 	public Estat() {}
 	public Estat(ExpedientTipus expedientTipus, String codi, String nom) {
@@ -114,8 +117,19 @@ public class Estat implements Serializable, GenericEntity<Long> {
 		this.expedientTipus = expedientTipus;
 	}
 
-
-
+	@ManyToMany
+	@JoinTable(
+		name = "HEL_ESTAT_SORTIDA",
+		joinColumns = @JoinColumn(name = "ESTAT_ID"),
+		inverseJoinColumns = @JoinColumn(name = "ESTAT_SEGUENT_ID")
+	)
+	public List<Estat> getEstatsSortida() {
+		return estatsSortida;
+	}
+	public void setEstatsSortida(List<Estat> estatsSortida) {
+		this.estatsSortida = estatsSortida;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
