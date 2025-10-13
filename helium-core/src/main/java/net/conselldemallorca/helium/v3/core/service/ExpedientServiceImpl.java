@@ -1594,8 +1594,43 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			addCurrentlyMigrating(id);
 			this.migrarArxiu(id, esborrarExpSiError);
 			this.migrarDocumentsArxiu(id, esborrarExpSiError);
+			this.finalitzaArxiuMigrat(id);
 		} finally {
 			deleteCurrentlyMigrating(id);
+		}
+	}
+	
+	@Transactional
+	private void finalitzaArxiuMigrat(Long id) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+		try {
+			if(expedient.getDataFi() == null)
+				return;
+			
+			expedientHelper.tancarExpedientArxiu(id, true);
+		} catch(Exception ex) {
+			String errorDescripcio = "Error finalitzant l'expedient migrant " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
+			try {
+				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+			} catch(Exception aex) {
+				logger.error("Error esborrant l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.", aex);
+			}
+			throw new TramitacioException(
+					expedient.getEntorn().getId(), 
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					errorDescripcio, 
+					ex);
 		}
 	}
 	
