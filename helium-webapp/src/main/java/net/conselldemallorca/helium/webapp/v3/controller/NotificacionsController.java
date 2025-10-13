@@ -117,7 +117,7 @@ public class NotificacionsController extends BaseExpedientController {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			if (entornActual != null) {
 				filtreCommand.setEntornId(entornActual.getId());
-				expedientTipusDtoAccessibles = expedientTipusService.findAmbEntornPermisAdmin(entornActual.getId());
+				expedientTipusDtoAccessibles = expedientTipusService.findAmbEntornPermisConsultar(entornActual.getId());
 			}
 	
 			if (expedientTipusDtoAccessibles==null || expedientTipusDtoAccessibles.size()==0) {

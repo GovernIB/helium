@@ -72,7 +72,7 @@
 			<hel:inputDate name="dataPeticioIni" textKey="consultes.potafib.camp.filtreDesde" placeholderKey="consultes.potafib.camp.filtreDesde" inline="true"/>
 		</div>		
 		<div class="col-md-2">
-			<hel:inputDate name="dataPeticioIni" textKey="consultes.potafib.camp.filtreFins" placeholderKey="consultes.potafib.camp.filtreFins" inline="true"/>
+			<hel:inputDate name="dataPeticioFi" textKey="consultes.potafib.camp.filtreFins" placeholderKey="consultes.potafib.camp.filtreFins" inline="true"/>
 		</div>	
 		<div class="col-md-3">
 			<hel:inputSelect 
@@ -138,11 +138,18 @@
 						{{if estat=='ESBORRAT'}}<span class="fa fa-times"></span> Esborrat{{/if}}					
 					</script>
 				</th>
+				
 				<th data-col-name="documentNom" data-template="#cellDocTemplate" width="15%" data-orderable="false"><spring:message code="consultes.potafib.camp.nomDoc"/>
 					<script id="cellDocTemplate" type="text/x-jsrender">
-						<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentStoreId}}/descarregar"/>" target="_blank">{{:documentNom}}</a>
+						<a data-some="{{:signaturaUrlVerificacio}}" href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentStoreId}}/descarregar"/>" target="_blank">{{:documentNom}}</a>
+						{{if signaturaUrlVerificacio!=null}}
+						<a href="<c:url value="{{:signaturaUrlVerificacio}}"/>" target="_blank">
+							<span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span>
+						</a>
+						{{/if}}
 					</script>
-				</th>					
+				</th>
+				
 				<th data-col-name="expedientId" data-visible="false"></th>
 				<th data-col-name="tipusExpedientCodi" data-visible="false"></th>
 				<th data-col-name="transicio" data-visible="false"></th>
@@ -150,6 +157,7 @@
 				<th data-col-name="documentStoreId" data-visible="false"></th>
 				<th data-col-name="errorProcessant" data-visible="false"></th>
 				<th data-col-name="entornNom" data-visible="false"></th>
+				<th data-col-name="signaturaUrlVerificacio" data-visible="false"></th>
 				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown navbar-right">

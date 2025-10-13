@@ -59,7 +59,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			//També es filtra per els tipus de expedient amb permis admin
 			tipusPermesos = new ArrayList<Long>();
 			if (entornActualId!=null) {
-				List<ExpedientTipusDto> tipusPermisAdmin = expedientTipusService.findAmbEntornPermisAdmin(entornActualId);
+				List<ExpedientTipusDto> tipusPermisAdmin = expedientTipusService.findAmbEntornPermisConsultar(entornActualId);
 				if (tipusPermisAdmin!=null) {
 					for (ExpedientTipusDto etDto: tipusPermisAdmin) {
 						tipusPermesos.add(etDto.getId());
