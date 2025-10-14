@@ -36,6 +36,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
@@ -189,7 +190,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			
         }
 	}
-
+	
 	@RequestMapping(value = "/{expedientTipusId}/estat/{id}/update", method = RequestMethod.GET)
 	public String modificar(
 			HttpServletRequest request,
@@ -1229,6 +1230,148 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		return expedientTipusService.estatAccioSortidaMoure(estatAccioId, posicio);
 	}
 
+	
+	// ESTATS SORTIDA
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/sortida", method = RequestMethod.GET)
+	public String modificarSortida(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			Model model) {
+		
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(),
+				expedientTipusId);
+		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
+		model.addAttribute("expedientTipus", expedientTipus);
+		model.addAttribute("estat", estat);
+		model.addAttribute("heretat", estat.isHeretat());
+		model.addAttribute("estatsSortida", expedientTipusService.estatFindAll(expedientTipusId, true));
+
+		return "v3/expedientTipusEstatSortida";
+	}
+	
+	// @RequestMapping(value = "/{expedientTipusId}/estat/{id}/sortida", method = RequestMethod.POST)
+	// public String modificarSortida(
+	// 		HttpServletRequest request,
+	// 		@PathVariable Long expedientTipusId,
+	// 		@Validated(ExpedientTipusEstatCommand.Modificacio.class) ExpedientTipusEstatCommand command,
+	// 		@PathVariable Long id,
+	// 		Model model) {
+		
+	// 	// service.updateEstatsSortida(command.getEstatsSortida());
+	// 	return "v3/expedientTipusEstatForm";
+	// }
+
+	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/sortida/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	public DatatablesResponse estatSortidaDatatable(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			Model model) {
+		
+		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
+
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				Lists.newArrayList(estat.getEstatsSortida()),
+				"id");		
+	}	
+
+	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/sortida/add/{sortidaId}", method = RequestMethod.POST)
+	@ResponseBody
+	public boolean estatSortidaAfegir(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long sortidaId) {
+		try {
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+
+			expedientTipusService.estatSortidaAfegir(
+					estatId,
+					sortidaId);
+
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.sortida.afegir.correcte"));
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.accio.afegir.error",
+							new Object[] {e.getMessage()}),
+					e);
+		}
+		return false;
+	}	
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/sortida/{estatSortidaId}/delete")
+	@ResponseBody
+	public boolean estatSortidaDelete(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long estatSortidaId,
+			Model model) {
+
+		try {
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+
+			expedientTipusService.estatSortidaDelete(
+					estatId,
+					estatSortidaId);
+
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.sortida.esborrar.correcte"));
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.esborrar.error",
+							new Object[] {e.getMessage()}),
+					e);
+		}
+		return false;
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/sortida/{estatAccioId}/moure/{posicio}", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean estatSortidaMoure(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long estatAccioId,
+			@PathVariable int posicio,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(),
+				expedientTipusId);
+
+		return expedientTipusService.estatAccioSortidaMoure(estatAccioId, posicio);
+	}
+	
+	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));

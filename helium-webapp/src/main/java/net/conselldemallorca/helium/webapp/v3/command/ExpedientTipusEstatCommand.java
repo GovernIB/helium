@@ -1,9 +1,12 @@
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import java.util.List;
+
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;
@@ -22,6 +25,8 @@ public class ExpedientTipusEstatCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
 	private int ordre;
+	
+	private List<ExpedientTipusEstatCommand> estatsSortida;
 
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -56,6 +61,14 @@ public class ExpedientTipusEstatCommand {
 	public void setOrdre(int ordre) {
 		this.ordre = ordre;
 	}
+
+	public List<ExpedientTipusEstatCommand> getEstatsSortida() {
+		return estatsSortida;
+	}
+	public void setEstatsSortida(List<ExpedientTipusEstatCommand> estatsSortida) {
+		this.estatsSortida = estatsSortida;
+	}
+
 
 	public interface Creacio {}
 	public interface Modificacio {}

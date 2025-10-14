@@ -1181,6 +1181,27 @@ public interface ExpedientTipusService {
 	public boolean estatAccioSortidaMoure(Long estatAccioId, int posicio);
 
 	
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// ESTATS DE SORTIDA DE L'ESTAT
+	
+	/** 
+	 * Afegeix un estat de sortida a l'estat.
+	 * 
+	 * @param estatId
+	 * @param sortidaId
+	 */
+	public EstatDto estatSortidaAfegir(Long estatId, Long sortidaId);
+	
+	/** 
+	 * Esborra un estat de sortida a l'estat.
+	 * 
+	 * @param estatId
+	 * @param sortidaId
+	 */
+	public void estatSortidaDelete(Long estatId, Long sortidaId);
+
+	
 	/**
 	 * Crea una nova consulta.
 	 * 
