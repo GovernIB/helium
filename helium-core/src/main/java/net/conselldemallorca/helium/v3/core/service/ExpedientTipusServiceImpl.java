@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import es.caib.distribucio.core.api.exception.SistemaExternException;
 import lombok.SneakyThrows;
@@ -3376,7 +3377,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if(expedient.getEstat() == null)
 			return null;
-		return conversioTipusHelper.convertirList(expedient.getEstat().getEstatsSortida(), EstatDto.class);
+		return conversioTipusHelper.convertirList(Lists.newArrayList(expedient.getEstat().getEstatsSortida()), EstatDto.class);
 
 	}
 
@@ -4129,7 +4130,37 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				
 			}
 		}
-	}	
+	}
+	
+	
+	@Override
+	@Transactional
+	public EstatDto estatSortidaAfegir(Long estatId, Long sortidaId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		Estat sortida = estatRepository.findOne(sortidaId);
+		if(!estat.getEstatsSortida().contains(sortida)) {
+			if(estat.getEstatsSortida() == null) {
+				estat.setEstatsSortida(Sets.newHashSet(sortida));
+			} else {
+				estat.getEstatsSortida().add(sortida);
+			}
+		}
+		return conversioTipusHelper.convertir(
+				sortida, 
+				EstatDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public void estatSortidaDelete(Long estatId, Long sortidaId) {
+		Estat estat = estatRepository.findOne(estatId);
+		Estat sortida = estatRepository.findOne(sortidaId);
+		if(!estat.getEstatsSortida().contains(sortida)) {
+			return;
+		}
+		estat.getEstatsSortida().remove(sortida);
+	}
+
 	
 	/**
 	 * {@inheritDoc}

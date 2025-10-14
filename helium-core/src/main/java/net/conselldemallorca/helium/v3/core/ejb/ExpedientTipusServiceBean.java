@@ -360,6 +360,19 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public void definicioProcesIncorporar(Long expedientTipusId, Long id, boolean sobreescriure, boolean tasques) throws ExportException {
 		delegate.definicioProcesIncorporar(expedientTipusId, id, sobreescriure, tasques);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EstatDto estatSortidaAfegir(Long estatId, Long sortidaId) {
+		return delegate.estatSortidaAfegir(estatId, sortidaId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void estatSortidaDelete(Long estatId, Long sortidaId) {
+		delegate.estatSortidaDelete(estatId, sortidaId);
+	}
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -989,8 +1002,5 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			String organ,
 			String clasificacio) throws SistemaExternException {
 		return delegate.arxiuCheckSerieDocumental(serieDocumental, organ, clasificacio);
-	}
-	
-	
-
+	}	
 }
