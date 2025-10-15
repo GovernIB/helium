@@ -63,7 +63,6 @@
                 // el PDF viene en base64
                 var viewerUrl = 'data:application/pdf;base64,' + json.data.contingut;
                 $('#docPreview').attr('data', viewerUrl);
-                $('#docLink').attr('href', viewerUrl);
             }
         },
         error: function(xhr, ajaxOptions, thrownError) {
@@ -78,9 +77,7 @@
 </head>
 <body>	
 	<div id="viewer">
-	    <object id="docPreview" type="application/pdf"  style="height: 90vh; width: 100vw;">
-	        <p>No es pot mostrar la vista prèvia. <a id="docLink" href=${downloadUrl}>Descarregar</a></p>
-	    </object>
+	    <object id="docPreview" type="application/pdf"  style="height: 90vh; width: 100vw;"></object>
 	</div>	
 </body>
 </html>
