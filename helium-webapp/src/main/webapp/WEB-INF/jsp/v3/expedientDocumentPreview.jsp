@@ -93,7 +93,6 @@
 				<span class="fa fa-circle-o-notch fa-spin fa-3x"></span>
 			</div>
 		</div>
-		<p id="unableToPreview" class="hidden">No es pot mostrar la vista prèvia. <a id="docLink" href=${downloadUrl}>Descarregar</a></p>
 		<object id="docPreview" type="application/pdf"  style="height: 90vh; width: 100vw;">
 		</object>
 	</div>
