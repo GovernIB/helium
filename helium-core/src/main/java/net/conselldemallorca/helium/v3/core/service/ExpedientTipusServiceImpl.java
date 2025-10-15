@@ -1675,20 +1675,22 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setIgnored(documentExportat.isIgnored());
 
 						document.setPortafirmesActiu(documentExportat.isPortafirmesActiu());
-						document.setPortafirmesFluxId(documentExportat.getPortafirmesFluxId());
-						if (documentExportat.getPortafirmesFluxId() != null) {
-							if (documentExportat.getPortafirmesFluxNom() == null) {
-								// Consulta el flux per tenir el nom 
-								try {
-									PortafirmesFluxInfoDto fluxInfo = pluginHelper.portafirmesRecuperarInfoFluxDeFirma(
-											document.getPortafirmesFluxId(), 
-											LocaleContextHolder.getLocale().getLanguage());
-									document.setPortafirmesFluxNom(fluxInfo.getNom());
-								} catch(Exception e) {
-									logger.error("Error consultant la informació del flux de firma " + document.getPortafirmesFluxId() + ": " + e.getMessage());
+						if(document.getPortafirmesFluxId() == null) {
+							document.setPortafirmesFluxId(documentExportat.getPortafirmesFluxId());
+							if (documentExportat.getPortafirmesFluxId() != null) {
+								if (documentExportat.getPortafirmesFluxNom() == null) {
+									// Consulta el flux per tenir el nom 
+									try {
+										PortafirmesFluxInfoDto fluxInfo = pluginHelper.portafirmesRecuperarInfoFluxDeFirma(
+												document.getPortafirmesFluxId(), 
+												LocaleContextHolder.getLocale().getLanguage());
+										document.setPortafirmesFluxNom(fluxInfo.getNom());
+									} catch(Exception e) {
+										logger.error("Error consultant la informació del flux de firma " + document.getPortafirmesFluxId() + ": " + e.getMessage());
+									}
+								} else {
+									document.setPortafirmesFluxNom(documentExportat.getPortafirmesFluxNom());
 								}
-							} else {
-								document.setPortafirmesFluxNom(documentExportat.getPortafirmesFluxNom());
 							}
 						}
 						document.setPortafirmesFluxTipus(documentExportat.getPortafirmesFluxTipus());
