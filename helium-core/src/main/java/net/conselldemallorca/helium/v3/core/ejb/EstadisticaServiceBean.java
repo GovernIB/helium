@@ -10,9 +10,9 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.DimensioDesc;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.IndicadorDesc;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.RegistresEstadistics;
+import es.caib.comanda.ms.estadistica.model.DimensioDesc;
+import es.caib.comanda.ms.estadistica.model.IndicadorDesc;
+import es.caib.comanda.ms.estadistica.model.RegistresEstadistics;
 import net.conselldemallorca.helium.v3.core.api.service.EstadisticaService;
 
 /**

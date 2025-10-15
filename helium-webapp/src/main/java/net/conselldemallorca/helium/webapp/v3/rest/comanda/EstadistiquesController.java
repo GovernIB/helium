@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.DimensioDesc;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.EstadistiquesInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.IndicadorDesc;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.RegistresEstadistics;
+import es.caib.comanda.ms.estadistica.model.DimensioDesc;
+import es.caib.comanda.ms.estadistica.model.EstadistiquesInfo;
+import es.caib.comanda.ms.estadistica.model.IndicadorDesc;
+import es.caib.comanda.ms.estadistica.model.RegistresEstadistics;
 import net.conselldemallorca.helium.v3.core.api.service.EstadisticaService;
 
 @Controller

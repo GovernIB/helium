@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -15,26 +17,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
+import es.caib.comanda.ms.estadistica.model.DiaSetmanaEnum;
+import es.caib.comanda.ms.estadistica.model.Dimensio;
+import es.caib.comanda.ms.estadistica.model.DimensioDesc;
+import es.caib.comanda.ms.estadistica.model.Fet;
+import es.caib.comanda.ms.estadistica.model.Format;
+import es.caib.comanda.ms.estadistica.model.GenericDimensio;
+import es.caib.comanda.ms.estadistica.model.GenericFet;
+import es.caib.comanda.ms.estadistica.model.IndicadorDesc;
+import es.caib.comanda.ms.estadistica.model.RegistreEstadistic;
+import es.caib.comanda.ms.estadistica.model.RegistresEstadistics;
+import es.caib.comanda.ms.estadistica.model.Temps;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExplotacioDimensio;
 import net.conselldemallorca.helium.core.model.hibernate.ExplotacioFets;
 import net.conselldemallorca.helium.core.model.hibernate.ExplotacioTemps;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.DiaSetmanaEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.comanda.DimEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.Dimensio;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.DimensioDesc;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.DimensioHelium;
 import net.conselldemallorca.helium.v3.core.api.dto.comanda.ExplotacioDimensioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.comanda.ExplotacioFetsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.Fet;
 import net.conselldemallorca.helium.v3.core.api.dto.comanda.FetEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.FetHelium;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.Format;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.IndicadorDesc;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.RegistreEstadistic;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.RegistresEstadistics;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.Temps;
 import net.conselldemallorca.helium.v3.core.api.service.EstadisticaService;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
@@ -151,7 +153,7 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 						.trimestre((c.get(Calendar.MONTH) + 1) / 3)
 						.setmana(c.get(Calendar.WEEK_OF_YEAR))
 						.dia(c.get(Calendar.DAY_OF_MONTH))
-						.diaSetmana(DiaSetmanaEnum.valueOfData(c.get(Calendar.DAY_OF_WEEK)))
+						.diaSetmana(DiaSetmanaEnum.valueOf(c.get(Calendar.DAY_OF_WEEK)))
 						.build());
 			}
 			
@@ -168,20 +170,20 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 	@Transactional
 	@Override
 	public RegistresEstadistics consultaEstadistiques(Date data) {
-		Date dia = truncDay(data);
-		ExplotacioTemps temps = explotacioTempsRepository.findFirstByData(dia);
-		if (temps == null) {
+		//Date dia = truncDay(data);
+		//ExplotacioTemps temps = explotacioTempsRepository.findFirstByData(dia);
+		//if (temps == null) {
 			// Si no existeixen dades, les generam
-			Date now = new Date();
-			Date ahir = DateUtils.addDays(now, -1);
-			Date dema = DateUtils.addDays(now, 1);
-			if (!isDayAfter(dia, ahir)) {
+			//Date now = new Date();
+			//Date ahir = DateUtils.addDays(now, -1);
+			//Date dema = DateUtils.addDays(now, 1);
+			//if (!isDayAfter(dia, ahir)) {
 				generarDadesExplotacio(data);
-			} else if (isDayBefore(dia, dema)) {
+			//} else if (isDayBefore(dia, dema)) {
 				// data es el dia d'avui
 				// generarDadesExplotacioBasiques(ahir, data);
-			}
-		}
+			//}
+		//}
 		return getRegistresEstadistics(data);
 	}
 	
@@ -206,24 +208,24 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 	
 	private RegistreEstadistic toRegistreEstadistic(ExplotacioFets expFets) {
 			List<Dimensio> dimensions = new ArrayList<Dimensio>();
-			dimensions.add(new DimensioHelium(DimEnum.UOR.name(), expFets.getDimensio().getUnitatOrganitzativaCodi()));
-			dimensions.add(new DimensioHelium(DimEnum.TIP.name(), expFets.getDimensio().getTipusCodi()));
-			dimensions.add(new DimensioHelium(DimEnum.ENT.name(), expFets.getDimensio().getEntornCodi()));
+			dimensions.add(new GenericDimensio(DimEnum.UOR.name(), expFets.getDimensio().getUnitatOrganitzativaCodi()));
+			dimensions.add(new GenericDimensio(DimEnum.TIP.name(), expFets.getDimensio().getTipusCodi()));
+			dimensions.add(new GenericDimensio(DimEnum.ENT.name(), expFets.getDimensio().getEntornCodi()));
 			
 			List<Fet> fets = new ArrayList<Fet>();
-			fets.add(FetHelium.builder().codi(FetEnum.EXP_TOT.name()).valor(expFets.getExpedientsTotals().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.EXP_OBE.name()).valor(expFets.getExpedientsOberts().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.EXP_TAN.name()).valor(expFets.getExpedientsTancats().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.EXP_ANUL.name()).valor(expFets.getExpedientsAnulats().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.EXP_NO_ANUL.name()).valor(expFets.getExpedientsNoAnulats().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.EXP_ARX.name()).valor(expFets.getExpedientsArxiu().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.TAS_PEN.name()).valor(expFets.getTasquesPendents().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.TAS_FIN.name()).valor(expFets.getTasquesFinalitzades().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.AN_PEN.name()).valor(expFets.getAnotacionPendents().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.AN_PROC.name()).valor(expFets.getAnotacionProcessades().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.CO_PINBAL.name()).valor(expFets.getPeticionsPinbal().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.CO_NOTIB.name()).valor(expFets.getPeticionsNotib().doubleValue()).build());
-			fets.add(FetHelium.builder().codi(FetEnum.CO_PORTAFIB.name()).valor(expFets.getPeticionsPortafib().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.EXP_TOT.name()).valor(expFets.getExpedientsTotals().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.EXP_OBE.name()).valor(expFets.getExpedientsOberts().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.EXP_TAN.name()).valor(expFets.getExpedientsTancats().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.EXP_ANUL.name()).valor(expFets.getExpedientsAnulats().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.EXP_NO_ANUL.name()).valor(expFets.getExpedientsNoAnulats().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.EXP_ARX.name()).valor(expFets.getExpedientsArxiu().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.TAS_PEN.name()).valor(expFets.getTasquesPendents().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.TAS_FIN.name()).valor(expFets.getTasquesFinalitzades().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.AN_PEN.name()).valor(expFets.getAnotacionPendents().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.AN_PROC.name()).valor(expFets.getAnotacionProcessades().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.CO_PINBAL.name()).valor(expFets.getPeticionsPinbal().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.CO_NOTIB.name()).valor(expFets.getPeticionsNotib().doubleValue()).build());
+			fets.add(GenericFet.builder().codi(FetEnum.CO_PORTAFIB.name()).valor(expFets.getPeticionsPortafib().doubleValue()).build());
 			
 			return RegistreEstadistic.builder()
 						.dimensions(dimensions)
@@ -346,25 +348,27 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 		List<ExplotacioFets> ef = explotacioFetsRepository.findByTempsId(ete.getId());
 		explotacioFetsRepository.delete(ef);
 		//explotacioFetsRepository.deleteByTempsId(ete.getId());
-		Date data = DateUtils.truncate(DateUtils.addDays(ete.getData(), 1), Calendar.DATE);
+		Date data = DateUtils.truncate(ete.getData(), Calendar.DATE);
 		List<ExplotacioFetsDto> estadistiques = getFetsPerEstadistiques(data);
 		
-		int dadaIndex = 0;
-		int dimensionIndex = 0;
-		// Les dues llistes estan ordenades
-		while (dadaIndex < estadistiques.size() && dimensionIndex < dimensions.size()) {
-			ExplotacioFetsDto estadistica = estadistiques.get(dadaIndex);
-			ExplotacioDimensio dimension = dimensions.get(dimensionIndex);
-			
-			int comparison = compareEstadistiquesAndDimensions(estadistica, dimension);
-			if (comparison == 0) {
-				saveToFetsEntity(estadistica, dimension, ete);
-				dadaIndex++;
-			} else if (comparison < 0) {
-				dadaIndex++;
-			} else {
-				dimensionIndex++;
-			}
+		Map<List<Long>, ExplotacioDimensio> dimensionsMap = new HashMap<List<Long>, ExplotacioDimensio>();
+		for(ExplotacioDimensio dimensio : dimensions) {
+			dimensionsMap.put(
+					Lists.newArrayList(dimensio.getEntornId(), dimensio.getTipusId(), dimensio.getUnitatOrganitzativaId()),
+					dimensio);
+		}
+		
+		for (ExplotacioFetsDto estadistica :  estadistiques) {
+			// ExplotacioFetsDto  = estadistiques.get(dadaIndex);
+			ExplotacioDimensio dimension = dimensionsMap.get(
+					Lists.newArrayList(
+							estadistica.getEntornId(), 
+							estadistica.getTipusExpedientId(), 
+							estadistica.getUnitatOrganitzativaId()));
+			// Si el un tipus mai ha tingut expedients l'ignoram
+			if(dimension == null)
+				continue;
+			saveToFetsEntity(estadistica, dimension, ete);
 		}
 	}
 	
@@ -372,7 +376,6 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 	private List<ExplotacioFetsDto> getFetsPerEstadistiques(Date data) {
 		List<ExplotacioFetsDto> estadistiques = new ArrayList<ExplotacioFetsDto>();
 		List<Object[]> estadistiquesRe = explotacioFetsRepository.getFetsPerEstadistiques(
-				data == null,
 				data);
 		for(Object[] e : estadistiquesRe) {
 			estadistiques.add(new ExplotacioFetsDto(

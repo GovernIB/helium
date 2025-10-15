@@ -2,14 +2,14 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.AppInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.ContextInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.SalutInfo;
+import es.caib.comanda.ms.salut.model.ContextInfo;
+import es.caib.comanda.ms.salut.model.IntegracioInfo;
+import es.caib.comanda.ms.salut.model.SalutInfo;
+import es.caib.comanda.ms.salut.model.SubsistemaInfo;
 
 public interface SalutService {
 	public List<IntegracioInfo> getIntegracions();
-	public List<AppInfo> getSubsistemes();
+	public List<SubsistemaInfo> getSubsistemes();
 	public List<ContextInfo> getContexts(String baseUrl);
 	public SalutInfo checkSalut(String versio, String performanceUrl);
 }

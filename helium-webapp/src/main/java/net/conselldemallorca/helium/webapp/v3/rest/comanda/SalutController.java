@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.AppInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.SalutInfo;
+import es.caib.comanda.ms.salut.model.AppInfo;
+import es.caib.comanda.ms.salut.model.SalutInfo;
 import net.conselldemallorca.helium.v3.core.api.service.SalutService;
 
 @Controller
@@ -55,7 +55,7 @@ public class SalutController extends ComandaBaseController {
 				manifestInfo.getVersion(), 
 				request.getRequestURL().toString() + "Performance");
 	}
-
+	
 	@RequestMapping(value = "/salutPerformance", method = RequestMethod.GET)
 	@ResponseBody
 	public String healthCheck(HttpServletRequest request) {

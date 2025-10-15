@@ -31,24 +31,26 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 
+import es.caib.comanda.ms.salut.model.ContextInfo;
+import es.caib.comanda.ms.salut.model.DetallSalut;
+import es.caib.comanda.ms.salut.model.EstatSalut;
+import es.caib.comanda.ms.salut.model.EstatSalutEnum;
+import es.caib.comanda.ms.salut.model.IntegracioApp;
+import es.caib.comanda.ms.salut.model.IntegracioInfo;
+import es.caib.comanda.ms.salut.model.IntegracioPeticions;
+import es.caib.comanda.ms.salut.model.IntegracioSalut;
+import es.caib.comanda.ms.salut.model.Manual;
+import es.caib.comanda.ms.salut.model.MissatgeSalut;
+import es.caib.comanda.ms.salut.model.SalutInfo;
+import es.caib.comanda.ms.salut.model.SalutNivell;
+import es.caib.comanda.ms.salut.model.SubsistemaInfo;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Avis;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.AvisNivellEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.AppInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.ContextInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.DetallSalut;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.EstatSalut;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.EstatSalutEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioApp;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioPeticions;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioSalut;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.Manual;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.MissatgeSalut;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.SalutInfo;
 import net.conselldemallorca.helium.v3.core.api.service.SalutService;
 import net.conselldemallorca.helium.v3.core.repository.AvisRepository;
 
@@ -83,10 +85,8 @@ public class SalutServiceImpl implements SalutService {
 	}
 
 	@Override
-	public List<AppInfo> getSubsistemes() {
-		List<AppInfo> subsitemes = new ArrayList<AppInfo>();
-		subsitemes.add(AppInfo.builder().codi("AWE").nom("Alta web").build());
-		return subsitemes;
+	public List<SubsistemaInfo> getSubsistemes() {
+		return Lists.newArrayList(new SubsistemaInfo("AWE", "Alta web"));
 	}
 
 	@Override
@@ -206,8 +206,8 @@ public class SalutServiceImpl implements SalutService {
 			Integer latencia = 0;
 			EstatSalutEnum estat = EstatSalutEnum.UNKNOWN;
 			
-			int totalOk = 0;
-			int totalError = 0;
+			long totalOk = 0;
+			long totalError = 0;
 			long totalTempsMig = 0;
 			Long peticionsOkUltimPeriode = 0l;
 			Long peticionsErrorUltimPeriode = 0l;
@@ -388,7 +388,7 @@ public class SalutServiceImpl implements SalutService {
 						.builder()
 						.missatge(avis.getMissatge())
 						.data(avis.getDataInici())
-						.nivell(avis.getAvisNivell().name())
+						.nivell(toSalutNivell(avis.getAvisNivell()))
 						.build());
 			}
 		}
@@ -489,6 +489,18 @@ public class SalutServiceImpl implements SalutService {
 		default:
 			return null;
 		}
+	}
+	
+	private SalutNivell toSalutNivell(AvisNivellEnumDto avisNivell) {
+		switch(avisNivell) {
+		case INFO:
+			return SalutNivell.INFO;
+		case WARNING:
+			return SalutNivell.WARN;
+		case ERROR:
+			return SalutNivell.ERROR;
+		}
+		return null;
 	}
 	
 	private static final Log logger = LogFactory.getLog(SalutServiceImpl.class);

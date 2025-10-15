@@ -3,9 +3,9 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.DimensioDesc;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.IndicadorDesc;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.RegistresEstadistics;
+import es.caib.comanda.ms.estadistica.model.DimensioDesc;
+import es.caib.comanda.ms.estadistica.model.IndicadorDesc;
+import es.caib.comanda.ms.estadistica.model.RegistresEstadistics;
 
 /**
  * Servei per manteniment d'estadístiques

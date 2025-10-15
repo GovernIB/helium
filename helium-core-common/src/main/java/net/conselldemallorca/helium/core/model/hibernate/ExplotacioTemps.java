@@ -16,11 +16,11 @@ import javax.persistence.TableGenerator;
 
 import org.apache.commons.lang.time.DateUtils;
 
+import es.caib.comanda.ms.estadistica.model.DiaSetmanaEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.DiaSetmanaEnum;
 
 @AllArgsConstructor
 @Builder
@@ -73,7 +73,7 @@ public class ExplotacioTemps implements Serializable, GenericEntity<Long> {
 		c.setTime(data);
 		this.data = DateUtils.truncate(data, Calendar.DATE);
 		this.dia = c.get(Calendar.DAY_OF_MONTH);
-		this.diaSetmana = DiaSetmanaEnum.valueOfData(c.get(Calendar.DAY_OF_WEEK));
+		this.diaSetmana = DiaSetmanaEnum.valueOf(c.get(Calendar.DAY_OF_WEEK));
 		this.setmana = c.get(Calendar.WEEK_OF_YEAR);
 		this.mes = c.get(Calendar.MONTH) + 1;
 		this.trimestre = this.mes / 3;

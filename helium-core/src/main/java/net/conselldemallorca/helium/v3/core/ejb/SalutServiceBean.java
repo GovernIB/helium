@@ -6,10 +6,10 @@ import javax.annotation.security.RolesAllowed;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.AppInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.ContextInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.IntegracioInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.SalutInfo;
+import es.caib.comanda.ms.salut.model.ContextInfo;
+import es.caib.comanda.ms.salut.model.IntegracioInfo;
+import es.caib.comanda.ms.salut.model.SalutInfo;
+import es.caib.comanda.ms.salut.model.SubsistemaInfo;
 import net.conselldemallorca.helium.v3.core.api.service.SalutService;
 
 public class SalutServiceBean implements SalutService {
@@ -24,7 +24,7 @@ public class SalutServiceBean implements SalutService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<AppInfo> getSubsistemes() {
+	public List<SubsistemaInfo> getSubsistemes() {
 		return delegate.getSubsistemes();
 	}
 
