@@ -206,20 +206,6 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 						.addConstraintViolation();	
 				valid = false;
 			}
-			if (command.isHeretable()) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage(this.codiMissatge + ".heretable", null))
-						.addNode("heretable")
-						.addConstraintViolation();	
-				valid = false;
-			}
-			if (command.getExpedientTipusPareId() != null) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage(this.codiMissatge + ".expedientTipusPareId", null))
-						.addNode("expedientTipusPareId")
-						.addConstraintViolation();	
-				valid = false;
-			}
 			if (command.isAmbRetroaccio()) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".ambRetroaccio", null))
