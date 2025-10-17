@@ -136,13 +136,7 @@
 			<div class="row-fluid">
 				<form:form action="" cssClass="form-horizontal form-tasca" commandName="personaUsuariCommand" method="post">
 					<div class="control-group fila_reducida">
-						<hel:inputText disabled="${esReadOnly}" name="nom" textKey="comuns.nom" placeholderKey="comuns.nom" inline="false"/>
-					</div>
-					<div class="control-group fila_reducida">
-						<hel:inputText disabled="${esReadOnly}" name="llinatge1" textKey="persona.form.primer_llin" placeholderKey="persona.form.primer_llin" inline="false"/>
-					</div>
-					<div class="control-group fila_reducida">
-						<hel:inputText disabled="${esReadOnly}" name="llinatge2" textKey="persona.form.segon_llin" placeholderKey="persona.form.segon_llin" inline="false"/>
+						<hel:inputText disabled="${esReadOnly}" name="nomSencer" textKey="persona.form.nomSencer" placeholderKey="persona.form.nomSencer" inline="false"/>
 					</div>
 					<div class="control-group fila_reducida">
 						<hel:inputText disabled="${esReadOnly}" name="dni" textKey="persona.form.dni" placeholderKey="persona.form.dni" inline="false"/>
@@ -150,9 +144,9 @@
 					<div class="control-group fila_reducida">
 						<hel:inputText disabled="${esReadOnly}" name="email" textKey="persona.consulta.email" placeholderKey="persona.consulta.email" inline="false"/>
 					</div>
-					<div class="control-group fila_reducida">
+					<%-- <div class="control-group fila_reducida">
 						<hel:inputSelect disabled="${esReadOnly}" name="hombre" textKey="comuns.sexe" placeholderKey="comuns.sexe" optionItems="${sexes}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
-					</div>
+					</div> --%>
 					<!--  
 					<div class="pull-right">
 						<input <c:if test="${esReadOnly}">disabled="disabled"</c:if> class="btn btn-primary" type="submit" id="guardar" name="accio" value="Modificar" />

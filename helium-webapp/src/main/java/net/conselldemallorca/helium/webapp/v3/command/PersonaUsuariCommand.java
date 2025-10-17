@@ -33,6 +33,8 @@ public class PersonaUsuariCommand {
 	
 	private String llinatge2;
 	
+	private String nomSencer;
+	
 	private String dni;
 	
 	@NotEmpty(message="Per favor, especifiqui algun valor")
@@ -61,6 +63,12 @@ public class PersonaUsuariCommand {
 	}
 	public void setLlinatge2(String llinatge2) {
 		this.llinatge2 = llinatge2;
+	}
+	public String getNomSencer() {
+		return nomSencer;
+	}
+	public void setNomSencer(String nomSencer) {
+		this.nomSencer = nomSencer;
 	}
 	public String getDni() {
 		return dni;
