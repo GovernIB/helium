@@ -27,10 +27,10 @@
 
 	$(document).keyup((event) => {
 		if (event.key === "Escape" || event.key === "Esc") {
-			console.log("Pressed Escape key");
+			// console.log("Pressed Escape key");
 			finishEditing();
 		} else if (event.key === "Enter") {
-			console.log("Pressed Enter key");
+			// console.log("Pressed Enter key");
 			if (currentEditedCela) {
 				event.preventDefault();
 				submitEditForm(currentEditedCela.find('form'));
@@ -74,19 +74,31 @@
 
 	// Mirar el click. El canvi de focus amb tabulador el mantenim sempre dins el formulari
 	$(document).on('mousedown', (event) => {
-		let desti = $(event.target);
-		mouseDownCela = desti.closest('.varValor');
+    const desti = $(event.target);
 
-		if (!currentEditedDada) {
-			return true;
-		}
-		let exitForm = !desti.closest('.varValor').length || desti.closest('.varValor').find('.varVal').data('codi') !== currentEditedDada;
-		if (exitForm) {
-			console.log("Focus out of " + currentEditedDada + " form");
-			submitEditForm(currentEditedCela.find('form'));
-		}
-		return true;
-	});
+    // Si el clic es dins del datepicker o un botó del calendari → ignora
+    if (desti.closest('.datepicker').length > 0 || desti.hasClass('datepicker-switch')) {
+        return true;
+    }
+
+    mouseDownCela = desti.closest('.varValor');
+
+    if (!currentEditedDada) {
+        return true;
+    }
+
+    const exitForm =
+        !desti.closest('.varValor').length ||
+        desti.closest('.varValor').find('.varVal').data('codi') !== currentEditedDada;
+
+    if (exitForm) {
+        // console.log("Focus out of " + currentEditedDada + " form");
+        submitEditForm(currentEditedCela.find('form'));
+    }
+
+    return true;
+});
+
 
 
 	$(document).ready(() => {
@@ -125,28 +137,28 @@
 		});
 
 		$("#expedientDades").on('click', (event) => {
-			console.log("Clic en taula");
+			// console.log("Clic en taula");
 			if (!mouseDownCela)
 				return true;
 
-			console.log('Click on cela de dada');
+			// console.log('Click on cela de dada');
 			const cela = mouseDownCela;
 			// let cela = $(event.currentTarget).closest('.varValor');
 			if (cela.find('.varEdit').length > 0) {
-				console.log("Clic no retorna cela");
+				// console.log("Clic no retorna cela");
 				return true;
 			}
 
 			const dadaValor = cela.find('.varVal');
 			const dadaCodi = dadaValor.data('codi');
 			const editable = dadaValor.hasClass('editable');
-			console.log('Editing dada ' + dadaCodi);
+			// console.log('Editing dada ' + dadaCodi);
 
 			currentEditedDada = dadaCodi;
 			currentEditedCela = cela
 
 			if (editable) {
-				console.log('Obtenint formulari');
+				// console.log('Obtenint formulari');
 				dadaValor.addClass('ocult');
 				let dadaEdit = $('<span class="varEdit"><span class="fa fa-circle-o-notch fa-spin"></span></span>');
 				let botonsEdit = $('<span class="btnEdit"><button type="button" class="btn btn-success btn-ok"><span class="fa fa-check"></span></button><button type="button" class="btn btn-danger btn-cancel"><span class="fa fa-times"></span></button></span>');
@@ -157,7 +169,7 @@
 					cela.append(botonsEdit);
 					postEditForm(dadaEdit);
 				}).fail(function(jqXHR, textStatus, errorThrown) {
-					console.log('Error obtenint formulari', textStatus);
+					// console.log('Error obtenint formulari', textStatus);
 					webutilRefreshMissatges();
 					dadaEdit.remove();
 					dadaValor.removeClass('ocult');
@@ -168,7 +180,7 @@
 		});
 
 		$("#expedientDades").on('submit', 'form', (event) => {
-			console.log('Submit form!!', event);
+			// console.log('Submit form!!', event);
 			event.preventDefault();
 			// submitEditForm($(event.target));
 		})
@@ -199,7 +211,7 @@
 		$('.varEdit').remove();
 		$('.btnEdit').remove();
 		$('#overlay').hide();
-		console.log("Overlay OFF - Finish edit");
+		// console.log("Overlay OFF - Finish edit");
 		$('.varVal').removeClass('ocult');
 		$('.isDisabled').prop("disabled", false).removeClass('isDisabled');
 		currentEditedDada = undefined;
@@ -217,7 +229,7 @@
 	}
 
 	const postSubmitForm = (dadaEdit, dadaCodi) => {
-		console.log("Post submit");
+		// console.log("Post submit");
 		let fila = dadaEdit.closest('tr');
 		if (fila.hasClass('no-data')) {
 			// Canviar id de fila, i afegir botó d'accions
@@ -241,9 +253,9 @@
 	}
 
 	const submitEditForm = (fomulari) => {
-		console.log('Submitting form');
+		// console.log('Submitting form');
 		$("#overlay").show();
-		console.log("Overlay ON");
+		// console.log("Overlay ON");
 		const cela = fomulari.closest('.varValor');
 		const dadaValor = cela.find('.varVal');
 		const dadaEdit = cela.find('.varEdit');
@@ -265,7 +277,7 @@
 					postEditForm(dadaEdit);
 				}
 				$('#overlay').hide();
-				console.log("Overlay OFF - Success");
+				// console.log("Overlay OFF - Success");
 			},
 			error: function(e) {
 				console.log("Error desant dades: ", e);
@@ -278,7 +290,7 @@
 				setTimeout(function () {errorAlert.hide('slow', function(){ errorAlert.remove(); });}, 5000);
 			}
 		});
-		console.log('Finish submitting form');
+		// console.log('Finish submitting form');
 	}
 
 	const loadFormAccions = (formulari) => {
@@ -286,7 +298,7 @@
 		$(formulari).attr('action', cleanAction($(formulari).attr('action')));
 		// Ajustaments per a cada tipus de camp
 		$(formulari).find(".price").priceFormat({prefix: '', centsSeparator: ',', thousandsSeparator: '.', allowNegative: true});
-		$(formulari).find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
+		$(formulari).find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, format: "dd/mm/yyyy", todayHighlight: true});
 		$(formulari).find(".btn_date").click(function(){
 			$(this).prev(".date").trigger("focus");
 		});
