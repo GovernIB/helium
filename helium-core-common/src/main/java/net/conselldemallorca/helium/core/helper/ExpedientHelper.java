@@ -2322,7 +2322,7 @@ public class ExpedientHelper {
 			estatIds.add(currentEstat.toString());
 		}
 		
-		expedient.setEstatsPrevis(String.join(",", estatIds));
+		expedient.setEstatsPrevis(StringUtils.join(estatIds, ','));
 		
 		expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),

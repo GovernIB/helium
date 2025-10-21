@@ -45,16 +45,22 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto.TerminiIniciatEstat;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -81,6 +87,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	private ExpedientHelper expedientHelper;
 	@Autowired
 	private AplicacioService aplicacioService;
+	@Autowired
+	private ExpedientTerminiService expedientTerminiService;
 
 	/** Per donar format a les dates sense haver d'instanciar l'objecte cada cop. */
 	private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -614,7 +622,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@RequestParam(defaultValue = "false") boolean retrocedir) {
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-			if (this.validarVariablesDocumentsCanviEstat(request, expedient, estatId)) {
+			if (this.validarCanviEstat(request, expedient, estatId)) {
 				expedientService.estatCanviar(expedient.getId(), estatId, retrocedir);
 				MissatgesHelper.success(request, getMessage(request, "expedient.info.estat.canviar.correcte"));
 			}
@@ -634,24 +642,26 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(request, errMsg, ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:" + request.getHeader("Referer");
 	}
 
 
-	private boolean validarVariablesDocumentsCanviEstat(HttpServletRequest request, ExpedientDto expedient, Long nextEstatId) {
+	/** Valida les variables, documents i terminis obligatoris abans de sortir i entrar al proper estat i les regles. */
+	private boolean validarCanviEstat(HttpServletRequest request, ExpedientDto expedient, Long nextEstatId) {
 		boolean correcte = true;
+		// Variables
 		// Comprova les variables obligatòries de sortida de l'expedient actual
 		List<String> variablesObligatories = new ArrayList<String>();
 		for (DadaListDto dada : expedientDadaService.findDadesExpedient(expedient.getId(), null, true, true, false, new PaginacioParamsDto())) {
 			if (dada.isObligatori()) {
 				if (this.dadaBuidaONula(dada)) {
 					variablesObligatories.add(dada.getNom());
-					correcte = false;
 				}
 			}
 		}
 		if (!variablesObligatories.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.dades.obligatories", new Object[] {variablesObligatories.size(), variablesObligatories}));
+			correcte = false;
 		}
 		// Comprova les dades obligatòries pel següent estat
 		List<String> variablesObligatoriesEntrada = new ArrayList<String>();
@@ -659,36 +669,92 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			if (dada.isObligatoriEntrada()) {
 				if (this.dadaBuidaONula(dada)) {
 					variablesObligatoriesEntrada.add(dada.getNom());
-					correcte = false;
 				}
 			}
 		}
 		if (!variablesObligatoriesEntrada.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.dades.obligatories.entrada", new Object[] {variablesObligatoriesEntrada.size(), variablesObligatoriesEntrada}));
+			correcte = false;
 		}
+		// Documents
 		// Comprova els documents obligatoris
 		List<String> documentsObligatoris = new ArrayList<String>();
 		for (DocumentListDto document : expedientDocumentService.findDocumentsExpedient(expedient.getId(), null, true, new PaginacioParamsDto())) {
 			if (document.isObligatori() && document.getId() == null) {
 				documentsObligatoris.add(document.getNom());
-				correcte = false;
 			}
 		}
 		if (!documentsObligatoris.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.documents.obligatoris", new Object[] {documentsObligatoris.size(), documentsObligatoris}));
+			correcte = false;
 		}
 		// Comprova els documents obligatoris pel següent estat		
 		List<String> documentsObligatorisEntrada = new ArrayList<String>();
 		for (DocumentListDto document : expedientDocumentService.findDocumentsExpedient(expedient.getId(), nextEstatId, true, new PaginacioParamsDto())) {
 			if (document.isObligatoriEntrada() && document.getId() == null) {
 				documentsObligatorisEntrada.add(document.getNom());
-				correcte = false;
 			}
 		}
 		if (!documentsObligatorisEntrada.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.documents.obligatoris.entrada", new Object[] {documentsObligatorisEntrada.size(), documentsObligatorisEntrada}));
+			correcte = false;
 		}
-		
+		// Terminis
+		List<TerminiDto> terminis = expedientTerminiService.findAmbProcessInstanceId(
+				expedient.getId(),
+				expedient.getProcessInstanceId());
+		List<TerminiIniciatDto> iniciats = expedientTerminiService.iniciatFindAmbProcessInstanceId(
+								expedient.getId(),
+								expedient.getProcessInstanceId());
+		// Comprova les terminis obligatoris de sortida de l'expedient actual. Els terminis obligatoris han d'haver finalitzat
+		List<String> terminisObligatoris = new ArrayList<String>();
+		Map<String, CampFormProperties> terminisFormProperties = expedientTerminiService.getTerminisFormProperties(
+				expedient.getTipus().getId(), 
+				expedient.getEstat() != null? expedient.getEstat().getCodi() : null);
+		for (TerminiDto termini: terminis) {
+			CampFormProperties terminiFormProperties = terminisFormProperties.get(termini.getCodi());
+			if (terminiFormProperties != null) {
+				if(terminiFormProperties.isObligatori()) {
+					for (TerminiIniciatDto terminiIniciat : iniciats) {
+						if (termini.getId().equals(terminiIniciat.getTermini().getId())) {
+							if (terminiIniciat.getDataCompletat() == null) {
+								terminisObligatoris.add(termini.getNom());
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (!terminisObligatoris.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.terminis.obligatoris", new Object[] {terminisObligatoris.size(), terminisObligatoris}));
+			correcte = false;
+		}
+		// Comprova les terminis obligatoris d'entrada pel següent estat. Els terminis obligatoris han d'haver finalitzat
+		List<String> terminisObligatorisEntrada = new ArrayList<String>();
+		EstatDto estatSeguent = expedientTipusService.estatFindAmbId(expedient.getTipus().getId(), nextEstatId);
+		terminisFormProperties = expedientTerminiService.getTerminisFormProperties(
+				expedient.getTipus().getId(), 
+				estatSeguent.getCodi());
+		for (TerminiDto termini: terminis) {
+			CampFormProperties terminiFormProperties = terminisFormProperties.get(termini.getCodi());
+			if (terminiFormProperties != null) {
+				if(terminiFormProperties.isObligatoriEntrada()) {
+					for (TerminiIniciatDto terminiIniciat : iniciats) {
+						if (termini.getId().equals(terminiIniciat.getTermini().getId())) {
+							if (terminiIniciat.getDataCompletat() == null) {
+								terminisObligatorisEntrada.add(termini.getNom());
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (!terminisObligatorisEntrada.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.terminis.obligatoris.entrada", new Object[] {terminisObligatorisEntrada.size(), terminisObligatorisEntrada}));
+			correcte = false;
+		}
 		return correcte;
 	}
 	
