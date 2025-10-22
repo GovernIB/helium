@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -124,13 +127,14 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		paginacioParams.getOrdres().clear();
 		paginacioParams.afegirOrdre("ordre", OrdreDireccioDto.ASCENDENT);
+		PaginaDto<EstatDto> pagina = expedientTipusService.estatFindPerDatatable(
+				expedientTipusId,
+				paginacioParams.getFiltre(),
+				paginacioParams);
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientTipusService.estatFindPerDatatable(
-						expedientTipusId,
-						paginacioParams.getFiltre(),
-						paginacioParams),
+				pagina,
 				"id");		
 	}
 	
@@ -332,16 +336,6 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		return ret;
 	}
 	
-	// Atenció: Els ordres no poden tenir forats entre mig, però poden tenir repetits.
-	// Possibles ordres:
-	//  - auto  --> No hi ha ambiguitat, i per tant es calcularà de forma automàtica. (Es mou entre dos estats que tenen el mateix ordre)
-	//  - 1-1   --> Es mou a l'inici, i agafa el mateix valor del que hi havia abans al inici
-	//  - 1-2   --> Es mou a l'inici, agafa el valor 1 i es desplaça la resta d'estats
-	//  - 8-9   --> Es mou al final, i agafa el valor del que estava abans al final + 1
-	//  - 9-9   --> Es mou al final, i agafa el mateix valor del que hi havia abans al final
-	//  - 1-1-2 --> Es moun entre dos estats que tenen ordres consecutius, i agafa el mateix valor que el primer d'ells
-	//  - 1-2-2 --> Es moun entre dos estats que tenen ordres consecutius, i agafa el mateix valor que el segon d'ells
-	//  - 1-2-3 --> Es moun entre dos estats que tenen ordres consecutius, agafa el mateix valor que el segon d'ells, i desplaça la resta d'estats
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/moure/{posicio}/ordre/{ordre}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean moureReglaAmbOrdre(
@@ -1253,18 +1247,6 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		return "v3/expedientTipusEstatSortida";
 	}
 	
-	// @RequestMapping(value = "/{expedientTipusId}/estat/{id}/sortida", method = RequestMethod.POST)
-	// public String modificarSortida(
-	// 		HttpServletRequest request,
-	// 		@PathVariable Long expedientTipusId,
-	// 		@Validated(ExpedientTipusEstatCommand.Modificacio.class) ExpedientTipusEstatCommand command,
-	// 		@PathVariable Long id,
-	// 		Model model) {
-		
-	// 	// service.updateEstatsSortida(command.getEstatsSortida());
-	// 	return "v3/expedientTipusEstatForm";
-	// }
-
 	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/sortida/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse estatSortidaDatatable(
@@ -1278,7 +1260,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				Lists.newArrayList(estat.getEstatsSortida()),
+				estat.getEstatsSortida(),
 				"id");		
 	}	
 
@@ -1352,25 +1334,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 					e);
 		}
 		return false;
-	}
-
-	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/sortida/{estatAccioId}/moure/{posicio}", method = RequestMethod.GET)
-	@ResponseBody
-	public boolean estatSortidaMoure(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long estatAccioId,
-			@PathVariable int posicio,
-			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(),
-				expedientTipusId);
-
-		return expedientTipusService.estatAccioSortidaMoure(estatAccioId, posicio);
-	}
-	
+	}	
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
