@@ -157,6 +157,20 @@ public class TerminiIniciatDto {
 		return toString() + ((dies > 0) ? ((getTermini().isLaborable()) ? " laborables" : " naturals") : "");
 	}
 	
+	/** Es considera finalitzat quan el termini està actiu i la data actual és igual o superior a la data de fi
+	 * indicada al termini.
+	 * @return
+	 */
+	public boolean isFinalitzat() {
+		boolean finalitzat = false;
+		// Si no està aturat es considera finalitzat si s'ha superat la data de finalització
+		if (this.getDataAturada() == null) {
+			Date dataFi = getDataFiAmbAturadaActual();
+			finalitzat = new Date().after(dataFi);
+		}
+		return finalitzat;
+	}
+	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		boolean plural = false;

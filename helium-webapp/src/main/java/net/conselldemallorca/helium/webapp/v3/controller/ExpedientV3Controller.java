@@ -717,7 +717,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				if(terminiFormProperties.isObligatori()) {
 					for (TerminiIniciatDto terminiIniciat : iniciats) {
 						if (termini.getId().equals(terminiIniciat.getTermini().getId())) {
-							if (terminiIniciat.getDataCompletat() == null) {
+							if (!terminiIniciat.isFinalitzat()) {
 								terminisObligatoris.add(termini.getNom());
 							}
 							break;
@@ -742,7 +742,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				if(terminiFormProperties.isObligatoriEntrada()) {
 					for (TerminiIniciatDto terminiIniciat : iniciats) {
 						if (termini.getId().equals(terminiIniciat.getTermini().getId())) {
-							if (terminiIniciat.getDataCompletat() == null) {
+							if (!terminiIniciat.isFinalitzat()) {
 								terminisObligatorisEntrada.add(termini.getNom());
 							}
 							break;
