@@ -183,7 +183,7 @@ public class ReglaHelper {
 
         Facts facts = new Facts();
         for(Document document: documents) {
-            CampFormProperties campFormProperties = getDefaultCampFormProperties();
+        	CampFormProperties campFormProperties = getDefaultCampFormProperties();
             for(EstatRegla regla: regles) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
@@ -200,6 +200,7 @@ public class ReglaHelper {
                         .editable(campFormProperties.isEditable())
                         .obligatori(campFormProperties.isObligatori())
                         .obligatoriEntrada(campFormProperties.isObligatoriEntrada())
+                        .obligatoriSignat(campFormProperties.isObligatoriSignat())
                         .build();
                 facts.put("fact", variableFact);
                 rulesEngine.fire(rules, facts);
@@ -265,6 +266,7 @@ public class ReglaHelper {
                 .editable(fact.isEditable())
                 .obligatori(fact.isObligatori())
                 .obligatoriEntrada(fact.isObligatoriEntrada())
+                .obligatoriSignat(fact.isObligatoriSignat())
                 .build();
     }
 
@@ -274,6 +276,7 @@ public class ReglaHelper {
                 .editable(true)
                 .obligatori(false)
                 .obligatoriEntrada(false)
+                .obligatoriSignat(false)
                 .build();
     }
 

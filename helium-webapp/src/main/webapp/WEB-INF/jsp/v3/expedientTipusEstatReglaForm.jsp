@@ -160,6 +160,7 @@
 		.text-left { text-align: left !important; }
 		.select2-container { width: 100% !important; }
 		.valors-load { position: absolute; font-size: 20px; right: 10px; top: 8px; color: cornflowerblue; }
+		.select2-results__options { max-height: 19em !important; }
 	</style>
 	<hel:modalHead/>
 </head>
