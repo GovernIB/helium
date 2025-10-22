@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.caib.plugins.arxiu.caib.ArxiuCaibException;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -106,106 +107,122 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 		if (entornActual == null) {
 			return response;
 		}
-		if (command.isActiu()) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
-					entornActual.getId(),
-					expedientTipusId);
-			String missatgeError = null;
-						
-			if (!command.isProcedimentComu() && (command.getOrgano() == null || "".equals(command.getOrgano().trim()))) {
-				bindingResult.rejectValue("organo", "NotEmpty");
-			}
-			if (expedientTipus.isProcedimentComu() && !command.isProcedimentComu() && command.getOrgano() != null) {
-				Long expedientsExistents = expedientHelper.countByEntornIdAndTipus(expedientTipusId);
-				if(expedientsExistents>0) {
-					bindingResult.rejectValue("procedimentComu", "error.exist.exp.tipexp.no.procediment.comu");
-					missatgeError = "error.exist.exp.tipexp.no.procediment.comu";
+		try {
+			if (command.isActiu()) {
+				ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+						entornActual.getId(),
+						expedientTipusId);
+				String missatgeError = null;
+							
+				if (!command.isProcedimentComu() && (command.getOrgano() == null || "".equals(command.getOrgano().trim()))) {
+					bindingResult.rejectValue("organo", "NotEmpty");
 				}
-			}
-			if (command.getClasificacion() == null || "".equals(command.getClasificacion().trim())) {
-				bindingResult.rejectValue("clasificacion", "NotEmpty");
-			}
-			if (command.getSerieDocumental() == null || "".equals(command.getSerieDocumental().trim())) {
-				bindingResult.rejectValue("serieDocumental", "NotEmpty");
-			}
-			if(!expedientTipus.isProcedimentComu() && command.isProcedimentComu()) {
-				Long expedientsExistents = expedientHelper.countByEntornIdAndTipus(expedientTipusId);
-				if(expedientsExistents>0) {;
-					bindingResult.rejectValue("procedimentComu", "error.exist.exp.tipexp.no.procediment.comu");
-					missatgeError = "error.exist.exp.tipexp.no.procediment.comu";
-				} else {
-					command.setOrgano(null);
+				if (expedientTipus.isProcedimentComu() && !command.isProcedimentComu() && command.getOrgano() != null) {
+					Long expedientsExistents = expedientHelper.countByEntornIdAndTipus(expedientTipusId);
+					if(expedientsExistents>0) {
+						bindingResult.rejectValue("procedimentComu", "error.exist.exp.tipexp.no.procediment.comu");
+						missatgeError = "error.exist.exp.tipexp.no.procediment.comu";
+					}
 				}
-			}
-			if (bindingResult.hasErrors()) {
-		        MissatgesHelper.error(
-						request, 
-						getMessage(
-								request, 
-								missatgeError!=null ? missatgeError : "expedient.tipus.metadades.nti.validacio"));
-				response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
-			} else {
-				
-				if(command.isArxiuActiu() && !expedientTipusService.arxiuCheckSerieDocumental(
-						command.getSerieDocumental(),
-						command.getOrgano(),
-						command.getClasificacion())) {
-					MissatgesHelper.warning(
+				if (command.getClasificacion() == null || "".equals(command.getClasificacion().trim())) {
+					bindingResult.rejectValue("clasificacion", "NotEmpty");
+				}
+				if (command.getSerieDocumental() == null || "".equals(command.getSerieDocumental().trim())) {
+					bindingResult.rejectValue("serieDocumental", "NotEmpty");
+				}
+				if(!expedientTipus.isProcedimentComu() && command.isProcedimentComu()) {
+					Long expedientsExistents = expedientHelper.countByEntornIdAndTipus(expedientTipusId);
+					if(expedientsExistents>0) {;
+						bindingResult.rejectValue("procedimentComu", "error.exist.exp.tipexp.no.procediment.comu");
+						missatgeError = "error.exist.exp.tipexp.no.procediment.comu";
+					} else {
+						command.setOrgano(null);
+					}
+				}
+				if (bindingResult.hasErrors()) {
+			        MissatgesHelper.error(
 							request, 
 							getMessage(
+									request, 
+									missatgeError!=null ? missatgeError : "expedient.tipus.metadades.nti.validacio"));
+					response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
+				} else {
+					
+					boolean checkSerieDocumental = false;
+					try {
+						checkSerieDocumental = expedientTipusService.arxiuCheckSerieDocumental(
+								command.getSerieDocumental(),
+								command.getOrgano(),
+								command.getClasificacion());
+					} catch(ArxiuCaibException ex) {
+						checkSerieDocumental = true;
+						MissatgesHelper.warning(
 								request, 
-								"expedient.tipus.metadades.nti.serie.documental.noTrobada"));
+								ex.getMessage());
+					}
+					
+					if(command.isArxiuActiu() && !checkSerieDocumental) {
+						MissatgesHelper.warning(
+								request, 
+								getMessage(
+									request, 
+									"expedient.tipus.metadades.nti.serie.documental.noTrobada"));
+					}
+	
+					expedientTipusService.updateMetadadesNti(
+							entornActual.getId(),
+							expedientTipusId,
+							command.isActiu(),
+							command.getOrgano(), 
+							command.getClasificacion(),
+							command.getSerieDocumental(),
+							command.isArxiuActiu(),
+							command.isProcedimentComu());
+					MissatgesHelper.success(
+							request,
+							getMessage(
+									request, 
+									"expedient.tipus.metadades.nti.controller.guardat"));
 				}
-
-				expedientTipusService.updateMetadadesNti(
-						entornActual.getId(),
-						expedientTipusId,
-						command.isActiu(),
-						command.getOrgano(), 
-						command.getClasificacion(),
-						command.getSerieDocumental(),
-						command.isArxiuActiu(),
-						command.isProcedimentComu());
-				MissatgesHelper.success(
-						request,
-						getMessage(
-								request, 
-								"expedient.tipus.metadades.nti.controller.guardat"));
-			}
-		} else {
-			if (command.isProcedimentComu()) {
-				String missatgeError = "error.exist.exp.tipexp.marcar.procediment.no.comu";
-				bindingResult.rejectValue("procedimentComu", missatgeError);
-				MissatgesHelper.error(
-						request, 
-						getMessage(
-								request, 
-								missatgeError!=null ? missatgeError : "expedient.tipus.metadades.nti.validacio"));
-				response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 			} else {
-
-				expedientTipusService.arxiuCheckSerieDocumental(
-						command.getSerieDocumental(),
-						command.getOrgano(),
-						command.getClasificacion());
-				
-				expedientTipusService.updateMetadadesNti(
-						entornActual.getId(),
-						expedientTipusId,
-						command.isActiu(),
-						command.getOrgano(), 
-						command.getClasificacion(),
-						command.getSerieDocumental(),
-						command.isArxiuActiu(),
-						command.isProcedimentComu());
-				MissatgesHelper.success(
-						request, 
-						getMessage(
-								request, 
-								"expedient.tipus.metadades.nti.controller.guardat"));
+				if (command.isProcedimentComu()) {
+					String missatgeError = "error.exist.exp.tipexp.marcar.procediment.no.comu";
+					bindingResult.rejectValue("procedimentComu", missatgeError);
+					MissatgesHelper.error(
+							request, 
+							getMessage(
+									request, 
+									missatgeError!=null ? missatgeError : "expedient.tipus.metadades.nti.validacio"));
+					response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
+				} else {
+	
+					expedientTipusService.arxiuCheckSerieDocumental(
+							command.getSerieDocumental(),
+							command.getOrgano(),
+							command.getClasificacion());
+					
+					expedientTipusService.updateMetadadesNti(
+							entornActual.getId(),
+							expedientTipusId,
+							command.isActiu(),
+							command.getOrgano(), 
+							command.getClasificacion(),
+							command.getSerieDocumental(),
+							command.isArxiuActiu(),
+							command.isProcedimentComu());
+					MissatgesHelper.success(
+							request, 
+							getMessage(
+									request, 
+									"expedient.tipus.metadades.nti.controller.guardat"));
+				}
 			}
+		} catch(Exception ex) {
+			MissatgesHelper.error(
+					request, 
+					ex.getMessage());
 		}
-    	return response;
+		return response;
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/comprovarOrgan/{codiUo}", method = RequestMethod.GET)

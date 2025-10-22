@@ -2371,6 +2371,17 @@ public class PluginHelper {
 					System.currentTimeMillis() - t0,
 					parametres);
 			return false;
+		} catch(ArxiuCaibException ex) {
+			String errorDescripcio = "No s'han pogut comprovar la serie documental: [" + serieDocumental + "] " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw ex;
 		} catch(Exception ex) {
 			String errorDescripcio = "No s'han pogut comprovar la serie documental: [" + serieDocumental + "] " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
