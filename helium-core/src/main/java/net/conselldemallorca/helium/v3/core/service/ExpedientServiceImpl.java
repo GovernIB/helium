@@ -128,6 +128,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreBackupDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
@@ -146,6 +148,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiExpedienteEstadoEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
@@ -1590,11 +1593,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				id,
 				ExpedientLogAccioTipus.EXPEDIENT_MIGRAR_ARXIU,
 				null);
+		List<DocumentStoreBackupDto> documentsEstatAnterior = getDocumentsExpedient(id);
 		try {
 			addCurrentlyMigrating(id);
 			this.migrarArxiu(id, esborrarExpSiError);
 			this.migrarDocumentsArxiu(id, esborrarExpSiError);
 			this.finalitzaArxiuMigrat(id);
+		} catch(TramitacioException ex) {
+			this.undoSincronitzacioArxiu(id);
+			this.undoSincronitzacioDocumentsArxiu(documentsEstatAnterior);
+			throw ex;
 		} finally {
 			deleteCurrentlyMigrating(id);
 		}
@@ -1647,7 +1655,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			addCurrentlyMigrating(id);
 			expedient = expedientRepository.findOne(id);
 			if (expedient.getSyncReintents() != null) {
-				reintents = expedient.getSyncReintents() + 1L;				
+				reintents = expedient.getSyncReintents() + 1L;
 			}
 			logger.debug("Intent " + reintents + " de sincronització de l'expedient (id=" + id + ") a l'Arxiu");
 			self.syncArxiu(id, false);
@@ -1659,6 +1667,55 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			}
 		} finally {
 			deleteCurrentlyMigrating(id);
+		}
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void undoSincronitzacioArxiu(Long id) {
+		Expedient expedient = expedientRepository.findOne(id);
+		expedient.setArxiuUuid(null);
+		expedient.setArxiuActiu(false);
+		expedientRepository.save(expedient);
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	private List<DocumentStoreBackupDto> getDocumentsExpedient(Long expedientId) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.READ,
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+		List<DocumentStoreBackupDto> documentsExpedient = new ArrayList<DocumentStoreBackupDto>();
+		List<InstanciaProcesDto> arbreProcesInstance = expedientHelper.getArbreInstanciesProces(expedient.getProcessInstanceId());
+
+		// Genera llista de tots els documents del expedient
+		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
+			documentsExpedient.addAll(
+					conversioTipusHelper.convertirList(
+							documentStoreRepository.findByProcessInstanceId(procesInstance.getId()), DocumentStoreBackupDto.class));
+		}
+		return documentsExpedient;
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void undoSincronitzacioDocumentsArxiu(List<DocumentStoreBackupDto> documentsEstatAnterior) {
+		for (DocumentStoreBackupDto documentStore: documentsEstatAnterior) {
+			DocumentStore entity = documentStoreRepository.findOne(documentStore.getId());
+			entity.setArxiuUuid(documentStore.getArxiuUuid());
+			entity.setReferenciaFont(documentStore.getReferenciaFont());
+			entity.setArxiuNom(documentStore.getArxiuNom());
+			entity.setNtiIdentificador(documentStore.getNtiIdentificador());
+			entity.setSignat(documentStore.isSignat());
+			entity.setReferenciaCustodia(documentStore.getReferenciaCustodia());
+			entity.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
+			entity.setNtiCsv(documentStore.getNtiCsv());
+			entity.setNtiTipoFirma(documentStore.getNtiTipoFirma() == null? null : NtiTipoFirmaEnumDto.valueOf(documentStore.getNtiTipoFirma()));
+			entity.setNtiIdentificador(documentStore.getNtiIdentificador());
+			entity.setArxiuContingut(documentStore.getArxiuContingut());
+			entity.setDocumentValid(documentStore.isDocumentValid());
+			entity.setDocumentError(documentStore.getDocumentError());
+			documentStoreRepository.save(entity);
 		}
 	}
 
