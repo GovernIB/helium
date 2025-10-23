@@ -329,10 +329,12 @@ dd.subproc {
 	
 		<!-- Botons per avançar d'estat -->
 		<c:if test="${estatsAvancar != null }">
-			<c:forEach var="estat" items="${estatsAvancar}">
-				<a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />" class="btn btn-success" style="float: right; margin-right: 15px;">
-					<spring:message code="expedient.info.estat.avancar" arguments="${estat.nom}"></spring:message> <b>&gt;</b></a>
-			</c:forEach>
+			<div style="float: right;">
+				<c:forEach var="estat" items="${estatsAvancar}">
+					<a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />" class="btn btn-success" style="margin-right: 15px;">
+						<spring:message code="expedient.info.estat.avancar" arguments="${estat.nom}"></spring:message> <b>&gt;</b></a>
+				</c:forEach>
+			</div>
 		</c:if>
 	</div>
 
