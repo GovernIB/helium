@@ -3075,12 +3075,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		estat.setExpedientTipus(expedientTipus);
 		estat.setCodi(dto.getCodi());
 		estat.setNom(dto.getNom());
-		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
-			estat.setOrdre(dto.getOrdre());
-		} else {
-			Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId);
-			estat.setOrdre(seguentOrdre == null ? 0 : seguentOrdre + 1);
-		}
+
+		Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId);
+		estat.setOrdre(seguentOrdre == null ? 0 : seguentOrdre + 1);
 		return conversioTipusHelper.convertir(
 				estatRepository.save(estat),
 				EstatDto.class);

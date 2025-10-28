@@ -43,8 +43,8 @@
 			<input type="hidden" name="id" value="${expedientTipusEstatCommand.id}"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.estat.form.estat.codi" />
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.estat.form.estat.nom" />
-			<c:if test="${expedientTipus.tipus == 'ESTAT'}"><hel:inputNumber required="true" name="ordre" textKey="comuns.ordre" /></c:if>
-		</div>
+ 			<form:hidden path="ordre" id="ordre"/>
+ 			</div>
 		
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
