@@ -1034,7 +1034,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		String processInstanceId = expedient.getProcessInstanceId();
 		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
 		List<ExpedientDocumentDto> documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
-		List<PortasignaturesDto> documentsPsignaPendent = portasignaturesFindPendents(expedientId, expedient.getProcessInstanceId());
 
 		Estat estat = expedient.getEstat();
 		if(nextEstatId != null) {
@@ -1054,7 +1053,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				continue;
 
 			ExpedientDocumentDto dExp = getDocumentExpedient(documentsExpedient, dTipExp.getCodi());
-			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
+			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsigna(processInstanceId, dExp.getId()) : null;
 
 			DocumentListDto document = null;
 			if (dExp == null) {
@@ -1086,7 +1085,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			if (documentFormProperties != null && !documentFormProperties.isVisible())
 				continue;
 
-			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
+			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsigna(processInstanceId, dExp.getId()) : null;
 
 			DocumentListDto document = toDocumentList(expedient, processInstanceId, null, dExp, dPsigna, documentFormProperties);
 			document.setNotificable(PdfUtils.isArxiuConvertiblePdf(dExp.getArxiuNom()));
@@ -1185,14 +1184,21 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return null;
 	}
 
-	private PortasignaturesDto getDocumentPsignaPendent(List<PortasignaturesDto> documentsPsignaPendent, Long documentStoreId) {
-		for (PortasignaturesDto docPsigna: documentsPsignaPendent) {
-			if (docPsigna.getDocumentStoreId().equals(documentStoreId))
-				return docPsigna;
+	/** Troba la darrera petició feta al portafirmes. 
+	 * @param processInstanceId */
+	private PortasignaturesDto getDocumentPsigna(String processInstanceId, Long documentStoreId) {
+		
+		
+		PortasignaturesDto ret = null;
+		List<PortasignaturesDto> portasignatures = getPortasignaturesByProcessInstanceAndDocumentStoreId(processInstanceId, documentStoreId);
+		if (!portasignatures.isEmpty()) {
+			// La primera és la darrera
+			ret = portasignatures.get(0);
 		}
-		return null;
+		return ret;
 	}
 
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1850,23 +1856,20 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				expedient.getProcessInstanceId(),
 				documentStoreId);
 		if (!portasignatures.isEmpty()) {
-			for (PortasignaturesDto peticio : portasignatures) {
-				if (!"PROCESSAT".equals(peticio.getEstat())) {
-					documentDetallBuilder
-					.psignaPendent(!"PROCESSAT".equals(peticio.getEstat()))
-					.psignaDetall(PsignaDetallDto.builder()
-							.documentId(peticio.getDocumentId())
-							.dataEnviat(peticio.getDataEnviat())
-							.estat(peticio.getEstat())
-							.error(peticio.isError())
-							.errorProcessant(peticio.getErrorProcessant())
-							.motiuRebuig(peticio.getMotiuRebuig())
-							.dataProcessamentPrimer(peticio.getDataProcessamentPrimer())
-							.dataProcessamentDarrer(peticio.getDataProcessamentDarrer())
-							.build());
-					break;
-				}
-			}
+			// Agafa la darrera estigui o no processada
+			PortasignaturesDto peticio = portasignatures.get(0);
+			documentDetallBuilder
+			.psignaPendent(!"PROCESSAT".equals(peticio.getEstat()))
+			.psignaDetall(PsignaDetallDto.builder()
+					.documentId(peticio.getDocumentId())
+					.dataEnviat(peticio.getDataEnviat())
+					.estat(peticio.getEstat())
+					.error(peticio.isError())
+					.errorProcessant(peticio.getErrorProcessant())
+					.motiuRebuig(peticio.getMotiuRebuig())
+					.dataProcessamentPrimer(peticio.getDataProcessamentPrimer())
+					.dataProcessamentDarrer(peticio.getDataProcessamentDarrer())
+					.build());
 		} else {
 			documentDetallBuilder.psignaPendent(false);
 		}

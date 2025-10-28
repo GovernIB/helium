@@ -71,7 +71,6 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.dadesext.DadesExternesPlugin;
-import net.conselldemallorca.helium.integracio.plugins.dadesext.NivellAdministracio;
 import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.firma.FirmaResposta;
 import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPlugin;
