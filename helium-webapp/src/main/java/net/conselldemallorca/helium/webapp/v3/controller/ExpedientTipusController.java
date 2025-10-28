@@ -43,6 +43,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -830,6 +831,13 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			}
 			for (DocumentExportacio document : documents) {
 				if (document.getPortafirmesFluxId() != null ) {
+					DocumentDto docExistent = documentService.findAmbCodi(expedientTipusId, definicioProcesId, document.getCodi(), false);
+					if(docExistent != null && docExistent.getPortafirmesFluxId() != null) {
+						avisText = "Avís importació document \"" + document.getCodi() + " - " + document.getNom() + "\"";
+						avisText += ". El document ja té un flux de firma definit i no es substituirà per conservar l'actual: " + docExistent.getPortafirmesFluxId();
+						avisosDocuments.add(avisText);
+						continue;
+					}
 					if (fluxIds == null) {
 						try {
 							// Recupera les plantilles disponibles

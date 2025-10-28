@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.FilenameUtils;
@@ -25,7 +24,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -178,18 +176,6 @@ public class DistribucioHelper {
 
 	/** Referència al client del WS de Distribució */
 	private BackofficeIntegracioRestClient restClient = null;
-	
-	/** Referència pròpia per cridar mètodes de forma transaccional */
-	private DistribucioHelper self;
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    @PostConstruct
-    public void postContruct(){
-        self = applicationContext.getBean(DistribucioHelper.class);
-    }
-
-		
 
 	/** Mètode per obtenir la instància del client del WS de Distribucio.
 	 * 
@@ -478,6 +464,16 @@ public class DistribucioHelper {
 	public Anotacio updateAnotacio(long anotacioId, AnotacioRegistreEntrada anotacioEntrada) {
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		
+		// Mira si l'anotació ja conté informació, si en té la buida.
+		if (anotacio.getEntitatCodi() != null) {
+			// Esborra annexos
+			anotacioAnnexRepository.delete(anotacio.getAnnexos());
+			anotacio.getAnnexos().clear();
+			// Esborra interessats
+			anotacioInteressatRepository.delete(anotacio.getInteressats());
+			anotacio.getInteressats().clear();
+		}
 		
 		// Actualitza l'anotació
 		anotacio.setAssumpteCodiCodi(anotacioEntrada.getAssumpteTipusCodi());

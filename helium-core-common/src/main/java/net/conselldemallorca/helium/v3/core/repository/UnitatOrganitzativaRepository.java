@@ -172,5 +172,8 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 			@Param("isNomNull") boolean isNomNull, 
 			@Param("arrel") Boolean arrel);
 	
-	
+	@Query("select uo.codi from UnitatOrganitzativa uo "
+			)
+	List<String> findAllCodis();
+
 }

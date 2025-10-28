@@ -43,6 +43,15 @@
 		<intercept-url pattern="/rest/salut" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/rest/salutPerformance" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		
+		<!-- API Estadistiques -->
+		<intercept-url pattern="/rest/estadistiquesInfo" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/estadistiques" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/estadistiques/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/generarDadesExplotacio" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/generarDadesExplotacio/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/salutPerformance" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/generarDadesBasiquesExplotacio/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		
 		<!-- Selenium-integraciones.begin -->
 		<intercept-url pattern="/ws/CustodiaDocumentos" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/portafirmas" access="IS_AUTHENTICATED_ANONYMOUSLY" />

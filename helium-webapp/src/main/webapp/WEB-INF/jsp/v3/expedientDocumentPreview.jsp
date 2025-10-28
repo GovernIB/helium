@@ -8,10 +8,10 @@
 <c:set var="titol"><spring:message code="expedient.document.preview" arguments="${documentNom}"/></c:set>
 <c:choose>
     <c:when test="${not empty processInstanceId}">
-        <c:url var="downloadUrl" value="${pageContext.request.contextPath}/v3/expedient/${expedientId}/proces/${processInstanceId}/document/${documentStoreId}/descarregar" />
+        <c:url var="downloadUrl" value="/v3/expedient/${expedientId}/proces/${processInstanceId}/document/${documentStoreId}/descarregar" />
     </c:when>
     <c:otherwise>
-        <c:url var="downloadUrl" value="${pageContext.request.contextPath}/v3/expedient/${expedientId}/document/${documentStoreId}/descarregar" />
+        <c:url var="downloadUrl" value="/v3/expedient/${expedientId}/document/${documentStoreId}/descarregar" />
     </c:otherwise>
 </c:choose>
 
@@ -44,6 +44,12 @@
 	.tab-pane {min-height: 300px; margin-top: 25px;}
 	.candau {color: #666666;}
 	.select2-result-label:has(> span.candau) {cursor: not-allowed;}
+	.hidden {display: none;}
+	.contingut-carregant {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
 </style>
 <script type="text/javascript">
 // <![CDATA[
@@ -58,15 +64,19 @@
         url: '/helium/modal/v3/expedient/' + expedientId + '/document/' + documentId + '/returnFitxer',
         success: function(json) {
             if (json.error) {
-                $('#viewer').html('<div class="alert alert-danger">' + json.errorMsg + '</div>');
+                $('#viewer').prepend('<div class="alert alert-danger">' + json.errorMsg + '</div>');
+                $('#unableToPreview').removeClass('hidden');
             } else {
                 // el PDF viene en base64
                 var viewerUrl = 'data:application/pdf;base64,' + json.data.contingut;
                 $('#docPreview').attr('data', viewerUrl);
             }
+            $('#spinner').addClass('hidden');
         },
         error: function(xhr, ajaxOptions, thrownError) {
-            $('#viewer').html('<div class="alert alert-danger">' + thrownError + '</div>');
+            $('#viewer').prepend('<div class="alert alert-danger">' + thrownError + '</div>');
+            $('#unableToPreview').removeClass('hidden');
+            $('#spinner').addClass('hidden');
         }
 	    });
 	});
@@ -77,7 +87,13 @@
 </head>
 <body>	
 	<div id="viewer">
-	    <object id="docPreview" type="application/pdf"  style="height: 90vh; width: 100vw;"></object>
-	</div>	
+		<div id="spinner">
+			<div class="contingut-carregant">
+				<span class="fa fa-circle-o-notch fa-spin fa-3x"></span>
+			</div>
+		</div>
+		<object id="docPreview" type="application/pdf"  style="height: 90vh; width: 100vw;">
+		</object>
+	</div>
 </body>
 </html>

@@ -80,68 +80,8 @@
 			    }
 			});
 		});
-		
-		
-		// Quan es repinta la taula aplica la reordenació
-		//$('#estatSortidaDataTable').on('draw.dt', function() {
-		//	/* <c:if test="${!heretat}"> */
-		//	// Posa la taula com a ordenable
-		//	$("#estatSortidaDataTable").tableDnD({
-		//    	onDragClass: "drag",
-		//    	onDrop: function(table, row) {	        	
-		//        	var pos = row.rowIndex - 1;
-		//        	var id= obtenirId('#estatSortidaDataTable', pos);
-		//        	if (pos != filaMovem)
-		//        		canviarPosicioValidacio("#estatSortidaDataTable", id,pos);
-		//    	},
-		//    	onDragStart: function(table, row) {
-		//    			filaMovem = row.rowIndex-1;
-		//		}
-		//    });
-		//	/* </c:if> */
-		//  });		
-		
 	});
-	
-		function canviarPosicioValidacio(taulaId, id, pos) {
-		  	// Canvia la ordenació sempre amb ordre ascendent
-			$('#estatSortidaDataTable').DataTable().order([1, 'asc']);
-			var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipus.id}/estat/${estat.id}/sortida/"></c:url>' + id + '/moure/' + pos;
-			$.ajax({
-				type: 'GET',
-				url: getUrl,
-				async: true,
-				success: function(result) {
-				},
-				error: function(e) {
-					console.log("Error canviant l'ordre: " + e);
-				},
-				complete: function() {
-			    	refrescarTaulaDades(taulaId); 
-					webutilRefreshMissatges();
-					$(spin).remove();
-					$(input).show();
-				}
-			});	
-		}
-
-		function obtenirId(taulaId, pos){
-			if(filaMovem==pos){
-				var fila = filaMovem + 1;
-			}
-			else{
-			
-				if( filaMovem < pos){	//baixam elements
-					var fila = filaMovem + (pos-filaMovem)+1;
-				}else{					//pujam elements
-					var fila = filaMovem - (filaMovem-pos)+1;
-				}
-			}
-			id = $(taulaId + " tr:eq("+fila+")").attr("id");	
-			id2 = id.split("_");
-			return id2[1] ;
-		}
-	
+		
 	
 	// ]]>
 	</script>
@@ -154,13 +94,11 @@
 				data-url="<c:url value="/v3/expedientTipus/${expedientTipus.id}/estat/${estat.id}/sortida/datatable"></c:url>"
 				data-paging-enabled="false"
 				data-default-order="1"
-				data-ordering="false"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="codi"><spring:message code="expedient.tipus.estat.sortida.llistat.columna.codi"/></th>
-					<th data-col-name="nom"><spring:message code="expedient.tipus.estat.sortida.llistat.columna.nom"/></th>
+					<th data-col-name="nom"><spring:message code="expedient.tipus.estat.sortida.llistat.columna.estat"/></th>
 					<th data-col-name="id" data-template="#cellEstatAccionsSortidaTemplate" data-orderable="false" width="10%">
 						<script id="cellEstatAccionsSortidaTemplate" type="text/x-jsrender">
 						<c:if test="${!heretat}">

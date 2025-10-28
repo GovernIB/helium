@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,9 +43,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import es.caib.distribucio.core.api.exception.SistemaExternException;
 import lombok.SneakyThrows;
@@ -1679,6 +1677,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setIgnored(documentExportat.isIgnored());
 
 						document.setPortafirmesActiu(documentExportat.isPortafirmesActiu());
+						if(document.getPortafirmesFluxId() == null) {
 						document.setPortafirmesFluxId(documentExportat.getPortafirmesFluxId());
 						if (documentExportat.getPortafirmesFluxId() != null) {
 							if (documentExportat.getPortafirmesFluxNom() == null) {
@@ -1694,6 +1693,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							} else {
 								document.setPortafirmesFluxNom(documentExportat.getPortafirmesFluxNom());
 							}
+						}
 						}
 						document.setPortafirmesFluxTipus(documentExportat.getPortafirmesFluxTipus());
 						document.setPortafirmesSequenciaTipus(documentExportat.getPortafirmesSequenciaTipus());
@@ -3036,6 +3036,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		EstatDto dto = conversioTipusHelper.convertir(
 				estat, 
 				EstatDto.class);
+		// Ordena els estats de sortida
+		Collections.sort(
+				dto.getEstatsSortida(), 
+				new Comparator<EstatDto>() {
+					@Override
+					public int compare(EstatDto e1, EstatDto e2) {
+						return Integer.compare(e1.getOrdre(), e2.getOrdre());
+					}
+				}
+			);
 		// Herencia
 		if (tipus.getExpedientTipusPare() != null) {
 			if (tipus.getExpedientTipusPare().getId().equals(estat.getExpedientTipus().getId()))
@@ -3195,6 +3205,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		List<Long> ids = new ArrayList<Long>();
 		for (EstatDto dto: pagina.getContingut()) {
 			ids.add(dto.getId());
+			// Ordena els estats de sortida per ordre
+			Collections.sort(
+					dto.getEstatsSortida(), 
+					new Comparator<EstatDto>() {
+						@Override
+						public int compare(EstatDto e1, EstatDto e2) {
+							return Integer.compare(e1.getOrdre(), e2.getOrdre());
+						}
+					}
+				);			
 		}
 		Map<Long, List<PermisDto>> permisos = permisosHelper.findPermisos(
 				ids,
@@ -3372,7 +3392,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if(expedient.getEstat() == null)
 			return null;
-		return conversioTipusHelper.convertirList(Lists.newArrayList(expedient.getEstat().getEstatsSortida()), EstatDto.class);
+		// Ordena els estats de sortida
+		Collections.sort(
+				expedient.getEstat().getEstatsSortida(), 
+				new Comparator<Estat>() {
+					@Override
+					public int compare(Estat e1, Estat e2) {
+						return Integer.compare(e1.getOrdre(), e2.getOrdre());
+					}
+				}
+			);
+		return conversioTipusHelper.convertirList(expedient.getEstat().getEstatsSortida(), EstatDto.class);
 
 	}
 
@@ -3392,7 +3422,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		int lastComma = estatsPrevis.lastIndexOf(",");
 		String darrerEstat = estatsPrevis.substring(lastComma + 1, estatsPrevis.length());
 		Long darrerEstatId = Long.parseLong(darrerEstat.trim());
-		return conversioTipusHelper.convertirList(Lists.newArrayList(estatRepository.findOne(darrerEstatId)), EstatDto.class);
+		return conversioTipusHelper.convertirList(Arrays.asList(estatRepository.findOne(darrerEstatId)), EstatDto.class);
 	}
 
 	private EstatExportacio getEstatExportacio(Estat estat, boolean ambPermisos) {
@@ -4135,7 +4165,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Estat sortida = estatRepository.findOne(sortidaId);
 		if(!estat.getEstatsSortida().contains(sortida)) {
 			if(estat.getEstatsSortida() == null) {
-				estat.setEstatsSortida(Sets.newHashSet(sortida));
+				estat.setEstatsSortida(Arrays.asList(sortida));
 			} else {
 				estat.getEstatsSortida().add(sortida);
 			}

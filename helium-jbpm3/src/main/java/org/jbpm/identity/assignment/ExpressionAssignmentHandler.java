@@ -104,6 +104,11 @@ public class ExpressionAssignmentHandler implements AssignmentHandler {
     	int i = 0;
     	for (Membership m: (Set<Membership>)g.getMemberships())
     		actorIds[i++] = m.getUser().getName();
+    	if (executionContext.getProcessInstance().getExpedient().getTipus().isProcedimentComu()) {
+        	actorIds = Jbpm3HeliumBridge.getInstanceService().filtrarUsuarisAmbPermisComu(
+        			executionContext.getProcessInstance().getExpedient().getId(), 
+        			actorIds);
+    	}
         assignable.setPooledActors(actorIds);
       }
     } catch (RuntimeException e) {

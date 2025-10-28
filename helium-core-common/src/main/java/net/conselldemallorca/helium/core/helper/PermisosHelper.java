@@ -13,6 +13,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -30,10 +32,16 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.ControlPermisosDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 
 
 /**
@@ -48,6 +56,10 @@ public class PermisosHelper {
 	private LookupStrategy lookupStrategy;
 	@Resource
 	private MutableAclService aclService;
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
+	@Resource
+	private PluginHelper pluginHelper;
 
 
 
@@ -971,4 +983,75 @@ public class PermisosHelper {
 		public Long getObjectIdentifier(T object);
 	}
 
+
+	/** Mètode per trobar els codis d'usuaris amb permís de lectura sobre un expedient tenint en compte que pot ser
+	 * per procediment comú.
+	 * 
+	 * @param expedient
+	 * @return
+	 */
+	public List<String> findPersonesAmbPermisLectura(Expedient expedient) {
+		List<String> personesAmbPermis = new ArrayList<String>();
+		
+		// Cerca els permisos sobre el tipus d'expedient 
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		List<PermisDto> permisos = this.findPermisos(expedientTipus.getId(), ExpedientTipus.class);
+
+		// Si és un procediment comú llavors cerca tots els permisos pel tipus d'expedient i la unitat organitzativa de l'anotació o les seves superiors
+		if (expedientTipus.isProcedimentComu()) {
+			UnitatOrganitzativa uoAnotacio = expedient.getUnitatOrganitzativa();
+			if (uoAnotacio != null) {
+				// Consulta totes les unitats des de la de l'expedient o anotació fins la unitat superior arrel
+				List<UnitatOrganitzativaDto> unitats = unitatOrganitzativaHelper.findPath(uoAnotacio.getCodiUnitatArrel(), uoAnotacio.getCodi());
+				for (UnitatOrganitzativaDto uo : unitats) {
+					// Cerca la relació entre UO's i el tipus d'expedient
+					ExpedientTipusUnitatOrganitzativa expedientTipusUnitatOrganitzativa = 
+							unitatOrganitzativaHelper.findRelacioExpTipusUnitOrg(expedientTipus.getId(), uo.getId());
+					// Cerca  el permisos sobre la relació entre la UO i el tipus d'expedient.
+					if (expedientTipusUnitatOrganitzativa != null) {
+						permisos.addAll(this.findPermisos(
+								expedientTipusUnitatOrganitzativa.getId(), 
+								ExpedientTipusUnitatOrganitzativa.class));
+					}
+				}
+			}			
+		}
+		// Si s'han trobat permisos llavors comença a resoldre les persones amb permís
+		if (permisos != null && !permisos.isEmpty()) {
+			for (PermisDto permis: permisos) {
+				// Si no és de lectura ni d'administració es descarta
+				if (! permis.isRead() && !permis.isAdministration()) {
+					continue;
+				}
+			
+				switch (permis.getPrincipalTipus()) {
+				case USUARI:
+					personesAmbPermis.add(permis.getPrincipalNom());
+					break;
+				case ROL:
+					try {
+						String rol = permis.getPrincipalNom();
+						if ("ROLE_ADMIN".equals(rol)) {
+							rol = "HEL_ADMIN";
+						} else if ("tothom".equals(rol.toLowerCase())) {
+							continue; // No es consulten les dades del rol tothom per evitar errors
+						}						
+						List<PersonaDto> usuarisGrup = pluginHelper.personaFindAmbGrup(
+								permis.getPrincipalNom());
+						if (usuarisGrup != null) {
+							for (PersonaDto usuariGrup: usuarisGrup) {
+								personesAmbPermis.add(usuariGrup.getCodi());
+							}
+						}
+					} catch(Exception e) {
+						logger.error("Error cercant les persones pel grup " + permis.getPrincipalNom(), e);
+					}
+					break;
+				}
+			}
+		}
+		return personesAmbPermis;
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(PermisosHelper.class);
 }

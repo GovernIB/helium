@@ -37,4 +37,7 @@ public interface EntornRepository extends JpaRepository<Entorn, Long> {
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 
+	@Query("select e.codi from Entorn e")
+	List<String> findAllCodis();
+
 }

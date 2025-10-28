@@ -6,8 +6,8 @@
 
 <html>
 <head>
-	<title><spring:message code="decorator.menu.fluxes"/></title>
-	<meta name="title" content="<spring:message code='decorator.menu.fluxes'/>"/>
+	<title><spring:message code="fluxosFirma.titol.usuari"/></title>
+	<meta name="title" content="<spring:message code='fluxosFirma.titol.usuari'/>"/>
 	<meta name="screen" content="fluxosFirma">
 	<meta name="title-icon-class" content="fa fa-sitemap"/>
 	<script src="<c:url value="/webjars/datatables.net/1.10.13/js/jquery.dataTables.min.js"/>"></script>

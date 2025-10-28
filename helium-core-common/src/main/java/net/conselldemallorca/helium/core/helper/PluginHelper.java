@@ -271,14 +271,14 @@ public class PluginHelper {
 					ex);
 			throw new SistemaExternException(
 					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
 					MonitorIntegracioHelper.INTCODI_PERSONA,
 					"No s'han pogut consultar tots els usuaris",
 					ex);

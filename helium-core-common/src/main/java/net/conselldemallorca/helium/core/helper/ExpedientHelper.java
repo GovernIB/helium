@@ -851,6 +851,21 @@ public class ExpedientHelper {
 				Registre.Accio.FINALITZAR);
 	}
 
+	/**
+	 * Metode per tancar un expedient i firmar els documents
+	 * @param id
+	 * @param firmaDocumentsServidor
+	 */
+	public void tancarExpedientArxiu(Long expedientId, boolean firmaDocumentsServidor) {
+		Expedient expedient = getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+		this.tancarExpedientArxiu(expedient, firmaDocumentsServidor);
+	}
+	
+
 	/** Mètode comú per tancar l'expedient a l'Arxiu en el cas de finalitzar manualment un expedient o des de la verificació
 	 * i finalització d'una tasca. Si no té contingut l'esborra de l'arxiu i si en té firma els documents sense firma i el tanca.
 	 * 

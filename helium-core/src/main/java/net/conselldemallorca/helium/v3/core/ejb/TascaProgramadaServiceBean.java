@@ -110,4 +110,10 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 		delegate.migrarExpedientsDocumentsArxiu();
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void restartSchedulledTasks(String taskCodi) {
+		delegate.restartSchedulledTasks(taskCodi);
+	}
+
 }

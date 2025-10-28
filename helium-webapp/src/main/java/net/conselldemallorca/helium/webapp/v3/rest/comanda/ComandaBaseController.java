@@ -1,4 +1,4 @@
-package net.conselldemallorca.helium.webapp.v3.rest.SalutRest;
+package net.conselldemallorca.helium.webapp.v3.rest.comanda;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -12,74 +12,21 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import lombok.Builder;
 import lombok.Getter;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.AppInfo;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.EstatSalut;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.EstatSalutEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.salut.SalutInfo;
-import net.conselldemallorca.helium.v3.core.api.service.SalutService;
 
-@Controller
-@RequestMapping("/rest")
-public class SalutController {
-	
-	private static DateFormat isoDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+public abstract class ComandaBaseController {
 	
 	@Autowired
 	private ServletContext servletContext;
-	@Autowired
-	private SalutService salutService;
 	private ManifestInfo manifestInfo;
-
-	@RequestMapping(value = "/appInfo", method = RequestMethod.GET)
-	@ResponseBody
-	public AppInfo appInfo(HttpServletRequest request) throws IOException {
-		ManifestInfo manifestInfo = getManifestInfo();
-		return AppInfo.builder()
-		.codi("NOT")
-		.nom("Notib")
-		.data(manifestInfo.getBuildDate())
-		.versio(manifestInfo.getVersion())
-		.revisio(manifestInfo.getBuildScmRevision())
-		.jdkVersion(manifestInfo.getBuildJDK())
-		.integracions(salutService.getIntegracions())
-		.subsistemes(salutService.getSubsistemes())
-		.contexts(salutService.getContexts(getBaseUrl(request)))
-		.build();
-	}
 	
-	public String getBaseUrl(HttpServletRequest request) {
-		return ServletUriComponentsBuilder
-				.fromRequestUri(request)
-				.replacePath(null)
-				.build()
-				.toUriString();
-	}
+	private static DateFormat isoDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 	
-	@RequestMapping(value = "/salut", method = RequestMethod.GET)
-	@ResponseBody
-	public SalutInfo health(HttpServletRequest request) throws IOException {
-		ManifestInfo manifestInfo = getManifestInfo();
-		return salutService.checkSalut(manifestInfo.getVersion(), request.getRequestURL().toString() + "Performance");
-	}
-
-	@RequestMapping(value = "/salutPerformance", method = RequestMethod.GET)
-	@ResponseBody
-	public String healthCheck(HttpServletRequest request) {
-		return "OK";
-	}
-
-	private ManifestInfo getManifestInfo() throws IOException {
+	protected ManifestInfo getManifestInfo() throws IOException {
 		if (manifestInfo == null) {
 			manifestInfo = buildManifestInfo();
 		}
@@ -119,7 +66,7 @@ public class SalutController {
 			return null;
 		}
 	}
-
+	
 	@Builder
 	@Getter
 	public static class ManifestInfo {

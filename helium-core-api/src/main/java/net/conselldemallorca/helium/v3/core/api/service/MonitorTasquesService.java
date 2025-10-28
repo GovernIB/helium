@@ -31,6 +31,6 @@ public interface MonitorTasquesService {
 	 * configuració dels paràmetres i la configuracío.
 	 * 
 	 */
-	public void reiniciarTasquesEnSegonPla();	
+	public void reiniciarTasquesEnSegonPla(String codiTasca);	
 
 }

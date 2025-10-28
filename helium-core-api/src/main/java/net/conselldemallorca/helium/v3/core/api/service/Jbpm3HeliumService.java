@@ -1491,5 +1491,21 @@ public interface Jbpm3HeliumService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Rep una llista d'usuaris i retorna la llista d'usuaris filtrant els que tenen permís sobre l'expedient
+	 * per permís de lectura directe o per permís de lectura sobre la UO del tipus d'expedient.
+	 * 
+	 * @param expedientId
+	 *             atribut id de l'expedient.
+	 * @param usuaris
+	 *             Llistat de codis d'usuari per revisar el permís.
+	 * @return La llista d'usuaris amb permís de lectura directa o per la UO de l'expedient.
+	 */
+	public String[] filtrarUsuarisAmbPermisComu(
+			Long expedientId,
+			String usuaris[]);
+	
+	
 	
 }
