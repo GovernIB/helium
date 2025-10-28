@@ -494,7 +494,7 @@ public class ConversioTipusHelper {
 		interessatDto.setEntregaPostal(interessat.isEntregaPostal());
 		if (interessat.getEntregaTipus() != null && !interessat.getEntregaTipus().isEmpty()) {
 			try {
-				interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getTipus().toUpperCase()));
+				interessatDto.setEntregaTipus(EntregaPostalTipus.valueOf(interessat.getEntregaTipus().toUpperCase()));
 			} catch(Exception e) {
 				throw new ValidacioException("No es reconeix el tipus \"" + interessat.getTipus() + "\", " +
 										     "els possibles tipus són : " + EntregaPostalTipus.SENSE_NORMALITZAR, e);
@@ -514,10 +514,17 @@ public class ConversioTipusHelper {
 		interessatDto.setRaoSocial(interessat.getRaoSocial());
 		interessatDto.setEs_representant(interessat.isEs_representant());
 		
+		interessatDto.setCodiDire(interessat.getCodiDire());
+		interessatDto.setCanalNotif(interessat.getCanalNotif());
+		
 		//Tractament pais/provincia/municipi
 		interessatDto.setMunicipi(interessat.getMunicipi());
 		interessatDto.setProvincia(interessat.getProvincia());
 		interessatDto.setPais(interessat.getPais());
+		
+		
+		
+		
 		
 		//Tractament si és representat o representant (s'han de convertir a dto)
 //		interessatDto.setRepresentat(interessat.getRepresentat());

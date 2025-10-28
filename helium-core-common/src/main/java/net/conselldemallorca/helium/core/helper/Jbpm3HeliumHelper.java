@@ -581,7 +581,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if(interessat.getTipus() == InteressatTipusEnumDto.JURIDICA && (interessat.getRaoSocial() == null || interessat.getRaoSocial().isEmpty())) {
 			interessat.setRaoSocial(interessat.getFullNom());
 			interessat.setNom(null);
-			interessat.setLlinatge1(null); 
+			interessat.setLlinatge1(null);
 			interessat.setLlinatge2(null);
 		}
 		
@@ -591,6 +591,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		
 		interessatEntity.setNom(interessat.getNom());
 		interessatEntity.setRaoSocial(interessat.getRaoSocial());
+		interessatEntity.setTipusDocIdent(interessat.getTipusDocIdent());
 		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());
@@ -601,6 +602,15 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		interessatEntity.setEntregaTipus(interessat.getEntregaTipus());
 		interessatEntity.setLinia1(interessat.getLinia1());
 		interessatEntity.setLinia2(interessat.getLinia2());
+		
+		interessatEntity.setDireccio(interessat.getDireccio());
+		interessatEntity.setMunicipi(interessat.getMunicipi());
+		interessatEntity.setProvincia(interessat.getProvincia());
+		interessatEntity.setPais(interessat.getPais());
+		interessatEntity.setCodiDire(interessat.getCodiDire());
+		interessatEntity.setDir3Codi(interessat.getDir3Codi());
+		interessatEntity.setCanalNotif(interessat.getCanalNotif());
+		
 		interessatEntity.setCodiPostal(interessat.getCodiPostal());
 		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());

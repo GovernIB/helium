@@ -85,6 +85,18 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 	private String entregaDehObligat;
 	private String varEntregaDehObligat;
 	
+	private String tipusDocIdent;
+	private String varTipusDocIdent;
+	private String direccio;
+	private String varDireccio;
+	private String pais;
+	private String varPais;
+	private String provincia;
+	private String varProvincia;
+	private String municipi;
+	private String varMunicipi;
+	private String canalNotif;
+	private String varCanalNotif;
 	
 	public void execute(ExecutionContext executionContext) {
 		
@@ -105,6 +117,11 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 				executionContext,
 				nif,
 				varNif));
+		interessat.setTipusDocIdent((String)getValorOVariable(
+				executionContext,
+				tipusDocIdent,
+				varTipusDocIdent));
+
 		interessat.setLlinatge1((String)getValorOVariable(
 				executionContext,
 				llinatge1,
@@ -136,6 +153,22 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 				entregaPostal,
 				varEntregaPostal);
 		interessat.setEntregaPostal(entregaPostalVal != null? entregaPostalVal.booleanValue() : false);
+		interessat.setDireccio((String)getValorOVariable(
+				executionContext,
+				direccio,
+				varDireccio));
+		interessat.setPais((String)getValorOVariable(
+				executionContext,
+				pais,
+				varPais));
+		interessat.setProvincia((String)getValorOVariable(
+				executionContext,
+				provincia,
+				varProvincia));
+		interessat.setMunicipi((String)getValorOVariable(
+				executionContext,
+				municipi,
+				varMunicipi));
 		interessat.setEntregaTipus((String)getValorOVariable(
 				executionContext,
 				entregaTipus,
@@ -189,9 +222,6 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 	}
 	public String getDir3Codi() {
 		return dir3Codi;
-	}
-	public void setDir3Codi(String dir3Codi) {
-		this.dir3Codi = dir3Codi;
 	}
 	public String getVarDir3Codi() {
 		return varDir3Codi;
@@ -271,4 +301,44 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 	public void setVarEntregaDehObligat(String varEntregaDehObligat) {
 		this.varEntregaDehObligat = varEntregaDehObligat;
 	}
+	public void setTipusDocIdent(String tipusDocIdent) {
+		this.tipusDocIdent = tipusDocIdent;
+	}
+	public void setVarTipusDocIdent(String varTipusDocIdent) {
+		this.varTipusDocIdent = varTipusDocIdent;
+	}
+	public void setDireccio(String direccio) {
+		this.direccio = direccio;
+	}
+	public void setVarDireccio(String varDireccio) {
+		this.varDireccio = varDireccio;
+	}
+	public void setPais(String pais) {
+		this.pais = pais;
+	}
+	public void setVarPais(String varPais) {
+		this.varPais = varPais;
+	}
+	public void setProvincia(String provincia) {
+		this.provincia = provincia;
+	}
+	public void setVarProvincia(String varProvincia) {
+		this.varProvincia = varProvincia;
+	}
+	public void setMunicipi(String municipi) {
+		this.municipi = municipi;
+	}
+	public void setVarMunicipi(String varMunicipi) {
+		this.varMunicipi = varMunicipi;
+	}
+	public void setDir3Codi(String dir3Codi) {
+		this.dir3Codi = dir3Codi;
+	}
+	public void setCanalNotif(String canalNotif) {
+		this.canalNotif = canalNotif;
+	}
+	public void setVarCanalNotif(String varCanalNotif) {
+		this.varCanalNotif = varCanalNotif;
+	}
+	
 }
