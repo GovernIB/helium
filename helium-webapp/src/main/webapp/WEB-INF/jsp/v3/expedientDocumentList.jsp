@@ -270,7 +270,15 @@
 								<span id="psigna_{{:id}}" class="label label-danger label-doc" title="<spring:message code='expedient.document.pendent.psigna.error'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-exclamation-triangle></span></span>
 							{{/if}}
 						{{else}}
-							<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.pendent.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-clock-o"></span></span>
+							{{if psEstat == "PROCESSAT"}}
+								<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.processat.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-pencil"></span></span>
+							{{/if}}
+							{{if psEstat == "CANCELAT"}}
+								<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.rebutjat.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-times"></span></span>
+							{{/if}}
+							{{if psEstat == "PENDENT"}}
+								<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.pendent.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-clock-o"></span></span>
+							{{/if}}
 						{{/if}}
 					{{/if}}
 					<%--Notificat  --%>

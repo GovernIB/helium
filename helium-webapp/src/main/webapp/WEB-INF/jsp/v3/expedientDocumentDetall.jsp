@@ -17,6 +17,8 @@
 .docAnnex .panel-heading {background-color: #fff !important;}
 .btn-sm {padding: 2px 6px !important;}
 .doc-details {font-size: small;}
+.doctab span.fa.fa-clock-o, .doctab span.fa.fa-pencil {color: #3c763d !important;}
+.doctab span.fa.fa-clock-o.grey {color: #777 !important;}
 </style>
 
 <script type="text/javascript">
@@ -60,7 +62,20 @@
 		</li>
 		<li id="pipella-documentDetall-portasignatura-${detall.documentStoreId}" class="doctab <c:if test="${detall.psignaPendent}">actiu</c:if>">
 			<a href="#contingut-documentDetall-portasignatura-${detall.documentStoreId}" role="tab" data-toggle="tab">
-				<span class="fa fa-clock-o"></span>
+				<c:choose>
+					<c:when  test="${detall.psignaDetall.estat == 'PENDENT'}">
+						<span class="fa fa-clock-o"></span>
+					</c:when>
+					<c:when test="${detall.psignaDetall.estat == 'PROCESSAT'}">
+						<span class="fa fa-pencil"></span>
+					</c:when>
+					<c:when test="${detall.psignaDetall.estat == 'CANCELAT'}">
+						<span class="fa fa-times"></span>
+					</c:when>
+					<c:otherwise>
+						<span class="fa fa-clock-o grey"></span>
+					</c:otherwise>
+				</c:choose>
 				<spring:message code="expedient.document.detall.pipella.portasignatura"/>
 			</a>
 		</li>
@@ -206,7 +221,7 @@
 				<c:when test="${detall.psignaPendent}">
 					<c:choose>
 						<c:when test="${psigna.error and psigna.estat != 'PROCESSAT'}">
-							<p class="mb-0">Document amb error: <span class="text-dander text-sm font-weight-bolder"><spring:message code="expedient.document.pendent.psigna.error" /></span></p>
+							<p class="mb-0">Document amb error: <span class="text-danger text-sm font-weight-bolder"><spring:message code="expedient.document.pendent.psigna.error" /></span></p>
 						</c:when>
 						<c:when test="${psigna.error and psigna.estat == 'PROCESSAT'}">
 							<p class="mb-0">Document amb error: <span class="text-danger text-sm font-weight-bolder"><spring:message code="expedient.document.rebutjat.psigna.error" /></span></p>
@@ -216,7 +231,7 @@
 						</c:otherwise>
 					</c:choose>
 				</c:when>
-				<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO PENDENT de Portasignatures</span></p></c:otherwise>
+				<c:otherwise><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">NO PENDENT de Portasignatures</span></p></c:otherwise>
 			</c:choose>
 		</div>
 
