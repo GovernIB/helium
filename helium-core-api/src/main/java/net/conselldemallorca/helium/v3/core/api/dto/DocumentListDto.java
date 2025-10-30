@@ -59,10 +59,10 @@ public class DocumentListDto implements Serializable {
 	private boolean obligatori = false;
 	@Builder.Default
 	private boolean obligatoriEntrada = false;
-
-	public boolean isObligatoriSignat() {
-		return false;
-	}
+	@Builder.Default
+	private boolean obligatoriSignat = false;
+	@Builder.Default
+	private boolean obligatoriNotificat = false;
 	
 	private static final long serialVersionUID = -2271231227621850341L;
 }

@@ -48,14 +48,17 @@
 		<div class="col-md-2">							
 			<hel:inputText name="numero" textKey="anotacio.llistat.filtre.camp.numero" placeholderKey="anotacio.llistat.filtre.camp.numero" inline="true"/>
 		</div>	
+		<div class="col-md-2">							
+			<hel:inputText name="nif" textKey="anotacio.llistat.filtre.camp.nif" placeholderKey="anotacio.llistat.filtre.camp.nif" inline="true"/>
+		</div>
 		<div class="col-md-4">							
 			<hel:inputText name="extracte" textKey="anotacio.llistat.filtre.camp.extracte" placeholderKey="anotacio.llistat.filtre.camp.extracte" inline="true"/>
 		</div>		
-		<div class="col-md-2">
-			<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="anotacio.llistat.filtre.camp.estat" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
-		</div>	
 	</div>
 	<div class="row">
+		<div class="col-md-2">
+			<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="anotacio.llistat.filtre.camp.estat" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
+		</div>
 		<div class="col-md-4">							
 			<hel:inputSuggest 
 					name="codiProcediment" 
@@ -73,12 +76,11 @@
 				optionItems="${expedientsTipus}" optionValueAttribute="codi" emptyOption="true"
 				inline="true" placeholderKey="anotacio.llistat.filtre.camp.expedientTipus" optionTextAttribute="valor" />
 		</div>					
-		<div class="col-md-2">							
-			<hel:inputText name="numeroExpedient" textKey="anotacio.llistat.filtre.camp.numeroExpedient" placeholderKey="anotacio.llistat.filtre.camp.numeroExpedient" inline="true"/>
-		</div>	
 	</div>
 	<div class="row">
-
+		<div class="col-md-2">							
+			<hel:inputText name="numeroExpedient" textKey="anotacio.llistat.filtre.camp.numeroExpedient" placeholderKey="anotacio.llistat.filtre.camp.numeroExpedient" inline="true"/>
+		</div>
 		<div class="col-md-4">
 			<hel:inputSuggest 
 					name="unitatOrganitzativaCodi" 
@@ -88,8 +90,6 @@
 					inline="true"
 					/>	
 		</div>	
-
-	
 		<div class="col-md-2 pull-right">
 			<div class="pull-right">
 					<button id="consultarHidden" type="submit" name="accio" value="consultar" class="btn btn-primary hidden"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
@@ -121,7 +121,7 @@
 				<th data-col-name="id" data-visible="false" data-orderable="false"/>
 				<th data-col-name="data" data-converter="datetime" width="7%"><spring:message code="anotacio.llistat.columna.data"/></th>
 				<th data-col-name="identificador"><spring:message code="anotacio.llistat.columna.identificador"/></th>
-				<th data-col-name="extracte" data-renderer="maxLength(50)"><spring:message code="anotacio.llistat.columna.extracte"/></th>
+				<th data-col-name="extracte" width="17%"><spring:message code="anotacio.llistat.columna.extracte"/></th>
 				<th data-col-name="procedimentCodi"><spring:message code="anotacio.llistat.columna.procedimentCodi"/></th>
 				<th data-col-name="expedientNumero"><spring:message code="anotacio.llistat.columna.expedientNumero"/></th>
 				<th data-col-name="dataRecepcio" data-converter="datetime" width="7%"><spring:message code="anotacio.llistat.columna.dataRecepcio"/></th>				
@@ -152,7 +152,7 @@
 						{{/if}}
 					</script>
 				</th>
-				<th data-col-name="expedient.numero" data-template="#cellAnotacioExpedientTemplate" width="12%">
+				<th data-col-name="expedient.numero" data-template="#cellAnotacioExpedientTemplate" width="8%">
 					<spring:message code="anotacio.llistat.columna.expedient"/>
 					<script id="cellAnotacioExpedientTemplate" type="text/x-jsrender">
 						{{if expedient != null }}

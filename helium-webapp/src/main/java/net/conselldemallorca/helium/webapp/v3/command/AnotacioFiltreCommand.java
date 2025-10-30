@@ -20,6 +20,7 @@ public class AnotacioFiltreCommand {
 	private String codiAssumpte;
 	private String numeroExpedient;
 	private String numero;
+	private String nif;
 	private String extracte;
 	private Date dataInicial;
 	private Date dataFinal;
@@ -65,6 +66,14 @@ public class AnotacioFiltreCommand {
 		this.numero = numero;
 	}
 
+	public String getNif() {
+		return nif;
+	}
+
+	public void setNif(String nif) {
+		this.nif = nif;
+	}
+	
 	public String getExtracte() {
 		return extracte;
 	}

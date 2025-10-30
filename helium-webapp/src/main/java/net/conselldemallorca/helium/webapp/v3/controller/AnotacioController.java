@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -86,6 +87,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.JsonResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -823,6 +825,34 @@ public class AnotacioController extends BaseExpedientController {
 			return "redirect:" + request.getHeader("referer");
 		}
 	}
+	
+	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/returnFitxer", method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResponse annexPrevisualitzacio(
+	        HttpServletRequest request,
+	        @PathVariable Long anotacioId,
+	        @PathVariable Long annexId,
+	        Model model) {
+
+	    try {
+	        ArxiuDto arxiu = anotacioService.getAnnexContingutVersioImprimible(annexId);
+	        
+	        if (arxiu == null) {
+	            return new JsonResponse(true, "No s'ha trobat el contingut de l'annex");
+	        }
+	        
+	        return new JsonResponse(arxiu);
+
+	    } catch (SistemaExternException e) {
+	        logger.error("Error obteniendo y convirtiendo anexos", e);
+	        
+	        return new JsonResponse(true, e.getMessage());
+	    } catch (Exception e) {
+	        logger.error("Error inesperado obteniendo anexos", e);
+	        return new JsonResponse(true, e.getMessage());
+	    }
+	}
+
 	
 	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/firmaInfo", method = RequestMethod.GET)
 	public String firmaInfo(

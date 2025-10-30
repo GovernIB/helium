@@ -36,6 +36,7 @@ public class VariableFact {
     private boolean obligatori;
     private boolean obligatoriEntrada;
     private boolean obligatoriSignat; // Momés per documents
+    private boolean obligatoriNotificat; // Momés per documents
 
 }
 
