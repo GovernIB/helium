@@ -1067,6 +1067,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
 						.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
 						.obligatoriEntrada(documentFormProperties != null ? documentFormProperties.isObligatoriEntrada() : false)
+						.obligatoriSignat(documentFormProperties != null ? documentFormProperties.isObligatoriSignat() : false)
+						.obligatoriNotificat(documentFormProperties != null ? documentFormProperties.isObligatoriNotificat() : false)
 						.build();
 				document.setPinbalActiu(dTipExp.isPinbalActiu());
 			} else {
@@ -1172,6 +1174,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
 				.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
 				.obligatoriEntrada(documentFormProperties != null ? documentFormProperties.isObligatoriEntrada() : false)
+				.obligatoriSignat(documentFormProperties != null ? documentFormProperties.isObligatoriSignat() : false)
+				.obligatoriNotificat(documentFormProperties != null ? documentFormProperties.isObligatoriNotificat() : false)
 				.build();
 		return document;
 	}

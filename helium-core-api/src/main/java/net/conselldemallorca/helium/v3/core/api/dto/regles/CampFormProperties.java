@@ -11,4 +11,5 @@ public class CampFormProperties {
     private boolean obligatori;
     private boolean obligatoriEntrada;
     private boolean obligatoriSignat;
+    private boolean obligatoriNotificat;
 }

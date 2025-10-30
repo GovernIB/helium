@@ -679,22 +679,29 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		// Documents
 		// Comprova els documents obligatoris
 		List<String> documentsObligatoris = new ArrayList<String>();
-		List<String> documentsSignats = new ArrayList<String>();
+		List<String> documentsNoSignats = new ArrayList<String>();
+		List<String> documentsNoNotificats = new ArrayList<String>();
 		for (DocumentListDto document : expedientDocumentService.findDocumentsExpedient(expedient.getId(), null, true, new PaginacioParamsDto())) {
 			if (document.isObligatori() && document.getId() == null) {
 				documentsObligatoris.add(document.getNom());
 			}
 			if (document.isObligatoriSignat() && !document.isSignat()) {
-				documentsSignats.add(document.getNom());
+				documentsNoSignats.add(document.getNom());
+			}
+			if (document.isObligatoriNotificat() && !document.isNotificat()) {
+				documentsNoNotificats.add(document.getNom());
 			}
 		}
 		if (!documentsObligatoris.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.documents.obligatoris", new Object[] {documentsObligatoris.size(), documentsObligatoris}));
 			correcte = false;
 		}
-		//TODO: completar missatge correcte
-		if (!documentsSignats.isEmpty()) {
-			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.documents.signats", new Object[] {documentsSignats.size(), documentsSignats}));
+		if (!documentsNoSignats.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.documents.signats", new Object[] {documentsNoSignats.size(), documentsNoSignats}));
+			correcte = false;
+		}
+		if (!documentsNoNotificats.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.documents.notificats", new Object[] {documentsNoNotificats.size(), documentsNoNotificats}));
 			correcte = false;
 		}
 		// Comprova els documents obligatoris pel següent estat		

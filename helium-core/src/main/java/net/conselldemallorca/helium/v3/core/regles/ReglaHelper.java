@@ -91,14 +91,8 @@ public class ReglaHelper {
             boolean defaultEditable = true;
             boolean defaultObligatori = false;
             boolean defaultObligatoriEntrada = false;
-
-            // Banderes que marquen si hem vist alguna regla aplicable amb una acció determinada
-            boolean seenMostrar = false;
-            boolean seenOcultar = false;
-            boolean seenEditar = false;
-            boolean seenBloquejar = false;
-            boolean seenRequerir = false;
-            boolean seenRequerirEntrada = false;
+            boolean defaultObligatoriSignat = false;
+            boolean defaultObligatoriNotificat = false;
 
             for (EstatRegla regla : regles) {
                 VariableFact variableFact = VariableFact.builder()
@@ -116,47 +110,27 @@ public class ReglaHelper {
                         .editable(defaultEditable)
                         .obligatori(defaultObligatori)
                         .obligatoriEntrada(defaultObligatoriEntrada)
+                        .obligatoriSignat(defaultObligatoriSignat)
+                        .obligatoriNotificat(defaultObligatoriNotificat)
                         .build();
 
-                // Usar Facts nou per cada regla (evita contaminacions/residus)
                 Facts facts = new Facts();
                 facts.put("fact", variableFact);
-
-                // Executa el engine per a aquesta combinació (qui+que+accio sobre aquest camp)
                 rulesEngine.fire(rules, facts);
 
                 // Si aplica la regla (es va complir qui->que), marquem l'acció corresponent
                 if (variableFact.isAplicaReglaQue()) {
                     switch (regla.getAccio()) {
-                        case MOSTRAR: seenMostrar = true; campFormProperties.setVisible(true); break;
-                        case OCULTAR: seenOcultar = true; campFormProperties.setVisible(false); break;
-                        case EDITAR: seenEditar = true; campFormProperties.setEditable(true); break;
-                        case BLOQUEJAR: seenBloquejar = true; campFormProperties.setEditable(false); break;
-                        case REQUERIR: seenRequerir = true; campFormProperties.setObligatori(true); break;
-                        case REQUERIR_ENTRAR: seenRequerirEntrada = true; campFormProperties.setObligatoriEntrada(true); break;
+                        case MOSTRAR: campFormProperties.setVisible(true); break;
+                        case OCULTAR: campFormProperties.setVisible(false); break;
+                        case EDITAR: campFormProperties.setEditable(true); break;
+                        case BLOQUEJAR: campFormProperties.setEditable(false); break;
+                        case REQUERIR: campFormProperties.setObligatori(true); break;
+                        case REQUERIR_ENTRAR: campFormProperties.setObligatoriEntrada(true); break;
                         default: break;
                     }
                 }
             }
-
-            // Combinació determinista d'efectes
-            boolean finalVisible = defaultVisible;
-            if (seenOcultar) {
-                finalVisible = false;
-            } else if (seenMostrar) {
-                finalVisible = true;
-            }
-
-            boolean finalEditable = defaultEditable;
-            if (seenBloquejar) {
-                finalEditable = false;
-            } else if (seenEditar) {
-                finalEditable = true;
-            }
-
-            boolean finalObligatori = defaultObligatori || seenRequerir;
-            boolean finalObligatoriEntrada = defaultObligatoriEntrada || seenRequerirEntrada;
-
             campFormPropertiesMap.put(dada.getCodi(), campFormProperties);
         }
 
@@ -181,7 +155,6 @@ public class ReglaHelper {
         for (GrantedAuthority ga: auth.getAuthorities())
             usuariRols.add(ga.getAuthority());
 
-        Facts facts = new Facts();
         for(Document document: documents) {
         	CampFormProperties campFormProperties = getDefaultCampFormProperties();
             for(EstatRegla regla: regles) {
@@ -201,10 +174,26 @@ public class ReglaHelper {
                         .obligatori(campFormProperties.isObligatori())
                         .obligatoriEntrada(campFormProperties.isObligatoriEntrada())
                         .obligatoriSignat(campFormProperties.isObligatoriSignat())
+                        .obligatoriNotificat(campFormProperties.isObligatoriNotificat())
                         .build();
+                Facts facts = new Facts();
                 facts.put("fact", variableFact);
                 rulesEngine.fire(rules, facts);
-                campFormProperties = getCampFormProperties(variableFact);
+                
+                // Si aplica la regla (es va complir qui->que), marquem l'acció corresponent
+                if (variableFact.isAplicaReglaQue()) {
+                    switch (regla.getAccio()) {
+                        case MOSTRAR: campFormProperties.setVisible(true); break;
+                        case OCULTAR: campFormProperties.setVisible(false); break;
+                        case EDITAR: campFormProperties.setEditable(true); break;
+                        case BLOQUEJAR: campFormProperties.setEditable(false); break;
+                        case REQUERIR: campFormProperties.setObligatori(true); break;
+                        case REQUERIR_ENTRAR: campFormProperties.setObligatoriEntrada(true); break;
+                        case SIGNAT: campFormProperties.setObligatoriSignat(true); break;
+                        case NOTIFICAT: campFormProperties.setObligatoriNotificat(true); break;
+                        default: break;
+                    }
+                }
             }
             campFormPropertiesMap.put(document.getCodi(), campFormProperties);
         }
