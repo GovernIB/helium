@@ -2295,6 +2295,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public ExpedientTipusDto findAmbCodi(
 			Long entornId, 
 			String codi) throws NoTrobatException {
@@ -2541,6 +2542,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public boolean tePermisosSobreUnitatOrganitzativaOrParents(Long expedientTipusId, String unitatOrganitzativaCodi, Permission[] permissions) {
 		ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
 				expedientTipusId, 
@@ -2933,6 +2935,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public ReassignacioDto reassignacioFindAmbId(Long id) throws NoTrobatException {
 		logger.debug(
 				"Consultant la reassignacio del tipus d'expedient amb id (" +
@@ -3553,6 +3556,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public EstatReglaDto estatReglaFindByNom(Long estatId, String nom) {
 		Estat estat = estatRepository.findOne(estatId);
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
@@ -4282,6 +4286,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public ConsultaDto consultaFindAmbId(Long id) throws NoTrobatException {
 		logger.debug(
 				"Consultant la consulta del tipus d'expedient amb id (" +
@@ -4299,6 +4304,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public ConsultaDto consultaFindAmbCodiPerValidarRepeticio(Long expedientTipusId, String codi) throws NoTrobatException {
 		logger.debug(
 				"Consultant la consulta del tipus d'expedient per codi per validar repetició (" +
@@ -4731,6 +4737,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}	
 	
 	@Override
+	@Transactional(readOnly = true)
 	public PaginaDto<MapeigSistraDto> mapeigFindPerDatatable(
 			Long expedientTipusId, 
 			TipusMapeig tipus, 
@@ -5100,6 +5107,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
 			Integer anyInicial, 
 			Integer anyFinal,
@@ -5165,6 +5173,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 
 	@Override
+	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientTipusDto> findTipologiesByFiltrePaginat(
 			Long entornId, 
 			ExpedientTipusFiltreDto filtreDto,
@@ -5211,6 +5220,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public ArxiuDto getManualAjuda(Long expedientTipusId) {
 		logger.debug(
 				"Obtenint el manual d'ajuda (" +
@@ -5239,6 +5249,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public boolean arxiuCheckSerieDocumental(
 			String serieDocumental,
 			String organ,
