@@ -372,7 +372,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public void estatSortidaDelete(Long estatId, Long sortidaId) {
 		delegate.estatSortidaDelete(estatId, sortidaId);
 	}
-
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<EstatDto> estatSortidaFindAll(Long estatId) {
+		return delegate.estatSortidaFindAll(estatId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

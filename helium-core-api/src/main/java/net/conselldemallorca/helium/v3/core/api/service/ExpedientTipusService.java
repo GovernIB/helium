@@ -1201,7 +1201,14 @@ public interface ExpedientTipusService {
 	 */
 	public void estatSortidaDelete(Long estatId, Long sortidaId);
 
-	
+
+	/**  Consulta dels estats de sortida per un estat especificat per identificador.
+	 * 
+	 * @param estatId Identificador de l'estat.
+	 * @return Estats de sortida ordenats pels ordres dels estats.
+	 */
+	public List<EstatDto> estatSortidaFindAll(Long estatId);
+
 	/**
 	 * Crea una nova consulta.
 	 * 
@@ -1745,5 +1752,6 @@ public interface ExpedientTipusService {
 			String serieDocumental,
 			String organ,
 			String clasificacio) throws SistemaExternException;
+
 
 }

@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -84,6 +85,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.EstatAccioEntrada;
 import net.conselldemallorca.helium.core.model.hibernate.EstatAccioSortida;
 import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
+import net.conselldemallorca.helium.core.model.hibernate.EstatSortida;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
@@ -180,6 +182,7 @@ import net.conselldemallorca.helium.v3.core.repository.EstatAccioEntradaReposito
 import net.conselldemallorca.helium.v3.core.repository.EstatAccioSortidaRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatReglaRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatSortidaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
@@ -238,6 +241,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private TerminiRepository terminiRepository;
 	@Resource
 	private EstatRepository estatRepository;
+	@Resource
+	private EstatSortidaRepository estatSortidaRepository;
 	@Resource
 	private MapeigSistraRepository mapeigSistraRepository;
 	@Resource
@@ -3039,16 +3044,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		EstatDto dto = conversioTipusHelper.convertir(
 				estat, 
 				EstatDto.class);
-		// Ordena els estats de sortida
-		Collections.sort(
-				dto.getEstatsSortida(), 
-				new Comparator<EstatDto>() {
-					@Override
-					public int compare(EstatDto e1, EstatDto e2) {
-						return Integer.compare(e1.getOrdre(), e2.getOrdre());
-					}
-				}
-			);
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(tipus.getTipus())) {
+			dto.setEstatsSortida(this.estatSortidaFindAll(estatId));
+		}
 		// Herencia
 		if (tipus.getExpedientTipusPare() != null) {
 			if (tipus.getExpedientTipusPare().getId().equals(estat.getExpedientTipus().getId()))
@@ -3211,16 +3209,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		List<Long> ids = new ArrayList<Long>();
 		for (EstatDto dto: pagina.getContingut()) {
 			ids.add(dto.getId());
-			// Ordena els estats de sortida per ordre
-			Collections.sort(
-					dto.getEstatsSortida(), 
-					new Comparator<EstatDto>() {
-						@Override
-						public int compare(EstatDto e1, EstatDto e2) {
-							return Integer.compare(e1.getOrdre(), e2.getOrdre());
-						}
-					}
-				);			
+			// Consulta els estats de sortida
+			List<Estat> estatsSortida = estatSortidaRepository.findEstatsSortidaByEstatId(dto.getId());
+			dto.setEstatsSortida(conversioTipusHelper.convertirList(estatsSortida, EstatDto.class));
 		}
 		Map<Long, List<PermisDto>> permisos = permisosHelper.findPermisos(
 				ids,
@@ -3398,18 +3389,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if(expedient.getEstat() == null)
 			return null;
-		// Ordena els estats de sortida
-		Collections.sort(
-				expedient.getEstat().getEstatsSortida(), 
-				new Comparator<Estat>() {
-					@Override
-					public int compare(Estat e1, Estat e2) {
-						return Integer.compare(e1.getOrdre(), e2.getOrdre());
-					}
-				}
-			);
-		return conversioTipusHelper.convertirList(expedient.getEstat().getEstatsSortida(), EstatDto.class);
-
+		return this.estatSortidaFindAll(expedient.getEstat().getId());
 	}
 
 	@Override
@@ -4170,12 +4150,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public EstatDto estatSortidaAfegir(Long estatId, Long sortidaId) throws NoTrobatException, PermisDenegatException {
 		Estat estat = estatRepository.findOne(estatId);
 		Estat sortida = estatRepository.findOne(sortidaId);
-		if(!estat.getEstatsSortida().contains(sortida)) {
-			if(estat.getEstatsSortida() == null) {
-				estat.setEstatsSortida(Lists.newArrayList(sortida));
-			} else {
-				estat.getEstatsSortida().add(sortida);
-			}
+		EstatSortida estatSortida = estatSortidaRepository.findByEstatAndEstatSeguent(estat, sortida);
+		if (estatSortida == null) {
+			estatSortida = new EstatSortida(estat, sortida);
+			estatSortidaRepository.save(estatSortida);
 		}
 		return conversioTipusHelper.convertir(
 				sortida, 
@@ -4187,13 +4165,20 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public void estatSortidaDelete(Long estatId, Long sortidaId) {
 		Estat estat = estatRepository.findOne(estatId);
 		Estat sortida = estatRepository.findOne(sortidaId);
-		if(!estat.getEstatsSortida().contains(sortida)) {
-			return;
+		EstatSortida estatSortida = estatSortidaRepository.findByEstatAndEstatSeguent(estat, sortida);
+		if (estatSortida != null) {
+			estatSortidaRepository.delete(Arrays.asList(estatSortida));
 		}
-		estat.getEstatsSortida().remove(sortida);
+	}
+	
+	@Override
+	@Transactional (readOnly = true)
+	public List<EstatDto> estatSortidaFindAll(Long estatId) {
+		return conversioTipusHelper.convertirList(
+				estatSortidaRepository.findEstatsSortidaByEstatId(estatId),
+				EstatDto.class);
 	}
 
-	
 	/**
 	 * {@inheritDoc}
 	 */

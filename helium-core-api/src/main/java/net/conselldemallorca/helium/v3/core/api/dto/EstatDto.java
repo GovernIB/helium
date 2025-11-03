@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -31,7 +32,10 @@ public class EstatDto extends HeretableDto implements Serializable {
 	private String nom;
 	private int ordre;
 	
-	private List<EstatDto> estatsSortida;
+	/** En el cas dels tipus per estats es pot consultar la taula d'estats de sortida per informar quins són
+	 * 
+	 */
+	private List<EstatDto> estatsSortida = new ArrayList<EstatDto>();
 
 	private int permisCount = 0;
 	private int reglesCount = 0;
