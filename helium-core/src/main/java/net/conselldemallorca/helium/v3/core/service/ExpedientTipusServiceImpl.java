@@ -5186,6 +5186,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		String nomTipologia = filtreDto.getNomTipologia();
 		String codiSIA = filtreDto.getCodiSIA();
 		String numRegistre = filtreDto.getNumRegistre();
+		String principal = filtreDto.getPrincipal();
 
 		
 		List<Long> expedientsTipusIds;
@@ -5210,7 +5211,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						codiSIA == null || codiSIA.isEmpty(),
 						codiSIA == null || codiSIA.isEmpty() ? "" : codiSIA, 
 						numRegistre == null || numRegistre.isEmpty(),
-								expedientsTipusIds,
+						principal == null || principal.isEmpty(),
+						principal,
+						expedientsTipusIds,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				ExpedientTipusDto.class);

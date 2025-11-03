@@ -50,7 +50,7 @@
 				<hel:inputText name="numRegistre" textKey="expedient.tipus.cercador.tipologies.numero.registre.anotacio" placeholderKey="expedient.tipus.cercador.tipologies.numero.registre.anotacio" inline="true"/>
 			</div>
 			<div class="col-md-2">
-				<hel:inputText name="rol" textKey="expedient.tipus.cercador.tipologies.rol" placeholderKey="expedient.tipus.cercador.tipologies.rol" inline="true"/>
+				<hel:inputText name="principal" textKey="expedient.tipus.cercador.tipologies.principal" placeholderKey="expedient.tipus.cercador.tipologies.principal" inline="true"/>
 			</div>
 		</div>
 		<div class="row">
@@ -115,6 +115,7 @@
 					</script>
 				</th>
 				<th data-col-name="entorn.nom" data-visible="false"/>
+				<th data-col-name="procedimentComu" data-visible="false"/>
 			</tr>
 		 </thead>
 						

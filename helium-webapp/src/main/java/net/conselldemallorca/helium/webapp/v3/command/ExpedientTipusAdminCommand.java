@@ -6,15 +6,8 @@ public class ExpedientTipusAdminCommand {
 	private String nomTipologia;
 	private String codiSIA;
 	private String numRegistre;
-	private String rol;
-	
-	public String getRol() {
-		return rol;
-	}
+	private String principal;
 
-	public void setRol(String rol) {
-		this.rol = rol;
-	}
 	public String getCodiTipologia() {
 		return codiTipologia;
 	}
@@ -38,6 +31,12 @@ public class ExpedientTipusAdminCommand {
 	}
 	public void setNomTipologia(String nomTipologia) {
 		this.nomTipologia = nomTipologia;
+	}
+	public String getPrincipal() {
+		return principal;
+	}
+	public void setPrincipal(String principal) {
+		this.principal = principal;
 	}
 	
 	
