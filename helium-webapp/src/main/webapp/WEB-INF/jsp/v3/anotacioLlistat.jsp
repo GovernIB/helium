@@ -264,6 +264,10 @@
 								{{if estat == 'COMUNICADA' && consultaIntents >= ${maxConsultaIntents}}}
  									<li><a href="<c:url value="/v3/anotacio/{{:id}}/reintentarConsulta"/>" data-rdt-link-ajax="true"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="anotacio.llistat.accio.reintentarConsulta"/></a></li>
 								{{/if}}
+								{{if estat == 'REBUTJADA'}}
+									<li><a href="<c:url value="/v3/anotacio/{{:id}}/reprocessar"/>" data-rdt-link-ajax="true"><span class="fa fa-cog"></span>&nbsp;<spring:message code="anotacio.llistat.accio.reprocessar"/></a></li>
+									<li><a href="<c:url value="/v3/anotacio/{{:id}}/marcarPendent"/>" data-rdt-link-ajax="true"><span class="fa fa-check"></span>&nbsp;<spring:message code="anotacio.llistat.accio.marcarPendent"/></a></li>
+								{{/if}}
 								<!-- Opció de comunicar per email -->
 								{{if estat == 'PENDENT' || estat =='PROCESSADA'  }}
 									<li>

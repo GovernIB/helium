@@ -381,11 +381,16 @@
 								<ul class="dropdown-menu" id="consultar">
 									<c:if test="${dadesPersona.admin || (fn:length(expedientTipusAdmin) gt 0)}">
 										<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.consultes.pinbal' /></a></li>
+									</c:if>
+									
+									<c:if test="${dadesPersona.admin || (fn:length(expedientTipusAdmin) gt 0) || (fn:length(expedientTipusAccessibles) gt 0)}">
 										<li><a href="<c:url value="/v3/notificacionsNotib"/>"><spring:message code='decorator.menu.consultar.notificacions' /></a></li>
 										<li><a href="<c:url value="/v3/enviamentsPortafib"/>"><spring:message code='decorator.menu.consultar.documents.enviats.portafib' /></a></li>
 									</c:if>
-										<li><a id="unitatsOrganitzatives" href="<c:url value="/v3/unitatOrganitzativa"/>"><spring:message code="decorator.menu.unitats.organitzatives"/></a></li>
-										<li><a id="procediments" href="<c:url value="/v3/procediment"/>"><spring:message code="decorator.menu.procediments"/></a></li>								</ul>
+									
+									<li><a id="unitatsOrganitzatives" href="<c:url value="/v3/unitatOrganitzativa"/>"><spring:message code="decorator.menu.unitats.organitzatives"/></a></li>
+									<li><a id="procediments" href="<c:url value="/v3/procediment"/>"><spring:message code="decorator.menu.procediments"/></a></li>
+								</ul>
 							</div>
 						<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 							<div id="menuAdministracio" class="btn-group">

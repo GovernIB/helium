@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 
 
@@ -87,6 +88,28 @@ public class UnitatsOrganiquesPluginMock implements UnitatsOrganiquesPlugin {
 	public UnitatOrganitzativaDto unitatsOrganitzativesFindByCodi(String codi) throws SistemaExternException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<UnitatOrganitzativaDto> cercaUnitats(String codi, String denominacio, String nivellAdministracio,
+			Long comunitatAutonoma, Boolean ambOficines, Boolean esUnitatArrel, String provincia, String municipi)
+			throws SistemaExternException {
+		return new ArrayList<UnitatOrganitzativaDto>();
+	}
+
+	@Override
+	public List<NivellAdministracioDto> nivellAdministracioFindAll() throws SistemaExternException {
+		List<NivellAdministracioDto> nivells = new ArrayList<NivellAdministracioDto>();
+		nivells.add(new NivellAdministracioDto(1l, "Administración del Estado"));
+		nivells.add(new NivellAdministracioDto(2l, "Administración Autonómica"));
+		nivells.add(new NivellAdministracioDto(3l, "Administración Local"));
+		nivells.add(new NivellAdministracioDto(4l, "Universidades"));
+		nivells.add(new NivellAdministracioDto(5l, "Otras Instituciones"));
+		nivells.add(new NivellAdministracioDto(6l, "Administración de Justicia"));
+		nivells.add(new NivellAdministracioDto(7l, "Historicos AGE"));
+		nivells.add(new NivellAdministracioDto(8l, "Historicos CCAA"));
+		nivells.add(new NivellAdministracioDto(9l, "Historicos EELL"));
+		return nivells;
 	}
 	
 }

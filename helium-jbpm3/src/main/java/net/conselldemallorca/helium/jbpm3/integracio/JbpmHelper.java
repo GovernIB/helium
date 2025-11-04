@@ -275,7 +275,8 @@ public class JbpmHelper {
 			String [] grups,
 			PaginacioParamsDto paginacioParams,
 			boolean nomesCount,
-			boolean nomesErrorsArxiu) {
+			boolean nomesErrorsArxiu,
+			Set<Long> idsSeleccionats) {
 		String ordre = null;
 		boolean asc = true;
 		if (paginacioParams.getOrdres() != null && !paginacioParams.getOrdres().isEmpty()) {
@@ -326,7 +327,8 @@ public class JbpmHelper {
 				ordre,
 				asc,
 				nomesCount,
-				nomesErrorsArxiu);
+				nomesErrorsArxiu,
+				idsSeleccionats);
 		return (ResultatConsultaPaginadaJbpm<Long>)commandService.execute(command);
 	}
 

@@ -48,7 +48,7 @@
 							$('#expedientTipusPareId').val('').change();
 							$('#ambRetroaccio').removeAttr('checked');
 							$('#reindexacioAsincrona').removeAttr('checked');
-							$('#heretable, #expedientTipusPareId, #ambRetroaccio, #reindexacioAsincrona').attr('disabled', 'disabled');
+							$('#ambRetroaccio, #reindexacioAsincrona').attr('disabled', 'disabled');
 							$('#ambInfoPropia').attr('readonly', 'readonly');
 						} else {
 							$('#ambInfoPropia').removeAttr('readonly');

@@ -1537,7 +1537,7 @@ public class DocumentHelperV3 {
 							expedient.getTipus().getId(), 
 							expedient.getTipus().getCodi(), 
 							expedient.getTipus().getNom(), 
-							messageHelper.getMessage("error.document.conversio.externa"));
+							ex);
 				}
 			}
 		} else {
@@ -2087,7 +2087,7 @@ public class DocumentHelperV3 {
 					null, 
 					null, 
 					null, 
-					messageHelper.getMessage("error.document.conversio.externa"));
+					ex);
 		}
 		return arxiuPdf;
 	}

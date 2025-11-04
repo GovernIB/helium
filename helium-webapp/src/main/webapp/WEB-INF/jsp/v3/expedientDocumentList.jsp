@@ -270,7 +270,15 @@
 								<span id="psigna_{{:id}}" class="label label-danger label-doc" title="<spring:message code='expedient.document.pendent.psigna.error'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-exclamation-triangle></span></span>
 							{{/if}}
 						{{else}}
-							<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.pendent.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-clock-o"></span></span>
+							{{if psEstat == "PROCESSAT"}}
+								<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.processat.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-pencil"></span></span>
+							{{/if}}
+							{{if psEstat == "CANCELAT"}}
+								<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.rebutjat.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-times"></span></span>
+							{{/if}}
+							{{if psEstat == "PENDENT"}}
+								<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.pendent.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-clock-o"></span></span>
+							{{/if}}
 						{{/if}}
 					{{/if}}
 					<%--Notificat  --%>
@@ -335,11 +343,41 @@
 		</th>
 		<th data-col-name="dataDocument" data-converter="date" data-orderable="true" width="10%"><spring:message code="expedient.document.data"/></th>
 		<th data-col-name="dataCreacio" data-converter="datetimeminute" data-orderable="true" width="10%"><spring:message code="expedient.document.adjuntat"/></th>
+		<th data-col-name="pinbalActiu" data-visible="false"></th>
 		<th data-col-name="id" data-template="#cellDocumentAccionsTemplate" data-orderable="false" width="5%">
 			<script id="cellDocumentAccionsTemplate" type="text/x-jsrender">
 			{{if id == null}}
 				{{if editable && ${expedient.permisDocManagement}}}
-					<a class="btn btn-default" href="${expedient.id}/document/{{:codi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+					{{if !pinbalActiu}}
+						<a class="btn btn-default" href="${expedient.id}/document/{{:codi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+					{{/if}}
+
+					<c:if test="${documentsPinbal == true}"> 
+						{{if pinbalActiu}}
+							<!-- Cas amb dropdown -->
+							<div class="btn-group">
+								<button class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<span class="fa fa-plus"></span> <spring:message code="expedient.boto.nou_document"/> <span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li>
+										<a href="${expedient.id}/document/{{:codi}}/new"
+										data-toggle="modal"
+										data-datatable-id="expedientDocuments">
+											<span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/>
+										</a>
+									</li>
+									<li>
+										<a href="${expedient.id}/documentPinbal/new?codi={{:codi}}"
+										data-toggle="modal">
+											<span class="fa fa-file-text-o"></span>&nbsp;<spring:message code="expedient.boto.nou_documentPinbal"/>
+										</a>
+									</li>
+								</ul>
+							</div>
+						{{/if}}
+					</c:if>
+
 				{{else}}
 					<span class="fa fa-lock pull-right doc-bloquejat" title="Document bloquejat en aquest estat"></span>
 				{{/if}}
@@ -509,14 +547,16 @@
 					<span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/>
 			</a>
 								</li>
-								<li>
-									<a 	id="a_nou_document_${proces.id}"
-										href="${expedient.id}/documentPinbal/new"
-										data-toggle="modal">
-										<span class="fa fa-file-text-o"></span>
-										<spring:message code="expedient.boto.nou_documentPinbal"/>
-									</a>
-								</li>
+								<c:if test="${isPinbalActiu}">
+									<li>
+										<a 	id="a_nou_document_${proces.id}"
+											href="${expedient.id}/documentPinbal/new"
+											data-toggle="modal">
+											<span class="fa fa-file-text-o"></span>
+											<spring:message code="expedient.boto.nou_documentPinbal"/>
+										</a>
+									</li>
+								</c:if>
 							</ul>
 						</div>
 

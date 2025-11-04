@@ -329,6 +329,7 @@ public interface ExpedientService {
 			boolean nomesErrors,
 			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
+			Set<Long> idsSeleccionats,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
 	/**

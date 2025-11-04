@@ -53,7 +53,6 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
-import net.conselldemallorca.helium.v3.core.repository.EstatReglaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
 /**
@@ -81,9 +80,6 @@ public class CampServiceImpl implements CampService {
 	private ConsultaRepository consultaRepository;
 	@Resource
 	private ConsultaCampRepository consultaCampRepository;
-	@Resource 
-	private EstatReglaRepository estatReglaRepository;
-
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource

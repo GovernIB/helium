@@ -1446,6 +1446,54 @@
     "paramDesc" : "Valor pel codi postal",
     "varParam" : "varCodiPostal",
     "varParamDesc" : "Variable que conté el valor pel codi postal"
+  }, {
+	"codi": "tipusDocIdent",
+    "nom" : "Tipus document",
+    "obligatori" : true,
+    "param" : "tipusDocIdent",
+    "paramDesc" : "Valor pel tipus document",
+    "varParam" : "varTipusDocIdent",
+    "varParamDesc" : "Variable que conté el valor pel tipus document"
+  }, {
+	"codi": "direccio",
+    "nom" : "Direcció",
+    "obligatori" : false,
+    "param" : "direccio",
+    "paramDesc" : "Valor per direcció",
+    "varParam" : "varDireccio",
+    "varParamDesc" : "Variable que conté el valor per direcció"
+  }, {
+	"codi": "pais",
+    "nom" : "País",
+    "obligatori" : false,
+    "param" : "pais",
+    "paramDesc" : "Valor pel país",
+    "varParam" : "varPais",
+    "varParamDesc" : "Variable que conté el valor pel país"
+  }, {
+	"codi": "provincia",
+    "nom" : "Provincia",
+    "obligatori" : false,
+    "param" : "provincia",
+    "paramDesc" : "Valor per la provincia",
+    "varParam" : "varProvincia",
+    "varParamDesc" : "Variable que conté el valor per la provincia"
+  }, {
+	"codi": "municipi",
+    "nom" : "Municipi",
+    "obligatori" : false,
+    "param" : "municipi",
+    "paramDesc" : "Valor pel municipi",
+    "varParam" : "varMunicipi",
+    "varParamDesc" : "Variable que conté el valor pel municipi"
+  }, {
+	"codi": "canalNotif",
+    "nom" : "Canal notificació",
+    "obligatori" : false,
+    "param" : "canalNotif",
+    "paramDesc" : "Valor pel canal notificació",
+    "varParam" : "varCanalNotif",
+    "varParamDesc" : "Variable que conté el valor pel canal notificació"
   }],
   "agrupacio" : "INTERESSATS"
  }, 
@@ -1583,6 +1631,54 @@
     "paramDesc" : "Valor pel codi postal",
     "varParam" : "varCodiPostal",
     "varParamDesc" : "Variable que conté el valor pel codi postal"
+  }, {
+	"codi": "tipusDocIdent",
+    "nom" : "Tipus document",
+    "obligatori" : true,
+    "param" : "tipusDocIdent",
+    "paramDesc" : "Valor pel tipus document",
+    "varParam" : "varTipusDocIdent",
+    "varParamDesc" : "Variable que conté el valor pel tipus document"
+  }, {
+	"codi": "direccio",
+    "nom" : "Direcció",
+    "obligatori" : false,
+    "param" : "direccio",
+    "paramDesc" : "Valor per direcció",
+    "varParam" : "varDireccio",
+    "varParamDesc" : "Variable que conté el valor per direcció"
+  }, {
+	"codi": "pais",
+    "nom" : "País",
+    "obligatori" : false,
+    "param" : "pais",
+    "paramDesc" : "Valor pel país",
+    "varParam" : "varPais",
+    "varParamDesc" : "Variable que conté el valor pel país"
+  }, {
+	"codi": "provincia",
+    "nom" : "Provincia",
+    "obligatori" : false,
+    "param" : "provincia",
+    "paramDesc" : "Valor per la provincia",
+    "varParam" : "varProvincia",
+    "varParamDesc" : "Variable que conté el valor per la provincia"
+  }, {
+	"codi": "municipi",
+    "nom" : "Municipi",
+    "obligatori" : false,
+    "param" : "municipi",
+    "paramDesc" : "Valor pel municipi",
+    "varParam" : "varMunicipi",
+    "varParamDesc" : "Variable que conté el valor pel municipi"
+  }, {
+	"codi": "canalNotif",
+    "nom" : "Canal notificació",
+    "obligatori" : false,
+    "param" : "canalNotif",
+    "paramDesc" : "Valor pel canal notificació",
+    "varParam" : "varCanalNotif",
+    "varParamDesc" : "Variable que conté el valor pel canal notificació"
   }],
   "agrupacio" : "INTERESSATS"
  },

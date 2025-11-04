@@ -226,11 +226,12 @@ public class PerfilesController extends BaseController {
 		filtreCommand.setCorreusBustiaAgrupatsDia(preferencies.isCorreusBustiaAgrupatsDia());
 		filtreCommand.setEmailAlternatiu(preferencies.getEmailAlternatiu());
 		PersonaDto usuari = getPersonaActual(request);
+		filtreCommand.setNomSencer(usuari.getNomSencer());
 		filtreCommand.setNom(usuari.getNom());
-		filtreCommand.setDni(usuari.getDni());
-		filtreCommand.setEmail(usuari.getEmail());
 		filtreCommand.setLlinatge1(usuari.getLlinatge1());
 		filtreCommand.setLlinatge2(usuari.getLlinatge2());
+		filtreCommand.setDni(usuari.getDni());
+		filtreCommand.setEmail(usuari.getEmail());
 		filtreCommand.setHombre(usuari.getSexe().equals(Sexe.SEXE_HOME));
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

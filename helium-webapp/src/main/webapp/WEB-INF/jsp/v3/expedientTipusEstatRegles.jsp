@@ -118,6 +118,10 @@
 						<span class="label label-primary label-accio"><span class="fa fa-asterisk"></span> <spring:message code="enum.regla.accio.REQUERIR"/></span>
 					{{else accio == 'REQUERIR_ENTRAR'}}
 						<span class="label label-primary label-accio"><span class="fa fa-asterisk"></span> <spring:message code="enum.regla.accio.REQUERIR_ENTRAR"/></span>
+					{{else accio == 'SIGNAT'}}
+						<span class="label label-default label-accio"><span class="fa fa-asterisk"></span> <spring:message code="enum.regla.accio.SIGNAT"/></span>
+					{{else accio == 'NOTIFICAT'}}
+						<span class="label label-warning label-accio"><span class="fa fa-asterisk"></span> <spring:message code="enum.regla.accio.NOTIFICAT"/></span>
 					{{else}}
 						<span class="label label-default label-accio">{{>accio}}</span>
 					{{/if}}

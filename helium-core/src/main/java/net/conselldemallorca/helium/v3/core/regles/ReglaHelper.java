@@ -84,10 +84,17 @@ public class ReglaHelper {
 //                usuariCarrecIds.add(carrec.getCodi());
 //        }
 
-        Facts facts = new Facts();
-        for(Camp dada: dades) {
+     // Per cada camp, revisam totes les regles i acumulem quines accions efectivament s'apliquen
+        for (Camp dada: dades) {
             CampFormProperties campFormProperties = getDefaultCampFormProperties();
-            for(EstatRegla regla: regles) {
+            boolean defaultVisible = true;
+            boolean defaultEditable = true;
+            boolean defaultObligatori = false;
+            boolean defaultObligatoriEntrada = false;
+            boolean defaultObligatoriSignat = false;
+            boolean defaultObligatoriNotificat = false;
+
+            for (EstatRegla regla : regles) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
                         .quiValors(getCodiValors(regla.getQuiValor()))
@@ -96,18 +103,33 @@ public class ReglaHelper {
                         .accio(regla.getAccio())
                         .usuariCodi(usuariCodi)
                         .usuariRols(usuariRols)
-//                        .usuariCarrecIds(usuariCarrecIds)
                         .tipus(TipusVarEnum.DADA)
                         .varCodi(dada.getCodi())
                         .agrupacioCodi(dada.getAgrupacio() != null ? dada.getAgrupacio().getCodi() : null)
-                        .visible(campFormProperties.isVisible())
-                        .editable(campFormProperties.isEditable())
-                        .obligatori(campFormProperties.isObligatori())
-                        .obligatoriEntrada(campFormProperties.isObligatoriEntrada())
+                        .visible(defaultVisible)
+                        .editable(defaultEditable)
+                        .obligatori(defaultObligatori)
+                        .obligatoriEntrada(defaultObligatoriEntrada)
+                        .obligatoriSignat(defaultObligatoriSignat)
+                        .obligatoriNotificat(defaultObligatoriNotificat)
                         .build();
+
+                Facts facts = new Facts();
                 facts.put("fact", variableFact);
                 rulesEngine.fire(rules, facts);
-                campFormProperties = getCampFormProperties(variableFact);
+
+                // Si aplica la regla (es va complir qui->que), marquem l'acció corresponent
+                if (variableFact.isAplicaReglaQue()) {
+                    switch (regla.getAccio()) {
+                        case MOSTRAR: campFormProperties.setVisible(true); break;
+                        case OCULTAR: campFormProperties.setVisible(false); break;
+                        case EDITAR: campFormProperties.setEditable(true); break;
+                        case BLOQUEJAR: campFormProperties.setEditable(false); break;
+                        case REQUERIR: campFormProperties.setObligatori(true); break;
+                        case REQUERIR_ENTRAR: campFormProperties.setObligatoriEntrada(true); break;
+                        default: break;
+                    }
+                }
             }
             campFormPropertiesMap.put(dada.getCodi(), campFormProperties);
         }
@@ -133,9 +155,8 @@ public class ReglaHelper {
         for (GrantedAuthority ga: auth.getAuthorities())
             usuariRols.add(ga.getAuthority());
 
-        Facts facts = new Facts();
         for(Document document: documents) {
-            CampFormProperties campFormProperties = getDefaultCampFormProperties();
+        	CampFormProperties campFormProperties = getDefaultCampFormProperties();
             for(EstatRegla regla: regles) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
@@ -152,10 +173,27 @@ public class ReglaHelper {
                         .editable(campFormProperties.isEditable())
                         .obligatori(campFormProperties.isObligatori())
                         .obligatoriEntrada(campFormProperties.isObligatoriEntrada())
+                        .obligatoriSignat(campFormProperties.isObligatoriSignat())
+                        .obligatoriNotificat(campFormProperties.isObligatoriNotificat())
                         .build();
+                Facts facts = new Facts();
                 facts.put("fact", variableFact);
                 rulesEngine.fire(rules, facts);
-                campFormProperties = getCampFormProperties(variableFact);
+                
+                // Si aplica la regla (es va complir qui->que), marquem l'acció corresponent
+                if (variableFact.isAplicaReglaQue()) {
+                    switch (regla.getAccio()) {
+                        case MOSTRAR: campFormProperties.setVisible(true); break;
+                        case OCULTAR: campFormProperties.setVisible(false); break;
+                        case EDITAR: campFormProperties.setEditable(true); break;
+                        case BLOQUEJAR: campFormProperties.setEditable(false); break;
+                        case REQUERIR: campFormProperties.setObligatori(true); break;
+                        case REQUERIR_ENTRAR: campFormProperties.setObligatoriEntrada(true); break;
+                        case SIGNAT: campFormProperties.setObligatoriSignat(true); break;
+                        case NOTIFICAT: campFormProperties.setObligatoriNotificat(true); break;
+                        default: break;
+                    }
+                }
             }
             campFormPropertiesMap.put(document.getCodi(), campFormProperties);
         }
@@ -217,6 +255,7 @@ public class ReglaHelper {
                 .editable(fact.isEditable())
                 .obligatori(fact.isObligatori())
                 .obligatoriEntrada(fact.isObligatoriEntrada())
+                .obligatoriSignat(fact.isObligatoriSignat())
                 .build();
     }
 
@@ -226,6 +265,7 @@ public class ReglaHelper {
                 .editable(true)
                 .obligatori(false)
                 .obligatoriEntrada(false)
+                .obligatoriSignat(false)
                 .build();
     }
 

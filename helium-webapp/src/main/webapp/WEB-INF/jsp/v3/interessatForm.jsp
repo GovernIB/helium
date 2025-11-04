@@ -48,6 +48,10 @@
 #s2id_tipus, #s2id_entregaTipus {
 	width: 100% !important;
 }
+
+.mb-1 {
+	margin-bottom: 0.25em
+}
 </style>
 <script>
 
@@ -135,6 +139,46 @@ $(document).ready(function() {
 	var munOrgan = '';
 
 	adaptarVisibilitat($("#tipusHiddenId").val());
+	
+	$('#refresh_admins').on('click', function(e) {
+		$('#carregant').show();
+		$.ajax({
+			type: 'GET', url: "<c:url value="/v3/expedient/organs"/>?" + $('#adminstracioFilter').serialize(),
+			success: function(data) {
+					var organGestorRef = $('#cifOrganGestor');
+					const organActual = organGestorRef.val();
+					organGestorRef.empty();
+					organGestorRef.append("<option value=\"\"></option>");
+					if (data && data.length > 0) {
+						var items = [];
+						$.each(data, function(i, val) {
+							items.push({
+								"id": val.codi,
+								"text": val.valor
+							});
+							organGestorRef.append("<option value=\"" + val.codi + "\">" + val.valor + "</option>");
+						});
+					}
+					var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
+					organGestorRef.select2("destroy");
+					organGestorRef.select2(select2Options);
+					
+					if (organActual)
+						organGestorRef.val(organActual);
+					organGestorRef.change();
+					$('.div-dades-carregant', window.parent.document).hide();
+					$('#carregant').hide();
+			}
+		});
+	});
+	
+	
+	$('.select2element').select2({
+		width: 'resolve',
+		theme: "bootstrap",
+		allowClear: true,
+		minimumResultsForSearch: 10
+	});
 
  	$('input[type=radio][name=tipus]').on('change', function() {
  		adaptarVisibilitat($(this).val());
@@ -163,7 +207,7 @@ $(document).ready(function() {
  		if ($(this).val() == '01') { //DIRECCION_POSTAL("01", "Direcció Postal")
  			$('select#pais').prop("required", true);
  			$('select#provincia').prop("required", true);
-			$('select#municipi').prop("required", true);
+			$('select#').prop("required", true);
 			$('#direccio').prop("required", true);
 			$('#codiPostal').prop("required", true);
 			$('#email').prop("required", false);
@@ -200,10 +244,10 @@ $(document).ready(function() {
 		}
  	});
 	
-	
- 	$('select#provincia').change(function(valor) {
+	$('select#provincia').change(function(valor) {
  		if ($(this).val() != '') {
  			var municipiActual = $('#municipi').val();
+ 			$('#carregant').show();
  			$.ajax({
 				type: 'GET',
 				url: "<c:url value="/v3/expedient/municipis/"/>" + $(this).val(),
@@ -234,12 +278,62 @@ $(document).ready(function() {
 					else
 						selMunicipi.val("407");
 					selMunicipi.change();
+					$('#carregant').hide();
 				}
 			});
  	 	} else {
  	 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
  	 		$('#municipi').select2("destroy");
  	 		$('#municipi').select2(select2Options);
+ 	 	}
+ 	});
+	
+ 	$('select#provincia_filter').change(function(valor) {
+ 		if ($(this).val() != '') {
+ 			var municipiActual = $('#municipi').val();
+ 			$('#carregant').show();
+ 			$.ajax({
+				type: 'GET',
+				url: "<c:url value="/v3/expedient/municipis/"/>" + $(this).val(),
+				success: function(data) {
+					var selMunicipi = $('#municipi_filter');
+					selMunicipi.empty();
+					selMunicipi.append("<option value=\"\"></option>");
+					if (data && data.length > 0) {
+						var items = [];
+						$.each(data, function(i, val) {
+							items.push({
+								"id": val.codiDir3,
+								"text": val.nom
+							});
+							selMunicipi.append("<option value=\"" + val.codiDir3 + "\">" + val.nom + "</option>");
+						});
+					}
+					var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
+					selMunicipi.select2("destroy");
+					selMunicipi.select2(select2Options);
+					if (munOrgan != '') {
+						selMunicipi.val(munOrgan);
+						selMunicipi.change();
+					}
+					
+					if (municipiActual)
+						selMunicipi.val(municipiActual);
+					else
+						selMunicipi.val("407");
+					selMunicipi.change();
+					$('#carregant').hide();
+				}
+			});
+ 	 	} else {
+ 	 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
+ 	 		$('#municipi_filter').select2("destroy");
+ 	 		$('#municipi_filter').select2({
+ 	 			width: 'resolve',
+ 	 			theme: "bootstrap",
+ 	 			allowClear: true,
+ 	 			minimumResultsForSearch: 10
+ 	 		});
  	 	}
  	});
  	
@@ -249,6 +343,7 @@ $(document).ready(function() {
  	 	 	 		
  	 	 	 		let optionSelected = $("option:selected", this);
  	 	 	 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
+ 	 	 	 		$('#carregant').show();
  	 		 		$.ajax({
  	 					type: 'GET',
  	 					url: "<c:url value="/v3/expedient/organ/"/>" + $(this).val(),
@@ -286,6 +381,7 @@ $(document).ready(function() {
 
  	 			 	 		$('#direccio').val(data.adressa);
  	 						$('#direccio').prop("readonly", true);
+ 	 						$('#carregant').hide();
  	 					}
  	 				});
  	 	 	 	} else {
@@ -330,16 +426,132 @@ $(document).ready(function() {
 		}
 	})
 	$('#tipus').change();
+	
+	$('#toggle-administracio-filter').on('click', function() {
+		$("#administracio-filter").toggleClass('in');
+	})
 });
-
 
 </script>
 
 </head>
 <body>
+
+<div class="administracio">
+	<div class="col-xs-12 pull-right collapse" id="administracio-filter">
+		<div class="panel panel-default ">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					<spring:message code="interessat.form.seccio.actualitzar.administracions" />
+				</h3>
+			</div>
+			<div class="panel-body">
+				<form id="adminstracioFilter">
+					<div class="row mb-1">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-xs-2 hiddenInfoContainer">
+									<spring:message code="interessat.form.camp.suggest.nivell" />
+								</label>
+								<div class="col-xs-10">
+									<select name="nivell" class="select2element form-control">
+										<option value=""></option>
+										<c:forEach var="nivell" items="${nivells}">
+											<option value="${nivell.codi}">${nivell.descripcio}</option>
+										</c:forEach>
+									</select>
+								</div>
+							</div>
+						</div>
+						
+					</div>
+					<div class="row mb-1">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-xs-4 hiddenInfoContainer">
+									<spring:message code="interessat.form.camp.provincia" />
+								</label>
+								<div class="col-xs-8">
+									<select name="provincia" id="provincia_filter" class="select2element form-control">
+										<option></option>
+										<c:forEach var="provincia" items="${provincies}">
+											<option value="${provincia.codi}">${provincia.nom}</option>
+										</c:forEach>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-xs-4 hiddenInfoContainer">
+									<spring:message code="interessat.form.camp.municipi" />
+								</label>
+								<div class="col-xs-8">
+									<select name="municipi" id="municipi_filter" class="select2element form-control">
+										<option></option>
+										<c:forEach var="municipi" items="${municipis}">
+											<option value="${municipi.codi}">${municipi.nom}</option>
+										</c:forEach>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row mb-1">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-xs-4 hiddenInfoContainer">
+									<spring:message code="interessat.llistat.columna.nif" />
+								</label>
+								<div class="col-xs-8">
+									<input type="text" name="nif" class="form-control"/>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label class="control-label col-xs-4 hiddenInfoContainer">
+									<spring:message code="interessat.form.camp.nom" />
+								</label>
+								<div class="col-xs-8">
+									<input type="text" name="nom" class="form-control"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row mb-1">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label col-xs-2 hiddenInfoContainer" for="arrel">
+									<spring:message code="unitat.organitzativa.llistat.unitat.arrel" />
+								</label>
+								<div class="col-xs-1">
+									<input type="checkbox" id="arrel" name="arrel" class="form-control" value="true" style="width: 19px;margin: -8px -4px 0;"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row mb-1">
+						<div class="btn-group" style="float: right;padding: 0.5em 2em;">
+							<span id="refresh_admins" class="btn btn-default">
+								<i class="fa fa-download"></i> <spring:message code="comu.boto.actualitzarinforamcio" />
+							</span>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
 <form:form cssClass="form-horizontal" action="${formAction}"  method="post" commandName="interessatCommand">
 	<form:hidden id="id" path="id"/>
 	<form:hidden id="es_representant" path="es_representant"/>
+	
+	<div id="carregant" style="display: none; width: 10%;text-align: center;width: 97%;height: 100%;background: #a9a9a940;position: fixed;padding: 20%;z-index: 99;">
+		<span class="fa fa-spinner fa-pulse fa-2x fa-fw"></span>
+	</div>
+	
 	<div class="tipusInteressats">	
 		<div class="row">
 			<div class="col-xs-10">
@@ -352,20 +564,18 @@ $(document).ready(function() {
 				optionTextKeyAttribute="text"/>
 			</div>
 		</div>
-		<form:hidden id="tipusHiddenId" path="tipus"/>	
+		<form:hidden id="tipusHiddenId" path="tipus"/>
 	</div>
-
 	
-	<div class="hidden visibilitatCodi">	
+	<div class="hidden visibilitatCodi">
 		<div class="row" style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
 				<hel:inputText required="true" name="codi" textKey="interessat.form.camp.codi" labelSize="2" />
 			</div>
 		</div>
-		
-			
-	<div class="row hidden administracio" style="margin-right:-14px ; margin-left:-59px">
-		<div class="col-xs-12">				
+	
+	<div class="row hidden administracio" >
+		<div class="col-xs-11">
 			<hel:inputSelect 
 				required="true" 
 				name="cifOrganGestor"
@@ -376,85 +586,90 @@ $(document).ready(function() {
 				emptyOption="true"
 				labelSize="2" 
 				inline="false"/>
-		</div>	
+		</div>
+		<div class="col-xs-1">
+			<span class="btn btn-default" id="toggle-administracio-filter">
+				<i class="fa fa-bars"></i>
+			</span>
+		</div>
 	</div>	
 	
 
-			<div class="row hidden personafisica nom" style="margin-right:-14px ; margin-left:-59px">
-				<div class="col-xs-12" >
-					<hel:inputText required="true" name="nom" textKey="interessat.form.camp.nom" labelSize="2" />
-				</div>
+		<div class="row hidden personafisica nom" style="margin-right:-14px ; margin-left:-59px">
+			<div class="col-xs-12" >
+				<hel:inputText required="true" name="nom" textKey="interessat.form.camp.nom" labelSize="2" />
 			</div>
-			<div class="row hidden personafisica llinatges">
-				<div class="col-xs-6">
-					<hel:inputText name="llinatge1" textKey="interessat.form.camp.llinatge1" labelSize="3" required="true"/>
-				</div>
-				<div class="col-xs-6">
-					<hel:inputText name="llinatge2" textKey="interessat.form.camp.llinatge2" labelSize="3" required="false"/>
-				</div>	
+		</div>
+		<div class="row hidden personafisica llinatges">
+			<div class="col-xs-6">
+				<hel:inputText name="llinatge1" textKey="interessat.form.camp.llinatge1" labelSize="3" required="true"/>
 			</div>
+			<div class="col-xs-6">
+				<hel:inputText name="llinatge2" textKey="interessat.form.camp.llinatge2" labelSize="3" required="false"/>
+			</div>	
+		</div>
+	
+		<div class="row hidden personajuridica raoSocial" style="margin-right:-14px ; margin-left:-59px">
+			<div class="col-xs-12">
+				<hel:inputText name="raoSocial" textKey="interessat.form.camp.raosocial" labelSize="2" required="true"/>
+			</div>	
+		</div>
 		
-			<div class="row hidden personajuridica raoSocial" style="margin-right:-14px ; margin-left:-59px">
-				<div class="col-xs-12">
-					<hel:inputText name="raoSocial" textKey="interessat.form.camp.raosocial" labelSize="2" required="true"/>
-				</div>	
-			</div>
-			
-			<div class="row hidden personajuridica personafisica administracio tipusdocument">
-				<div class="col-xs-6">
-					<hel:inputSelect 
-						readonly="false"
-						required="true" 
-						name="tipusDocIdent"
-						optionItems="${interessatTipusDocuments}" 
-						optionValueAttribute="valor"
-						optionTextAttribute="codi" 
-						textKey="interessat.form.camp.tipus.document" 
-						labelSize="3" 
-						inline="false"/>
-				</div>
-				<div class="col-xs-6">
-					<hel:inputText required="true" name="documentIdent" textKey="interessat.form.camp.document.identificatiu" labelSize="3" inline="false"/>
-				</div>
-			</div>
-
-		
-			<div class="row emailTelefon personafisica personajuridica administracio">
-				<div class="col-xs-6">
-					<hel:inputText name="email" textKey="interessat.form.camp.email" labelSize="3"/>		
-				</div>
-				<div class="col-xs-6">
-					<hel:inputText name="telefon" textKey="interessat.form.camp.telefon" labelSize="3"/>
-				</div>
-			</div>
-			
-			<div class="row paisProvincia personafisica personajuridica administracio">
-				<div class="col-xs-6">
-					<hel:inputSelect 
-						readonly="false"
-						emptyOption="true"
-						name="pais"
-						optionItems="${paisos}" 
-						optionValueAttribute="codi"
-						optionTextAttribute="nom" 
-						textKey="interessat.form.camp.pais" 
-						labelSize="3" 
-						inline="false"/>
-				</div>
-				<div class="col-xs-6">
+		<div class="row hidden personajuridica personafisica administracio tipusdocument">
+			<div class="col-xs-6">
 				<hel:inputSelect 
-						readonly="false"
-						emptyOption="true"
-						required="false" 
-						name="provincia"
-						optionItems="${provincies}" 
-						optionValueAttribute="codi"
-						optionTextAttribute="nom" 
-						textKey="interessat.form.camp.provincia" 
-						labelSize="3" 
-						inline="false"/>
-				</div>
+					readonly="false"
+					required="true" 
+					name="tipusDocIdent"
+					optionItems="${interessatTipusDocuments}" 
+					optionValueAttribute="valor"
+					optionTextAttribute="codi" 
+					textKey="interessat.form.camp.tipus.document" 
+					labelSize="3" 
+					inline="false"/>
 			</div>
+			<div class="col-xs-6">
+				<hel:inputText required="true" name="documentIdent" textKey="interessat.form.camp.document.identificatiu" labelSize="3" inline="false"/>
+			</div>
+		</div>
+
+	
+		<div class="row emailTelefon personafisica personajuridica administracio">
+			<div class="col-xs-6">
+				<hel:inputText name="email" textKey="interessat.form.camp.email" labelSize="3"/>		
+			</div>
+			<div class="col-xs-6">
+				<hel:inputText name="telefon" textKey="interessat.form.camp.telefon" labelSize="3"/>
+			</div>
+		</div>
+		
+		<div class="row paisProvincia personafisica personajuridica administracio">
+			<div class="col-xs-6">
+				<hel:inputSelect 
+					readonly="false"
+					emptyOption="true"
+					name="pais"
+					optionItems="${paisos}" 
+					optionValueAttribute="codi"
+					optionTextAttribute="nom" 
+					textKey="interessat.form.camp.pais" 
+					labelSize="3" 
+					inline="false"/>
+			</div>
+			<div class="col-xs-6">
+			<hel:inputSelect 
+					readonly="false"
+					emptyOption="true"
+					required="false" 
+					name="provincia"
+					optionItems="${provincies}" 
+					optionValueAttribute="codi"
+					optionTextAttribute="nom" 
+					textKey="interessat.form.camp.provincia" 
+					labelSize="3" 
+					inline="false"/>
+			</div>
+		</div>
 			
 		<div class="row localitatCodipostal personafisica personajuridica administracio">
 			<div class="col-xs-6">

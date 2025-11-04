@@ -18,7 +18,7 @@ public class ExpedientTipusFiltreDto {
 	private String numRegistre;
 	private String codiTipologia;
 	private String nomTipologia;
-	
+	private String principal;
 	
 	public String getNomTipologia() {
 		return nomTipologia;
@@ -66,6 +66,14 @@ public class ExpedientTipusFiltreDto {
 
 	public void setNumRegistre(String numRegistre) {
 		this.numRegistre = numRegistre;
+	}
+
+	public String getPrincipal() {
+		return principal;
+	}
+
+	public void setPrincipal(String principal) {
+		this.principal = principal;
 	}
 
 	

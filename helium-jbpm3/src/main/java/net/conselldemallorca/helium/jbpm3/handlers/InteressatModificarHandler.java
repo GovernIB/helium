@@ -81,6 +81,20 @@ public class InteressatModificarHandler extends BasicActionHandler implements In
 	private String entregaDehObligat;
 	private String varEntregaDehObligat;
 	
+	private String tipusDocIdent;
+	private String varTipusDocIdent;
+	private String direccio;
+	private String varDireccio;
+	private String pais;
+	private String varPais;
+	private String provincia;
+	private String varProvincia;
+	private String municipi;
+	private String varMunicipi;
+	private String varDir3codi;
+	private String canalNotif;
+	private String varCanalNotif;
+	
 	public void execute(ExecutionContext executionContext) {
 		
 		ExpedientDto expedient = getExpedientActual(executionContext);
@@ -151,6 +165,27 @@ public class InteressatModificarHandler extends BasicActionHandler implements In
 				codiPostal, 
 				varCodiPostal));
 		interessat.setExpedientId(expedient.getId());
+		
+		interessat.setTipusDocIdent((String)getValorOVariable(
+				executionContext,
+				tipusDocIdent,
+				varTipusDocIdent));
+		interessat.setDireccio((String)getValorOVariable(
+				executionContext,
+				direccio,
+				varDireccio));
+		interessat.setPais((String)getValorOVariable(
+				executionContext,
+				pais,
+				varPais));
+		interessat.setProvincia((String)getValorOVariable(
+				executionContext,
+				provincia,
+				varProvincia));
+		interessat.setMunicipi((String)getValorOVariable(
+				executionContext,
+				municipi,
+				varMunicipi));
 	
 		interessatModificar(interessat);
 		
@@ -246,6 +281,47 @@ public class InteressatModificarHandler extends BasicActionHandler implements In
 	}
 	public void setVarEntregaDehObligat(String varEntregaDehObligat) {
 		this.varEntregaDehObligat = varEntregaDehObligat;
+	}
+
+
+	public void setTipusDocIdent(String tipusDocIdent) {
+		this.tipusDocIdent = tipusDocIdent;
+	}
+	public void setVarTipusDocIdent(String varTipusDocIdent) {
+		this.varTipusDocIdent = varTipusDocIdent;
+	}
+	public void setDireccio(String direccio) {
+		this.direccio = direccio;
+	}
+	public void setVarDireccio(String varDireccio) {
+		this.varDireccio = varDireccio;
+	}
+	public void setPais(String pais) {
+		this.pais = pais;
+	}
+	public void setVarPais(String varPais) {
+		this.varPais = varPais;
+	}
+	public void setProvincia(String provincia) {
+		this.provincia = provincia;
+	}
+	public void setVarProvincia(String varProvincia) {
+		this.varProvincia = varProvincia;
+	}
+	public void setMunicipi(String municipi) {
+		this.municipi = municipi;
+	}
+	public void setVarMunicipi(String varMunicipi) {
+		this.varMunicipi = varMunicipi;
+	}
+	public void setVarDir3codi(String varDir3codi) {
+		this.varDir3codi = varDir3codi;
+	}
+	public void setCanalNotif(String canalNotif) {
+		this.canalNotif = canalNotif;
+	}
+	public void setVarCanalNotif(String varCanalNotif) {
+		this.varCanalNotif = varCanalNotif;
 	}
 	
 }

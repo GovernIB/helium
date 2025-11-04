@@ -850,6 +850,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			boolean nomesErrors,
 			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
+			Set<Long> idsSeleccionats,
 			PaginacioParamsDto paginacioParams) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		logger.debug("Consulta general d'expedients paginada (" +
@@ -875,7 +876,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				"nomesErrorsArxiu=" + nomesErrorsArxiu + ", " +
 				"mostrarAnulats=" + mostrarAnulats + 
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
-				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
+				"nomesTasquesGrup=" + nomesTasquesGrup + "," + 
+				"idsSeleccionats=" + idsSeleccionats.size() + ")");
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
@@ -965,7 +967,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 				paginacioParams,
 				false,
-				nomesErrorsArxiu);
+				nomesErrorsArxiu,
+				idsSeleccionats);
 		// Retorna la pàgina amb la resposta
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>(); 
 		if (expedientsIds.getCount() > 0) {
@@ -1143,7 +1146,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 				new PaginacioParamsDto(),
 				false,
-				nomesErrorsArxiu);
+				nomesErrorsArxiu,
+				null // idsSeleccionats
+				);
 		return expedientsIds.getLlista();
 	}
 	/**
@@ -2861,7 +2866,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entorn.getId())? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 					new PaginacioParamsDto(),
 					false,
-					nomesErrorsArxiu);
+					nomesErrorsArxiu,
+					null // idsSeleccionats
+					);
 			expedientIdsPermesos = expedientsIds.getLlista();
 		}
 		// Obte la llista d'expedients de lucene passant els expedients permesos
@@ -3051,7 +3058,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entorn.getId())? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 				new PaginacioParamsDto(),
 				false,
-				nomesErrorsArxiu);
+				nomesErrorsArxiu,
+				null //idsSeleccionats
+				);
 		// Obte la llista d'ids de lucene passant els expedients permesos
 		// com a paràmetres
 		List<Camp> filtreCamps = consultaHelper.toListCamp(

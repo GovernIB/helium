@@ -850,7 +850,7 @@ public class ExpedientHelper {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				Registre.Accio.FINALITZAR);
 	}
-	
+
 	/**
 	 * Metode per tancar un expedient i firmar els documents
 	 * @param id
@@ -2337,7 +2337,7 @@ public class ExpedientHelper {
 			estatIds.add(currentEstat.toString());
 		}
 		
-		expedient.setEstatsPrevis(StringUtils.join(estatIds,","));
+		expedient.setEstatsPrevis(StringUtils.join(estatIds, ','));
 		
 		expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),

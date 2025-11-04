@@ -1034,7 +1034,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		String processInstanceId = expedient.getProcessInstanceId();
 		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
 		List<ExpedientDocumentDto> documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
-		List<PortasignaturesDto> documentsPsignaPendent = portasignaturesFindPendents(expedientId, expedient.getProcessInstanceId());
 
 		Estat estat = expedient.getEstat();
 		if(nextEstatId != null) {
@@ -1054,7 +1053,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				continue;
 
 			ExpedientDocumentDto dExp = getDocumentExpedient(documentsExpedient, dTipExp.getCodi());
-			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
+			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsigna(processInstanceId, dExp.getId()) : null;
 
 			DocumentListDto document = null;
 			if (dExp == null) {
@@ -1068,7 +1067,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
 						.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
 						.obligatoriEntrada(documentFormProperties != null ? documentFormProperties.isObligatoriEntrada() : false)
+						.obligatoriSignat(documentFormProperties != null ? documentFormProperties.isObligatoriSignat() : false)
+						.obligatoriNotificat(documentFormProperties != null ? documentFormProperties.isObligatoriNotificat() : false)
 						.build();
+				document.setPinbalActiu(dTipExp.isPinbalActiu());
 			} else {
 				document = toDocumentList(expedient, processInstanceId, dTipExp, dExp, dPsigna, documentFormProperties);
 				document.setNotificable(PdfUtils.isArxiuConvertiblePdf(dExp.getArxiuNom()));
@@ -1085,7 +1087,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			if (documentFormProperties != null && !documentFormProperties.isVisible())
 				continue;
 
-			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
+			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsigna(processInstanceId, dExp.getId()) : null;
 
 			DocumentListDto document = toDocumentList(expedient, processInstanceId, null, dExp, dPsigna, documentFormProperties);
 			document.setNotificable(PdfUtils.isArxiuConvertiblePdf(dExp.getArxiuNom()));
@@ -1152,6 +1154,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.notificat(dExp.isNotificat())
 				.arxiuActiu(dExp.isArxiuActiu())
 				.ntiActiu(expedient.isNtiActiu())
+				.pinbalActiu(dExp.isPinbal())
 				.registrat(dExp.isRegistrat())
 				.docValid(dExp.isDocumentValid())
 				.psActiu(dExp.isPortafirmesActiu())
@@ -1171,6 +1174,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
 				.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
 				.obligatoriEntrada(documentFormProperties != null ? documentFormProperties.isObligatoriEntrada() : false)
+				.obligatoriSignat(documentFormProperties != null ? documentFormProperties.isObligatoriSignat() : false)
+				.obligatoriNotificat(documentFormProperties != null ? documentFormProperties.isObligatoriNotificat() : false)
 				.build();
 		return document;
 	}
@@ -1183,14 +1188,21 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return null;
 	}
 
-	private PortasignaturesDto getDocumentPsignaPendent(List<PortasignaturesDto> documentsPsignaPendent, Long documentStoreId) {
-		for (PortasignaturesDto docPsigna: documentsPsignaPendent) {
-			if (docPsigna.getDocumentStoreId().equals(documentStoreId))
-				return docPsigna;
+	/** Troba la darrera petició feta al portafirmes. 
+	 * @param processInstanceId */
+	private PortasignaturesDto getDocumentPsigna(String processInstanceId, Long documentStoreId) {
+		
+		
+		PortasignaturesDto ret = null;
+		List<PortasignaturesDto> portasignatures = getPortasignaturesByProcessInstanceAndDocumentStoreId(processInstanceId, documentStoreId);
+		if (!portasignatures.isEmpty()) {
+			// La primera és la darrera
+			ret = portasignatures.get(0);
 		}
-		return null;
+		return ret;
 	}
 
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1755,7 +1767,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.signat(document.isSignat())
 				.registrat(document.isRegistrat())
 				.deAnotacio(document.getAnotacioId() != null)
-				.notificat(document.isNotificat())
+				//.notificat(document.isNotificat())
 				.deAnotacio(document.getAnotacioId() != null);
 
 
@@ -1848,23 +1860,20 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				expedient.getProcessInstanceId(),
 				documentStoreId);
 		if (!portasignatures.isEmpty()) {
-			for (PortasignaturesDto peticio : portasignatures) {
-				if (!"PROCESSAT".equals(peticio.getEstat())) {
-					documentDetallBuilder
-					.psignaPendent(!"PROCESSAT".equals(peticio.getEstat()))
-					.psignaDetall(PsignaDetallDto.builder()
-							.documentId(peticio.getDocumentId())
-							.dataEnviat(peticio.getDataEnviat())
-							.estat(peticio.getEstat())
-							.error(peticio.isError())
-							.errorProcessant(peticio.getErrorProcessant())
-							.motiuRebuig(peticio.getMotiuRebuig())
-							.dataProcessamentPrimer(peticio.getDataProcessamentPrimer())
-							.dataProcessamentDarrer(peticio.getDataProcessamentDarrer())
-							.build());
-					break;
-				}
-			}
+			// Agafa la darrera estigui o no processada
+			PortasignaturesDto peticio = portasignatures.get(0);
+			documentDetallBuilder
+			.psignaPendent(!"PROCESSAT".equals(peticio.getEstat()))
+			.psignaDetall(PsignaDetallDto.builder()
+					.documentId(peticio.getDocumentId())
+					.dataEnviat(peticio.getDataEnviat())
+					.estat(peticio.getEstat())
+					.error(peticio.isError())
+					.errorProcessant(peticio.getErrorProcessant())
+					.motiuRebuig(peticio.getMotiuRebuig())
+					.dataProcessamentPrimer(peticio.getDataProcessamentPrimer())
+					.dataProcessamentDarrer(peticio.getDataProcessamentDarrer())
+					.build());
 		} else {
 			documentDetallBuilder.psignaPendent(false);
 		}
@@ -1880,14 +1889,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 
 		// Notificacio
-		if (document.isNotificat()) {
-			 List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+		 List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+		 if (!enviaments.isEmpty()) {
 			 List<DadesNotificacioDto> notificaionsDetalls = new ArrayList<DadesNotificacioDto>();
 			 for (DocumentNotificacio enviament: enviaments) {
 				 notificaionsDetalls.add(notificacioHelper.toDadesNotificacioDto(enviament, expedient.isArxiuActiu()));
 			 }
 			 documentDetallBuilder.notificacions(notificaionsDetalls);
-		}
+			 documentDetallBuilder.notificat(!notificaionsDetalls.isEmpty());
+		 }
 
 		return documentDetallBuilder.build();
 	}

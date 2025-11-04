@@ -70,7 +70,6 @@
                 // el PDF viene en base64
                 var viewerUrl = 'data:application/pdf;base64,' + json.data.contingut;
                 $('#docPreview').attr('data', viewerUrl);
-                $('#docLink').attr('href', viewerUrl);
             }
             $('#spinner').addClass('hidden');
         },
@@ -86,7 +85,7 @@
 // ]]>
 </script>
 </head>
-<body>
+<body>	
 	<div id="viewer">
 		<div id="spinner">
 			<div class="contingut-carregant">

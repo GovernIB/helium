@@ -8,13 +8,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
-import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
-import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -27,6 +20,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
@@ -39,10 +33,14 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
+import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
+import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
@@ -110,29 +108,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
-		Termini termini = terminiRepository.findOne(terminiId);
-		if (termini == null)
-			throw new NoTrobatException(Termini.class, terminiId);
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiId);
-		if (terminiIniciat == null) {
-			return iniciar(
-					terminiId,
-					expedient,
-					data,
-					termini.getAnys(),
-					termini.getMesos(),
-					termini.getDies(),
-					esDataFi);
-		} else {
-			return iniciar(
-					terminiId,
-					expedient,
-					data,
-					terminiIniciat.getAnys(),
-					terminiIniciat.getMesos(),
-					terminiIniciat.getDies(),
-					esDataFi);
-		}
+		return 	terminiHelper.iniciar(terminiId, processInstanceId, data, esDataFi, true);		
 	}
 
 	/**
@@ -171,14 +147,12 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				processInstanceId,
 				terminiIniciatId,
 				new Date());
-		iniciar(
-				terminiIniciatId,
-				expedient,
-				data,
-				anys,
-				mesos,
-				dies,
-				esDataFi);		
+		terminiHelper.iniciar(
+				terminiIniciatId, 
+				processInstanceId, 
+				data, 
+				esDataFi, 
+				true);
 	}
 
 	/**
@@ -548,93 +522,6 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 			cal.add(Calendar.DATE, signe);
 		}
 		cal.add(Calendar.DATE, -signe);
-	}
-	
-	private TerminiIniciatDto iniciar(
-			Long terminiId,
-			Expedient expedient,
-			Date data,
-			int anys,
-			int mesos,
-			int dies,
-			boolean esDataFi) {	
-		Termini termini = terminiRepository.findOne(terminiId);
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiId);
-		
-		if (termini == null)
-			termini = terminiIniciat.getTermini();
-		
-		if (terminiIniciat == null) {
-			if (esDataFi) {
-				Date dataInici = getDataIniciTermini(
-						data,
-						anys,
-						mesos,
-						dies,
-						termini.isLaborable(),
-						expedient.getProcessInstanceId());
-				terminiIniciat = new TerminiIniciat(
-						termini,
-						anys,
-						mesos,
-						dies,
-						expedient.getProcessInstanceId(),
-						dataInici,
-						data);
-			} else {
-				Date dataFi = getDataFiTermini(
-						data,
-						anys,
-						mesos,
-						dies,
-						termini.isLaborable(),
-						expedient.getProcessInstanceId());
-				terminiIniciat = new TerminiIniciat(
-						termini,
-						anys,
-						mesos,
-						dies,
-						expedient.getProcessInstanceId(),
-						data,
-						dataFi);
-			}
-		} else {
-			if (esDataFi) {
-				Date dataInici = getDataIniciTermini(
-						data,
-						anys,
-						mesos,
-						dies,
-						termini.isLaborable(),
-						expedient.getProcessInstanceId());
-				terminiIniciat.setDataInici(dataInici);
-				terminiIniciat.setDataFi(data);
-			} else {
-				Date dataFi = getDataFiTermini(
-						data,
-						anys,
-						mesos,
-						dies,
-						termini.isLaborable(),
-						expedient.getProcessInstanceId());
-				terminiIniciat.setDataInici(data);
-				terminiIniciat.setDataFi(dataFi);
-			}
-			terminiIniciat.setDataAturada(null);
-			terminiIniciat.setDataCancelacio(null);
-			terminiIniciat.setDies(dies);
-			terminiIniciat.setMesos(mesos);
-			terminiIniciat.setAnys(anys);
-			resumeTimers(terminiIniciat);
-		}
-		crearRegistreTermini(
-					expedient.getId(),
-					expedient.getProcessInstanceId(),
-					Registre.Accio.INICIAR,
-					SecurityContextHolder.getContext().getAuthentication().getName());
-		
-		TerminiIniciat terminiObj = terminiIniciatRepository.save(terminiIniciat);
-		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
 	}
 
 	private int[] getDiesNoLaborables(ExpedientTipus expedientTipus) {

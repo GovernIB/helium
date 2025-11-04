@@ -1331,8 +1331,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 					e);
 		}
 		return false;
-	}	
-	
+	}
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));

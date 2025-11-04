@@ -17,6 +17,7 @@ import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 
 /**
@@ -161,7 +162,17 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("aturat") Boolean aturat
             );
     
-    /**
+    @Query(   " select new net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto( "
+			+ "		et.id, "
+			+ "		et.codi, "
+			+ "		et.nom) "
+			+ "	from ExpedientTipus et "
+			+ "	where "
+			+ "		et.entorn = :entorn "
+			+ "		and not exists elements(et.expedients) ")
+	List<ExpedientTipusEstadisticaDto> findEstadisticaBySenseExpedients(@Param("entorn") Entorn entorn);
+
+	/**
 	  * Mètode per cercar els tipus d'expedient per cercador de tipologia tant pel seu codi, com pel nom, 
 	     *  com per codiSia (nti_clasificacion) i per número de registre associat a l'anotació o a algún expedient.
 	  * @param isNullCodi
@@ -216,7 +227,24 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			+"	and  "
 			+	"(:isNullRegistre_num = true or "
     		+" 		et.id in (:expedientsTipusIds)) "
-			)
+			+"	and  "
+			+	"(:isNullPrincipal = true "
+					// Permisos per tipus d'expedient a un principal
+	   		+" 		or et.id in ( "
+	   		+"  		select distinct entry.aclObjectIdentity.objectIdIdentity "
+	   		+"				from AclEntry entry "
+	   		+"				where (entry.aclObjectIdentity.aclClass.aclClass like 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus' "
+	   		+"				           or entry.aclObjectIdentity.aclClass.aclClass like 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa') "
+	   		+"				      and (lower(entry.aclSid.sid) like lower('%'||:principal||'%')  ) )  "
+	   				// Permisos per expedientUo comuna a un principal
+			+" 		or et.id in ( "
+			+"  		select distinct etUo.expedientTipus.id "
+			+"				from AclEntry entry, "
+			+"                   ExpedientTipusUnitatOrganitzativa etUo "
+			+"				where etUo.id = entry.aclObjectIdentity.objectIdIdentity "
+			+"                     and (entry.aclObjectIdentity.aclClass.aclClass like 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus' "
+			+"				           or entry.aclObjectIdentity.aclClass.aclClass like 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa') "
+			+"				      and (lower(entry.aclSid.sid) like lower('%'||:principal||'%')  ) ) ) ")
     Page<ExpedientTipus> findByTipologia(
 			@Param("isNullEntornId") boolean isNullEntornId,
 			@Param("entornId") Long entornId,
@@ -227,6 +255,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			@Param("isNullNtiClasificacion") boolean isNullNtiClasificacion,
 			@Param("ntiClasificacion") String ntiClasificacion,
 			@Param("isNullRegistre_num") boolean isNullRegistre_num,
+			@Param("isNullPrincipal") boolean isNullPrincipal,
+			@Param("principal") String principal,
 			@Param("expedientsTipusIds") List<Long> expedientsTipusIds,		
 			Pageable pageable
 			);

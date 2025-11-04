@@ -11,6 +11,8 @@ public class RuleAccio extends ActivationRuleGroup {
         addRule(new RuleAccioBloquejar());
         addRule(new RuleAccioRequerir());
         addRule(new RuleAccioRequerirEntrar());
+        addRule(new RuleAccioRequerirSignar());
+        addRule(new RuleAccioRequerirNotificar());
     }
 
     @Override

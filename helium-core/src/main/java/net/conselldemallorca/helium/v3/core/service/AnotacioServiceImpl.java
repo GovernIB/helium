@@ -826,7 +826,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
 		// Comprova que està en error de processament
-		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())) {
+		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
+				&& !AnotacioEstatEnumDto.REBUTJADA.equals(anotacio.getEstat())) {
 			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot consultar perquè està en estat " + anotacio.getEstat() 
 			+ ", ha d'estar en estat de error de processament.");
 		}

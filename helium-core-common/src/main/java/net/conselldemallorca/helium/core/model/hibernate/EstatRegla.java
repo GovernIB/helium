@@ -47,7 +47,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
                 @Index(name = "hel_regla_estat_fk_i", columnNames = {"estat_id"})})
 public class EstatRegla implements Serializable, GenericEntity<Long> {
 
-    @Id
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6867192390581545603L;
+
+	@Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator="gen_regla")
     @TableGenerator(name="gen_regla", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
     @Column(name="id")

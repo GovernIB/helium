@@ -306,7 +306,7 @@ public class DadesExternesPluginDir3 implements DadesExternesPlugin {
 					"app.unitats.organiques.dir3.plugin.service.password");
 		}
 	}
-
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(DadesExternesPluginDir3.class);
 
 

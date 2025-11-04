@@ -6,5 +6,7 @@ public enum AccioEnum {
     EDITAR,
     BLOQUEJAR,
     REQUERIR,
-    REQUERIR_ENTRAR
+    REQUERIR_ENTRAR,
+    SIGNAT,
+    NOTIFICAT
 }

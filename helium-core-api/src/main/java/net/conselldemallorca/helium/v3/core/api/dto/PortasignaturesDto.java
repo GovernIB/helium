@@ -52,6 +52,8 @@ public class PortasignaturesDto implements Serializable {
 	private boolean reintentarFirma = false;
 	private boolean firmaEnProces = false;
 
+	private String signaturaUrlVerificacio;
+
 	public Long getId() {
 		return id;
 	}
@@ -264,5 +266,11 @@ public class PortasignaturesDto implements Serializable {
 	}
 	public void setDocumentUUID(String documentUUID) {
 		this.documentUUID = documentUUID;
+	}
+	public String getSignaturaUrlVerificacio() {
+		return signaturaUrlVerificacio;
+	}
+	public void setSignaturaUrlVerificacio(String signaturaUrlVerificacio) {
+		this.signaturaUrlVerificacio = signaturaUrlVerificacio;
 	}
 }

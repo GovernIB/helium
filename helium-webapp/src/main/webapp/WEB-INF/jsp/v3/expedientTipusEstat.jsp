@@ -42,6 +42,18 @@
 					</th>
 					<th data-col-name="nom" data-orderable="false"><spring:message code="comuns.nom"/></th>
 					<c:if test="${expedientTipus.tipus == 'ESTAT'}">
+					<th data-col-name="estatsSortida" data-template="#cellEstatsSortidaTemplate" data-orderable="false" width="10%">
+						<spring:message code="expedient.tipus.estat.llistat.accio.estatSortida"/>
+						<script id="cellEstatsSortidaTemplate" type="text/x-jsrender">
+							{{if estatsSortida && estatsSortida.length}}
+								{{for estatsSortida}}
+									<span>{{:nom}}</span><br/>
+								{{/for}}
+							{{else}}
+								<div>—</div>
+							{{/if}}
+						</script>
+					</th>
 					<th data-col-name="estatsSortida" data-template="#cellEstatsSortidaTemplate" data-orderable="false" width="15%">
 						<spring:message code="expedient.tipus.estat.llistat.accio.estatSortida"/>
 						<script id="cellEstatsSortidaTemplate" type="text/x-jsrender">
@@ -147,7 +159,7 @@
 			webutilDownloadAndRefresh($(this).attr('href'), event);
 		});
 
-		});
+	});
 
 function canviarPosicioEstat(id, pos) {
   	// Canvia la ordenació sempre amb ordre ascendent

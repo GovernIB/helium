@@ -44,6 +44,7 @@ public class Interessat {
 	private String municipi;
 	private String pais;
 	private String provincia;
+	private String canalNotif;
     private List<Interessat> representats; //només existeix quan es_representant=true
     private Interessat representant; //només existeix quan es_representant=false
 
@@ -260,7 +261,12 @@ public class Interessat {
 	public void setProvincia(String provincia) {
 		this.provincia = provincia;
 	}
-
+	public String getCanalNotif() {
+		return canalNotif;
+	}
+	public void setCanalNotif(String canalNotif) {
+		this.canalNotif = canalNotif;
+	}
 	public List<Interessat> getRepresentats() {
 		return representats;
 	}

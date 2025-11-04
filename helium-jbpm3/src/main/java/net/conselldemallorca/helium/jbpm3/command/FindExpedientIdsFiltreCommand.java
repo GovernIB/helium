@@ -60,6 +60,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	private boolean nomesCount;
 	private boolean nomesErrorsArxiu;
 	private String[] grups;
+	private Set<Long> idsSeleccionats;
 
 	public FindExpedientIdsFiltreCommand(
 			Long entornId,
@@ -94,7 +95,8 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			String sort,
 			boolean asc,
 			boolean nomesCount,
-			boolean nomesErrorsArxiu) {
+			boolean nomesErrorsArxiu,
+			Set<Long> idsSeleccionats) {
 		super();
 		this.entornId = entornId;
 		this.actorId = actorId;
@@ -129,6 +131,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		this.nomesCount = nomesCount;
 		this.nomesErrorsArxiu = nomesErrorsArxiu;
 		this.grups = grups;
+		this.idsSeleccionats = idsSeleccionats;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -297,6 +300,13 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		} else {
 			// per un usuari administrador no es filtrarà per grup, s'ha de passar grups a null
 		}
+		
+		
+		// filtre per expedients seleccionats
+		if (idsSeleccionats != null && !idsSeleccionats.isEmpty()) {
+			expedientQuerySb.append(" and ( pie.id in (:idsSeleccionats) ) ");
+		}
+
 		Query queryCount = jbpmContext.getSession().createQuery(
 				"select count(distinct pie.id) " + expedientQuerySb.toString());
 		setQueryParams(
@@ -323,6 +333,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				nomesAlertes,
 				nomesErrors,
 				filtrarPerActorId,
+				idsSeleccionats,
 				grups,
 				0,
 				-1);
@@ -410,6 +421,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					nomesAlertes,
 					nomesErrors,
 					filtrarPerActorId,
+					idsSeleccionats,
 					grups,
 					firstResult,
 					maxResults);
@@ -457,12 +469,16 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			boolean nomesAlertes,
 			boolean nomesErrors,
 			boolean filtrarPerActorId,
+			Set<Long> idsSeleccionats,
 			String[] grups,
 			int firstResult,
 			int maxResults) {
 		query.setParameter("entornId", entornId);
 		if (tipusIdPermesos != null && !tipusIdPermesos.isEmpty()) {
 			query.setParameterList("tipusIdPermesos", tipusIdPermesos);
+		}
+		if (idsSeleccionats != null && !idsSeleccionats.isEmpty()) {
+			query.setParameterList("idsSeleccionats", idsSeleccionats);
 		}
 		if(unitatsPerTipusComu !=null && !unitatsPerTipusComu.isEmpty()) {
 			// en subllistes

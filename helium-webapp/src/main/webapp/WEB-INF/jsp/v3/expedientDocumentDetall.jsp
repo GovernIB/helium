@@ -17,6 +17,8 @@
 .docAnnex .panel-heading {background-color: #fff !important;}
 .btn-sm {padding: 2px 6px !important;}
 .doc-details {font-size: small;}
+.doctab span.fa.fa-clock-o, .doctab span.fa.fa-pencil {color: #3c763d !important;}
+.doctab span.fa.fa-clock-o.grey {color: #777 !important;}
 </style>
 
 <script type="text/javascript">
@@ -60,13 +62,26 @@
 		</li>
 		<li id="pipella-documentDetall-portasignatura-${detall.documentStoreId}" class="doctab <c:if test="${detall.psignaPendent}">actiu</c:if>">
 			<a href="#contingut-documentDetall-portasignatura-${detall.documentStoreId}" role="tab" data-toggle="tab">
-				<span class="fa fa-clock-o"></span>
+				<c:choose>
+					<c:when  test="${detall.psignaDetall.estat == 'PENDENT'}">
+						<span class="fa fa-clock-o"></span>
+					</c:when>
+					<c:when test="${detall.psignaDetall.estat == 'PROCESSAT'}">
+						<span class="fa fa-pencil"></span>
+					</c:when>
+					<c:when test="${detall.psignaDetall.estat == 'CANCELAT'}">
+						<span class="fa fa-times"></span>
+					</c:when>
+					<c:otherwise>
+						<span class="fa fa-clock-o grey"></span>
+					</c:otherwise>
+				</c:choose>
 				<spring:message code="expedient.document.detall.pipella.portasignatura"/>
 			</a>
 		</li>
 		<li id="pipella-documentDetall-notificacions-${detall.documentStoreId}" class="doctab <c:if test="${detall.notificat}">actiu</c:if>">
 			<a href="#contingut-documentDetall-notificacions-${detall.documentStoreId}" role="tab" data-toggle="tab">
-				<span class="fa fa-paper-plane-o"></span>
+				<span class="fa fa-paper-plane"></span>
 				<spring:message code="expedient.document.detall.pipella.notificacions"/>
 			</a>
 		</li>
@@ -192,12 +207,12 @@
 					<c:if test="${not empty psigna.motiuRebuig}">
 					<tr><td><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></td>			<td>${psignaMotiu}</td>	</tr>
 					</c:if>
-					<c:if test="${not empty psigna.dataProcessamentPrimer}">
+					<%-- <c:if test="${not empty psigna.dataProcessamentPrimer}"> --%>
 					<tr><td><spring:message code="common.icones.doc.psigna.data.proces.primer"/></td>	<td>${psignaPrimer}</td></tr>
-					</c:if>
-					<c:if test="${not empty psigna.dataProcessamentDarrer}">
+					<%-- </c:if>
+					<c:if test="${not empty psigna.dataProcessamentDarrer}"> --%>
 					<tr><td><spring:message code="common.icones.doc.psigna.data.proces.darrer"/></td>	<td>${psignaDarrer}</td></tr>
-					</c:if>
+					<%-- </c:if> --%>
 				</tbody>
 			</table>
 
@@ -206,17 +221,17 @@
 				<c:when test="${detall.psignaPendent}">
 					<c:choose>
 						<c:when test="${psigna.error and psigna.estat != 'PROCESSAT'}">
-							<p class="mb-0">Document amb error: <span class="text-dander text-sm font-weight-bolder"><spring:message code="expedient.document.pendent.psigna.error" /></span></p>
+							<p class="mb-0">Document amb error: <span class="text-danger text-sm font-weight-bolder"><spring:message code="expedient.document.pendent.psigna.error" /></span></p>
 						</c:when>
 						<c:when test="${psigna.error and psigna.estat == 'PROCESSAT'}">
 							<p class="mb-0">Document amb error: <span class="text-danger text-sm font-weight-bolder"><spring:message code="expedient.document.rebutjat.psigna.error" /></span></p>
 						</c:when>
 						<c:otherwise>
-							<p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">PENDENT de Portasignatures</span></p>
+							<p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">${psignaEstat} de Portasignatures</span></p>
 						</c:otherwise>
 					</c:choose>
 				</c:when>
-				<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO PENDENT de Portasignatures</span></p></c:otherwise>
+				<c:otherwise><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">NO PENDENT de Portasignatures</span></p></c:otherwise>
 			</c:choose>
 		</div>
 
@@ -227,22 +242,26 @@
 				<table class="table table-bordered table-striped">
 				<thead>
 					<tr>
-						<th>Destinatari</th>
-						<th style="width: 200px;">Estat notificació</th>
-						<th style="width: 200px;">Estat enviament</th>
+						<th><spring:message code="expedient.notificacio.data_enviament"/></th>
+						<th><spring:message code="expedient.notificacio.enviamentTipusComplet"/></th>
+						<th><spring:message code="expedient.notificacio.concepte"/></th>
+						<th><spring:message code="expedient.notificacio.estat.notificacio"/></th>
+						<th><spring:message code="expedient.notificacio.estat.enviament"/></th>
+						<th><spring:message code="expedient.notificacio.titular"/></th>
+						<th><spring:message code="expedient.notificacio.destinatari"/></th>
+						<th style="width:20%"><spring:message code="expedient.notificacio.document"/></th>
+						<th><spring:message code="expedient.notificacio.justificant"/></th>
 					</tr>
 				</thead>
 				<tbody>
 					<c:if test="${empty notificacions}"><tr><td colspan="3">El document no ha estat notificat</td></tr></c:if>
 					<c:forEach var="notificacio" items="${notificacions}" varStatus="status">
 						<c:forEach var="enviament" items="${notificacio.enviaments}" varStatus="statuse">
-							<tr>
-								<td>
-									<span class="label label-default">${notificacio.enviamentTipus == "NOTIFICACIO" ? 'N' : 'C'}</span>
-										<b>${enviament.titular.nomSencer}</b>
-										<p class="comment">${notificacio.enviatData}</p>
-								</td>
-								<td>
+							<tr>					
+								<td><fmt:formatDate value="${notificacio.enviatData}" pattern="dd/MM/yyyy HH:mm:ss"></fmt:formatDate></td>
+							    <td><spring:message code="notifica.enviament.tipus.enum.${notificacio.enviamentTipus}"/></td>
+							    <td>${notificacio.concepte}</td>
+							    <td>
 									<span title="<spring:message code="notificacio.etst.enum.${notificacio.estat}.info"/>">
 										<c:choose>
 										<c:when test="${notificacio.estat == 'PENDENT'}">
@@ -257,7 +276,7 @@
 										</c:when>
 										<c:when test="${notificacio.estat == 'FINALITZADA'}">
 											<span class="fa fa-check"></span>
-										</c:when>
+										</c:when>							
 										<c:when test="${notificacio.estat == 'PROCESSADA'}">
 											<span class="fa fa-check-circle"></span>
 										</c:when>
@@ -266,21 +285,61 @@
 									</span>
 								</td>
 								<td>
-									<c:set var="ecolor" value="default"/>
-									<c:choose>
-										<c:when test="${enviament.estat == 'LLEGIDA' or
-													enviament.estat == 'NOTIFICADA'}"><c:set var="ecolor" value="success"/></c:when>
-										<c:when test="${enviament.estat == 'ABSENT' or
-													enviament.estat == 'DESCONEGUT' or
-													enviament.estat == 'ADRESA_INCORRECTA' or
-													enviament.estat == 'MORT' or
-													enviament.estat == 'EXTRAVIADA' or
-													enviament.estat == 'SENSE_INFORMACIO' or
-													enviament.estat == 'ERROR_ENTREGA' or
-													enviament.estat == 'EXPIRADA'}"><c:set var="ecolor" value="danger"/></c:when>
-										<c:otherwise><c:set var="ecolor" value="default"/></c:otherwise>
-									</c:choose>
-									<span class="label label-${ecolor}">${enviament.estat != null? enviament.estat : '-'}</span>
+									<c:if test="${notificacio.error }">
+										<span class="fa fa-warning text-danger" title="${notificacio.errorDescripcio}"></span>
+									</c:if>
+									<c:if test="${not empty notificacio.enviaments[0].estat}">
+										<spring:message code="notificacio.enviament.estat.enum.${notificacio.enviaments[0].estat}"/>
+									</c:if>
+									<c:if test="${notificacio.enviaments[0].estatData != null}">
+										<br/><span class="text-muted small">
+												<fmt:formatDate value="${notificacio.enviaments[0].estatData}" pattern="dd/MM/yyyy HH:mm:ss"></fmt:formatDate>
+											</span>
+									</c:if>
+								</td>
+								<td>${notificacio.enviaments[0].titular.dni} - ${notificacio.enviaments[0].titular.nomSencer}</td>
+								<td>
+									<c:if test="${not empty notificacio.enviaments[0].destinataris[0]}">
+										${notificacio.enviaments[0].destinataris[0].dni} - ${notificacio.enviaments[0].destinataris[0].nomSencer}
+									</c:if>
+								</td>
+								<td>
+									<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${notificacio.documentId}/descarregar"/>"
+										title="<spring:message code="expedient.notificacio.descarregar.doc"/> ${notificacio.documentArxiuNom}">
+										${notificacio.documentNom != null? notificacio.documentNom : notificacio.documentArxiuNom}
+										<span class="fa fa-download fa-lg"></span>
+									</a>
+									<c:if test="${not empty notificacio.documentsDinsZip}">
+									<br/><span class="">Conté:</span>
+										<ul>
+										<c:forEach items="${notificacio.documentsDinsZip}" var="docContingut">
+											<li data-id="${docContingut.id}" data-codi="${docContingut.codiDocument}">
+												<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${docContingut.id}/descarregar"/>"
+													title="<spring:message code="expedient.notificacio.descarregar.doc"/>">
+													<c:choose>
+														<c:when test="${docContingut.adjunt}">
+															<span class="fa fa-paperclip" title="Document adjunt"></span>
+															${docContingut.nom}
+														</c:when>
+														<c:otherwise>
+															${nomsDocuments[docContingut.codiDocument]}
+														</c:otherwise>
+													</c:choose>
+													<span class="fa fa-download fa-lg"></span>
+												</a>
+											</li>
+										</c:forEach>
+										</ul>
+									</c:if>					
+								</td>
+								<td>
+									<c:if test="${not empty notificacio.justificantId}">
+										<center>
+										<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${notificacio.justificantId}/descarregar"/>">
+											<span class="fa fa-download fa-lg" title="${notificacio.justificantArxiuNom}"></span>
+										</a>
+										</center>
+									</c:if>
 								</td>
 							</tr>
 						</c:forEach>

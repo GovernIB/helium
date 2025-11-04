@@ -9,14 +9,15 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
-import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 
 
 
@@ -149,11 +150,36 @@ public class UnitatOrganitzativaServiceBean implements UnitatOrganitzativaServic
 	public List<UnitatOrganitzativaDto> findAll() {
 		return delegate.findAll();
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<UnitatOrganitzativaDto> findByFiltre(
+			String nivell, 
+			String provincia, 
+			String municipi, 
+			String nif, 
+			String nom, 
+			Boolean arrel) {
+		return delegate.findByFiltre(nivell, provincia, municipi, nif, nom, arrel);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat, List<TipusViaDto> tipusViaList, List<ProvinciaDto> provincies) {
 		delegate.populateDadesExternesUO(unitat, tipusViaList, provincies);
 	}	
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<NivellAdministracioDto> nivellAdministracioFindAll() {
+		return delegate.nivellAdministracioFindAll();
+	}
+	
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public UnitatOrganitzativaDto findByCodiExterna(String unitatOrganitzativaCodi) {
+		return delegate.findByCodiExterna(unitatOrganitzativaCodi);
+	}
 
 }

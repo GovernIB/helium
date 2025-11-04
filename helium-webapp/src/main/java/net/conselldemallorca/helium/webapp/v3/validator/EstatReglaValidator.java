@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.validator;
 
+import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
@@ -67,7 +68,21 @@ public class EstatReglaValidator implements ConstraintValidator<EstatRegla, Esta
 				valid = false;
 			}
 		}
+		
+		if (command.getAccio() != null &&
+	            (AccioEnum.SIGNAT.equals(command.getAccio()) || AccioEnum.NOTIFICAT.equals(command.getAccio()))) {
+	
+			if (!(QueEnum.DOCUMENT.equals(command.getQue()) || QueEnum.DOCUMENTS.equals(command.getQue()))) {
+		        context.buildConstraintViolationWithTemplate(
+		                    MessageHelper.getInstance().getMessage(anotacio.message() + ".accio.document"))
+		                    .addNode("que")
+		                    .addConstraintViolation();
+		            valid = false;
+		        }
+		 }
 
+		if (!valid)
+			context.disableDefaultConstraintViolation();
 		return valid;
 	}
 

@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 
 /**
@@ -66,4 +67,47 @@ public interface UnitatsOrganiquesPlugin {
 	public UnitatOrganitzativaDto unitatsOrganitzativesFindByCodi(
 			String codi) throws SistemaExternException;
 
+	
+	/**
+	 * Retorna la llista d'unitats organitzatives filles donat un filtre.
+	 * 
+	 * @param codi
+	 *            Codi de la unitat.
+	 * @param denominacio
+	 *            Denominació de la unitat de la unitat
+	 * @param nivellAdministracio
+	 *            Nivell de administració de la unitat.
+	 * @param comunitatAutonoma
+	 *            Codi de la comunitat de la unitat.
+	 * @param ambOficines
+	 *            Indica si les unitats retornades tenen oficines.
+	 * @param esUnitatArrel
+	 *            Indica si les unitats retornades són unitats arrel.
+	 * @param provincia
+	 *            Codi de la provincia de la unitat.
+	 * @param localitat
+	 *            Codi de la localitat de la unitat.
+	 *            
+	 * @return La llista d'unitats organitzatives.
+	 * @throws SistemaExternException
+	 *            Si es produeix un error al consultar les unitats organitzatives.
+	 */
+	public List<UnitatOrganitzativaDto> cercaUnitats(
+			String codi, 
+			String denominacio,
+			String nivellAdministracio, 
+			Long comunitatAutonoma, 
+			Boolean ambOficines, 
+			Boolean esUnitatArrel,
+			String provincia, 
+			String municipi) throws SistemaExternException;
+	
+	/**
+	 * Retorna el llistat de nivells d'administració
+	 * 
+	 * @return Llista de nivells d'administració
+	 * @throws SistemaExternException
+	 *            Si es produeix un error al consultar els nivells d'administració.
+	 */
+	public List<NivellAdministracioDto> nivellAdministracioFindAll() throws SistemaExternException;
 }

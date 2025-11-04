@@ -6,7 +6,7 @@ public class ExpedientTipusAdminCommand {
 	private String nomTipologia;
 	private String codiSIA;
 	private String numRegistre;
-
+	private String principal;
 
 	public String getCodiTipologia() {
 		return codiTipologia;
@@ -31,6 +31,12 @@ public class ExpedientTipusAdminCommand {
 	}
 	public void setNomTipologia(String nomTipologia) {
 		this.nomTipologia = nomTipologia;
+	}
+	public String getPrincipal() {
+		return principal;
+	}
+	public void setPrincipal(String principal) {
+		this.principal = principal;
 	}
 	
 	

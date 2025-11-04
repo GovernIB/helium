@@ -5,6 +5,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <c:set var="document" value="${dada}"/>
 <c:set var="psignaPendentActual" value="${null}" scope="request"/>
+<c:set var="extensio" value="${fn:toLowerCase(fn:trim(document.arxiuExtensio))}" />
 <c:forEach var="pendent" items="${portasignaturesPendent}">
 	<c:if test="${pendent.documentStoreId == document.id}"><c:set var="psignaPendentActual" value="${pendent}" scope="request"/></c:if>
 </c:forEach>
@@ -57,8 +58,7 @@
 									<thead>
 										<tr>
 											<td class="tableDocumentsTd">
-											
-												<c:if test="${document.arxiuExtensio == 'pdf' or document.arxiuExtensio == 'pdt' or document.arxiuExtensio == 'docx' or document.arxiuExtensio == 'odt'}">
+												<c:if test="${extensio == 'pdf' or extensio == 'pdt' or extensio == 'docx' or extensio == 'odt'}">
 													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/preview"
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-maximize="true"

@@ -34,6 +34,7 @@ public class DocumentListDto implements Serializable {
 	private boolean notificat;
 	private boolean arxiuActiu;
 	private boolean ntiActiu;
+	private boolean pinbalActiu;
 	private boolean registrat;
 	private boolean docValid;
 	private boolean psActiu;
@@ -58,6 +59,10 @@ public class DocumentListDto implements Serializable {
 	private boolean obligatori = false;
 	@Builder.Default
 	private boolean obligatoriEntrada = false;
-
+	@Builder.Default
+	private boolean obligatoriSignat = false;
+	@Builder.Default
+	private boolean obligatoriNotificat = false;
+	
 	private static final long serialVersionUID = -2271231227621850341L;
 }

@@ -515,12 +515,21 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		try {
 			List<ParellaCodiValorDto> organs = new ArrayList<ParellaCodiValorDto>();
 			for (UnitatOrganitzativaDto uo : unitatOrganitzativaService.findAll()) {
-				organs.add(new ParellaCodiValorDto(uo.getCodi(), uo.getCodi() + " - " + uo.getDenominacio()));
+				ParellaCodiValorDto pcv = new ParellaCodiValorDto(uo.getCodi(), uo.getCodi() + " - " + uo.getDenominacio());
+				organs.add(pcv);
 			}
 			model.addAttribute("organs", organs);
+			
 		} catch (Exception e) {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.unitats.error"));
 		}
+		
+		try {
+			model.addAttribute("nivells", unitatOrganitzativaService.nivellAdministracioFindAll());
+		} catch (Exception e) {
+			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.nivells.error"));
+		}
+		
 		if (provincia != null) {
 			try {
 				model.addAttribute("municipis", dadesExternesService.findMunicipisPerProvincia(provincia));
@@ -546,8 +555,33 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable String codi,
 			Model model) {
 		UnitatOrganitzativaDto unitat = unitatOrganitzativaService.findByCodi(codi);
+		if(unitat == null)
+			unitat = unitatOrganitzativaService.findByCodiExterna(codi);
+		
 		return unitat;
 	}
+	
+	@RequestMapping(value = "/organs", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> getUnitatsOrganitzativesByFiltre(
+			HttpServletRequest request,
+			@RequestParam(required = false) String nivell,
+			@RequestParam(required = false) String provincia,
+			@RequestParam(required = false) String municipi,
+			@RequestParam(required = false) String nif,
+			@RequestParam(required = false) String nom,
+			@RequestParam(required = false) Boolean arrel,
+			Model model) {
+		List<ParellaCodiValorDto> organs = new ArrayList<ParellaCodiValorDto>();
+		for (UnitatOrganitzativaDto uo : unitatOrganitzativaService.findByFiltre(nivell, provincia, municipi, nif, nom, arrel)) {
+			ParellaCodiValorDto pcv = new ParellaCodiValorDto(uo.getCodi(), uo.getCodi() + " - " + uo.getDenominacio());
+			organs.add(pcv);
+		}
+		return organs;
+	}
+	
+	
+	
 	
 	private void populateDadesInteressat(InteressatDto interessat) {
 		if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessat.getTipus())){

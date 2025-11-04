@@ -48,6 +48,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.sun.star.awt.Command;
+
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
@@ -118,6 +120,12 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 		return "redirect:expedient";
 	}
+	
+	private Set<Long> recuperarIdsAccionesMasivas(HttpServletRequest request) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		return sessionManager.getSeleccioConsultaGeneral();
+	}
+	
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesPagina<ExpedientDto> datatable(
@@ -127,36 +135,48 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
 		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
 		DatatablesPagina<ExpedientDto> result = null;
-		List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
-				request,
-				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
+		
+		Set<Long> idsSeleccionats = null;
+		if (filtreCommand.isNomesSeleccio()) {
+			idsSeleccionats = recuperarIdsAccionesMasivas(request);
+		}
+		if (idsSeleccionats == null) {
+			idsSeleccionats = new HashSet<Long>();
+		}
+		
+		List<ExpedientTipusDto> expedientTipusDtoAccessibles = 
+	            (List<ExpedientTipusDto>) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
+
 		try {
-			result = PaginacioHelper.getPaginaPerDatatables(
-					request,
-					expedientService.findAmbFiltrePaginat(
-							expedientTipusDtoAccessibles,
-							entornActual.getId(),
-							filtreCommand.getExpedientTipusId(),
-							filtreCommand.getTitol(),
-							filtreCommand.getNumero(),
-							filtreCommand.getUnitatOrganitzativaCodi(),
-							filtreCommand.getDataIniciInicial(),
-							filtreCommand.getDataIniciFinal(),
-							filtreCommand.getDataFiInicial(),
-							filtreCommand.getDataFiFinal(),
-							filtreCommand.getEstatTipus(),
-							filtreCommand.getEstatId(),
-							filtreCommand.getGeoPosX(),
-							filtreCommand.getGeoPosY(),
-							filtreCommand.getGeoReferencia(),
-							filtreCommand.getRegistreNumero(),
-							filtreCommand.isNomesTasquesPersonals(),
-							filtreCommand.isNomesTasquesGrup(),
-							filtreCommand.isNomesAlertes(),
-							filtreCommand.isNomesErrors(),
-							filtreCommand.isNomesErrorsArxiu(),
-							filtreCommand.getMostrarAnulats(),
-							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
+			PaginaDto<ExpedientDto> pagina = expedientService.findAmbFiltrePaginat(
+	                expedientTipusDtoAccessibles,
+	                entornActual.getId(),
+	                filtreCommand.getExpedientTipusId(),
+	                filtreCommand.getTitol(),
+	                filtreCommand.getNumero(),
+	                filtreCommand.getUnitatOrganitzativaCodi(),
+	                filtreCommand.getDataIniciInicial(),
+	                filtreCommand.getDataIniciFinal(),
+	                filtreCommand.getDataFiInicial(),
+	                filtreCommand.getDataFiFinal(),
+	                filtreCommand.getEstatTipus(),
+	                filtreCommand.getEstatId(),
+	                filtreCommand.getGeoPosX(),
+	                filtreCommand.getGeoPosY(),
+	                filtreCommand.getGeoReferencia(),
+	                filtreCommand.getRegistreNumero(),
+	                filtreCommand.isNomesTasquesPersonals(),
+	                filtreCommand.isNomesTasquesGrup(),
+	                filtreCommand.isNomesAlertes(),
+	                filtreCommand.isNomesErrors(),
+	                filtreCommand.isNomesErrorsArxiu(),
+	                filtreCommand.getMostrarAnulats(),
+	                idsSeleccionats,
+	                PaginacioHelper.getPaginacioDtoFromDatatable(request)
+	        );
+			
+	        result = PaginacioHelper.getPaginaPerDatatables(request, pagina);
+			
 		} catch (Exception e) {
 			if (entornActual == null)
 				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"), e);

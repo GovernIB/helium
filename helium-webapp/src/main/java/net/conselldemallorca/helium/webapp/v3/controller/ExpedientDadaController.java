@@ -131,6 +131,26 @@ public class ExpedientDadaController extends BaseExpedientController {
 					e);
 		}
 	}
+	
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/executar/accio", method = RequestMethod.GET)
+	public String dadaExpExecutarAccio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			Model model)  {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			String procesId = expedient.getProcessInstanceId();
+			ExpedientDadaDto dadaAccio = expedientDadaService.findOnePerInstanciaProces(expedientId, procesId, varCodi);
+			this.executarDadaAccio(request, expedientId, procesId, varCodi, dadaAccio.getJbpmAction());
+		} catch(Exception e) {
+			String errMsg = "Error no controlat: " + e.getMessage();
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request,errMsg,e);
+		}
+		return "redirect:" + request.getHeader("referer");
+	}
+	
 
 	@RequestMapping(value = "/{expedientId}/dada")
 	public String dades(

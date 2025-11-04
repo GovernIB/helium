@@ -43,7 +43,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
 
 import es.caib.distribucio.core.api.exception.SistemaExternException;
 import lombok.SneakyThrows;
@@ -3086,12 +3085,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		estat.setExpedientTipus(expedientTipus);
 		estat.setCodi(dto.getCodi());
 		estat.setNom(dto.getNom());
-		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
-			estat.setOrdre(dto.getOrdre());
-		} else {
+
 			Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId);
 			estat.setOrdre(seguentOrdre == null ? 0 : seguentOrdre + 1);
-		}
 		return conversioTipusHelper.convertir(
 				estatRepository.save(estat),
 				EstatDto.class);
@@ -3408,7 +3404,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		int lastComma = estatsPrevis.lastIndexOf(",");
 		String darrerEstat = estatsPrevis.substring(lastComma + 1, estatsPrevis.length());
 		Long darrerEstatId = Long.parseLong(darrerEstat.trim());
-		return conversioTipusHelper.convertirList(Lists.newArrayList(estatRepository.findOne(darrerEstatId)), EstatDto.class);
+		return conversioTipusHelper.convertirList(Arrays.asList(estatRepository.findOne(darrerEstatId)), EstatDto.class);
 	}
 
 	private EstatExportacio getEstatExportacio(Estat estat, boolean ambPermisos) {
@@ -5133,8 +5129,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				estatId = null;
 			}
 		}		
-		
-		return expedientTipusRepository.findEstadisticaByFiltre(
+		List<ExpedientTipusEstadisticaDto> result = expedientTipusRepository.findEstadisticaByFiltre(
 											anyInicial == null,
 											anyInicial,
 											anyFinal == null,
@@ -5154,6 +5149,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 											estatId,
 											aturat == null,
 											aturat);
+		// Afeim els tipus d'expedients sense expedients
+		result.addAll(expedientTipusRepository.findEstadisticaBySenseExpedients(entorn));
+		return result;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
@@ -5172,6 +5170,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		String nomTipologia = filtreDto.getNomTipologia();
 		String codiSIA = filtreDto.getCodiSIA();
 		String numRegistre = filtreDto.getNumRegistre();
+		String principal = filtreDto.getPrincipal();
 
 		
 		List<Long> expedientsTipusIds;
@@ -5196,6 +5195,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						codiSIA == null || codiSIA.isEmpty(),
 						codiSIA == null || codiSIA.isEmpty() ? "" : codiSIA, 
 						numRegistre == null || numRegistre.isEmpty(),
+						principal == null || principal.isEmpty(),
+						principal,
 								expedientsTipusIds,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),

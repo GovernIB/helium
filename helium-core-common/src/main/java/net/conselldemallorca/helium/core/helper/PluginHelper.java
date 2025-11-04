@@ -147,6 +147,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
@@ -2369,6 +2370,17 @@ public class PluginHelper {
 					System.currentTimeMillis() - t0,
 					parametres);
 			return false;
+		} catch(ArxiuCaibException ex) {
+			String errorDescripcio = "No s'han pogut comprovar la serie documental: [" + serieDocumental + "] " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw ex;
 		} catch(Exception ex) {
 			String errorDescripcio = "No s'han pogut comprovar la serie documental: [" + serieDocumental + "] " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
@@ -5899,6 +5911,118 @@ public class PluginHelper {
 					null, 
 					MonitorIntegracioHelper.INTCODI_UNITATS,
 					"(UNITATS ORGANITZATIVES. Consulta d'unitats organitzatives amb pare: " + errorDescripcio + ")",
+					ex);			
+		}
+	}
+	
+	
+	public List<UnitatOrganitzativaDto> cercaUnitats(
+			String codi, 
+			String denominacio, 
+			String nivellAdministracio,
+			Long comunitatAutonoma, 
+			Boolean ambOficines, 
+			Boolean esUnitatArrel, 
+			String provincia, 
+			String municipi) {
+		String accioDescripcio = "Consulta d'unitats organitzativa per filtre";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto("codi", codi), 
+				new IntegracioParametreDto("denominacio", denominacio), 
+				new IntegracioParametreDto("nivellAdministracio", nivellAdministracio),
+				new IntegracioParametreDto("comunitatAutonoma", comunitatAutonoma), 
+				new IntegracioParametreDto("ambOficines", ambOficines), 
+				new IntegracioParametreDto("esUnitatArrel", esUnitatArrel), 
+				new IntegracioParametreDto("provincia", provincia), 
+				new IntegracioParametreDto("municipi", municipi)
+		};
+		String errorDescripcio = "Error consultant unitats organitzativa per filtre";
+		UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin = this.getUnitatsOrganitzativesPlugin(); 
+		long t0 = System.currentTimeMillis();
+		try {
+			List<UnitatOrganitzativaDto> unitatsDto = unitatsOrganitzativesPlugin.cercaUnitats(
+					codi, 
+					denominacio, 
+					nivellAdministracio, 
+					comunitatAutonoma, 
+					ambOficines, 
+					esUnitatArrel, 
+					provincia, 
+					municipi);
+			
+				monitorIntegracioHelper.addAccioOk(
+						MonitorIntegracioHelper.INTCODI_UNITATS,
+						accioDescripcio,
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
+						parametres);
+				
+				return unitatsDto;
+		} catch (Exception ex) {
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_UNITATS,
+					"Consulta d'unitats organitzatives",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					MonitorIntegracioHelper.INTCODI_UNITATS,
+					"(UNITATS ORGANITZATIVES. Consulta d'unitats organitzatives: " + errorDescripcio + ")",
+					ex);			
+		}
+	}
+	
+	public List<NivellAdministracioDto> nivellAdministracioFindAll() {
+		String accioDescripcio = "Consulta nivells d'administracions";
+		String errorDescripcio = "Error consulta nivells d'administracions";
+		UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin = this.getUnitatsOrganitzativesPlugin(); 
+		long t0 = System.currentTimeMillis();
+		try {
+			List<NivellAdministracioDto> nivells = unitatsOrganitzativesPlugin.nivellAdministracioFindAll();
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_UNITATS,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0);
+			
+			return nivells;
+		} catch (Exception ex) {
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_UNITATS,
+					"Consulta d'unitats organitzatives",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					MonitorIntegracioHelper.INTCODI_UNITATS,
+					"(UNITATS ORGANITZATIVES. Consulta d'unitats organitzatives: " + errorDescripcio + ")",
 					ex);			
 		}
 	}

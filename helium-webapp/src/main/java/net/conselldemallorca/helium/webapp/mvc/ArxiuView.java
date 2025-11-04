@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.text.Normalizer;
 import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -40,9 +41,14 @@ public class ArxiuView implements View {
 			data = new byte[0];
 		if (fileName == null)
 			fileName = "unknown";
-		response.setHeader("Content-Disposition","attachment; filename=\"" + fileName + "\"");
+        
+        String safeFileName = sanitizeFileName(fileName);
+        
+//		response.setHeader("Content-Disposition","attachment; filename=\"" + fileName + "\"");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + safeFileName + "\"");
 		if (contentType == null)
-			response.setContentType(new MimetypesFileTypeMap().getContentType(fileName));
+//			response.setContentType(new MimetypesFileTypeMap().getContentType(fileName));
+			response.setContentType(new MimetypesFileTypeMap().getContentType(safeFileName));
 		else
 			response.setContentType(contentType);
 		response.getOutputStream().write(data);
@@ -51,5 +57,21 @@ public class ArxiuView implements View {
 	public String getContentType() {
 		return null;
 	}
+	
+	/**
+     * Elimina accents i substitueix caràcters rars per "_"
+     */
+    private String sanitizeFileName(String fileName) {
+        // Normalitza a NFD → descompon "o" en "o"+"´"
+        String normalized = Normalizer.normalize(fileName, Normalizer.Form.NFD);
+
+        // Elimina diacrítics (accents, titlles, etc.)
+        String withoutAccents = normalized.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+
+        // Substitueix qualsevol caràcter rar per "_"
+        String safe = withoutAccents.replaceAll("[^a-zA-Z0-9\\.\\-\\s]", "_");
+
+        return safe.trim();
+    }
 
 }
