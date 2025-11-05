@@ -273,6 +273,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					filtreDto.getNumeroExpedient(),
 					filtreDto.getNumero() == null || filtreDto.getNumero().isEmpty(),
 					filtreDto.getNumero(),
+					filtreDto.getNif() == null || filtreDto.getNif().isEmpty(),
+					filtreDto.getNif(),
 					filtreDto.getExtracte() == null || filtreDto.getExtracte().isEmpty(),
 					filtreDto.getExtracte(),
 					filtreDto.getDataInicial() == null,
@@ -355,6 +357,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			String numeroExpedient,
 			boolean esNullNumero,
 			String numero,
+			boolean esNullNif,
+			String nif, 
 			boolean esNullExtracte,
 			String extracte,
 			boolean esNullDataInicial,
@@ -420,6 +424,12 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			sqlWhere.append(" and lower(a.identificador) like lower('%'||:numero||'%') ");
 			parametres.put("numero", numero);
 		}
+		if (!esNullNif) {
+			sqlWhere.append("and (select count(interessat) ");
+			sqlWhere.append("			from a.interessats as interessat ");
+			sqlWhere.append("			where (lower(interessat.documentNumero) like lower('%'||:nif||'%')) ) > 0 ");
+			parametres.put("nif", nif);
+		}
 		if (!esNullExtracte) {
 			sqlWhere.append(" and lower(a.extracte) like lower('%'||:extracte||'%') ");
 			parametres.put("extracte", extracte);
@@ -484,7 +494,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			}
 		}
 		
-		String sqlSelect = "select " + (nomesIds ? " a.id " : "a ") + sqlFrom + sqlWhere + sqlOrder;
+		String sqlSelect = "select " + (nomesIds ? "a.id " : " a ") + sqlFrom + sqlWhere + sqlOrder;
 		String sqlCount = "select count(a.id) " + sqlFrom + sqlWhere;
 		Session session = entityManager.unwrap(Session.class);
 		Query selectQuery = session.createQuery(sqlSelect);
@@ -596,6 +606,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				filtreDto.getNumeroExpedient(),
 				filtreDto.getNumero() == null || filtreDto.getNumero().isEmpty(),
 				filtreDto.getNumero(),
+				filtreDto.getNif() == null || filtreDto.getNif().isEmpty(),
+				filtreDto.getNif(),
 				filtreDto.getExtracte() == null || filtreDto.getExtracte().isEmpty(),
 				filtreDto.getExtracte(),
 				filtreDto.getDataInicial() == null,

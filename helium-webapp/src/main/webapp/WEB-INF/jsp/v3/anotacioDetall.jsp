@@ -56,6 +56,65 @@ tr.clicable {
 			$('button[data-toggle="collapse"]', $('#anotacio_annex_'+ annexId)).click()
 			$('#anotacio_annex_' + annexId).get(0).scrollIntoView();
 		}
+	});
+
+	
+	$(document).ready(function () {
+    $('.preview-annex').on('click', function () {
+        var $btn = $(this);
+        var anotacioId = $btn.data('anotacio-id');
+        var annexId = $btn.data('annex-id');
+        var $row = $btn.closest('tr');
+
+        if ($row.next().hasClass('preview-row')) {
+            $row.next().remove();
+            return;
+        }
+
+        var pdfUrl = '/helium/v3/anotacio/' + anotacioId + '/annex/' + annexId + '/returnFitxer';
+
+        var $previewRow = $(`
+            <tr class="preview-row">
+                <td colspan="2" style="text-align:center; padding:10px;">
+                    <div class="spinner">
+                        <span class="fa fa-circle-o-notch fa-spin fa-2x"></span>
+                    </div>
+                </td>
+            </tr>
+        `);
+        $row.after($previewRow);
+
+        
+        $.ajax({
+            type: 'GET',
+            url: pdfUrl,
+            success: function (json) {
+
+                if (json.error) {
+                    $previewRow.find('td').html('<div class="alert alert-danger">' + json.errorMsg + '</div>');
+                    return;
+                }
+
+                if (!json.data || !json.data.contingut) {
+                    $previewRow.find('td').html('<div class="alert alert-warning">No s\'ha trobat el contingut del PDF.</div>');
+                    return;
+                }
+                
+                var viewerUrl = 'data:application/pdf;base64,' + json.data.contingut;
+
+                var objectHtml = 
+                	'<object type="application/pdf" ' +
+                            'data="' + viewerUrl + '" ' +
+                            'style="width:100%; height:80vh;"> ' +
+                        '<p>Tu navegador no soporta la previsualización de PDF. <a href="${viewerUrl}" target="_blank">Descargar PDF</a></p>' +
+                    '</object>' ;
+                $previewRow.find('td').html(objectHtml);
+            },
+            error: function (xhr, status, error) {
+                $previewRow.find('td').html('<div class="alert alert-danger">' + error + '</div>');
+            }
+        });
+    });
 });
 
 // ]]>
@@ -465,6 +524,24 @@ tr.clicable {
 												class="btn btn-default btn-sm pull-right arxiu-download">
 												<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar.original"/>
 												<span class="fa fa-download" title="<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar.original"/>"></span>
+											</a>
+											<%-- <a
+	 											href="../../v3/expedient/${anotacio.id}/proces/${document.processinstanceid}/document/${annex.id}/preview"
+												href="../../v3/expedient/191552/proces/13372599/document/166854/preview"
+												data-rdt-link-modal="true"
+												data-rdt-link-modal-maximize="true"
+												data-rdt-link-callback="recargarpanel(${document.processinstanceid});"
+												class="btn-sm pull-right fa-stack"
+												style="font-size:0.7em; display: flex; align-items: stretch; margin-right: 5px; color: #333;" >
+												<i class="fa fa-file-o fa-stack-2x"></i><i class="fa fa-search fa-stack-1x" title="<spring:message code='expedient.document.preview' />" ></i>
+											</a> --%>
+											<a href="javascript:void(0);"
+											   	class="btn-sm pull-right fa-stack preview-annex"
+											    data-anotacio-id=${anotacio.id}
+   												data-annex-id=${annex.id}
+											   	style="font-size:0.7em; display: flex; align-items: stretch; margin-right: 5px; color: #333;">
+											   <i class="fa fa-file-o fa-stack-2x"></i>
+											   <i class="fa fa-search fa-stack-1x" title="<spring:message code='expedient.document.preview' />"></i>
 											</a>
 										</td>
 									</tr>
