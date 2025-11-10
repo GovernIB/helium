@@ -98,7 +98,7 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="nom"><spring:message code="expedient.tipus.estat.sortida.llistat.columna.estat"/></th>
+					<th data-col-name="nom"><spring:message code="expedient.tipus.estat.sortida.llistat.columna.nom"/></th>
 					<th data-col-name="id" data-template="#cellEstatAccionsSortidaTemplate" data-orderable="false" width="10%">
 						<script id="cellEstatAccionsSortidaTemplate" type="text/x-jsrender">
 						<c:if test="${!heretat}">

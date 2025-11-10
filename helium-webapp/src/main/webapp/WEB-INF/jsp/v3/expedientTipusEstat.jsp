@@ -54,18 +54,6 @@
 							{{/if}}
 						</script>
 					</th>
-					<th data-col-name="estatsSortida" data-template="#cellEstatsSortidaTemplate" data-orderable="false" width="15%">
-						<spring:message code="expedient.tipus.estat.llistat.accio.estatSortida"/>
-						<script id="cellEstatsSortidaTemplate" type="text/x-jsrender">
-							{{if estatsSortida && estatsSortida.length}}
-								{{for estatsSortida}}
-									<span>{{:nom}}</span><br/>
-								{{/for}}
-							{{else}}
-								<div>—</div>
-							{{/if}}
-						</script>
-					</th>
 					<th data-col-name="permisCount" data-template="#cellPermisosTemplate" data-orderable="false" width="8%">
 						<script id="cellPermisosTemplate" type="text/x-jsrender">
 							<a href="${expedientTipus.id}/estat/{{:id}}/permisos" data-maximized="true" data-toggle="" class="btn btn-default"><span class="fa fa-key"></span>&nbsp;<spring:message code="expedient.tipus.estat.llistat.accio.permisos"/>&nbsp;<span class="badge">{{:permisCount}}</span></a>
