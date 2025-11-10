@@ -381,6 +381,8 @@ $(document).ready(function() {
 
  	 			 	 		$('#direccio').val(data.adressa);
  	 						$('#direccio').prop("readonly", true);
+ 	 					},
+ 	 					complete: function(data) {
  	 						$('#carregant').hide();
  	 					}
  	 				});

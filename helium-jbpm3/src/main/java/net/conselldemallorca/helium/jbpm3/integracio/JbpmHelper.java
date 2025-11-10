@@ -501,7 +501,7 @@ public class JbpmHelper {
 					byte[] magicNumbers = {-54,-2,-70,-66};
 					boolean isClass = true;
 					for(int i = 0; i < 4; i++) {
-						if(bytes.length > 4 && magicNumbers[i] != bytes[i]) {
+						if(bytes == null || (bytes.length > 4 && magicNumbers[i] != bytes[i])) {
 							isClass = false;
 							break;
 						}

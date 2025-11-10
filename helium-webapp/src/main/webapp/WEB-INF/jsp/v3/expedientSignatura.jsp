@@ -66,7 +66,7 @@
 			</tr>
 		</thead>
 	</table>
-	<script id="rowhrefTemplateSignatures" type="text/x-jsrender"><c:url value="/v3/anotacio/{{:id}}"/></script>
+	<script id="rowhrefTemplateSignatures" type="text/x-jsrender"><c:url value="/v3/enviamentsPortafib/{{:id}}/info"/></script>
 
 <script type="text/javascript">
 // <![CDATA[			
