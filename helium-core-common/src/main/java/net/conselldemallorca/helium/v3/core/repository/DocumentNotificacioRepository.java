@@ -33,7 +33,17 @@ public interface DocumentNotificacioRepository extends JpaRepository<DocumentNot
 	
 	List<DocumentNotificacio> findByExpedientOrderByEnviatDataDesc(Expedient expedient);
 	
-	List<DocumentNotificacio> findByExpedientAndDocumentId(Expedient expedient, Long documentStoreId); 
+	List<DocumentNotificacio> findByExpedientAndDocumentId(Expedient expedient, Long documentStoreId);
+	
+	@Query("select dn from DocumentNotificacio dn "
+			+ " left join dn.document.continguts as contingut "
+			+ " where "
+			+ " contingut.id = :documentStoreId "
+			+ " and "
+			+ " dn.expedient = :expedient ")
+	List<DocumentNotificacio> findByExpedientAndDocumentIdInZIP(
+			@Param("expedient") Expedient expedient, 
+			@Param("documentStoreId") Long documentStoreId);
 	
 	/** Consulta la llista d'identificadors de documents notificats a l'expedient.
 	 * 

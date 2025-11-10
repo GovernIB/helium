@@ -1059,6 +1059,28 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			DocumentDetallDto documentDetall = expedientDocumentService.getDocumentDetalls(expedientId, documentStoreId);
 			model.addAttribute("detall", documentDetall);
 			model.addAttribute("expedientId", expedientId);
+			
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			List<DadesNotificacioDto> notificacionsDocument = new ArrayList<DadesNotificacioDto>();
+			for(DadesNotificacioDto notificacio: expedientService.findNotificacionsNotibPerExpedientId(expedient.getId())) {
+				if (documentStoreId.equals(notificacio.getDocumentId())) {
+					notificacionsDocument.add(notificacio); 
+				} else {
+					// Mira dins dels possibles documents continguts en el document zip notificat
+					Iterator<DocumentStoreDto> contingutsI = notificacio.getDocumentsDinsZip().iterator();
+					boolean enContinguts = false;
+					while (!enContinguts && contingutsI.hasNext()) {
+						DocumentStoreDto dsContingut = contingutsI.next();
+						if (documentStoreId.equals(dsContingut.getId())) {
+							notificacionsDocument.add(notificacio); 
+							enContinguts = true;
+						}
+					}
+				}
+			}
+			
+			model.addAttribute("expedient", expedient);
+			modelAddDocumentsNoms(expedient, notificacionsDocument, model);
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "expedient.document.detall.consulta.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
