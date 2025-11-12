@@ -44,4 +44,17 @@ public interface InteressatCrearHandlerInterface extends ActionHandler {
 	public void setVarEntregaDeh(String varEntregaDeh);
 	public void setEntregaDehObligat(String entregaDehObligat);
 	public void setVarEntregaDehObligat(String varEntregaDehObligat);
+	
+	public void setTipusDocIdent(String tipusDocIdent);
+	public void setVarTipusDocIdent(String varTipusDocIdent);
+	public void setDireccio(String direccio);
+	public void setVarDireccio(String varDireccio);
+	public void setPais(String pais);
+	public void setVarPais(String varPais);
+	public void setProvincia(String provincia);
+	public void setVarProvincia(String varProvincia);
+	public void setMunicipi(String municipi);
+	public void setVarMunicipi(String varMunicipi);
+	public void setCanalNotif(String canalNotif);
+	public void setVarCanalNotif(String varCanalNotif);
 }
