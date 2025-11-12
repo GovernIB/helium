@@ -9,6 +9,11 @@
 <c:forEach var="pendent" items="${portasignaturesPendent}">
 	<c:if test="${pendent.documentStoreId == document.id}"><c:set var="psignaPendentActual" value="${pendent}" scope="request"/></c:if>
 </c:forEach>
+<style type="text/css">
+	.etiqueta-nti-arxiu {
+		display: inline-block;
+	}
+</style>
 <td id="cela-${expedientId}-${document.id}">									
 	<c:choose>
 		<c:when test="${not empty document.error}">

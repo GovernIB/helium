@@ -99,6 +99,7 @@ dd.subproc {
 	padding-top: 4px;
 	float: right;
 	margin-left: 2px;
+	display: inline-block;
 }
 .sup-count {
 	position: relative;
@@ -113,6 +114,11 @@ dd.subproc {
     font-size: 18px;
     top: 4px;
     position: relative;	
+}
+.etiqueta-nti-arxiu {
+	display: flex;
+	flex-wrap: nowrap;
+	width: fit-content;
 }
 </style>
 

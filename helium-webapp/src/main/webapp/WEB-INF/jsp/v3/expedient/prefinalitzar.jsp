@@ -26,6 +26,11 @@
 		});
 	// ]]>
 	</script>
+	<style type="text/css">
+	.etiqueta-nti-arxiu {
+		display: inline-block;
+	}
+	</style>
 </head>
 <body>
 	

@@ -63,6 +63,9 @@
 		.navbar-right {
 			margin-right: 0px;
 		}
+		.etiqueta-nti-arxiu {
+			display: inline-block;
+		}
 	</style>
 <script>
 $(document).ready(function() {
