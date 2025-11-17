@@ -120,7 +120,10 @@
 			opcionsVisualitzacioChanged('boto-totes');
 		});
 		$('body').on('change', '#boto-ocults', () => {
-			filtraDades();
+			// filtraDades();
+			const mostrarOcults = $("#boto-ocults").parent().hasClass("active");
+		    // envia ambOcults al servidor perque filtri el backend
+		    $('#expedientDades').webutilDatatable('refresh', { ambOcults: mostrarOcults });
 		});
 		$('body').on('change', '#boto-pendents', () => {
 			filtraDades();

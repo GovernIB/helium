@@ -99,8 +99,12 @@ public class ExpedientDadaController extends BaseExpedientController {
 			Model model) {
 
 		Boolean totes = Boolean.parseBoolean(request.getParameter("totes"));
-		Boolean ambOcults = true;
+		Boolean ambOcults = false;
 		Boolean noPendents = false;
+		String ambOcultsParam = request.getParameter("ambOcults");
+		if (ambOcultsParam != null) {
+		    ambOcults = Boolean.parseBoolean(ambOcultsParam);
+		}
 //		Boolean ambOcults = Boolean.parseBoolean(request.getParameter("ambOcults"));
 //		Boolean noPendents = Boolean.parseBoolean(request.getParameter("noPendents"));
 //		String filtre = request.getParameter("filtre");

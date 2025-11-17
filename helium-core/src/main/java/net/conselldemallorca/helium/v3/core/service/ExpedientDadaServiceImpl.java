@@ -415,14 +415,23 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 
 		for (Camp camp: camps) {
 			dadesCodis.add(camp.getCodi());
-			if (camp.isOcult() && !ambOcults)
-				continue;
+			CampFormProperties campFormProperties = campsFormProperties.get(camp.getCodi());
+			
+			boolean visibleRegla = campFormProperties != null && campFormProperties.isVisible();
+		    boolean ocultOriginal = camp.isOcult();
+		    
+		    boolean visibleFinal = visibleRegla || !ocultOriginal;
+		    boolean ocultFinal = !visibleFinal;
+
+		    
+		    if (!ambOcults && ocultFinal)
+		        continue;
 			if (filtrar && !camp.getEtiqueta().contains(filtre))
 				continue;
-			CampFormProperties campFormProperties = campsFormProperties.get(camp.getCodi());
-			if (!totes && campFormProperties != null && !campFormProperties.isVisible())
-				continue;
+			if (!ambOcults && !totes && campFormProperties != null && !campFormProperties.isVisible())
+			    continue;
 
+				
 			ExpedientDadaDto dadaExp = getDadaExpedient(dadesExpedient, camp.getId());
 			if (dadaExp == null) {
 				if (!noPendents)
@@ -435,9 +444,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 							.expedientId(expedientId)
 							.agrupacioOrdre(camp.getAgrupacio() != null ? camp.getAgrupacio().getOrdre() : Integer.MAX_VALUE - 1)
 							.agrupacioNom(camp.getAgrupacio() != null ? camp.getAgrupacio().getNom() : "Sense agrupacio")
-							.ocult(camp.isOcult())
+							.ocult(ocultFinal)
 							.ordre(camp.getOrdre())
-							.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
+							.visible(visibleFinal)
 							.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
 							.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
 							.obligatoriEntrada(campFormProperties != null ? campFormProperties.isObligatoriEntrada() : false)
@@ -491,7 +500,13 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	}
 
 	private static DadaListDto toDadaListDto(Camp camp, ExpedientDadaDto dadaExp, CampFormProperties campFormProperties, String processInstanceId, Long expedientId) {
-		return DadaListDto.builder()
+		boolean visibleRegla = campFormProperties != null && campFormProperties.isVisible();
+	    boolean ocultOriginal = camp.isOcult();
+
+	    boolean visibleFinal = visibleRegla || !ocultOriginal;
+	    boolean ocultFinal = !visibleFinal;
+
+	    return DadaListDto.builder()
 				.id(dadaExp.getVarCodi())
 				.nom(camp.getEtiqueta())
 				.valor(getDadaValor(camp, dadaExp))
@@ -500,7 +515,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				.tipus(CampTipusDto.valueOf(camp.getTipus().name()))
 				.registre(dadaExp.isCampTipusRegistre())
 				.multiple(camp.isMultiple())
-				.ocult(camp.isOcult())
+				.ocult(ocultFinal)
 				.jbpmAction(camp.getJbpmAction())
 				.observacions(camp.getObservacions())
 				.error(dadaExp.getError())
@@ -508,7 +523,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				.agrupacioNom(camp.getAgrupacio() != null ? camp.getAgrupacio().getNom() : "Sense agrupacio")
 				.processInstanceId(processInstanceId)
 				.expedientId(expedientId)
-				.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
+				.visible(visibleFinal)
 				.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
 				.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
 				.obligatoriEntrada(campFormProperties != null ? campFormProperties.isObligatoriEntrada() : false)

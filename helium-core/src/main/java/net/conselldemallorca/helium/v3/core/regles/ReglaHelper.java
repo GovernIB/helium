@@ -87,7 +87,8 @@ public class ReglaHelper {
      // Per cada camp, revisam totes les regles i acumulem quines accions efectivament s'apliquen
         for (Camp dada: dades) {
             CampFormProperties campFormProperties = getDefaultCampFormProperties();
-            boolean defaultVisible = true;
+            boolean defaultVisible = !dada.isOcult();
+            campFormProperties.setVisible(!dada.isOcult());
             boolean defaultEditable = true;
             boolean defaultObligatori = false;
             boolean defaultObligatoriEntrada = false;
