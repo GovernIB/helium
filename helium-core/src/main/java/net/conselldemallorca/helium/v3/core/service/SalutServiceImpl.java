@@ -214,8 +214,10 @@ public class SalutServiceImpl implements SalutService {
 			List<Long> tempsMigUltimPeriode = new ArrayList<Long>();
 			
 			for(IntegracioAccioDto request : requests) {
-				Long entornId = request.getEntornId();
-				String entornIdStr = entornId != null? entornId.toString() : "";
+				if(request.getEntornId() == null)
+					continue;
+				
+				String entornIdStr = request.getIntegracioCodi();
 				IntegracioPeticions entornIntegracions = peticionsPerEntorn.get(entornIdStr);
 				if(entornIntegracions == null) {
 					entornIntegracions = IntegracioPeticions.builder()
@@ -278,7 +280,6 @@ public class SalutServiceImpl implements SalutService {
 					.estat(estat)
 					.peticions(IntegracioPeticions
 							.builder()
-							.peticionsPerEntorn(peticionsPerEntorn)
 							.totalError(totalError)
 							.totalOk(totalOk)
 							.totalTempsMig(Long.valueOf(requests.isEmpty()? 0 : totalTempsMig / requests.size()).intValue())
