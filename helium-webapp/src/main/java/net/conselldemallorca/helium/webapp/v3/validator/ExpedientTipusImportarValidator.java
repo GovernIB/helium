@@ -146,6 +146,13 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
     		for (DominiDto d : dominiService.findGlobals(entornActual.getId()))
     			dominisGlobals.add(d.getCodi());
     		List<DefinicioProcesDto> definicionsProcesGlobals = dissenyService.findByEntornAndExpedientTipusOpcional(entornActual.getId(), command.getId());
+    		
+    		Map<String, List<String>> accinsGlobals = new HashMap<String, List<String>>();
+    		
+    		for(DefinicioProcesDto dp : definicionsProcesGlobals) {
+    			accinsGlobals.put(dp.getJbpmKey(), dissenyService.findAccionsJbpmOrdenades(dp.getId()));
+    		}
+    		
     		Set<String> enumeracionsTe = new HashSet<String>();
     		Set<String> dominisTe = new HashSet<String>();
     		if (expedientTipus != null) {
@@ -276,7 +283,10 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						}
 				} else if (camp.getTipus() == CampTipusDto.ACCIO) {
 					// Comprova que la definició de procés també s'exporti
-					if (!command.getAccions().contains(camp.getJbpmAction())) {
+					if (!( command.getAccions().contains(camp.getJbpmAction()) 
+						|| (	camp.getDefprocJbpmKey() != null && 
+								accinsGlobals.containsKey(camp.getDefprocJbpmKey()) && 
+								accinsGlobals.get(camp.getDefprocJbpmKey()).contains(camp.getJbpmAction())))) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(
 										this.codiMissatge + ".variable.accioNull", 
@@ -729,15 +739,21 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 		return valid;
 	}
 	
-	private boolean esDefinicioProcesGlobal(List<DefinicioProcesDto> definicionsProcesGlobals, String jbpmId) {
-		if (definicionsProcesGlobals!=null) {
-			for (DefinicioProcesDto dp: definicionsProcesGlobals) {
-				if (jbpmId.equals(dp.getJbpmKey()) && dp.getExpedientTipus()==null) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+//	private boolean accioExistsInDefProces(CampExportacio camp, ExpedientTipusExportarCommand command) {
+//		List<DefinicioProcesExportacio> definicions = command.getExportacio().getDefinicions();
+//		if(camp.getDefprocJbpmKey() == null)
+//			return false;
+//		for(DefinicioProcesExportacio def : definicions) {
+//			if(def.getDefinicioProcesDto().getJbpmId().equals(camp.getDefprocJbpmKey())) {
+//				for(AccioExportacio acc : def.getAccions()) {
+//					if(acc.getJbpmAction().equals(camp.getJbpmAction()))
+//						return true;
+//				}
+//			}
+//		}
+//		
+//		return false;
+//	}
+
 
 }
