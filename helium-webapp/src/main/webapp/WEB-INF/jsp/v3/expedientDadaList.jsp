@@ -604,13 +604,13 @@
 		</th>
 		<th data-col-name="id" data-template="#cellDadaAccionsTemplate" data-orderable="false" width="5%">
 			<script id="cellDadaAccionsTemplate" type="text/x-jsrender">
-			{{if editable}}
+			{{if tipus == "ACCIO"}}
+				<a href="#" data-href="${expedient.id}/dada/{{:campCodi}}/executar/accio" class="btn btn-primary pull-left btn_accio tasca-boto" onclick="return executarAccio(event, this);">
+    				<spring:message code="common.camptasca.executar" />
+				</a>
+			{{else editable}}
 				{{if id == null}}
 					<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new?ocultarVar=true" data-toggle="modal" data-adjust-height="false" data-height="350"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
-				{{else tipus == "ACCIO"}}
-					<a href="#" data-href="${expedient.id}/dada/accio/executar/accio" class="btn btn-primary pull-left btn_accio tasca-boto" onclick="return executarAccio(event, this);">
-    					<spring:message code="common.camptasca.executar" />
-					</a>
 				{{else}}
 					<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
 						<button class="btn btn-primary" data-toggle="dropdown" {{if error}}disabled="disabled"{{/if}} style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
