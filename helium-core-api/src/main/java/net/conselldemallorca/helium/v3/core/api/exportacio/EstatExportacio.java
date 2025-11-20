@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
@@ -38,4 +39,5 @@ public class EstatExportacio implements Serializable {
 	private List<PermisEstatDto> permisos;
 	private List<EstatAccioDto> accionsEntrada;
 	private List<EstatAccioDto> accionsSortida;
+	private List<EstatDto> estatsSortida;
 }
