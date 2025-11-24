@@ -1281,7 +1281,12 @@ public class DistribucioHelper {
 			} else if (camp.getTipus().equals(TipusCamp.INTEGER)) {
 				return new Long(valor);
 			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
-				return new Double(valor);
+				try {
+					return new Double(valor);
+				} catch(Exception e) {
+					// No compleix amb el format "0.##", es prova amb el format #,##0.###
+					return new Double((new DecimalFormat("#,##0.###")).parse(valor).doubleValue());
+				}
 			}
 			return valor;
 		} catch (Exception ex) {
