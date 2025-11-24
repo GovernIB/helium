@@ -622,7 +622,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@RequestParam(defaultValue = "false") boolean retrocedir) {
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-			if (this.validarCanviEstat(request, expedient, estatId)) {
+			if (retrocedir || this.validarCanviEstat(request, expedient, estatId)) {
 				expedientService.estatCanviar(expedient.getId(), estatId, retrocedir);
 				MissatgesHelper.success(request, getMessage(request, "expedient.info.estat.canviar.correcte"));
 			}
