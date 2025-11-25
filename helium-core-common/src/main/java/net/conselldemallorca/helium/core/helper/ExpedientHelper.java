@@ -2305,19 +2305,23 @@ public class ExpedientHelper {
 		Long currentEstat = null;
 		if (expedient.getEstat() != null) {
 			currentEstat = expedient.getEstat().getId();
-			List<EstatAccioSortida> accionsSortida = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estatActual);
-			// Executa les accions de sortida
-			for (EstatAccioSortida estatAccioSortida : accionsSortida) {
-				this.executarAccio(null, estatAccioSortida.getAccio(), expedient);
+			if (!retrocedir) {
+				List<EstatAccioSortida> accionsSortida = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estatActual);
+				// Executa les accions de sortida
+				for (EstatAccioSortida estatAccioSortida : accionsSortida) {
+					this.executarAccio(null, estatAccioSortida.getAccio(), expedient);
+				}
 			}
 		}
 		Estat estat = null;
 		if (estatId != null) {
 			estat = estatRepository.findOne(estatId);
-			List<EstatAccioEntrada> accionsEntrada = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat);
-			// Executa les accions d'entrada
-			for (EstatAccioEntrada estatAccioEntrada : accionsEntrada) {
-				this.executarAccio(null, estatAccioEntrada.getAccio(), expedient);
+			if (!retrocedir) {
+				List<EstatAccioEntrada> accionsEntrada = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat);
+				// Executa les accions d'entrada
+				for (EstatAccioEntrada estatAccioEntrada : accionsEntrada) {
+					this.executarAccio(null, estatAccioEntrada.getAccio(), expedient);
+				}
 			}
 		}
 		expedient.setEstat(estat);
