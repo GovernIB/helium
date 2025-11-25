@@ -64,7 +64,7 @@
 			<hel:inputText name="numeroExpedient" textKey="anotacio.llistat.filtre.camp.numeroExpedient" placeholderKey="anotacio.llistat.filtre.camp.numeroExpedient" inline="true"/>
 		</div>
 		<div class="col-md-4">							
-			<hel:inputText name="procediment" textKey="consultes.pinbal.camp.procediment" placeholderKey="consultes.pinbal.camp.procediment" inline="true"/>
+			<hel:inputText name="serveiCodi" textKey="consultes.pinbal.camp.serveiCodi" placeholderKey="consultes.pinbal.camp.serveiCodi" inline="true"/>
 		</div>		
 	</div>
 	
@@ -135,6 +135,7 @@
 				<th data-col-name="dataPeticio" width="9%" data-converter="datetime"><spring:message code="consultes.pinbal.camp.dataPeticio"/></th>
 				<th data-col-name="usuari" width="8%"><spring:message code="consultes.pinbal.camp.usuari"/></th>				
 				<th data-col-name="procediment" width="15%"><spring:message code="consultes.pinbal.camp.procediment"/></th>
+				<th data-col-name="serveiCodi" width="15%"><spring:message code="consultes.pinbal.camp.serveiCodi"/></th>
 				<th data-col-name="estat" data-template="#cellEstatTemplate" width="10%"><spring:message code="consultes.pinbal.camp.estat"/>
 					<script id="cellEstatTemplate" type="text/x-jsrender">
 						{{if estat=='PENDENT'}}<span class="fa fa-clock-o" title="Data prevista: {{:dataPrevistaFormat}}"></span> Pendent{{/if}}

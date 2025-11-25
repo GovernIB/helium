@@ -15,6 +15,7 @@ public class PeticioPinbalDto implements Serializable {
 	private ExpedientDto expedient;
 	private DocumentStoreDto document;
 	private String procediment;
+	private String serveiCodi;
 	private String usuari;
 	private Date dataPeticio;
 	private boolean asincrona=false;
@@ -74,6 +75,12 @@ public class PeticioPinbalDto implements Serializable {
 	}
 	public void setProcediment(String procediment) {
 		this.procediment = procediment;
+	}
+	public String getServeiCodi() {
+		return serveiCodi;
+	}
+	public void setServeiCodi(String serveiCodi) {
+		this.serveiCodi = serveiCodi;
 	}
 	public String getUsuari() {
 		return usuari;

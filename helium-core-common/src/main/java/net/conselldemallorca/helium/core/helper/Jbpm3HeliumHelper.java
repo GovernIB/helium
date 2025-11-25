@@ -2148,6 +2148,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		peticio.setTipus(expedient.getTipus());
 		peticio.setEntorn(expedient.getTipus().getEntorn());
 		peticio.setProcediment(dadesConsultaPinbal.getCodiProcediment());
+		peticio.setServeiCodi(dadesConsultaPinbal.getServeiCodi());
 		peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
 		peticio.setPinbalId(idPeticioPinbal);
 		peticio.setDocument(justificant);

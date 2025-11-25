@@ -30,8 +30,11 @@
 			<dt><spring:message code="consultes.pinbal.camp.usuari"/></dt>
 			<dd>${peticioPinbalDto.usuari}</dd>
 			
+			<dt><spring:message code="consultes.pinbal.camp.serveiCodi"/></dt>
+			<dd>${peticioPinbalDto.serveiCodi}</dd>
+			
 			<dt><spring:message code="consultes.pinbal.camp.procediment"/></dt>
-			<dd>${peticioPinbalDto.procediment}</dd>			
+			<dd>${peticioPinbalDto.procediment}</dd>
 			
 			<dt><spring:message code="consultes.pinbal.camp.pinbal"/></dt>
 			<dd>${peticioPinbalDto.pinbalId}</dd>

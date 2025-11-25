@@ -53,6 +53,9 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 	private Long tokenId;
 	@MaxLength(32)
 	private String procediment;
+	@MaxLength(32)
+	@Column(name="SERVEI_CODI")
+	private String serveiCodi;
 	@MaxLength(64)
 	private String usuari;
 	@NotNull
@@ -132,6 +135,14 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 
 	public void setProcediment(String procediment) {
 		this.procediment = procediment;
+	}
+	
+	public String getServeiCodi() {
+		return serveiCodi;
+	}
+
+	public void setServeiCodi(String serveiCodi) {
+		this.serveiCodi = serveiCodi;
 	}
 
 	public String getUsuari() {

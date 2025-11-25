@@ -16,6 +16,7 @@ public class ConsultesPinbalFiltreCommand implements Serializable {
 	private String numeroExpedient;
 	private Long documentId;
 	private String procediment;
+	private String serveiCodi;
 	private String usuari;
 	private Date dataPeticioIni;
 	private Date dataPeticioFi;
@@ -74,6 +75,12 @@ public class ConsultesPinbalFiltreCommand implements Serializable {
 	}
 	public void setProcediment(String procediment) {
 		this.procediment = procediment;
+	}
+	public String getServeiCodi() {
+		return serveiCodi;
+	}
+	public void setServeiCodi(String serveiCodi) {
+		this.serveiCodi = serveiCodi;
 	}
 	public String getUsuari() {
 		return usuari;

@@ -27,6 +27,7 @@
 			<tr>				
 				<th data-col-name="dataPeticio" width="13%" data-converter="datetime"><spring:message code="consultes.pinbal.camp.dataPeticio"/></th>
 				<th data-col-name="usuari" width="10%"><spring:message code="consultes.pinbal.camp.usuari"/></th>
+				<th data-col-name="serveiCodi" width="15%"><spring:message code="consultes.pinbal.camp.serveiCodi"/></th>
 				<th data-col-name="procediment" width="15%"><spring:message code="consultes.pinbal.camp.procediment"/></th>
 				<th data-col-name="estat" data-template="#cellEstatTemplate" width="10%"><spring:message code="consultes.pinbal.camp.estat"/>
 					<script id="cellEstatTemplate" type="text/x-jsrender">

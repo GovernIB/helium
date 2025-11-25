@@ -928,7 +928,8 @@ public class DocumentServiceImpl implements DocumentService {
 		peticio.setExpedient(expedient);
 		peticio.setTipus(expedient.getTipus());
 		peticio.setEntorn(expedient.getTipus().getEntorn());
-		peticio.setProcediment(dadesConsultaPinbal.getServeiCodi());
+		peticio.setProcediment(dadesConsultaPinbal.getCodiProcediment());
+		peticio.setServeiCodi(dadesConsultaPinbal.getServeiCodi());
 		peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
 		peticio.setPinbalId(idPeticioPinbal);
 		peticio.setDocument(justificant);

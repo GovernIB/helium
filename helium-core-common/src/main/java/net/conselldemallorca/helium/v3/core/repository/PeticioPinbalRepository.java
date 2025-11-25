@@ -33,6 +33,7 @@ public interface PeticioPinbalRepository extends JpaRepository<PeticioPinbal, Lo
 			" and (:esNullExpId = true or ex.id = :expId) " +
 			" and (:esNullNumExp = true or lower(ex.numero) like lower('%'||:numExp||'%') or lower(ex.titol) like lower('%'||:numExp||'%')) " +
 			" and (:esNullProcediment = true or lower(pi.procediment) like lower('%'||:procediment||'%')) "+
+			" and (:esNullServeiCodi = true or lower(pi.serveiCodi) like lower('%'||:serveiCodi||'%')) "+
 			" and (:esNullUsuari = true or lower(pi.usuari) like lower('%'||:usuari||'%')) "+
 			" and (:esNullEstat = true or pi.estat = :estat) " +
 			" and (:esNullDataIni = true or pi.dataPeticio >= :dataIni) " +
@@ -51,6 +52,8 @@ public interface PeticioPinbalRepository extends JpaRepository<PeticioPinbal, Lo
 			@Param("numExp") String numExp,	
 			@Param("esNullProcediment") boolean esNullProcediment,
 			@Param("procediment") String procediment,
+			@Param("esNullServeiCodi") boolean esNullServeiCodi,
+			@Param("serveiCodi") String serveiCodi,
 			@Param("esNullUsuari") boolean esNullUsuari,
 			@Param("usuari") String usuari,
 			@Param("esNullEstat") boolean esNullEstat,

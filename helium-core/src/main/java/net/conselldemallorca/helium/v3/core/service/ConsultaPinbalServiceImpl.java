@@ -116,6 +116,8 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 				filtreDto.getNumeroExpedient(),
 				filtreDto.getProcediment() == null,
 				filtreDto.getProcediment(),
+				filtreDto.getServeiCodi() == null,
+				filtreDto.getServeiCodi(),
 				filtreDto.getUsuari() == null,
 				filtreDto.getUsuari(),
 				filtreDto.getEstat() == null,
