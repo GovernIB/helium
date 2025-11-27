@@ -48,6 +48,7 @@ import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConsultaHelper;
@@ -3770,7 +3771,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 					// Posarà els annexos en la carpeta de l'anotació
-					backofficeUtils.setCarpeta(anotacio.getIdentificador());
+					backofficeUtils.setCarpeta(ArxiuConversioHelper.revisarContingutNom(anotacio.getIdentificador().replace("/", "_")));
 					// S'enregistraran els events al monitor d'integració
 					backofficeUtils.setArxiuPluginListener(this);
 					// Consulta la informació de l'anotació 
