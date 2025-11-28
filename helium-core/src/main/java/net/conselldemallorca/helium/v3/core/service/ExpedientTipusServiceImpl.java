@@ -1381,13 +1381,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				Estat estatEntity = estatsImportatsMap.get(estatExportat.getCodi());
 				if(estatEntity == null)
 					continue;
-				for(EstatDto estatSeguent : estatExportat.getEstatsSortida()) {
-					Estat estatSeguentEntity = estatsImportatsMap.get(estatSeguent.getCodi());
-					// L'estat de sortida pot no estar importat, per tant s'ignora
-					if(estatSeguentEntity == null)
-						continue;
-					EstatSortida estatSortida = new EstatSortida(estatEntity, estatSeguentEntity);
-					estatSortidaRepository.save(estatSortida);
+				if (estatExportat.getEstatsSortida() != null) {
+					for(EstatDto estatSeguent : estatExportat.getEstatsSortida()) {
+						Estat estatSeguentEntity = estatsImportatsMap.get(estatSeguent.getCodi());
+						// L'estat de sortida pot no estar importat, per tant s'ignora
+						if(estatSeguentEntity == null)
+							continue;
+						EstatSortida estatSortida = new EstatSortida(estatEntity, estatSeguentEntity);
+						estatSortidaRepository.save(estatSortida);
+					}
 				}
 			}
 		}
