@@ -633,12 +633,18 @@ public class AnotacioHelper {
 			DadesDocumentDto dadesDocumentDto = null;
 
 			// Extreu variables i documents i annexos segons el mapeig sistra
-			boolean ambContingut = expedient != null ? !expedient.isArxiuActiu() : !expedientTipus.isArxiuActiu(); 
+			boolean ambContingut = true; // expedient != null ? !expedient.isArxiuActiu() : !expedientTipus.isArxiuActiu(); 
 			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 			variables = resultatMapeig.getDades();
 			documents = resultatMapeig.getDocuments();
 			annexos = resultatMapeig.getAdjunts();
 			interessats = resultatMapeig.getInteressats();
+			
+			for(DadesDocumentDto dd : documents.values())
+				dd.setUuid(null);
+			for(DadesDocumentDto dd : annexos)
+				dd.setUuid(null);
+			
 			if(variables!=null && mapejarVariables) {
 				for (String varCodi : variables.keySet()) {	
 					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
@@ -859,7 +865,7 @@ public class AnotacioHelper {
 					dadesDocumentDto.getArxiuNom(),
 					dadesDocumentDto.getArxiuContingut(),
 					dadesDocumentDto.getUuid(),
-					dadesDocumentDto.getTipusMime(),
+					dadesDocumentDto.getTipusMime() != null ? dadesDocumentDto.getTipusMime() : documentHelper.getContentType(dadesDocumentDto.getArxiuNom()),
 					expedient.isArxiuActiu() && dadesDocumentDto.getFirmaTipus() != null,	// amb firma
 					false,	// firma separada
 					null,	// firma contingut

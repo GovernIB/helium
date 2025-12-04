@@ -2164,7 +2164,7 @@ public class ExpedientHelper {
 				document.getArxiuNom(),
 				document.getArxiuContingut(),
 				document.getUuid(),
-				document.getTipusMime(),
+				document.getTipusMime() != null ? document.getTipusMime() : documentHelper.getContentType(document.getArxiuNom()),
 				expedient.isArxiuActiu() && document.getFirmaTipus() != null,	// amb firma
 				false,	// firma separada
 				null,	// firma contingut
