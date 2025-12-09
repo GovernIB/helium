@@ -509,6 +509,11 @@
 	.isDisabled {pointer-events: none; opacity: 0.5;}
 	#overlay {position: fixed; display: none; width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.2); z-index: 200; cursor: pointer;}
 	#ov_spin {position: absolute; top: 50%; left: 50%; font-size: 40px; transform: translate(-50%,-50%); -ms-transform: translate(-50%,-50%);}
+	tr:has(.accio) {
+		color: #666 !important;
+		border: solid 1px;
+		border-color: inherit !important;
+	}
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/dada/datatable"/>
@@ -555,7 +560,7 @@
 					{{if tipus == "SELECCIO"}}<span class="fa fa-2x fa-chevron-down"></span>{{/if}}
 					{{if tipus == "SUGGEST"}}<span class="fa fa-2x fa-chevron-circle-down"></span>{{/if}}
 					{{if tipus == "REGISTRE"}}<span class="fa fa-2x fa-table" style="font-size:1.6em;"></span>{{/if}}
-					{{if tipus == "ACCIO"}}<span class="fa fa-2x fa-bolt"></span>{{/if}}
+					{{if tipus == "ACCIO"}}<span class="fa fa-2x fa-bolt {{if editable && !ocult}}accio{{/if}}"></span>{{/if}}
 				{{/if}}
 			</script>
 		</th>
@@ -571,7 +576,7 @@
 		<th data-col-name="valor" data-orderable="false" width="70%" data-template="#cellDadaValorTemplate" data-class="varValor">
 			<spring:message code="expedient.nova.data.valor"/>
 			<script id="cellDadaValorTemplate" type="text/x-jsrender">
-				<span id="varVal-{{:campCodi}}" class="varVal {{if editable && tipus != 'ACCIO'}}editable{{/if}}" data-codi={{:campCodi}}>
+				<span id="varVal-{{:campCodi}}" class="varVal {{if editable}}editable{{/if}}" data-codi={{:campCodi}}>
 				{{if valor.registre}}
 					<ul class="list-group registre">
 						<li class="list-group-item d-flex justify-content-between border-0">
@@ -607,12 +612,12 @@
 		</th>
 		<th data-col-name="id" data-template="#cellDadaAccionsTemplate" data-orderable="false" width="5%">
 			<script id="cellDadaAccionsTemplate" type="text/x-jsrender">
-			{{if tipus == "ACCIO"}}
-				<a href="#" data-href="${expedient.id}/dada/{{:campCodi}}/executar/accio" class="btn btn-primary pull-left btn_accio tasca-boto" onclick="return executarAccio(event, this);">
-    				<spring:message code="common.camptasca.executar" />
-				</a>
-			{{else editable}}
-				{{if id == null}}
+			{{if editable}}
+				{{if tipus == "ACCIO"}}
+					<a href="#" data-href="${expedient.id}/dada/{{:campCodi}}/executar/accio" class="btn btn-primary pull-left btn_accio tasca-boto" onclick="return executarAccio(event, this);">
+    					<spring:message code="common.camptasca.executar" />
+					</a>
+				{{else id == null}}
 					<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new?ocultarVar=true" data-toggle="modal" data-adjust-height="false" data-height="350"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
 				{{else}}
 					<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
@@ -626,7 +631,13 @@
 					</div>
 				{{/if}}
 			{{else}}
-				<span class="fa fa-lock pull-right camp-bloquejat" title="Camp bloquejat en aquest estat"></span>
+				{{if tipus == "ACCIO"}}
+					<span class="btn btn-primary pull-left btn_accio disabled" title="Camp bloquejat en aquest estat">
+						<spring:message code="common.camptasca.executar" />
+					</span>
+				{{else}}
+					<span class="fa fa-lock pull-right camp-bloquejat" title="Camp bloquejat en aquest estat"></span>
+				{{/if}}
 			{{/if}}
 			</script>
 		</th>
