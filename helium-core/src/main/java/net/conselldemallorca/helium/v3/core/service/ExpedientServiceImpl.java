@@ -40,6 +40,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
+
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
@@ -130,7 +133,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreBackupDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
@@ -936,53 +938,112 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			UnitatOrganitzativa unitatOrg = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
 			unitatOrganitzativaId = unitatOrg!=null? unitatOrg.getId() : null;
 		}
-		// Executa la consulta amb paginació
-		ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
-				entornId,
-				auth.getName(),
-				tipusPermesosIds,
-				unitatsPerTipusComu,
-				titol,
-				numero,
-				unitatOrganitzativaId,
-				expedientTipusId,
-				dataInici1,
-				dataInici2,
-				dataFi1,
-				dataFi2,
-				estatId,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				//TODO3: afegir el nou camp en la capa service
-				registreNumero,
-				EstatTipusDto.INICIAT.equals(estatTipus),
-				EstatTipusDto.FINALITZAT.equals(estatTipus),
-				MostrarAnulatsDto.SI.equals(mostrarAnulats),
-				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-				nomesAlertes,
-				nomesErrors,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
-				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
-				paginacioParams,
-				false,
-				nomesErrorsArxiu,
-				idsSeleccionats);
-		// Retorna la pàgina amb la resposta
-		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>(); 
-		if (expedientsIds.getCount() > 0) {
-			expedients = conversioTipusHelper.convertirList(
-				expedientRepository.findByIdIn(expedientsIds.getLlista()),
-				ExpedientDto.class);
+		
+		ResultatConsultaPaginadaJbpm<Long> expedientsIds;
+		
+		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
+		if(idsSeleccionats == null || idsSeleccionats.isEmpty()) {
+			// Executa la consulta amb paginació
+			expedientsIds = jbpmHelper.expedientFindByFiltre(
+					entornId,
+					auth.getName(),
+					tipusPermesosIds,
+					unitatsPerTipusComu,
+					titol,
+					numero,
+					unitatOrganitzativaId,
+					expedientTipusId,
+					dataInici1,
+					dataInici2,
+					dataFi1,
+					dataFi2,
+					estatId,
+					geoPosX,
+					geoPosY,
+					geoReferencia,
+					//TODO3: afegir el nou camp en la capa service
+					registreNumero,
+					EstatTipusDto.INICIAT.equals(estatTipus),
+					EstatTipusDto.FINALITZAT.equals(estatTipus),
+					MostrarAnulatsDto.SI.equals(mostrarAnulats),
+					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+					nomesAlertes,
+					nomesErrors,
+					nomesTasquesPersonals,
+					nomesTasquesGrup,
+					true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
+					usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
+					paginacioParams,
+					false,
+					nomesErrorsArxiu,
+					idsSeleccionats);
+			// Retorna la pàgina amb la resposta
+			
+			if (expedientsIds.getCount() > 0) {
+				expedients = conversioTipusHelper.convertirList(
+					expedientRepository.findByIdIn(expedientsIds.getLlista()),
+					ExpedientDto.class);
+			}
+		} else {
+			
+			expedientsIds = new ResultatConsultaPaginadaJbpm<Long>(0);
+			//List<Expedient> expedientsList = new ArrayList<Expedient>();
+
+			for(List<Long> expIds : Iterables.partition(idsSeleccionats, 800)) {
+				
+				paginacioParams.setPaginaTamany(idsSeleccionats.size());
+				
+				ResultatConsultaPaginadaJbpm<Long> fiteredExpedientsIds = jbpmHelper.expedientFindByFiltre(
+						entornId,
+						auth.getName(),
+						tipusPermesosIds,
+						unitatsPerTipusComu,
+						titol,
+						numero,
+						unitatOrganitzativaId,
+						expedientTipusId,
+						dataInici1,
+						dataInici2,
+						dataFi1,
+						dataFi2,
+						estatId,
+						geoPosX,
+						geoPosY,
+						geoReferencia,
+						//TODO3: afegir el nou camp en la capa service
+						registreNumero,
+						EstatTipusDto.INICIAT.equals(estatTipus),
+						EstatTipusDto.FINALITZAT.equals(estatTipus),
+						MostrarAnulatsDto.SI.equals(mostrarAnulats),
+						MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+						nomesAlertes,
+						nomesErrors,
+						nomesTasquesPersonals,
+						nomesTasquesGrup,
+						true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
+						usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
+						paginacioParams,
+						false,
+						nomesErrorsArxiu,
+						Sets.newTreeSet(expIds));
+				
+				expedientsIds.setCount(expedientsIds.getCount() + fiteredExpedientsIds.getCount());
+				expedientsIds.getLlista().addAll(fiteredExpedientsIds.getLlista());
+				
+				expedients.addAll(conversioTipusHelper.convertirList(expedientRepository.findByIdIn(fiteredExpedientsIds.getLlista()), ExpedientDto.class));
+			}
+			
+			paginacioParams.setPaginaTamany(expedients.size());
 		}
+		
 		// Després de la consulta els expedients es retornen en ordre invers
 		Collections.sort(expedients, new ExpedientDtoIdsComparator(expedientsIds.getLlista()));
 
 		if (expedients.size() > 0) {
-			expedientHelper.omplirPermisosExpedients(expedients);
-			expedientHelper.trobarAlertesExpedients(expedients);
+			for(List<ExpedientDto> expedientsChunk : Iterables.partition(expedients, 800)) {
+				expedientHelper.omplirPermisosExpedients(expedientsChunk);
+				expedientHelper.trobarAlertesExpedients(expedientsChunk);
+			}
 		}
 		return paginacioHelper.toPaginaDto(
 				expedients,

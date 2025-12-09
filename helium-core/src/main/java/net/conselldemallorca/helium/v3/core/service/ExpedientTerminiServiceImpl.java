@@ -147,10 +147,16 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				processInstanceId,
 				terminiIniciatId,
 				new Date());
+		
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findOne(terminiIniciatId);
+		
 		terminiHelper.iniciar(
-				terminiIniciatId, 
+				terminiIniciat.getTermini().getId(), 
 				processInstanceId, 
 				data, 
+				anys, 
+				mesos, 
+				dies, 
 				esDataFi, 
 				true);
 	}

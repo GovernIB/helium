@@ -658,7 +658,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		for (Estat estat : entity.getEstats()) {
 			estatReglaRepository.delete(estatReglaRepository.findByEstat(estat));
 			estatAccioEntradaRepository.delete(estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat));
-			estatAccioSortidaRepository.delete(estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat));		
+			estatAccioSortidaRepository.delete(estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat));
+			estatSortidaRepository.delete(estatSortidaRepository.findByEstat(estat));
 		}
 		
 		//En el cas que sigui procediment Comú o hi hagi relacions de permisos amb uos i expedienttipusId esborra aquestes relacions
@@ -1258,6 +1259,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Estat estat;
 		if (command.getEstats().size() > 0) 
 		{
+			Map<String, Estat> estatsImportatsMap = new HashMap<String, Estat>();
 			for(EstatExportacio estatExportat : importacio.getEstats() ) 
 			{
 				if (command.getEstats().contains(estatExportat.getCodi())){
@@ -1368,7 +1370,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 										.build();
 								estatAccioSortidaRepository.save(estatAccioSortida);
 							}	
-						}					
+						}
+					}
+					estatsImportatsMap.put(estatExportat.getCodi(), estat);
+				}
+			}
+			
+			// Afegim els estats de sortida
+			for(EstatExportacio estatExportat : importacio.getEstats()) {
+				Estat estatEntity = estatsImportatsMap.get(estatExportat.getCodi());
+				if(estatEntity == null)
+					continue;
+				if (estatExportat.getEstatsSortida() != null) {
+					for(EstatDto estatSeguent : estatExportat.getEstatsSortida()) {
+						Estat estatSeguentEntity = estatsImportatsMap.get(estatSeguent.getCodi());
+						// L'estat de sortida pot no estar importat, per tant s'ignora
+						if(estatSeguentEntity == null)
+							continue;
+						EstatSortida estatSortida = new EstatSortida(estatEntity, estatSeguentEntity);
+						estatSortidaRepository.save(estatSortida);
 					}
 				}
 			}
@@ -3437,7 +3457,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (estatAccioSortida != null && !estatAccioSortida.isEmpty()) {
 			estatAccionsSortidaDto = conversioTipusHelper.convertirList(estatAccioSortida, EstatAccioDto.class);
 		}
-
+		
+		// Estats sortida
+		List<EstatDto> estatsSortidaDto = new ArrayList<EstatDto>();
+		List<Estat> estatsSortida = estatSortidaRepository.findEstatsSortidaByEstatId(estat.getId());
+		if (estatsSortida != null && !estatsSortida.isEmpty()) {
+			estatsSortidaDto = conversioTipusHelper.convertirList(estatsSortida, EstatDto.class);
+		}
+		
 		return EstatExportacio.builder()
 				.codi(estat.getCodi())
 				.nom(estat.getNom())
@@ -3446,6 +3473,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				.permisos(permisosDto)
 				.accionsEntrada(estatAccionsEntradaDto)
 				.accionsSortida(estatAccionsSortidaDto)
+				.estatsSortida(estatsSortidaDto)
 				.build();
 	}
 

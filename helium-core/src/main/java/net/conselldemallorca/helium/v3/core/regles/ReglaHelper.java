@@ -242,7 +242,18 @@ public class ReglaHelper {
                         .build();
                 facts.put("fact", variableFact);
                 rulesEngine.fire(rules, facts);
-                campFormProperties = getCampFormProperties(variableFact);
+                // Si aplica la regla (es va complir qui->que), marquem l'acció corresponent
+                if (variableFact.isAplicaReglaQue()) {
+                    switch (regla.getAccio()) {
+                        case MOSTRAR: campFormProperties.setVisible(true); break;
+                        case OCULTAR: campFormProperties.setVisible(false); break;
+                        case EDITAR: campFormProperties.setEditable(true); break;
+                        case BLOQUEJAR: campFormProperties.setEditable(false); break;
+                        case REQUERIR: campFormProperties.setObligatori(true); break;
+                        case REQUERIR_ENTRAR: campFormProperties.setObligatoriEntrada(true); break;
+                        default: break;
+                    }
+                }
             }
             campFormPropertiesMap.put(termini.getCodi(), campFormProperties);
         }

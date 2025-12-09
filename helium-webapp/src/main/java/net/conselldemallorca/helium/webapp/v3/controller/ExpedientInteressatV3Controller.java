@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -541,29 +543,45 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	
 	@RequestMapping(value = "/municipis/{codiProvincia}", method = RequestMethod.GET)
 	@ResponseBody
-	public List<MunicipiDto> getMunicipisByCodiProvincia(
+	public ResponseEntity<Object> getMunicipisByCodiProvincia(
 			HttpServletRequest request,
 			@PathVariable String codiProvincia,
 			Model model) {
-		return dadesExternesService.findMunicipisPerProvincia(codiProvincia);
+		try {
+			return new ResponseEntity<Object>(dadesExternesService.findMunicipisPerProvincia(codiProvincia), HttpStatus.OK);
+		} catch(Exception e) {
+			Map<String, Object> errorResponse = new HashMap<String, Object>();
+			errorResponse.put("error", getMessage(request, "interessat.controller.municipis.error"));
+			errorResponse.put("cause", e.getMessage());
+			errorResponse.put("code", HttpStatus.INTERNAL_SERVER_ERROR.value());
+			return new ResponseEntity<Object>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@RequestMapping(value = "/organ/{codi}", method = RequestMethod.GET)
 	@ResponseBody
-	public UnitatOrganitzativaDto getByCodi(
+	public ResponseEntity<Object> getByCodi(
 			HttpServletRequest request,
 			@PathVariable String codi,
 			Model model) {
-		UnitatOrganitzativaDto unitat = unitatOrganitzativaService.findByCodi(codi);
-		if(unitat == null)
-			unitat = unitatOrganitzativaService.findByCodiExterna(codi);
-		
-		return unitat;
+		try {
+			UnitatOrganitzativaDto unitat = unitatOrganitzativaService.findByCodi(codi);
+			if(unitat == null)
+				unitat = unitatOrganitzativaService.findByCodiExterna(codi);
+			
+			return new ResponseEntity<Object>(unitat, HttpStatus.OK);
+		} catch(Exception e) {
+			Map<String, Object> errorResponse = new HashMap<String, Object>();
+			errorResponse.put("error", getMessage(request, "interessat.controller.unitat.error", new Object[] {codi}));
+			errorResponse.put("cause", e.getMessage());
+			errorResponse.put("code", HttpStatus.INTERNAL_SERVER_ERROR.value());
+			return new ResponseEntity<Object>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@RequestMapping(value = "/organs", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> getUnitatsOrganitzativesByFiltre(
+	public ResponseEntity<Object> getUnitatsOrganitzativesByFiltre(
 			HttpServletRequest request,
 			@RequestParam(required = false) String nivell,
 			@RequestParam(required = false) String provincia,
@@ -572,12 +590,20 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@RequestParam(required = false) String nom,
 			@RequestParam(required = false) Boolean arrel,
 			Model model) {
-		List<ParellaCodiValorDto> organs = new ArrayList<ParellaCodiValorDto>();
-		for (UnitatOrganitzativaDto uo : unitatOrganitzativaService.findByFiltre(nivell, provincia, municipi, nif, nom, arrel)) {
-			ParellaCodiValorDto pcv = new ParellaCodiValorDto(uo.getCodi(), uo.getCodi() + " - " + uo.getDenominacio());
-			organs.add(pcv);
+		try {
+			List<ParellaCodiValorDto> organs = new ArrayList<ParellaCodiValorDto>();
+			for (UnitatOrganitzativaDto uo : unitatOrganitzativaService.findByFiltre(nivell, provincia, municipi, nif, nom, arrel)) {
+				ParellaCodiValorDto pcv = new ParellaCodiValorDto(uo.getCodi(), uo.getCodi() + " - " + uo.getDenominacio());
+				organs.add(pcv);
+			}
+			return new ResponseEntity<Object>(organs, HttpStatus.OK);
+		} catch(Exception e) {
+			Map<String, Object> errorResponse = new HashMap<String, Object>();
+			errorResponse.put("error", getMessage(request, "interessat.controller.unitats.error"));
+			errorResponse.put("cause", e.getMessage());
+			errorResponse.put("code", HttpStatus.INTERNAL_SERVER_ERROR.value());
+			return new ResponseEntity<Object>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return organs;
 	}
 	
 	

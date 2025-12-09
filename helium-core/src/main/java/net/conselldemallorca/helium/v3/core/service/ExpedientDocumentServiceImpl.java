@@ -1889,15 +1889,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 
 		// Notificacio
-		 List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-		 if (!enviaments.isEmpty()) {
-			 List<DadesNotificacioDto> notificaionsDetalls = new ArrayList<DadesNotificacioDto>();
-			 for (DocumentNotificacio enviament: enviaments) {
-				 notificaionsDetalls.add(notificacioHelper.toDadesNotificacioDto(enviament, expedient.isArxiuActiu()));
-			 }
-			 documentDetallBuilder.notificacions(notificaionsDetalls);
-			 documentDetallBuilder.notificat(!notificaionsDetalls.isEmpty());
-		 }
+		List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+		enviaments.addAll(documentNotificacioRepository.findByExpedientAndDocumentIdInZIP(expedient, documentStoreId));
+		if (!enviaments.isEmpty()) {
+			List<DadesNotificacioDto> notificaionsDetalls = new ArrayList<DadesNotificacioDto>();
+			for (DocumentNotificacio enviament: enviaments) {
+				notificaionsDetalls.add(notificacioHelper.toDadesNotificacioDto(enviament, expedient.isArxiuActiu()));
+			}
+			documentDetallBuilder.notificacions(notificaionsDetalls);
+			documentDetallBuilder.notificat(!notificaionsDetalls.isEmpty());
+		}
 
 		return documentDetallBuilder.build();
 	}

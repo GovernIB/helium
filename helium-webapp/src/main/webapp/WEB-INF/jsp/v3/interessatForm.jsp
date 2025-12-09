@@ -166,8 +166,14 @@ $(document).ready(function() {
 					if (organActual)
 						organGestorRef.val(organActual);
 					organGestorRef.change();
-					$('.div-dades-carregant', window.parent.document).hide();
-					$('#carregant').hide();
+			},
+			error: function(data) {
+				$('.alert.alert-danger').remove();
+				webutilAlertaError(data.responseJSON.error);
+			}, 
+			complete: function() {
+				$('#carregant').hide();
+				$('.div-dades-carregant', window.parent.document).hide();
 			}
 		});
 	});
@@ -279,6 +285,9 @@ $(document).ready(function() {
 						selMunicipi.val("407");
 					selMunicipi.change();
 					$('#carregant').hide();
+				},
+				complete: function(data) {
+					$('#carregant').hide();
 				}
 			});
  	 	} else {
@@ -322,6 +331,13 @@ $(document).ready(function() {
 					else
 						selMunicipi.val("407");
 					selMunicipi.change();
+				},
+				error: function(data) {
+					$('.alert.alert-danger').remove();
+					webutilAlertaError(data.responseJSON.error);
+				}
+				,
+				complete: function(data) {
 					$('#carregant').hide();
 				}
 			});
@@ -339,7 +355,8 @@ $(document).ready(function() {
  	
  	$('select#cifOrganGestor').change(function() {
  	 	 		munOrgan = '';
- 	 	 	 	if ($(this).val() != "") {
+ 	 	 		const cifOrganGest = $(this).val();
+ 	 	 	 	if ( cifOrganGest && cifOrganGest != "") {
  	 	 	 		
  	 	 	 		let optionSelected = $("option:selected", this);
  	 	 	 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
@@ -381,6 +398,45 @@ $(document).ready(function() {
 
  	 			 	 		$('#direccio').val(data.adressa);
  	 						$('#direccio').prop("readonly", true);
+ 	 					},
+ 	 					error: function(data) {
+ 	 						$('.alert.alert-danger').remove();
+ 							webutilAlertaError(data.responseJSON.error);
+ 	 						$('#tipusDocIdent').val(null);
+ 	 						$('#tipusDocIdent').prop("readonly", true);
+ 	 						$('#tipusDocIdent').change();
+ 	 			 	 		$('#tipusDocIdent').select2("destroy");
+ 	 			 	 		$('#tipusDocIdent').select2(select2Options);
+ 	 						$('#codi').val(null).change();
+ 	 						$('#dir3Codi').val(null).change();
+ 	 						$('#documentIdent').val(null);
+ 	 						$('#documentIdent').prop("readonly", true);
+
+ 	 						$('#provincia').val(null);
+ 	 						$('#provincia').prop("readonly", true);
+ 	 						$('#provincia').select2("destroy");
+ 	 			 	 		$('#provincia').select2(select2Options);
+ 	 						
+ 	 			 	 		$('#municipi').val(null);
+ 	 						$('#municipi').prop("readonly", true);
+ 	 			 	 		munOrgan = null;
+ 	 			 	 		$('#municipi').select2("destroy");
+	 			 	 		$('#municipi').select2(select2Options);
+ 	 			 	 		
+ 	 						$('#pais').val(null);
+ 	 						$('#pais').prop("readonly", true);
+ 	 						$('#pais').change();
+ 	 						$('#pais').select2("destroy");
+ 	 			 	 		$('#pais').select2(select2Options);
+
+ 	 			 	 		
+ 	 			 	 		$('#codiPostal').val(null);
+ 	 						$('#codiPostal').prop("readonly", true);
+
+ 	 			 	 		$('#direccio').val(null);
+ 	 						$('#direccio').prop("readonly", true);
+ 	 					},
+ 	 					complete: function(data) {
  	 						$('#carregant').hide();
  	 					}
  	 				});

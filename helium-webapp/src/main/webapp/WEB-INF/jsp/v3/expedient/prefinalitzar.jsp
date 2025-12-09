@@ -26,6 +26,11 @@
 		});
 	// ]]>
 	</script>
+	<style type="text/css">
+	.etiqueta-nti-arxiu {
+		display: inline-block;
+	}
+	</style>
 </head>
 <body>
 	
@@ -104,7 +109,7 @@
 							<c:if test="${not empty doc.annexAnotacioId or not empty doc.notificacioId or not empty doc.peticioPinbalId}">
 								<c:set var="valorDefaultChecked" value="checked='checked'"/>
 							</c:if>
-							<c:if test="${not empty doc.annexAnotacioId and not doc.anotacioAnnexNoMogut}">
+							<c:if test="${not empty doc.annexAnotacioId and doc.anotacioAnnexNoMogut}">
 								<c:set var="valorDefaultChecked" value=""/>
 								<c:set var="valorDefaultDisabled" value="disabled='true'"/>
 								<c:set var="valorDefaultTitle" value="L'annex s'ha de mourer correctament a l'arxiu abans de poder enviarse a firmar en servidor."/>						

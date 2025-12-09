@@ -42,4 +42,6 @@ public interface EstatSortidaRepository extends JpaRepository<EstatSortida, Esta
 	public EstatSortida findByEstatAndEstatSeguent(
 			@Param("estat") Estat estat, 
 			@Param("estatSeguent") Estat estatSeguent);
+	
+	public List<EstatSortida> findByEstat(Estat estat);
 }
