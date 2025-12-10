@@ -625,12 +625,11 @@ public class AnotacioHelper {
 		if(expedientTipus.isDistribucioSistra()) {
 			//Recuperar mapejos
 			Map<String, Object> variables = null;
-			Map<String, DadesDocumentDto> documents = null;
+			List<DadesDocumentDto> documents = null;
 			List<DadesDocumentDto> annexos = null;
 			List<AnotacioInteressatDto> interessats = null;
 			MapeigSistra mapeigSistra = null;
 			ExpedientDadaDto dada = null;
-			DadesDocumentDto dadesDocumentDto = null;
 
 			// Extreu variables i documents i annexos segons el mapeig sistra
 			boolean ambContingut = true; // expedient != null ? !expedient.isArxiuActiu() : !expedientTipus.isArxiuActiu(); 
@@ -640,7 +639,7 @@ public class AnotacioHelper {
 			annexos = resultatMapeig.getAdjunts();
 			interessats = resultatMapeig.getInteressats();
 			
-			for(DadesDocumentDto dd : documents.values())
+			for(DadesDocumentDto dd : documents)
 				dd.setUuid(null);
 			for(DadesDocumentDto dd : annexos)
 				dd.setUuid(null);
@@ -666,7 +665,8 @@ public class AnotacioHelper {
 			
 			//Fem el mateix per els documents del mapeig
 			if (mapejarDocuments) {
-				for (String documentCodi : documents.keySet()) {
+				for (DadesDocumentDto dadesDocumentDto : documents) {
+					String documentCodi = dadesDocumentDto.getDocumentCodi();
 					
 					mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, documentCodi);
 					
@@ -704,9 +704,7 @@ public class AnotacioHelper {
 							expedient, 
 							document, 
 							documentExisteix, 
-							mapeigSistra.isEvitarSobreescriptura(), 
-							documents, 
-							mapeigSistra.getCodiHelium());
+							mapeigSistra.isEvitarSobreescriptura());
 					
 				}
 			}
@@ -825,13 +823,8 @@ public class AnotacioHelper {
 			Expedient expedient, 
 			ExpedientDocumentDto document, 
 			boolean documentExisteix,
-			boolean evitarSobreescriptura,
-			Map<String, DadesDocumentDto> documents,
-			String codiHelium) {
-		
+			boolean evitarSobreescriptura) {
 		if (documentExisteix && !evitarSobreescriptura) {
-			// Si existeix i es pot sobreescriure, l'actualitzem, sino el creem
-			dadesDocumentDto = documents.get(codiHelium);
 			DocumentStore documentStore = documentStoreRepository.findOne(document.getId());
 			documentHelper.actualitzarDocument(
 					documentStore.getId(),
@@ -854,7 +847,6 @@ public class AnotacioHelper {
 					dadesDocumentDto.getAnnexId(), 
 					dadesDocumentDto.getUuid());
 		} else if (!documentExisteix) {
-			dadesDocumentDto = documents.get(codiHelium);
 			documentHelper.crearDocument(
 					null, //taskInstanceId
 					expedient.getProcessInstanceId(),

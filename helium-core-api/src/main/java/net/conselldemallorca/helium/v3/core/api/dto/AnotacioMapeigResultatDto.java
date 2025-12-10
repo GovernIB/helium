@@ -25,7 +25,7 @@ public class AnotacioMapeigResultatDto implements Serializable {
 	
 	// Conjunts on guardar el resultat del mapeig. 
 	Map<String, Object> dades = null;
-	Map<String, DadesDocumentDto> documents = null;
+	List<DadesDocumentDto> documents = null;
 	List<DadesDocumentDto> adjunts = null;
 	List<AnotacioInteressatDto> interessats = null;
 	
@@ -56,11 +56,11 @@ public class AnotacioMapeigResultatDto implements Serializable {
 		this.dades = dades;
 	}
 
-	public Map<String, DadesDocumentDto> getDocuments() {
+	public List<DadesDocumentDto> getDocuments() {
 		return documents;
 	}
 
-	public void setDocuments(Map<String, DadesDocumentDto> documents) {
+	public void setDocuments(List<DadesDocumentDto> documents) {
 		this.documents = documents;
 	}
 

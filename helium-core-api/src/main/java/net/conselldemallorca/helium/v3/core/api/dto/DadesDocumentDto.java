@@ -31,6 +31,8 @@ public class DadesDocumentDto {
 	private NtiTipoFirmaEnumDto firmaTipus;
 	private Long annexId;
 	
+	private String documentCodi;
+	
 
 	public String getCodi() {
 		return codi;
@@ -128,4 +130,11 @@ public class DadesDocumentDto {
 	public void setAnnexId(Long annexId) {
 		this.annexId = annexId;
 	}
+	public String getDocumentCodi() {
+		return documentCodi;
+	}
+	public void setDocumentCodi(String documentCodi) {
+		this.documentCodi = documentCodi;
+	}
+	
 }

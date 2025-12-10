@@ -1731,7 +1731,7 @@ public class ExpedientHelper {
 			IniciadorTipusDto iniciadorTipus,
 			String iniciadorCodi,
 			String responsableCodi,
-			Map<String, DadesDocumentDto> documents,
+			List<DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts,
 			Long anotacioId,
 			AnotacioMapeigResultatDto resultatMapeig,
@@ -1804,7 +1804,7 @@ public class ExpedientHelper {
 			IniciadorTipusDto iniciadorTipus,
 			String iniciadorCodi,
 			String responsableCodi,
-			Map<String, DadesDocumentDto> documents,
+			List<DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts,
 			Long anotacioId,
 			AnotacioMapeigResultatDto resultatMapeig,
@@ -2029,7 +2029,7 @@ public class ExpedientHelper {
 			// Afegim els documents
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
 			if (documents != null) {
-				for (DadesDocumentDto document : documents.values()) {
+				for (DadesDocumentDto document : documents) {
 					this.crearDocumentAdjuntInicial(
 							false, 
 							expedient, 

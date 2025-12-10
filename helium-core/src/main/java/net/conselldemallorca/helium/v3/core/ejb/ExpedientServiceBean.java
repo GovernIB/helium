@@ -88,7 +88,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			IniciadorTipusDto iniciadorTipus,
 			String iniciadorCodi,
 			String responsableCodi,
-			Map<String, DadesDocumentDto> documents,
+			List<DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts,
 			Long anotacioId,
 			boolean anotacioInteressatsAssociar) throws Exception {

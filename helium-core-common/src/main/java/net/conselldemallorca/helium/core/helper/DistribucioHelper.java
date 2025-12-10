@@ -821,7 +821,7 @@ public class DistribucioHelper {
 				boolean reprocessar = false;
 				if (expedient == null) {
 					Map<String, Object> variables = null;
-					Map<String, DadesDocumentDto> documents = null;
+					List<DadesDocumentDto> documents = null;
 					List<DadesDocumentDto> adjunts = null;
 					AnotacioMapeigResultatDto resultatMapeig = null;
 					
@@ -1343,9 +1343,9 @@ public class DistribucioHelper {
 		}
 	}
 
-	public Map<String, DadesDocumentDto> getDocumentsInicials(ExpedientTipus expedientTipus, Anotacio anotacio, boolean ambContingut, Map<String, String> errors) {
+	public List<DadesDocumentDto> getDocumentsInicials(ExpedientTipus expedientTipus, Anotacio anotacio, boolean ambContingut, Map<String, String> errors) {
 		
-		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
+		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
 		List<MapeigSistra> mapeigsSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Document);
 		if (mapeigsSistra.size() == 0)
 			return resposta;
@@ -1365,10 +1365,13 @@ public class DistribucioHelper {
 			}
 			try {
 				if (docHelium != null) {
-					DadesDocumentDto document = documentSistra(anotacio, mapeig, docHelium, ambContingut, errors);
-					if (document != null) {
-						resposta.put(mapeig.getCodiHelium(), document);
-						logger.debug(document.getCodi());
+					List<DadesDocumentDto> documentsSistra = documentsSistra(anotacio, mapeig, docHelium, ambContingut, errors);
+					for(DadesDocumentDto document : documentsSistra) {
+						if (document != null) {
+							document.setDocumentCodi(mapeig.getCodiHelium());
+							resposta.add(document);
+							logger.debug(document.getCodi());
+						}
 					}
 				}
 			} catch (Exception ex) {
@@ -1465,6 +1468,90 @@ public class DistribucioHelper {
 		return resposta;
 	}
 	
+	/** Mètode per consultar el document a partir de la informació del mapeig del document o l'adjunt.
+	 * 
+	 * @param anotacio Anotació per la qual s'està fent el mapeig.
+	 * @param mapeig Informació del mapeig del document o de l'adjunt.
+	 * @param varHelium Codi de la variable Helium pel mapeig.
+	 * @param errors Mapeig d'errors per tenir informació dels possibles errors.
+	 * @param ambContingut Indica si recuperar el contingut o no del document.
+	 * @return Retorna les dades dels documents.
+	 * @throws Exception Error si no s'ha pogut recuperar el contingut ni crear un contingut buit.
+	 */
+	private List<DadesDocumentDto> documentsSistra(
+			Anotacio anotacio,
+			MapeigSistra mapeig,
+			DocumentDto varHelium,
+			boolean ambContingut,
+			Map<String, String> errors) throws Exception {
+		List<DadesDocumentDto> resultat = new ArrayList<DadesDocumentDto>();
+		String identificador = null;
+		String varSistra = mapeig.getCodiSistra();
+		// Recorre tots els documents annexos, si hi ha més d'un amb el mateix codi llavors es queda el que tingui extensió .pdf
+		
+		for (AnotacioAnnex documentAnotacio: anotacio.getAnnexos()) {
+			DadesDocumentDto resposta = null;
+			identificador = FilenameUtils.removeExtension(documentAnotacio.getNom());
+			if (varSistra.equalsIgnoreCase(identificador) && documentAnotacio.getNom().toLowerCase().endsWith(".pdf")) {
+				AnotacioAnnex document = documentAnotacio;
+				if (document != null) {
+					resposta = new DadesDocumentDto();
+					resposta.setTitol(document.getTitol());
+					if (varHelium != null) {
+						resposta.setIdDocument(varHelium.getId());
+						resposta.setCodi(varHelium.getCodi());
+					}
+					resposta.setData(anotacio.getData());
+					resposta.setArxiuNom(document.getNom());
+					resposta.setDocumentValid(document.isDocumentValid());
+					resposta.setDocumentError(document.getDocumentError());
+					resposta.setAnnexId(document.getId());
+					
+					resposta.setFirmaTipus(document.getFirmaTipus());
+		
+					if (ambContingut) {
+						byte[] contingut = document.getContingut();
+						Exception exception = null;
+						if (ambContingut && document.getContingut() == null &&  document.getUuid() != null) {
+							// Recupera el contingut de l'Arxiu
+							Document documentArxiu = null;
+							try {
+								// Consulta la versió imprimible del document.
+								documentArxiu = pluginHelper.arxiuDocumentInfo(document.getUuid(), null, true, true);
+								contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+							} catch (Exception e) {
+								exception = e;
+							}
+							if (exception != null) {
+								try {
+									// Consulta la versió original.
+									logger.error("Error consultant el document " + varSistra + " pel mapeig de l'anotació " + anotacio.getIdentificador() + ". Es procedeix a consultar el contingut original.", exception);
+									documentArxiu = pluginHelper.arxiuDocumentOriginal(document.getUuid(), null);
+								} catch (Exception e) {
+									exception = e;
+									logger.error("Error consultant l'original del document " + varSistra + " pel mapeig de l'anotació " + anotacio.getIdentificador(), e);
+								}
+							}
+							contingut = documentArxiu != null && documentArxiu.getContingut() != null? 
+											documentArxiu.getContingut().getContingut() 
+											: null;
+							if (contingut == null) {
+								errors.put(varSistra, "No s'ha pogut obtenir el contingut imprimible ni original del document.");
+								resposta = buildDocumentInvalid(anotacio, document, varHelium, mapeig, exception);
+							} else {
+								resposta.setArxiuContingut(contingut);
+							}
+						}
+					}
+					resposta.setUuid(document.getUuid());
+					resultat.add(resposta);
+				}
+			}
+			
+		}
+		return resultat;
+	}
+	
 	/** Crea un PDF advertint de l'error i retorna un document invàlid per afegir a l'expeident. 
 	 * @param mapeig 
 	 * @throws Exception Excepció si no troba el contingut i no pot generar un contingut buit. */
@@ -1543,9 +1630,10 @@ public class DistribucioHelper {
 			logger.debug("{" + mapeig.getCodiSistra());
 			if (MapeigSistra.TipusMapeig.Adjunt.equals(mapeig.getTipus())){
 				try {
-					DadesDocumentDto documentSistra = documentSistra(anotacio, mapeig, null, ambContingut, errors);
-					if (documentSistra != null) {
-						resposta.add(documentSistra);
+					List<DadesDocumentDto> documentsSistra = documentsSistra(anotacio, mapeig, null, ambContingut, errors);
+					
+					if (documentsSistra != null && !documentsSistra.isEmpty()) {
+						resposta.addAll(documentsSistra);
 					}
 				} catch (Exception ex) {
 					logger.error("Error en el mapeig d'adjunt SISTRA2 " + expedientTipus.getCodi() + " " + mapeig.getCodiSistra() + " de l'anotació " + anotacio.getIdentificador() + ": " + ex.getMessage(), ex);

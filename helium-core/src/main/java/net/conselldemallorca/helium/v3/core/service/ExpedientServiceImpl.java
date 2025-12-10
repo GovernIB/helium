@@ -369,7 +369,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			IniciadorTipusDto iniciadorTipus,
 			String iniciadorCodi,
 			String responsableCodi,
-			Map<String, DadesDocumentDto> documents,
+			List<DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts,
 			Long anotacioId,
 			boolean anotacioInteressatsAssociar) throws Exception {
@@ -395,7 +395,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					boolean ambContingut = true; //!expedientTipus.isArxiuActiu(); 
 					resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 					
-					for(DadesDocumentDto dd : resultatMapeig.getDocuments().values()) {
+					for(DadesDocumentDto dd : resultatMapeig.getDocuments()) {
 						dd.setUuid(null);
 					}
 					
@@ -407,8 +407,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						variables = new HashMap<String, Object>();
 					variables.putAll(resultatMapeig.getDades());
 					if (documents == null) 
-						documents = new HashMap<String, DadesDocumentDto>();
-					documents.putAll(resultatMapeig.getDocuments());
+						documents = new ArrayList<DadesDocumentDto>();
+					documents.addAll(resultatMapeig.getDocuments());
 					if (adjunts == null)
 						adjunts = new ArrayList<DadesDocumentDto>();
 					adjunts.addAll(resultatMapeig.getAdjunts());
