@@ -16,6 +16,9 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1392,17 +1395,24 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				documentStore.getProcessInstanceId());
 		
 		ArxiuDto arxiu = new ArxiuDto();
-		arxiu.setNom(documentStore.getArxiuNom());
+		String arxiuNom = documentStore.getArxiuNom();
 		if (documentStore.getArxiuContingut() == null && documentStore.getArxiuUuid() != null) {
 			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentOriginal(documentStore.getArxiuUuid(), null);
 			if (documentArxiu != null && documentArxiu.getContingut() != null) {
 				arxiu.setContingut(documentArxiu.getContingut().getContingut());
 				arxiu.setTipusMime(documentArxiu.getContingut().getTipusMime());
+				// Si l'extensió de l'Arxiu és diferent al nom original canvia l'extensió
+				if (documentArxiu.getDocumentMetadades() != null 
+						&& documentArxiu.getMetadades().getExtensio() != null 
+						&& ! arxiuNom.toLowerCase().endsWith(documentArxiu.getMetadades().getExtensio().toString().toLowerCase())) {
+					arxiuNom = FilenameUtils.removeExtension(arxiuNom)  + documentArxiu.getMetadades().getExtensio();
+				}
 			}
 		} else {
 			arxiu.setContingut(documentStore.getArxiuContingut());
-			arxiu.setTipusMime(documentHelperV3.getContentType(documentStore.getArxiuNom()));
+			arxiu.setTipusMime(documentHelperV3.getContentType(arxiuNom));
 		}
+		arxiu.setNom(arxiuNom);
 		
 		return arxiu;
 	}
