@@ -327,7 +327,7 @@
 						</li>
 					</ul>
 					<div class="image-wraper" style="width: 100%;">
-						<img src="<c:url value="/img/diagrama_distribucio.png?"/>" alt="<spring:message code='expedient.anotacio.llistat.diagrama.alt'/>" height="400px"/>
+						<img src="<c:url value="/img/diagrama_distribucio.png"/>" alt="<spring:message code='expedient.anotacio.llistat.diagrama.alt'/>" height="300px"/>
 					</div>
 				</div>
 				<div class="modal-footer">
