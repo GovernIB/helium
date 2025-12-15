@@ -509,14 +509,18 @@ dd.subproc {
 						</c:forEach>
 					</ul>
 				</c:if>
-				<c:if test="${expedient.permisWrite 
+				
+				<c:set value="${expedient.permisWrite 
 							|| expedient.permisStop 
 							|| expedient.permisCancel 
 							|| expedient.permisDelete
 							|| expedient.permisRelate
 							|| expedient.permisScriptExe
 							|| expedient.permisUndoEnd
-							|| expedient.permisLogManage }">
+							|| expedient.permisLogManage}" var="tePermisAdministrar" ></c:set>
+				
+				<c:if test="${(expedient.permisRead && (empty expedient.dataFi) && (not empty processInstance.end)) 
+							|| tePermisAdministrar }">
 					<div id="expedient-info-accio" class="dropdown">
 						<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedient/${expedientId}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.eines"/>&nbsp;<span class="caret"></span></a>
 						<ul class="dropdown-menu">
@@ -547,8 +551,8 @@ dd.subproc {
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/delete"/>" data-rdt-link-ajax="false" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</c:if>
 							
-							<li class="divider"></li>
-							<c:if test="${expedient.permisWrite}">
+							<c:if test="${expedient.permisWrite || expedient.permisRead}">
+								<li class="divider"></li>
 								<c:if test="${empty expedient.dataFi}">
 									<li
 										<c:choose>
@@ -600,40 +604,41 @@ dd.subproc {
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/migrarArxiu"/>" onclick="return confirmarMigrarArxiu(event)"><span class="fa fa-suitcase"></span>&nbsp;<spring:message code="expedient.info.accio.migrararxiu"/></a></li>
 							</c:if>
 							
-							
-							<li class="divider"></li>
-							<li><a href="<c:url value="../../v3/expedient/${expedientId}/generarIndexExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.exportarIndex.title"/>">
-								<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.exportarIndex"/>
-							</a></li>
-							
-							<c:if test="${not empty expedient.arxiuUuid}">
-								<li><a href="<c:url value="../../v3/expedient/${expedientId}/exportarEniExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.eniExp.title"/>">
-									<span class="fa fa-file-code-o"></span>&nbsp;<spring:message code="expedient.info.accio.eniExp"/>
-								</a></li>							
-								<li><a href="<c:url value="../../v3/expedient/${expedientId}/exportarEniDocumentsAmbIndex"/>" target="_blank" title="<spring:message code="expedient.info.accio.eni.title"/>">
-									<span class="fa fa-file-code-o"></span>&nbsp;<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.eni"/>
-								</a></li>
-							</c:if>
-							<c:if test="${empty expedient.arxiuUuid}">
-								<li class="disabled"><a href="#" title="<spring:message code="expedient.exportacio.eniExp.noActiu"/>">
-									<span class="fa fa-file-code-o"></span>&nbsp;<spring:message code="expedient.info.accio.eniExp"/>
-								</a></li>							
-								<li class="disabled"><a href="#" title="<spring:message code="expedient.exportacio.eniExp.noActiu"/>">
-									<span class="fa fa-file-code-o"></span>&nbsp;<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.eni"/>
-								</a></li>
-							</c:if>
-							
-							<c:if test="${perEstats == true }">
+							<c:if test="${tePermisAdministrar}">
 								<li class="divider"></li>
-								<c:forEach var="estat" items="${estatsRetrocedir}">
-									<li><a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar?retrocedir=true" />">
-										<b>&lt;&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a></li>
-								</c:forEach>
-							
-								<c:forEach var="estat" items="${estatsAvancar}">
-									<li><a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />">
-										<b>&gt;&gt;</b> <spring:message code="expedient.info.estat.avancar" arguments="${estat.nom}"></spring:message></a></li>
-								</c:forEach>
+								<li><a href="<c:url value="../../v3/expedient/${expedientId}/generarIndexExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.exportarIndex.title"/>">
+									<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.exportarIndex"/>
+								</a></li>
+								
+								<c:if test="${not empty expedient.arxiuUuid}">
+									<li><a href="<c:url value="../../v3/expedient/${expedientId}/exportarEniExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.eniExp.title"/>">
+										<span class="fa fa-file-code-o"></span>&nbsp;<spring:message code="expedient.info.accio.eniExp"/>
+									</a></li>							
+									<li><a href="<c:url value="../../v3/expedient/${expedientId}/exportarEniDocumentsAmbIndex"/>" target="_blank" title="<spring:message code="expedient.info.accio.eni.title"/>">
+										<span class="fa fa-file-code-o"></span>&nbsp;<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.eni"/>
+									</a></li>
+								</c:if>
+								<c:if test="${empty expedient.arxiuUuid}">
+									<li class="disabled"><a href="#" title="<spring:message code="expedient.exportacio.eniExp.noActiu"/>">
+										<span class="fa fa-file-code-o"></span>&nbsp;<spring:message code="expedient.info.accio.eniExp"/>
+									</a></li>							
+									<li class="disabled"><a href="#" title="<spring:message code="expedient.exportacio.eniExp.noActiu"/>">
+										<span class="fa fa-file-code-o"></span>&nbsp;<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.eni"/>
+									</a></li>
+								</c:if>
+								
+								<c:if test="${perEstats == true }">
+									<li class="divider"></li>
+									<c:forEach var="estat" items="${estatsRetrocedir}">
+										<li><a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar?retrocedir=true" />">
+											<b>&lt;&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a></li>
+									</c:forEach>
+								
+									<c:forEach var="estat" items="${estatsAvancar}">
+										<li><a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />">
+											<b>&gt;&gt;</b> <spring:message code="expedient.info.estat.avancar" arguments="${estat.nom}"></spring:message></a></li>
+									</c:forEach>
+								</c:if>
 							</c:if>
 						</ul>
 					</div>

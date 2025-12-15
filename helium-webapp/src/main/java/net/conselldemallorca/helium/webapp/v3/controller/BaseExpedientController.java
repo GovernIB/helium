@@ -6,12 +6,15 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 
 import edu.emory.mathcs.backport.java.util.Collections;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -35,6 +38,7 @@ public class BaseExpedientController extends BaseController {
 	@Autowired protected ExpedientTipusService expedientTipusService;
 	@Autowired protected DissenyService dissenyService;
 	@Autowired protected ConsultaPinbalService consultaPinbalService;
+	@Resource protected JbpmHelper jbpmHelper;
 
 	protected String mostrarInformacioExpedientPerPipella(
 			HttpServletRequest request,
@@ -73,6 +77,9 @@ public class BaseExpedientController extends BaseController {
 					instanciaProces.getId());
 			numAccions += accionsTrobades.size();
 		}
+		
+		JbpmProcessInstance jbpmProcessInstance = jbpmHelper.getProcessInstance(expedient.getProcessInstanceId());
+		model.addAttribute("processInstance", jbpmProcessInstance != null? jbpmProcessInstance.getProcessInstance() : null);
 		model.addAttribute("subprocessos", subprocessos);
 		model.addAttribute("numAccions", numAccions);
 		model.addAttribute("numPinbals", consultaPinbalService.findConsultesPinbalPerExpedient(expedientId).size());

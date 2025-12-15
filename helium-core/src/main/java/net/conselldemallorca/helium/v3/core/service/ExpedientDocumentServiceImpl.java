@@ -653,7 +653,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,
-				true, //permís de escritura, el mateix que per mostrar el botó de finalitzar
+				false, //permís de escritura, el mateix que per mostrar el botó de finalitzar
 				false,
 				false);
     	
@@ -940,6 +940,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
+						ExtendedPermission.READ,
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION});
 		

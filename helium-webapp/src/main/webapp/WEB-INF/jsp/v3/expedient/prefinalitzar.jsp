@@ -12,7 +12,7 @@
 <head>
 	<title>${titol}</title>
 	<hel:modalHead/>
-	<script type="text/javascript">
+	<script type="text/javascript">	
 	//<![CDATA[            
 		$(document).ready(function() {
 			$('input[class=documentPerFirmarServidor]').on('change', function(event) {
@@ -25,6 +25,20 @@
 			}).click();
 		});
 	// ]]>
+	
+	function sendForm() {
+		const total = $('input[class=documentPerFirmarServidor]:not(:disabled)').length;
+		const countSeleccionats = $('input[class=documentPerFirmarServidor]:not(:disabled):checked').length;
+		if(total > countSeleccionats) {
+			const enviar = confirm(`<spring:message code="finalitzar.expedient.documents.firmats.warn"/>`);
+			if(!enviar) {
+				location.reload();
+				return;
+			}
+		}
+		$('#expedientFinalitzar-button').trigger('click');
+	}
+	
 	</script>
 	<style type="text/css">
 	.etiqueta-nti-arxiu {
@@ -157,26 +171,33 @@
 			</c:choose>
 		</c:if>
 		
+		<button id="expedientFinalitzar-button" type="submit" name="submit" value="submit" class="hidden">
+		</button>
+		
 		<div id="modal-botons" class="well">
 			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 				<spring:message code='comuns.cancelar' />
 			</button>
 			<c:if test="${expedientFinalitzarDto.documentsFinalitzar!=null && fn:length(expedientFinalitzarDto.documentsFinalitzar)>0}">
-				<button type="submit" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('firmar')">
+				<button type="button" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('firmar'); sendForm()">
 					<span class="fa fa-pencil"></span>&nbsp;
 					<spring:message code="finalitzar.expedient.accio1"/>
 				</button>			
-				<button type="submit" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('finalitzar')">
+				<button type="button" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('finalitzar'); sendForm()">
 					<span class="fa fa-power-off"></span>&nbsp;
 					<spring:message code="finalitzar.expedient.accio2"/>
 				</button>
 			</c:if>
 			<c:if test="${expedientFinalitzarDto.documentsFinalitzar==null or fn:length(expedientFinalitzarDto.documentsFinalitzar)==0}">
-				<button type="submit" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('finalitzar')">
+				<button type="button" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('finalitzar'); sendForm()">
 					<span class="fa fa-power-off"></span>&nbsp;
 					<spring:message code="finalitzar.expedient.accio3"/>
 				</button>
 			</c:if>
+			
+			
+			
+			
 		</div>
 	</c:if>
 	<c:if test="${expedientFinalitzarDto.error}">

@@ -818,6 +818,7 @@ public class ExpedientHelper {
 		Expedient expedient = getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
+						ExtendedPermission.READ,
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION});
 
@@ -1694,7 +1695,17 @@ public class ExpedientHelper {
 				
 				//Tancam expedient al arxiu si escau, firmant els documents sense firma amb firma servidor
 				if (expedient.isArxiuActiu()) {
-					tancarExpedientArxiu(expedient, true);
+					try {
+						tancarExpedientArxiu(expedient, true);
+					} catch(Exception e) {
+						expedient.setDataFi(null);
+						alertaHelper.crearAlerta(
+							expedient.getEntorn(), 
+							expedient, 
+							new Date(), 
+							null, 
+							"Error tancant expedient a Arxiu: " + e.getMessage());
+					}
 				}
 			}
 		}
