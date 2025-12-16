@@ -4,13 +4,23 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
+
 <html>
-<head>
-	<title><spring:message code="expedient.tipus.regla.titol"/></title>
-	<meta name="title" content="<spring:message code="expedient.tipus.regla.titol"/>"/>
-	<meta name="screen" content="regles estats"/>
-	<meta name="subtitle" content="${expedientTipus.nom}:${estat.nom}"/>
-	<meta name="title-icon-class" content="fa fa-key"/>
+<head>	
+	<c:choose>
+		<c:when test="${reglesTipusExpedient == true}">
+			<title><spring:message code="expedient.tipus.estat.regla.titol"/></title>
+			<meta name="title" content="<spring:message code="expedient.tipus.estat.regla.titol"/>"/>
+			<meta name="title-icon-class" content="fa fa-key"/>
+		</c:when>
+		<c:otherwise>
+			<title><spring:message code="expedient.tipus.regla.titol"/></title>
+			<meta name="title" content="<spring:message code="expedient.tipus.regla.titol"/>"/>
+			<meta name="screen" content="regles estats"/>
+			<meta name="subtitle" content="${expedientTipus.nom}:${estat.nom}"/>
+			<meta name="title-icon-class" content="fa fa-key"/>
+		</c:otherwise>
+	</c:choose>
 	<script src="<c:url value="/webjars/datatables.net/1.10.13/js/jquery.dataTables.min.js"/>"></script>
 	<script src="<c:url value="/webjars/datatables.net-bs/1.10.13/js/dataTables.bootstrap.min.js"/>"></script>
 	<link href="<c:url value="/webjars/datatables.net-bs/1.10.13/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>

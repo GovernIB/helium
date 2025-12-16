@@ -3550,12 +3550,21 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
 		return conversioTipusHelper.convertirList(regles, EstatReglaDto.class);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatReglaDto> estatReglaFindAllByExpedientTipus(Long expedientTipusId) {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		List<EstatRegla> regles = estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus);
+		return conversioTipusHelper.convertirList(regles, EstatReglaDto.class);
+	}
+	
+	
 
 	@Override
 	@Transactional(readOnly = true)
-	public EstatReglaDto estatReglaFindById(Long estatId, Long reglaId) {
-		Estat estat = estatRepository.findOne(estatId);
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+	public EstatReglaDto estatReglaFindById(Long expedientTipusId, Long reglaId) {
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		EstatRegla regla = estatReglaRepository.findOne(reglaId);
 		if (regla == null)
 			throw new NoTrobatException(EstatRegla.class, reglaId);
@@ -3564,18 +3573,26 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public EstatReglaDto estatReglaFindByNom(Long estatId, String nom) {
+	public EstatReglaDto estatReglaFindByNom(Long expedientTipusId, Long estatId, String nom) {
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		if(estatId == null) {
+			EstatRegla regla = estatReglaRepository.findByTipusExpedientNomAndEstatIsNull(expedientTipusId, nom);
+			return conversioTipusHelper.convertir(regla, EstatReglaDto.class);
+		}
 		Estat estat = estatRepository.findOne(estatId);
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		
 		EstatRegla regla = estatReglaRepository.findByNom(estatId, nom);
 		return conversioTipusHelper.convertir(regla, EstatReglaDto.class);
 	}
 
 	@Override
 	@Transactional
-	public EstatReglaDto estatReglaCreate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
-		Estat estat = estatRepository.findOne(estatId);
-		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+	public EstatReglaDto estatReglaCreate(Long expedientTipusId, Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
+		Estat estat = null;
+		if (estatId != null) { 
+			estat = estatRepository.findOne(estatId);
+		}
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		Integer seguentOrdre = estatReglaRepository.getSeguentOrdre(estatId);
 		seguentOrdre = seguentOrdre == null ? 0 : seguentOrdre + 1;
 		EstatRegla regla = EstatRegla.builder()
@@ -3595,9 +3612,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	@Override
 	@Transactional
-	public EstatReglaDto estatReglaUpdate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
-		Estat estat = estatRepository.findOne(estatId);
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+	public EstatReglaDto estatReglaUpdate(Long expedientTipusId, Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
+		Estat estat = null;
+		if (estatId != null) {
+			estat = estatRepository.findOne(estatId);
+		}
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		EstatRegla regla = estatReglaRepository.findOne(reglaDto.getId());
 		if (regla == null)
 			throw new NoTrobatException(EstatRegla.class, reglaDto.getId());
@@ -3613,9 +3633,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	@Override
 	@Transactional
-	public void estatReglaDelete(Long estatId, Long reglaId) throws NoTrobatException, PermisDenegatException {
-		Estat estat = estatRepository.findOne(estatId);
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+	public void estatReglaDelete(Long expedientTipusId, Long estatId, Long reglaId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = null;
+		if (estatId != null) {
+			estat = estatRepository.findOne(estatId);
+		}
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		EstatRegla regla = estatReglaRepository.findOne(reglaId);
 		if (regla == null)
 			throw new NoTrobatException(EstatRegla.class, reglaId);
@@ -3639,12 +3662,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				regla.getExpedientTipus().getEntorn().getId(),
 				regla.getExpedientTipus().getId());
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(regla.getExpedientTipus().getId());
-		Estat estat = estatRepository.findOne(regla.getEstat().getId());
-		if (estat == null) {
-			throw new NoTrobatException(Estat.class, regla.getEstat().getId());
+		
+		List<EstatRegla> regles;
+		if (regla.getEstat() != null) {
+			Estat estat = estatRepository.findOne(regla.getEstat().getId());
+			if (estat == null) {
+				throw new NoTrobatException(Estat.class, regla.getEstat().getId());
+			}
+			regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+		} else {
+			regles = estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(regla.getExpedientTipus());
 		}
-
-		List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
 		if(posicio != regles.indexOf(regla)) {
 			regles.remove(regla);
 			regles.add(posicio, regla);

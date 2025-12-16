@@ -107,6 +107,7 @@
 		<script id="tableButtonsEstatTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
 				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/estat/new" data-toggle="modal" data-datatable-id="expedientTipusEstat"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.estat.nou"/></a>
+				<a id="regles_tipus_expedient" class="btn btn-default" href="${expedientTipus.id}/estat/regles" data-datatable-id="expedientTipusEstat"><span class="fa fa-eye-slash"></span>&nbsp;<spring:message code="expedient.tipus.estat.regla.titol"/></a>
 				<a id="importar_dades" class="btn btn-info" href="${expedientTipus.id}/estat/importar" data-toggle="modal" data-datatable-id="expedientTipusEstat"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.boto.importar.dades"/></a>
 				<a id="exportar_dades" class="btn btn-info" href="${expedientTipus.id}/estat/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.boto.exportar.dades"/></a>
 			</div>

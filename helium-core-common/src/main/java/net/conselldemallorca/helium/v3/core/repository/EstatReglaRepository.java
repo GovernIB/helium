@@ -26,6 +26,8 @@ public interface EstatReglaRepository extends JpaRepository<EstatRegla, Long> {
 
 	public List<EstatRegla> findByExpedientTipusAndEstat(ExpedientTipus expedientTipus, Estat estat);
 
+	public List<EstatRegla> findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(ExpedientTipus expedientTipus);
+
 	public List<EstatRegla> findByEstatOrderByOrdreAsc(Estat estat);
 
 	@Query("select count(er) from EstatRegla er where er.estat.id = :estatId ")
@@ -39,6 +41,9 @@ public interface EstatReglaRepository extends JpaRepository<EstatRegla, Long> {
 
 	@Query("from EstatRegla r where r.estat.id=:estatId and r.nom = :nom")
 	EstatRegla findByNom(@Param("estatId") Long estatId, @Param("nom") String nom);
+	
+	@Query("from EstatRegla r where r.expedientTipus.id=:expedientTipusId and r.nom = :nom and r.estat is null")
+	EstatRegla findByTipusExpedientNomAndEstatIsNull(@Param("expedientTipusId") Long expedientTipusId, @Param("nom") String nom);
 
 
 	/** Troba totes les regles que contenenun valor en concret per un tipus d'expedient
