@@ -56,7 +56,9 @@ public class ReglaHelper {
         if (estat == null)
             return campFormPropertiesMap;
 
-        List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+        List<EstatRegla> regles = estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus);
+        List<EstatRegla> reglesEstat = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+        regles.addAll(reglesEstat);
         if (regles == null || regles.isEmpty())
             return campFormPropertiesMap;
         List<Camp> dades = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
@@ -143,7 +145,10 @@ public class ReglaHelper {
         if (estat == null)
             return campFormPropertiesMap;
 
-        List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+        List<EstatRegla> regles = estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus);
+        List<EstatRegla> reglesEstat = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+        regles.addAll(reglesEstat);
+        
         if (regles == null || regles.isEmpty())
             return campFormPropertiesMap;
         List<Document> documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
@@ -207,7 +212,10 @@ public class ReglaHelper {
         if (estat == null)
             return campFormPropertiesMap;
 
-        List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+        List<EstatRegla> regles = estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus);
+        List<EstatRegla> reglesEstat = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+        regles.addAll(reglesEstat);
+        
         if (regles == null || regles.isEmpty())
             return campFormPropertiesMap;
         List<Termini> terminis = terminiRepository.findByExpedientTipus(expedientTipus.getId());

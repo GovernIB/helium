@@ -83,7 +83,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
-	
+
 	@ModelAttribute("listEstats")
 	public List<ParellaCodiValorDto> populateValorEstats() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -92,231 +92,160 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		}
 		return resposta;
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/estats")
-	public String estats(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			Model model) {
+	public String estats(HttpServletRequest request, @PathVariable Long expedientTipusId, Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioExpedientTipusPerPipelles(
-					request,
-					expedientTipusId,
-					model,
-					"estats");
+			return mostrarInformacioExpedientTipusPerPipelles(request, expedientTipusId, model, "estats");
 		}
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					expedientTipusId);
+			ExpedientTipusDto expedientTipus = expedientTipusService
+					.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
 		return "v3/expedientTipusEstat";
 	}
 
-	@RequestMapping(value="/{expedientTipusId}/estats/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientTipusId}/estats/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	DatatablesResponse datatable(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			Model model) {
+	DatatablesResponse datatable(HttpServletRequest request, @PathVariable Long expedientTipusId, Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		paginacioParams.getOrdres().clear();
 		paginacioParams.afegirOrdre("ordre", OrdreDireccioDto.ASCENDENT);
-		PaginaDto<EstatDto> pagina = expedientTipusService.estatFindPerDatatable(
-				expedientTipusId,
-				paginacioParams.getFiltre(),
-				paginacioParams);
-		return DatatablesHelper.getDatatableResponse(
-				request,
-				null,
-				pagina,
-				"id");		
+		PaginaDto<EstatDto> pagina = expedientTipusService.estatFindPerDatatable(expedientTipusId,
+				paginacioParams.getFiltre(), paginacioParams);
+		return DatatablesHelper.getDatatableResponse(request, null, pagina, "id");
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/new", method = RequestMethod.GET)
-	public String nou(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@RequestParam(required = false) Long agrupacioId,
-			Model model) {
+	public String nou(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@RequestParam(required = false) Long agrupacioId, Model model) {
 		ExpedientTipusEstatCommand command = new ExpedientTipusEstatCommand();
 		command.setOrdre(expedientTipusService.getEstatSeguentOrdre(expedientTipusId));
-		
+
 		command.setExpedientTipusId(expedientTipusId);
-		
+
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("expedientTipusEstatCommand", command);
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					expedientTipusId);
+			ExpedientTipusDto expedientTipus = expedientTipusService
+					.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
 		return "v3/expedientTipusEstatForm";
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/new", method = RequestMethod.POST)
-	public String nouPost(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+	public String nouPost(HttpServletRequest request, @PathVariable Long expedientTipusId,
 			@Validated(ExpedientTipusEstatCommand.Creacio.class) ExpedientTipusEstatCommand command,
-			BindingResult bindingResult,
-			Model model) {
-        if (bindingResult.hasErrors()) {
-        	model.addAttribute("expedientTipusId", expedientTipusId);
+			BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("expedientTipusId", expedientTipusId);
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			if (entornActual != null) {
-				ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-						entornActual.getId(),
-						expedientTipusId);
+				ExpedientTipusDto expedientTipus = expedientTipusService
+						.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 				model.addAttribute("expedientTipus", expedientTipus);
 			}
-        	return "v3/expedientTipusEstatForm";
-        } else {
-        	// Verificar permisos
-    		expedientTipusService.estatCreate(
-    				expedientTipusId,
-    				conversioTipusHelper.convertir(
-    						command,
-    						EstatDto.class));    		
-    		MissatgesHelper.success(
-					request, 
-					getMessage(
-							request, 
-							"expedient.tipus.estat.controller.creat"));
-			return modalUrlTancar(false);	
-			
-        }
+			return "v3/expedientTipusEstatForm";
+		} else {
+			// Verificar permisos
+			expedientTipusService.estatCreate(expedientTipusId,
+					conversioTipusHelper.convertir(command, EstatDto.class));
+			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.controller.creat"));
+			return modalUrlTancar(false);
+
+		}
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{id}/update", method = RequestMethod.GET)
-	public String modificar(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long id,
+	public String modificar(HttpServletRequest request, @PathVariable Long expedientTipusId, @PathVariable Long id,
 			Model model) {
 		EstatDto dto = expedientTipusService.estatFindAmbId(expedientTipusId, id);
-		ExpedientTipusEstatCommand command = conversioTipusHelper.convertir(
-				dto,
-				ExpedientTipusEstatCommand.class);
+		ExpedientTipusEstatCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusEstatCommand.class);
 		command.setExpedientTipusId(expedientTipusId);
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					expedientTipusId);
+			ExpedientTipusDto expedientTipus = expedientTipusService
+					.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
-		
+
 		model.addAttribute("expedientTipusEstatCommand", command);
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("heretat", dto.isHeretat());
 		return "v3/expedientTipusEstatForm";
 	}
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{id}/update", method = RequestMethod.POST)
-	public String modificarPost(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long id,
+	public String modificarPost(HttpServletRequest request, @PathVariable Long expedientTipusId, @PathVariable Long id,
 			@Validated(ExpedientTipusEstatCommand.Modificacio.class) ExpedientTipusEstatCommand command,
-			BindingResult bindingResult,
-			Model model) {
-        if (bindingResult.hasErrors()) {
-        	model.addAttribute("expedientTipusId", expedientTipusId);
-    		model.addAttribute("heretat", expedientTipusService.estatFindAmbId(expedientTipusId, id).isHeretat());
+			BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("expedientTipusId", expedientTipusId);
+			model.addAttribute("heretat", expedientTipusService.estatFindAmbId(expedientTipusId, id).isHeretat());
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			if (entornActual != null) {
-				ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-						entornActual.getId(),
-						expedientTipusId);
+				ExpedientTipusDto expedientTipus = expedientTipusService
+						.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 				model.addAttribute("expedientTipus", expedientTipus);
 			}
-        	return "v3/expedientTipusEstatForm";
-        } else {
-        	expedientTipusService.estatUpdate(
-        			conversioTipusHelper.convertir(
-    						command,
-    						EstatDto.class));
-        	MissatgesHelper.success(
-					request, 
-					getMessage(
-							request, 
-							"expedient.tipus.estat.controller.modificat"));
+			return "v3/expedientTipusEstatForm";
+		} else {
+			expedientTipusService.estatUpdate(conversioTipusHelper.convertir(command, EstatDto.class));
+			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.controller.modificat"));
 			return modalUrlTancar(false);
-        }
+		}
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean borrar(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long id,
+	public boolean borrar(HttpServletRequest request, @PathVariable Long expedientTipusId, @PathVariable Long id,
 			Model model) {
 		try {
 			expedientTipusService.estatDelete(id);
-			
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.eliminat"));
+
+			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.controller.eliminat"));
 			return true;
 		} catch (Exception e) {
 			logger.error(e);
-			MissatgesHelper.error(
-					request, 
-					getMessage(
-							request, 
-							"expedient.tipus.estat.controller.eliminat.no",
-							new Object[] {e.getLocalizedMessage()}),
-					e);
+			MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.controller.eliminat.no",
+					new Object[] { e.getLocalizedMessage() }), e);
 			return false;
 		}
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/moure/{posicio}", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean moure(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable int posicio,
-			Model model) {
+	public boolean moure(HttpServletRequest request, @PathVariable Long expedientTipusId, @PathVariable Long estatId,
+			@PathVariable int posicio, Model model) {
 		boolean ret = false;
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(), 
-				expedientTipusId); 
-		
+		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
+				expedientTipusId);
+
 		boolean herencia = tipus.getExpedientTipusPareId() != null;
 		if (herencia) {
 			EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
 			boolean correcte = true;
 			if (estat.isHeretat()) {
-				MissatgesHelper.error(
-				request, 
-				getMessage(
-						request, 
-						"expedient.tipus.estat.controller.moure.heretat.error"));
+				MissatgesHelper.error(request,
+						getMessage(request, "expedient.tipus.estat.controller.moure.heretat.error"));
 				correcte = false;
 			} else {
-				// rectifica la posició restant tots els heretats que té per davant
+				// rectifica la posició restant tots els heretats que té per
+				// davant
 				int nHeretats = 0;
-				for(EstatDto e : expedientTipusService.estatFindAll(expedientTipusId, true))
+				for (EstatDto e : expedientTipusService.estatFindAll(expedientTipusId, true))
 					if (e.isHeretat())
-						nHeretats ++;
+						nHeretats++;
 				if (posicio < nHeretats) {
-					MissatgesHelper.error(
-					request, 
-					getMessage(
-							request, 
-							"expedient.tipus.estat.controller.moure.heretat.error"));
+					MissatgesHelper.error(request,
+							getMessage(request, "expedient.tipus.estat.controller.moure.heretat.error"));
 					correcte = false;
 				} else {
 					posicio = posicio - nHeretats;
@@ -326,115 +255,89 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 				ret = expedientTipusService.estatMoure(estatId, posicio);
 			else
 				ret = false;
-		}
-		else {
+		} else {
 			ret = expedientTipusService.estatMoure(estatId, posicio);
 		}
 		return ret;
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/moure/{posicio}/ordre/{ordre}", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean moureReglaAmbOrdre(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable int posicio,
-			@PathVariable String ordre,
-			Model model) {
-	
+	public boolean moureReglaAmbOrdre(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable int posicio, @PathVariable String ordre, Model model) {
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(),
+		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
 				expedientTipusId);
-	
+
 		return expedientTipusService.estatMoureOrdre(estatId, posicio, ordre);
 	}
-	
-	
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/exportar", method = RequestMethod.GET)
 	@ResponseBody
-	public void exportar(
-			HttpServletRequest request,
-			HttpServletResponse response,
-			@PathVariable Long expedientTipusId) throws Exception {
+	public void exportar(HttpServletRequest request, HttpServletResponse response, @PathVariable Long expedientTipusId)
+			throws Exception {
 
+		try {
 
-        	try {
-        		
-				ObjectMapper mapper = new ObjectMapper();
-				mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-				List<EstatExportacio> estatExportacioList = expedientTipusService.estatExportacio(expedientTipusId, true);
-				byte[] exportacioJson = mapper.writeValueAsBytes(estatExportacioList);
-        		
-        		MissatgesHelper.success(
-    					request, 
-    					getMessage(
-    							request, 
-    							"expedient.tipus.estat.exportar.controller.success"));        			
+			List<EstatExportacio> estatExportacioList = expedientTipusService.estatExportacio(expedientTipusId, true);
+			byte[] exportacioJson = mapper.writeValueAsBytes(estatExportacioList);
 
-        		response.setHeader("Pragma", "");
-        		response.setHeader("Expires", "");
-        		response.setHeader("Cache-Control", "");
-        		response.setHeader("Content-Disposition", "attachment; filename=\"estats_exp.json\"");
-        		response.setContentType("text/plain");
-        		response.getOutputStream().write(exportacioJson);
-        
-        	} catch(Exception e) {
-        		logger.error(e);
-        		MissatgesHelper.error(
-        				request,
-        				getMessage(
-        						request, 
-        						"expedient.tipus.estat.exportar.controller.error",
-        						new Object[]{e.getLocalizedMessage()}),
-    					e);
-        		throw(e);
-        	}        
-	}	
+			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.exportar.controller.success"));
 
-	
+			response.setHeader("Pragma", "");
+			response.setHeader("Expires", "");
+			response.setHeader("Cache-Control", "");
+			response.setHeader("Content-Disposition", "attachment; filename=\"estats_exp.json\"");
+			response.setContentType("text/plain");
+			response.getOutputStream().write(exportacioJson);
+
+		} catch (Exception e) {
+			logger.error(e);
+			MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.exportar.controller.error",
+					new Object[] { e.getLocalizedMessage() }), e);
+			throw (e);
+		}
+	}
+
 	/** Mètode per obrir un formulari d'importació de dades d'estats. */
 	@RequestMapping(value = "/{expedientTipusId}/estat/importar", method = RequestMethod.GET)
-	public String importar(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			Model model) {
+	public String importar(HttpServletRequest request, @PathVariable Long expedientTipusId, Model model) {
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute(new ImportarDadesCommand());
 		return "v3/expedientTipusEstatImportarForm";
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/importar", method = RequestMethod.POST)
-	public String importarPost(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@Validated(ImportarDadesCommand.Importar.class) ImportarDadesCommand command,
-			BindingResult bindingResult,
+	public String importarPost(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@Validated(ImportarDadesCommand.Importar.class) ImportarDadesCommand command, BindingResult bindingResult,
 			Model model) {
 		if (command.getMultipartFile() == null || command.getMultipartFile().getSize() == 0) {
-			bindingResult.rejectValue("multipartFile", "expedient.tipus.estat.importar.controller.validacio.multipartFile.buit");
+			bindingResult.rejectValue("multipartFile",
+					"expedient.tipus.estat.importar.controller.validacio.multipartFile.buit");
 		}
-        if (bindingResult.hasErrors()) {
-        	model.addAttribute("importarDadesCommand", command);
-        	return "v3/expedientTipusEstatImportarForm";
-        } else {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("importarDadesCommand", command);
+			return "v3/expedientTipusEstatImportarForm";
+		} else {
 
 			int insercions = 0;
 			int actualitzacions = 0;
 			int esborrats = 0;
 			Map<Long, EstatDto> estatsEsborrar = new HashMap<Long, EstatDto>();
-        	try {
-    			if (command.isEliminarValorsAntics()) {
-    				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId, false)) {
-    					estatsEsborrar.put(estat.getId(), estat);
-    				}
-    			}
+			try {
+				if (command.isEliminarValorsAntics()) {
+					for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId, false)) {
+						estatsEsborrar.put(estat.getId(), estat);
+					}
+				}
 
 				if (command.getMultipartFile().getOriginalFilename().toLowerCase().endsWith(".csv")) {
-					BufferedReader br = new BufferedReader(new InputStreamReader(command.getMultipartFile().getInputStream()));
+					BufferedReader br = new BufferedReader(
+							new InputStreamReader(command.getMultipartFile().getInputStream()));
 					String linia = br.readLine();
 					String codi;
 					String nom;
@@ -443,13 +346,9 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 						if (columnes.length > 1) {
 							codi = columnes[0];
 							// Comprova que el codi sigui vàlid
-							if (! CodiValidator.isValid(codi)) {
-								MissatgesHelper.error(
-										request,
-										getMessage(
-												request,
-												"expedient.tipus.estat.importar.controller.error.codi",
-												new Object[]{codi}));
+							if (!CodiValidator.isValid(codi)) {
+								MissatgesHelper.error(request, getMessage(request,
+										"expedient.tipus.estat.importar.controller.error.codi", new Object[] { codi }));
 							} else {
 								// Completa la inserció o actualització
 								nom = columnes[1];
@@ -475,25 +374,24 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 					mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 					mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-					List<EstatExportacio> estatExportacioList = mapper.readValue(command.getMultipartFile().getInputStream(), new TypeReference<List<EstatExportacio>>() {
-					});
+					List<EstatExportacio> estatExportacioList = mapper.readValue(
+							command.getMultipartFile().getInputStream(), new TypeReference<List<EstatExportacio>>() {
+							});
 					for (EstatExportacio estatExportacio : estatExportacioList) {
 						// Comprova que el codi sigui vàlid
 						if (!CodiValidator.isValid(estatExportacio.getCodi())) {
-							MissatgesHelper.error(
-									request,
-									getMessage(request, "expedient.tipus.estat.importar.controller.error.codi", new Object[]{estatExportacio.getCodi()}));
+							MissatgesHelper.error(request,
+									getMessage(request, "expedient.tipus.estat.importar.controller.error.codi",
+											new Object[] { estatExportacio.getCodi() }));
 							continue;
 						}
 
 						// Crear o actualitzar estat
-						EstatDto estat = expedientTipusService.estatFindAmbCodi(expedientTipusId, estatExportacio.getCodi());
+						EstatDto estat = expedientTipusService.estatFindAmbCodi(expedientTipusId,
+								estatExportacio.getCodi());
 						if (estat == null) {
-							EstatDto estatDto = EstatDto.builder()
-									.codi(estatExportacio.getCodi())
-									.nom(estatExportacio.getNom())
-									.ordre(estatExportacio.getOrdre())
-									.build();
+							EstatDto estatDto = EstatDto.builder().codi(estatExportacio.getCodi())
+									.nom(estatExportacio.getNom()).ordre(estatExportacio.getOrdre()).build();
 							estat = expedientTipusService.estatCreate(expedientTipusId, estatDto);
 							insercions++;
 						} else {
@@ -507,12 +405,15 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 						// Crear o actualitzar regles
 						if (estatExportacio.getRegles() != null) {
 							for (EstatReglaDto reglaExportacio : estatExportacio.getRegles()) {
-								EstatReglaDto regla = expedientTipusService.estatReglaFindByNom(estat.getId(), reglaExportacio.getNom());
+								EstatReglaDto regla = expedientTipusService.estatReglaFindByNom(expedientTipusId,
+										estat.getId(), reglaExportacio.getNom());
 								if (regla == null) {
-									expedientTipusService.estatReglaCreate(estat.getId(), reglaExportacio);
+									expedientTipusService.estatReglaCreate(expedientTipusId, estat.getId(),
+											reglaExportacio);
 								} else {
 									reglaExportacio.setId(regla.getId());
-									expedientTipusService.estatReglaUpdate(estat.getId(), reglaExportacio);
+									expedientTipusService.estatReglaUpdate(expedientTipusId, estat.getId(),
+											reglaExportacio);
 								}
 							}
 						}
@@ -520,88 +421,85 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 						// Actualitzar permisos
 						if (estatExportacio.getPermisos() != null) {
 							for (PermisEstatDto permisExportacio : estatExportacio.getPermisos()) {
-								expedientTipusService.estatPermisUpdate(
-										estat.getId(),
+								expedientTipusService.estatPermisUpdate(estat.getId(),
 										conversioTipusHelper.convertir(permisExportacio, PermisDto.class));
 							}
 						}
-						
+
 						// Actualitzar accions
-						
+
 						// esborra les accions de l'estat
 						expedientTipusService.estatAccionsDeleteAll(estat.getId());
 
 						if (estatExportacio.getAccionsEntrada() != null) {
 							for (EstatAccioDto estatAccio : estatExportacio.getAccionsEntrada()) {
-								AccioDto accio = accioService.findAmbCodi(expedientTipusId, null, estatAccio.getAccio().getCodi());
+								AccioDto accio = accioService.findAmbCodi(expedientTipusId, null,
+										estatAccio.getAccio().getCodi());
 								if (accio != null) {
 									expedientTipusService.estatAccioEntradaAfegir(estat.getId(), accio.getId());
 								} else {
-									MissatgesHelper.warning(
-											request, 
-											getMessage(request, 
-													"expedient.tipus.estat.importar.controller.avis.estat.accio.entrada", 
-													new Object[] {estatAccio.getAccio().getCodi(), estatAccio.getAccio().getNom(), estat.getCodi(), estat.getNom()}) );
+									MissatgesHelper.warning(request,
+											getMessage(request,
+													"expedient.tipus.estat.importar.controller.avis.estat.accio.entrada",
+													new Object[] { estatAccio.getAccio().getCodi(),
+															estatAccio.getAccio().getNom(), estat.getCodi(),
+															estat.getNom() }));
 								}
-							}							
+							}
 						}
-						
+
 						if (estatExportacio.getAccionsSortida() != null) {
 							for (EstatAccioDto estatAccio : estatExportacio.getAccionsSortida()) {
-								AccioDto accio = accioService.findAmbCodi(expedientTipusId, null, estatAccio.getAccio().getCodi());
+								AccioDto accio = accioService.findAmbCodi(expedientTipusId, null,
+										estatAccio.getAccio().getCodi());
 								if (accio != null) {
 									expedientTipusService.estatAccioSortidaAfegir(estat.getId(), accio.getId());
 								} else {
-									MissatgesHelper.warning(
-											request, 
-											getMessage(request, 
-													"expedient.tipus.estat.importar.controller.avis.estat.accio.sortida", 
-													new Object[] {estatAccio.getAccio().getCodi(), estatAccio.getAccio().getNom(), estat.getCodi(), estat.getNom()}) );
+									MissatgesHelper.warning(request,
+											getMessage(request,
+													"expedient.tipus.estat.importar.controller.avis.estat.accio.sortida",
+													new Object[] { estatAccio.getAccio().getCodi(),
+															estatAccio.getAccio().getNom(), estat.getCodi(),
+															estat.getNom() }));
 								}
-							}							
+							}
 						}
 					}
 				}
 				for (Long estatId : estatsEsborrar.keySet()) {
 					System.out.println(estatId);
-					try  {
+					try {
 						expedientTipusService.estatDelete(estatId);
 						esborrats++;
 					} catch (Exception e) {
 						EstatDto estat = estatsEsborrar.get(estatId);
-						MissatgesHelper.error(
-								request,
-								getMessage(request, "expedient.tipus.estat.importar.controller.error.estat.antic.esborrar", new Object[] {estat.getCodi(), estat.getNom(), e.getMessage()}),
+						MissatgesHelper.error(request,
+								getMessage(request,
+										"expedient.tipus.estat.importar.controller.error.estat.antic.esborrar",
+										new Object[] { estat.getCodi(), estat.getNom(), e.getMessage() }),
 								e);
 					}
 				}
-        	} catch(Exception e) {
-        		logger.error(e);
-        		MissatgesHelper.error(
-        				request,
-        				getMessage(request, "expedient.tipus.estat.importar.controller.error", new Object[]{e.getLocalizedMessage()}),
-    					e);
-        	}
-    		MissatgesHelper.success(
-					request, 
-					getMessage(request, "expedient.tipus.estat.importar.controller.success", new Object[] {insercions, actualitzacions, esborrats}));
-			return modalUrlTancar(false);	
-        }
+			} catch (Exception e) {
+				logger.error(e);
+				MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.importar.controller.error",
+						new Object[] { e.getLocalizedMessage() }), e);
+			}
+			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.importar.controller.success",
+					new Object[] { insercions, actualitzacions, esborrats }));
+			return modalUrlTancar(false);
+		}
 	}
-
 
 	// PERMISOS
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permisos", method = RequestMethod.GET)
-	public String permisosGet(HttpServletRequest request,
-							  @PathVariable Long expedientTipusId,
-							  @PathVariable Long estatId,
-							  Model model) {
+	public String permisosGet(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, Model model) {
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(),
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
 				expedientTipusId);
 		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
 
@@ -612,111 +510,71 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	DatatablesResponse permisDatatable(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			Model model) {
-		return DatatablesHelper.getDatatableResponse(
-				request,
-				null,
-				expedientTipusService.estatPermisFindAll(estatId));
+	DatatablesResponse permisDatatable(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, Model model) {
+		return DatatablesHelper.getDatatableResponse(request, null, expedientTipusService.estatPermisFindAll(estatId));
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/new", method = RequestMethod.GET)
-	public String permisNewGet(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			Model model) {
+	public String permisNewGet(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, Model model) {
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 		model.addAttribute(new PermisCommand());
 		return "v3/expedientTipusEstatPermisForm";
 	}
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/new", method = RequestMethod.POST)
-	public String permisNewPost(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@Validated(Estat.class) PermisCommand command,
-			BindingResult bindingResult,
+	public String permisNewPost(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @Validated(Estat.class) PermisCommand command, BindingResult bindingResult,
 			Model model) {
-		return permisUpdatePost(
-				request,
-				expedientTipusId,
-				estatId,
-				null,
-				command,
-				bindingResult,
-				model);
+		return permisUpdatePost(request, expedientTipusId, estatId, null, command, bindingResult, model);
 	}
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/{permisId}", method = RequestMethod.GET)
-	public String permisUpdateGet(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long permisId,
-			Model model) {
+	public String permisUpdateGet(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long permisId, Model model) {
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 		PermisDto permis = expedientTipusService.estatPermisFindById(estatId, permisId);
 		model.addAttribute(conversioTipusHelper.convertir(permis, PermisCommand.class));
 		return "v3/expedientTipusEstatPermisForm";
 	}
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/{permisId}", method = RequestMethod.POST)
-	public String permisUpdatePost(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long permisId,
-			@Validated(Estat.class) PermisCommand command,
-			BindingResult bindingResult,
-			Model model) {
+	public String permisUpdatePost(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long permisId, @Validated(Estat.class) PermisCommand command,
+			BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 			return "v3/expedientTipusEstatPermisForm";
 		} else {
-			expedientTipusService.estatPermisUpdate(
-					estatId,
-					conversioTipusHelper.convertir(command, PermisDto.class));
+			expedientTipusService.estatPermisUpdate(estatId, conversioTipusHelper.convertir(command, PermisDto.class));
 
-			MissatgesHelper.success(
-					request,
+			MissatgesHelper.success(request,
 					getMessage(request, "expedient.tipus.estat.controller.permis.actualitzat"));
 			return modalUrlTancar();
 		}
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/{permisId}/delete")
-	public String permisDelete(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long permisId,
-			Model model) {
+	public String permisDelete(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long permisId, Model model) {
 
-		expedientTipusService.estatPermisDelete(
-				estatId,
-				permisId);
+		expedientTipusService.estatPermisDelete(estatId, permisId);
 
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 		model.addAttribute(new PermisCommand());
 		return "redirect:/v3/expedientTipus/" + expedientTipusId + "/estat/" + estatId + "/permisos";
 	}
 
-
-
 	// REGLES
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regles", method = RequestMethod.GET)
-	public String reglesGet(HttpServletRequest request,
-							@PathVariable Long expedientTipusId,
-							@PathVariable Long estatId,
-							Model model) {
+	public String reglesGet(HttpServletRequest request, @PathVariable Long expedientTipusId, @PathVariable Long estatId,
+			Model model) {
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(),
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
 				expedientTipusId);
 		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
 
@@ -726,130 +584,181 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		return "v3/expedientTipusEstatRegles";
 	}
 
+	@RequestMapping(value = "/{expedientTipusId}/estat/regles", method = RequestMethod.GET)
+	public String reglesTipusExpedientGet(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			// @PathVariable Long estatId,
+			Model model) {
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
+				expedientTipusId);
+		// EstatDto estat =
+		// expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
+
+		model.addAttribute("expedientTipus", expedientTipus);
+		model.addAttribute("reglesTipusExpedient", true);
+
+		return "v3/expedientTipusEstatRegles";
+	}
+
+	/** Regles per un estat concret. */
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	DatatablesResponse reglesDatatable(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			Model model) {
-		return DatatablesHelper.getDatatableResponse(
-				request,
-				null,
-				expedientTipusService.estatReglaFindAll(estatId),
+	DatatablesResponse reglesDatatable(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, Model model) {
+		return DatatablesHelper.getDatatableResponse(request, null,
+				estatId != null ? expedientTipusService.estatReglaFindAll(estatId)
+						// : new ArrayList<EstatReglaDto>(),
+						: expedientTipusService.estatReglaFindAllByExpedientTipus(expedientTipusId),
 				"id");
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/new", method = RequestMethod.GET)
-	public String reglaNewGet(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
+	/** Regles a nivell de tipus d'expedient. */
+	@RequestMapping(value = "/{expedientTipusId}/estat/regla/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse reglesTipusDatatable(HttpServletRequest request, @PathVariable Long expedientTipusId,
 			Model model) {
-		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
+		return this.reglesDatatable(request, expedientTipusId, null, model);
+	}
+
+	/** Modal per crear una regla per un estat. */
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/new", method = RequestMethod.GET)
+	public String reglaNewGet(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, Model model) {
+		if (estatId != null) {
+			model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
+		}
 		model.addAttribute(EstatReglaCommand.builder().estatId(estatId).expedientTipusId(expedientTipusId).build());
 		modelRegles(model, expedientTipusId, null);
 		return "v3/expedientTipusEstatReglaForm";
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/new", method = RequestMethod.POST)
-	public String reglaNewPost(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@Valid EstatReglaCommand command,
-			BindingResult bindingResult,
+	/** Obre la modal per crear una regla a nivell de tipus d'expedient. */
+	@RequestMapping(value = "/{expedientTipusId}/estat/regla/new", method = RequestMethod.GET)
+	public String reglaTipusExpedientNewGet(HttpServletRequest request, @PathVariable Long expedientTipusId,
 			Model model) {
-		return reglaUpdatePost(
-				request,
-				expedientTipusId,
-				estatId,
-				null,
-				command,
-				bindingResult,
-				model);
+		return this.reglaNewGet(request, expedientTipusId, null, model);
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/new", method = RequestMethod.POST)
+	public String reglaNewPost(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @Valid EstatReglaCommand command, BindingResult bindingResult, Model model) {
+		return reglaUpdatePost(request, expedientTipusId, estatId, null, command, bindingResult, model);
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/regla/new", method = RequestMethod.POST)
+	public String reglaTipusExpedientNewPost(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@Valid EstatReglaCommand command, BindingResult bindingResult, Model model) {
+		return this.reglaNewPost(request, expedientTipusId, null, command, bindingResult, model);
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}", method = RequestMethod.GET)
-	public String reglaUpdateGet(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long reglaId,
-			Model model) {
+	public String reglaUpdateGet(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long reglaId, Model model) {
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
-		EstatReglaDto regla = expedientTipusService.estatReglaFindById(estatId, reglaId);
+		EstatReglaDto regla = expedientTipusService.estatReglaFindById(expedientTipusId, reglaId);
+		model.addAttribute(conversioTipusHelper.convertir(regla, EstatReglaCommand.class));
+		modelRegles(model, expedientTipusId, regla.getQue());
+		return "v3/expedientTipusEstatReglaForm";
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/regla/{reglaId}", method = RequestMethod.GET)
+	public String reglaTipusExpedientUpdateGet(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long reglaId, Model model) {
+		model.addAttribute("estat", null);
+		EstatReglaDto regla = expedientTipusService.estatReglaFindById(expedientTipusId, reglaId);
 		model.addAttribute(conversioTipusHelper.convertir(regla, EstatReglaCommand.class));
 		modelRegles(model, expedientTipusId, regla.getQue());
 		return "v3/expedientTipusEstatReglaForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}", method = RequestMethod.POST)
-	public String reglaUpdatePost(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long reglaId,
-			@Valid EstatReglaCommand command,
-			BindingResult bindingResult,
-			Model model) {
+	public String reglaUpdatePost(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long reglaId, @Valid EstatReglaCommand command,
+			BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 			modelRegles(model, expedientTipusId, command.getQue());
 			return "v3/expedientTipusEstatReglaForm";
 		} else {
 			if (reglaId == null) {
-				expedientTipusService.estatReglaCreate(estatId, conversioTipusHelper.convertir(command, EstatReglaDto.class));
+				expedientTipusService.estatReglaCreate(expedientTipusId, estatId,
+						conversioTipusHelper.convertir(command, EstatReglaDto.class));
 				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.controller.regla.creat"));
 			} else {
-				expedientTipusService.estatReglaUpdate(estatId, conversioTipusHelper.convertir(command, EstatReglaDto.class));
-				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.controller.regla.actualitzat"));
+				expedientTipusService.estatReglaUpdate(expedientTipusId, estatId,
+						conversioTipusHelper.convertir(command, EstatReglaDto.class));
+				MissatgesHelper.success(request,
+						getMessage(request, "expedient.tipus.estat.controller.regla.actualitzat"));
+			}
+			return modalUrlTancar();
+		}
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/regla/{reglaId}", method = RequestMethod.POST)
+	public String reglaTipusExpedientUpdatePost(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long reglaId, @Valid EstatReglaCommand command, BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("estat", null);
+			modelRegles(model, expedientTipusId, command.getQue());
+			return "v3/expedientTipusEstatReglaForm";
+		} else {
+			if (reglaId == null) {
+				expedientTipusService.estatReglaCreate(expedientTipusId, null,
+						conversioTipusHelper.convertir(command, EstatReglaDto.class));
+				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.controller.regla.creat"));
+			} else {
+				expedientTipusService.estatReglaUpdate(expedientTipusId, null,
+						conversioTipusHelper.convertir(command, EstatReglaDto.class));
+				MissatgesHelper.success(request,
+						getMessage(request, "expedient.tipus.estat.controller.regla.actualitzat"));
 			}
 			return modalUrlTancar();
 		}
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}/delete")
-	public String reglaDelete(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long reglaId,
-			Model model) {
+	public String reglaDelete(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long reglaId, Model model) {
 
-		expedientTipusService.estatReglaDelete(
-				estatId,
-				reglaId);
+		expedientTipusService.estatReglaDelete(expedientTipusId, estatId, reglaId);
 
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 		model.addAttribute(new EstatReglaCommand());
 		return "redirect:/v3/expedientTipus/" + expedientTipusId + "/estat/" + estatId + "/regles";
 	}
 
+	@RequestMapping(value = "/{expedientTipusId}/estat/regla/{reglaId}/delete")
+	public String reglaTipusExpedientDelete(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long reglaId, Model model) {
+
+		expedientTipusService.estatReglaDelete(expedientTipusId, null, // TODO:
+																		// Borrar
+																		// aixo
+				reglaId);
+
+		model.addAttribute("estat", null);
+		model.addAttribute(new EstatReglaCommand());
+		return "redirect:/v3/expedientTipus/" + expedientTipusId + "/estat" + "/regles";
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}/moure/{posicio}", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean moureRegla(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long reglaId,
-			@PathVariable int posicio,
-			Model model) {
-		boolean ret = false;
-
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(),
-				expedientTipusId);
-
+	public boolean moureRegla(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long reglaId, @PathVariable int posicio, Model model) {
 		return expedientTipusService.estatReglaMoure(reglaId, posicio);
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/regla/{reglaId}/moure/{posicio}", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean moureReglaTipusExpedient(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable int posicio, Model model) {
+		return this.moureRegla(request, expedientTipusId, estatId, null, posicio, model);
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/var/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> reglaGetVars(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+	public List<ParellaCodiValorDto> reglaGetVars(HttpServletRequest request, @PathVariable Long expedientTipusId,
 			Model model) {
 
 		List<CampDto> campsDto = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
@@ -863,9 +772,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 	@RequestMapping(value = "/{expedientTipusId}/doc/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> reglaGetDocs(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+	public List<ParellaCodiValorDto> reglaGetDocs(HttpServletRequest request, @PathVariable Long expedientTipusId,
 			Model model) {
 
 		List<DocumentDto> documentDtos = documentService.findAll(expedientTipusId, null);
@@ -879,9 +786,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 	@RequestMapping(value = "/{expedientTipusId}/term/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> reglaGetTerms(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+	public List<ParellaCodiValorDto> reglaGetTerms(HttpServletRequest request, @PathVariable Long expedientTipusId,
 			Model model) {
 
 		List<TerminiDto> terminiDtos = terminiService.findAll(expedientTipusId, null);
@@ -895,9 +800,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 	@RequestMapping(value = "/{expedientTipusId}/agrup/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> reglaGetAgrups(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+	public List<ParellaCodiValorDto> reglaGetAgrups(HttpServletRequest request, @PathVariable Long expedientTipusId,
 			Model model) {
 
 		List<CampAgrupacioDto> agrupacioDtos = campService.agrupacioFindAll(expedientTipusId, null, false);
@@ -909,11 +812,10 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		return agrupacions;
 	}
 
-	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET, produces = {
+			"application/json; charset=UTF-8" })
 	@ResponseBody
-	public String personaSuggest(
-			@PathVariable String text,
-			Model model) {
+	public String personaSuggest(@PathVariable String text, Model model) {
 		String textDecoded = null;
 		try {
 			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
@@ -922,19 +824,19 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		}
 		List<PersonaDto> lista = aplicacioService.findPersonaLikeCodiOrNomSencer(textDecoded);
 		String json = "[";
-		for (PersonaDto persona: lista) {
+		for (PersonaDto persona : lista) {
 			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
 		}
-		if (json.length() > 1) json = json.substring(0, json.length() - 1);
+		if (json.length() > 1)
+			json = json.substring(0, json.length() - 1);
 		json += "]";
 		return json;
 	}
 
-	@RequestMapping(value = "/persona/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@RequestMapping(value = "/persona/suggestInici/{text}", method = RequestMethod.GET, produces = {
+			"application/json; charset=UTF-8" })
 	@ResponseBody
-	public String personaSuggestInici(
-			@PathVariable String text,
-			Model model) {
+	public String personaSuggestInici(@PathVariable String text, Model model) {
 		String textDecoded = null;
 		try {
 			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
@@ -958,41 +860,37 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		List<ParellaCodiValorDto> valors = null;
 		if (que != null) {
 			switch (que) {
-				case DADA:
-					valors = reglaGetVars(null, expedientTipusId, null);
-					break;
-				case DOCUMENT:
-					valors = reglaGetDocs(null, expedientTipusId, null);
-					break;
-				case TERMINI:
-					valors = reglaGetTerms(null, expedientTipusId, null);
-					break;
-				case AGRUPACIO:
-					valors = reglaGetAgrups(null, expedientTipusId, null);
-					break;
+			case DADA:
+				valors = reglaGetVars(null, expedientTipusId, null);
+				break;
+			case DOCUMENT:
+				valors = reglaGetDocs(null, expedientTipusId, null);
+				break;
+			case TERMINI:
+				valors = reglaGetTerms(null, expedientTipusId, null);
+				break;
+			case AGRUPACIO:
+				valors = reglaGetAgrups(null, expedientTipusId, null);
+				break;
 			}
 			if (valors != null && !valors.isEmpty()) {
-				for (ParellaCodiValorDto codiValor: valors) {
+				for (ParellaCodiValorDto codiValor : valors) {
 					valorsQue.add(codiValor.getCodi() + " | " + codiValor.getValor());
 				}
 			}
 		}
 		model.addAttribute("valorsQue", valorsQue);
 	}
-	
+
 	// ACCIONS
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions", method = RequestMethod.GET)
-	public String accions(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
+	public String accions(HttpServletRequest request, @PathVariable Long expedientTipusId, @PathVariable Long estatId,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(),
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
 				expedientTipusId);
 		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
 
@@ -1002,238 +900,138 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		model.addAttribute("accions", accioService.findAll(expedientTipusId, null));
 
 		return "v3/expedientTipusEstatAccions";
-	}	
-	
-	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/accions/entrada/datatable", method = RequestMethod.GET)
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/entrada/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	public DatatablesResponse estatAccionsEntradaDatatable(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			Model model) {
+	public DatatablesResponse estatAccionsEntradaDatatable(HttpServletRequest request,
+			@PathVariable Long expedientTipusId, @PathVariable Long estatId, Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 
-		return DatatablesHelper.getDatatableResponse(
-				request,
-				null,
-				expedientTipusService.estatAccioEntradaFindPerDatatable(
-						estatId,
-						paginacioParams.getFiltre(),
-						paginacioParams),
-				"id");
-	}		
+		return DatatablesHelper.getDatatableResponse(request, null, expedientTipusService
+				.estatAccioEntradaFindPerDatatable(estatId, paginacioParams.getFiltre(), paginacioParams), "id");
+	}
 
-	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/accions/entrada/add/{accioId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/entrada/add/{accioId}", method = RequestMethod.POST)
 	@ResponseBody
-	public boolean estatAccionsEntradaAfegir(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long accioId) {
+	public boolean estatAccionsEntradaAfegir(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long accioId) {
 		try {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					expedientTipusId);
-			
-			expedientTipusService.estatAccioEntradaAfegir(
-					estatId,
-					accioId);
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.accio.entrada.afegir.correcte"));
+			expedientTipusService.estatAccioEntradaAfegir(estatId, accioId);
+
+			MissatgesHelper.success(request,
+					getMessage(request, "expedient.tipus.estat.controller.accio.entrada.afegir.correcte"));
 			return true;
-		} catch(Exception e) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.accio.afegir.error",
-							new Object[] {e.getMessage()}),
-					e);
+		} catch (Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.controller.accio.afegir.error",
+					new Object[] { e.getMessage() }), e);
 		}
 		return false;
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/entrada/{estatAccioId}/delete")
 	@ResponseBody
-	public boolean estatAccionsentradaDelete(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long estatAccioId,
-			Model model) {
+	public boolean estatAccionsentradaDelete(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long estatAccioId, Model model) {
 
 		try {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					expedientTipusId);
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 
-			expedientTipusService.estatAccioEntradaDelete(
-					estatId,
-					estatAccioId);
+			expedientTipusService.estatAccioEntradaDelete(estatId, estatAccioId);
 
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.accio.entrada.esborrar.correcte"));
+			MissatgesHelper.success(request,
+					getMessage(request, "expedient.tipus.estat.controller.accio.entrada.esborrar.correcte"));
 			return true;
-		} catch(Exception e) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.accio.esborrar.error",
-							new Object[] {e.getMessage()}),
-					e);
+		} catch (Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.controller.accio.esborrar.error",
+					new Object[] { e.getMessage() }), e);
 		}
 		return false;
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/entrada/{estatAccioId}/moure/{posicio}", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean estatAccioEntradaMoure(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long estatAccioId,
-			@PathVariable int posicio,
-			Model model) {
+	public boolean estatAccioEntradaMoure(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long estatAccioId, @PathVariable int posicio, Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(),
-				expedientTipusId);
+		expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 
 		return expedientTipusService.estatAccioEntradaMoure(estatAccioId, posicio);
 	}
-	
-	
-	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/accions/sortida/datatable", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/sortida/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	public DatatablesResponse estatAccionsSortidaDatatable(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			Model model) {
+	public DatatablesResponse estatAccionsSortidaDatatable(HttpServletRequest request,
+			@PathVariable Long expedientTipusId, @PathVariable Long estatId, Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 
-		return DatatablesHelper.getDatatableResponse(
-				request,
-				null,
-				expedientTipusService.estatAccioSortidaFindPerDatatable(
-						estatId,
-						paginacioParams.getFiltre(),
-						paginacioParams),
-				"id");
-	}		
+		return DatatablesHelper.getDatatableResponse(request, null, expedientTipusService
+				.estatAccioSortidaFindPerDatatable(estatId, paginacioParams.getFiltre(), paginacioParams), "id");
+	}
 
-	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/accions/sortida/add/{accioId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/sortida/add/{accioId}", method = RequestMethod.POST)
 	@ResponseBody
-	public boolean estatAccionsSortidaAfegir(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long accioId) {
+	public boolean estatAccionsSortidaAfegir(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long accioId) {
 		try {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					expedientTipusId);
-			
-			expedientTipusService.estatAccioSortidaAfegir(
-					estatId,
-					accioId);
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.accio.sortida.afegir.correcte"));
+			expedientTipusService.estatAccioSortidaAfegir(estatId, accioId);
+
+			MissatgesHelper.success(request,
+					getMessage(request, "expedient.tipus.estat.controller.accio.sortida.afegir.correcte"));
 			return true;
-		} catch(Exception e) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.accio.afegir.error",
-							new Object[] {e.getMessage()}),
-					e);
+		} catch (Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.controller.accio.afegir.error",
+					new Object[] { e.getMessage() }), e);
 		}
 		return false;
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/sortida/{estatAccioId}/delete")
 	@ResponseBody
-	public boolean estatAccionssortidaDelete(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long estatAccioId,
-			Model model) {
+	public boolean estatAccionssortidaDelete(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long estatAccioId, Model model) {
 
 		try {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					expedientTipusId);
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 
-			expedientTipusService.estatAccioSortidaDelete(
-					estatId,
-					estatAccioId);
+			expedientTipusService.estatAccioSortidaDelete(estatId, estatAccioId);
 
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.accio.sortida.esborrar.correcte"));
+			MissatgesHelper.success(request,
+					getMessage(request, "expedient.tipus.estat.controller.accio.sortida.esborrar.correcte"));
 			return true;
-		} catch(Exception e) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.accio.esborrar.error",
-							new Object[] {e.getMessage()}),
-					e);
+		} catch (Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.controller.accio.esborrar.error",
+					new Object[] { e.getMessage() }), e);
 		}
 		return false;
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/sortida/{estatAccioId}/moure/{posicio}", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean estatAccioSortidaMoure(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long estatAccioId,
-			@PathVariable int posicio,
-			Model model) {
+	public boolean estatAccioSortidaMoure(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long estatAccioId, @PathVariable int posicio, Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(),
-				expedientTipusId);
+		expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 
 		return expedientTipusService.estatAccioSortidaMoure(estatAccioId, posicio);
 	}
 
-	
 	// ESTATS SORTIDA
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/sortida", method = RequestMethod.GET)
-	public String modificarSortida(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			Model model) {
-		
+	public String modificarSortida(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, Model model) {
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(),
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
 				expedientTipusId);
 		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
 		model.addAttribute("expedientTipus", expedientTipus);
@@ -1243,100 +1041,63 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 		return "v3/expedientTipusEstatSortida";
 	}
-	
-	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/sortida/datatable", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/sortida/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	public DatatablesResponse estatSortidaDatatable(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			Model model) {
-		
+	public DatatablesResponse estatSortidaDatatable(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, Model model) {
+
 		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
 
-		return DatatablesHelper.getDatatableResponse(
-				request,
-				null,
-				expedientTipusService.estatSortidaFindAll(estatId),
-				"id");		
-	}	
+		return DatatablesHelper.getDatatableResponse(request, null, expedientTipusService.estatSortidaFindAll(estatId),
+				"id");
+	}
 
-	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/sortida/add/{sortidaId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/sortida/add/{sortidaId}", method = RequestMethod.POST)
 	@ResponseBody
-	public boolean estatSortidaAfegir(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long sortidaId) {
+	public boolean estatSortidaAfegir(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long sortidaId) {
 		try {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					expedientTipusId);
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 
-			expedientTipusService.estatSortidaAfegir(
-					estatId,
-					sortidaId);
+			expedientTipusService.estatSortidaAfegir(estatId, sortidaId);
 
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.sortida.afegir.correcte"));
+			MissatgesHelper.success(request,
+					getMessage(request, "expedient.tipus.estat.controller.sortida.afegir.correcte"));
 			return true;
-		} catch(Exception e) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.accio.afegir.error",
-							new Object[] {e.getMessage()}),
-					e);
+		} catch (Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.controller.accio.afegir.error",
+					new Object[] { e.getMessage() }), e);
 		}
 		return false;
-	}	
+	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/sortida/{estatSortidaId}/delete")
 	@ResponseBody
-	public boolean estatSortidaDelete(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long estatId,
-			@PathVariable Long estatSortidaId,
-			Model model) {
+	public boolean estatSortidaDelete(HttpServletRequest request, @PathVariable Long expedientTipusId,
+			@PathVariable Long estatId, @PathVariable Long estatSortidaId, Model model) {
 
 		try {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			expedientTipusService.findAmbIdPermisDissenyarDelegat(
-					entornActual.getId(),
-					expedientTipusId);
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 
-			expedientTipusService.estatSortidaDelete(
-					estatId,
-					estatSortidaId);
+			expedientTipusService.estatSortidaDelete(estatId, estatSortidaId);
 
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.sortida.esborrar.correcte"));
+			MissatgesHelper.success(request,
+					getMessage(request, "expedient.tipus.estat.controller.sortida.esborrar.correcte"));
 			return true;
-		} catch(Exception e) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.estat.controller.esborrar.error",
-							new Object[] {e.getMessage()}),
-					e);
+		} catch (Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.controller.esborrar.error",
+					new Object[] { e.getMessage() }), e);
 		}
 		return false;
 	}
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
-	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+		binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ExpedientTipusEstatController.class);
 }

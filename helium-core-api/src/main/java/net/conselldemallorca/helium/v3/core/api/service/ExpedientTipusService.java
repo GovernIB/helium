@@ -941,6 +941,19 @@ public interface ExpedientTipusService {
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public List<EstatReglaDto> estatReglaFindAll(Long estatId);
+	
+	/**
+	 * Retorna les regles per a un estat.
+	 *
+	 * @param expedientTipusId
+	 *            Atribut id del expedient tipus.
+	 * @return les regles del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<EstatReglaDto> estatReglaFindAllByExpedientTipus(Long expedientTipusId);
 
 	/**
 	 * Retorna una regla donat el seu id.
@@ -955,7 +968,7 @@ public interface ExpedientTipusService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public EstatReglaDto estatReglaFindById(Long estatId, Long reglaId);
+	public EstatReglaDto estatReglaFindById(Long expedientTipusId, Long reglaId);
 
 	/**
 	 * Retorna una regla donat el seu nom.
@@ -970,13 +983,15 @@ public interface ExpedientTipusService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public EstatReglaDto estatReglaFindByNom(Long estatId, String nom);
+	public EstatReglaDto estatReglaFindByNom(Long expedientTipusId, Long estatId, String nom);
 
 	/**
 	 * Crea una regla per un estat.
 	 *
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
 	 * @param estatId
-	 *            Atribut id de l'estat.
+	 *            Atribut id de l'estat. Si és a nivell de tipus d'expedient vindrà null.
 	 * @param reglaDto
 	 *            La informació de la regla.
 	 * @throws NoTrobatException
@@ -984,13 +999,15 @@ public interface ExpedientTipusService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public EstatReglaDto estatReglaCreate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException;
+	public EstatReglaDto estatReglaCreate(Long expedientTipusId, Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Modifica una regla existent d'un estat.
 	 *
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
 	 * @param estatId
-	 *            Atribut id de l'estat.
+	 *            Atribut id de l'estat. Si és a nivell de tipus d'expedient vindrà null.
 	 * @param reglaDto
 	 *            La informació de la regla.
 	 * @throws NoTrobatException
@@ -998,13 +1015,15 @@ public interface ExpedientTipusService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public EstatReglaDto estatReglaUpdate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException;
+	public EstatReglaDto estatReglaUpdate(Long expedientTipusId, Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Esborra una regla existent d'un estat.
 	 *
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
 	 * @param estatId
-	 *            Atribut id de l'estat.
+	 *            Atribut id de l'estat. Si és a nivell de tipus d'expedient vindrà null.
 	 * @param reglaId
 	 *            Atribut id de la regla.
 	 * @throws NoTrobatException
@@ -1012,7 +1031,7 @@ public interface ExpedientTipusService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public void estatReglaDelete(Long estatId, Long reglaId) throws NoTrobatException, PermisDenegatException;
+	public void estatReglaDelete(Long expedientTipusId, Long estatId, Long reglaId) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Canvia una regla de posició

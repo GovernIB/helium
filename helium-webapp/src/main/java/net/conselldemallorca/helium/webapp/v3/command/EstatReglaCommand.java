@@ -25,7 +25,6 @@ public class EstatReglaCommand {
     private String nom;
     @NotNull
     private Long expedientTipusId;
-    @NotNull
     private Long estatId;
     @NotNull
     private QuiEnum qui;

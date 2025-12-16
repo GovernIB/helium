@@ -67,8 +67,7 @@ public class EstatRegla implements Serializable, GenericEntity<Long> {
     @ForeignKey(name="hel_regla_exptipus_fk")
     private ExpedientTipus expedientTipus;
 
-    @NotNull
-    @ManyToOne(optional=false)
+    @ManyToOne(optional=true)
     @JoinColumn(name="estat_id")
     @ForeignKey(name="hel_regla_estat_fk")
     private Estat estat;

@@ -38,7 +38,7 @@ public class EstatReglaValidator implements ConstraintValidator<EstatRegla, Esta
 		boolean valid = true;
 		// comprova que el nom sigui únic
 		if (command.getNom() != null) {
-			EstatReglaDto repetit = expedientTipusService.estatReglaFindByNom(command.getEstatId(), command.getNom());
+			EstatReglaDto repetit = expedientTipusService.estatReglaFindByNom(command.getExpedientTipusId(), command.getEstatId(), command.getNom());
 			if (repetit != null && (command.getId() == null || !command.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage(anotacio.message() + ".nom.repetit"))
 						.addNode("nom")
