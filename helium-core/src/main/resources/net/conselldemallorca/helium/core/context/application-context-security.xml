@@ -52,6 +52,10 @@
 		<intercept-url pattern="/rest/salutPerformance" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/rest/generarDadesBasiquesExplotacio/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		
+		<!-- API Logs -->
+		<intercept-url pattern="/rest/v1/logs" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<intercept-url pattern="/rest/v1/logs/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		
 		<!-- Selenium-integraciones.begin -->
 		<intercept-url pattern="/ws/CustodiaDocumentos" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/portafirmas" access="IS_AUTHENTICATED_ANONYMOUSLY" />

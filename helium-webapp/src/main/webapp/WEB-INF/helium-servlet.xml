@@ -30,6 +30,17 @@
 	<mvc:resources mapping="/**/*.css" location="/" cache-period="86400"/>
 	<mvc:resources mapping="/**/*.js" location="/" cache-period="86400"/-->
 
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<property name="defaultContentType" value="application/xml" />
+		<property name="favorPathExtension" value="false" />
+		<property name="favorParameter" value="false" />
+		<property name="ignoreAcceptHeader" value="false"/>
+		<property name="useJaf" value="true"/>
+	</bean>
+	
+	<!-- Make this available across all of Spring MVC -->
+	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager" />
+
 	<context:annotation-config/>
 	<mvc:annotation-driven/>
 	<mvc:default-servlet-handler/>

@@ -196,6 +196,9 @@
 			<url-pattern>/rest/generarDadesExplotacio/*</url-pattern>
 			<url-pattern>/rest/salutPerformance</url-pattern>
 			<url-pattern>/rest/generarDadesBasiquesExplotacio/*</url-pattern>
+			<!-- API Estadistiques-->
+			<url-pattern>/rest/v1/logs</url-pattern>
+			<url-pattern>/rest/v1/logs/*</url-pattern>
 		</web-resource-collection>
 	</security-constraint>
 	<!-- security-constraint.end -->
