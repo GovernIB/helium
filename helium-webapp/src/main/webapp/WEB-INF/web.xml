@@ -185,17 +185,16 @@
 			<!-- Integració Distribucio -->
 			<url-pattern>/ws/distribucio/backoffice</url-pattern>
 			<!-- API Salut -->
-			<url-pattern>/rest/appInfo</url-pattern>
-			<url-pattern>/rest/salut</url-pattern>
-			<url-pattern>/rest/salutPerformance</url-pattern>
+			<url-pattern>/rest/v1/salut</url-pattern>
+			<url-pattern>/rest/v1/salut/*</url-pattern>
+			<url-pattern>/rest/v1/salutPerformance</url-pattern>
 			<!-- API Estadistiques-->
-			<url-pattern>/rest/estadistiquesInfo</url-pattern>
-			<url-pattern>/rest/estadistiques</url-pattern>
-			<url-pattern>/rest/estadistiques/*</url-pattern>
-			<url-pattern>/rest/generarDadesExplotacio</url-pattern>
-			<url-pattern>/rest/generarDadesExplotacio/*</url-pattern>
-			<url-pattern>/rest/salutPerformance</url-pattern>
-			<url-pattern>/rest/generarDadesBasiquesExplotacio/*</url-pattern>
+			<url-pattern>/rest/v1/estadistiques</url-pattern>
+			<url-pattern>/rest/v1/estadistiques/*</url-pattern>
+			<url-pattern>/rest/v1/generarDadesExplotacio</url-pattern>
+			<url-pattern>/rest/v1/generarDadesExplotacio/*</url-pattern>
+			<url-pattern>/rest/v1/salutPerformance</url-pattern>
+			<url-pattern>/rest/v1/generarDadesBasiquesExplotacio/*</url-pattern>
 			<!-- API Estadistiques-->
 			<url-pattern>/rest/v1/logs</url-pattern>
 			<url-pattern>/rest/v1/logs/*</url-pattern>

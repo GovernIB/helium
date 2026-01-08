@@ -24,7 +24,7 @@ import es.caib.comanda.ms.estadistica.model.RegistresEstadistics;
 import net.conselldemallorca.helium.v3.core.api.service.EstadisticaService;
 
 @Controller
-@RequestMapping("/rest")
+@RequestMapping("/rest/v1")
 public class EstadistiquesController extends ComandaBaseController {
 	
 	private static SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
@@ -32,7 +32,13 @@ public class EstadistiquesController extends ComandaBaseController {
 	@Autowired
 	private EstadisticaService estadisticaService;
 
-	@RequestMapping(value = "/estadistiquesInfo", method = RequestMethod.GET)
+	@RequestMapping(value = "/estadistiques", method = RequestMethod.GET)
+	@ResponseBody
+	public RegistresEstadistics estadistiques(HttpServletRequest request) throws IOException {
+		return estadisticaService.consultaDarreresEstadistiques();
+	}
+	
+	@RequestMapping(value = "/estadistiques/info", method = RequestMethod.GET)
 	@ResponseBody
 	public EstadistiquesInfo statsInfo() throws IOException {
 		ManifestInfo manifestInfo = getManifestInfo();
@@ -46,12 +52,6 @@ public class EstadistiquesController extends ComandaBaseController {
 				.dimensions(dimensions)
 				.indicadors(indicadors)
 				.build();
-	}
-
-	@RequestMapping(value = "/estadistiques", method = RequestMethod.GET)
-	@ResponseBody
-	public RegistresEstadistics estadistiques(HttpServletRequest request) throws IOException {
-		return estadisticaService.consultaDarreresEstadistiques();
 	}
 
 	@RequestMapping(value = "/estadistiques/{dies}", method = RequestMethod.GET)

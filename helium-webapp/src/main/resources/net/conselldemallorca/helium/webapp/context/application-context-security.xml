@@ -36,18 +36,17 @@
 		<sec:intercept-url pattern="/rest/portafib/callback/versio" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		
 		<!-- API Salut -->
-		<sec:intercept-url pattern="/rest/appInfo" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<sec:intercept-url pattern="/rest/salut" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<sec:intercept-url pattern="/rest/salutPerformance" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/v1/salut" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/v1/salut/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/v1/salutPerformance" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		
 		<!-- API Estadistiques -->
-		<sec:intercept-url pattern="/rest/estadistiquesInfo" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<sec:intercept-url pattern="/rest/estadistiques" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<sec:intercept-url pattern="/rest/estadistiques/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<sec:intercept-url pattern="/rest/generarDadesExplotacio" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<sec:intercept-url pattern="/rest/generarDadesExplotacio/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<sec:intercept-url pattern="/rest/salutPerformance" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<sec:intercept-url pattern="/rest/generarDadesBasiquesExplotacio/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/v1/estadistiques" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/v1/estadistiques/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/v1/generarDadesExplotacio" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/v1/generarDadesExplotacio/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/v1/salutPerformance" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/v1/generarDadesBasiquesExplotacio/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		
 		<!-- API Logs -->
 		<sec:intercept-url pattern="/rest/v1/logs" access="IS_AUTHENTICATED_ANONYMOUSLY"/>

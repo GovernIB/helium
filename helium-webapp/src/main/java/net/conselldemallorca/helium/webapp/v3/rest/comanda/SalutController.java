@@ -16,13 +16,13 @@ import es.caib.comanda.ms.salut.model.SalutInfo;
 import net.conselldemallorca.helium.v3.core.api.service.SalutService;
 
 @Controller
-@RequestMapping("/rest")
+@RequestMapping("/rest/v1")
 public class SalutController extends ComandaBaseController {
 	
 	@Autowired
 	private SalutService salutService;
 
-	@RequestMapping(value = "/appInfo", method = RequestMethod.GET)
+	@RequestMapping(value = "/salut/info", method = RequestMethod.GET)
 	@ResponseBody
 	public AppInfo appInfo(HttpServletRequest request) throws IOException {
 		ManifestInfo manifestInfo = getManifestInfo();
