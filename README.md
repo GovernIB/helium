@@ -1,7 +1,7 @@
 ![Logo](https://github.com/GovernIB/maven/raw/binaris/helium/projectinfo_Attachments/logo_helium.png) 
 # Helium (Gestor d'expedients administratius)
 
-> - Versió Estable: __3.3.10.1__ (branca [helium-3.3](https://github.com/GovernIB/helium/tree/helium-3.3))
+> - Versió Estable: __3.3.10.2__ (branca [helium-3.3](https://github.com/GovernIB/helium/tree/helium-3.3))
 > - Versió Desenvolupament: __3.3.11__ (branca [helium-dev](https://github.com/GovernIB/helium/tree/helium-dev))
 
 **Descripció**
@@ -29,7 +29,7 @@ Gestor d'expedients administratius / Gestor de expedientes administrativos
 >- [Manual de disseny](https://github.com/GovernIB/helium/blob/helium-3.3/doc/pdf/manual_disseny.pdf)
 
 ## <a name="v_estable"></a> Versió estable
-### [3.3.10.1](https://github.com/GovernIB/helium/releases/tag/Helium_3.3.10.1)
+### [3.3.10.2](https://github.com/GovernIB/helium/releases/tag/Helium_3.3.10.2)
 
 ## <a name="v_heilum-disseny.jar"></a> Llibreria de disseny
 >- [helium-disseny.jar](https://github.com/GovernIB/helium/blob/helium-3.3/doc/disseny-lib/helium-disseny.jar): Llibreria de disseny per desenvolupar expedients d'Helium en la seva darrera versió 3.3.5.
