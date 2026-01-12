@@ -110,6 +110,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private boolean ocult;
 	private boolean ignored;
 
+	private boolean terminiNomesDies;
+
 	private Consulta consulta;
 	private Domini domini;
 	private Enumeracio enumeracio;
@@ -267,6 +269,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
+	}
+	
+	@Column(name="termini_nomes_dies")
+	public boolean isTerminiNomesDies() {
+		return terminiNomesDies;
+	}
+	public void setTerminiNomesDies(boolean terminiNomesDies) {
+		this.terminiNomesDies = terminiNomesDies;
 	}
 	
 	@ManyToOne(optional=true)

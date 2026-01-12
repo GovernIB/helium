@@ -242,6 +242,7 @@ public class DefinicioProcesHelper {
 						camp.setConsultaParams(campExportat.getConsultaParams());
 						camp.setConsultaCampText(campExportat.getConsultaCampText());
 						camp.setConsultaCampValor(campExportat.getConsultaCampValor());
+						camp.setTerminiNomesDies(campExportat.isTerminiNomesDies());
 						camp.setMultiple(campExportat.isMultiple());
 						camp.setOcult(campExportat.isOcult());
 						camp.setDominiIntern(campExportat.isDominiIntern());
@@ -954,6 +955,7 @@ public class DefinicioProcesHelper {
 		                    (necessitaDadesExternes) ? camp.getConsultaParams() : null,
 		                    (necessitaDadesExternes) ? camp.getConsultaCampText() : null,
 		                    (necessitaDadesExternes) ? camp.getConsultaCampValor() : null,
+		                    camp.isTerminiNomesDies(),
 		                    camp.isMultiple(),
 		                    camp.isOcult(),
 		                    camp.getDominiIntern(),

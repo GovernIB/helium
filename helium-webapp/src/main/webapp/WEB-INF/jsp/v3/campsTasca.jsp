@@ -63,33 +63,35 @@
 				<c:set var="tercodi"><c:choose><c:when test='${dada.campMultiple or isMultiple}'>${campNom}[${campIndex}]</c:when><c:otherwise>${campCodi}</c:otherwise></c:choose></c:set>
 				<c:if test='${dada.campMultiple or isMultiple}'><input type="hidden" id="${campCodi}" name="${campNom}"/></c:if>
 				<div class="form-group termgrup">
-					<div class="tercpre">
-						<label class="control-label label-term" for="${campCodi}_anys"><spring:message code="common.camptasca.anys"/></label>
-						<c:choose>
-							<c:when test='${dada.campMultiple or isMultiple}'>
-								<select id="${tercodi}_anys" name="${tercodi}[0]" class="termini camp-multiple">
-									<c:forEach var="opt" items="${listTerminis}">
-										<option value="${opt.codi}" <c:if test="${opt.codi == command[campNom][campIndex][0]}"> selected</c:if>>${opt.valor}</option>
-									</c:forEach>
-								</select>
-							</c:when>
-							<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}[0]" id="${campCodi}_anys" cssClass="termini" /></c:otherwise>
-						</c:choose>
-					</div>
-					<div class="tercmig">
-	 					<label class="control-label label-term" for="${campCodi}_mesos"><spring:message code="common.camptasca.mesos"/></label>
- 						<c:choose>
-							<c:when test='${dada.campMultiple or isMultiple}'>
-								<select id="${tercodi}_mesos" name="${tercodi}[1]" class="termini camp-multiple">
-									<c:forEach var="opt" items="${listTerminis}">
-										<option value="${opt.codi}" <c:if test="${opt.codi == command[campNom][campIndex][1]}"> selected</c:if>>${opt.valor}</option>
-									</c:forEach>
-								</select>
-							</c:when>
-							<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}[1]" id="${campCodi}_mesos" cssClass="termini" /></c:otherwise>
-						</c:choose>
-	 				</div>
-	 				<div class="tercpost">
+					<c:if test='${!dada.terminiNomesDies}'>
+						<div class="tercpre">
+							<label class="control-label label-term" for="${campCodi}_anys"><spring:message code="common.camptasca.anys"/></label>
+							<c:choose>
+								<c:when test='${dada.campMultiple or isMultiple}'>
+									<select id="${tercodi}_anys" name="${tercodi}[0]" class="termini camp-multiple">
+										<c:forEach var="opt" items="${listTerminis}">
+											<option value="${opt.codi}" <c:if test="${opt.codi == command[campNom][campIndex][0]}"> selected</c:if>>${opt.valor}</option>
+										</c:forEach>
+									</select>
+								</c:when>
+								<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}[0]" id="${campCodi}_anys" cssClass="termini" /></c:otherwise>
+							</c:choose>
+						</div>
+						<div class="tercmig">
+		 					<label class="control-label label-term" for="${campCodi}_mesos"><spring:message code="common.camptasca.mesos"/></label>
+	 						<c:choose>
+								<c:when test='${dada.campMultiple or isMultiple}'>
+									<select id="${tercodi}_mesos" name="${tercodi}[1]" class="termini camp-multiple">
+										<c:forEach var="opt" items="${listTerminis}">
+											<option value="${opt.codi}" <c:if test="${opt.codi == command[campNom][campIndex][1]}"> selected</c:if>>${opt.valor}</option>
+										</c:forEach>
+									</select>
+								</c:when>
+								<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}[1]" id="${campCodi}_mesos" cssClass="termini" /></c:otherwise>
+							</c:choose>
+		 				</div>
+	 				</c:if>
+	 				<div class="${!dada.terminiNomesDies ? 'tercpost' : ''}">
 	 					<label class="control-label label-term" for="${campCodi}_dies"><spring:message code="common.camptasca.dies"/></label>
 	 					<c:set var="placeholderDies"><spring:message code='common.camptasca.dies'/></c:set>
  						<c:choose>

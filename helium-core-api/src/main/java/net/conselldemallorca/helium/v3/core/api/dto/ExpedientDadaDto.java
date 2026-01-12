@@ -39,6 +39,7 @@ public class ExpedientDadaDto {
 	private String jbpmAction;
 	private String observacions;
 	private String definicioProcesKey;
+	private boolean terminiNomesDies = false;
 
 	private String text;
 	private List<ExpedientDadaDto> multipleDades;

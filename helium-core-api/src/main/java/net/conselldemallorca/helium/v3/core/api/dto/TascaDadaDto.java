@@ -31,6 +31,8 @@ public class TascaDadaDto {
 	private String jbpmAction;
 	private String observacions;
 	private String definicioProcesKey;
+	
+	private boolean terminiNomesDies = false;
 
 	private String text;
 	private List<TascaDadaDto> multipleDades;
@@ -203,6 +205,14 @@ public class TascaDadaDto {
 
 	public void setAgrupacio(CampAgrupacioDto agrupacio) {
 		this.agrupacio = agrupacio;
+	}
+
+	public boolean isTerminiNomesDies() {
+		return terminiNomesDies;
+	}
+
+	public void setTerminiNomesDies(boolean terminiNomesDies) {
+		this.terminiNomesDies = terminiNomesDies;
 	}
 
 	public Object[] getMultipleValor() {

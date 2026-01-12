@@ -56,7 +56,10 @@ public class CampDto extends HeretableDto implements Serializable {
 	private String jbpmAction;
 	
 	boolean dominiCacheText;
-
+	
+	// Dades de Terminis
+	private boolean terminiNomesDies;
+	
 	/** Ordre dins la agrupació. */
 	private Integer ordre;
 
@@ -331,5 +334,11 @@ public class CampDto extends HeretableDto implements Serializable {
 	}
 	public void setOrdre(Integer ordre) {
 		this.ordre = ordre;
+	}
+	public boolean isTerminiNomesDies() {
+		return terminiNomesDies;
+	}
+	public void setTerminiNomesDies(boolean terminiNomesDies) {
+		this.terminiNomesDies = terminiNomesDies;
 	}
 }

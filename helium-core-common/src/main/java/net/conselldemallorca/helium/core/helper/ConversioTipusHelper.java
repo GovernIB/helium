@@ -177,6 +177,8 @@ public class ConversioTipusHelper {
 						
 						target.setOrdre(source.getOrdre());
 						
+						// Dades termini
+						target.setTerminiNomesDies(source.isTerminiNomesDies());
 						return target;
 					}
 		});
