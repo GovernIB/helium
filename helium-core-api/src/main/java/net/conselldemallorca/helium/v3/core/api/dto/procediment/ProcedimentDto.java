@@ -17,6 +17,8 @@ public class ProcedimentDto implements Comparable<ProcedimentDto>{
 	private String nom;
 	private String codiSia;
 	private ProcedimentEstatEnumDto estat;
+	private ProcedimentTipusEnumDto tipus;
+	
 	private boolean comu;
 	private UnitatOrganitzativaDto unitatOrganitzativa;
 
@@ -68,6 +70,13 @@ public class ProcedimentDto implements Comparable<ProcedimentDto>{
 	}
 	public void setComu(boolean comu) {
 		this.comu = comu;
+	}
+	
+	public ProcedimentTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(ProcedimentTipusEnumDto tipus) {
+		this.tipus = tipus;
 	}
 	
 	@Override

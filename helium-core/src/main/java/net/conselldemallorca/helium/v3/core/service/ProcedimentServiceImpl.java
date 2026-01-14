@@ -75,7 +75,9 @@ public class ProcedimentServiceImpl implements ProcedimentService{
 						filtre.getCodiSia() == null || filtre.getCodiSia().isEmpty(), 
 						filtre.getCodiSia() != null ? filtre.getCodiSia() : "", 
 						filtre.getEstat() == null, 
-						filtre.getEstat(),						
+						filtre.getEstat(),
+						filtre.getTipus() == null, 
+						filtre.getTipus(),
 						paginacioHelper.toSpringDataPageable(paginacioParams, mapeigPropietatsOrdenacio)), 
 				ProcedimentDto.class);
 

@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import net.conselldemallorca.helium.core.model.hibernate.Procediment;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 
 
 /**
@@ -28,7 +29,8 @@ public interface ProcedimentRepository extends JpaRepository<Procediment, Long>{
 			"and (:isCodiNull = true or lower(pro.codi) like lower('%'||:codi||'%')) " + 
 			"and (:isNomNull = true or lower(pro.nom) like lower('%'||:nom||'%')) " + 
 			"and (:isCodiSiaNull = true or lower(pro.codiSia) like lower('%'||:codiSia||'%'))" + 
-			"and (:isEstatNull = true or pro.estat = :estat)")
+			"and (:isEstatNull = true or pro.estat = :estat) " +
+			"and (:isTipusNull = true or pro.tipus = :tipus)")
 	Page<Procediment> findAmbFiltrePaginat(
 			@Param("isNullUnitatOrganitzativa") boolean isNullUnitatOrganitzativa, 
 			@Param("unitatOrganitzativa") UnitatOrganitzativa unitatorganitzativa, 
@@ -40,6 +42,8 @@ public interface ProcedimentRepository extends JpaRepository<Procediment, Long>{
 			@Param("codiSia") String codiSia, 
 			@Param("isEstatNull") boolean isEstatNull, 
 			@Param("estat") ProcedimentEstatEnumDto estat,
+			@Param("isTipusNull") boolean isTipusNull, 
+			@Param("tipus") ProcedimentTipusEnumDto tipus,
 			Pageable pageable);
 	
 	
@@ -92,5 +96,12 @@ public interface ProcedimentRepository extends JpaRepository<Procediment, Long>{
 	 * @return Llistat de procediments que tenen aquell estat.
 	 */
 	List<Procediment> findAllByEstat(ProcedimentEstatEnumDto estat);
+	
+	/** Troba tots els procediments per tipus.
+	 * 
+	 * @param tipus
+	 * @return Llistat de procediments que tenen aquell tipus.
+	 */
+	List<Procediment> findAllByTipus(ProcedimentTipusEnumDto tipus);
 
 }

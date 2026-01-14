@@ -4,6 +4,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 
 /** Command pel filtre de procediments.
@@ -16,6 +17,7 @@ public class ProcedimentFiltreCommand {
 	private String nom;
 	private String codiSia;
 	private ProcedimentEstatEnumDto estat;
+	private ProcedimentTipusEnumDto tipus;
 	private String unitatOrganitzativa;
 	
 	
@@ -50,6 +52,13 @@ public class ProcedimentFiltreCommand {
 		this.unitatOrganitzativa = unitatOrganitzativa;
 	}
 	
+	public ProcedimentTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(ProcedimentTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
+	
 	public static ProcedimentFiltreCommand asCommand(ProcedimentFiltreDto dto) {
 		ProcedimentFiltreCommand command = ConversioTipusHelper.convertir(
 				dto, 
@@ -67,6 +76,6 @@ public class ProcedimentFiltreCommand {
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
-	}	
+	}
 
 }

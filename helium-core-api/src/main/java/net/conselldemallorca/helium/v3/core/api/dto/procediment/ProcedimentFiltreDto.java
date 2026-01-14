@@ -10,6 +10,7 @@ public class ProcedimentFiltreDto implements Serializable{
 	private String nom;
 	private String codiSia;
 	private ProcedimentEstatEnumDto estat;
+	private ProcedimentTipusEnumDto tipus;
 	private String unitatOrganitzativa;
 
 	
@@ -51,6 +52,14 @@ public class ProcedimentFiltreDto implements Serializable{
 
 	public void setUnitatOrganitzativa(String unitatOrganitzativa) {
 		this.unitatOrganitzativa = unitatOrganitzativa;
+	}
+	
+	public ProcedimentTipusEnumDto getTipus() {
+		return tipus;
+	}
+
+	public void setTipus(ProcedimentTipusEnumDto tipus) {
+		this.tipus = tipus;
 	}
 	
 	@Override

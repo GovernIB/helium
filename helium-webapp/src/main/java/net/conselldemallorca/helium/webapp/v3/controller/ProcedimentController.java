@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto.ActualitzacioInfo;
 import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
@@ -58,6 +59,7 @@ public class ProcedimentController extends BaseController{
 		ProcedimentFiltreCommand procedimentFiltreCommand = getFiltreCommand(request);
 		model.addAttribute("procedimentFiltreCommand", procedimentFiltreCommand);
 		this.modelEstats(model);
+		this.modelTipus(model);
 		
 		return "v3/procedimentLlistat";
 	}	
@@ -126,6 +128,16 @@ public class ProcedimentController extends BaseController{
 					MessageHelper.getInstance().getMessage("procediment.estat.enum." + estat.name())));		
 
 		model.addAttribute("estats", opcions);
+	}
+	/** Posa els valors de l'enumeració tipus en el model */
+	private void modelTipus(Model model) {
+		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
+		for(ProcedimentTipusEnumDto tipus : ProcedimentTipusEnumDto.values())
+			opcions.add(new ParellaCodiValorDto(
+					tipus.name(),
+					MessageHelper.getInstance().getMessage("procediment.tipus.enum." + tipus.name())));		
+
+		model.addAttribute("tipus", opcions);
 	}
 
 	// Mètode per actualitzar procediments
@@ -232,8 +244,14 @@ public class ProcedimentController extends BaseController{
 		if (procediments != null && !procediments.isEmpty() && textDecoded!=null) {
 			for (ProcedimentDto procediment: procediments) {
 				Map<String, String> procedimentJson = new HashMap<String, String>();
-				procedimentJson.put("codi", procediment.getCodiSia());
-				procedimentJson.put("nom", procediment.getCodiNom().replace("\"", "\\\""));
+				
+				String codiSia = procediment.getCodiSia();
+	            String tipusText = ProcedimentTipusEnumDto.PROCEDIMENT.equals(procediment.getTipus()) ? "(Procediment)" : "(Servei)";
+	            String nomProcediment = procediment.getNom().replace("\"", "\\\"");
+	            String nomFormatat = codiSia + " " + tipusText + " - " + nomProcediment;
+	            
+	            procedimentJson.put("codi", codiSia);
+	            procedimentJson.put("nom", nomFormatat);
 				resposta.add(procedimentJson);
 			}
 		} else {
@@ -257,6 +275,7 @@ public class ProcedimentController extends BaseController{
 			Map<String, String> procedimentJson = new HashMap<String, String>();
 			procedimentJson.put("codi", procediment.getCodiSia());
 			procedimentJson.put("nom", procediment.getCodiNom().replace("\"", "\\\""));
+
 			return procedimentJson;
 		} else {
 			Map<String, String> procedimentJson = new HashMap<String, String>();
