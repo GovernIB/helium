@@ -80,6 +80,9 @@ public class CampCommand {
 	private String jbpmAction;
 	
 	boolean dominiCacheText;
+	
+	// Dades del termini
+	private boolean terminiNomesDies = false;
 
 
 	public Long getId() {
@@ -234,6 +237,13 @@ public class CampCommand {
 	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
+	public boolean isTerminiNomesDies() {
+		return terminiNomesDies;
+	}
+	public void setTerminiNomesDies(boolean terminiNomesDies) {
+		this.terminiNomesDies = terminiNomesDies;
+	}
+	
 	public static CampDto asCampDto(CampCommand command) {
 		CampDto dto = new CampDto();
 		dto.setId(command.getId());
@@ -284,7 +294,10 @@ public class CampCommand {
 		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
 		dto.setJbpmAction(command.getJbpmAction());
 		
-		dto.setDominiCacheText(command.isDominiCacheText());		
+		dto.setDominiCacheText(command.isDominiCacheText());	
+		
+		// Dades de Termini
+		dto.setTerminiNomesDies(command.isTerminiNomesDies());
 		
 		return dto;
 	}

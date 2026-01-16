@@ -87,6 +87,12 @@
 			</c:choose>
 			<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" emptyOption="true" optionItems="${accions}" placeholderKey="expedient.tipus.camp.form.camp.jbpmAction.placeholder" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		</fieldset>
+
+		<fieldset id="dadesTermini" class="dades termini" style="display:none;">
+			<legend><spring:message code="expedient.tipus.camp.form.fieldset.termini"></spring:message></legend>
+			<hel:inputCheckbox name="terminiNomesDies" textKey="expedient.tipus.camp.form.camp.nomesDies" />
+		</fieldset>
+
 		
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
@@ -111,8 +117,10 @@
 		$(document).ready(function() {
 			
 			canviTipus();
+			canviTermini();
 			$('#tipus').change(function() {
 				canviTipus();
+				canviTermini();
 			});
 			
 			canviDadesConsulta();
@@ -167,6 +175,8 @@
 				enable('div .dades.consulta');
 			} else if (tipus == "ACCIO") {
 				enable('div .dades.accio');
+			} else if (tipus == "TERMINI") {
+				enable('div .dades.termini');
 			}			
 		}
 		
@@ -206,7 +216,18 @@
 			} else {
 				$('#jbpmAction').val('').change();
 			}
-		}		
+		}	
+		
+		function canviTermini() {
+			var tipus = $('#tipus').val();
+
+			if (tipus == "TERMINI") {
+				enable('#dadesTermini');
+			} else {
+				disable('#dadesTermini');
+			}
+		}
+
 		// ]]>
 	</script>			
 

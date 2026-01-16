@@ -40,6 +40,7 @@ public class CampExportacio implements Serializable {
 	private String agrupacioCodi;
 	private String defprocJbpmKey;
 	private String jbpmAction;
+	private boolean terminiNomesDies;
 	private Integer ordre;
 	private Set<ValidacioExportacio> validacions = new HashSet<ValidacioExportacio>();
 	private Set<RegistreMembreExportacio> registreMembres = new HashSet<RegistreMembreExportacio>();
@@ -64,6 +65,7 @@ public class CampExportacio implements Serializable {
 			boolean ocult,
 			boolean dominiIntern,
 			boolean dominiCacheText,
+			boolean terminiNomesDies,
 			String codiEnumeracio,
 			String codiDomini,
 			String codiConsulta,
@@ -84,6 +86,7 @@ public class CampExportacio implements Serializable {
 		this.consultaParams = consultaParams;
 		this.consultaCampText = consultaCampText;
 		this.consultaCampValor = consultaCampValor;
+		this.terminiNomesDies = terminiNomesDies;
 		this.multiple = multiple;
 		this.ocult = ocult;
 		this.dominiIntern = dominiIntern;
@@ -265,6 +268,14 @@ public class CampExportacio implements Serializable {
 	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
+	
+	public boolean isTerminiNomesDies() {
+		return terminiNomesDies;
+	}
+
+	public void setTerminiNomesDies(boolean terminiNomesDies) {
+		this.terminiNomesDies = terminiNomesDies;
+	}
 
 	/** Mètode per poder consultar la agrupació de la mateixa forma que el CampDto. */
 	public CampAgrupacioDto getAgrupacio() {
@@ -282,7 +293,6 @@ public class CampExportacio implements Serializable {
 	public void setDependenciaEntorn(boolean dependenciaEntorn) {
 		this.dependenciaEntorn = dependenciaEntorn;
 	}
-
 
 	private static final long serialVersionUID = 1L;
 

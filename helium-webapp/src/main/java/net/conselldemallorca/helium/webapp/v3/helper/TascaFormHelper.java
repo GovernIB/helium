@@ -251,6 +251,7 @@ public class TascaFormHelper {
 		tascaDto.setError(expedientDadaDto.getError());
 		tascaDto.setObservacions(expedientDadaDto.getObservacions());
 		tascaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
+		tascaDto.setTerminiNomesDies(expedientDadaDto.isTerminiNomesDies());
 		tascaDto.setValidacions(expedientDadaDto.getValidacions());
 		if (expedientDadaDto.getMultipleDades() != null) {
 			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();

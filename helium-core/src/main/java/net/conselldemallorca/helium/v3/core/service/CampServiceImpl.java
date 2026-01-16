@@ -163,6 +163,9 @@ public class CampServiceImpl implements CampService {
 		
 		entity.setDominiCacheText(camp.isDominiCacheText());
 
+		// Dades del termini
+		entity.setTerminiNomesDies(camp.isTerminiNomesDies());
+		
 		return conversioTipusHelper.convertir(
 				campRepository.save(entity),
 				CampDto.class);
@@ -238,6 +241,9 @@ public class CampServiceImpl implements CampService {
 		entity.setJbpmAction(camp.getJbpmAction());
 
 		entity.setDominiCacheText(camp.isDominiCacheText());
+
+		// Dades del termini
+		entity.setTerminiNomesDies(camp.isTerminiNomesDies());
 		
 		return conversioTipusHelper.convertir(
 				campRepository.save(entity),

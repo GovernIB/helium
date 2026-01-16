@@ -763,6 +763,8 @@ public class VariableHelper {
 					paramCampCodis.toArray(
 							new String[paramCampCodis.size()]));
 		}
+		tascaDadaDto.setTerminiNomesDies (camp.isTerminiNomesDies());
+		
 		return tascaDadaDto;
 	}
 		
@@ -884,6 +886,7 @@ public class VariableHelper {
 				dto.setAgrupacioId(camp.getAgrupacio().getId());
 			if (camp.getValidacions() != null)
 				dto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
+			dto.setTerminiNomesDies(camp.isTerminiNomesDies());
 		} else {
 			dto.setCampEtiqueta(varCodi);
 			dto.setText(String.valueOf(varValor));

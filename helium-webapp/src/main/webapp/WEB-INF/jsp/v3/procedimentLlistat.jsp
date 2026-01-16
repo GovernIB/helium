@@ -48,6 +48,7 @@
 			$("#netejar").click(function() {
 				$('#unitatOrganitzativa').val('').change();
 				$('#estat').val('').change();
+				$('#tipus').val('').change();
 			})
 		});
 		
@@ -63,20 +64,24 @@
 			<div class="col-md-3">
 				<hel:inputText name="nom" inline="true" placeholderKey="procediment.llistat.filtre.procediment"/>
 			</div>			
-			<div class="col-md-5">
+			<div class="col-md-3">
 				<hel:inputSuggest 
 					name="unitatOrganitzativa" 
 					urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
 					urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
 					textKey="procediment.llistat.columna.unitatOrganitzativa" 
-					placeholderKey="procediment.llistat.columna.unitatOrganitzativa"/>			
+					placeholderKey="procediment.llistat.columna.unitatOrganitzativa"
+					inline="true" />			
 			</div>
 			<div class="col-md-2">
 				<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="procediment.llistat.columna.estat" placeholderKey="procediment.llistat.columna.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			</div>
+			<div class="col-md-2">
+				<hel:inputSelect inline="true" name="tipus" optionItems="${tipus}" emptyOption="true" textKey="procediment.llistat.columna.tipus" placeholderKey="procediment.llistat.columna.tipus" optionValueAttribute="codi" optionTextAttribute="valor"/>
+			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-12 pull-right">
+			<div class="col-md-10 pull-right">
 				<div class="pull-right">
 					<button type="submit" name="accio" value="filtrar" class="btn btn-primary hidden" ><span class="fa fa-filter"></span></button>
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
@@ -123,6 +128,18 @@
 					<spring:message code="procediment.llistat.columna.comu"/>
 					<script id="cellComuTemplate" type="text/x-jsrender">
 						{{if comu}}<span class="fa fa-check"></span>
+						{{/if}}
+					</script>
+				</th>
+				<th data-col-name="tipus" data-template="#cellTipusTemplate">
+					<spring:message code="anotacio.llistat.columna.tipus"/>
+					<script id="cellTipusTemplate" type="text/x-jsrender">
+						{{if tipus == 'PROCEDIMENT'}}
+							<spring:message code="procediment.tipus.enum.PROCEDIMENT"></spring:message>
+						{{else tipus == 'SERVEI'}}
+							<spring:message code="procediment.tipus.enum.SERVEI"></spring:message>
+						{{else}}
+							{{:tipus}}
 						{{/if}}
 					</script>
 				</th>

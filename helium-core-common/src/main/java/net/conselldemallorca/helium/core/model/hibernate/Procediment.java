@@ -18,6 +18,7 @@ import javax.persistence.TableGenerator;
 import org.hibernate.annotations.ForeignKey;
 
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 
 
 /**
@@ -44,6 +45,10 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 	
 	@Column(name = "codisia", length = 64)
 	private String codiSia;
+	
+	@Column(name = "tipus", length = 20) 
+	@Enumerated(EnumType.STRING)
+	private ProcedimentTipusEnumDto tipus; // Procediment, Servei
 	
 	@Column(name = "estat", length = 20) 
 	@Enumerated(EnumType.STRING)
@@ -113,6 +118,12 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 		this.unitatOrganitzativa = unitatOrganitzativa;
 	}
 
+	public ProcedimentTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(ProcedimentTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
 	
 	
 	public boolean isComu() {
