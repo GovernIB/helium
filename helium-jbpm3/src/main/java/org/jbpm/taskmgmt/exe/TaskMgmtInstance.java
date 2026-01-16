@@ -59,6 +59,7 @@ import org.jbpm.taskmgmt.log.TaskCreateLog;
 import org.jbpm.util.Clock;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.tasca.ComandaTascaEstat;
 
 /**
  * process instance extension for managing tasks on a process instance.
@@ -247,6 +248,12 @@ public class TaskMgmtInstance extends ModuleInstance
     {
       taskInstance.create();
     }
+    
+    Jbpm3HeliumBridge
+    	.getInstanceService()
+    	.refreshComandaTasca(
+    		String.valueOf(taskInstance.getId()), 
+    		ComandaTascaEstat.PENDENT);
 
     return taskInstance;
   }

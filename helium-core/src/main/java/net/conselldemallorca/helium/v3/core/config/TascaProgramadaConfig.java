@@ -122,40 +122,40 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
 		 * propietat <i>app.anotacions.pendents.comprovar.intents</i> amb un valor per defecte
 		 * de 5 reintents.
 		 */
-    	addTask(
-    			comprovarAnotacionsPendents,
-	                new Runnable() {
-	                    @Override
-	                    public void run() {
-	                    	monitorTasquesService.inici(comprovarAnotacionsPendents);
-	                        try{ 
-                        	getTascaProgramadaService().comprovarAnotacionsPendents();
-	                        	monitorTasquesService.fi(comprovarAnotacionsPendents);
-	                        } catch(Throwable th) {
-	                        	tractarErrorTascaSegonPla(th, comprovarAnotacionsPendents);
-	                        }
-	                    }
-	                }
-	        );
+//    	addTask(
+//    			comprovarAnotacionsPendents,
+//	                new Runnable() {
+//	                    @Override
+//	                    public void run() {
+//	                    	monitorTasquesService.inici(comprovarAnotacionsPendents);
+//	                        try{ 
+//                        	getTascaProgramadaService().comprovarAnotacionsPendents();
+//	                        	monitorTasquesService.fi(comprovarAnotacionsPendents);
+//	                        } catch(Throwable th) {
+//	                        	tractarErrorTascaSegonPla(th, comprovarAnotacionsPendents);
+//	                        }
+//	                    }
+//	                }
+//	        );
 		
 		/** Tasca programada per comprovar les anotacions que estan en estat de pendents de processament
 		 * automàtic. Entre comrpovació i comprovació hi ha un període de 10 segons.
 		 */
-    	addTask(
-    			processarAnotacionsAutomatiques,
-	                new Runnable() {
-	                    @Override
-	                    public void run() {
-	                    	monitorTasquesService.inici(processarAnotacionsAutomatiques);
-	                        try{ 
-                        	getTascaProgramadaService().processarAnotacionsAutomatiques();
-	                        	monitorTasquesService.fi(processarAnotacionsAutomatiques);
-	                        } catch(Throwable th) {
-	                        	tractarErrorTascaSegonPla(th, processarAnotacionsAutomatiques);
-	                        }
-	                    }
-	                    }
-	        );
+//    	addTask(
+//    			processarAnotacionsAutomatiques,
+//	                new Runnable() {
+//	                    @Override
+//	                    public void run() {
+//	                    	monitorTasquesService.inici(processarAnotacionsAutomatiques);
+//	                        try{ 
+//                        	getTascaProgramadaService().processarAnotacionsAutomatiques();
+//	                        	monitorTasquesService.fi(processarAnotacionsAutomatiques);
+//	                        } catch(Throwable th) {
+//	                        	tractarErrorTascaSegonPla(th, processarAnotacionsAutomatiques);
+//	                        }
+//	                    }
+//	                    }
+//	        );
 		
 		/** Mètode periòdic per sincronitzar les taules internes d'unitats organitzatives i procediments
 		 * segons la propietat app.unitats.procediments.sync.
@@ -304,32 +304,32 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
                     return nextExecution;
                 }
             };
-        } else if (taskCodi.equals(comprovarAnotacionsPendents)) {
-            return new Trigger() {
-                @Override
-                public Date nextExecutionTime(TriggerContext triggerContext) {
-                	Long value = new Long("10000");
-                    PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
-                    trigger.setInitialDelay(value);
-                    Date nextExecution = trigger.nextExecutionTime(triggerContext);
-                    Long longNextExecution = nextExecution.getTime() - System.currentTimeMillis();
-    				monitorTasquesService.updateProperaExecucio(comprovarAnotacionsPendents, longNextExecution);
-                    return nextExecution;
-                }
-            };
-        } else if (taskCodi.equals(processarAnotacionsAutomatiques)) {
-            return new Trigger() {
-                @Override
-                public Date nextExecutionTime(TriggerContext triggerContext) {
-                	Long value = new Long("10000");
-                    PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
-                    trigger.setInitialDelay(value);
-                    Date nextExecution = trigger.nextExecutionTime(triggerContext);
-                    Long longNextExecution = nextExecution.getTime() - System.currentTimeMillis();
-    				monitorTasquesService.updateProperaExecucio(processarAnotacionsAutomatiques, longNextExecution);
-                    return nextExecution;
-                }
-            };
+//        } else if (taskCodi.equals(comprovarAnotacionsPendents)) {
+//            return new Trigger() {
+//                @Override
+//                public Date nextExecutionTime(TriggerContext triggerContext) {
+//                	Long value = new Long("10000");
+//                    PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
+//                    trigger.setInitialDelay(value);
+//                    Date nextExecution = trigger.nextExecutionTime(triggerContext);
+//                    Long longNextExecution = nextExecution.getTime() - System.currentTimeMillis();
+//    				monitorTasquesService.updateProperaExecucio(comprovarAnotacionsPendents, longNextExecution);
+//                    return nextExecution;
+//                }
+//            };
+//        } else if (taskCodi.equals(processarAnotacionsAutomatiques)) {
+//            return new Trigger() {
+//                @Override
+//                public Date nextExecutionTime(TriggerContext triggerContext) {
+//                	Long value = new Long("10000");
+//                    PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
+//                    trigger.setInitialDelay(value);
+//                    Date nextExecution = trigger.nextExecutionTime(triggerContext);
+//                    Long longNextExecution = nextExecution.getTime() - System.currentTimeMillis();
+//    				monitorTasquesService.updateProperaExecucio(processarAnotacionsAutomatiques, longNextExecution);
+//                    return nextExecution;
+//                }
+//            };
         } else if (taskCodi.equals(actualitzarUnitatsIProcediments)) {
             return new Trigger() {
 	                    @Override
@@ -423,12 +423,12 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
 			if (comprovarReindexacioAsincrona.equals(taskCodi) || "totes".equals(taskCodi)) {
 				rescheduleTask(comprovarReindexacioAsincrona);
 			}
-			if (comprovarAnotacionsPendents.equals(taskCodi) || "totes".equals(taskCodi)) {
-				rescheduleTask(comprovarAnotacionsPendents);
-			}
-			if (processarAnotacionsAutomatiques.equals(taskCodi) || "totes".equals(taskCodi)) {
-				rescheduleTask(processarAnotacionsAutomatiques);
-			}
+//			if (comprovarAnotacionsPendents.equals(taskCodi) || "totes".equals(taskCodi)) {
+//				rescheduleTask(comprovarAnotacionsPendents);
+//			}
+//			if (processarAnotacionsAutomatiques.equals(taskCodi) || "totes".equals(taskCodi)) {
+//				rescheduleTask(processarAnotacionsAutomatiques);
+//			}
 			if (actualitzarUnitatsIProcediments.equals(taskCodi) || "totes".equals(taskCodi)) {
 				rescheduleTask(actualitzarUnitatsIProcediments);
 			}

@@ -30,8 +30,8 @@ public class SalutServiceBean implements SalutService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ContextInfo> getContexts(String baseUrl) {
-		return delegate.getContexts(baseUrl);
+	public List<ContextInfo> getContexts() {
+		return delegate.getContexts();
 	}
 
 	@Override

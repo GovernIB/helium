@@ -1,8 +1,11 @@
 package net.conselldemallorca.helium.webapp.v3.rest.comanda;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,8 +14,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.UniformInterfaceException;
+
 import es.caib.comanda.ms.salut.model.AppInfo;
 import es.caib.comanda.ms.salut.model.SalutInfo;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.tasca.ComandaTasca;
 import net.conselldemallorca.helium.v3.core.api.service.SalutService;
 
 @Controller
@@ -35,16 +43,8 @@ public class SalutController extends ComandaBaseController {
 		.jdkVersion(manifestInfo.getBuildJDK())
 		.integracions(salutService.getIntegracions())
 		.subsistemes(salutService.getSubsistemes())
-		.contexts(salutService.getContexts(getBaseUrl(request)))
+		.contexts(salutService.getContexts())
 		.build();
-	}
-	
-	public String getBaseUrl(HttpServletRequest request) {
-		return ServletUriComponentsBuilder
-				.fromRequestUri(request)
-				.replacePath(null)
-				.build()
-				.toUriString();
 	}
 	
 	@RequestMapping(value = "/salut", method = RequestMethod.GET)
@@ -59,6 +59,7 @@ public class SalutController extends ComandaBaseController {
 	@RequestMapping(value = "/salutPerformance", method = RequestMethod.GET)
 	@ResponseBody
 	public String healthCheck(HttpServletRequest request) {
+		
 		return "OK";
 	}
 	

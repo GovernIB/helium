@@ -77,6 +77,8 @@ public class TascaHelper {
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 	@Resource
 	private MessageHelper messageHelper;
+	@Resource
+	private ComandaHelper comandaHelper;
 
 
 
@@ -378,7 +380,8 @@ public class TascaHelper {
 	}
 
 	public void createDadesTasca(Long taskId) {
-		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
+		String taskIdStr = String.valueOf(taskId);
+		JbpmTask task = jbpmHelper.getTaskById(taskIdStr);
 		setTascaCache(task, null);
 	}
 
@@ -563,6 +566,7 @@ public class TascaHelper {
 		dto.setProcedimentComu(expedientNoNull.getTipus().isProcedimentComu());
 		dto.setUnitatOrganitzativaCodiNom(expedientNoNull.getUnitatOrganitzativa()!=null ? expedientNoNull.getUnitatOrganitzativa().getCodiAndNom() : null);
 		dto.setExpedientTipusId(expedientNoNull.getTipus().getId());
+		dto.setExpedientNumero(expedientNoNull.getNumero());
 		if (task.getAssignee() != null) {
 			dto.setResponsable(
 					this.findPersonaOrDefault(task.getAssignee()));

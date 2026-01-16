@@ -96,7 +96,7 @@ $(document).ready(function() {
 		        processData: false,
 		        async: false,
 		        success: function(data) {
-		        	if (data != "") {
+		        	if (data != null && data != "") {
 		        		alert(data);
 		        		permetreFinalitzar = false;
 		        	} else if (!confirm("<spring:message code="tasca.tramitacio.confirm.finalitzar"/>")) {

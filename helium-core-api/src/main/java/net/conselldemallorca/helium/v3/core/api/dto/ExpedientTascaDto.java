@@ -87,6 +87,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private Long expedientId;
 	private Long expedientTipusId;
 	private String expedientIdentificador;
+	private String expedientNumero;
 
 	private String processInstanceId;
 	private String expedientTipusNom;
@@ -382,6 +383,12 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	}
 	public void setExpedientIdentificador(String expedientIdentificador) {
 		this.expedientIdentificador = expedientIdentificador;
+	}
+	public String getExpedientNumero() {
+		return expedientNumero;
+	}
+	public void setExpedientNumero(String expedientNumero) {
+		this.expedientNumero = expedientNumero;
 	}
 	public String getProcessInstanceId() {
 		return processInstanceId;

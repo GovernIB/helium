@@ -36,6 +36,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+import net.conselldemallorca.helium.core.helper.ComandaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
@@ -93,6 +94,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.tasca.ComandaTascaEstat;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
@@ -193,6 +195,8 @@ public class TascaServiceImpl implements TascaService {
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
+	@Resource
+	private ComandaHelper comandaHelper;
 
 
 	@Override
@@ -878,6 +882,9 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Agafar tasca \"" + tasca.getTitol() + "\"");
+		
+		comandaHelper.upsertTasca(id, tasca.getTitol(), tasca.getExpedientNumero(), task, ComandaTascaEstat.PENDENT);
+		
 		return tasca;
 	}
 
@@ -913,6 +920,9 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Amollar tasca \"" + tasca.getTitol() + "\"");
+		
+		comandaHelper.upsertTasca(id, tasca.getTitol(), tasca.getExpedientNumero(), task, ComandaTascaEstat.PENDENT);
+		
 		return tasca;
 	}
 
@@ -1094,7 +1104,7 @@ public class TascaServiceImpl implements TascaService {
 				task.getProcessDefinitionId());
 		Map<String, Object> variablesProcessades = new HashMap<String, Object>(variables);
 		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variablesProcessades);
-		jbpmHelper.startTaskInstance(taskId);
+		task = jbpmHelper.startTaskInstance(taskId);
 		jbpmHelper.setTaskInstanceVariables(taskId, variablesProcessades, false);	
 		
 		if (task.getStartTime() == null) {
@@ -1109,6 +1119,8 @@ public class TascaServiceImpl implements TascaService {
 			registre.setMissatge("Iniciar tasca \"" + task.getTaskName() + "\"");
 			registreRepository.save(registre);
 		}
+		
+		comandaHelper.upsertTasca(taskId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.INICIADA);
 	}
 
 	@Override
@@ -1435,6 +1447,9 @@ public class TascaServiceImpl implements TascaService {
 					Registre.Accio.FINALITZAR,
 					Registre.Entitat.TASCA,
 					tascaId);
+			
+			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.FINALITZADA);
+			
 			registre.setMissatge("Finalitzar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 			registreRepository.save(registre);
 		} catch (ExecucioHandlerException ex) {

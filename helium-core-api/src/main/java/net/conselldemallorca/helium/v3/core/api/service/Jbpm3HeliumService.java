@@ -49,6 +49,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.tasca.ComandaTascaEstat;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -1506,6 +1507,9 @@ public interface Jbpm3HeliumService {
 			Long expedientId,
 			String usuaris[]);
 	
-	
+	/**
+	 * Refresca o crea la tasca a comanda
+	 */
+	public void refreshComandaTasca(String taskId, ComandaTascaEstat estat);
 	
 }

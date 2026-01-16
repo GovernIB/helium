@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.helper.ComandaHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
@@ -24,11 +25,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.tasca.ComandaTascaEstat;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -57,6 +60,8 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 	private PermisosHelper permisosHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
+	@Resource
+	private ComandaHelper comandaHelper;
 
 
 
@@ -161,12 +166,15 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					task.getProcessInstanceId(),
 					ExpedientLogAccioTipus.TASCA_CANCELAR,
 					null);
-			jbpmHelper.cancelTaskInstance(String.valueOf(tascaId));
+			task = jbpmHelper.cancelTaskInstance(String.valueOf(tascaId));
 			crearRegistreTasca(
 					expedientId,
 					String.valueOf(tascaId),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.CANCELAR);
+
+			Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.CANCELADA);
 		} else {
 			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}
@@ -194,12 +202,14 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					task.getProcessInstanceId(),
 					ExpedientLogAccioTipus.TASCA_SUSPENDRE,
 					null);
-			jbpmHelper.suspendTaskInstance(String.valueOf(tascaId));
+			task = jbpmHelper.suspendTaskInstance(String.valueOf(tascaId));
 			crearRegistreTasca(
 					expedientId,
 					String.valueOf(tascaId),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.ATURAR);
+			Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.PENDENT);
 		} else {
 			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}
@@ -227,12 +237,14 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					task.getProcessInstanceId(),
 					ExpedientLogAccioTipus.TASCA_CONTINUAR,
 					null);
-			jbpmHelper.resumeTaskInstance(String.valueOf(tascaId));
+			task = jbpmHelper.resumeTaskInstance(String.valueOf(tascaId));
 			crearRegistreTasca(
 					expedientId,
 					String.valueOf(tascaId),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.REPRENDRE);
+			Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.INICIADA);
 		} else {
 			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}
@@ -274,6 +286,10 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					tascaId,
 					usuari,
 					expressio);
+			
+			JbpmTask task = jbpmHelper.getTaskById(tascaId);
+			Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.PENDENT);
 		} else {
 			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}

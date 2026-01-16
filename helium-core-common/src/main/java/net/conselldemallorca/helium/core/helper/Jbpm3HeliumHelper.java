@@ -124,6 +124,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRec
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio.NotificacioEstat;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.tasca.ComandaTascaEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspAtributos;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspConfirmacioPeticioPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspJustificant;
@@ -283,7 +284,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private ExpedientRegistreHelper expedientRegistreHelper;
 	
 	@Resource
-	private PlantillaHelper plantillaHelper;	
+	private PlantillaHelper plantillaHelper;
+	
+	@Resource
+	private ComandaHelper comandaHelper;
 
 
 	@Override
@@ -3875,6 +3879,18 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		}
 		return usuarisAmbPermis.toArray(new String[usuarisAmbPermis.size()]);
 	}
-
+	
+	@Override
+	@Transactional(readOnly = true)
+	public void refreshComandaTasca(String taskId, ComandaTascaEstat estat) {
+		try {
+			JbpmTask task = jbpmHelper.getTaskById(taskId);
+			Tasca tasca = tascaHelper.findTascaByJbpmTaskId(taskId);
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+			comandaHelper.upsertTasca(taskId, tasca.getNom(), expedient.getNumero(), task, estat);
+		} catch(Exception e) {
+			logger.error("Error inesperat refrescant dades de comanda per la tasca amb ID: " + taskId, e);
+		}
+	}
 
 }

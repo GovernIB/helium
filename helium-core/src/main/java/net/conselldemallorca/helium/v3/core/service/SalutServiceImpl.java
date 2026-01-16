@@ -59,6 +59,8 @@ public class SalutServiceImpl implements SalutService {
 
 	private static final int MAX_CONNECTION_RETRY = 3;
 	
+	private String baseUrl = GlobalProperties.getInstance().getProperty("app.base.url");
+	
 //	@Autowired
 //	private PluginHelper pluginHelper;
 	
@@ -90,7 +92,7 @@ public class SalutServiceImpl implements SalutService {
 	}
 
 	@Override
-	public List<ContextInfo> getContexts(String baseUrl) {
+	public List<ContextInfo> getContexts() {
 		return Lists.newArrayList(
 			ContextInfo.builder()
 				.codi("BACK")
