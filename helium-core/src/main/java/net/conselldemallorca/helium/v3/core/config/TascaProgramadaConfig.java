@@ -338,7 +338,7 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
 							try {
 						value = GlobalProperties.getInstance().getProperty("app.unitats.procediments.sync");
 							} catch (Exception e) {
-						logger.warn("Error consultant la propietat per la propera execució d'actualitzar unitats i procediments: " + e.getMessage());
+						logger.warn("Error consultant la propietat per la propera execució d'actualitzar unitats, procediments i serveis: " + e.getMessage());
 							}
 	                    	if (value == null) {
 						value = "0 29 15 * * *";

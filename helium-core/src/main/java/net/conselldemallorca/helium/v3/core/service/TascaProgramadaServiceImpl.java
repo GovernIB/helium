@@ -682,7 +682,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		}
 	}
 
-	/** Mètode periòdic per sincronitzar les taules internes d'unitats organitzatives i procediments
+	/** Mètode periòdic per sincronitzar les taules internes d'unitats organitzatives, procediments i serveis
 	 * segons la propietat app.unitats.procediments.sync.
 	 */
 	@Override
@@ -724,7 +724,34 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		} catch(Throwable th) {
 			logger.error("Error no controlat sincronitzant procediments: " + th.getMessage(), th);
 		}
-		logger.info("Fi de la tasca periòdica de sincronització d'unitats i procediments.");
+		
+		// Actualtiza serveis
+		try {
+			logger.info("Actualització de serveis...");
+			procedimentService.actualitzaServeis();
+			ProgresActualitzacioDto data = procedimentService.getProgresServisActualitzacio();
+			if (data != null) {
+					if (data.getAvisos() != null && !data.getAvisos().isEmpty()) {
+						for (String avis : data.getAvisos()) {
+							logger.warn("Avís en l'actualització de serveis: " + avis);
+						}
+					}
+					logger.info("Resum de l'actualtizació de serveis: \n" + 
+							"\t- Total: " + data.getNumOperacions() + "\n" + 
+							"\t- Nous: " + data.getNNous() + "\n" + 
+							"\t- Extingits: " + data.getNExtingits() + "\n" + 
+							"\t- Canvis: " + data.getNCanvis() + "\n" + 
+							"\t- Avisos: " + data.getNAvisos() + "\n" + 
+							"\t- Errors: " + data.getNErrors()  + "\n");
+				if (data.isError())  {
+					logger.error("Error detectat en l'actualització de serveis: " + data.getErrorMsg());
+				}
+			}
+		} catch(Throwable th) {
+			logger.error("Error no controlat sincronitzant serveis: " + th.getMessage(), th);
+		}
+		
+		logger.info("Fi de la tasca periòdica de sincronització d'unitats, procediments i serveis.");
 	}
 	
 

@@ -190,4 +190,9 @@ public class ProcedimentPluginRolsac implements ProcedimentPlugin {
 	
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcedimentPluginRolsac.class);
+
+	@Override
+	public List<Procediment> findServeisAmbCodiDir3(String codiDir3) throws SistemaExternException {
+		return null;
+	}
 }

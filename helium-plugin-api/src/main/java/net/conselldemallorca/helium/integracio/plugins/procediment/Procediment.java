@@ -2,6 +2,8 @@ package net.conselldemallorca.helium.integracio.plugins.procediment;
 
 import java.util.Date;
 
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
+
 /**
  * Classe per retornar informació d'un procediment del plugin de procediments.
  *
@@ -10,10 +12,12 @@ public class Procediment {
 
 	private String codi;
 	private String codiSia;
-    private String nom;
-    private String unitatAdministrativacodi;
-    private boolean comu;
-    private Date dataActualitzacio;
+	private String nom;
+	private String unitatAdministrativacodi;
+	private boolean comu;
+	private Date dataActualitzacio;
+	private ProcedimentTipusEnumDto tipus;
+	
 
     public String getCodi() {
 		return codi;
@@ -50,5 +54,11 @@ public class Procediment {
 	}
 	public void setDataActualitzacio(Date dataActualitzacio) {
 		this.dataActualitzacio = dataActualitzacio;
+	}
+	public ProcedimentTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(ProcedimentTipusEnumDto tipus) {
+		this.tipus = tipus;
 	}
 }

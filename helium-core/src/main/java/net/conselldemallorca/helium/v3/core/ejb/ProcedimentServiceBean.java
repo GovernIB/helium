@@ -52,14 +52,30 @@ public class ProcedimentServiceBean implements ProcedimentService {
 	public void actualitzaProcediments() {
 		delegate.actualitzaProcediments();
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public void actualitzaServeis() {
+		delegate.actualitzaServeis();
+	}
 
 	@Override
 	public boolean isUpdatingProcediments() {
 		return delegate.isUpdatingProcediments();
 	}
-
+	
+	@Override
+	public boolean isUpdatingServeis() {
+		return delegate.isUpdatingServeis();
+	}
+	
 	@Override
 	public ProgresActualitzacioDto getProgresActualitzacio() {
 		return delegate.getProgresActualitzacio();
+	}
+	
+	@Override
+	public ProgresActualitzacioDto getProgresServisActualitzacio() {
+		return delegate.getProgresServisActualitzacio();
 	}
 }

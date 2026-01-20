@@ -48,6 +48,14 @@ public interface ProcedimentService {
      * @param entitat
      */
 	public void actualitzaProcediments();
+	
+	/**
+     * Actualitza els serveis amb la informació dels serveis actuals
+     * retornada pel plugin Gestor Documental Administratiu (GDA)
+     *
+     * @param entitat
+     */
+	public void actualitzaServeis();
 
     /**
      * Consulta si existeix un procés en curs actualitzant els procediments.
@@ -55,12 +63,24 @@ public interface ProcedimentService {
      * @return boolean Valor que indica si existeix un procés en segon pla actualitzant els procediements.
      */
 	public boolean isUpdatingProcediments();
+	
+	/**
+     * Consulta si existeix un procés en curs actualitzant els serveis.
+     *
+     * @return boolean Valor que indica si existeix un procés en segon pla actualitzant els procediements.
+     */
+	public boolean isUpdatingServeis();
 
 	/** Obté la informació del progrés d'actualització dels procediments.
 	 * 
 	 * @return Retorna un objecte amb la informació del progrés d'actualització.
 	 */
 	public ProgresActualitzacioDto getProgresActualitzacio();
-
+	
+	/** Obté la informació del progrés d'actualització dels serveis.
+	 * 
+	 * @return Retorna un objecte amb la informació del progrés d'actualització.
+	 */
+	public ProgresActualitzacioDto getProgresServisActualitzacio();
 	
 }

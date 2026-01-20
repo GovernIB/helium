@@ -183,6 +183,11 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 			built.unitatOrganitzativa = unitatOrganitzativa;
 		}
 		
+		public Builder tipus(ProcedimentTipusEnumDto tipus) {
+			built.tipus = tipus;
+			return this;
+		}
+		
 		public Procediment built() {
 			return built;
 		}

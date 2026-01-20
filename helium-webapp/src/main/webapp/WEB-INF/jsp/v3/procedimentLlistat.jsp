@@ -94,6 +94,9 @@
 	<div class="text-right" data-toggle="botons-titol">
 		<c:if test="${dadesPersona.admin}">
 			<a class="btn btn-default" href="<c:url value='/v3/procediment/actualitzar'/>" data-toggle="modal" data-maximized="true"><span id="span-refresh" class="fa fa-refresh"></span>&nbsp; <spring:message code="procediment.taula.actualitzar"/></a>
+			<a class="btn btn-default" href="<c:url value='/v3/procediment/servei/actualitzar'/>" data-toggle="modal" data-maximized="true">
+				<span id="span-refresh" class="fa fa-refresh"></span>&nbsp; <spring:message code="procediment.serveis.taula.actualitzar"/>
+			</a>
 		</c:if>
 	</div>
 

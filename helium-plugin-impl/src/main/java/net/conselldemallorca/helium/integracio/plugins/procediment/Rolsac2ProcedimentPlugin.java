@@ -19,6 +19,7 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 
 /**
  * Implementació del plugin de consulta de procediments emprant ROLSAC2.
@@ -45,7 +46,6 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 		Rolsac2ProcedimientosResponse response = null;
 		try {
 			response = findProcedimentsRolsac(
-					getServiceUrl() + "/procedimientos",
 					Rolsac2ProcedimentFilterRequest.builder()
 						.codigoUADir3(codiDir3)
 						.estadoSia("A")
@@ -78,6 +78,45 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 					"codiDir3=" + codiDir3 + "). Resposta rebuda amb el codi " + response.getStatus());
 		}
 	}
+	
+	@Override
+	public List<Procediment> findServeisAmbCodiDir3(String codiDir3) throws SistemaExternException {
+		logger.debug("Consulta dels serveis de l'unitat organitzativa (" +
+				"codiDir3=" + codiDir3 + ")");
+		Rolsac2ServiciosResponse response = null;
+		try {
+			response = findServeisRolsac(Rolsac2ServicioFilterRequest
+						.builder()
+						.codigoUADir3(codiDir3)
+						.estadoSia("A")
+						.buscarEnDescendientesUA(1)
+						.activo(1)
+						.filtroPaginacion(new Rolsac2FiltrePaginacio(1, 9999))
+						.build());
+		} catch (Exception ex) {
+			logger.error("No s'han pogut consultar els serveis de ROLSAC2 (" +
+					"codiDir3=" + codiDir3 + ")",
+					ex);
+			throw new SistemaExternException(
+					"No s'han pogut consultar els serveis de ROLSAC2 (" +
+					"codiDir3=" + codiDir3 + ")",
+					ex);
+		}
+		
+		if (response != null && response.getStatus().equals("200")) {
+			List<Procediment> procediments = new ArrayList<Procediment>();
+			for (Rolsac2Servei procediment : response.getResultado()) {
+				procediments.add(this.toProcemiment(procediment));
+			}
+			return procediments;
+		} else {
+			logger.error("No s'han pogut consultar els serveis de ROLSAC2 (" +
+					"codiDir3=" + codiDir3 + "). Resposta rebuda amb el codi " + response.getStatus());
+			throw new SistemaExternException(
+					"No s'han pogut consultar els serveis de ROLSAC2 (" +
+					"codiDir3=" + codiDir3 + "). Resposta rebuda amb el codi " + response.getStatus());
+		}
+	}
 
 	public Procediment toProcemiment (Rolsac2Procediment procediment) throws  SistemaExternException {
 		Procediment dto = new Procediment();
@@ -86,10 +125,28 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 			dto.setCodiSia(String.valueOf(procediment.getCodigoSIA()));
 			dto.setNom(procediment.getNombreProcedimientoWorkFlow());
 			dto.setComu(procediment.getComun());
+			dto.setTipus(ProcedimentTipusEnumDto.PROCEDIMENT);
 			if (procediment.getLinkUnidadAdministrativaResponsable() != null) {
 				dto.setUnitatAdministrativacodi(procediment.getLinkUnidadAdministrativaResponsable().getCodigo());
 			} else if (procediment.getLinkUnidadAdministrativaCompetente() != null) {
 				dto.setUnitatAdministrativacodi(procediment.getLinkUnidadAdministrativaCompetente().getCodigo());
+			} else if (procediment.getLinkUnidadAdministrativaInstructora() != null) {
+				dto.setUnitatAdministrativacodi(procediment.getLinkUnidadAdministrativaInstructora().getCodigo());
+			}
+		}
+		return dto;
+	}
+	
+	public Procediment toProcemiment (Rolsac2Servei procediment) throws  SistemaExternException {
+		Procediment dto = new Procediment();
+		if (procediment != null) {
+			dto.setCodi(String.valueOf(procediment.getCodigo()));
+			dto.setCodiSia(String.valueOf(procediment.getCodigoSIA()));
+			dto.setNom(procediment.getNombreProcedimientoWorkFlow());
+			dto.setComu(procediment.getComun() != null && procediment.getComun().intValue() == 1);
+			dto.setTipus(ProcedimentTipusEnumDto.SERVEI);
+			if (procediment.getLinkUnidadAdministrativaResponsable() != null) {
+				dto.setUnitatAdministrativacodi(procediment.getLinkUnidadAdministrativaResponsable().getCodigo());
 			} else if (procediment.getLinkUnidadAdministrativaInstructora() != null) {
 				dto.setUnitatAdministrativacodi(procediment.getLinkUnidadAdministrativaInstructora().getCodigo());
 			}
@@ -121,8 +178,8 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 	}
 
 	private Rolsac2ProcedimientosResponse findProcedimentsRolsac(
-			String url,
 			Rolsac2ProcedimentFilterRequest body) throws UniformInterfaceException, ClientHandlerException, IOException {
+		String url = getServiceUrl() + "/procedimientos";
 		logger.debug("Enviant petició HTTP a l'arxiu (" +
 				"url=" + url + ", " +
 				"tipus=application/json, " +
@@ -168,8 +225,21 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 		}
 		return unitatAdministrativa;
 	}
-
 	
+	private Rolsac2ServiciosResponse findServeisRolsac(
+			Rolsac2ServicioFilterRequest body) throws UniformInterfaceException, ClientHandlerException, IOException {
+		String url = getServiceUrl() + "/servicios";
+		logger.debug("Enviant petició HTTP a l'arxiu (" +
+				"url=" + url + ", " +
+				"tipus=application/json, " +
+				"body=" + body + ")");
+		ClientResponse response = getJerseyClient().
+				resource(url).
+				accept("application/json").
+				type("application/json").
+				post(ClientResponse.class, body);
+		return response.getEntity(Rolsac2ServiciosResponse.class);
+	}
 	
 	private String getServiceUrl() {
 		return GlobalProperties.getInstance().getProperty(

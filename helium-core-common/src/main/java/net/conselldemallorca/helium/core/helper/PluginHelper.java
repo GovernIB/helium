@@ -6089,6 +6089,43 @@ public class PluginHelper {
 		return procediments;
 	}
 	
+	public List<Procediment> serveiFindByCodiDir3(
+			String codiDir3) {
+		String accioDescripcio = "Consulta dels serveis pel codi DIR3 " + codiDir3;
+		Map<String, Object> accioParams = new HashMap<String, Object>();
+		accioParams.put("codiDir3", codiDir3);
+		
+		long t0 = System.currentTimeMillis();
+		List<Procediment> procediments = null;
+		try {
+			//codiDir3 = "A04003003";
+			procediments = getProcedimentPlugin().findServeisAmbCodiDir3(codiDir3);
+
+			accioParams.put("resultat", procediments != null ? procediments.size() : -1);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					IntegracioParametreDto.toIntegracioParametres(accioParams));
+		} catch (Exception ex) {
+			String errorDescripcio = "Error consultant els serveis per codi DIR3 " + codiDir3 + ": " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					IntegracioParametreDto.toIntegracioParametres(accioParams));
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+					errorDescripcio, 
+					ex);
+		}
+		return procediments;
+	}
+	
 	/** Mètode per obtenir la informació d'una unitat administrativa a partir del codi de l'unitat
 	 * dins del servei de procediments. S'usa perquè la consulta de procediments a Rolsac retorna
 	 * la llista de procediments però el codi de la UO no és el DIR3 i pot ser que la UO no tingui

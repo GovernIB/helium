@@ -56,14 +56,15 @@ public class ProcedimentHelper {
 	@Transactional( propagation = Propagation.REQUIRES_NEW)
 	public void actualtizarProcedimentsNoVigents(
 			Map<String, net.conselldemallorca.helium.integracio.plugins.procediment.Procediment> procedimentsRolsacMap,
-			ProgresActualitzacioDto progres) {
+			ProgresActualitzacioDto progres,
+			boolean esServeis) {
 
 		ActualitzacioInfo info = progres.new ActualitzacioInfo();
-		info.setTitol("Actualització de procediments no vigents");
+		info.setTitol("Actualització de " + (esServeis? "serveis" : "procediments") + " no vigents");
 
 		// Consulta els procediments vigents
 		List<Procediment> procedimentsVigents = procedimentRepository.findAllByEstat(ProcedimentEstatEnumDto.VIGENT);
-		progres.addInfo("Actualment a la BBDD hi ha " + procedimentsVigents.size() + " procediments vigents.");
+		progres.addInfo("Actualment a la BBDD hi ha " + procedimentsVigents.size() + (esServeis? " serveis" : " procediments") + " vigents.");
 	
 		List<String> procedimentsExtingits = new ArrayList<String>();
 		for (Procediment p : procedimentsVigents) {
@@ -74,12 +75,12 @@ public class ProcedimentHelper {
 			}
 		}
 		if (progres.getNExtingits() > 0) {
-			info.setText("S'han marcat com a extingits " + progres.getNExtingits() + " procediments");
+			info.setText("S'han marcat com a extingits " + progres.getNExtingits() + (esServeis? " serveis" : " procediments"));
 			info.setLinies(procedimentsExtingits);
 		} else {
-			info.setText("No s'ha marcat cap procediment com a extingit");
+			info.setText("No s'ha marcat cap " + (esServeis? "servei" : "procediment") + " com a extingit");
 		}
-		info.setText(info.getText() + " dels " + procedimentsVigents.size() + " procediments que estaven vigents.");
+		info.setText(info.getText() + " dels " + procedimentsVigents.size() + (esServeis? " serveis" : " procediments") + " que estaven vigents.");
 		progres.addInfo(info);
 	}
 
@@ -119,7 +120,9 @@ public class ProcedimentHelper {
 						procedimentRolsac.getCodiSia(),
 						ProcedimentEstatEnumDto.VIGENT,
 						procedimentRolsac.isComu(),
-						unitatOrganitzativa).built();
+						unitatOrganitzativa)
+						.tipus(procedimentRolsac.getTipus())
+						.built();
 				procedimentRepository.save(procediment);
 				info.setText("Nou procediment creat");
 				List<String> camps = new ArrayList<String>();

@@ -170,13 +170,49 @@ public class ProcedimentController extends BaseController{
 				"v3/procedimentActualitzacioForm",
 				"procediment.controller.actualitzar.ok");
 	}
+	
+	@RequestMapping(value = "/servei/actualitzar")
+	public String actualitzarServei(
+			HttpServletRequest request, 
+			Model model) throws Exception {
+		model.addAttribute("isUpdatingProcediments", procedimentService.isUpdatingServeis());
+		return "v3/procedimentServeiActualitzacioForm";
+	}
+	
+	@RequestMapping(value = "/servei/actualitzar", method = RequestMethod.POST)
+	public String actualitzacioAutomaticaServisPost(
+			HttpServletRequest request,
+			Model model) {
+		try {
+			procedimentService.actualitzaServeis();
+		} catch (Exception e) {
+			String errMsg = "Error inesperat actualitzant els serveis: " + e.toString();
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg, e);
+			return "v3/procedimentServeiActualitzacioForm";
+		}
 
+		return getAjaxControllerReturnValueSuccess(
+				request,
+				"v3/procedimentActualitzacioForm",
+				"procediment.controller.actualitzar.servei.ok");
+	}
+	
+	@RequestMapping(value = "/servei/actualitzar/progres", method = RequestMethod.GET)
+	@ResponseBody
+	public ProgresActualitzacioDto getProgresServeiActualitzacio(
+			HttpServletRequest request,
+			@RequestParam(value = "index", required = false) Integer index) {
+		return this.getCopiaProgres(
+					procedimentService.getProgresServisActualitzacio(), 
+					index);
+	}
+	
 	@RequestMapping(value = "/actualitzar/progres", method = RequestMethod.GET)
 	@ResponseBody
 	public ProgresActualitzacioDto getProgresActualitzacio(
 			HttpServletRequest request,
 			@RequestParam(value = "index", required = false) Integer index) {
-		
 		return this.getCopiaProgres(
 					procedimentService.getProgresActualitzacio(), 
 					index);

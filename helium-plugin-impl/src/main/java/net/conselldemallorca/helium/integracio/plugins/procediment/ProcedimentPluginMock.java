@@ -35,4 +35,15 @@ public class ProcedimentPluginMock implements ProcedimentPlugin {
 		ua.setPareCodi(null);
 		return ua;
 	}
+
+	@Override
+	public List<Procediment> findServeisAmbCodiDir3(String codiDir3) throws SistemaExternException {
+		List<Procediment> response = new ArrayList<Procediment>();
+		Procediment p = new Procediment();
+		p.setCodi("4321");
+		p.setCodiSia("4321");
+		p.setNom("Servei Mock");
+		response.add(p);
+		return null;
+	}
 }
