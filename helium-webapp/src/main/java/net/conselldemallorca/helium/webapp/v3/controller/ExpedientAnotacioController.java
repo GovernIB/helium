@@ -10,7 +10,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +114,10 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			if(!nomesAnnexos) {
 				resultatMapeig = anotacioService.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
 			} else {
-				anotacioService.reintentarTraspasAnotacio(anotacioId);
+				Exception exception = anotacioService.reintentarTraspasAnotacio(anotacioId);
+				if (exception != null) {
+					throw exception;
+				}
 				MissatgesHelper.success(
 						request, 
 						getMessage(

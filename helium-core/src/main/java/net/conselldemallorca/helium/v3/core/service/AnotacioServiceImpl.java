@@ -1180,7 +1180,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	 */
 	@Override
 	@Transactional
-	public void reintentarTraspasAnotacio(Long anotacioId) throws Exception {
+	public Exception reintentarTraspasAnotacio(Long anotacioId) {
 		
 		logger.debug(
 				"Reintentant el traspàs de l'anotació (" +
@@ -1190,7 +1190,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
 		if (anotacio.getExpedient() == null)
-			throw new Exception("No es pot processar l'annex perquè l'anotació no té cap expedient associat.");
+			return new Exception("No es pot processar l'annex perquè l'anotació no té cap expedient associat.");
 		
 		Expedient expedient = anotacio.getExpedient();
 		ExpedientTipus expedientTipus = expedient.getTipus();
@@ -1273,12 +1273,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(annexUuid);
 			if (resultatAnnex!=null && AnnexAccio.ERROR.equals(resultatAnnex.getAccio())) {
 				error = true;
-				errorMsg.append(resultatAnnex.getErrorCodi() + " - " + resultatAnnex.getErrorMessage());
+				errorMsg.append("[" + resultatAnnex.getErrorCodi() + " - " + resultatAnnex.getErrorMessage() + "] ");
 			}
-			if (error)
-				throw new Exception(errorMsg.toString());
 		}
-		
+		if (error) {
+			return new Exception(errorMsg.toString());
+		}
+		return null;
 	}
 	
 	/**

@@ -154,9 +154,9 @@ public interface AnotacioService {
 	 * 
 	 * @param anotacioId
 	 * @throws Llença excepció en cas de no anar bé.
-	 * @return
+	 * @return Retorna excepció en cas d'error.
 	 */
-	public void reintentarTraspasAnotacio(Long anotacioId) throws Exception;
+	public Exception reintentarTraspasAnotacio(Long anotacioId);
 
 	/** Mètode per obtenir el contingut d'un annex (en la seva versió imprimible) per a la seva descàrrega
 	 * 
