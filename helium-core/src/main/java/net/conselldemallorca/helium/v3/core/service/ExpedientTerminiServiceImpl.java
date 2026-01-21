@@ -415,7 +415,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
     public Map<String, CampFormProperties> getTerminisFormProperties(Long expedientTipusId, String estatCodi) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
 		Estat estat = estatCodi != null ? 
-				estatRepository.findByExpedientTipusIdAndCodi(expedientTipusId, estatCodi)
+				estatRepository.findByExpedientTipusAndCodiAmbHerencia(expedientTipusId, estatCodi)
 				: null;
         return reglaHelper.getTerminisFormProperties(expedientTipus, estat);
     }

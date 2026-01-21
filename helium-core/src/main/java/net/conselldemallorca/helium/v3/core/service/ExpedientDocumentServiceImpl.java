@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1036,7 +1037,23 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 
 		String processInstanceId = expedient.getProcessInstanceId();
-		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
+
+		Map<String, Document> documentsMap = new HashMap<String, Document>();
+		// Consulta els documents del pare en cas d'herència
+		if (expedient.getTipus().getExpedientTipusPare() != null) {
+		    // Documents heretats del pare
+		    List<Document> documentsPare = documentRepository.findByExpedientTipusId(expedient.getTipus().getExpedientTipusPare().getId());
+		    for (Document docPare : documentsPare) {
+		        documentsMap.put(docPare.getCodi(), docPare);
+		    }
+		}
+
+		List<Document> documentsPropis = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
+		for (Document docPropi : documentsPropis) {
+		    documentsMap.put(docPropi.getCodi(), docPropi);
+		}
+		
+		List<Document> documentsTipusExpedient = new ArrayList<Document>(documentsMap.values());
 		List<ExpedientDocumentDto> documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
 
 		Estat estat = expedient.getEstat();

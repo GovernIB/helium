@@ -580,6 +580,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 		model.addAttribute("expedientTipus", expedientTipus);
 		model.addAttribute("estat", estat);
+		model.addAttribute("heretat", estat.isHeretat());
 
 		return "v3/expedientTipusEstatRegles";
 	}
@@ -667,6 +668,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable Long reglaId, Model model) {
 		model.addAttribute("estat", null);
 		EstatReglaDto regla = expedientTipusService.estatReglaFindById(expedientTipusId, reglaId);
+		model.addAttribute("heretat", regla.isHeretat());
 		model.addAttribute(conversioTipusHelper.convertir(regla, EstatReglaCommand.class));
 		modelRegles(model, expedientTipusId, regla.getQue());
 		return "v3/expedientTipusEstatReglaForm";
@@ -752,8 +754,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 	@RequestMapping(value = "/{expedientTipusId}/estat/regla/{reglaId}/moure/{posicio}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean moureReglaTipusExpedient(HttpServletRequest request, @PathVariable Long expedientTipusId,
-			@PathVariable Long estatId, @PathVariable int posicio, Model model) {
-		return this.moureRegla(request, expedientTipusId, estatId, null, posicio, model);
+			@PathVariable Long reglaId, @PathVariable int posicio, Model model) {
+		return this.moureRegla(request, expedientTipusId, null, reglaId, posicio, model);
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/var/select", method = RequestMethod.GET)

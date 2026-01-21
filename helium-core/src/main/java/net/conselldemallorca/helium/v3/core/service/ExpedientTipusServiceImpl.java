@@ -3557,8 +3557,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional(readOnly = true)
 	public List<EstatReglaDto> estatReglaFindAllByExpedientTipus(Long expedientTipusId) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		List<EstatRegla> regles = estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus);
-		return conversioTipusHelper.convertirList(regles, EstatReglaDto.class);
+		List<EstatReglaDto> regles = new ArrayList<EstatReglaDto>();
+		if (expedientTipus.getExpedientTipusPare() != null) {
+			regles.addAll(conversioTipusHelper.convertirList(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus.getExpedientTipusPare()), EstatReglaDto.class));
+			for (EstatReglaDto regla : regles) {
+				regla.setHeretat(true);
+			}
+		}
+		regles.addAll(conversioTipusHelper.convertirList(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus), EstatReglaDto.class));
+		return regles;
 	}
 	
 	
@@ -3566,11 +3573,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional(readOnly = true)
 	public EstatReglaDto estatReglaFindById(Long expedientTipusId, Long reglaId) {
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		EstatRegla regla = estatReglaRepository.findOne(reglaId);
 		if (regla == null)
 			throw new NoTrobatException(EstatRegla.class, reglaId);
-		return conversioTipusHelper.convertir(regla, EstatReglaDto.class);
+		EstatReglaDto estatReglaDto = conversioTipusHelper.convertir(regla, EstatReglaDto.class);
+		// Revisem si la regla és heretada a partir del tipus d'expedient de la regla  
+		if (expedientTipus.getExpedientTipusPare() != null 
+				&& expedientTipus.getExpedientTipusPare() == regla.getExpedientTipus()) {
+			estatReglaDto.setHeretat(true);
+		}
+		return estatReglaDto;
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.v3.core.regles;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,12 +57,19 @@ public class ReglaHelper {
         if (estat == null)
             return campFormPropertiesMap;
 
-        List<EstatRegla> regles = estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus);
-        List<EstatRegla> reglesEstat = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
-        regles.addAll(reglesEstat);
-        if (regles == null || regles.isEmpty())
+        List<EstatRegla> regles = new ArrayList<EstatRegla>();
+        if (expedientTipus.getExpedientTipusPare() != null) {
+        	// Regles heretades
+        	regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus.getExpedientTipusPare()));
+        }
+        // Regles a nivell de tipus d'expedient
+        regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus));
+        // Regles de l'estat
+        regles.addAll(estatReglaRepository.findByEstatOrderByOrdreAsc(estat));
+
+        if (regles == null || regles.isEmpty())	
             return campFormPropertiesMap;
-        List<Camp> dades = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+        List<Camp> dades = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
         if (dades == null || dades.isEmpty())
             return campFormPropertiesMap;
 
@@ -145,13 +153,19 @@ public class ReglaHelper {
         if (estat == null)
             return campFormPropertiesMap;
 
-        List<EstatRegla> regles = estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus);
-        List<EstatRegla> reglesEstat = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
-        regles.addAll(reglesEstat);
+        List<EstatRegla> regles = new ArrayList<EstatRegla>();
+        if (expedientTipus.getExpedientTipusPare() != null){
+        	// Regles heretades
+        	regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus.getExpedientTipusPare()));
+        }
+        // Regles a nivell de tipus d'expedient
+        regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus));
+        // Regles de l'estat
+        regles.addAll(estatReglaRepository.findByEstatOrderByOrdreAsc(estat));
         
         if (regles == null || regles.isEmpty())
             return campFormPropertiesMap;
-        List<Document> documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
+        List<Document> documents = documentRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
         if (documents == null || documents.isEmpty())
             return campFormPropertiesMap;
 
@@ -212,13 +226,19 @@ public class ReglaHelper {
         if (estat == null)
             return campFormPropertiesMap;
 
-        List<EstatRegla> regles = estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus);
-        List<EstatRegla> reglesEstat = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
-        regles.addAll(reglesEstat);
-        
+        List<EstatRegla> regles = new ArrayList<EstatRegla>();
+        if (expedientTipus.getExpedientTipusPare() != null){
+        	// Regles heretades
+        	regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus.getExpedientTipusPare()));
+        }
+        // Regles a nivell de tipus d'expedient
+        regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus));
+        // Regles de l'estat
+        regles.addAll(estatReglaRepository.findByEstatOrderByOrdreAsc(estat));
+
         if (regles == null || regles.isEmpty())
             return campFormPropertiesMap;
-        List<Termini> terminis = terminiRepository.findByExpedientTipus(expedientTipus.getId());
+        List<Termini> terminis = terminiRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
         if (terminis == null || terminis.isEmpty())
             return campFormPropertiesMap;
 

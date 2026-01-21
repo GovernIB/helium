@@ -7,12 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.conselldemallorca.helium.v3.core.api.dto.HeretableDto;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EstatReglaDto implements Serializable {
+public class EstatReglaDto extends HeretableDto implements Serializable {
 	
 	private static final long serialVersionUID = -8989965902752604366L;
 

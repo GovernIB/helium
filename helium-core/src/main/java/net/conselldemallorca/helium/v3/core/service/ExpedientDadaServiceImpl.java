@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -405,7 +406,19 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		boolean filtrar = !StringUtils.isEmpty(filtre);
 
 		List<ExpedientDadaDto> dadesExpedient = variableHelper.findDadesPerInstanciaProces(processInstanceId, true);
-		List<Camp> camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedient.getTipus());
+		// Consulta els camps del pare en cas d'herència
+		Map<String, Camp> campsMap = new HashMap<String, Camp>();
+		if (expedient.getTipus().getExpedientTipusPare() != null) {
+			// Camps heretats
+			for (Camp camp: expedient.getTipus().getExpedientTipusPare().getCamps()) {
+				campsMap.put(camp.getCodi(), camp);
+			}
+		}
+		for (Camp camp : campRepository.findByExpedientTipusOrderByCodiAsc(expedient.getTipus())) {
+			campsMap.put(camp.getCodi(), camp);
+		}
+		List<Camp> camps = new ArrayList<Camp>(campsMap.values());
+
 		
 		Estat estat = estatId != null? estatRepository.findOne(estatId) : expedient.getEstat();
 		

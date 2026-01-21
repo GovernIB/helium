@@ -6,8 +6,16 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:choose>
-	<c:when test="${empty estatReglaCommand.id}"><c:set var="titol"><spring:message code="expedient.tipus.regla.form.titol.nou"/></c:set></c:when>
-	<c:otherwise><c:set var="titol"><spring:message code="expedient.tipus.regla.form.titol.modificar"/></c:set></c:otherwise>
+	<c:when test="${!heretat}">
+		<c:choose>
+			<c:when test="${empty estatReglaCommand.id}"><c:set var="titol"><spring:message code="expedient.tipus.regla.form.titol.nou"/></c:set></c:when>
+			<c:otherwise><c:set var="titol"><spring:message code="expedient.tipus.regla.form.titol.modificar"/></c:set></c:otherwise>
+		</c:choose>
+	</c:when>
+	<c:otherwise>
+		<c:set var="titol"><spring:message code="expedient.tipus.regla.form.titol.visualitzar"/></c:set>
+		<c:set var="formAction">none</c:set>
+	</c:otherwise>
 </c:choose>
 <html>
 <head>
@@ -227,7 +235,9 @@
 		</div>
 		<div style="min-height: 150px;"></div>
 		<div id="modal-botons">
-			<button type="submit" class="btn btn-success"><span class="fa fa-save"></span>&nbsp;<spring:message code="comu.boto.guardar"/></button>
+			<c:if test="${!heretat}">
+				<button type="submit" class="btn btn-success"><span class="fa fa-save"></span>&nbsp;<spring:message code="comu.boto.guardar"/></button>
+			</c:if>
 			<a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/permis"/>" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></a>
 		</div>
 	</form:form>

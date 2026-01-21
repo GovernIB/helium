@@ -32,6 +32,11 @@
 	<style>
 		.label-accio {font-size: 13px; margin-top: 5px; margin-bottom: 5px; display: block;}
 		.label-ocult {background-color: rgba(0,0,0,0); border: dashed 1px #ccc; color: #888;}
+		
+	    #estatRegles tr:not(.nodrag) { cursor: move; }
+	    #estatRegles tr.nodrag { cursor: default; }
+	    /* Feedback visual quan arrosseguem */
+	    .drag { background-color: #f4f4f4 !important; opacity: 0.8; }
 	</style>
 	<hel:modalHead/>
 </head>
@@ -49,8 +54,19 @@
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
+				<th data-col-name="ordre" data-visible="false"/>
 				<th data-col-name="id" data-visible="false"/>
-				<th data-col-name="nom" width="15%"><spring:message code="expedient.tipus.regla.form.camp.nom"/></th>
+				<th data-col-name="nom" width="15%" data-template="#cellEstatReglaNomTemplate">
+				<spring:message code="expedient.tipus.regla.form.camp.nom"/>
+					<script id="cellEstatReglaNomTemplate" type="text/x-jsrender">
+								{{if heretat }}
+									<span class="dada-heretada">{{:nom}}</span> 
+									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.estat.llistat.codi.heretat"/>">R</span>
+								{{else}}
+									{{:nom}}
+								{{/if}}
+						</script>
+				</th>
 				<th data-col-name="qui" data-template="#cellQuiTemplate" width="10%">
 					<spring:message code="expedient.tipus.regla.form.camp.qui"/>
 					<script id="cellQuiTemplate" type="text/x-jsrender">
@@ -142,73 +158,97 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" data-maximized="true" href="regla/{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
-								<li><a href="regla/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.regla.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								{{if heretat or ${heretat != null ? heretat : false} }}
+									<li><a data-toggle="modal" href="regla/{{:id}}"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
+								{{else}}
+									<li><a data-toggle="modal" data-maximized="true" href="regla/{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
+									<li><a href="regla/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.regla.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								{{/if}}
 							</ul>
 						</div>
 					</script>
 				</th>
+				<th data-col-name="heretat" data-orderable="false" width="5%" data-visible="false"></th>
 			</tr>
 		</thead>
 	</table>
 	<a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}?pipellaActiva=estats"/>" class="btn btn-default pull-right"><span class="fa fa-arrow-left"></span> <spring:message code="comu.boto.tornar"/></a>
-
 	<script>
 		var filaMovem;
 
 		$(document).ready(function() {
 			$('#estatRegles').on('draw.dt', function() {
-				// Posa la taula com a ordenable
-				$("#estatRegles").tableDnD({
-					onDragClass: "drag",
-					onDrop: function(table, row) {
-						var pos = row.rowIndex - 1;
-						var id= obtenirId(pos);
-						if (pos != filaMovem) {
-							canviarPosicioRegla(id,pos);
-							$('tr').off('click');
-							$('td').off('click');
-						}
-					},
-					onDragStart: function(table, row) {
-						filaMovem = row.rowIndex-1;
-					}
+				
+				var table = $('#estatRegles').DataTable();
+		        var rows = table.rows().nodes();
+		        var data = table.rows().data();
+		        
+		     // Recorrem les dades per marcar les files heretades
+		        data.each(function (rowData, index) {
+		            if (rowData.heretat) {
+		                $(rows[index]).addClass('nodrag fila-bloquejada');
+		            }
+		        });
+		        
+		     // Posa la taula com a ordenable
+		        $("#estatRegles").tableDnD({
+		            onDragClass: "drag",
+		            // No permet moure les files amb classe 'nodrag'
+		            onAllowDrop: function(draggedRow, dropTargetRow) {
+		                // No permetem deixar anar res a sobre d'una fila heretada
+		                return !$(dropTargetRow).hasClass('nodrag');
+		            },
+		            onDrop: function(table, row) {
+		                var pos = row.rowIndex - 1;
+		                var id = obtenirId(pos);
+		                if (pos != filaMovem) {
+		                    canviarPosicioRegla(id, pos);
+		                }
+		            },
+		            onDragStart: function(table, row) {
+		                // Si per algun motiu s'intenta arrossegar una heretada, es cancela
+		                if($(row).hasClass('nodrag')) {
+		                    return false;
+		                }
+		                filaMovem = row.rowIndex - 1;
+		            }
 				});
-				$("#expedientTipusEstat tr").hover(function() {
-					$(this.cells[0]).addClass('showDragHandle');
-				}, function() {
-					$(this.cells[0]).removeClass('showDragHandle');
-				});
-			});
+		     });
 		});
 
 		function canviarPosicioRegla(id, pos) {
-			// Canvia la ordenació sempre amb ordre ascendent
-			var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipus.id}/estat/${estat.id}/regla/"/>'+id+'/moure/'+pos;
+			// Calculem quantes files heretades hi ha a dalt de tot
+		    var numHeretades = $('#estatRegles tr.nodrag').length;
+		    
+		    // La posició real és la posició actual menys les heretades
+		    var posicioRelativa = pos - numHeretades;
+
+		    // Si per algun error la posició relativa és negativa, la posem a 0
+		    if (posicioRelativa < 0) posicioRelativa = 0;
+		    
+			var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipus.id}/estat/${estat.id}/regla/"/>' + id + '/moure/' + posicioRelativa;
+			
 			$.ajax({
 				type: 'GET',
 				url: getUrl,
 				async: true,
 				complete: function() {
 					webutilRefreshMissatges();
-					$('#expedientTipusEstat').webutilDatatable('refresh');
+					$('#estatRegles').webutilDatatable('refresh');
 				}
 			});
 		}
 
-		function obtenirId(pos){
-			if(filaMovem==pos){
-				var fila = filaMovem + 1;
-			} else {
-				if( filaMovem < pos){	//baixam elements
-					var fila = filaMovem + (pos-filaMovem)+1;
-				}else{					//pujam elements
-					var fila = filaMovem - (filaMovem-pos)+1;
-				}
-			}
-			id = $("#estatRegles tr:eq("+fila+")").attr("id");
-			id2 = id.split("_");
-			return id2[1] ;
+		function obtenirId(pos) {
+		    // Cercam la fila a la posició indicada (ajustant per l'index 1 del selector eq de jQuery)
+		    var fila = $("#estatRegles tr").eq(pos + 1);
+		    
+		    // Intentam treure l'ID de l'atribut ID
+		    var idAttr = fila.attr("id") || "";
+		    var parts = idAttr.split("_");
+		    
+		    // Si el split no funciona, intenta cercar a la primera columna oculta (ordre)
+		    return parts.length > 1 ? parts[1] : parts[0];
 		}
 	</script>
 </body>
