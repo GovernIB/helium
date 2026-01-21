@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.google.common.base.Strings;
+import com.itextpdf.text.pdf.AcroFields;
+import com.itextpdf.text.pdf.PdfReader;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
@@ -74,6 +77,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
@@ -82,6 +86,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientFinalitzarDto;
@@ -247,6 +252,29 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR 
 						: ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
 				documentCodi);
+		
+		boolean isValid = true;
+		String validationMessage = null;
+		PdfReader pdfReader;
+		boolean isSignat = false;
+		try {
+			if(arxiuContentType.equals("application/pdf") && !(firmaSeparada && firmaContingut != null)) {
+				pdfReader = new PdfReader(arxiuContingut);
+				AcroFields acroFields = pdfReader.getAcroFields();
+				List<String> signatures = acroFields.getSignatureNames();
+				isSignat = !(signatures == null || signatures.isEmpty());
+			}
+		} catch (IOException e) {
+			logger.error("Error inesperat comprovant firma de document " + arxiuNom + " a expedient amb ID: " + expedientId, e);
+		}
+		
+		if(isSignat || (firmaSeparada && firmaContingut != null)) {
+			ArxiuFirmaValidacioDetallDto firmaValidacio = 
+				pluginHelper.validaSignaturaObtenirDetalls(arxiuContingut, firmaContingut);
+			isValid = firmaValidacio.isValid();
+			validationMessage = firmaValidacio.getMessage();
+		}
+		
 		DocumentStore documentStoreCreat = documentHelper.crearDocument(
 				null,
 				processInstanceId,
@@ -265,8 +293,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
 				ntiIdOrigen,
-				true,
-				null,
+				isValid,
+				validationMessage,
 				null,
 				annexosPerNotificar);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
