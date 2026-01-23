@@ -1697,7 +1697,6 @@ public class DistribucioHelper {
 	 * @param annex 
 	 * @param resultat 
 	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void incorporarAnnex(boolean isSistra, Expedient expedient, Anotacio anotacio, AnotacioAnnex annex, ArxiuResultat resultat) {
 		
 		ArxiuResultatAnnex resultatAnnex = null;
@@ -1772,13 +1771,14 @@ public class DistribucioHelper {
 				annex.setDocumentStoreId(documentStoreId);
 			}
 		} catch(Exception e) {
-			annex.setError("Error incorporant l'annex a l'expedient: " + e.getMessage());
+			String errMsg ="Error incorporant l'annex a l'expedient: " + e.getMessage();
+			annex.setError(errMsg);
 			annex.setEstat(AnotacioAnnexEstatEnumDto.PENDENT);
 			if (resultatAnnex != null) {
 				resultatAnnex.setAccio(AnnexAccio.ERROR);
 				resultatAnnex.setErrorCodi(-1);
 				resultatAnnex.setException(e);
-				resultatAnnex.setErrorMessage("Error recuperant el contingut de l'annex: " + e.getMessage());
+				resultatAnnex.setErrorMessage(errMsg);
 			}
 		}
 	}

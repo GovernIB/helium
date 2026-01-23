@@ -2164,13 +2164,15 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	 **/
 	
 	private void reintentarProcessamentAnotacionsNomesAnnexos(ExecucioMassivaExpedient ome) throws Exception {
-		StringBuilder errorMsg = new StringBuilder();
 		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
 		ome.setDataInici(new Date());
 		try {
-			anotacioService.reintentarTraspasAnotacio(ome.getAuxId());
+			Exception exception = anotacioService.reintentarTraspasAnotacio(ome.getAuxId());
+			if (exception != null) {
+				estat = ExecucioMassivaEstat.ESTAT_ERROR;
+				ome.setError(exception.getMessage());
+			}
 			ome.setEstat(estat);
-			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
 		}catch(Exception ex) {

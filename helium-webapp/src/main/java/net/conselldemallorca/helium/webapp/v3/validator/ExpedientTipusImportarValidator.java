@@ -9,11 +9,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import org.jbpm.graph.def.ProcessDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -27,6 +29,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
+import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.AccioExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.CampExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.CampTascaExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ConsultaCampExportacio;
@@ -136,6 +140,22 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
     			expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
     					entornActual.getId(),
     					command.getId());
+    		
+    		Map<String, Set<String>> accionsDefinicio = new HashMap<String, Set<String>>();
+    		if(command.isDesplegarDefinicions() || command.getId() == null) {
+	    		for(DefinicioProcesExportacio definicio : exportacio.getDefinicions()) {
+	    			
+	    			ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(definicio.getContingutDeploy()));
+	    			ProcessDefinition processDefinition;
+	    			try {
+	    				processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+	    				if(processDefinition.getActions() != null)
+	    					accionsDefinicio.put(definicio.getDefinicioProcesDto().getJbpmKey(), processDefinition.getActions().keySet());
+	    			} catch (Exception e) {
+	    				// TODO: process error
+	    			}
+	    		}
+    		}
     		
     		// Conjunt d'enumeracions i dominis del tipus d'expedient per comprovar si les dependències són globals
     		// O no s'han escollit
@@ -286,7 +306,10 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 					if (!( command.getAccions().contains(camp.getJbpmAction()) 
 						|| (	camp.getDefprocJbpmKey() != null && 
 								accinsGlobals.containsKey(camp.getDefprocJbpmKey()) && 
-								accinsGlobals.get(camp.getDefprocJbpmKey()).contains(camp.getJbpmAction())))) {
+								accinsGlobals.get(camp.getDefprocJbpmKey()).contains(camp.getJbpmAction()))
+						|| (camp.getDefprocJbpmKey() != null && 
+							accionsDefinicio.containsKey(camp.getDefprocJbpmKey()) && 
+							accionsDefinicio.get(camp.getDefprocJbpmKey()).contains(camp.getJbpmAction())))) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(
 										this.codiMissatge + ".variable.accioNull", 
