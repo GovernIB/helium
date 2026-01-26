@@ -296,7 +296,7 @@
 										<i class="fa fa-ellipsis-v" />
 									</span>
 								</a>
-								<ul class="dropdown-menu">
+								<ul class="dropdown-menu" style="right: 0; left: auto;">
 									<li>
 										<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar/original"/>">
 											<span class="fa fa-download"></span>
