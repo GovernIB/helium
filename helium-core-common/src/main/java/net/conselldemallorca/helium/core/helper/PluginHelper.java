@@ -68,6 +68,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.dadesext.DadesExternesPlugin;
@@ -3051,16 +3052,7 @@ public class PluginHelper {
 					versio,
 					ambContingut);
 			if (ambContingut) {
-				boolean isFirmaPades = false;
-				if (isSignat && documentDetalls.getFirmes() != null) {
-					for (Firma firma: documentDetalls.getFirmes()) {
-						if (FirmaTipus.PADES.equals(firma.getTipus())) {
-							isFirmaPades = true;
-							break;
-						}
-					}
-				}
-				if (isFirmaPades) {
+				if (isSignat && PdfUtils.isArxiuConvertiblePdf(documentDetalls.getNom())) {
 					DocumentContingut documentContingut = getArxiuPlugin().documentImprimible(
 							arxiuUuid);
 					if (documentContingut != null && documentContingut.getContingut() != null) {
@@ -3069,11 +3061,8 @@ public class PluginHelper {
 						documentDetalls.getContingut().setTamany(
 								documentContingut.getContingut().length);
 						documentDetalls.getContingut().setTipusMime("application/pdf");
+						documentDetalls.setNom(documentContingut.getArxiuNom());
 					}
-//					List<ContingutArxiu> versionsDocument = getArxiuPlugin().documentVersions(arxiuUuid);
-//					if(versionsDocument!=null && !versionsDocument.isEmpty()) {
-//						//documentDetalls.
-//					}
 				}
 			}
 			monitorIntegracioHelper.addAccioOk(

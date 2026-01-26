@@ -246,6 +246,7 @@ public class DocumentHelperV3 {
 			es.caib.plugins.arxiu.api.Document documentArxiu = null;
 			int intents = 0;
 			byte[] arxiuContingut = documentStore.getArxiuContingut();
+			resposta.setNom(documentStore.getArxiuNom());
 			if(arxiuContingut==null && documentStore.getArxiuUuid()!=null) {
 				do {
 					if(documentStore.getArxiuUuid()!=null) {
@@ -278,12 +279,13 @@ public class DocumentHelperV3 {
 						documentArxiu.getContingut().getTipusMime() != null ? 
 								documentArxiu.getContingut().getTipusMime() : 
 									getContentType(documentStore.getArxiuNom()));
+				resposta.setNom(documentArxiu.getNom());
 
 			} else {
 				resposta.setContingut(arxiuContingut);
 				resposta.setTipusMime(getContentType(documentStore.getArxiuNom()));
 			}
-			resposta.setNom(documentStore.getArxiuNom());
+			
 			// Si els documents estan firmats amb PADES sempre tindran extensió PDF
 			boolean isFirmaPades = false;
 			if (documentStore.isSignat() && documentArxiu!= null && documentArxiu.getFirmes() != null) {
