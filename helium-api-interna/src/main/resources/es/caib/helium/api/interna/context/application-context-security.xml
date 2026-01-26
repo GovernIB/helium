@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:sec="http://www.springframework.org/schema/security"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="
+				http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans.xsd
+				http://www.springframework.org/schema/security
+				http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<sec:http pattern="/api/rest**" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/api/rest/**" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/api/apidoc/" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/api-docs**" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/api-docs/**" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/**/api-docs" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/appInfo" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/salut" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/estadistiques" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/estadistiques/**" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/js/**" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/css/**" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/webjars/**" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/img/**" security="none" disable-url-rewriting="true"/>
+
+	<sec:http create-session="never" use-expressions="false" auto-config="false" entry-point-ref="preAuthenticatedProcessingFilterEntryPoint">
+		<sec:intercept-url pattern="/**" access="ROLE_USER"/>
+		<sec:custom-filter position="PRE_AUTH_FILTER" ref="preauthFilter"/>
+		<sec:anonymous/>
+		<sec:session-management session-fixation-protection="none"/>
+	</sec:http>
+
+	<sec:authentication-manager alias="authenticationManager">
+		<sec:authentication-provider ref="preAuthenticatedAuthenticationProvider"/>
+	</sec:authentication-manager>
+
+	<bean id="preAuthenticatedProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
+	<bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+		<property name="preAuthenticatedUserDetailsService">
+			<bean class="org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesUserDetailsService" />
+		</property>
+	</bean>
+
+	<bean id="preauthFilter" class="org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter">
+		<property name="authenticationDetailsSource">
+			<bean class="es.caib.helium.api.security.RolesBasedPreAuthenticatedWebAuthenticationDetailsSource">
+				<property name="mappableRolesRetriever">
+					<bean class="es.caib.helium.api.security.RolesBasedMappableAttributesRetriever">
+						<property name="defaultMappableAttributes">
+							<set>
+								<value>HEL_ADMIN</value>
+								<value>tothom</value>
+							</set>
+						</property>
+					</bean>
+				</property>
+				<property name="userRoles2GrantedAuthoritiesMapper">
+					<bean class="es.caib.helium.api.security.RolesBasedAttributes2GrantedAuthoritiesMapper">
+						<property name="baseRoleMapping">
+							<map>
+								<entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
+								<entry key="tothom" value="ROLE_USER"/>
+							</map>
+						</property>
+					</bean>
+				</property>
+			</bean>
+		</property>
+		<property name="authenticationManager" ref="authenticationManager"/>
+	</bean>
+
+	<bean class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"/>
+
+</beans>
