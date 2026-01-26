@@ -20,13 +20,4 @@ public interface FirmaPlugin {
 			String mime,
 			String tipusDocumental) throws SistemaExternException;
 
-	public FirmaResposta firmar(
-			String id, 
-			String nom, 
-			String motiu, 
-			byte[] contingut, 
-			String mime, 
-			String tipusDocumental,
-			String perfil) throws SistemaExternException;
-
 }

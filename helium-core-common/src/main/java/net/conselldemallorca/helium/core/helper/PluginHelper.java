@@ -68,7 +68,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.dadesext.DadesExternesPlugin;
@@ -2322,72 +2321,6 @@ public class PluginHelper {
 		}
 	}
 	
-	public FirmaResposta firmaServidor(
-			Expedient expedient,
-			DocumentStore documentStore,
-			ArxiuDto arxiu,
-			String motiu,
-			String perfil) {
-		String accioDescripcio = "Firma en servidor de document amb perfil: " + perfil;
-		String tipusDocumentalNti = documentStore.getNtiTipoDocumental() != null? documentStore.getNtiTipoDocumental().getValorNti() : "";
-		
-		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
-		parametres.add(new IntegracioParametreDto("expedientIdentificador", expedient.getIdentificador()));
-		parametres.add(new IntegracioParametreDto("expedientNumero", expedient.getNumero()));
-		parametres.add(new IntegracioParametreDto("expedientTipusId", expedient.getTipus().getId()));
-		parametres.add(new IntegracioParametreDto("expedientTipusCodi", expedient.getTipus().getCodi()));
-		parametres.add(new IntegracioParametreDto("expedientTipusNom", expedient.getTipus().getNom()));
-		parametres.add(new IntegracioParametreDto("documentId", documentStore.getId().toString()));
-		parametres.add(new IntegracioParametreDto("documentCodi", documentStore.getCodiDocument()));
-		parametres.add(new IntegracioParametreDto("arxiuNom", arxiu.getNom()));
-		parametres.add(new IntegracioParametreDto("arxiuTamany", arxiu.getTamany()));
-		parametres.add(new IntegracioParametreDto("arxiuTipusMime", arxiu.getTipusMime()));
-		parametres.add(new IntegracioParametreDto("tipusDocumental", tipusDocumentalNti));
-
-		long t0 = System.currentTimeMillis();
-		try {
-			byte[] contingut = arxiu.getContingut();
-			
-			FirmaResposta firmaResposta = getFirmaPlugin().firmar(
-					documentStore.getId().toString(),
-					arxiu.getNom(),
-					motiu,
-					contingut,
-					arxiu.getTipusMime(),
-					tipusDocumentalNti,
-					perfil);
-			
-			parametres.add(new IntegracioParametreDto("resposta", "tipus: " + firmaResposta.getTipusFirmaEni() + 
-					", perfil: " + firmaResposta.getPerfilFirmaEni() + 
-					", nom: " + firmaResposta.getNom() + 
-					", mime: " + firmaResposta.getMime() + 
-					", grandaria: " + (firmaResposta.getContingut() != null ? 
-							firmaResposta.getContingut().length : "-")));
-
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
-			return firmaResposta;
-		} catch (Exception ex) {
-			String errorDescripcio = "No s'han pogut firmar el document: " + ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
-			throw tractarExcepcioEnSistemaExtern(
-					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
-					errorDescripcio, 
-					ex);
-		}
-	}
-	
 	public boolean arxiuCheckSerieDocumental(
 			String serieDocumental,
 			String clasificacioNti,
@@ -3118,7 +3051,16 @@ public class PluginHelper {
 					versio,
 					ambContingut);
 			if (ambContingut) {
-				if (isSignat && PdfUtils.isArxiuConvertiblePdf(documentDetalls.getNom())) {
+				boolean isFirmaPades = false;
+				if (isSignat && documentDetalls.getFirmes() != null) {
+					for (Firma firma: documentDetalls.getFirmes()) {
+						if (FirmaTipus.PADES.equals(firma.getTipus())) {
+							isFirmaPades = true;
+							break;
+						}
+					}
+				}
+				if (isFirmaPades) {
 					DocumentContingut documentContingut = getArxiuPlugin().documentImprimible(
 							arxiuUuid);
 					if (documentContingut != null && documentContingut.getContingut() != null) {
@@ -3128,6 +3070,10 @@ public class PluginHelper {
 								documentContingut.getContingut().length);
 						documentDetalls.getContingut().setTipusMime("application/pdf");
 					}
+//					List<ContingutArxiu> versionsDocument = getArxiuPlugin().documentVersions(arxiuUuid);
+//					if(versionsDocument!=null && !versionsDocument.isEmpty()) {
+//						//documentDetalls.
+//					}
 				}
 			}
 			monitorIntegracioHelper.addAccioOk(

@@ -1987,28 +1987,11 @@ public class DocumentHelperV3 {
 			arxiuPerFirmar = this.converteixPdf(arxiuPerFirmar);							
 		}
 		
-		FirmaResposta firma = null;
-		
-		try {
-			firma = pluginHelper.firmaServidor(
+		FirmaResposta firma = pluginHelper.firmaServidor(
 				expedient,
 				documentStore,
 				arxiuPerFirmar,
 				(motiu != null) ? motiu : "Firma en servidor HELIUM");
-		} catch(Exception e) {
-			String perfilCades = GlobalProperties.getProperties().getProperty(
-					"app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_perfil_cades");
-			if(perfilCades == null || perfilCades.trim().isEmpty())
-				return;
-			
-			// Si el perfil de cades esta definit s'intenta firmar amb CADES_DETACHED usant el prefil
-			firma = pluginHelper.firmaServidor(
-					expedient,
-					documentStore,
-					arxiuPerFirmar,
-					(motiu != null) ? motiu : "Firma en servidor HELIUM",
-					perfilCades);
-		}
 
 		if (StringUtils.isEmpty(firma.getTipusFirmaEni()) 
 				|| StringUtils.isEmpty(firma.getPerfilFirmaEni())) {

@@ -41,19 +41,6 @@ public class FirmaPluginPortafib implements FirmaPlugin {
 			byte[] contingut, 
 			String mime,
 			String tipusDocumental) throws SistemaExternException {
-		String perfil = getPropertyApiPerfil();
-		return firmar(id, nom, motiu, contingut, mime, tipusDocumental, perfil);
-	}
-	
-	@Override
-	public FirmaResposta firmar(
-			String id, 
-			String nom, 
-			String motiu, 
-			byte[] contingut, 
-			String mime,
-			String tipusDocumental,
-			String perfil) throws SistemaExternException {
 		
 		FirmaResposta resposta = new FirmaResposta();
 
@@ -70,7 +57,7 @@ public class FirmaPluginPortafib implements FirmaPlugin {
 		try {
 			
 //			getAvailableProfiles(api);
-			
+			String perfil = getPropertyApiPerfil();
 			result = internalSignDocument(
 					id,
 					api,
