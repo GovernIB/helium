@@ -2204,6 +2204,14 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 		return arxiuDetall;
 	}
+	
+	@Transactional
+	@Override
+	public List<ArxiuDetallDto> getArxiuVersions(
+			Long expedientId,
+			Long documentStoreId) {
+		return new ArrayList<ArxiuDetallDto>();
+	}
 
 
 	@Override

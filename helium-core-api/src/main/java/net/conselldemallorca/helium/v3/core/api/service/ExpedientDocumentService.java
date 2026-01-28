@@ -643,4 +643,11 @@ public interface ExpedientDocumentService {
 	 * @param documentStoreId
 	 */
 	public void migrateDocument(Long expedientId, Long documentStoreId);
+	
+	/**
+	 * Mètode per consultar les versions d'un document
+	 * @param expedientId
+	 * @param documentStoreId
+	 */
+	public List<ArxiuDetallDto> getArxiuVersions(Long expedientId, Long documentStoreId);
 }

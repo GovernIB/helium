@@ -55,6 +55,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.core.util.StringUtilsHelium;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
@@ -1109,6 +1110,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			processInstanceId = expedient.getProcessInstanceId();
 		}
+		
+		//TODO CARLES/DANIEL si el document no és un PDF s'ha de firmar en servidor abans de continuar
+		try {
+			// FIRMAR EN SERVIDOR
+			MissatgesHelper.success(request, "El document s'ha pogut converti i firmar correctament");
+		} catch(Exception e) {
+			MissatgesHelper.error(request, "Hi ha hagut un error firmant en servidor", e);
+		}
 
 		DocumentNotificacioCommand command = new DocumentNotificacioCommand();
 		Calendar caducitat = new GregorianCalendar();
@@ -1510,6 +1519,71 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			MissatgesHelper.error(request, errMsg, e);
 		}
 		return "v3/expedientDocumentMetadadesNti";
+	}
+
+	/** Obre una modal per llistar en una taula l'historial de versions del document a l'Arxiu. */
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/versions", method = RequestMethod.GET)
+	public String versions(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			ExpedientDocumentDto expedientDocument = expedientDocumentService.findOneAmbInstanciaProces(
+					expedientId,
+					processInstanceId,
+					documentStoreId);
+			model.addAttribute("expedientDocument", expedientDocument);
+			model.addAttribute("expedientId", expedientId);
+			
+			boolean teVersions = true;
+			// Si !expedient.isArxiuactiu llavors no tindrà versions
+			// Si l'expedient.getArxiuUuid == null not té uuid llavors no tindrà versions
+			// Si l'expedient.getDataFi() != null està tancat i no tindrà versions
+			// Si el document no té uuid no tindrà versions
+			if (teVersions) {
+				
+			}
+			
+			List<ArxiuDetallDto> versions = expedientDocumentService.getArxiuVersions(expedientId, documentStoreId);
+			//TODO: Borrar aquest objecte improvisat i deixar sols el que vendra de versions
+			ArxiuDetallDto arxiuDetall = new ArxiuDetallDto();
+			arxiuDetall.setEniVersio("V.1565");
+			arxiuDetall.setNom("Prova 1 PDF");
+			arxiuDetall.setEniDataCaptura(new Date());
+			versions.add(arxiuDetall);
+			arxiuDetall = new ArxiuDetallDto();
+			arxiuDetall.setEniVersio("V.258");
+			arxiuDetall.setNom("Prova 2 PDF");
+			arxiuDetall.setEniDataCaptura(new Date());
+			versions.add(arxiuDetall);
+			
+			model.addAttribute("versions", versions);
+			
+			
+			if (expedient.isArxiuActiu()) {
+				if (!StringUtils.isEmpty(expedientDocument.getArxiuUuid())) {
+					model.addAttribute(
+							"arxiuDetall",
+							expedientDocumentService.getArxiuDetall(
+									expedientId,
+									processInstanceId,
+									documentStoreId));
+				} else {
+					model.addAttribute("errorArxiuNoUuid", Boolean.TRUE);
+				}
+			} else {
+				MissatgesHelper.warning(request, "L'expedient no està integrat amb l'Arxiu, de manera que no es guarden les versions");
+			}
+		} catch(Exception e) {
+			String errMsg = "Error consultant les dades de l'Arxiu del document: " + e.getMessage(); 
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg, e);
+		}
+
+		return "v3/expedientDocumentVersions";
 	}
 
 	/** Mètode per incoporar el document a l'Arxiu en el cas que l'expedient estigui integrat però el document no. Acció des

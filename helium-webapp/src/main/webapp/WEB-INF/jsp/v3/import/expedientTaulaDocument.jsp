@@ -89,8 +89,11 @@
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-min-height="265" 
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
-														class="icon modificar" 
-														data-rdt-link-modal-maximize="true">
+														class="icon modificar"
+														data-rdt-link-modal-maximize="true"
+														<c:if test="${extensio != 'pdf'}">
+													       data-rdt-link-confirm="<spring:message code="expedient.document.confirmar.notificar"/>"
+													   </c:if>>
 															<span class="fa fa-2x fa-paper-plane" title="<spring:message code='expedient.document.notificar' />"></span>
 													</a>
 												</c:if>												
@@ -311,6 +314,15 @@
 											</a>
 										</li>
 									</c:if>
+									<li>
+									    <a  href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/versions"
+									        data-rdt-link-modal="true"
+									        data-rdt-link-modal-min-height="500"
+									        data-rdt-link-callback="recargarPanel(${document.processInstanceId});" class="icon">
+									        <span class="fa fa-history"></span>
+									        <spring:message code="expedient.document.versions.historial"/>
+									    </a>
+									</li>
 								</ul>
 							</span>
 						</td>
