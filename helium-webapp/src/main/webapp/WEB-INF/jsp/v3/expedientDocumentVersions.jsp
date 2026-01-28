@@ -21,7 +21,12 @@
     <hr/>
 
     <c:choose>
-        <c:when test="${empty versions}">
+    	<c:when test="errorArxiuNoUuid">
+    		<div class="alert alert-warn">
+                <spring:message code="expedient.document.versions.warn.arxiunoactiu"/>
+            </div>
+    	</c:when>
+        <c:when test="${(empty arxiuDetall.versionsDocument)}">
             <div class="alert alert-info">
                 <spring:message code="expedient.document.versions.cap"/>
             </div>
@@ -36,33 +41,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <c:forEach var="versio" items="${versions}" varStatus="status">
+                    <c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
                         <tr>
                             <td>${versio.eniVersio} ${versio.nom}</td>
-                            <!--<td>
-	                            <a href="<c:url value="/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/descarregar/versio/${versio.eniVersio}/${arxiuDetall.expedientTancat}"/>">		
-								    <span class="fa fa-file no-doc" title="Descarregar document"></span>
-									<strong class="nom_document">
-										v.${versio.eniVersio}
-									</strong>
-									<strong class="nom_document"> ${versio.nom}</strong>
-									<c:if test="${document.adjunt}">
-										<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
-									</c:if>
-									<span class="extensionIcon">
-										${fn:toUpperCase(document.arxiuExtensio)}
-									</span>
-								</a>
-							</td> -->
-                            <!--<td>${versio.extensio}</td>-->
-                            <td></td>
+                            <td>${versio.eniExtensio}</td>
                             <td>
                                 <fmt:formatDate value="${versio.eniDataCaptura}" pattern="dd/MM/yyyy HH:mm:ss"/>
                             </td>
                             <td>
                                 <!-- TODO: endpoint real de descarrega, aquest es provisional -->
                                 <a class="btn btn-default btn-sm"
-                                   href="<c:url value='/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/descarregar/versio/${status.index}'/>">
+                                   href="<c:url value='/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/descarregar/versio/${versio.eniVersio}/false'/>">
                                     <span class="fa fa-download"></span>
                                 </a>
                             </td>

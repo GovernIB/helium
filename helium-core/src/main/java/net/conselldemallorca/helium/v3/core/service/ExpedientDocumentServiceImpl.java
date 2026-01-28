@@ -1369,10 +1369,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				documentStore.getProcessInstanceId());
-		return documentHelper.getArxiuPerDocumentStoreId(
+		
+		return documentHelper.getArxiuPerDocumentStoreIdAndVersio(
 				documentStoreId,
-				false,
-				true,
 				versio);
 	}
 	
@@ -2205,15 +2204,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return arxiuDetall;
 	}
 	
-	@Transactional
-	@Override
-	public List<ArxiuDetallDto> getArxiuVersions(
-			Long expedientId,
-			Long documentStoreId) {
-		return new ArrayList<ArxiuDetallDto>();
-	}
-
-
 	@Override
 	@Transactional(readOnly = true)
 	public ArxiuFirmaDto getArxiuFirma(

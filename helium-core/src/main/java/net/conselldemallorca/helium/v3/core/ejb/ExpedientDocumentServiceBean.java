@@ -521,9 +521,4 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 		delegate.migrateDocument(expedientId, documentStoreId);
 	}
 	
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ArxiuDetallDto> getArxiuVersions(Long expedientId, Long documentStoreId) {
-		return delegate.getArxiuVersions(expedientId, documentStoreId);
-	}
 }

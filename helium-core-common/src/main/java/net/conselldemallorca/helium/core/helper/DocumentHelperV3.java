@@ -398,6 +398,84 @@ public class DocumentHelperV3 {
 		}
 		return resposta;
 	}
+	
+	public ArxiuDto getArxiuPerDocumentStoreIdAndVersio(
+			Long documentStoreId,
+			String versio) {
+		
+		ArxiuDto resposta = new ArxiuDto();
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+
+		// Obtenim el contingut de l'arxiu
+		byte[] arxiuOrigenContingut = null;
+		
+		if (expedient.isArxiuActiu()) {
+
+			// #1697 Es revisa que no retorni contingut null i es reintenta
+			es.caib.plugins.arxiu.api.Document documentArxiu = null;
+			int intents = 0;
+			byte[] arxiuContingut = documentStore.getArxiuContingut();
+			resposta.setNom(documentStore.getArxiuNom());
+			if(arxiuContingut==null && documentStore.getArxiuUuid()!=null) {
+				do {
+					if(documentStore.getArxiuUuid()!=null) {
+						documentArxiu = pluginHelper.arxiuDocumentInfo(
+							documentStore.getArxiuUuid(),
+							versio,
+							true,
+							false);
+					}
+					if (documentArxiu == null || documentArxiu.getContingut() == null) {
+						logger.warn("La consulta del contingut pel document amb id=" + documentStore.getId() + 
+									" ha retornat " + (documentArxiu == null ? "": "documentArxiu.contingut") + " null" );
+					}
+				} while (intents++ < 5
+							&& (documentArxiu == null
+								|| documentArxiu.getContingut() == null));
+			
+				if (documentArxiu == null
+						|| documentArxiu.getContingut() == null )
+				{
+					throw new SistemaExternException(
+							MonitorIntegracioHelper.INTCODI_ARXIU,
+							"No s'ha pogut consultar el contingut a l'Arxiu pel document id=" + documentStore.getId() + 
+							" amb uuid=" + documentStore.getArxiuUuid() + " i " + (documentStore.isAdjunt() ? "títol d'adjunt " + documentStore.getAdjuntTitol() : "codi de document " + documentStore.getCodiDocument()) +
+							" després de " + intents + "intents.",
+							null);
+				}
+				resposta.setContingut(documentArxiu.getContingut().getContingut());
+				resposta.setTipusMime(
+						documentArxiu.getContingut().getTipusMime() != null ? 
+								documentArxiu.getContingut().getTipusMime() : 
+									getContentType(documentArxiu.getNom()));
+				resposta.setNom(documentArxiu.getNom());
+
+			} else {
+				resposta.setContingut(arxiuContingut);
+				resposta.setTipusMime(getContentType(documentStore.getArxiuNom()));
+			}
+			
+		} else {
+			
+			if (documentStore.isSignat() && isSignaturaFileAttached()) {
+				arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
+			} else {
+				if (documentStore.getFont().equals(DocumentFont.INTERNA)) {
+					arxiuOrigenContingut = documentStore.getArxiuContingut();
+				} else {
+					arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
+							documentStore.getReferenciaFont());
+				}
+			}
+			
+			String arxiuNomOriginal = calcularArxiuNomOriginal(documentStore);
+			resposta.setNom(arxiuNomOriginal);
+			resposta.setContingut(arxiuOrigenContingut);
+			resposta.setTipusMime(getContentType(resposta.getNom()));
+		}
+		return resposta;
+	}
 
 	public List<Document> findDocumentsExpedient(Expedient expedient, String processInstanceId) {
 		

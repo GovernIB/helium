@@ -3001,19 +3001,20 @@ public class PluginHelper {
 			if(!expedientTancat) {
 				documentInfo = this.arxiuDocumentInfo(arxiuUuid, 
 					contingutArxiuVersio.getVersio(), 
-					true, 
-					true);
+					false, 
+					false);
 			} else {
 				documentInfo = this.arxiuDocumentInfo(arxiuUuid, 
 						null, //si l'expedient està tancat no retornarà versions, li hem de passar null
-						true, 
-						true);
+						false, 
+						false);
 			}
 			ArxiuDetallDto arxiuDetallDto= new ArxiuDetallDto();
 			arxiuDetallDto.setNom(documentInfo.getNom());			
 			arxiuDetallDto.setEniVersio(documentInfo.getVersio());
-			arxiuDetallDto.setContingutTipusMime(documentInfo.getContingut()!=null ? documentInfo.getContingut().getTipusMime() : null);
+			arxiuDetallDto.setContingutTipusMime(documentHelperV3.getContentType(documentInfo.getNom()));
 			arxiuDetallDto.setEniDataCaptura(documentInfo.getMetadades() != null ? documentInfo.getMetadades().getDataCaptura() : null);
+			arxiuDetallDto.setEniExtensio(documentInfo.getMetadades() != null ? documentInfo.getMetadades().getExtensio().toString() : null);
 			versionsDocument.add(arxiuDetallDto);
 		}
 		Collections.reverse(versionsDocument);

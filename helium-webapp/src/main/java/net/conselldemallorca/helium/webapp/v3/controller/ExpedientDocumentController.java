@@ -1111,12 +1111,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			processInstanceId = expedient.getProcessInstanceId();
 		}
 		
-		//TODO CARLES/DANIEL si el document no és un PDF s'ha de firmar en servidor abans de continuar
+		// Si el document no és un PDF i es pot convertir a pdf, s'ha de firmar en servidor abans de continuar
 		try {
-			// FIRMAR EN SERVIDOR
-			MissatgesHelper.success(request, "El document s'ha pogut converti i firmar correctament");
+			ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+					expedientId,
+					processInstanceId,
+					documentStoreId);
+			boolean convertiblePdf = PdfUtils.isArxiuConvertiblePdf(document.getArxiuNom());
+			boolean isPDF = "pdf".equals(document.getArxiuExtensio());
+			if(convertiblePdf && !isPDF) {
+				expedientHelper.firmarDocumentServidorPerArxiuFiExpedient(documentStoreId);
+				MissatgesHelper.success(request, "El document s'ha pogut converti i firmar correctament");
+			}
 		} catch(Exception e) {
 			MissatgesHelper.error(request, "Hi ha hagut un error firmant en servidor", e);
+			return modalUrlTancar(false);
 		}
 
 		DocumentNotificacioCommand command = new DocumentNotificacioCommand();
@@ -1546,22 +1555,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			if (teVersions) {
 				
 			}
-			
-			List<ArxiuDetallDto> versions = expedientDocumentService.getArxiuVersions(expedientId, documentStoreId);
-			//TODO: Borrar aquest objecte improvisat i deixar sols el que vendra de versions
-			ArxiuDetallDto arxiuDetall = new ArxiuDetallDto();
-			arxiuDetall.setEniVersio("V.1565");
-			arxiuDetall.setNom("Prova 1 PDF");
-			arxiuDetall.setEniDataCaptura(new Date());
-			versions.add(arxiuDetall);
-			arxiuDetall = new ArxiuDetallDto();
-			arxiuDetall.setEniVersio("V.258");
-			arxiuDetall.setNom("Prova 2 PDF");
-			arxiuDetall.setEniDataCaptura(new Date());
-			versions.add(arxiuDetall);
-			
-			model.addAttribute("versions", versions);
-			
 			
 			if (expedient.isArxiuActiu()) {
 				if (!StringUtils.isEmpty(expedientDocument.getArxiuUuid())) {
