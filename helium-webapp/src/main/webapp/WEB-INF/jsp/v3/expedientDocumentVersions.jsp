@@ -6,20 +6,13 @@
 
 <html>
 <head>
-    <title><spring:message code="expedient.document.versions.historial"/></title>
+    <title><spring:message code="expedient.document.versions.historial"/>: ${expedientDocument.adjuntTitol}</title>
     <hel:modalHead/>
 </head>
 
 <body>
 
 <div class="container-fluid">
-
-    <h4>
-        <span class="fa fa-history"></span>
-        <spring:message code="expedient.document.versions.historial"/>
-    </h4>
-    <hr/>
-
     <c:choose>
     	<c:when test="errorArxiuNoUuid">
     		<div class="alert alert-warn">
@@ -37,14 +30,16 @@
                     <tr>
                         <th><spring:message code="expedient.document.versions.nom"/></th>
                         <th><spring:message code="expedient.document.versions.extensio"/></th>
+                        <th><spring:message code="expedient.document.versions.versio"/></th>
                         <th><spring:message code="expedient.document.versions.data"/></th>
                     </tr>
                 </thead>
                 <tbody>
                     <c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
                         <tr>
-                            <td>${versio.eniVersio} ${versio.nom}</td>
+                            <td>${versio.nom}</td>
                             <td>${versio.eniExtensio}</td>
+                            <td>${versio.eniVersio}</td>
                             <td>
                                 <fmt:formatDate value="${versio.eniDataCaptura}" pattern="dd/MM/yyyy HH:mm:ss"/>
                             </td>
@@ -65,7 +60,7 @@
 </div>
 
 <div id="modal-botons" class="well">
-    <button type="button" class="btn btn-default modal-tancar">
+    <button type="button" class="btn btn-default modal-tancar" data-modal-cancel="true">
         <spring:message code="comu.boto.tancar"/>
     </button>
 </div>
