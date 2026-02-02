@@ -397,7 +397,7 @@
 		
 	
 	<div id="modal-botons" class="well">
-		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>
+		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 	</div>
 </body>
 </html>

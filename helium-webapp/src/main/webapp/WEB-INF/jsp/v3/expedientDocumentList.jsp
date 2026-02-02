@@ -171,7 +171,6 @@
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/document/datatable"/>
-
 <table	id="expedientDocuments"
 		  data-toggle="datatable"
 		  data-url="${urlDatatable}"
@@ -455,11 +454,11 @@
 						{{if editable && psActiu && !signat && arxiuUuid != null && !psPendent}}
 								<li>
 									<a 	href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/enviarPortasignatures"
-														data-toggle="modal"
-														data-rdt-link-callback="recargarPanel(${expedient.processInstanceId});"
-														class="icon enviarPortasignatures">
-														<span class="fa fa-envelope-o" /></span>
-														<spring:message code='expedient.document.enviar.portasignatures' />
+										data-toggle="modal"
+										data-rdt-link-callback="recargarPanel(${expedient.processInstanceId});"
+										class="icon enviarPortasignatures">
+											<span class="fa fa-envelope-o" /></span>
+											<spring:message code='expedient.document.enviar.portasignatures' />
 									</a>
 								</li>
 						{{/if}}
@@ -469,6 +468,16 @@
 
 
 						<%-- FI TODO --%>
+
+						<%-- Historial de versions --%>
+						<li>
+							<a  href="../../v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/versions"
+								data-toggle="modal" 
+								class="icon">
+									<span class="fa fa-history fa-fw"></span>
+									<spring:message code="expedient.document.versions.historial"/>
+							</a>
+						</li>
 
 						<%--Descarregar--%>
 						{{if !signat}}
