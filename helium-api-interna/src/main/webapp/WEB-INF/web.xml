@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+	<display-name>apiinterna</display-name>
+
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>CharacterEncoding</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>CharacterEncoding</filter-name>
+		<url-pattern>*</url-pattern>
+	</filter-mapping>
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>WEB-INF/application-context.xml</param-value>
+	</context-param>
+	
+	<resource-ref>
+		<description>Datasource de l'aplicació</description>
+		<res-ref-name>jdbc/HeliumDS</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+	</resource-ref>
+	<resource-ref>
+		<description>Recurs per enviament de correus</description>
+		<res-ref-name>mail/HeliumSession</res-ref-name>
+		<res-type>javax.mail.Session</res-type>
+		<res-auth>Container</res-auth>
+	</resource-ref>
+
+	<servlet>
+		<servlet-name>apiinterna</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>apiinterna</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	<!-- swagger -->
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>/swagger-ui.html</url-pattern>
+	</servlet-mapping>
+
+	<login-config>
+		<auth-method>WSBASIC</auth-method>
+		<realm-name>Govern de les Illes Balears</realm-name>
+	</login-config>
+
+	<security-role>
+		<role-name>HEL_ADMIN</role-name>
+	</security-role>
+	<security-role>
+		<role-name>HEL_WS</role-name>
+	</security-role>
+	<security-role>
+		<role-name>HEL_REPORT</role-name>
+	</security-role>
+	<security-role>
+		<role-name>tothom</role-name>
+	</security-role>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Public areas</web-resource-name>
+			<url-pattern>/api/rest</url-pattern>
+			<url-pattern>/api/rest/</url-pattern>
+			<url-pattern>/api/apidoc</url-pattern>
+			<url-pattern>/api-docs</url-pattern>
+			<url-pattern>/api-docs/*</url-pattern>
+            <url-pattern>/appInfo</url-pattern>
+            <url-pattern>/salut</url-pattern>
+            <url-pattern>/estadistiques</url-pattern>
+            <url-pattern>/estadistiques/*</url-pattern>
+			<url-pattern>/js/*</url-pattern>
+			<url-pattern>/css/*</url-pattern>
+			<url-pattern>/img/*</url-pattern>
+			<url-pattern>/ico/*</url-pattern>
+			<url-pattern>/webjars/*</url-pattern>
+			<url-pattern>/images/*</url-pattern>
+		</web-resource-collection>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Secured areas</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>*</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<session-config>
+		<session-timeout>480</session-timeout>
+	</session-config>
+	<welcome-file-list>
+		<welcome-file>/index.jsp</welcome-file>
+	</welcome-file-list>
+
+</web-app>

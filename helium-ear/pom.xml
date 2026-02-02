@@ -71,6 +71,12 @@
 			<type>war</type>
 		</dependency>
 		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-api-interna</artifactId>
+			<version>${helium.version}</version>
+			<type>war</type>
+		</dependency>
+		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.9.1</version>
@@ -93,6 +99,12 @@
 						<webModule>
 							<groupId>${project.groupId}</groupId>
 							<artifactId>helium-webapp</artifactId>
+						</webModule>
+						<webModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>helium-api-interna</artifactId>
+							<contextRoot>/heliumapi/interna</contextRoot>
+							<bundleFileName>helium-api-interna.war</bundleFileName>
 						</webModule>
 					</modules>
 					<defaultJavaBundleDir>lib/</defaultJavaBundleDir>
