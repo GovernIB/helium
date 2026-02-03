@@ -120,11 +120,19 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 		paginacioParams.canviaCamp("tipusExpedientNom", "expedient.tipus.nom");
 		paginacioParams.canviaCamp("expedientIdentificador", "expedient.numero");
 		
-		 PaginaDto<PortasignaturesDto> pagina = paginacioHelper.toPaginaDto(
+		// No es pot afegir un array buit a una query HQL
+		// https://github.com/GovernIB/helium/issues/2000
+		boolean sensePermisos = (tipusPermesos==null || tipusPermesos.size()==0);
+		if(sensePermisos) {
+			tipusPermesos = new ArrayList<Long>();
+			tipusPermesos.add(0L);
+		}
+		
+		PaginaDto<PortasignaturesDto> pagina = paginacioHelper.toPaginaDto(
 				portasignaturesRepository.findByFiltrePaginat(
 						entornActualId == null,
 						entornActualId,
-						(tipusPermesos==null || tipusPermesos.size()==0),
+						sensePermisos,
 						tipusPermesos,
 						filtreDto.getTipusId() == null,
 						filtreDto.getTipusId(),
