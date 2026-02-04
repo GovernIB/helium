@@ -907,6 +907,16 @@ public class ExpedientHelper {
 	public void desfinalitzar(
 			Expedient expedient,
 			String usuari) {
+		// Comprovam que l'expedient no estigui tancat a Arxiu
+		if (expedient.isArxiuActiu() 
+			&& expedient.getArxiuUuid() != null
+			&& pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
+			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			if(expedientArxiu.getExpedientMetadades().getEstat() == es.caib.plugins.arxiu.api.ExpedientEstat.TANCAT) {
+				throw new ValidacioException("No es pot desfer la finalització d'aquest expedient perquè es troba tancat al arxiu");
+			}
+		}
+		
 		mesuresTemporalsHelper.mesuraIniciar(
 				"Desfinalitzar",
 				"expedient",
@@ -929,15 +939,6 @@ public class ExpedientHelper {
 				"Desfinalitzar",
 				"expedient",
 				expedient.getTipus().getNom());
-		
-        if (expedient.isArxiuActiu()) {
-    		//reobrim l'expedient de l'arxiu digital si escau
-        	if (expedient.getArxiuUuid() != null
-        			&& pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
-	            // Obre de nou l'expedient tancat a l'arxiu.
-	            pluginHelper.arxiuExpedientReobrir(expedient.getArxiuUuid());
-	        }
-        }
 	}
 	
 	

@@ -53,7 +53,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto.TerminiIniciatEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
@@ -465,6 +464,25 @@ public class ExpedientV3Controller extends BaseExpedientController {
 					ex);
 		}
 		return "redirect:/v3/expedient/" + expedientId;
+	}
+	
+	
+	@RequestMapping(value = "/{expedientId}/potDesfinalitzar", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> potDesfinalitzar(
+			HttpServletRequest request, 
+			@PathVariable Long expedientId) {
+		Map<String, Object> response = new HashMap<String, Object>();
+		try {
+			boolean potDesfinalitzar = expedientService.potDesfinalitzar(expedientId);
+			response.put("potDesfinalitzar", potDesfinalitzar);
+		} catch (Exception e) {
+			String errMsg = getMessage(request, "error.potdesfinalitzar.expedient", new Object[] {e.getMessage()});
+			response.put("error", true);
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg, e);
+		}
+		return response;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/desfinalitzar", method = RequestMethod.GET)

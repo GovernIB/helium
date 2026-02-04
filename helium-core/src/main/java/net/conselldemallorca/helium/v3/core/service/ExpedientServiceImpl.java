@@ -1556,6 +1556,23 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				null);		
 	}
 	
+	@Override
+	@Transactional(readOnly=true)
+	public boolean potDesfinalitzar(
+			Long id) throws NoTrobatException, PermisDenegatException {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.UNDO_END,
+						ExtendedPermission.ADMINISTRATION});
+		if (expedient.isArxiuActiu() 
+			&& expedient.getArxiuUuid() != null) {
+			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			return expedientArxiu.getExpedientMetadades().getEstat() == es.caib.plugins.arxiu.api.ExpedientEstat.OBERT;
+		}
+		return true;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

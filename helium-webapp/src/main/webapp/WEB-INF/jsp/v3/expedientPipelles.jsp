@@ -123,7 +123,37 @@ dd.subproc {
 </style>
 
 <script type="text/javascript">
-	$(document).ready(function() {		
+	$(document).ready(function() {
+		$('#desfinalitzarBtn').unbind();
+		$('#desfinalitzarBtn').click(function(e) {
+			e.preventDefault();
+			var potDesfinalitzarUrl = '<c:url value="../../v3/expedient/${expedientId}/potDesfinalitzar"/>';
+			var confirmMsg = $(this).data('rdt-link-confirm');
+			var href = $(desfinalitzarBtn).attr('href');
+			$.ajax({
+				type: "GET",
+				url: potDesfinalitzarUrl,
+				async: false,
+				timeout: 20000,
+				success: function( data ) {
+					if(data.error) {
+						document.location.reload();
+						return;
+					}
+					if(!data.potDesfinalitzar) {
+						alert(`<spring:message code="info.expedient.desfinalitzat.nopermes"/>`);
+						return;
+					}
+					if(confirm(confirmMsg)) {
+						document.location = href;
+					}
+				},
+				error: modalAjaxErrorFunction,
+				complete: $(this).tooltip('hide')
+			});
+			
+		})
+		
 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 			var targetHref = $(e.target).attr('href');
 			var loaded = $(targetHref).data('loaded')
@@ -586,10 +616,10 @@ dd.subproc {
 								<c:if test="${not empty expedient.dataFi}">
 									<c:choose>
 										<c:when test="${expedient.arxiuActiu}">
-											<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.confirm.desfinalitzar.expedient.arxiu"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
+											<li><a id="desfinalitzarBtn" data-rdt-link-confirm="<spring:message code="expedient.eines.confirm.desfinalitzar.expedient.arxiu"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
 										</c:when>
 										<c:otherwise>
-											<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desfinalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
+											<li><a id="desfinalitzarBtn" data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desfinalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
 										</c:otherwise>
 									</c:choose>
 								</c:if>

@@ -608,6 +608,13 @@ public class ExpedientServiceBean implements ExpedientService {
 	public void desfinalitzar(Long id) {
 		delegate.desfinalitzar(id);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean potDesfinalitzar(
+			Long id) throws NoTrobatException, PermisDenegatException {
+		return delegate.potDesfinalitzar(id);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

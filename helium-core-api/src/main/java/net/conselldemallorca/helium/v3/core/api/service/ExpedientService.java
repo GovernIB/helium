@@ -537,6 +537,19 @@ public interface ExpedientService {
 			Long id) throws NoTrobatException, PermisDenegatException;
 	
 	/**
+	 * Comprova si es pot retrocedir la finalizació d'un expedient.
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public boolean potDesfinalitzar(
+			Long id) throws NoTrobatException, PermisDenegatException;
+	
+	/**
 	 * Finalitza un expedient.
 	 * 
 	 * @param id

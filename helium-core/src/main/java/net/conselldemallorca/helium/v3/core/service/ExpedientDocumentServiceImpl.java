@@ -2386,6 +2386,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				documentHelper.actualitzarNtiFirma(documentStore, documentArxiu);
 			}
 			documentStore.setArxiuContingut(null);
+			documentStore.setDocumentValid(true);
+			documentStore.setDocumentError(null);
 		} catch (Exception ex) {
 			String errorDescripcio = "Error migrant el document " + documentStore.getArxiuNom() + " de l'expedeient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			logger.error(errorDescripcio, ex);
