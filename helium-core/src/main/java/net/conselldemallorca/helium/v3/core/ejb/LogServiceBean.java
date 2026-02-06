@@ -22,20 +22,20 @@ public class LogServiceBean implements LogService {
 	LogService delegate;
 	
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public FitxerContingut getFitxerByNom(String nomFitxer) throws ApiException {
 		return delegate.getFitxerByNom(nomFitxer);
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public FitxerContingut llegitUltimesLinies(String nomFitxer, Long nLinies)
 			throws ApiException {
 		return delegate.llegitUltimesLinies(nomFitxer, nLinies);
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public List<FitxerInfo> llistarFitxers() throws ApiException {
 		return delegate.llistarFitxers();
 	}

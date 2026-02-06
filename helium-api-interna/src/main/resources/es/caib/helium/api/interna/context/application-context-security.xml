@@ -15,14 +15,16 @@
 	<sec:http pattern="/api-docs**" security="none" disable-url-rewriting="true"/>
 	<sec:http pattern="/api-docs/**" security="none" disable-url-rewriting="true"/>
 	<sec:http pattern="/**/api-docs" security="none" disable-url-rewriting="true"/>
-	<sec:http pattern="/appInfo" security="none" disable-url-rewriting="true"/>
-	<sec:http pattern="/salut" security="none" disable-url-rewriting="true"/>
-	<sec:http pattern="/estadistiques" security="none" disable-url-rewriting="true"/>
-	<sec:http pattern="/estadistiques/**" security="none" disable-url-rewriting="true"/>
+	
 	<sec:http pattern="/js/**" security="none" disable-url-rewriting="true"/>
 	<sec:http pattern="/css/**" security="none" disable-url-rewriting="true"/>
 	<sec:http pattern="/webjars/**" security="none" disable-url-rewriting="true"/>
 	<sec:http pattern="/img/**" security="none" disable-url-rewriting="true"/>
+	
+	<sec:http pattern="/v1/salut" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/v1/salut/**" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/v1/estadistiques" security="none" disable-url-rewriting="true"/>
+	<sec:http pattern="/v1/estadistiques/**" security="none" disable-url-rewriting="true"/>
 
 	<sec:http create-session="never" use-expressions="false" auto-config="false" entry-point-ref="preAuthenticatedProcessingFilterEntryPoint">
 		<sec:intercept-url pattern="/**" access="ROLE_USER"/>
@@ -50,6 +52,7 @@
 						<property name="defaultMappableAttributes">
 							<set>
 								<value>HEL_ADMIN</value>
+								<value>HEL_COM</value>
 								<value>tothom</value>
 							</set>
 						</property>
@@ -60,6 +63,7 @@
 						<property name="baseRoleMapping">
 							<map>
 								<entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
+								<entry key="HEL_COM" value="ROLE_USER"/>
 								<entry key="tothom" value="ROLE_USER"/>
 							</map>
 						</property>

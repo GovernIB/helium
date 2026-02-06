@@ -76,10 +76,7 @@
 		<role-name>HEL_ADMIN</role-name>
 	</security-role>
 	<security-role>
-		<role-name>HEL_WS</role-name>
-	</security-role>
-	<security-role>
-		<role-name>HEL_REPORT</role-name>
+		<role-name>HEL_COM</role-name>
 	</security-role>
 	<security-role>
 		<role-name>tothom</role-name>
@@ -93,16 +90,10 @@
 			<url-pattern>/api/apidoc</url-pattern>
 			<url-pattern>/api-docs</url-pattern>
 			<url-pattern>/api-docs/*</url-pattern>
-            <url-pattern>/appInfo</url-pattern>
-            <url-pattern>/salut</url-pattern>
-            <url-pattern>/estadistiques</url-pattern>
-            <url-pattern>/estadistiques/*</url-pattern>
-			<url-pattern>/js/*</url-pattern>
-			<url-pattern>/css/*</url-pattern>
-			<url-pattern>/img/*</url-pattern>
-			<url-pattern>/ico/*</url-pattern>
-			<url-pattern>/webjars/*</url-pattern>
-			<url-pattern>/images/*</url-pattern>
+			<url-pattern>/v1/salut</url-pattern>
+			<url-pattern>/v1/salut/*</url-pattern>
+			<url-pattern>/v1/estadistiques</url-pattern>
+			<url-pattern>/v1/estadistiques/*</url-pattern>
 		</web-resource-collection>
 	</security-constraint>
 	<security-constraint>
