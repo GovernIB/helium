@@ -1,9 +1,12 @@
 package net.conselldemallorca.helium.integracio.plugins.procediment;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,13 +15,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+import net.conselldemallorca.helium.integracio.plugins.procediment.Rolsac2FiltreOrden.Rolsac2TipusOrdre;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 
 /**
@@ -28,6 +30,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipus
  */
 public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 
+	private final int PAGE_SIZE = 400;
+	
 	private Client jerseyClient;
 	private ObjectMapper mapper;
 
@@ -45,13 +49,13 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 				"codiDir3=" + codiDir3 + ")");
 		Rolsac2ProcedimientosResponse response = null;
 		try {
-			response = findProcedimentsRolsac(
+			response = findAllProcedimentsRolsac(
 					Rolsac2ProcedimentFilterRequest.builder()
 						.codigoUADir3(codiDir3)
 						.estadoSia("A")
 						.buscarEnDescendientesUA(1)
 						.activo(1)
-						.filtroPaginacion(new Rolsac2FiltrePaginacio(0, 9999))
+						.orden(new Rolsac2FiltreOrden("codigo", Rolsac2TipusOrdre.DESC))
 						.build()
 					);
 		} catch (Exception ex) {
@@ -64,9 +68,9 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 					ex);
 		}
 		
-		if (response != null && response.getStatus().equals("200")) {
+		if (response != null && response.getItems() != null) {
 			List<Procediment> procediments = new ArrayList<Procediment>();
-			for (Rolsac2Procediment procediment : response.getResultado()) {
+			for (Rolsac2Procediment procediment : response.getItems()) {
 				procediments.add(this.toProcemiment(procediment));
 			}
 			return procediments;
@@ -91,7 +95,7 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 						.estadoSia("A")
 						.buscarEnDescendientesUA(1)
 						.activo(1)
-						.filtroPaginacion(new Rolsac2FiltrePaginacio(0, 9999))
+						.filtroPaginacion(new Rolsac2FiltrePaginacio(1, 400))
 						.build());
 		} catch (Exception ex) {
 			logger.error("No s'han pogut consultar els serveis de ROLSAC2 (" +
@@ -124,7 +128,7 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 			dto.setCodi(String.valueOf(procediment.getCodigo()));
 			dto.setCodiSia(String.valueOf(procediment.getCodigoSIA()));
 			dto.setNom(procediment.getNombreProcedimientoWorkFlow());
-			dto.setComu(procediment.getComun());
+			dto.setComu(procediment.getComun() != null && procediment.getComun() > 0);
 			dto.setTipus(ProcedimentTipusEnumDto.PROCEDIMENT);
 			if (procediment.getLinkUnidadAdministrativaResponsable() != null) {
 				dto.setUnitatAdministrativacodi(procediment.getLinkUnidadAdministrativaResponsable().getCodigo());
@@ -177,9 +181,10 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 		return jerseyClient;
 	}
 
-	private Rolsac2ProcedimientosResponse findProcedimentsRolsac(
-			Rolsac2ProcedimentFilterRequest body) throws UniformInterfaceException, ClientHandlerException, IOException {
-		String url = getServiceUrl() + "/procedimientos";
+	private Rolsac2ProcedimientosResponse findAllProcedimentsRolsac(
+			Rolsac2ProcedimentFilterRequest body) throws Exception {
+		body.setFiltroPaginacion(new Rolsac2FiltrePaginacio(0, PAGE_SIZE));
+		final String url = getServiceUrl() + "/procedimientos";
 		logger.debug("Enviant petició HTTP a l'arxiu (" +
 				"url=" + url + ", " +
 				"tipus=application/json, " +
@@ -189,9 +194,46 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 				accept("application/json").
 				type("application/json").
 				post(ClientResponse.class, body);
-		return response.getEntity(Rolsac2ProcedimientosResponse.class);
+		
+		Rolsac2ProcedimientosResponse procedimentsResponse = response.getEntity(Rolsac2ProcedimientosResponse.class);
+		
+		ExecutorService executor = Executors.newFixedThreadPool(procedimentsResponse.getTotalPages());
+		List<Future<Rolsac2ProcedimientosResponse>> futures = new ArrayList<Future<Rolsac2ProcedimientosResponse>>();
+
+		for (int i = 1; i <= procedimentsResponse.getTotalPages(); i++) {
+			final Rolsac2ProcedimentFilterRequest taskBody = body.clone();
+			taskBody.setFiltroPaginacion(new Rolsac2FiltrePaginacio(i, PAGE_SIZE));
+			Callable<Rolsac2ProcedimientosResponse> task = new Callable<Rolsac2ProcedimientosResponse>() {
+				public Rolsac2ProcedimientosResponse call() throws Exception {
+					int trys = 0;
+					while(trys < 2) {
+						trys++;
+						ClientResponse response = getJerseyClient().
+								resource(url).
+								accept("application/json").
+								type("application/json").
+								post(ClientResponse.class, taskBody);
+						if(response.getStatus() != 200) {
+							continue;
+						}
+						return response.getEntity(Rolsac2ProcedimientosResponse.class);
+					}
+					return null;
+				}
+			};
+			futures.add(executor.submit(task));
+		}
+
+		for (Future<Rolsac2ProcedimientosResponse> future : futures) {
+			Rolsac2ProcedimientosResponse result = future.get();
+			if(result != null)
+				procedimentsResponse.getItems().addAll(result.getItems());
+		}
+
+		executor.shutdown();
+		
+		return procedimentsResponse;
 	}
-	
 	
 	@Override
 	public UnitatAdministrativa findUnitatAdministrativaAmbCodi(String codi) throws SistemaExternException {
@@ -227,8 +269,9 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 	}
 	
 	private Rolsac2ServiciosResponse findServeisRolsac(
-			Rolsac2ServicioFilterRequest body) throws UniformInterfaceException, ClientHandlerException, IOException {
-		String url = getServiceUrl() + "/servicios";
+			Rolsac2ServicioFilterRequest body) throws Exception {
+		body.setFiltroPaginacion(new Rolsac2FiltrePaginacio(0, PAGE_SIZE));
+		final String url = getServiceUrl() + "/servicios";
 		logger.debug("Enviant petició HTTP a l'arxiu (" +
 				"url=" + url + ", " +
 				"tipus=application/json, " +
@@ -238,7 +281,47 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 				accept("application/json").
 				type("application/json").
 				post(ClientResponse.class, body);
-		return response.getEntity(Rolsac2ServiciosResponse.class);
+		
+		if(response.getStatus() != 200)
+			System.out.print(response.getEntity(String.class));
+		
+		Rolsac2ServiciosResponse serveisResponse = response.getEntity(Rolsac2ServiciosResponse.class);
+		
+		ExecutorService executor = Executors.newFixedThreadPool(serveisResponse.getTotalPages());
+		List<Future<Rolsac2ServiciosResponse>> futures = new ArrayList<Future<Rolsac2ServiciosResponse>>();
+
+		for (int i = 1; i <= serveisResponse.getTotalPages(); i++) {
+			final Rolsac2ServicioFilterRequest taskBody = body.clone();
+			taskBody.setFiltroPaginacion(new Rolsac2FiltrePaginacio(i, PAGE_SIZE));
+			Callable<Rolsac2ServiciosResponse> task = new Callable<Rolsac2ServiciosResponse>() {
+				public Rolsac2ServiciosResponse call() throws Exception {
+					int trys = 0;
+					while(trys < 2) {
+						trys++;
+						ClientResponse response = getJerseyClient().
+								resource(url).
+								accept("application/json").
+								type("application/json").
+								post(ClientResponse.class, taskBody);
+						if(response.getStatus() != 200) {
+							continue;
+						}
+						return response.getEntity(Rolsac2ServiciosResponse.class);
+					}
+					return null;
+				}
+			};
+			futures.add(executor.submit(task));
+		}
+
+		for (Future<Rolsac2ServiciosResponse> future : futures) {
+			Rolsac2ServiciosResponse result = future.get();
+			if(result != null)
+				serveisResponse.getItems().addAll(result.getItems());
+		}
+
+		executor.shutdown();
+		return serveisResponse;
 	}
 	
 	private String getServiceUrl() {

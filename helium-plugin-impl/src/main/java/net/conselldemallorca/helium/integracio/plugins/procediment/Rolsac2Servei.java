@@ -55,4 +55,5 @@ public class Rolsac2Servei {
 	private Link linkUnidadAdministrativaInstructora;
 	private Boolean tieneTasa;
 	private String lopdResponsable;
+	private Rolsac2Contacto datosContacto;
 }

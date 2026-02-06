@@ -9,8 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class Rolsac2ServicioFilterRequest {
-	public Object idTramite;
+public class Rolsac2ServicioFilterRequest implements Cloneable {
 	public Object plataforma;
 	public Object version;
 	public Object vigente;
@@ -46,7 +45,6 @@ public class Rolsac2ServicioFilterRequest {
 	 */
 	private Integer comun;
 	private String codigoSia;
-	private String codigoPlantilla;
 	private String codigoPlataforma;
 
 	/**
@@ -92,9 +90,7 @@ public class Rolsac2ServicioFilterRequest {
 	 * Data amb format "DD/MM/YYYY"
 	 */
 	private String fechaActualizacionSia;
-	private List<String> listaCodigosNormativas;
-	private List<String> listaCodigosPublicosObjetivos;
-	private List<String> listaCodigosMaterias;
+
 	/**
 	 * Data amb format "DD/MM/YYYY"
 	 */
@@ -107,4 +103,9 @@ public class Rolsac2ServicioFilterRequest {
 	
 	private Rolsac2FiltrePaginacio filtroPaginacion;
 	private Rolsac2FiltreOrden orden;
+	
+	@Override
+	public Rolsac2ServicioFilterRequest clone() throws CloneNotSupportedException {
+		return (Rolsac2ServicioFilterRequest) super.clone();
+	}
 }
