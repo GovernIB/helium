@@ -35,12 +35,10 @@ public class SwaggerConfig {
 				.authorizationTypes(Arrays.asList(basicAuth))
                 .ignoredParameterTypes(ResponseEntity.class)
 				.includePatterns(
-                        ".*/recobriment/*.*",
-                        ".*/procediments/*.*",
-                        ".*/serveis/*.*",
-                        ".*/usuaris/*.*",
-                        ".*/appInfo",
                         ".*/salut",
+                        ".*/salut/*",
+                        ".*/logs",
+                        ".*/logs/*",
                         ".*/estadistiques",
                         ".*/estadistiques/*.*"
                         )
@@ -49,8 +47,8 @@ public class SwaggerConfig {
 
 	private ApiInfo apiInfo() {
 		ApiInfo apiInfo = new ApiInfo(
-				"API Interna de PINBAL",
-				"API INTERNA de PINBAL",
+				"API Interna de HELIUM",
+				"API INTERNA de HELIUM",
 				"", 	// URL de temes de servei
 				"limit@limit.es",
 				"",		// Llicència

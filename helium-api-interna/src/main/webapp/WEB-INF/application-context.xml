@@ -4,15 +4,7 @@
 		xsi:schemaLocation="
 				http://www.springframework.org/schema/beans
 				http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
-	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-common.xml" />
-	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-acl.xml" />
-	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-dao.xml" />
-	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-service.xml" />
-	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-lucene.xml" />
-	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-process.xml" />
-	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-metrics.xml" />
-	
-	<!-- <import resource="classpath:es/caib/helium/core/context/application-context-ejb-client.xml" /> -->
+	<import resource="classpath:es/caib/helium/api/interna/context/application-context-api-interna.xml" />	
 	<import resource="classpath:es/caib/helium/api/interna/context/application-context-security.xml" />
 	
 </beans>

@@ -13,7 +13,7 @@ import com.sun.jersey.api.client.Client;
 
 import es.caib.comanda.ms.salut.model.AppInfo;
 import es.caib.comanda.ms.salut.model.SalutInfo;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import es.caib.helium.api.util.GlobalProperties;
 
 @Controller
 @RequestMapping("/v1/salut")

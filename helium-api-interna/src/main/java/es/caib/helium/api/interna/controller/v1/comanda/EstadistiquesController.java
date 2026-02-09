@@ -1,7 +1,6 @@
 package es.caib.helium.api.interna.controller.v1.comanda;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,11 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.GenericType;
 
-import es.caib.comanda.ms.estadistica.model.EstadistiquesInfo;
-import es.caib.comanda.ms.estadistica.model.RegistresEstadistics;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import es.caib.helium.api.util.GlobalProperties;
 
 @Controller
 @RequestMapping("/v1/estadistiques")

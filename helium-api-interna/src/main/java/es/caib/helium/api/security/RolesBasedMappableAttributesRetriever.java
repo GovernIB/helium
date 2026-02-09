@@ -6,20 +6,12 @@ package es.caib.helium.api.security;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.core.authority.mapping.MappableAttributesRetriever;
-
-import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
-import net.conselldemallorca.helium.core.model.hibernate.Permis;
-import net.conselldemallorca.helium.core.model.service.OrganitzacioService;
-import net.conselldemallorca.helium.core.model.service.PermisService;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 /**
  * Aconsegueix els rols que seran rellevants per a l'aplicació.
@@ -28,18 +20,8 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
  */
 public class RolesBasedMappableAttributesRetriever implements MappableAttributesRetriever, ApplicationContextAware {
 
-	private ApplicationContext applicationContext;
-
-	@Resource
-	private PermisService permisService;
-	@Resource
-	private OrganitzacioService organitzacioService;
-
-
 	private Set<String> defaultMappableAttributes;
 	private Set<String> mappableAttributes = new HashSet<String>();
-
-
 
 	public Set<String> getMappableAttributes() {
 		refrescarMappableAttributes();
@@ -52,27 +34,17 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
 	}
 
+	/** En comptes de consultar els logs simplement afegeix el log de HEL_COM a la llista de rols mapejables. */
 	private void refrescarMappableAttributes() {
-		LOGGER.debug("Refrescant el llistat de rols per mapejar");
+		LOGGER.debug("Construint la llista de rols mapejables");
 		mappableAttributes.clear();
 		if (defaultMappableAttributes != null)
 			mappableAttributes.addAll(defaultMappableAttributes);
-		String source = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
-		if (source.equalsIgnoreCase("helium")) {
-			for (Permis permis: permisService.findAll()) {
-				String codi = permis.getCodi();
-				if (!mappableAttributes.contains(codi))
-					mappableAttributes.add(codi);
-			}
-		} else {
-			for (AreaJbpmId group: organitzacioService.findDistinctJbpmGroups()) {
-				if (group != null && !mappableAttributes.contains(group.getCodi()))
-					mappableAttributes.add(group.getCodi());
-			}
-		}
+		String codi = "HEL_COM";
+		if (!mappableAttributes.contains(codi))
+			mappableAttributes.add(codi);
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RolesBasedMappableAttributesRetriever.class);
