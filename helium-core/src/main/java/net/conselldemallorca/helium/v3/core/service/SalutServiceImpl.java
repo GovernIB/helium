@@ -22,9 +22,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hyperic.sigar.CpuPerc;
-import org.hyperic.sigar.FileSystem;
-import org.hyperic.sigar.FileSystemUsage;
-import org.hyperic.sigar.Mem;
 import org.hyperic.sigar.Sigar;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -321,62 +318,52 @@ public class SalutServiceImpl implements SalutService {
 			CpuPerc cpu = sigar.getCpuPerc();
 			systemCpuLoad = CpuPerc.format(cpu.getCombined());
 			processCpuLoad = CpuPerc.format(sigar.getProcCpu(sigar.getPid()).getPercent());
-			// Informació sobre Memòria
-			Mem memory = sigar.getMem();
-			// Informació sobre Disc
 			Long totalSpace = 0L;
 			Long freeSpace = 0L;
-			FileSystem[] fileSystems = sigar.getFileSystemList();
-			for (FileSystem fs : fileSystems) {
-				if (fs.getDirName().equals("/")) {
-					FileSystemUsage usage = sigar.getFileSystemUsage(fs.getDirName());
-					totalSpace = usage.getTotal();
-					freeSpace = usage.getFree();
-					break;
-				}
+			
+			for (File root : File.listRoots()) {
+				totalSpace = root.getTotalSpace();
+				freeSpace = root.getFreeSpace();
 			}
 			
 			return Lists.newArrayList(
 			DetallSalut.builder().codi("PRC").nom("Processadors").valor(String.valueOf(Runtime.getRuntime().availableProcessors())).build(),
 			DetallSalut.builder().codi("SCPU").nom("Càrrega del sistema").valor(systemCpuLoad).build(),
 			DetallSalut.builder().codi("PCPU").nom("Càrrega del procés").valor(processCpuLoad).build(),
-			DetallSalut.builder().codi("MED").nom("Memòria disponible").valor(humanReadableByteCount(memory.getFree())).build(),
-			DetallSalut.builder().codi("MET").nom("Memòria total").valor(humanReadableByteCount(memory.getTotal())).build(),
+			DetallSalut.builder().codi("MED").nom("Memòria disponible").valor(humanReadableByteCount(Runtime.getRuntime().freeMemory())).build(),
+			DetallSalut.builder().codi("MET").nom("Memòria total").valor(humanReadableByteCount(Runtime.getRuntime().totalMemory())).build(),
 			DetallSalut.builder().codi("EDT").nom("Espai de disc total").valor(humanReadableByteCount(totalSpace)).build(),
 			DetallSalut.builder().codi("EDL").nom("Espai de disc lliure").valor(humanReadableByteCount(freeSpace)).build(),
 			DetallSalut.builder().codi("SO").nom("Sistema operatiu").valor(os).build());
 		
 		} catch (Exception e) {
 			logger.error("No s'ha pogut obtenir informació del sistema utilitzant la llibreria Sigar", e);
-		try {
-			// Càrrega de la CPU (només per la implementació de Sun)
-			if (osBean instanceof com.sun.management.OperatingSystemMXBean) {
-				com.sun.management.OperatingSystemMXBean sunOsBean = (com.sun.management.OperatingSystemMXBean) osBean;
-				String systemCpuLoad = sunOsBean.getSystemCpuLoad() * 100 + "%";
-				String processCpuLoad = sunOsBean.getProcessCpuLoad() * 100 + "%";
-				Long totalSpace = 0L;
-				Long freeSpace = 0L;
-				for (File root : File.listRoots()) {
-				if (root.getTotalSpace() > totalSpace) {
-					totalSpace = root.getTotalSpace();
-					freeSpace = root.getFreeSpace();
+			try {
+				// Càrrega de la CPU (només per la implementació de Sun)
+				if (osBean instanceof com.sun.management.OperatingSystemMXBean) {
+					com.sun.management.OperatingSystemMXBean sunOsBean = (com.sun.management.OperatingSystemMXBean) osBean;
+					String systemCpuLoad = sunOsBean.getSystemCpuLoad() * 100 + "%";
+					String processCpuLoad = sunOsBean.getProcessCpuLoad() * 100 + "%";
+					Long totalSpace = 0L;
+					Long freeSpace = 0L;
+					for (File root : File.listRoots()) {
+						totalSpace = root.getTotalSpace();
+						freeSpace = root.getFreeSpace();
+					}
+					return Lists.newArrayList(
+						DetallSalut.builder().codi("PRC").nom("Processadors").valor(String.valueOf(Runtime.getRuntime().availableProcessors())).build(),
+						DetallSalut.builder().codi("CPU").nom("Càrrega del sistema").valor(systemCpuLoad).build(),
+						DetallSalut.builder().codi("CPU").nom("Càrrega del procés").valor(processCpuLoad).build(),
+						DetallSalut.builder().codi("MED").nom("Memòria disponible").valor((Runtime.getRuntime().maxMemory() == Long.MAX_VALUE ? "Ilimitada" : humanReadableByteCount(Runtime.getRuntime().maxMemory()))).build(),
+						DetallSalut.builder().codi("MET").nom("Memòria total").valor(humanReadableByteCount(Runtime.getRuntime().totalMemory())).build(),
+						DetallSalut.builder().codi("EDT").nom("Espai de disc total").valor(humanReadableByteCount(totalSpace)).build(),
+						DetallSalut.builder().codi("EDL").nom("Espai de disc lliure").valor(humanReadableByteCount(freeSpace)).build(),
+						DetallSalut.builder().codi("SO").nom("Sistema operatiu").valor(os).build()
+					);
 				}
+			} catch (Exception e2) {
+				logger.error("Salut: No s'ha pogut obtenir informació del sistema amb la implementació de Sun", e2);
 			}
-		
-		return Lists.newArrayList(
-			DetallSalut.builder().codi("PRC").nom("Processadors").valor(String.valueOf(Runtime.getRuntime().availableProcessors())).build(),
-			DetallSalut.builder().codi("CPU").nom("Càrrega del sistema").valor(systemCpuLoad).build(),
-			DetallSalut.builder().codi("CPU").nom("Càrrega del procés").valor(processCpuLoad).build(),
-			DetallSalut.builder().codi("MED").nom("Memòria disponible").valor((Runtime.getRuntime().maxMemory() == Long.MAX_VALUE ? "Ilimitada" : humanReadableByteCount(Runtime.getRuntime().maxMemory()))).build(),
-			DetallSalut.builder().codi("MET").nom("Memòria total").valor(humanReadableByteCount(Runtime.getRuntime().totalMemory())).build(),
-			DetallSalut.builder().codi("EDT").nom("Espai de disc total").valor(humanReadableByteCount(totalSpace)).build(),
-			DetallSalut.builder().codi("EDL").nom("Espai de disc lliure").valor(humanReadableByteCount(freeSpace)).build(),
-			DetallSalut.builder().codi("SO").nom("Sistema operatiu").valor(os).build()
-		);
-			}
-		} catch (Exception e2) {
-			logger.error("Salut: No s'ha pogut obtenir informació del sistema amb la implementació de Sun", e2);
-		}
 			return null;
 		}
 	}

@@ -92,8 +92,6 @@
 			<url-pattern>/api-docs/*</url-pattern>
 			<url-pattern>/v1/salut</url-pattern>
 			<url-pattern>/v1/salut/*</url-pattern>
-			<url-pattern>/v1/estadistiques</url-pattern>
-			<url-pattern>/v1/estadistiques/*</url-pattern>
 		</web-resource-collection>
 	</security-constraint>
 	<security-constraint>

@@ -23,11 +23,9 @@
 	
 	<sec:http pattern="/v1/salut" security="none" disable-url-rewriting="true"/>
 	<sec:http pattern="/v1/salut/**" security="none" disable-url-rewriting="true"/>
-	<sec:http pattern="/v1/estadistiques" security="none" disable-url-rewriting="true"/>
-	<sec:http pattern="/v1/estadistiques/**" security="none" disable-url-rewriting="true"/>
 
 	<sec:http create-session="never" use-expressions="false" auto-config="false" entry-point-ref="preAuthenticatedProcessingFilterEntryPoint">
-		<sec:intercept-url pattern="/**" access="ROLE_USER"/>
+		<sec:intercept-url pattern="/**" access="ROLE_USER,ROLE_ADMIN,ROLE_COM"/>
 		<sec:custom-filter position="PRE_AUTH_FILTER" ref="preauthFilter"/>
 		<sec:anonymous/>
 		<sec:session-management session-fixation-protection="none"/>
@@ -63,7 +61,7 @@
 						<property name="baseRoleMapping">
 							<map>
 								<entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
-								<entry key="HEL_COM" value="ROLE_USER"/>
+								<entry key="HEL_COM" value="ROLE_COM"/>
 								<entry key="tothom" value="ROLE_USER"/>
 							</map>
 						</property>

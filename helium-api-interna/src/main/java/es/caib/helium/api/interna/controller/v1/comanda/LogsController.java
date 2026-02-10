@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.caib.helium.api.interna.controller.dto.ApiResponse;
+import es.caib.helium.api.security.RoleHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.comanda.ApiException;
 import net.conselldemallorca.helium.v3.core.api.dto.comanda.FitxerContingut;
 import net.conselldemallorca.helium.v3.core.api.dto.comanda.FitxerInfo;
@@ -35,13 +37,15 @@ public class LogsController {
 	@ResponseBody
 	public ResponseEntity<Object> llistarFitxers(
 			HttpServletRequest request) throws ApiException {
+		
+		if(!RoleHelper.hasAnyRole("ROLE_COM"))
+			return new ResponseEntity<Object>(new ApiResponse(401, "Usuari no autoritzat"), HttpStatus.UNAUTHORIZED);
+		
 		try {
 			List<FitxerInfo> fitxers = logService.llistarFitxers();
 			return new ResponseEntity<Object>(fitxers, HttpStatus.OK);
-		} catch(ApiException e) {
-			return new ResponseEntity<Object>(e, HttpStatus.BAD_REQUEST);
 		} catch(Exception e) {
-			return new ResponseEntity<Object>(new ApiException(500, e.getMessage()), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Object>(new ApiResponse(500, e.getMessage()), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -57,14 +61,14 @@ public class LogsController {
 	public ResponseEntity<Object> llegitUltimesLinies(
 			@PathVariable String nomFitxer,
 			@PathVariable Long nLinies,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws ApiException {
+		if(!RoleHelper.hasAnyRole("ROLE_COM"))
+			return new ResponseEntity<Object>(new ApiResponse(401, "Usuari no autoritzat"), HttpStatus.UNAUTHORIZED);
 		try {
 			FitxerContingut fitxer = logService.llegitUltimesLinies(nomFitxer, nLinies);
 			return new ResponseEntity<Object>(fitxer, HttpStatus.OK);
-		} catch(ApiException e) {
-			return new ResponseEntity<Object>(e, HttpStatus.BAD_REQUEST);
 		} catch(Exception e) {
-			return new ResponseEntity<Object>(new ApiException(500, e.getMessage()), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Object>(new ApiResponse(500, e.getMessage()), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -79,13 +83,13 @@ public class LogsController {
 	public ResponseEntity<Object> getFitxerByNom(
 			@PathVariable String nomFitxer,
 			HttpServletRequest request) throws ApiException {
+		if(!RoleHelper.hasAnyRole("ROLE_COM"))
+			return new ResponseEntity<Object>(new ApiResponse(401, "Usuari no autoritzat"), HttpStatus.UNAUTHORIZED);
 		try {
 			FitxerContingut fitxer = logService.getFitxerByNom(nomFitxer);
 			return new ResponseEntity<Object>(fitxer, HttpStatus.OK);
-		} catch(ApiException e) {
-			return new ResponseEntity<Object>(e, HttpStatus.BAD_REQUEST);
 		} catch(Exception e) {
-			return new ResponseEntity<Object>(new ApiException(500, e.getMessage()), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Object>(new ApiResponse(500, e.getMessage()), HttpStatus.BAD_REQUEST);
 		}
 	}
 }
