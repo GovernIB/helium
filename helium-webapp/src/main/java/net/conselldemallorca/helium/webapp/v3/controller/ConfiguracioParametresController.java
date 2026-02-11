@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.reflect.Parameter;
-
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
@@ -60,8 +58,10 @@ public class ConfiguracioParametresController extends BaseController {
 				parametresCommand.setFitxerMidaMaxim(parametre.getValor());
 			}
 		}
+		
+		model.addAttribute("entorn", GlobalProperties.getInstance().getProperty("app.entorn.helium", ""));
 		model.addAttribute("parametres", parametres);
-		model.addAttribute("parametresCommand", parametresCommand);		
+		model.addAttribute("parametresCommand", parametresCommand);
 		return "v3/parametres";
 	}
 	

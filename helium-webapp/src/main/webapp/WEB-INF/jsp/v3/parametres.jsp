@@ -41,8 +41,23 @@
 					</c:if>
 				</tr>
 				</c:forEach>
+				<tr>
+					<td colspan="1">
+						<div class="form-group">
+							<label class="control-label col-xs-4  hiddenInfoContainer" for="fitxerMidaMaxim">
+								<spring:message code="perfil.usuari.entorn"/>
+							</label>
+							<div class="col-xs-8">
+								<span class="form-control" disabled>
+									${entorn}
+								</span>
+								<p class="comment">app.entorn.helium</p>
+							</div>
+						</div>
+					</td>
+				</tr>
 			</tbody>
-		</table>									
+		</table>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.tancar"/>

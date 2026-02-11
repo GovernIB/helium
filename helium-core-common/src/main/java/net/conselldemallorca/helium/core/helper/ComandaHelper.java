@@ -41,7 +41,7 @@ public class ComandaHelper {
 	private String API_USER			= GlobalProperties.getInstance().getProperty("app.comanda.api.user");
 	private String API_PASS			= GlobalProperties.getInstance().getProperty("app.comanda.api.password");
 	private String HELIUM_BASE_URL	= GlobalProperties.getInstance().getProperty("app.base.url");
-	private String ENTORN			= GlobalProperties.getInstance().getProperty("app.entorn");
+	private String ENTORN			= GlobalProperties.getInstance().getProperty("app.entorn.helium");
 	
 	private static final Logger logger = LoggerFactory.getLogger(ComandaHelper.class);
 	

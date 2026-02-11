@@ -27,6 +27,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -279,7 +281,20 @@ public class DocumentHelperV3 {
 						documentArxiu.getContingut().getTipusMime() != null ? 
 								documentArxiu.getContingut().getTipusMime() : 
 									getContentType(documentStore.getArxiuNom()));
-				resposta.setNom(documentArxiu.getNom());
+				
+				String nom = documentArxiu.getNom();
+				
+				if(!nom.contains(".")) {
+					MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+					try {
+						MimeType mimeType = allTypes.forName(resposta.getTipusMime());
+						nom += mimeType.getExtension();
+					} catch (MimeTypeException e) {
+						logger.warn("No s'ha pogut determinar la extensió del fitxer " + nom);
+					}
+				}
+				
+				resposta.setNom(nom);
 
 			} else {
 				resposta.setContingut(arxiuContingut);
