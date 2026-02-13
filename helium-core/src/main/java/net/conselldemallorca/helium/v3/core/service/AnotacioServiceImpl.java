@@ -1363,9 +1363,10 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				UsuariPreferencies usuariPreferencies = 
 						usuariPreferenciesRepository.findByCodi(persona.getCodi());
 				// Només s'envien a usuaris que ho indiquin en les preferències.
+				
 				if(usuariPreferencies != null 
-						&& (usuariPreferencies.isCorreusBustia() 
-								|| usuariPreferencies.isCorreusBustiaAgrupatsDia())) 
+						&& (Boolean.TRUE.equals(usuariPreferencies.isCorreusBustia()) // Es fa equals perquè les propietats podrien ser null
+							|| Boolean.TRUE.equals(usuariPreferencies.isCorreusBustiaAgrupatsDia()))) 
 				{
 					String email = usuariPreferencies.getEmailAlternatiu() != null ?
 										usuariPreferencies.getEmailAlternatiu() 
