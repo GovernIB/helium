@@ -518,7 +518,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
 		
 		if (interessatRepository.findByCodiAndExpedient(interessat.getCodi(), expedient) != null) {
-			throw new ValidacioException("Ja existeix un interessat amb aquest codi");
+			// Si ja existeix l'interessat acaba l'acció
+			return;
 		}
 		
 		if(interessat.getTipus() == InteressatTipusEnumDto.JURIDICA && (interessat.getRaoSocial() == null || interessat.getRaoSocial().isEmpty())) {
