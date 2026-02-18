@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Procediment;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.integracio.plugins.procediment.UnitatAdministrativa;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto.ActualitzacioInfo;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto.NivellInfo;
@@ -57,13 +58,14 @@ public class ProcedimentHelper {
 	public void actualtizarProcedimentsNoVigents(
 			Map<String, net.conselldemallorca.helium.integracio.plugins.procediment.Procediment> procedimentsRolsacMap,
 			ProgresActualitzacioDto progres,
-			boolean esServeis) {
+			ProcedimentTipusEnumDto tipus) {
 
+		boolean esServeis = tipus == ProcedimentTipusEnumDto.PROCEDIMENT;
 		ActualitzacioInfo info = progres.new ActualitzacioInfo();
 		info.setTitol("Actualització de " + (esServeis? "serveis" : "procediments") + " no vigents");
 
 		// Consulta els procediments vigents
-		List<Procediment> procedimentsVigents = procedimentRepository.findAllByEstat(ProcedimentEstatEnumDto.VIGENT);
+		List<Procediment> procedimentsVigents = procedimentRepository.findAllByEstatAndTipus(ProcedimentEstatEnumDto.VIGENT, tipus);
 		progres.addInfo("Actualment a la BBDD hi ha " + procedimentsVigents.size() + (esServeis? " serveis" : " procediments") + " vigents.");
 	
 		List<String> procedimentsExtingits = new ArrayList<String>();
@@ -152,8 +154,10 @@ public class ProcedimentHelper {
 					campsActualtizats.add("Comu: \"" + procediment.isComu() + "\" -> \"" +
 										procedimentRolsac.isComu() + "\"");
 				}
-				if (!unitatOrganitzativa.getId().equals(procediment.getUnitatOrganitzativa().getId())) {
-					campsActualtizats.add("Unitat organitzativa: \"" + procediment.getUnitatOrganitzativa().getCodiAndNom() + "\" -> \"" +
+				if (procediment.getUnitatOrganitzativa() == null || 
+					!unitatOrganitzativa.getId().equals(procediment.getUnitatOrganitzativa().getId())) {
+					String currentUO = procediment.getUnitatOrganitzativa() == null ? "N/A" : procediment.getUnitatOrganitzativa().getCodiAndNom();
+					campsActualtizats.add("Unitat organitzativa: \"" + currentUO + "\" -> \"" +
 							unitatOrganitzativa.getCodiAndNom() + "\"");
 				}
 				if (campsActualtizats.size() > 0) {

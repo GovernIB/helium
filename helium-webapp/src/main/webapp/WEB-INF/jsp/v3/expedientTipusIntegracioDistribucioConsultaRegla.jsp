@@ -66,6 +66,8 @@
 				</dd>
 				<dt><spring:message code="expedient.tipus.integracio.distribucio.consulta.regla.camp.data"/></dt>
 				<dd><fmt:formatDate value="${regla.data}" pattern="dd/MM/yyyy HH:mm:ss" /></dd>
+				<dt><spring:message code="expedient.tipus.integracio.distribucio.consulta.regla.camp.tipus"/></dt>
+				<dd><spring:message code="procediment.tipus.enum.${regla.tipusSia}"/></dd>
 				<dt><spring:message code="expedient.tipus.integracio.distribucio.consulta.regla.camp.activa"/></dt>
 				<dd>
 					<c:choose>

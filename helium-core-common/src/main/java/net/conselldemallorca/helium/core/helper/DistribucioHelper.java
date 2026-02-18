@@ -336,6 +336,7 @@ public class DistribucioHelper {
 				exposa(anotacioEntrada.getExposa()).
 	 			extracte(anotacioEntrada.getExtracte()).
 	 			procedimentCodi(anotacioEntrada.getProcedimentCodi()).
+	 			serveiCodi(anotacioEntrada.getServeiCodi()).
 				idiomaDescripcio(anotacioEntrada.getIdomaDescripcio()).
 				llibreDescripcio(anotacioEntrada.getLlibreDescripcio()).
 				observacions(anotacioEntrada.getObservacions()).
@@ -350,7 +351,11 @@ public class DistribucioHelper {
 				usuariCodi(anotacioEntrada.getUsuariCodi()).
 				usuariNom(anotacioEntrada.getUsuariNom()).
 				destiDescripcio(anotacioEntrada.getDestiDescripcio()).
+				presencial(anotacioEntrada.isPresencial()).
+				tramitCodi(anotacioEntrada.getTramitCodi()).
+				tramitNom(anotacioEntrada.getTramitNom()).
 				build();
+		
 		anotacioRepository.save(anotacioEntity);
 		//Si no és processament automàtic, enviem/encuem email als usuaris que ho tenen activat, per comunicar que s'ha rebut l'anotació i està pendent
 		if(!expedientTipus.isDistribucioProcesAuto() && expedientTipus.isEnviarCorreuAnotacions()) {
@@ -496,6 +501,7 @@ public class DistribucioHelper {
 		anotacio.setExposa(anotacioEntrada.getExposa());
 		anotacio.setExtracte(anotacioEntrada.getExtracte());
 		anotacio.setProcedimentCodi(anotacioEntrada.getProcedimentCodi());
+		anotacio.setServeiCodi(anotacioEntrada.getServeiCodi());
 		anotacio.setIdiomaDescripcio(anotacioEntrada.getIdomaDescripcio());
 		anotacio.setLlibreDescripcio(anotacioEntrada.getLlibreDescripcio());
 		anotacio.setObservacions(anotacioEntrada.getObservacions());
@@ -510,6 +516,9 @@ public class DistribucioHelper {
 		anotacio.setUsuariCodi(anotacioEntrada.getUsuariCodi());
 		anotacio.setUsuariNom(anotacioEntrada.getUsuariNom());
 		anotacio.setDestiDescripcio(anotacioEntrada.getDestiDescripcio());
+		anotacio.setPresencial(anotacioEntrada.isPresencial());
+		anotacio.setTramitCodi(anotacioEntrada.getTramitCodi());
+		anotacio.setTramitNom(anotacioEntrada.getTramitNom());
 				
 		// Crea els interessats
 		for (Interessat interessat: anotacioEntrada.getInteressats()) {
@@ -558,7 +567,6 @@ public class DistribucioHelper {
 		ExpedientTipus expedientTipus = null;
 		Expedient expedient = null;
 		if (anotacio.getProcedimentCodi() != null) {
-
 			// Cerca el tipus d'expedient per aquell codi de procediment
 			List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findPerDistribuir(anotacio.getProcedimentCodi(), anotacio.getAssumpteCodiCodi());
 			if (!expedientsTipus.isEmpty()) {
@@ -569,6 +577,24 @@ public class DistribucioHelper {
 						expedientsTipusStr.append(et.getCodi() + " ");
 					}
 					logger.warn("S'ha trobat més d'1 tipus d'expedient pel codi de procediment: " + anotacio.getProcedimentCodi() + " i assumpte: " + anotacio.getAssumpteCodiCodi() 
+								+ ":[ " + expedientsTipusStr.toString() + "]. S'escull el primer " + expedientsTipus.get(0).getCodi() + " de l'entorn " + expedientsTipus.get(0).getEntorn().getCodi());
+				}				
+				// Cerca si hi ha cap expedient que coincideixi amb el número d'expedient
+				if (anotacio.getExpedientNumero() != null) {
+					expedient = expedientRepository.findByTipusAndNumero(expedientTipus, anotacio.getExpedientNumero());
+				}
+			}
+		} else if (anotacio.getServeiCodi() != null) {
+			// Cerca el tipus d'expedient per aquell codi de procediment
+			List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findPerDistribuir(anotacio.getServeiCodi(), anotacio.getAssumpteCodiCodi());
+			if (!expedientsTipus.isEmpty()) {
+				expedientTipus = expedientsTipus.get(0);
+				if (expedientsTipus.size() > 1) {
+					StringBuilder expedientsTipusStr = new StringBuilder();
+					for (ExpedientTipus et : expedientsTipus) {
+						expedientsTipusStr.append(et.getCodi() + " ");
+					}
+					logger.warn("S'ha trobat més d'1 tipus d'expedient pel codi de servei: " + anotacio.getServeiCodi() + " i assumpte: " + anotacio.getAssumpteCodiCodi() 
 								+ ":[ " + expedientsTipusStr.toString() + "]. S'escull el primer " + expedientsTipus.get(0).getCodi() + " de l'entorn " + expedientsTipus.get(0).getEntorn().getCodi());
 				}				
 				// Cerca si hi ha cap expedient que coincideixi amb el número d'expedient

@@ -11,10 +11,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Rolsac2ServiciosResponse {
-	private String numeroElementos;
 	private String status;
 	private Integer tiempo;
 	private String mensaje;
-	private String url;
-	private List<Rolsac2Servei> resultado;
+	private String resultadoURL;
+	private String resultadoLong;
+	private String dateDownload;
+	private Integer totalCount;
+	private Integer itemsReturned;
+	private Integer pageSize;
+	private Integer totalPages;
+	private Integer page;
+	private List<Rolsac2Servei> items;
 }

@@ -26,12 +26,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import es.caib.distribucio.rest.client.regla.ReglesRestClient;
 import es.caib.distribucio.rest.client.regla.domini.Regla;
 import es.caib.distribucio.rest.client.regla.domini.ReglaResponse;
+import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
@@ -162,12 +164,18 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			String codiEntitat = this.comprovarDades(request, expedientTipusId, codiProcediment);
 			String backoffice = this.getBackoffice();
 			ReglesRestClient client = this.getReglesRestClient();
-
+			
+			ProcedimentDto procediment = procedimentService.findByCodiSia(codiProcediment);
+			
+			String tipusRegla = (procediment != null && procediment.getTipus() != null)? 
+									procediment.getTipus().toString() : 
+									ProcedimentTipusEnumDto.PROCEDIMENT.toString();
 			// Invoca la creació 
 			ReglaResponse response = client.add(
 					codiEntitat, 
 					codiProcediment, 
-					backoffice,
+					tipusRegla,
+					backoffice, 
 					presencial);
 	
 
@@ -231,7 +239,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 				if (!regla.isActiva()) {
 					MissatgesHelper.warning(request, 
 							"La regla no es troba activa a Distribucio.");
-				}							
+				}
 			} else {
 				MissatgesHelper.warning(request, "La consulta no ha retornat cap regla amb codi " + codiProcediment + " de DISTRIBUCIO");
 			}

@@ -43,6 +43,7 @@ public class AnotacioListDto implements Serializable {
 	private String expedientNumero;
 	private String extracte;
 	private String procedimentCodi;
+	private String serveiCodi;
 	private String identificador;
 	private String llibreCodi;
 	private String llibreDescripcio;
@@ -172,6 +173,12 @@ public class AnotacioListDto implements Serializable {
 	}
 	public void setProcedimentCodi(String procedimentCodi) {
 		this.procedimentCodi = procedimentCodi;
+	}
+	public String getServeiCodi() {
+		return serveiCodi;
+	}
+	public void setServeiCodi(String serveiCodi) {
+		this.serveiCodi = serveiCodi;
 	}
 	public String getIdentificador() {
 		return identificador;

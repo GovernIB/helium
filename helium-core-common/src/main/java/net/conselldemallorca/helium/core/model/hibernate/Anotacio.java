@@ -131,6 +131,8 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private String extracte;
 	@Column(name = "procediment_codi", length = 20)
 	private String procedimentCodi;
+	@Column(name = "servei_codi", length = 64)
+	private String serveiCodi;
 	@Column(name = "identificador", length = 100)
 	private String identificador;
 	@Column(name = "idioma_codi", length = 2)
@@ -170,6 +172,13 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private String destiCodi;
 	@Column(name = "desti_descripcio", length = 100)
 	private String destiDescripcio;
+
+	@Column(name = "presencial", nullable = false)
+	private Boolean presencial;
+	@Column(name = "tramit_codi", length = 64)
+	private String tramitCodi;
+	@Column(name = "tramit_nom", length = 255)
+	private String tramitNom;
 	
 	@OneToMany(
 			mappedBy = "anotacio",
@@ -392,6 +401,26 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 			built.destiDescripcio = destiDescripcio;
 			return this;
 		}
+		
+		public Builder serveiCodi(String serveiCodi) {
+			built.serveiCodi = serveiCodi;
+			return this;
+		}
+
+		public Builder presencial(Boolean presencial) {
+			built.presencial = presencial;
+			return this;
+		}
+		
+		public Builder tramitCodi(String tramitCodi) {
+			built.tramitCodi = tramitCodi;
+			return this;
+		}
+		
+		public Builder tramitNom(String tramitNom) {
+			built.tramitNom = tramitNom;
+			return this;
+		}
 
 		public Anotacio build() {
 			return built;
@@ -541,6 +570,12 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 		this.procedimentCodi = procedimentCodi;
 	}
 	
+	public String getServeiCodi() {
+		return serveiCodi;
+	}
+	public void setServeiCodi(String serveiCodi) {
+		this.serveiCodi = serveiCodi;
+	}
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}
@@ -763,6 +798,24 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	}
 	public void setRebuigMotiu(String rebuigMotiu) {
 		this.rebuigMotiu = rebuigMotiu;
+	}
+	public Boolean getPresencial() {
+		return presencial;
+	}
+	public void setPresencial(Boolean presencial) {
+		this.presencial = presencial;
+	}
+	public String getTramitCodi() {
+		return tramitCodi;
+	}
+	public void setTramitCodi(String tramitCodi) {
+		this.tramitCodi = tramitCodi;
+	}
+	public String getTramitNom() {
+		return tramitNom;
+	}
+	public void setTramitNom(String tramitNom) {
+		this.tramitNom = tramitNom;
 	}
 	
 

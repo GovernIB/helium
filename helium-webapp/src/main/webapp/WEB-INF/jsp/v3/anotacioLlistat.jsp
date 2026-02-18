@@ -123,6 +123,7 @@
 				<th data-col-name="identificador"><spring:message code="anotacio.llistat.columna.identificador"/></th>
 				<th data-col-name="extracte" width="17%"><spring:message code="anotacio.llistat.columna.extracte"/></th>
 				<th data-col-name="procedimentCodi"><spring:message code="anotacio.llistat.columna.procedimentCodi"/></th>
+				<th data-col-name="serveiCodi"><spring:message code="anotacio.llistat.columna.serveiCodi"/></th>
 				<th data-col-name="expedientNumero"><spring:message code="anotacio.llistat.columna.expedientNumero"/></th>
 				<th data-col-name="dataRecepcio" data-converter="datetime" width="7%"><spring:message code="anotacio.llistat.columna.dataRecepcio"/></th>				
 				<th data-col-name="destiCodiAndNom" data-visible="false" data-orderable="false"/>

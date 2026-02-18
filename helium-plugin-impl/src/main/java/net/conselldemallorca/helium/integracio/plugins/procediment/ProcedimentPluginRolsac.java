@@ -20,6 +20,7 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 
 /**
  * Implementació del plugin de consulta de procediments emprant ROLSAC.
@@ -73,13 +74,14 @@ public class ProcedimentPluginRolsac implements ProcedimentPlugin {
 		}
 	}
 
-	public Procediment toProcemiment (ProcedimentRolsac procediment) throws  SistemaExternException {
+	public Procediment toProcemiment(ProcedimentRolsac procediment) throws  SistemaExternException {
 		Procediment dto = new Procediment();
 		if (procediment != null) {
 			dto.setCodi(procediment.getCodigo());
 			dto.setCodiSia(procediment.getCodigoSIA());
 			dto.setNom(procediment.getNombre());
 			dto.setComu(procediment.isComu());
+			dto.setTipus(ProcedimentTipusEnumDto.PROCEDIMENT);
 			if (procediment.getUnidadAdministrativa() != null) {
 				dto.setUnitatAdministrativacodi(procediment.getUnidadAdministrativa().getCodigo());
 			}
@@ -193,6 +195,70 @@ public class ProcedimentPluginRolsac implements ProcedimentPlugin {
 
 	@Override
 	public List<Procediment> findServeisAmbCodiDir3(String codiDir3) throws SistemaExternException {
-		return null;
+		
+		logger.debug("Consulta dels serveis de l'unitat organitzativa (" +
+				"codiDir3=" + codiDir3 + ")");
+		ServiciosResponse response = null;
+		try {
+			response = findServeisRolsac(
+					getServiceUrl() + "/servicios",
+					"lang=ca&filtro={\"codigoUADir3\":\"" + codiDir3 + "\",\"estadoSia\":\"A\", \"buscarEnDescendientesUA\":\"1\"}&filtroPaginacion={\"page\":\"1\", \"size\":\"9999\"}");
+		} catch (Exception ex) {
+			logger.error("No s'han pogut consultar els serveis de ROLSAC (" +
+					"codiDir3=" + codiDir3 + ")",
+					ex);
+			throw new SistemaExternException(
+					"No s'han pogut consultar els serveis de ROLSAC (" +
+					"codiDir3=" + codiDir3 + ")",
+					ex);
+		}
+		
+		if (response != null && response.getStatus().equals("200")) {
+			List<Procediment> serveis = new ArrayList<Procediment>();
+			for (ServeiRolsac servei : response.resultado) {
+				serveis.add(this.toServei(servei));
+			}
+			return serveis;
+		} else {
+			logger.error("No s'han pogut consultar els serveis de ROLSAC (" +
+					"codiDir3=" + codiDir3 + "). Resposta rebuda amb el codi " + response.getStatus());
+			throw new SistemaExternException(
+					"No s'han pogut consultar els serveis de ROLSAC (" +
+					"codiDir3=" + codiDir3 + "). Resposta rebuda amb el codi " + response.getStatus());
+		}
+	}
+	
+	public Procediment toServei(ServeiRolsac servei) throws  SistemaExternException {
+		Procediment dto = new Procediment();
+		if (servei != null) {
+			dto.setCodi(servei.getCodigo());
+			dto.setCodiSia(servei.getCodigoSIA());
+			dto.setNom(servei.getNombre());
+			dto.setComu(servei.isComu());
+			dto.setTipus(ProcedimentTipusEnumDto.SERVEI);
+			if (servei.getOrganoInstructor() != null) {
+				dto.setUnitatAdministrativacodi(servei.getOrganoInstructor().getCodigo());
+			}
+		}
+		return dto;
+	}
+	
+	// Les respostes de procediments i serveis tenen els mateixos camps que es necesiten, per aixó s'usa el mateix objecte
+	private ServiciosResponse findServeisRolsac(
+			String url,
+			String body) throws UniformInterfaceException, ClientHandlerException, IOException {
+		logger.debug("Enviant petició HTTP a l'arxiu (" +
+				"url=" + url + ", " +
+				"tipus=application/json, " +
+				"body=" + body + ")");
+		ClientResponse response = getJerseyClient().
+				resource(url).
+				accept("application/json").
+				type("application/json").
+				post(ClientResponse.class, body);
+		String json = response.getEntity(String.class);
+		return mapper.readValue(
+				json,
+				TypeFactory.defaultInstance().constructType(ServiciosResponse.class));
 	}
 }

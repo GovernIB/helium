@@ -254,6 +254,17 @@ tr.clicable {
 									<td colspan="2">${anotacio.procedimentCodi}</td>
 								</tr>
 								<tr>
+									<td colspan="2"><strong><spring:message code="anotacio.detalls.camp.servei.codi"/></strong></td>
+									<td colspan="2">${anotacio.serveiCodi}</td>
+								</tr>
+								<tr>
+									<td colspan="2"><strong><spring:message code="anotacio.detalls.camp.tramit"/></strong></td>
+									<td colspan="2">
+									<c:if test="${not empty anotacio.tramitCodi}">
+									${anotacio.tramitCodi} - ${anotacio.tramitNom}</td>
+									</c:if>
+								</tr>
+								<tr>
 									<td colspan="2"><strong><spring:message code="anotacio.detalls.camp.assumpte.codi"/></strong></td>
 									<td colspan="2">(${anotacio.assumpteCodiCodi})</td>
 								</tr>
@@ -278,6 +289,16 @@ tr.clicable {
 								<tr>
 									<td colspan="2"><strong><spring:message code="anotacio.detalls.camp.observacions"/></strong></td>
 									<td colspan="2">${anotacio.observacions}</td>
+								</tr>
+								<tr>
+									<td colspan="2"><strong><spring:message code="anotacio.detalls.camp.presencial"/></strong></td>
+									<td colspan="2">
+									<c:choose>
+										<c:when test="${empty anotacio.presencial}">-</c:when>
+										<c:when test="${anotacio.presencial}">Sí</c:when>
+										<c:otherwise>No</c:otherwise>
+									</c:choose>
+									</td>
 								</tr>
 							</tbody>
 						</table>

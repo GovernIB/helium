@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 
 
 /**
@@ -22,6 +23,7 @@ public class ProcedimentPluginMock implements ProcedimentPlugin {
 		p.setCodi("1234");
 		p.setCodiSia("12345");
 		p.setNom("Procediment Mock");
+		p.setTipus(ProcedimentTipusEnumDto.PROCEDIMENT);
 		response.add(p);
 		return response;
 	}
@@ -43,7 +45,8 @@ public class ProcedimentPluginMock implements ProcedimentPlugin {
 		p.setCodi("4321");
 		p.setCodiSia("4321");
 		p.setNom("Servei Mock");
+		p.setTipus(ProcedimentTipusEnumDto.SERVEI);
 		response.add(p);
-		return null;
+		return response;
 	}
 }

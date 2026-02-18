@@ -405,8 +405,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		parametres.put("estat", estat);
 
 		if (!esNullCodiProcediment) {
-			sqlWhere.append(" and lower(a.procedimentCodi) like lower('%'||:codiProcediment||'%') ");
+			sqlWhere.append(" and (lower(a.procedimentCodi) like lower('%'||:codiProcediment||'%') OR lower(a.serveiCodi) like lower('%'||:serveiCodi||'%')) ");
 			parametres.put("codiProcediment", codiProcediment);
+			parametres.put("serveiCodi", codiProcediment);
 		}
 		if (!esNullDestiCodi) {
 			sqlWhere.append(" and lower(a.destiCodi) like lower('%'||:destiCodi||'%') ");

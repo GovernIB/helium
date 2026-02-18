@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto.NivellInfo;
 import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
@@ -169,7 +170,7 @@ public class ProcedimentServiceImpl implements ProcedimentService{
 			}
 			
 			// Deshabilita els procediments que no hagi retornat Rolsac
-			procedimentHelper.actualtizarProcedimentsNoVigents(procedimentsRolsacMap, progres, false);
+			procedimentHelper.actualtizarProcedimentsNoVigents(procedimentsRolsacMap, progres, ProcedimentTipusEnumDto.PROCEDIMENT);
 
 			// Processa tots els procediments, actualitza-ne la informació, donant-los d'alta i revisant la seva UO
 			progres.setNumOperacions(procedimentsRolsac.size());
@@ -268,7 +269,7 @@ public class ProcedimentServiceImpl implements ProcedimentService{
 			}
 			
 			// Deshabilita els serveis que no hagi retornat Rolsac
-			procedimentHelper.actualtizarProcedimentsNoVigents(procedimentsRolsacMap, progres, true);
+			procedimentHelper.actualtizarProcedimentsNoVigents(procedimentsRolsacMap, progres, ProcedimentTipusEnumDto.SERVEI);
 
 			// Processa tots els serveis, actualitza-ne la informació, donant-los d'alta i revisant la seva UO
 			progres.setNumOperacions(serveisRolsac.size());

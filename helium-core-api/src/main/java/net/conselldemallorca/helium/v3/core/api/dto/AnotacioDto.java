@@ -76,6 +76,7 @@ public class AnotacioDto implements Serializable {
 	private String exposa;
 	private String extracte;
 	private String procedimentCodi;
+	private String serveiCodi;
 	private String identificador;
 	private String idiomaCodi;
 	private String idiomaDescripcio;
@@ -95,6 +96,9 @@ public class AnotacioDto implements Serializable {
 	private String usuariNom;
 	private String destiCodi;
 	private String destiDescripcio;
+	private Boolean presencial;
+	private String tramitCodi;
+	private String tramitNom;
 
 	
 	
@@ -427,6 +431,30 @@ public class AnotacioDto implements Serializable {
 	}
 	public void setProcessant(boolean processant) {
 		this.processant = processant;
+	}
+	public String getServeiCodi() {
+		return serveiCodi;
+	}
+	public void setServeiCodi(String serveiCodi) {
+		this.serveiCodi = serveiCodi;
+	}
+	public Boolean getPresencial() {
+		return presencial;
+	}
+	public void setPresencial(Boolean presencial) {
+		this.presencial = presencial;
+	}
+	public String getTramitCodi() {
+		return tramitCodi;
+	}
+	public void setTramitCodi(String tramitCodi) {
+		this.tramitCodi = tramitCodi;
+	}
+	public String getTramitNom() {
+		return tramitNom;
+	}
+	public void setTramitNom(String tramitNom) {
+		this.tramitNom = tramitNom;
 	}
 	
 	@Override

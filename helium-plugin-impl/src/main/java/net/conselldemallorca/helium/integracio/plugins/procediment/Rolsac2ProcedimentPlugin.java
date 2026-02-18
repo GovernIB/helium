@@ -51,7 +51,7 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 						.estadoSia("A")
 						.buscarEnDescendientesUA(1)
 						.activo(1)
-						.filtroPaginacion(new Rolsac2FiltrePaginacio(1, 9999))
+						.filtroPaginacion(new Rolsac2FiltrePaginacio(0, 9999))
 						.build()
 					);
 		} catch (Exception ex) {
@@ -91,7 +91,7 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 						.estadoSia("A")
 						.buscarEnDescendientesUA(1)
 						.activo(1)
-						.filtroPaginacion(new Rolsac2FiltrePaginacio(1, 9999))
+						.filtroPaginacion(new Rolsac2FiltrePaginacio(0, 9999))
 						.build());
 		} catch (Exception ex) {
 			logger.error("No s'han pogut consultar els serveis de ROLSAC2 (" +
@@ -105,7 +105,7 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 		
 		if (response != null && response.getStatus().equals("200")) {
 			List<Procediment> procediments = new ArrayList<Procediment>();
-			for (Rolsac2Servei procediment : response.getResultado()) {
+			for (Rolsac2Servei procediment : response.getItems()) {
 				procediments.add(this.toProcemiment(procediment));
 			}
 			return procediments;
@@ -208,8 +208,8 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 					resource(urlAmbMetode).
 					post(Rolsac2UAResponse.class);
 			
-			if (resposta.getResultado() != null && !resposta.getResultado().isEmpty()) {
-				Rolsac2UnitatAdministrativa unitatAdministrativaRolsac = resposta.getResultado().get(0);
+			if (resposta.getItems() != null && !resposta.getItems().isEmpty()) {
+				Rolsac2UnitatAdministrativa unitatAdministrativaRolsac = resposta.getItems().get(0);
 				unitatAdministrativa = new UnitatAdministrativa();
 				unitatAdministrativa.setCodi(String.valueOf(unitatAdministrativaRolsac.getCodigo()));
 				unitatAdministrativa.setCodiDir3(unitatAdministrativaRolsac.getCodigoDIR3());

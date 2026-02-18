@@ -11,9 +11,17 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Rolsac2UAResponse {
-	private String numeroElementos;
-	private String status;
-	private String mensaje;
 	private Integer tiempo;
-	private List<Rolsac2UnitatAdministrativa> resultado;
+	private Integer itemsReturned;
+	private String resultadoURL;
+	private Integer totalPages;
+	private String pageSize;
+	private Integer page;
+	private String mensaje;
+	private Integer totalCount;
+	private String dateDownload;
+	private String status;
+	private Integer resultadoLong;
+	
+	private List<Rolsac2UnitatAdministrativa> items;
 }

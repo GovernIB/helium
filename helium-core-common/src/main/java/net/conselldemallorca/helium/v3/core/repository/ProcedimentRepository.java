@@ -103,5 +103,12 @@ public interface ProcedimentRepository extends JpaRepository<Procediment, Long>{
 	 * @return Llistat de procediments que tenen aquell tipus.
 	 */
 	List<Procediment> findAllByTipus(ProcedimentTipusEnumDto tipus);
+	
+	/** Troba tots els procediments per estat i tipus.
+	 * 
+	 * @param estat
+	 * @return Llistat de procediments que tenen aquell estat.
+	 */
+	List<Procediment> findAllByEstatAndTipus(ProcedimentEstatEnumDto estat, ProcedimentTipusEnumDto tipus);
 
 }
