@@ -160,11 +160,9 @@
 						{{else estat == 'REGISTRADA'}}
 							<span class="fa fa-file-o" title="<spring:message code="notificacio.etst.enum.REGISTRADA.info"/>"></span>
 							<spring:message code="notificacio.etst.enum.REGISTRADA" ></spring:message>
-						{{else}}
 						{{else estat == 'FINALITZADA'}}
 							<span class="fa fa-check" title="<spring:message code="notificacio.etst.enum.FINALITZADA.info"/>"></span>
 							<spring:message code="notificacio.etst.enum.FINALITZADA" ></spring:message>
-						{{else}}
 						{{else estat == 'PROCESSADA'}}
 							<span class="fa fa-check-circle title="<spring:message code="notificacio.etst.enum.PROCESSADA.info"/>""></span>
 							<spring:message code="notificacio.etst.enum.PROCESSADA" ></spring:message>
