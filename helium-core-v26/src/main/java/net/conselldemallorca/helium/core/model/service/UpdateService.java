@@ -60,11 +60,11 @@ public class UpdateService {
 	public static final int VERSIO_320_ORDRE = 320;
 	public static final String VERSIO_330_STR = "3.2.0";
 	public static final int VERSIO_330_ORDRE = 320;
-	public static final String VERSIO_ACTUAL_STR = "3.3.0";
-	public static final int VERSIO_ACTUAL_ORDRE = 330;
+	public static final String VERSIO_ACTUAL_STR = "4.0.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 400;
 
-	public static final String VERSIO_ACTUAL_RELEASE = "11";
-	public static final String VERSIO_ACTUAL_DATA = "2026.02.09 10:00h";
+	public static final String VERSIO_ACTUAL_RELEASE = "0";
+	public static final String VERSIO_ACTUAL_DATA = "2026.02.19 10:00h";
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
