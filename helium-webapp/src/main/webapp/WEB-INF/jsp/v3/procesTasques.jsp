@@ -152,13 +152,13 @@ div.procesTasca:hover {
 				<c:set var="procesFirst" value="${false}"/>
 				<script type="text/javascript">
 					$('#panel_tasca_${proces.id} .icon').heliumEvalLink({
-						refrescarAlertes: true,
-						refrescarPagina: false,
-						alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
+						//refrescarAlertes: true,
+						refrescarPagina: true //,
+						//alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
 					});	
 					$('#dropdown-menu-context-${proces.id} a').heliumEvalLink({
 						refrescarAlertes: true,
-						refrescarPagina: false,
+						refrescarPagina: true,
 						alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
 					});						
 					$(document).ready(function() {

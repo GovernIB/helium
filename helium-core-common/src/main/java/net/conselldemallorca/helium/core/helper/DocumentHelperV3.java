@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
 
 import es.caib.distribucio.core.api.service.ws.backoffice.NtiEstadoElaboracion;
@@ -80,6 +81,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -1315,6 +1317,29 @@ public class DocumentHelperV3 {
 		if (arxiuContentType == null)
 			arxiuContentType = this.getContentType(arxiuNom);
 		if (documentStore == null) {
+			
+			boolean isValid = true;
+			String validationMessage = null;
+			PdfReader pdfReader;
+			boolean isSignat = false;
+			try {
+				if(arxiuContentType.equals("application/pdf") && !(firmaSeparada && firmaContingut != null)) {
+					pdfReader = new PdfReader(arxiuContingut);
+					AcroFields acroFields = pdfReader.getAcroFields();
+					List<String> signatures = acroFields.getSignatureNames();
+					isSignat = !(signatures == null || signatures.isEmpty());
+				}
+			} catch (IOException e) {
+				logger.error("Error inesperat comprovant firma de document " + arxiuNom + " a la tasca amb ID: " + taskInstanceId, e);
+			}
+			
+			if(isSignat || (firmaSeparada && firmaContingut != null)) {
+				ArxiuFirmaValidacioDetallDto firmaValidacio = 
+					pluginHelper.validaSignaturaObtenirDetalls(arxiuContingut, firmaContingut);
+				isValid = firmaValidacio.isValid();
+				validationMessage = firmaValidacio.getMessage();
+			}
+			
 			return crearDocument(
 					taskInstanceId,
 					processInstanceId,
@@ -1333,8 +1358,8 @@ public class DocumentHelperV3 {
 					ntiEstadoElaboracion,
 					ntiTipoDocumental,
 					ntiIdDocumentoOrigen,
-					true,
-					null,
+					isValid,
+					validationMessage,
 					null, // annexId
 					null);
 		} else {
