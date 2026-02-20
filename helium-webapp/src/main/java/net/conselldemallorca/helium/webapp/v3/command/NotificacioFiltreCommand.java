@@ -9,6 +9,7 @@ import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 
 /**
@@ -23,6 +24,7 @@ public class NotificacioFiltreCommand implements Serializable {
 	private EnviamentTipusEnumDto tipus;
 	private String concepte;
 	private NotificacioEstatEnumDto estat;
+	private NotificacioEnviamentEstatEnumDto enviamentDatatEstat;
 	private Date dataInicial;
 	private Date dataFinal;
 	private String interessat;
@@ -65,6 +67,14 @@ public class NotificacioFiltreCommand implements Serializable {
 
 	public void setEstat(NotificacioEstatEnumDto estat) {
 		this.estat = estat;
+	}
+
+	public NotificacioEnviamentEstatEnumDto getEnviamentDatatEstat() {
+		return enviamentDatatEstat;
+	}
+
+	public void setEnviamentDatatEstat(NotificacioEnviamentEstatEnumDto enviamentDatatEstat) {
+		this.enviamentDatatEstat = enviamentDatatEstat;
 	}
 
 	public String getConcepte() {

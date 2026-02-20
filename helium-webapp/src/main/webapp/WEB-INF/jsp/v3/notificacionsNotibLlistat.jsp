@@ -60,12 +60,15 @@
 			 optionValueAttribute="codi" 
 			 optionTextAttribute="valor"/>
 		</div>
-		<div class="col-md-2">							
+		<div class="col-md-2">
 			<hel:inputText name="concepte" textKey="notificacio.llistat.filtre.camp.concepte" placeholderKey="notificacio.llistat.filtre.camp.concepte" inline="true"/>
 		</div>
 		<div class="col-md-2">
 			<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="notificacio.llistat.filtre.camp.estat" placeholderKey="notificacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
-		</div>		
+		</div>
+		<div class="col-md-2">
+			<hel:inputSelect inline="true" name="enviamentDatatEstat" optionItems="${estatsEnviament}" emptyOption="true" textKey="notificacio.llistat.filtre.camp.enviament.estat" placeholderKey="notificacio.llistat.filtre.camp.enviament.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
+		</div>
 		<div class="col-md-3">
 			<hel:inputText name="nomDocument" textKey="notificacio.llistat.filtre.camp.document.nom" placeholderKey="notificacio.llistat.filtre.camp.document.nom" inline="true"/>
 		</div>	

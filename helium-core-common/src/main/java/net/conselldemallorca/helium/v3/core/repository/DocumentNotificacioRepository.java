@@ -15,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 
 /**
@@ -83,6 +84,7 @@ public interface DocumentNotificacioRepository extends JpaRepository<DocumentNot
 	@Query(	"from DocumentNotificacio n " +
 			"where " +
 			" 	 (:esNullTipus = true or n.tipus = :tipus) " + 
+			"and (:esNullEnviamentDatatEstat = true or n.enviamentDatatEstat = :enviamentDatatEstat) " + 
 			"and (:esNullEntornId = true or expedient.entorn.id = :entornId) " +
 			"and (:esNullTipusPermesos = true or n.expedient.tipus.id IN (:tipusPermesosIds)) " +
 			"and (:esNullExpedientTipusId = true or n.expedient.tipus.id = :expedientTipusId) " +
@@ -107,9 +109,11 @@ public interface DocumentNotificacioRepository extends JpaRepository<DocumentNot
 			@Param("esNullTipusPermesos") boolean esNullTipusPermesos,
 			@Param("tipusPermesosIds") List<Long> tipusPermesosIds,
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
-			@Param("expedientTipusId") Long expedientTipusId,			
+			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullTipus") boolean esNullTipus,
 			@Param("tipus") EnviamentTipusEnumDto  tipus,
+			@Param("esNullEnviamentDatatEstat") boolean esNullEnviamentDatatEstat,
+			@Param("enviamentDatatEstat") NotificacioEnviamentEstatEnumDto enviamentDatatEstat,
 			@Param("esNullConcepte") boolean esNullConcepte,
 			@Param("concepte") String concepte,
 			@Param("esNullEstat") boolean esNullEstat,

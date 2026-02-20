@@ -240,9 +240,16 @@ public class NotificacionsController extends BaseExpedientController {
 		for(NotificacioEstatEnumDto estat : NotificacioEstatEnumDto.values())
 			opcions.add(new ParellaCodiValorDto(
 					estat.name(),
-					MessageHelper.getInstance().getMessage("notificacio.etst.enum." + estat.name())));		
+					MessageHelper.getInstance().getMessage("notificacio.etst.enum." + estat.name())));
+		
+		List<ParellaCodiValorDto> opcionsEnviamentEstats = new ArrayList<ParellaCodiValorDto>();
+		for(NotificacioEnviamentEstatEnumDto estat : NotificacioEnviamentEstatEnumDto.values())
+			opcionsEnviamentEstats.add(new ParellaCodiValorDto(
+					estat.name(),
+					MessageHelper.getInstance().getMessage("notificacio.enviament.estat.enum." + estat.name())));
 
 		model.addAttribute("estats", opcions);
+		model.addAttribute("estatsEnviament", opcionsEnviamentEstats);
 	}
 	
 	/** Posa els valors de l'enumeració dels tipus d'enviament en el model */
