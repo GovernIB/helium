@@ -264,4 +264,6 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 	@Query("SELECT et.codi FROM ExpedientTipus et")
 	public List<String> findAllCodis();
 
+	public List<ExpedientTipus> findBySistraTramitCodi(String sistraTramitCodi);
+
 }

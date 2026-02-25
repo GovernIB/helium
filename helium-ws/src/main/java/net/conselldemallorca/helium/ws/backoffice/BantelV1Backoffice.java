@@ -14,7 +14,6 @@ import es.caib.bantel.ws.v1.model.referenciaentrada.ReferenciaEntrada;
 import es.caib.bantel.ws.v1.model.referenciaentrada.ReferenciasEntrada;
 import es.caib.bantel.ws.v1.services.BantelFacade;
 import es.caib.bantel.ws.v1.services.BantelFacadeException;
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
@@ -44,7 +43,7 @@ public class BantelV1Backoffice extends BaseBackoffice implements BantelFacade {
 				// Se sincronitza per consultar primer si ja existeix l'expedient
 				synchronized(this) {
 					logger.info("Processant el tramit " + request);
-					dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
+//					dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
 					// Comprova sija existeix l'expedient a partir del tràmit
 					boolean existeix = existeixExpedient(dadesTramit.getNumero(),
 														String.valueOf(dadesTramit.getClauAcces()));
@@ -68,7 +67,7 @@ public class BantelV1Backoffice extends BaseBackoffice implements BantelFacade {
 				else
 					requestResultat.setResultatProces(ResultatProcesTipus.ERROR);
 				logger.info("Comunicant el resultat de processar el tràmit " + request + ": " + requestResultat.getResultatProces());
-				ServiceProxy.getInstance().getPluginService().comunicarResultatProcesTramit(requestResultat);
+//				ServiceProxy.getInstance().getPluginService().comunicarResultatProcesTramit(requestResultat);
 			} catch (Exception ex) {
 				logger.error("Error a l'hora de comunicar el resultat de processar el tramit " + request, ex);
 			}
@@ -86,7 +85,7 @@ public class BantelV1Backoffice extends BaseBackoffice implements BantelFacade {
 		request.setPlantillaTipus(plantillaTipus);
 		request.setIdioma(idioma);
 		try {
-			return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
+			return null;// ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
 		} catch (Exception ex) {
 			return null;
 		}

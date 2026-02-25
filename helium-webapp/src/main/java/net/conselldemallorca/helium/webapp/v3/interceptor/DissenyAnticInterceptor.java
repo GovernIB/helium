@@ -9,10 +9,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hibernate.validator.util.privilegedactions.GetMethods;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**

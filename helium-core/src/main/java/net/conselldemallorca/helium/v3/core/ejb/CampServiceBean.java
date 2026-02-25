@@ -194,6 +194,12 @@ public class CampServiceBean implements CampService {
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
 		return delegate.registreFindPerDatatable(campId, filtre, paginacioParams);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampRegistreDto> findRegistresByCampId(Long campId) {
+		return delegate.findRegistresByCampId(campId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -217,6 +223,12 @@ public class CampServiceBean implements CampService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampDto> findRegistresPerCamp(Long campId) {
 		return delegate.findRegistresPerCamp(campId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampDto findById(Long campId) {
+		return delegate.findById(campId);
 	}
 
 }

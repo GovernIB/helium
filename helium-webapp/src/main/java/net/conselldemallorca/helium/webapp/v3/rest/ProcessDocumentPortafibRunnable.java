@@ -4,12 +4,13 @@ import java.security.Principal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
+import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
+
 
 public class ProcessDocumentPortafibRunnable implements Runnable {
 	
@@ -17,6 +18,9 @@ public class ProcessDocumentPortafibRunnable implements Runnable {
 	private boolean rebujat;
 	private String motiuRebuig;
 	private String usuariCodi;
+	
+	@Autowired
+	private PortasignaturesService portasignaturesService;
 
 	ProcessDocumentPortafibRunnable(
 			Integer documentId,
@@ -44,8 +48,8 @@ public class ProcessDocumentPortafibRunnable implements Runnable {
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
 
 	        // Executa l'acció de forma separada del callback
-			PluginService pluginService = ServiceProxy.getInstance().getPluginService();
-			pluginService.processarDocumentCallbackPortasignatures(
+			//PluginService pluginService = ServiceProxy.getInstance().getPluginService();
+			portasignaturesService.processarDocumentCallbackPortasignatures(
 					documentId,
 					rebujat,
 					motiuRebuig);

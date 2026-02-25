@@ -451,5 +451,13 @@ public class AdminServiceImpl implements AdminService {
 		usuariActualHelper.netejarCacheUsuariTots();
 		return updatedRows;
 	}
+	
+	@Override
+	@Transactional
+	public PersonaDto findPersonaByCodi(String usuariCodi) {
+		return this.conversioTipusHelper.convertir(
+				personaRepository.findByCodi(usuariCodi),
+				PersonaDto.class);
+	}
 
 }

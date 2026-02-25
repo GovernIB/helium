@@ -31,4 +31,16 @@ public class PortasignaturesServiceBean implements PortasignaturesService {
 	public PortasignaturesDto findById(Long portafirmesId) throws PermisDenegatException {
 		return delegate.findById(portafirmesId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean processarDocumentCallbackPortasignatures(Integer id, boolean rebujat, String motiuRebuig) {
+		return delegate.processarDocumentCallbackPortasignatures(id, rebujat, motiuRebuig);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean processarDocumentPendentPortasignatures(Integer id) {
+		return delegate.processarDocumentPendentPortasignatures(id);
+	}
 }

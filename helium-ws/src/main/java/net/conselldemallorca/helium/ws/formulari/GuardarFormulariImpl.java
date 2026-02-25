@@ -10,10 +10,6 @@ import java.util.Map;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import net.conselldemallorca.helium.core.model.service.TascaService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 /**
  * Implementació del servei per guardar les dades dels formularis externs
  * 
@@ -24,9 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 		targetNamespace = "http://forms.integracio.helium.conselldemallorca.net/")
 public class GuardarFormulariImpl implements GuardarFormulari {
 
-	private TascaService tascaService;
-
-
+	//private TascaService tascaService;
 
 	public void guardar(String formulariId, List<ParellaCodiValor> valors) {
 		Map<String, Object> valorsTasca = new HashMap<String, Object>();
@@ -48,12 +42,7 @@ public class GuardarFormulariImpl implements GuardarFormulari {
 				}
 			}
 		}
-		tascaService.guardarFormulariExtern(formulariId, valorsTasca);
-	}
-
-	@Autowired
-	public void setTascaService(TascaService tascaService) {
-		this.tascaService = tascaService;
+		//tascaService.guardarFormulariExtern(formulariId, valorsTasca);
 	}
 
 }

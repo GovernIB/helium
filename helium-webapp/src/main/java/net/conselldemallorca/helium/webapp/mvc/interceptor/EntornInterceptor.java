@@ -24,7 +24,6 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import freemarker.template.utility.DateUtil;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -54,8 +53,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 	private AplicacioService aplicacioService;
 	@Resource
 	private ExpedientTipusService expedientTipusService;
-	@Resource
-	private AlertaService alertaService;
+
 
 
 
@@ -165,7 +163,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				// ELIMINAR DE LA INTERFÍCIE 26
 				if (!request.getRequestURI().contains("/v3")) {
 					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-					int alertesNoLlegides = alertaService.countActivesAmbEntornIUsuari(entornActual.getId(), auth.getName(), AlertaService.ALERTAS_NO_LLEGIDES);
+					int alertesNoLlegides = 0; //alertaService.countActivesAmbEntornIUsuari(entornActual.getId(), auth.getName(), AlertaService.ALERTAS_NO_LLEGIDES);
 					request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
 				}
 				/////////////////////////////////

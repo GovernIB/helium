@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 /**
  * Controlador per a la pàgina inicial (index).
@@ -92,7 +91,7 @@ public class MesuresTempsController extends BaseController {
 		
 		Map mfamilies = new LinkedHashMap();
 		for (String fam: llistatFamilies) {
-			mfamilies.put(fam, getMessage("temps.familia." + fam));
+			mfamilies.put(fam, getMessage(request, "temps.familia." + fam));
 		}
 		
 		if (mesures.isEmpty()) {
@@ -211,7 +210,7 @@ public class MesuresTempsController extends BaseController {
 		sheet.setColumnWidth(6, 3000);
 		sheet.setColumnWidth(7, 3000);
 
-		createHeader(sheet);
+		createHeader(sheet, request);
 
 		int rowNum = 1;
 
@@ -276,23 +275,23 @@ public class MesuresTempsController extends BaseController {
 					xlsRow = sheetSeries.createRow(rowNumSeries++);
 
 					cell = xlsRow.createCell(0);
-					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.clau"))));
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.clau"))));
 					cell.setCellStyle(headerStyle);
 
 					cell = xlsRow.createCell(1);
-					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.minima"))));
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.minima"))));
 					cell.setCellStyle(headerStyle);
 
 					cell = xlsRow.createCell(2);
-					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.maxima"))));
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.maxima"))));
 					cell.setCellStyle(headerStyle);
 
 					cell = xlsRow.createCell(3);
-					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.numMesures"))));
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.numMesures"))));
 					cell.setCellStyle(headerStyle);
 
 					cell = xlsRow.createCell(4);
-					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.mitja"))));
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.mitja"))));
 					cell.setCellStyle(headerStyle);
 
 					List<MesuraTemporalDto> listStatistics = new ArrayList<MesuraTemporalDto>();
@@ -340,7 +339,7 @@ public class MesuresTempsController extends BaseController {
 		sheet.setColumnWidth(6, 3000);
 		sheet.setColumnWidth(7, 3000);
 
-		createHeader(sheet);
+		createHeader(sheet, request);
 
 		rowNum = 1;
 
@@ -408,7 +407,7 @@ public class MesuresTempsController extends BaseController {
 		sheet.setColumnWidth(6, 3000);
 		sheet.setColumnWidth(7, 3000);
 
-		createHeader(sheet);
+		createHeader(sheet, request);
 
 		rowNum = 1;
 
@@ -473,7 +472,7 @@ public class MesuresTempsController extends BaseController {
 		}
 	}
 
-	private void createHeader(XSSFSheet sheet) {
+	private void createHeader(XSSFSheet sheet, HttpServletRequest request) {
 		int rowNum = 0;
 		int colNum = 0;
 
@@ -481,35 +480,35 @@ public class MesuresTempsController extends BaseController {
 		XSSFRow xlsRow = sheet.createRow(rowNum++);
 
 		XSSFCell cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.clau"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.clau"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.darrera"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.darrera"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.minima"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.minima"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.maxima"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.maxima"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.numMesures"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.numMesures"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.mitja"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.mitja"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.periode"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.periode"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum);
-		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.pes"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.pes"))));
 		cell.setCellStyle(headerStyle);
 	}
 	

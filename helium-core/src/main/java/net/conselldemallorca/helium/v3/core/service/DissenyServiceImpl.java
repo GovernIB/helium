@@ -1416,5 +1416,13 @@ public class DissenyServiceImpl implements DissenyService {
 				
 		return resultat;
 	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<ExpedientTipusDto> findExpedientTipusBySistraTramitCodi(String sistraTramitCodi) {
+		return conversioTipusHelper.convertirList(
+			expedientTipusRepository.findBySistraTramitCodi(sistraTramitCodi),
+			ExpedientTipusDto.class);
+	}
 
 }

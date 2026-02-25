@@ -269,5 +269,11 @@ public class AdminServiceBean implements AdminService {
 	public Long canviarCodiUsusari(String codiActual, String codiNou) throws Exception {
 		return delegate.canviarCodiUsusari(codiActual, codiNou);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PersonaDto findPersonaByCodi(String usuariCodi) {
+		return delegate.findPersonaByCodi(usuariCodi);
+	}
 
 }

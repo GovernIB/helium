@@ -75,7 +75,7 @@
 		
 <!-- 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.PermisosDissenyInterceptor"/> -->
 
-		<mvc:interceptor>
+		<!-- <mvc:interceptor>
 			<mvc:mapping path="/**"/>
 			<mvc:exclude-mapping path="/js/**"/>
 			<mvc:exclude-mapping path="/css/**"/>
@@ -99,7 +99,7 @@
 			<mvc:exclude-mapping path="/**/datatable/**"/>
 			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.VersioInterceptor"/>
-		</mvc:interceptor>
+		</mvc:interceptor> -->
 		
 		<mvc:interceptor>
 			<mvc:mapping path="/**"/>
@@ -152,7 +152,7 @@
 			<bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor"/>
 		</mvc:interceptor>
 		
-		<mvc:interceptor>
+		<!-- <mvc:interceptor>
 			<mvc:mapping path="/**"/>
 			<mvc:exclude-mapping path="/js/**"/>
 			<mvc:exclude-mapping path="/css/**"/>
@@ -163,7 +163,7 @@
 			<mvc:exclude-mapping path="/**/datatable/**"/>
 			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean id="localeChangeInterceptor" class="net.conselldemallorca.helium.webapp.mvc.interceptor.IdiomaInterceptor" />
-		</mvc:interceptor>
+		</mvc:interceptor> -->
 		
 		<mvc:interceptor>
 			<mvc:mapping path="/**"/>
@@ -211,7 +211,7 @@
 		<property name="maxUploadSize" value="${app.fileupload.maxsize}"/>
 	</bean>
 
-	<bean id="localeResolver" class="net.conselldemallorca.helium.webapp.mvc.util.IdiomaResolver" />
+	<!-- <bean id="localeResolver" class="net.conselldemallorca.helium.webapp.mvc.util.IdiomaResolver" /> -->
 
 	<bean name="arxiuView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuView"/>
 	<bean name="arxiuConvertirView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuConvertirView"/>

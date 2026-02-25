@@ -9,4 +9,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 public interface PortasignaturesService {
 	PaginaDto<PortasignaturesDto> findAmbFiltrePaginat(PaginacioParamsDto paginacioParams, ConsultesPortafibFiltreDto filtreDto);	
 	PortasignaturesDto findById(Long portafirmesId) throws PermisDenegatException;
+	boolean processarDocumentCallbackPortasignatures(Integer id, boolean rebujat, String motiuRebuig);
+	boolean processarDocumentPendentPortasignatures(Integer id);
 }

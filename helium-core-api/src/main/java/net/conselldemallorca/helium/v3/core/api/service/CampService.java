@@ -390,7 +390,15 @@ public interface CampService {
 	public PaginaDto<CampRegistreDto> registreFindPerDatatable(
 			Long campId,
 			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+	
+	/**
+	 * Retorna la llista de camps de la variable de tipus registre del tipus d'expedient
+	 * 
+	 * @param campId
+	 * @return
+	 */
+	public List<CampRegistreDto> findRegistresByCampId(Long campId);
 
 	/** Mou el camp del registre amb id de camp cap a la posició indicada reassignant el valor pel camp ordre.
 	 * 
@@ -421,4 +429,11 @@ public interface CampService {
 	 * @return
 	 */
 	public List<CampDto> findRegistresPerCamp(Long campId);
+	
+	/** Retorna el registre que continguin el camp.
+	 * 
+	 * @param campId
+	 * @return
+	 */
+	public CampDto findById(Long campId);
 }

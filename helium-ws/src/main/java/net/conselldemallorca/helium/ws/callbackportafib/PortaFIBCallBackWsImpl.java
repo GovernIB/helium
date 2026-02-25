@@ -21,11 +21,10 @@ import es.caib.portafib.ws.callback.api.v1.PortaFIBEvent;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.PortasignaturesHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
+import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
 
 /**
  * Implementació dels mètodes per al servei de callback del portafirmes per WS SOAP 1.0.
@@ -48,7 +47,8 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Autowired
 	private PortasignaturesHelper portasignaturesHelper;
-
+	@Autowired
+	private PortasignaturesService portasignaturesService;
 
 	@Override
 	public int getVersionWs() {
@@ -101,8 +101,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 			Double resposta = -1D;
 			boolean processamentOk = false;
 			String accio = null;
-		try {
-				PluginService pluginService = ServiceProxy.getInstance().getPluginService();
+			try {
 				switch (tipusEstat) {
 					case BLOQUEJAT:
 						resposta = 1D;
@@ -116,7 +115,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 						break;
 					case SIGNAT:
 						accio = "Signat";
-						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
+						processamentOk = portasignaturesService.processarDocumentCallbackPortasignatures(
 								documentId.intValue(),
 								false,
 								null);
@@ -127,7 +126,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 						String motiu = null;
 						if (event.getSigningRequest() != null )
 							motiu = event.getSigningRequest().getRejectionReason();
-						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
+						processamentOk = portasignaturesService.processarDocumentCallbackPortasignatures(
 								documentId.intValue(),
 								true,
 								motiu);

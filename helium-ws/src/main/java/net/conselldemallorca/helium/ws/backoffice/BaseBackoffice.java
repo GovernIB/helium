@@ -28,7 +28,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -36,7 +35,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
@@ -44,10 +42,17 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocu
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTelematic;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
+import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 
@@ -68,10 +73,13 @@ public abstract class BaseBackoffice {
 	private CampTascaRepository campTascaRepository;
 
 	@Autowired
-	private DissenyService dissenyService;
+	private net.conselldemallorca.helium.v3.core.api.service.DissenyService dissenyV3Service;
 	
 	@Autowired
-	private net.conselldemallorca.helium.v3.core.api.service.DissenyService dissenyV3Service;
+	private DefinicioProcesService definicioProcesService;
+	
+	@Autowired
+	private ExpedientTipusService expedientTipusService;
 
 	protected static Tika tika = new Tika();
 	
@@ -93,15 +101,16 @@ public abstract class BaseBackoffice {
 
 	public int processarTramit(DadesTramit tramit) throws Exception {
 
-		List<ExpedientTipus> candidats = dissenyService.findExpedientTipusAmbSistraTramitCodi(tramit.getIdentificador());
-		for (ExpedientTipus expedientTipus: candidats) {
+		
+		List<ExpedientTipusDto> candidats = dissenyV3Service.findExpedientTipusBySistraTramitCodi(tramit.getIdentificador());
+		for (ExpedientTipusDto expedientTipus: candidats) {
 			String expedientTitol = null;
-			if (expedientTipus.getTeTitol())
+			if (expedientTipus.isTeTitol())
 				expedientTitol = tramit.getNumero();
 
 			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
-			DefinicioProcesDto definicioProces = dissenyService.findDarreraAmbExpedientTipus(expedientTipus.getId());
-
+			DefinicioProcesDto definicioProces = dissenyV3Service.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId());
+			
 			// Crida al mètode de creació de l'expedient
 			ExpedientDto expedientNou = expedientService.create(
 					expedientTipus.getEntorn().getId(),
@@ -151,7 +160,7 @@ public abstract class BaseBackoffice {
 	}
 	@Autowired
 	public void setDissenyService(DissenyService dissenyService) {
-		this.dissenyService = dissenyService;
+		
 	}
 
 
@@ -164,17 +173,18 @@ public abstract class BaseBackoffice {
 
 
 	private Map<String, Object> getDadesInicials(
-			ExpedientTipus expedientTipus,
+			ExpedientTipusDto expedientTipus,
 			DadesTramit tramit) {
 		
-		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipus.getId());
+		List<MapeigSistraDto> mapeigsSistra = expedientTipusService.mapeigFindAll(expedientTipus.getId());
+				// .findMapeigSistraVariablesAmbExpedientTipus(expedientTipus.getId());
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
 		boolean trobat = false;
 		Map<String, Object> resposta = new HashMap<String, Object>();
 		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
-		for (MapeigSistra mapeig: mapeigsSistra){
+		for (MapeigSistraDto mapeig: mapeigsSistra){
 			trobat = true;
 			Camp campHelium = null;
 			for (CampTasca campTasca: campsTasca) {
@@ -235,17 +245,17 @@ public abstract class BaseBackoffice {
 	}
 
 	private List<DadesDocumentDto> getDocumentsInicials(
-			ExpedientTipus expedientTipus,
+			ExpedientTipusDto expedientTipus,
 			DadesTramit tramit) {
 
-		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraDocumentsAmbExpedientTipus(expedientTipus.getId());
+		List<MapeigSistraDto> mapeigsSistra = expedientTipusService.mapeigFindAll(expedientTipus.getId());
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
 		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
 		List<Document> documents = getDocuments(expedientTipus);
 		
-		for (MapeigSistra mapeig : mapeigsSistra){
+		for (MapeigSistraDto mapeig : mapeigsSistra){
 			for (Document document : documents){
 				if (document.getCodi().equalsIgnoreCase(mapeig.getCodiHelium())){
 					try {
@@ -271,17 +281,16 @@ public abstract class BaseBackoffice {
 
 
 	private List<DadesDocumentDto> getDocumentsAdjunts(
-			ExpedientTipus expedientTipus,
+			ExpedientTipusDto expedientTipus,
 			DadesTramit tramit) {
-		
-		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraAdjuntsAmbExpedientTipus(expedientTipus.getId());
+		List<MapeigSistraDto> mapeigsSistra = expedientTipusService.mapeigFindAll(expedientTipus.getId());
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
 		boolean trobat = false;
 		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
 
-		for (MapeigSistra mapeig : mapeigsSistra){
+		for (MapeigSistraDto mapeig : mapeigsSistra){
 			if (MapeigSistra.TipusMapeig.Adjunt.equals(mapeig.getTipus())){
 				trobat = true;
 				try {
@@ -519,7 +528,7 @@ public abstract class BaseBackoffice {
 		}
 	}
 
-	private List<CampTasca> getCampsStartTask(ExpedientTipus expedientTipus) {
+	private List<CampTasca> getCampsStartTask(ExpedientTipusDto expedientTipus) {
 		ExpedientTascaDto startTask = expedientService.getStartTask(
 				expedientTipus.getEntorn().getId(),
 				expedientTipus.getId(),
@@ -531,13 +540,13 @@ public abstract class BaseBackoffice {
 		return new ArrayList<CampTasca>();
 	}
 
-	private List<Document> getDocuments(ExpedientTipus expedientTipus) {
+	private List<Document> getDocuments(ExpedientTipusDto expedientTipus) {
 		List<Document> documents;
 		if (expedientTipus.isAmbInfoPropia()) {
 			documents = documentRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
 		} else {
-			DefinicioProcesDto definicioProces = dissenyService.findDarreraAmbExpedientTipus(expedientTipus.getId());
-			documents = dissenyService.findDocumentsAmbDefinicioProces(definicioProces.getId());
+			DefinicioProcesDto definicioProces = dissenyV3Service.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId());
+			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
 		}
 		return documents;
 	}
@@ -557,7 +566,7 @@ public abstract class BaseBackoffice {
 	}
 	@Autowired
 	public DissenyService getDissenyService() {
-		return dissenyService;
+		return null;
 	}
 	
 	

@@ -28,6 +28,7 @@ public class PersonaDto implements Serializable {
 	private InteressatTipusEnumDto tipus;
 	private String codiDir3;
 	private String raoSocial;
+	private boolean admin;
 
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
@@ -176,7 +177,13 @@ public class PersonaDto implements Serializable {
 		}
 		return sb.toString();
 	}
-
+	public boolean isAdmin() {
+		return admin;
+	}
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -362,4 +362,6 @@ public interface DissenyService {
 	
 	public ExpedientDocumentPinbalDto findDocumentPinbalByExpedient(Long expedientId, Long documentId);
 
+	public List<ExpedientTipusDto> findExpedientTipusBySistraTramitCodi(String sistraTramitCodi);
+
 }

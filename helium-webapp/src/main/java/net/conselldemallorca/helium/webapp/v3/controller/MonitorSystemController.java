@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.MonitorTascaEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.MonitorTascaInfo;
 import net.conselldemallorca.helium.v3.core.api.service.MonitorTasquesService;
-import net.conselldemallorca.helium.webapp.v3.helper.MonitorHelper;
+import net.conselldemallorca.helium.v3.core.service.MonitorHelper;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;

@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.ws.backoffice;
 
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.jws.WebService;
 
 import org.apache.commons.logging.Log;
@@ -14,7 +15,7 @@ import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciaEntrada;
 import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciasEntrada;
 import es.caib.bantel.ws.v2.services.BantelFacade;
 import es.caib.bantel.ws.v2.services.BantelFacadeException;
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
@@ -30,8 +31,7 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProces
 @WebService(endpointInterface = "es.caib.bantel.ws.v2.services.BantelFacade")
 public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 
-
-
+	
 	public void avisoEntradas(ReferenciasEntrada numeroEntradas)
 			throws BantelFacadeException {
 		List<ReferenciaEntrada> entrades = numeroEntradas.getReferenciaEntrada();
@@ -47,7 +47,8 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 				// Se sincronitza per consultar primer si ja existeix l'expedient
 				synchronized(this) {
 					logger.info("Processant el tramit " + request);
-					dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
+					
+					// dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
 					identificadorTramit = dadesTramit.getIdentificador();
 					// Comprova sija existeix l'expedient a partir del tràmit
 					boolean existeix = existeixExpedient(dadesTramit.getNumero(),
@@ -72,7 +73,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 				else
 					requestResultat.setResultatProces(ResultatProcesTipus.ERROR);
 				logger.info("Comunicant el resultat de processar el tràmit " + request + ": " + requestResultat.getResultatProces());
-				ServiceProxy.getInstance().getPluginService().comunicarResultatProcesTramit(requestResultat);
+				//ServiceProxy.getInstance().getPluginService().comunicarResultatProcesTramit(requestResultat);
 			} catch (Exception ex) {
 				logger.error("Error a l'hora de comunicar el resultat de processar el tramit " + request, ex);
 			}
@@ -90,7 +91,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 		request.setPlantillaTipus(plantillaTipus);
 		request.setIdioma(idioma);
 		try {
-			return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
+			return null; //ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
 		} catch (Exception ex) {
 			logger.error("Error al obtenir el document del tramit " + request, ex);
 			return null;

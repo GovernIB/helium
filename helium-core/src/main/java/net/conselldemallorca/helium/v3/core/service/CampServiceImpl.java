@@ -946,6 +946,16 @@ public class CampServiceImpl implements CampService {
 								mapeigPropietatsOrdenacio)),
 				CampRegistreDto.class);		
 	}	
+
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampRegistreDto> findRegistresByCampId(Long campId) {
+		logger.debug("Consultant els campRegistres per un camp registre del tipus d'expedient");
+		return conversioTipusHelper.convertirList(
+			campRegistreRepository.findAmbCampOrdenats(campId),
+			CampRegistreDto.class);
+	}
 			
 	private static final Logger logger = LoggerFactory.getLogger(CampServiceImpl.class);
 
@@ -1028,6 +1038,14 @@ public class CampServiceImpl implements CampService {
 		
 		return conversioTipusHelper.convertirList(
 				registres, 
+				CampDto.class);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public CampDto findById(Long campId) {
+		return conversioTipusHelper.convertir(
+				campRepository.findOne(campId),
 				CampDto.class);
 	}
 }

@@ -395,4 +395,10 @@ public class DissenyServiceBean implements DissenyService {
 	public ExpedientDocumentPinbalDto findDocumentPinbalByExpedient(Long expedientId, Long documentId) {
 		return delegate.findDocumentPinbalByExpedient(expedientId, documentId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findExpedientTipusBySistraTramitCodi(String sistraTramitCodi) {
+		return delegate.findExpedientTipusBySistraTramitCodi(sistraTramitCodi);
+	}
 }

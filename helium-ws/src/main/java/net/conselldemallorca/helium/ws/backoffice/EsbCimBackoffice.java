@@ -22,7 +22,6 @@ import es.cim.ws.backoffice.v1.model.datosdocumentotelematico.FirmaWS;
 import es.cim.ws.backoffice.v1.model.documentoentrada.DocumentoEntrada;
 import es.cim.ws.backoffice.v1.model.entrada.Entrada;
 import es.cim.ws.backoffice.v1.services.Backoffice;
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
@@ -89,7 +88,7 @@ public class EsbCimBackoffice extends BaseBackoffice implements Backoffice {
 		request.setPlantillaTipus(plantillaTipus);
 		request.setIdioma(idioma);
 		try {
-			return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
+			return null; // ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
 		} catch (Exception ex) {
 			return null;
 		}

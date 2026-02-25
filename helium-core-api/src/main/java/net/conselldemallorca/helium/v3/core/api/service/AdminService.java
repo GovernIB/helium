@@ -200,5 +200,7 @@ public interface AdminService {
 	 */
 	public Long canviarCodiUsusari(String codiActual, String codiNou) throws Exception;
 
+	public PersonaDto findPersonaByCodi(String usuariCodi);
+
 
 }

@@ -3,14 +3,16 @@
  */
 package net.conselldemallorca.helium.webapp.v3.helper;
 
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-
 import org.apache.commons.beanutils.PropertyUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
+import net.conselldemallorca.helium.v3.core.api.service.CampService;
 
 
 /**
@@ -19,10 +21,9 @@ import org.springframework.validation.Validator;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class CommonRegistreHelper implements Validator {
-	private DissenyService dissenyService;
-	public CommonRegistreHelper(DissenyService dissenyService) {
-		this.dissenyService = dissenyService;
-	}
+	@Autowired
+	private CampService campService;
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean supports(Class clazz) {
 		return clazz.isAssignableFrom(Object.class);
@@ -30,10 +31,9 @@ public class CommonRegistreHelper implements Validator {
 	public void validate(Object command, Errors errors) {
 		try {
 			Long registreId = (Long)PropertyUtils.getSimpleProperty(command, "registreId");
-			Camp camp = dissenyService.getCampById(registreId);
-			for (CampRegistre campRegistre: camp.getRegistreMembres()) {
+			for (CampRegistreDto campRegistre: campService.findRegistresByCampId(registreId)) {
 				if (campRegistre.isObligatori())
-					ValidationUtils.rejectIfEmpty(errors, campRegistre.getMembre().getCodi(), "not.blank");
+					ValidationUtils.rejectIfEmpty(errors, campRegistre.getMembreCodi(), "not.blank");
 			}
 		} catch (Exception ex) {
 			errors.reject("error.validator");

@@ -29,7 +29,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class BaseController implements MessageSourceAware {
-
+	
 	public static final String ESQUEMA_PREFIX = "/helium";
 	MessageSource messageSource;
 

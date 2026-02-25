@@ -59,8 +59,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 
 	@Autowired
 	private ReproService reproService;
-	@Autowired
-	private net.conselldemallorca.helium.core.model.service.TascaService tascaInicialService;
+//	@Autowired
+//	private net.conselldemallorca.helium.core.model.service.TascaService tascaInicialService;
 
 
 
@@ -92,7 +92,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			campsAddicionalsClasses.put("definicioProcesId", Long.class);
 			Map<String, Object> valorsFormulariExtern = null;
 			if (tasca.isFormExtern()) {
-				valorsFormulariExtern = tascaInicialService.obtenirValorsFormulariExternInicial(tasca.getId());
+				// valorsFormulariExtern = tascaInicialService.obtenirValorsFormulariExternInicial(tasca.getId());
 				if (valorsFormulariExtern != null) {
 					request.getSession().setAttribute(
 							CLAU_SESSIO_FORM_VALORS,

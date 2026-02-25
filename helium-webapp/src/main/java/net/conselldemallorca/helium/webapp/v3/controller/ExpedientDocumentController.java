@@ -52,10 +52,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.core.util.StringUtilsHelium;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
@@ -106,6 +104,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatServi
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTokenService;
 import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
+import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
@@ -144,8 +143,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	@Autowired
 	private DadesExternesService dadesExternesService;
 	// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
-	@Autowired
-	private PluginService pluginService;
+//	@Autowired
+//	private PluginService pluginService;
 	@Autowired
 	private NtiHelper ntiHelper;
 	@Autowired
@@ -166,6 +165,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	protected ExpedientTokenService expedientTokenService;
 	@Autowired
 	protected DefinicioProcesService definicioProcesService;
+	@Autowired
+	protected PortasignaturesService portasignaturesService;
 
 	/** 
 	 * comparador per ordenar documents per codi de document primer i per títol de l'adjunt si són adjunts després.
@@ -1851,8 +1852,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long documentStoreId,
 			@RequestParam(value = "psignaId", required = true) Integer psignaId,
 			Model model) {
+		
 		// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
-		if (pluginService.processarDocumentPendentPortasignatures(psignaId)) {
+		if (portasignaturesService.processarDocumentPendentPortasignatures(psignaId)) {
 			MissatgesHelper.success(request, getMessage(request, "expedient.psigna.reintentar.ok"));
 			return modalUrlTancar(false);
 		} else {
@@ -2726,10 +2728,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				// TODO: Substituir la crida del core 2.6
 				PersonaDto usuariActual = aplicacioService.findPersonaActual();
 				String motiu = "Petició de firma cancel·lada des d'Helium per l'usuari " + usuariActual.getCodi() + " " + usuariActual.getNomSencer(); 
-				pluginService.processarDocumentCallbackPortasignatures(
-							psignaPendentActual.getDocumentId(), 
-							true, 
-							motiu);
+//				pluginService.processarDocumentCallbackPortasignatures(
+//							psignaPendentActual.getDocumentId(), 
+//							true, 
+//							motiu);
 			}
 			MissatgesHelper.success(
 					request, 

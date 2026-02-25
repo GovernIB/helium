@@ -48,7 +48,6 @@
 		<intercept-url pattern="/rest/v1/estadistiques/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/rest/v1/generarDadesExplotacio" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/rest/v1/generarDadesExplotacio/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-		<intercept-url pattern="/rest/v1/salutPerformance" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/rest/v1/generarDadesBasiquesExplotacio/*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		
 		<!-- API Logs -->
