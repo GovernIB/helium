@@ -2,9 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>net.conselldemallorca.helium</groupId>
+		<groupId>es.caib.helium</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.3</version>
+		<version>4.0</version>
 	</parent>
 	<artifactId>helium-ear</artifactId>
 	<packaging>ear</packaging>
@@ -13,103 +13,64 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator-legacy</artifactId>
-			<version>4.0.2.GA</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
 			<exclusions>
 				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>hibernate-core</artifactId>
-					<groupId>org.hibernate</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>hibernate-commons-annotations</artifactId>
-					<groupId>org.hibernate</groupId>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>${hibernate.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.51</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>${hibernate.validator.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-hibernate-entitymanager</artifactId>
-			<version>${helium.version}</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-webapp</artifactId>
-			<version>${helium.version}</version>
+			<artifactId>helium-back</artifactId>
+			<version>${project.version}</version>
 			<type>war</type>
 		</dependency>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-api-interna</artifactId>
-			<version>${helium.version}</version>
-			<type>war</type>
+			<groupId>org.reactivestreams</groupId>
+			<artifactId>reactive-streams</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.9.1</version>
-		</dependency>
- 		<dependency>
-			<groupId>org.apache.santuario</groupId>
-			<artifactId>xmlsec</artifactId>
-			<version>1.4.3</version>
-		</dependency>		
 	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-ear-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.2.0</version>
 				<configuration>
-					<finalName>helium</finalName>
+					<generateApplicationXml>true</generateApplicationXml>
+					<defaultLibBundleDir>/lib</defaultLibBundleDir>
+					<includeLibInApplicationXml>false</includeLibInApplicationXml>
+					<version>6</version>
+					<initializeInOrder>true</initializeInOrder>
+					<skinnyWars>true</skinnyWars>
+					<packagingExcludes>lib/es.caib.distribucio-distribucio-api-*,lib/es.caib.distribucio-distribucio-back-*,lib/org.apache.cxf-cxf*</packagingExcludes>
+					<archive>
+						<manifestEntries>
+							<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+							<Implementation-Vendor>Límit Tecnologies</Implementation-Vendor>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-SCM-Branch>${git.branch}</Implementation-SCM-Branch>
+							<Implementation-SCM-Revision>${git.commit.id}</Implementation-SCM-Revision>
+						</manifestEntries>
+					</archive>
 					<modules>
 						<webModule>
 							<groupId>${project.groupId}</groupId>
-							<artifactId>helium-webapp</artifactId>
-						</webModule>
-						<webModule>
-							<groupId>${project.groupId}</groupId>
-							<artifactId>helium-api-interna</artifactId>
-							<contextRoot>/heliumapi/interna</contextRoot>
-							<bundleFileName>helium-api-interna.war</bundleFileName>
+							<artifactId>helium-back</artifactId>
+							<contextRoot>/heliumback</contextRoot>
+							<bundleFileName>helium-back.war</bundleFileName>
 						</webModule>
 					</modules>
-					<defaultJavaBundleDir>lib/</defaultJavaBundleDir>
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>helium</finalName>
 	</build>
 </project>

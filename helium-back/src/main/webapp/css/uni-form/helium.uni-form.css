@@ -1,0 +1,88 @@
+.uniForm .error {
+	background: #ffdfdf !important;
+	border: 1px solid #df7d7d;
+	border-width: 1px 0;
+}
+.uniForm .errorField {
+	color: #af4c4c;
+	margin: 0 0 6px 0;
+	padding: 4px;
+	background: #ffbfbf;
+}
+.uniForm .buttonHolder {
+	background-color: transparent;
+	float:right;
+	padding:0 10px 0 0;
+}
+.uniForm .ctrlHolder{
+	float: left;
+	width: 98%;
+}
+.inlineLabels h3 {
+	float: left;
+	width: 97%;
+}
+.tascaForm .inlineLabels label, .tascaForm .inlineLabels .label {
+	width: 30%; /* <- Required property */
+	margin: .3em 2% 0 0; /* <- Required property */
+}
+.tascaForm .inlineLabels .textInput, .tascaForm .inlineLabels.fileUpload {
+	width: 60%; /* <- Required property */
+	margin-right: 10px;
+}
+.tascaForm .inlineLabels.selectInput, .tascaForm .inlineLabels select {
+	width: 60%; /* <- Required property */
+	margin-right: 10px;
+}
+.tascaForm .inlineLabels textarea {
+	width: 60%; /* <- Required property */
+	height: 12em;
+	margin-right: 10px;
+}
+.tascaForm .inlineLabels .formHint {
+	margin-top: 0;
+	margin-left: 32%;
+	font-size: 0.85em;
+	color: #777;
+	position: static;
+}
+.zebraForm .ctrlHolder:nth-child(2n+1) {
+	background-color: #f2f2f2;
+}
+.uniForm ul.alt_termini li {
+	float: left;
+	margin-right: 3%;
+	width: 20%;
+}
+.uniForm fieldset h3, .uniForm .inlineLabels h3 {
+	background-color: #e3e3e3;
+	border-bottom: 2px solid #f3f3f3;
+	font-size: 116%;
+	font-weight: bold;
+	height: 1.2em;
+	margin: 0.4em 0;
+	padding: 0.6em 0.3em 0.3em 1em;
+}
+.uniForm .inlineLabels .multiField {
+	width: 60%; /* <- Required property */
+	margin: 0 0 .3em 0;
+	float: left;
+}
+.uniForm .inlineLabels .blockLabel {
+	width: 45%;
+}
+
+.uniForm .customField {
+	margin: 0 !important; 
+}
+.uniForm .customField label {
+	margin: 0 2% 0 0;
+}
+.uniForm .customField span {
+	float: left;
+	margin: 3px 3px 0 0;
+}
+.ctrlHolder span.staticField {
+	display: block;
+	margin: 5px 0 4px 0;
+}

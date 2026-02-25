@@ -1,0 +1,52 @@
+
+div.calendari {
+	width: 608px;
+	height: 516px;
+}
+div.mes {
+	background-color: #fafafa;
+	border: 1px solid #444444;
+	width: 140px;
+	height: 170px;
+	float: left;
+	margin: 5px;
+}
+div.nomMes {
+	padding: 2px 0;
+	text-align: center;
+	color: white;
+	font-weight: bold;
+	background-color: #444444;
+	width: 140px;
+	float: left;
+}
+div.nomDia {
+	padding: 2px 0 0 0;
+	margin: 0 0 4px 0;
+	text-align: center;
+	color: white;
+	background-color: #666666;
+	width: 20px;
+	height: 20px;
+	float: left;
+}
+div.dia {
+	padding-top: 2px;
+	color: #1e458f;
+	text-align: center;
+	width: 18px;
+	height: 16px;
+	border: 1px solid white;
+	float: left;
+	cursor: pointer;
+}
+.nolab, .festiu {
+	color: white !important;
+}
+.festiu {
+	background-color: #e8605c;
+}
+.nolab {
+	background-color: #608cb7;
+	cursor: auto !important;
+}
