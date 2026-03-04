@@ -52,6 +52,8 @@ public class TascaDocumentDto {
 	
 	private boolean portafirmesActiu;
 	private PortasignaturesDto psignaActual;
+	
+	private boolean documentValid;
 
 	
 	
@@ -236,6 +238,14 @@ public class TascaDocumentDto {
 	}
 	public void setPortafirmesActiu(boolean portafirmesActiu) {
 		this.portafirmesActiu = portafirmesActiu;
+	}
+
+	public boolean isDocumentValid() {
+		return documentValid;
+	}
+
+	public void setDocumentValid(boolean documentValid) {
+		this.documentValid = documentValid;
 	}
 
 	public String getArxiuNomSenseExtensio() {

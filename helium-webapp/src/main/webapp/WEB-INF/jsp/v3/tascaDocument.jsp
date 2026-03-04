@@ -178,6 +178,11 @@
 	 					</c:if>
 
 		 			</c:if>
+		 			
+		 			
+					<c:if test="${(!document.documentValid) and not empty document.error}">
+						<span style="margin-left: 10px;" class="fa fa-exclamation-triangle text-danger" title="<spring:message htmlEscape="true" code="expedient.document.invalid" arguments="${document.error}"/>""></span>
+					</c:if>
 
 					<div id="hideData${document.id}" class="comentari small <c:if test="${empty document.tokenSignatura}">hide</c:if>">
 						<p><label><spring:message code='tasca.doc.adjunt.arxiu' /></label>: <label id="docNom${document.id}">${document.arxiuNom}</label></p>

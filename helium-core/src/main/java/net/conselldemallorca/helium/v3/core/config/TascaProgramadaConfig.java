@@ -448,7 +448,7 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
 	}
 
 	public void rescheduleTask(String taskId) {
-		Trigger newTrigger = getTrigger(comprovarExecucionsMassives);
+		Trigger newTrigger = getTrigger(taskId);
 		ScheduledFuture<?> scheduledTask = scheduledTasks.get(taskId);
 		if (scheduledTask != null) {
 			// Cancelar la tarea existente

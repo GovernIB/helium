@@ -2501,6 +2501,7 @@ public class DocumentHelperV3 {
 		dto.setArxiuNom(document.getArxiuNom());
 		dto.setArxiuContingutDefinit(document.getArxiuContingut() != null && document.getArxiuContingut().length > 0);
 		dto.setPortafirmesActiu(document.isPortafirmesActiu());
+		
 		Long documentStoreId;
 		documentStoreId = getDocumentStoreIdDeVariableJbpm(
 				String.valueOf(task.getTask().getId()), 
@@ -2508,8 +2509,11 @@ public class DocumentHelperV3 {
 					document.getCodi());
 		if (documentStoreId != null) {
 			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+			
 			if (documentStore != null) {
 				dto.setDocumentStoreId(documentStoreId);
+				dto.setDocumentValid(documentStore.isDocumentValid());
+				dto.setError(documentStore.getDocumentError());
 				dto.setArxiuNom(documentStore.getArxiuNom());
 				dto.setDataCreacio(documentStore.getDataCreacio());
 				dto.setDataModificacio(documentStore.getDataModificacio());
