@@ -20,10 +20,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -160,7 +158,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
 	@Override
-//	@Scheduled(fixedDelayString = "${app.massiu.periode.noves}")
 	public void comprovarExecucionsMassives() {
 		boolean active = true;
 		Long ultimaExecucioMassiva = null;
@@ -211,7 +208,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 * propera execució.
 	 */
 	@Override
-//	@Scheduled(fixedDelay=10000)
 	public void comprovarReindexacioAsincrona() {
 		
 		Counter countMetodeAsincronTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.metode.count"));
@@ -686,8 +682,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 * segons la propietat app.unitats.procediments.sync.
 	 */
 	@Override
-//	@Scheduled(cron="${app.unitats.procediments.sync}")
-	@Async
 	public void actualitzarUnitatsIProcediments() {
 		logger.info("Inici de la tasca periòdica de sincronització d'unitats i procediments.");
 		// Actualitza unitats organitzatives
@@ -756,8 +750,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	
 
 	@Override
-//	@Scheduled(fixedDelayString = "600000")
-	@Async
 	@Transactional
 	public void updatePeticionsAsincronesPinbal() throws ExecucioMassivaException {
 		List<PeticioPinbal> peticionsAsincronesPendents = peticioPinbalRepository.findAsincronesPendents();
@@ -773,7 +765,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 */
 	@Override
 	@Transactional
-//	@Scheduled(fixedDelayString = "60000")
 	public void comprovarEmailAnotacionsNoAgrupats() {
 		// Consultar entrades de la taula HEL_ANOTACIO_EMAIL amb agrupat = 0
 		List<AnotacioEmail> anotacioEmailListNoAgrupats=anotacioEmailRepository.findByEnviamentAgrupatOrderByDestinatariCodi(false);
@@ -812,8 +803,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 * segons la propietat app.anotacions.emails.agrupats.cron , Per defecte a les 20h
 	 */
 	@Override
-//	@Scheduled(cron="${app.anotacions.emails.agrupats.cron}")
-	@Async
 	public void comprovarEmailAnotacionsAgrupats() {
 		logger.info("Inici de la tasca periòdica d'enviament de correus agrupats de noves anotacions de distribució.");
 	
