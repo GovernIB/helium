@@ -9,6 +9,9 @@
 	</parent>
 	<artifactId>helium-back</artifactId>
 	<packaging>war</packaging>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -84,7 +87,7 @@
 
 	</dependencies>
 	<build>
-		<resources>
+		<!--<resources>
 			<resource>
 				<directory>src/main/resources</directory>
 			</resource>
@@ -96,7 +99,7 @@
 				</includes>
 				<filtering>true</filtering>
 			</resource>
-		</resources>
+		</resources>-->
 		<plugins>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
@@ -131,6 +134,15 @@
 						</manifestEntries>
 					</archive>
 					<attachClasses>true</attachClasses>
+					<!--
+					<webResources>
+						<resource>
+							<filtering>false</filtering>
+							<targetPath>META-INF/resources</targetPath>
+							<directory>src/main/resources</directory>
+						</resource>
+					</webResources>
+					-->
 				</configuration>
 			</plugin>
 		</plugins>
