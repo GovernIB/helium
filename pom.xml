@@ -32,8 +32,11 @@
 		</profile>
 	</profiles>
 	<modules>
-		<module>helium-back</module>
 		<module>helium-service-intf</module>
+		<module>helium-persistence</module>
+		<module>helium-service</module>
+		<module>helium-ejb</module>
+		<module>helium-back</module>
 		<module>helium-ear</module>
 		<!-- mòduls a migrar
 		<module>helium-core-api</module>

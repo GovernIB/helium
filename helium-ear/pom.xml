@@ -33,6 +33,12 @@
 			<type>war</type>
 		</dependency>
 		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-ejb</artifactId>
+			<version>${project.version}</version>
+			<type>ejb</type>
+		</dependency>
+		<dependency>
 			<groupId>org.reactivestreams</groupId>
 			<artifactId>reactive-streams</artifactId>
 		</dependency>
@@ -61,6 +67,11 @@
 						</manifestEntries>
 					</archive>
 					<modules>
+						<ejbModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>helium-ejb</artifactId>
+							<bundleFileName>helium-ejb.jar</bundleFileName>
+						</ejbModule>
 						<webModule>
 							<groupId>${project.groupId}</groupId>
 							<artifactId>helium-back</artifactId>

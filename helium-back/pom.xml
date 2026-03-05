@@ -85,7 +85,47 @@
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 
+
+		<!-- Flowable --> 
+		<dependency>
+			<groupId>org.flowable</groupId>
+			<artifactId>flowable-spring-boot-starter-process</artifactId>
+			<version>6.8.0</version>
+		</dependency>		
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>eclipse</id>
+			<activation>
+				<property>
+					<name>m2e.version</name>
+				</property>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>helium-service</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+<!--				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>helium-plugin-impl</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+-->			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-maven-plugin</artifactId>
+						<configuration>
+							<mainClass>es.caib.distribucio.DistribucioBackApp</mainClass>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<build>
 		<!--<resources>
 			<resource>
@@ -104,6 +144,7 @@
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
+				<version>4.9.10</version>
 				<executions>
 					<execution>
 						<id>get-the-git-infos</id>
