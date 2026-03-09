@@ -310,8 +310,11 @@ public class ProcedimentController extends BaseController{
 		if (procediment != null) {
 			Map<String, String> procedimentJson = new HashMap<String, String>();
 			procedimentJson.put("codi", procediment.getCodiSia());
-			procedimentJson.put("nom", procediment.getCodiNom().replace("\"", "\\\""));
-
+			
+			String nomProcediment = procediment.getNom().replace("\"", "\\\"");
+			String tipusText = ProcedimentTipusEnumDto.PROCEDIMENT.equals(procediment.getTipus()) ? "(Procediment)" : "(Servei)";
+			String nomFormatat = procediment.getCodiSia() + " " + tipusText + " - " + nomProcediment;
+			procedimentJson.put("nom", nomFormatat);
 			return procedimentJson;
 		} else {
 			Map<String, String> procedimentJson = new HashMap<String, String>();
