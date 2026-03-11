@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean;
 
-import es.caib.helium.logic.intf.config.BaseConfig;
+import es.caib.helium.commons.config.BaseConfig;
 import es.caib.helium.logic.intf.service.ExempleService;
 import lombok.extern.slf4j.Slf4j;
 

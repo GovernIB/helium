@@ -50,7 +50,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 
-import es.caib.helium.logic.intf.config.BaseConfig;
+import es.caib.helium.commons.config.BaseConfig;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

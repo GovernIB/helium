@@ -42,6 +42,14 @@ public interface WTaskInstance {
 	public String getDefinicioProcesKey();
 	public void setDefinicioProcesKey(String definicioProcesKey);
 //	public String getInfoTasca();
+	public void setFieldFromDescription(String string, String string2);
+	public void setCacheInactiu();
+	public boolean isCacheActiu();
+	public Object getDescriptionWithFields();
+	public void setCacheActiu();
+	public String getFieldFromDescription(String string);
+	public WTaskInstance getTask();
+	public WProcessInstance getProcessInstance();
 	
 //	public Object getTaskInstance();
 

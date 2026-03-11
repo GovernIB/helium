@@ -24,10 +24,7 @@
 	<decorator name="viewerPdfDecorator" page="viewerPdfDecorator.jsp">
 		<pattern>*/viewer.html*</pattern>
 	</decorator>
-	<decorator name="v3" page="v3.jsp">
-		<pattern>/v3/*</pattern>
-	</decorator>
-	<decorator name="senseCapNiPeus" page="v3SenseCapNiPeus.jsp">
+	<decorator name="senseCapNiPeus" page="senseCapNiPeus.jsp">
 		<pattern>*/firmapassarela*</pattern>
 	</decorator>
 	<decorator name="default" page="default.jsp">

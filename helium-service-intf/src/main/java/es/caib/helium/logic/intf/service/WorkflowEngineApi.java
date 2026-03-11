@@ -1,16 +1,18 @@
 package es.caib.helium.logic.intf.service;
 
-import es.caib.helium.logic.intf.dto.engine.WDeployment;
-import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
-import es.caib.helium.logic.intf.dto.engine.WToken;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.engine.WDeployment;
+import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
+import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
+import es.caib.helium.logic.intf.dto.engine.WProcessLog;
+import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.logic.intf.dto.engine.WToken;
 
 /**
  * Interfície comú dels motors de workflow amb els mètodes necessaris per desplegar, consultar,
@@ -354,7 +356,7 @@ public interface WorkflowEngineApi {
 	 */
 	public Object getProcessInstanceVariable(
             String processInstanceId,
-            String varName) throws Exception;
+            String varName);
 
 	
 	// Actualització de variables
@@ -754,5 +756,68 @@ public interface WorkflowEngineApi {
 	 * @throws Exception
 	 */
 	public WProcessDefinition parse(String nomArxiu, byte[] contingut) throws Exception;
+
+	public void updateHandlers(long long1, Map<String, byte[]> recursos);
+
+	public Set<String> getHandlerNames(String jbpmId);
+
+	public WProcessLog getProcessLogById(Long jbpmLogId);
+
+	public long addProcessInstanceMessageLog(String processInstanceId, String string);
+
+	public Map<WToken, List<WProcessLog>> getProcessInstanceLogs(String id);
+
+	public Long addTaskInstanceMessageLog(String taskInstanceId, String messageLogPerTipus);
+
+	public List<WTaskInstance> findTaskInstancesForProcessInstance(String processInstanceId);
+
+	public List<Long> expedientFindByFiltre(Long entornId, String name,
+			List<Long> tipusPermesosIds, Map<Long, List<Long>> unitatsPerTipusComu, String titol, String numero,
+			Long unitatOrganitzativaId, Long expedientTipusId, Date dataInici1, Date dataInici2, Date dataFi1,
+			Date dataFi2, Long estatId, Double geoPosX, Double geoPosY, String geoReferencia, String registreNumero,
+			boolean equals, boolean equals2, boolean equals3, boolean equals4, boolean nomesAlertes,
+			boolean nomesErrors, boolean nomesTasquesPersonals, boolean nomesTasquesGrup, boolean b, Object object,
+			PaginacioParamsDto paginacioParams, boolean c, boolean nomesErrorsArxiu, Set<Long> idsSeleccionats);
+
+	public es.caib.helium.commons.dto.ExpedientDto expedientFindByProcessInstanceId(String processInstanceId);
+
+	public void deleteProcessInstanceTreeLogs(String processInstanceId);
+
+	public List<String> findRootProcessInstancesWithTasksCommand(String name, List<String> idsPI, boolean nomesMeves,
+			boolean nomesTasquesPersonals, boolean nomesTasquesGrup);
+
+	public WProcessInstance[] findProcessInstancesWithProcessDefinitionNameEntornAndTipus(String jbpmKey, Long entornId,
+			Long expedientTipusId);
+
+	public void describeTaskInstance(String id, String titol, Object descriptionWithFields);
+
+	public void resumeTimer(long timerId, Date dataFi);
+
+	public void suspendTimer(long timerId, Date dueDate);
+
+	public boolean tokenActivar(Long tokenId, boolean activar);
+
+	public void tokenRedirect(long longValue, String nodeName, boolean cancelTasks, boolean enterNodeIfTask,
+			boolean executeNode);
+
+	public List<Long> findListTasks(String responsable, String titol, String tasca, List<Long> idsExpedients,
+			Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi,
+			PaginacioParamsDto paginacioParamsDto, boolean nomesTasquesPersonals, boolean nomesTasquesGrup, boolean b);
+
+	public List<WTaskInstance> tascaFindByFiltrePaginat(Long entornId, String responsable, String tasca, String titol,
+			Object object, String expedient, Object object2, Long expedientTipusId, Date dataCreacioInici,
+			Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi,
+			boolean mostrarAssignadesUsuari, boolean mostrarAssignadesGrup, boolean b, boolean administrador,
+			PaginacioParamsDto paginacioParams);
+
+	public Long getVariableIdFromVariableLog(Long id);
+
+	public Long getTaskInstanceIdByTokenId(Long tokenId);
+
+	public void executeHandler(String processInstanceId, String handlerClassPerRecurs, Map<String, String> dades);
+
+	public void executeHandlerPredefinit(String processInstanceId, String handlerClasse, Map<String, String> dades);
+
+	public void signalToken(long longValue, String transicioOK);
 
 }

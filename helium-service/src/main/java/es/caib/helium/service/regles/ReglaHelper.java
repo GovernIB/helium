@@ -1,0 +1,380 @@
+package es.caib.helium.service.regles;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.jeasy.rules.api.Facts;
+import org.jeasy.rules.api.Rules;
+import org.jeasy.rules.api.RulesEngine;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
+import es.caib.helium.commons.dto.regles.CampFormProperties;
+import es.caib.helium.commons.dto.regles.QueEnum;
+import es.caib.helium.commons.dto.regles.TipusVarEnum;
+import es.caib.helium.commons.dto.regles.VariableFact;
+import es.caib.helium.persistence.entity.Camp;
+import es.caib.helium.persistence.entity.Document;
+import es.caib.helium.persistence.entity.Estat;
+import es.caib.helium.persistence.entity.EstatRegla;
+import es.caib.helium.persistence.entity.ExpedientTipus;
+import es.caib.helium.persistence.entity.Termini;
+import es.caib.helium.persistence.repository.CampRepository;
+import es.caib.helium.persistence.repository.DocumentRepository;
+import es.caib.helium.persistence.repository.EstatReglaRepository;
+import es.caib.helium.persistence.repository.TerminiRepository;
+
+@Component
+public class ReglaHelper {
+
+    @Autowired
+    private Rules rules;
+    @Autowired
+    private RulesEngine rulesEngine;
+//    @Autowired
+//    private DominiHelper dominiHelper;
+    @Autowired
+    private EstatReglaRepository estatReglaRepository;
+    @Autowired
+    private CampRepository campRepository;
+    @Autowired
+    private DocumentRepository documentRepository;
+    @Autowired
+    private TerminiRepository terminiRepository;
+
+    public Map<String, CampFormProperties> getCampFormProperties(ExpedientTipus expedientTipus, Estat estat) {
+        Map<String, CampFormProperties> campFormPropertiesMap = new HashMap<String, CampFormProperties>();
+        if (estat == null)
+            return campFormPropertiesMap;
+
+        List<EstatRegla> regles = new ArrayList<EstatRegla>();
+        if (expedientTipus.getExpedientTipusPare() != null) {
+        	// Regles heretades
+        	regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus.getExpedientTipusPare()));
+        }
+        // Regles a nivell de tipus d'expedient
+        regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus));
+        // Regles de l'estat
+        regles.addAll(estatReglaRepository.findByEstatOrderByOrdreAsc(estat));
+
+        if (regles == null || regles.isEmpty())	
+            return campFormPropertiesMap;
+        List<Camp> dades = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
+        if (dades == null || dades.isEmpty())
+            return campFormPropertiesMap;
+
+        String usuariCodi = SecurityContextHolder.getContext().getAuthentication().getName();
+        Set<String> usuariRols = new HashSet<String>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        for (GrantedAuthority ga: auth.getAuthorities())
+            usuariRols.add(ga.getAuthority());
+
+        // Si alguna regla és per càrrec
+//        boolean hasCarrecRegla = false;
+//        for (EstatRegla regla: regles) {
+//            if (QuiEnum.CARREC.equals(regla.getQui())) {
+//                hasCarrecRegla = true;
+//                break;
+//            }
+//        }
+//        Set<String> usuariCarrecIds = new HashSet<String>();
+//        if (hasCarrecRegla) {
+//            List<Carrec> carrecs = dominiHelper.getCarrecsAmbPersonaCodi(expedientTipus.getEntorn().getCodi(), usuariCodi);
+//            for (Carrec carrec : carrecs)
+//                usuariCarrecIds.add(carrec.getCodi());
+//        }
+
+     // Per cada camp, revisam totes les regles i acumulem quines accions efectivament s'apliquen
+        for (Camp dada: dades) {
+            CampFormProperties campFormProperties = getDefaultCampFormProperties();
+            boolean defaultVisible = !dada.isOcult();
+            campFormProperties.setVisible(!dada.isOcult());
+            boolean defaultEditable = true;
+            boolean defaultObligatori = false;
+            boolean defaultObligatoriEntrada = false;
+            boolean defaultObligatoriSignat = false;
+            boolean defaultObligatoriNotificat = false;
+
+            for (EstatRegla regla : regles) {
+                VariableFact variableFact = VariableFact.builder()
+                        .qui(regla.getQui())
+                        .quiValors(getCodiValors(regla.getQuiValor()))
+                        .que(regla.getQue())
+                        .queValors(getCodiValors(regla.getQueValor()))
+                        .accio(regla.getAccio())
+                        .usuariCodi(usuariCodi)
+                        .usuariRols(usuariRols)
+                        .tipus(TipusVarEnum.DADA)
+                        .varCodi(dada.getCodi())
+                        .agrupacioCodi(dada.getAgrupacio() != null ? dada.getAgrupacio().getCodi() : null)
+                        .visible(defaultVisible)
+                        .editable(defaultEditable)
+                        .obligatori(defaultObligatori)
+                        .obligatoriEntrada(defaultObligatoriEntrada)
+                        .obligatoriSignat(defaultObligatoriSignat)
+                        .obligatoriNotificat(defaultObligatoriNotificat)
+                        .build();
+
+                Facts facts = new Facts();
+                facts.put("fact", variableFact);
+                rulesEngine.fire(rules, facts);
+
+                // Si aplica la regla (es va complir qui->que), marquem l'acció corresponent
+                if (variableFact.isAplicaReglaQue()) {
+                    switch (regla.getAccio()) {
+                        case MOSTRAR: campFormProperties.setVisible(true); break;
+                        case OCULTAR: campFormProperties.setVisible(false); break;
+                        case EDITAR: campFormProperties.setEditable(true); break;
+                        case BLOQUEJAR: campFormProperties.setEditable(false); break;
+                        case REQUERIR: campFormProperties.setObligatori(true); break;
+                        case REQUERIR_ENTRAR: campFormProperties.setObligatoriEntrada(true); break;
+                        default: break;
+                    }
+                }
+            }
+            campFormPropertiesMap.put(dada.getCodi(), campFormProperties);
+        }
+
+        return campFormPropertiesMap;
+    }
+
+    public Map<String, CampFormProperties> getDocumentFormProperties(ExpedientTipus expedientTipus, Estat estat) {
+        Map<String, CampFormProperties> campFormPropertiesMap = new HashMap<String, CampFormProperties>();
+        if (estat == null)
+            return campFormPropertiesMap;
+
+        List<EstatRegla> regles = new ArrayList<EstatRegla>();
+        if (expedientTipus.getExpedientTipusPare() != null){
+        	// Regles heretades
+        	regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus.getExpedientTipusPare()));
+        }
+        // Regles a nivell de tipus d'expedient
+        regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus));
+        // Regles de l'estat
+        regles.addAll(estatReglaRepository.findByEstatOrderByOrdreAsc(estat));
+        
+        if (regles == null || regles.isEmpty())
+            return campFormPropertiesMap;
+        List<Document> documents = documentRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
+        if (documents == null || documents.isEmpty())
+            return campFormPropertiesMap;
+
+        String usuariCodi = SecurityContextHolder.getContext().getAuthentication().getName();
+        Set<String> usuariRols = new HashSet<String>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        for (GrantedAuthority ga: auth.getAuthorities())
+            usuariRols.add(ga.getAuthority());
+
+        for(Document document: documents) {
+        	CampFormProperties campFormProperties = getDefaultCampFormProperties();
+            for(EstatRegla regla: regles) {
+                VariableFact variableFact = VariableFact.builder()
+                        .qui(regla.getQui())
+                        .quiValors(getCodiValors(regla.getQuiValor()))
+                        .que(regla.getQue())
+                        .queValors(getCodiValors(regla.getQueValor()))
+                        .accio(regla.getAccio())
+                        .usuariCodi(usuariCodi)
+                        .usuariRols(usuariRols)
+                        .tipus(TipusVarEnum.DOCUMENT)
+                        .varCodi(document.getCodi())
+                        .agrupacioCodi(null)
+                        .visible(campFormProperties.isVisible())
+                        .editable(campFormProperties.isEditable())
+                        .obligatori(campFormProperties.isObligatori())
+                        .obligatoriEntrada(campFormProperties.isObligatoriEntrada())
+                        .obligatoriSignat(campFormProperties.isObligatoriSignat())
+                        .obligatoriNotificat(campFormProperties.isObligatoriNotificat())
+                        .build();
+                Facts facts = new Facts();
+                facts.put("fact", variableFact);
+                rulesEngine.fire(rules, facts);
+                
+                // Si aplica la regla (es va complir qui->que), marquem l'acció corresponent
+                if (variableFact.isAplicaReglaQue()) {
+                    switch (regla.getAccio()) {
+                        case MOSTRAR: campFormProperties.setVisible(true); break;
+                        case OCULTAR: campFormProperties.setVisible(false); break;
+                        case EDITAR: campFormProperties.setEditable(true); break;
+                        case BLOQUEJAR: campFormProperties.setEditable(false); break;
+                        case REQUERIR: campFormProperties.setObligatori(true); break;
+                        case REQUERIR_ENTRAR: campFormProperties.setObligatoriEntrada(true); break;
+                        case SIGNAT: campFormProperties.setObligatoriSignat(true); break;
+                        case NOTIFICAT: campFormProperties.setObligatoriNotificat(true); break;
+                        default: break;
+                    }
+                }
+            }
+            campFormPropertiesMap.put(document.getCodi(), campFormProperties);
+        }
+
+        return campFormPropertiesMap;
+    }
+
+    public Map<String, CampFormProperties> getTerminisFormProperties(ExpedientTipus expedientTipus, Estat estat) {
+        Map<String, CampFormProperties> campFormPropertiesMap = new HashMap<String, CampFormProperties>();
+        if (estat == null)
+            return campFormPropertiesMap;
+
+        List<EstatRegla> regles = new ArrayList<EstatRegla>();
+        if (expedientTipus.getExpedientTipusPare() != null){
+        	// Regles heretades
+        	regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus.getExpedientTipusPare()));
+        }
+        // Regles a nivell de tipus d'expedient
+        regles.addAll(estatReglaRepository.findByExpedientTipusAndEstatIsNullOrderByOrdreAsc(expedientTipus));
+        // Regles de l'estat
+        regles.addAll(estatReglaRepository.findByEstatOrderByOrdreAsc(estat));
+
+        if (regles == null || regles.isEmpty())
+            return campFormPropertiesMap;
+        List<Termini> terminis = terminiRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
+        if (terminis == null || terminis.isEmpty())
+            return campFormPropertiesMap;
+
+        String usuariCodi = SecurityContextHolder.getContext().getAuthentication().getName();
+        Set<String> usuariRols = new HashSet<String>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        for (GrantedAuthority ga: auth.getAuthorities())
+            usuariRols.add(ga.getAuthority());
+
+        Facts facts = new Facts();
+        for(Termini termini: terminis) {
+            CampFormProperties campFormProperties = getDefaultCampFormProperties();
+            for(EstatRegla regla: regles) {
+                VariableFact variableFact = VariableFact.builder()
+                        .qui(regla.getQui())
+                        .quiValors(getCodiValors(regla.getQuiValor()))
+                        .que(regla.getQue())
+                        .queValors(getCodiValors(regla.getQueValor()))
+                        .accio(regla.getAccio())
+                        .usuariCodi(usuariCodi)
+                        .usuariRols(usuariRols)
+                        .tipus(TipusVarEnum.TERMINI)
+                        .varCodi(termini.getCodi())
+                        .agrupacioCodi(null)
+                        .visible(campFormProperties.isVisible())
+                        .editable(campFormProperties.isEditable())
+                        .obligatori(campFormProperties.isObligatori())
+                        .obligatoriEntrada(campFormProperties.isObligatoriEntrada())
+                        .build();
+                facts.put("fact", variableFact);
+                rulesEngine.fire(rules, facts);
+                // Si aplica la regla (es va complir qui->que), marquem l'acció corresponent
+                if (variableFact.isAplicaReglaQue()) {
+                    switch (regla.getAccio()) {
+                        case MOSTRAR: campFormProperties.setVisible(true); break;
+                        case OCULTAR: campFormProperties.setVisible(false); break;
+                        case EDITAR: campFormProperties.setEditable(true); break;
+                        case BLOQUEJAR: campFormProperties.setEditable(false); break;
+                        case REQUERIR: campFormProperties.setObligatori(true); break;
+                        case REQUERIR_ENTRAR: campFormProperties.setObligatoriEntrada(true); break;
+                        default: break;
+                    }
+                }
+            }
+            campFormPropertiesMap.put(termini.getCodi(), campFormProperties);
+        }
+
+        return campFormPropertiesMap;
+    }
+
+    private CampFormProperties getCampFormProperties(VariableFact fact) {
+        return CampFormProperties.builder()
+                .visible(fact.isVisible())
+                .editable(fact.isEditable())
+                .obligatori(fact.isObligatori())
+                .obligatoriEntrada(fact.isObligatoriEntrada())
+                .obligatoriSignat(fact.isObligatoriSignat())
+                .build();
+    }
+
+    private CampFormProperties getDefaultCampFormProperties() {
+        return CampFormProperties.builder()
+                .visible(true)
+                .editable(true)
+                .obligatori(false)
+                .obligatoriEntrada(false)
+                .obligatoriSignat(false)
+                .build();
+    }
+
+    private Set<String> getCodiValors(Set<String> valors) {
+        if (valors == null)
+            return null;
+
+        Set<String> codis = new HashSet<String>();
+        for(String valor: valors) {
+            codis.add(valor.split(" \\| ")[0]);
+        }
+        return codis;
+    }
+
+    /** Mètode comú per actualitzar les regles d'un tipus d'expedient quan es canviï el codi o etiqueta d'un
+     * camp, document, agrupació o termini.
+     * 
+     * @param expedientTipus
+     * @param estatReglaValor
+     * @param newEstatReglaValor
+     * @param dada
+     */
+    @Transactional
+	public void updateReglaValor(
+			ExpedientTipus expedientTipus, 
+			String estatReglaValor, 
+			String newEstatReglaValor, 
+			QueEnum dada) {
+
+		// Si canvia el nom actualitza les regles que hi facin referència
+		if (expedientTipus != null 
+				&& expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.ESTAT 
+				&& !newEstatReglaValor.equals(estatReglaValor)) {
+			for (EstatRegla regla : estatReglaRepository.findByExpedientTipusAndValor(expedientTipus, dada, estatReglaValor)) {
+				if (regla.getQueValor().contains(estatReglaValor)) {
+					regla.getQueValor().remove(estatReglaValor);
+					regla.getQueValor().add(newEstatReglaValor);
+				}
+			}
+		}		
+	}
+    
+
+    /** Mètode comú per esborrar de les regles d'un tipus d'expedient els valors quan s'elimini un
+     * camp, document, agrupació o termini.
+     * 
+     * @param expedientTipus
+     * @param estatReglaValor
+     * @param newEstatReglaValor
+     * @param dada
+     */
+    @Transactional
+	public void deleteReglaValor(
+			ExpedientTipus expedientTipus, 
+			String estatReglaValor, 
+			QueEnum dada) {
+
+		// Si canvia el nom actualitza les regles que hi facin referència
+		if (expedientTipus != null 
+				&& expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.ESTAT) {
+			for (EstatRegla regla : estatReglaRepository.findByExpedientTipusAndValor(expedientTipus, dada, estatReglaValor)) {
+				Iterator<String> valorI = regla.getQueValor().iterator();
+				while (valorI.hasNext()) {
+					String valor = valorI.next();
+					if (valor.equals(estatReglaValor)) {
+						valorI.remove();
+					}
+				}
+			}
+		}
+    }
+}

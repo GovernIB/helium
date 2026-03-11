@@ -6,7 +6,7 @@ package es.caib.helium.back.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
-import es.caib.helium.logic.intf.config.BaseConfig;
+import es.caib.helium.commons.config.BaseConfig;
 
 /**
  * Configuració de les propietats de l'aplicació a partir de les propietats de

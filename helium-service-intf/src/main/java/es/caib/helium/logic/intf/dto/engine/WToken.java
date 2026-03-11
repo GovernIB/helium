@@ -5,7 +5,7 @@ import java.util.Date;
 
 public interface WToken {
 
-	String getId();
+	Long getId();
 
 	String getName();
 
@@ -33,5 +33,13 @@ public interface WToken {
 
 	String getParentTokenFullName();
 
-	String getProcessInstanceId();	
+	String getProcessInstanceId();
+
+	WToken getToken();
+
+	WProcessInstance getProcessInstance();
+
+	WToken getParent();
+
+	WNode getNode();	
 }

@@ -15,12 +15,17 @@
 		<implementation.vendor>Límit Tecnologies</implementation.vendor>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
+		<hibernate.validator.version></hibernate.validator.version>
+		<metrics.version>3.1.2</metrics.version>
 		<keycloak.version>22.0.4</keycloak.version>
 		<orika.version>1.5.4</orika.version>
 		<sitemesh.version>2.5.0</sitemesh.version>
 		<skipTests>true</skipTests>
 		<version.date>2026.02.23 18:00h</version.date>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<commons-lang.version>2.6</commons-lang.version>
+		<cxf.version>2.2.10</cxf.version>
+		<lucene.version>2.9.4</lucene.version>
 	</properties>
 	<profiles>
 		<profile>
@@ -32,8 +37,9 @@
 		</profile>
 	</profiles>
 	<modules>
-		<module>helium-service-intf</module>
+		<module>helium-commons</module>
 		<module>helium-persistence</module>
+		<module>helium-service-intf</module>
 		<module>helium-service</module>
 		<module>helium-ejb</module>
 		<module>helium-back</module>

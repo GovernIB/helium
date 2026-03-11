@@ -24,7 +24,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.PropertySource;
 
-import es.caib.helium.logic.intf.config.BaseConfig;
+import es.caib.helium.commons.config.BaseConfig;
 import lombok.extern.slf4j.Slf4j;
 
 /**

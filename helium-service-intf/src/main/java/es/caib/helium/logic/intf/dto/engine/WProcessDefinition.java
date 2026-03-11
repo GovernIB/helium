@@ -1,5 +1,7 @@
 package es.caib.helium.logic.intf.dto.engine;
 
+import java.util.Map;
+
 public interface WProcessDefinition {
 
     public String getDeploymentId();
@@ -9,7 +11,7 @@ public interface WProcessDefinition {
     public int getVersion();
     public String getCategory();
 
-//    public Object getProcessDefinition();
+    public WProcessDefinition getProcessDefinition();
 
 //    /** Tracta el contingut i retorna una definició de procés.
 //     *
@@ -20,6 +22,11 @@ public interface WProcessDefinition {
 //    public WProcessDefinition parse(ZipInputStream zipInputStream ) throws Exception;
 //
 //    /** Retorna la llista d'arxius de la definició de procés. */
-//    public Map<String, byte[]> getFiles();
+    public Map<String, byte[]> getFiles();
+	public WFileDefinition getFileDefinition();
+	
+	public interface WFileDefinition {
+		Map<String, byte[]> getBytesMap();
+	}
 
 }

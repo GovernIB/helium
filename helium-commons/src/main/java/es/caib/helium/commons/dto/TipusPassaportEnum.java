@@ -1,0 +1,20 @@
+package es.caib.helium.commons.dto;
+
+import java.io.Serializable;
+
+public enum TipusPassaportEnum implements Serializable {
+	AR,
+	AS,
+	CE,
+	DN,
+	IN,
+	LN,
+	OT,
+	PA,
+	PD,
+	SC,
+	TA,
+	TD,
+	TU,
+	TV
+}
