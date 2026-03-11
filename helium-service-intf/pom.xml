@@ -6,4 +6,11 @@
     <version>4.0</version>
   </parent>
   <artifactId>helium-service-intf</artifactId>
+  <dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>	  
+  </dependencies>
 </project>
