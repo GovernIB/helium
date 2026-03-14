@@ -2311,7 +2311,6 @@ public class DocumentHelperV3 {
 				referenciaCustodia = documentStore.getId() + "_" + new Date().getTime();
 			}
 			
-			boolean hasErrors = false;
 			try {
 
 				referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
@@ -2332,16 +2331,9 @@ public class DocumentHelperV3 {
 				if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
 					// ja està archivat
 				} else {
-					hasErrors = true;
-					//throw ex;
+					throw ex;
 				}
 			}
-			
-			if(hasErrors) {
-				documentStore.setArxiuContingut(signatura);
-				documentStore.setArxiuNom(arxiuNom);
-			}
-
 			if (expedient.isNtiActiu()) {
 				actualitzarNtiFirma(documentStore, null);
 			}
