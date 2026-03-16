@@ -41,6 +41,7 @@ import es.caib.helium.commons.dto.IntegracioAccioDto;
 import es.caib.helium.commons.dto.IntegracioAccioEstatEnumDto;
 import es.caib.helium.commons.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.logic.intf.service.SalutService;
+import es.caib.helium.logic.intf.util.DatesUtils;
 import es.caib.helium.persistence.entity.Avis;
 import es.caib.helium.persistence.repository.AvisRepository;
 import es.caib.helium.service.helper.MonitorIntegracioHelper;
@@ -123,7 +124,7 @@ public class SalutServiceImpl implements SalutService {
 		return SalutInfo.builder()
 				.codi("HEL")
 				.versio(versio)
-				.data(new Date())
+				.data(DatesUtils.toOffsetDateTime(lastCheckout))
 				.estatGlobal(estatSalut)
 				.estatBaseDeDades(salutDatabase)
 				.integracions(integracions)

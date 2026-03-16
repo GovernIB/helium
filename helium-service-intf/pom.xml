@@ -48,6 +48,12 @@
 			<version>${metrics.version}</version>
     		<scope>compile</scope>
 		</dependency>
+
+		<dependency>
+            <groupId>es.caib.comanda</groupId>
+            <artifactId>comanda-lib</artifactId>
+            <version>0.1.0.1</version>
+        </dependency>
         
         <!-- Flowable --> 
 		<dependency>

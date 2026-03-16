@@ -12,7 +12,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -25,6 +24,7 @@ import es.caib.comanda.model.v1.tasca.TascaEstat;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.service.utils.GlobalProperties;
 
+import es.caib.helium.logic.intf.util.DatesUtils;
 
 /**
  * 
@@ -100,9 +100,9 @@ public class ComandaHelper {
 							.estatDescripcio(null)
 							.numeroExpedient(expedientNumero)
 							.prioritat(Prioritat.NORMAL)
-							.dataInici(task.getStartTime())
-							.dataFi(task.getEndTime())
-							.dataCaducitat(task.getDueDate())
+							.dataInici(DatesUtils.toOffsetDateTime(task.getStartTime()))
+							.dataFi(DatesUtils.toOffsetDateTime(task.getEndTime()))
+							.dataCaducitat(DatesUtils.toOffsetDateTime(task.getDueDate()))
 							.redireccio(new URL(HELIUM_BASE_URL + "/v3/tasca/" + taskId))
 							.grup(null)
 							.responsable(task.getActorId())
@@ -139,9 +139,9 @@ public class ComandaHelper {
 		tasca.setEstatDescripcio(null);
 		tasca.setNumeroExpedient(expedientNumero);
 		tasca.setPrioritat(Prioritat.NORMAL);
-		tasca.setDataInici(task.getStartTime());
-		tasca.setDataFi(task.getEndTime());
-		tasca.setDataCaducitat(task.getDueDate());
+		tasca.setDataInici(DatesUtils.toOffsetDateTime(task.getStartTime()));
+		tasca.setDataFi(DatesUtils.toOffsetDateTime(task.getEndTime()));
+		tasca.setDataCaducitat(DatesUtils.toOffsetDateTime(task.getDueDate()));
 		tasca.setRedireccio(new URL(HELIUM_BASE_URL + "/v3/tasca/" + taskId));
 		tasca.setGrup(null);
 		tasca.setResponsable(task.getActorId());
