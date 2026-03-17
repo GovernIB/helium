@@ -21,7 +21,7 @@ import es.caib.helium.persistence.repository.AlertaRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class AlertaHelper {
 
 	/** Llargada màxima del camp text. */

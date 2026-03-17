@@ -49,7 +49,7 @@ import es.caib.helium.service.helper.TascaSegonPlaHelper.InfoSegonPla;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class TascaHelper {
 
 	@Resource

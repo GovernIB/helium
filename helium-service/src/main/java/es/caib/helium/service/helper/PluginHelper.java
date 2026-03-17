@@ -191,7 +191,7 @@ import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component("pluginHelperV3")
+@Component("pluginHelperV3")
 public class PluginHelper {
 
 	private static final String CACHE_PERSONA_ID = "personaPluginCache";

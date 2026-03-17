@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
-//@Component
+@Component
 public class ProcesCallbackHelper {
 	
 	private List<Integer> idsDocumentsProcessant = new ArrayList<Integer>();

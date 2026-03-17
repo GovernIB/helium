@@ -17,6 +17,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -31,8 +32,6 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dto.TerminiDto;
@@ -45,14 +44,6 @@ import es.caib.helium.commons.dto.TerminiDto;
 @Entity
 @Table(	name="hel_camp",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_camp",
-		indexes = {
-				@Index(name = "hel_camp_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_camp_exptip_i", columnNames = {"expedient_tipus_id"}),
-				@Index(name = "hel_camp_agrup_i", columnNames = {"camp_agrupacio_id"}),
-				@Index(name = "hel_camp_domini_i", columnNames = {"domini_id"}),
-				@Index(name = "hel_camp_enum_i", columnNames = {"enumeracio_id"})})
 public class Camp implements Serializable, GenericEntity<Long> {
 
 	public enum TipusCamp {
@@ -254,8 +245,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	
 	@ManyToOne(optional=true)
-	@JoinColumn(name="definicio_proces_id")
-	@ForeignKey(name="hel_defproc_camp_fk")
+	@JoinColumn(name="definicio_proces_id", foreignKey=@ForeignKey(name="hel_defproc_camp_fk"))
 	public DefinicioProces getDefinicioProces() {
 		return definicioProces;
 	}
@@ -264,8 +254,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptip_camp_fk")
+	@JoinColumn(name="expedient_tipus_id", foreignKey=@ForeignKey(name="hel_exptip_camp_fk"))
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}
@@ -274,8 +263,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="camp_agrupacio_id")
-	@ForeignKey(name="hel_campagrup_camp_fk")
+	@JoinColumn(name="camp_agrupacio_id", foreignKey=@ForeignKey(name="hel_campagrup_camp_fk"))
 	public CampAgrupacio getAgrupacio() {
 		return agrupacio;
 	}
@@ -284,8 +272,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="domini_id")
-	@ForeignKey(name="hel_domini_camp_fk")
+	@JoinColumn(name="domini_id", foreignKey=@ForeignKey(name="hel_domini_camp_fk"))
 	public Domini getDomini() {
 		return domini;
 	}
@@ -303,8 +290,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@ManyToOne(optional=true)
-	@JoinColumn(name="enumeracio_id")
-	@ForeignKey(name="hel_enumeracio_camp_fk")
+	@JoinColumn(name="enumeracio_id", foreignKey=@ForeignKey(name="hel_enumeracio_camp_fk"))
 	public Enumeracio getEnumeracio() {
 		return enumeracio;
 	}
@@ -609,8 +595,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	
 	@ManyToOne(optional=true)
-    @JoinColumn(name="consulta_id")
-    @ForeignKey(name="hel_consulta_camp_fk")
+    @JoinColumn(name="consulta_id", foreignKey=@ForeignKey(name="hel_consulta_camp_fk"))
     public Consulta getConsulta() {
         return consulta;
     }

@@ -31,11 +31,6 @@ import org.hibernate.annotations.Index;
 @Entity
 @Table(	name="hel_camp_agrup",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_camp_agrup",
-		indexes ={
-				@Index(name = "hel_campagrup_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_campagrup_exptip_i", columnNames = {"expedient_tipus_id"})})
 public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 
 	private Long id;

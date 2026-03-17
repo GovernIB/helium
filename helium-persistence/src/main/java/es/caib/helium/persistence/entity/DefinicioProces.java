@@ -36,12 +36,6 @@ import org.hibernate.annotations.Index;
  */
 @Entity
 @Table(name="hel_definicio_proces")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_definicio_proces",
-		indexes = {
-				@Index(name = "hel_defproc_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_defproc_exptip_i", columnNames = {"expedient_tipus_id"}),
-				@Index(name = "hel_defproc_jbpmid_i", columnNames = {"jbpm_id"})})
 public class DefinicioProces implements Serializable, GenericEntity<Long> {
 
 	private Long id;

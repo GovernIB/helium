@@ -36,7 +36,7 @@ import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class ProcedimentHelper {
 
 	@Autowired

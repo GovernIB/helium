@@ -28,11 +28,6 @@ import org.hibernate.annotations.Index;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name="hel_validacio")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_validacio",
-		indexes = {
-				@Index(name = "hel_validacio_tasca_i", columnNames = {"tasca_id"}),
-				@Index(name = "hel_validacio_camp_i", columnNames = {"camp_id"})})
 public class Validacio implements Serializable, GenericEntity<Long> {
 
 	private Long id;

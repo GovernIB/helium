@@ -29,10 +29,6 @@ import org.hibernate.annotations.Index;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_parametre",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_parametre",
-		indexes = {
-				@Index(name = "hel_parametre_codi", columnNames = {"codi"})})
 public class Parametre implements Serializable, GenericEntity<Long> {
 
 	private Long id;

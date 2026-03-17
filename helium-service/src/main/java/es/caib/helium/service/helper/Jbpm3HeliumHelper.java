@@ -174,7 +174,7 @@ import es.caib.helium.service.utils.StringUtilsHelium;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Resource

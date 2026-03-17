@@ -28,7 +28,7 @@ import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDto;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class PaginacioHelper {
 
 	@Resource

@@ -35,11 +35,6 @@ import es.caib.helium.persistence.common.TerminiStringUtil;
 @Entity
 @Table(	name="hel_termini",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_termini",
-		indexes = {
-				@Index(name = "hel_termini_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_termini_exptip_i", columnNames = {"expedient_tipus_id"})})
 public class Termini implements Serializable, GenericEntity<Long> {
 
 	private Long id;

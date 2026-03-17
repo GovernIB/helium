@@ -13,8 +13,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.sun.jersey.core.util.Base64;
-
 import es.caib.comanda.model.v1.log.FitxerContingut;
 import es.caib.comanda.model.v1.log.FitxerInfo;
 import es.caib.comanda.service.v1.avis.ApiException;
@@ -114,17 +112,18 @@ public class LogServiceImpl implements LogService {
 				throw new ApiException(500, LOGS_LOCATION + " no es una carpeta");
 			
 			List<FitxerInfo> continguts = new ArrayList<FitxerInfo>();
-		
 			for(File f : directori.listFiles()) {
 				if(f.isFile()) {
 					BasicFileAttributes attr = Files.readAttributes(f.toPath(), BasicFileAttributes.class);
 					continguts.add(
-						new FitxerInfo(
-							f.getName(),
-							attr.size(),
-							df.format(new Date(attr.creationTime().toMillis())),
-							df.format(new Date(attr.lastModifiedTime().toMillis()))
-						));
+						FitxerInfo
+							.builder()
+							.nom(f.getName())
+							.mida(attr.size())
+							.mimeType(Files.probeContentType(f.toPath()))
+							.dataCreacio(df.format(new Date(attr.creationTime().toMillis())))
+							.dataModificacio(df.format(new Date(attr.lastModifiedTime().toMillis())))
+							.build());
 				}
 			}
 			return continguts;

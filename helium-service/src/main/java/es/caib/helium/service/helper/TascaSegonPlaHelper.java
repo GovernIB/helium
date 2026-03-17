@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import es.caib.helium.logic.intf.service.TascaService;
 
-//@Component
+@Component
 public class TascaSegonPlaHelper {
 	
 	@Autowired

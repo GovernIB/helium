@@ -45,7 +45,7 @@ import es.caib.helium.service.utils.StringUtilsHelium;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class EmailHelper {
 	@Autowired
 	private JavaMailSender mailSender;

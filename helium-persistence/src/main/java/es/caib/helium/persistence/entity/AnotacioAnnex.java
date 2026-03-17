@@ -44,10 +44,6 @@ import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
  */
 @Entity
 @Table(	name = "hel_anotacio_annex")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_anotacio_annex",
-		indexes = {
-				@Index(name = "hel_anotacio_annex_fk_i", columnNames = {"anotacio_id"})})
 public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 
 	@Id

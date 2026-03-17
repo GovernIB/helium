@@ -45,13 +45,6 @@ import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
 @Entity
 @Table(	name="hel_document",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_document",
-		indexes = {
-				@Index(name = "hel_document_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_document_campdata_i", columnNames = {"camp_data_id"}),
-				@Index(name = "hel_document_exptip_i", columnNames = {"expedient_tipus_id"})
-				})
 public class Document implements Serializable, GenericEntity<Long> {
 
 	@Id

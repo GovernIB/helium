@@ -33,11 +33,6 @@ import org.hibernate.annotations.Index;
 @Entity
 @Table(	name="hel_tasca",
 		uniqueConstraints={@UniqueConstraint(columnNames={"jbpm_name", "definicio_proces_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_tasca",
-		indexes = {
-				@Index(name = "hel_tasca_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_tasca_jbpmname_i", columnNames = {"jbpm_name"})})
 public class Tasca implements Serializable, GenericEntity<Long> {
 
 	public enum TipusTasca {

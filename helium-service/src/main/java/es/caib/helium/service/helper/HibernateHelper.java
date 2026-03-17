@@ -26,7 +26,7 @@ import es.caib.helium.service.helpers.MesuresTemporalsHelper;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class HibernateHelper {
 
 	@Resource

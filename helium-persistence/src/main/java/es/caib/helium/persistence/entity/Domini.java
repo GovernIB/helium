@@ -31,11 +31,6 @@ import org.hibernate.annotations.Index;
 @Entity
 @Table(	name="hel_domini",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "expedient_tipus_id", "entorn_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_domini",
-		indexes = {
-				@Index(name = "hel_domini_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_domini_exptip_i", columnNames = {"expedient_tipus_id"})})
 public class Domini implements Serializable, GenericEntity<Long> {
 
 	public enum TipusDomini {

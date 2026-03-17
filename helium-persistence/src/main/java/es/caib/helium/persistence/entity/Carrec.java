@@ -33,11 +33,6 @@ import es.caib.helium.persistence.entity.Persona.Sexe;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_carrec",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_carrec",
-		indexes = {
-				@Index(name = "hel_carrec_area_i", columnNames = {"area_id"}),
-				@Index(name = "hel_carrec_entorn_i", columnNames = {"entorn_id"})})
 public class Carrec implements Serializable, GenericEntity<Long> {
 
 	private Long id;

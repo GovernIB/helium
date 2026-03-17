@@ -75,7 +75,7 @@ import net.sf.ehcache.Element;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class DominiHelper {
 
 	private static final String CACHE_DOMINI_ID = "dominiCache";

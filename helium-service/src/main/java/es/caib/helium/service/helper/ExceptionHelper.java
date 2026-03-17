@@ -20,7 +20,7 @@ import es.caib.helium.commons.dto.ExcepcioLogDto;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class ExceptionHelper {
 
 	private LinkedList<ExcepcioLogDto> excepcions = new LinkedList<ExcepcioLogDto>();

@@ -32,7 +32,7 @@ import es.caib.helium.persistence.repository.DefinicioProcesRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class ConsultaHelper {
 	@Resource
 	private VariableHelper variableHelper;	

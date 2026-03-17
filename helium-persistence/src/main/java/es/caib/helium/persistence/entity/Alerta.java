@@ -29,11 +29,6 @@ import org.hibernate.annotations.Index;
  */
 @Entity
 @Table(name="hel_alerta")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_alerta",
-		indexes = {
-				@Index(name = "hel_alerta_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_alerta_expedient_i", columnNames = {"expedient_id"})})
 public class Alerta implements Serializable, GenericEntity<Long> {
 
 	public enum AlertaPrioritat {

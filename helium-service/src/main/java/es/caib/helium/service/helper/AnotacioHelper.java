@@ -79,7 +79,7 @@ import es.caib.helium.logic.intf.service.WorkflowEngineApi;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class AnotacioHelper {
 	@Resource
 	private AnotacioRepository anotacioRepository;

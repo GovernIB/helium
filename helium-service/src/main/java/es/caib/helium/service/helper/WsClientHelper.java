@@ -14,7 +14,7 @@ import es.caib.helium.service.utils.ws.WsClientUtils;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class WsClientHelper {
 
 	public enum WsClientAuth {

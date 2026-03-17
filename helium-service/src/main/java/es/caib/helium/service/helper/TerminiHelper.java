@@ -33,7 +33,7 @@ import es.caib.helium.service.utils.GlobalProperties;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component("TerminiHelperV3")
+@Component("TerminiHelperV3")
 public class TerminiHelper {
 
 	@Resource

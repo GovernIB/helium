@@ -75,7 +75,7 @@ import es.caib.helium.service.helpers.MesuresTemporalsHelper;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class ExpedientLoggerHelper {
 
 	public static final String MESSAGE_LOG_PREFIX = "[H3l1um]";

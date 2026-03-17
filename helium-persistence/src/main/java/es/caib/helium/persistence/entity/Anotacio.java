@@ -40,11 +40,6 @@ import es.caib.helium.commons.dto.ArxiuEstat;
  */
 @Entity
 @Table(name = "hel_anotacio")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_anotacio",
-		indexes = {
-				@Index(name = "hel_anotacio_expedient_fk_i", columnNames = {"expedient_id"}),
-				@Index(name = "hel_anotacio_et_fk_i", columnNames = {"expedient_tipus_id"})})
 public class Anotacio implements Serializable, GenericEntity<Long> {
 
 	

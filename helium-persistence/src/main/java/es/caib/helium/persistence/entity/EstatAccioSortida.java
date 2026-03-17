@@ -34,10 +34,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name="HEL_ESTAT_ACCIO_SORTIDA")
-@org.hibernate.annotations.Table(
-        appliesTo = "HEL_ESTAT_ACCIO_SORTIDA",
-        indexes = {
-                @Index(name = "hel_estacc_sort_estat_fk_i", columnNames = {"estat_id"})})
 public class EstatAccioSortida implements Serializable, GenericEntity<Long> {
 
 	private static final long serialVersionUID = -4527982774750769578L;

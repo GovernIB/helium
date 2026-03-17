@@ -22,7 +22,7 @@ import es.caib.helium.persistence.repository.ParametreRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class ParametreHelper {
 	
 	@Autowired

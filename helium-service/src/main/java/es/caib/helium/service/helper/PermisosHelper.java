@@ -49,7 +49,7 @@ import es.caib.helium.service.security.ExtendedPermission;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component("permisosHelperV3")
+@Component("permisosHelperV3")
 public class PermisosHelper {
 
 	@Resource

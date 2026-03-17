@@ -38,11 +38,6 @@ import org.hibernate.annotations.Type;
 @Entity
 @Table(	name="hel_consulta",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_consulta",
-		indexes = {
-				@Index(name = "hel_consulta_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_consulta_exptip_i", columnNames = {"expedient_tipus_id"})})
 public class Consulta implements Serializable, GenericEntity<Long> {
 
 	private Long id;

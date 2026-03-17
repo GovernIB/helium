@@ -16,7 +16,7 @@ import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.PeticioPinbal;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;
 
-//@Component
+@Component
 public class ConsultaPinbalHelper {
 
 	@Resource private PeticioPinbalRepository peticioPinbalRepository;

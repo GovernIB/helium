@@ -34,12 +34,6 @@ import es.caib.helium.commons.dto.AccioTipusEnumDto;
 @Entity
 @Table(	name="hel_accio",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_accio",
-		indexes = { 
-				@Index(name = "hel_accio_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_accio_extip_i", columnNames = {"expedient_tipus_id"})
-		})
 public class Accio implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -94,7 +88,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.id = id;
 	}
 
-//	@Column(name="codi", length=64, nullable=false)
+	@Column(name="codi", length=64, nullable=false)
 	public String getCodi() {
 		return codi;
 	}
@@ -102,7 +96,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.codi = codi;
 	}
 
-//	@Column(name="nom", length=255, nullable=false)
+	@Column(name="nom", length=255, nullable=false)
 	public String getNom() {
 		return nom;
 	}
@@ -110,7 +104,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.nom = nom;
 	}
 
-//	@Column(name="descripcio", length=255)
+	@Column(name="descripcio", length=255)
 	public String getDescripcio() {
 		return descripcio;
 	}
@@ -127,7 +121,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.tipus = tipus;
 	}
 	
-//	@Column(name="jbpm_action", length=255, nullable=false)
+	@Column(name="jbpm_action", length=255, nullable=false)
 	public String getJbpmAction() {
 		return jbpmAction;
 	}
@@ -143,7 +137,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.script = script;
 	}
 
-//	@Column(name="publica")
+	@Column(name="publica")
 	public boolean isPublica() {
 		return publica;
 	}
@@ -151,7 +145,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.publica = publica;
 	}
 
-//	@Column(name="oculta")
+	@Column(name="oculta")
 	public boolean isOculta() {
 		return oculta;
 	}
@@ -159,7 +153,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.oculta = oculta;
 	}
 
-//	@Column(name="cron", length=255)
+	@Column(name="cron", length=255)
 	public String getCron() {
 		return cron;
 	}
@@ -167,7 +161,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.cron = cron;
 	}
 
-//	@Column(name="rols", length=512)
+	@Column(name="rols", length=512)
 	public String getRols() {
 		return rols;
 	}
@@ -175,9 +169,9 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.rols = rols;
 	}
 
-//	@ManyToOne(optional=true)
-//	@JoinColumn(name="definicio_proces_id")
-////	@ForeignKey(name="hel_defproc_accio_fk")
+	@ManyToOne(optional=true)
+	@JoinColumn(name="definicio_proces_id")
+	@ForeignKey(name="hel_defproc_accio_fk")
 	public DefinicioProces getDefinicioProces() {
 		return definicioProces;
 	}
@@ -185,9 +179,9 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.definicioProces = definicioProces;
 	}
 
-//	@ManyToOne(optional=true)
-//	@JoinColumn(name="expedient_tipus_id")
-//	@ForeignKey(name="hel_exptip_accio")
+	@ManyToOne(optional=true)
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_exptip_accio")
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}
@@ -195,7 +189,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.expedientTipus = expedientTipus;
 	}
 	
-//	@Column(name="defproc_jbpmkey", length=255)
+	@Column(name="defproc_jbpmkey", length=255)
 	public String getDefprocJbpmKey() {
 		return defprocJbpmKey;
 	}
@@ -203,7 +197,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.defprocJbpmKey = defprocJbpmKey;
 	}
 
-//	@Column(name="handler_classe", length=255)
+	@Column(name="handler_classe", length=255)
 	public String getHandlerClasse() {
 		return handlerClasse;
 	}
@@ -211,7 +205,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.handlerClasse = handlerClasse;
 	}
 	
-//	@Column(name="handler_dades", length=255)
+	@Column(name="handler_dades", length=255)
 	public String getHandlerDades() {
 		return handlerDades;
 	}
@@ -219,7 +213,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.handlerDades = handlerDades;
 	}
 
-//	@Override
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -236,7 +230,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 				+ ((handlerClasse == null) ? 0 : handlerClasse.hashCode());
 		return result;
 	}
-//	@Override
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

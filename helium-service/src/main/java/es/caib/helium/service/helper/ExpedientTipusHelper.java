@@ -43,7 +43,7 @@ import es.caib.helium.service.security.ExtendedPermission;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class ExpedientTipusHelper {
 
 	@Resource

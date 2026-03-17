@@ -43,9 +43,6 @@ import es.caib.helium.persistence.common.TerminiStringUtil;
 @Entity
 @Table(	name="hel_termini_iniciat",
 		uniqueConstraints={@UniqueConstraint(columnNames={"termini_id", "process_instance_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_termini_iniciat",
-		indexes = @Index(name = "hel_terminic_termini_i", columnNames = {"termini_id"}))
 public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 
 	public enum TerminiIniciatEstat {

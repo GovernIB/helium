@@ -32,10 +32,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name="HEL_ESTAT_REGLA_VALOR")
-@org.hibernate.annotations.Table(
-        appliesTo = "HEL_ESTAT_REGLA_VALOR",
-        indexes = {
-                @Index(name = "hel_regla_valor_fk_i", columnNames = {"regla_id"})})
 public class EstatReglaValor implements Serializable {
 
     @Id

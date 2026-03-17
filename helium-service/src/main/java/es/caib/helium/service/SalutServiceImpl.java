@@ -1,6 +1,5 @@
 package es.caib.helium.service;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,9 +21,9 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 
 import es.caib.comanda.model.v1.salut.ContextInfo;
-import es.caib.comanda.model.v1.salut.DetallSalut;
 import es.caib.comanda.model.v1.salut.EstatSalut;
 import es.caib.comanda.model.v1.salut.EstatSalutEnum;
+import es.caib.comanda.model.v1.salut.InformacioSistema;
 import es.caib.comanda.model.v1.salut.IntegracioApp;
 import es.caib.comanda.model.v1.salut.IntegracioInfo;
 import es.caib.comanda.model.v1.salut.IntegracioPeticions;
@@ -35,7 +34,6 @@ import es.caib.comanda.model.v1.salut.SalutInfo;
 import es.caib.comanda.model.v1.salut.SalutNivell;
 import es.caib.comanda.model.v1.salut.SubsistemaInfo;
 import es.caib.comanda.ms.salut.helper.MonitorHelper;
-import es.caib.comanda.ms.salut.helper.MonitorHelper.DiskUsage;
 import es.caib.helium.commons.dto.AvisNivellEnumDto;
 import es.caib.helium.commons.dto.IntegracioAccioDto;
 import es.caib.helium.commons.dto.IntegracioAccioEstatEnumDto;
@@ -110,7 +108,7 @@ public class SalutServiceImpl implements SalutService {
 		EstatSalut estatSalut = checkEstatSalut(performanceUrl);		// Estat
 		EstatSalut salutDatabase = checkDatabase();						// Base de dades
 		List<IntegracioSalut> integracions = checkIntegracions();		// Integracions
-		List<DetallSalut> altres = checkAltres();						// Altres
+		//List<DetallSalut> altres = checkAltres();						// Altres
 		List<MissatgeSalut> missatges = checkMissatges();				// Missatges
 		EstatSalutEnum estatGlobalSubsistemes = EstatSalutEnum.UP;
 
@@ -129,7 +127,7 @@ public class SalutServiceImpl implements SalutService {
 				.estatBaseDeDades(salutDatabase)
 				.integracions(integracions)
 				.subsistemes(null)
-				//.altres(altres)
+				.informacioSistema(MonitorHelper.getInfoSistema())
 				.missatges(missatges)
 				.build();
 	}
@@ -298,26 +296,9 @@ public class SalutServiceImpl implements SalutService {
 		return total / nums.size();
 	}
 
-	public List<DetallSalut> checkAltres() {
+	public InformacioSistema checkInformacioSistema() {
 		try {
-			Long totalSpace = 0L;
-			Long freeSpace = 0L;
-			
-			for (DiskUsage root : MonitorHelper.getDisksUsage()) {
-				totalSpace = root.getTotalSpace();
-				freeSpace = root.getFreeSpace();
-			}
-			
-			return Lists.newArrayList(
-				DetallSalut.builder().codi("PRC").nom("Processadors").valor(String.valueOf(MonitorHelper.getCpuUsage().getCores())).build(),
-				DetallSalut.builder().codi("SCPU").nom("Càrrega del sistema").valor(MonitorHelper.getCpuUsage().getFormatedSystemCpuLoad()).build(),
-				DetallSalut.builder().codi("PCPU").nom("Càrrega del procés").valor(MonitorHelper.getCpuUsage().getFormatedProcessCpuLoad()).build(),
-				DetallSalut.builder().codi("MED").nom("Memòria disponible").valor(MonitorHelper.getPhisicalMemory().getFormatedFreeMemory()).build(),
-				DetallSalut.builder().codi("MET").nom("Memòria total").valor(MonitorHelper.getPhisicalMemory().getFormatedTotalMemory()).build(),
-				DetallSalut.builder().codi("EDT").nom("Espai de disc total").valor(humanReadableByteCount(totalSpace)).build(),
-				DetallSalut.builder().codi("EDL").nom("Espai de disc lliure").valor(humanReadableByteCount(freeSpace)).build(),
-				DetallSalut.builder().codi("SO").nom("Sistema operatiu").valor(MonitorHelper.getInfoSistema().getSistemaOperatiu()).build());
-		
+			return MonitorHelper.getInfoSistema();		
 		} catch (Exception e) {
 			logger.error("No s'ha pogut obtenir informació del sistema", e);
 			return null;
@@ -333,7 +314,7 @@ public class SalutServiceImpl implements SalutService {
 				missatges.add(MissatgeSalut
 						.builder()
 						.missatge(avis.getMissatge())
-						.data(avis.getDataInici())
+						.data(DatesUtils.toOffsetDateTime(avis.getDataInici()))
 						.nivell(toSalutNivell(avis.getAvisNivell()))
 						.build());
 			}

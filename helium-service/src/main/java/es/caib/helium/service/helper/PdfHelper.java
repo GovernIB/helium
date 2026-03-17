@@ -41,7 +41,7 @@ import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.service.utils.GlobalProperties;
 import es.caib.plugins.arxiu.api.DocumentEstat;
 
-//@Component
+@Component
 public class PdfHelper {
 
 	private Font frutiger6 = FontFactory.getFont("Frutiger", 7);

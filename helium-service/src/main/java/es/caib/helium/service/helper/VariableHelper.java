@@ -62,7 +62,7 @@ import es.caib.helium.service.utils.GlobalProperties;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class VariableHelper {
 
 	@Resource

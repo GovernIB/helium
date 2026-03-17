@@ -99,7 +99,7 @@ public interface ExpedientService {
 	 * 			Indica si associar o no els interessats de l'anotació a l'expedient.
 	 * 
 	 * @return El nou expedient creat.
-	 * @throws net.conselldemallorca.helium.integracio.plugins.SistemaExternException 
+	 * @throws es.caib.helium.commons.exception.SistemaExternException 
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 * @throws NotAllowedException

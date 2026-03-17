@@ -110,7 +110,7 @@ import es.caib.plugins.arxiu.api.Document;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class DistribucioHelper {
 
 	public static final String SISTRA2_CAMP_FORM_SIMPLE = "simple";

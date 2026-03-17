@@ -25,7 +25,7 @@ import es.caib.helium.commons.plugins.dadesext.Provincia;
 import es.caib.helium.commons.plugins.dadesext.TipusVia;
 
 
-//@Component
+@Component
 public class DadesExternesHelper {
 
 	@Resource

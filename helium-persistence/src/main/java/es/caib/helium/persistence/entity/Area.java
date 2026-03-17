@@ -34,12 +34,6 @@ import org.hibernate.annotations.Index;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_area",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_area",
-		indexes = {
-				@Index(name = "hel_area_tipus_i", columnNames = {"tipus_id"}),
-				@Index(name = "hel_area_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_area_pare_i", columnNames = {"pare_id"})})
 public class Area implements Serializable, GenericEntity<Long> {
 
 	private Long id;

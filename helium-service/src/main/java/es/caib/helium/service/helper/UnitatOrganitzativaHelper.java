@@ -40,7 +40,7 @@ import ma.glasnost.orika.MapperFactory;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class UnitatOrganitzativaHelper {
 	@Resource
 	private DadesExternesHelper dadesExternesHelper;

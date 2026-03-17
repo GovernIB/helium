@@ -30,9 +30,6 @@ import org.hibernate.annotations.Index;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_map_sistra",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codiHelium", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_map_sistra", 
-		indexes = @Index(name = "hel_map_sistra_exptip_i", columnNames = {"expedient_tipus_id"}))
 public class MapeigSistra implements Serializable, GenericEntity<Long> {
 
 	public enum TipusMapeig {

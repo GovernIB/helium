@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class MessageHelper implements MessageSourceAware {
 
 	private MessageSource messageSource;

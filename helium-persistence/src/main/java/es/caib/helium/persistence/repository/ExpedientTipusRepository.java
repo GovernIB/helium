@@ -115,7 +115,7 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			@Param("esNullCodiAssumpte") boolean esNullCodiAssumpte,
 			@Param("codiAssumpte") String codiAssumpte);
     
-    @Query(    " select new net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto( "
+    @Query(    " select new es.caib.helium.commons.dto.ExpedientTipusEstadisticaDto( "
             + "     et.id, "
             + "     et.codi, "
             + "     et.nom, "
@@ -162,7 +162,7 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("aturat") Boolean aturat
             );
     
-    @Query(   " select new net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto( "
+    @Query(   " select new es.caib.helium.commons.dto.ExpedientTipusEstadisticaDto( "
 			+ "		et.id, "
 			+ "		et.codi, "
 			+ "		et.nom) "
@@ -233,8 +233,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 	   		+" 		or et.id in ( "
 	   		+"  		select distinct entry.aclObjectIdentity.objectIdIdentity "
 	   		+"				from AclEntry entry "
-	   		+"				where (entry.aclObjectIdentity.aclClass.aclClass like 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus' "
-	   		+"				           or entry.aclObjectIdentity.aclClass.aclClass like 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa') "
+	   		+"				where (entry.aclObjectIdentity.aclClass.aclClass like 'es.caib.helium.persistence.entity.ExpedientTipus' "
+	   		+"				           or entry.aclObjectIdentity.aclClass.aclClass like 'es.caib.helium.persistence.entity.ExpedientTipusUnitatOrganitzativa') "
 	   		+"				      and (lower(entry.aclSid.sid) like lower('%'||:principal||'%')  ) )  "
 	   				// Permisos per expedientUo comuna a un principal
 			+" 		or et.id in ( "
@@ -242,8 +242,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			+"				from AclEntry entry, "
 			+"                   ExpedientTipusUnitatOrganitzativa etUo "
 			+"				where etUo.id = entry.aclObjectIdentity.objectIdIdentity "
-			+"                     and (entry.aclObjectIdentity.aclClass.aclClass like 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus' "
-			+"				           or entry.aclObjectIdentity.aclClass.aclClass like 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa') "
+			+"                     and (entry.aclObjectIdentity.aclClass.aclClass like 'es.caib.helium.persistence.entity.ExpedientTipus' "
+			+"				           or entry.aclObjectIdentity.aclClass.aclClass like 'es.caib.helium.persistence.entity.ExpedientTipusUnitatOrganitzativa') "
 			+"				      and (lower(entry.aclSid.sid) like lower('%'||:principal||'%')  ) ) ) ")
     Page<ExpedientTipus> findByTipologia(
 			@Param("isNullEntornId") boolean isNullEntornId,

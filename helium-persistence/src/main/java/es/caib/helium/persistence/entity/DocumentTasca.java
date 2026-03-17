@@ -30,12 +30,6 @@ import org.hibernate.annotations.Index;
 		uniqueConstraints={
 			@UniqueConstraint(name = "hel_doctasca_camp_id_tasca_id_uk", columnNames={"expedient_tipus_id", "document_id", "tasca_id"}),
 			@UniqueConstraint(name = "hel_doctasca_tasca_id_ordre_uk", columnNames={"expedient_tipus_id", "tasca_id", "ordre"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_document_tasca",
-		indexes = {
-				@Index(name = "hel_doctasca_document_i", columnNames = {"document_id"}),
-				@Index(name = "hel_doctasca_tasca_i", columnNames = {"tasca_id"}),
-				@Index(name = "hel_doctasca_extip_i", columnNames = {"expedient_tipus_id"})})
 public class DocumentTasca implements Serializable, GenericEntity<Long> {
 
 	private Long id;

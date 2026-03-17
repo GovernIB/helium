@@ -39,9 +39,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
  */
 @Entity
 @Table(name="hel_exec_massiva")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_exec_massiva",
-		indexes = @Index(name = "hel_exemas_usuari_i", columnNames = {"usuari"}))
 public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 
 	public enum ExecucioMassivaTipus {

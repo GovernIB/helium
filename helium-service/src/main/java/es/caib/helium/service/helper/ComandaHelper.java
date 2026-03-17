@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -33,7 +34,7 @@ import es.caib.helium.logic.intf.util.DatesUtils;
  * @author Limit Tecnologies <limit@limit.es>
  *
  */
-//@Component
+@Component
 public class ComandaHelper {
 	
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");

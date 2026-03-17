@@ -22,7 +22,7 @@ import es.caib.helium.commons.dto.ArxiuDto;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class MailHelper {
 
 	@Resource

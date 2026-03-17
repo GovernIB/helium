@@ -38,12 +38,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name="HEL_ESTAT_REGLA",
         uniqueConstraints={@UniqueConstraint(columnNames={"nom", "estat_id"})})
-@org.hibernate.annotations.Table(
-        appliesTo = "HEL_ESTAT_REGLA",
-        indexes = {
-                @Index(name = "hel_regla_entorn_fk_i", columnNames = {"entorn_id"}),
-                @Index(name = "hel_regla_exptipus_fk_i", columnNames = {"expedient_tipus_id"}),
-                @Index(name = "hel_regla_estat_fk_i", columnNames = {"estat_id"})})
 public class EstatRegla implements Serializable, GenericEntity<Long> {
 
     /**

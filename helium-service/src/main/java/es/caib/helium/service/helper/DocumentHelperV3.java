@@ -117,7 +117,7 @@ import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class DocumentHelperV3 {
 
 	public static final String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";

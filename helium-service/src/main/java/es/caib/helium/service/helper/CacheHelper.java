@@ -23,7 +23,7 @@ import es.caib.helium.commons.dto.TipusViaDto;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class CacheHelper {
 
 

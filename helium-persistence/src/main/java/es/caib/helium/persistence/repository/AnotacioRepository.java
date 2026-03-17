@@ -192,7 +192,7 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 			"from" +
 			"    Anotacio a " +
 			"where " +
-			"    a.estat = net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto.COMUNICADA " +
+			"    a.estat = es.caib.helium.commons.dto.AnotacioEstatEnumDto.COMUNICADA " +
 			"and a.consultaIntents < :maxReintents ")
 	public Page<Anotacio> findAnotacionsPendentConsultarPaged(
 			@Param("maxReintents") int maxReintents,
@@ -207,7 +207,7 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 			"from" +
 			"    Anotacio a " +
 			"where " +
-			"    a.estat = net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto.PENDENT_AUTO ")
+			"    a.estat = es.caib.helium.commons.dto.AnotacioEstatEnumDto.PENDENT_AUTO ")
 	public Page<Anotacio> findAnotacionsPendentProcessarPaged(
 			Pageable pageable);
 	

@@ -27,9 +27,6 @@ import org.hibernate.annotations.Index;
 @Entity
 @Table(name="hel_consulta_camp",
 		uniqueConstraints={@UniqueConstraint(columnNames={"consulta_id", "camp_codi", "defproc_jbpmkey", "defproc_versio", "tipus"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_consulta_camp",
-		indexes = @Index(name = "hel_consultacamp_consulta_i", columnNames = {"consulta_id"}))
 public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 
 	public enum TipusConsultaCamp {

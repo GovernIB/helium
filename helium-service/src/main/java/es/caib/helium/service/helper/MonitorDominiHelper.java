@@ -32,7 +32,7 @@ import es.caib.helium.persistence.repository.DominiRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class MonitorDominiHelper {
 
 	private static final int MAX_ACCIONS_PER_DOMINI = 20;

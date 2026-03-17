@@ -28,9 +28,6 @@ import org.hibernate.annotations.Index;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_enumeracio_valors")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_enumeracio_valors",
-		indexes = @Index(name = "hel_enum_id", columnNames = {"enumeracio_id"}))
 public class EnumeracioValors implements Serializable {
 
 	private Long id;

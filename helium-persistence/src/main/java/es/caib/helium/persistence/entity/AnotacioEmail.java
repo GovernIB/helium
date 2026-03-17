@@ -30,8 +30,6 @@ import es.caib.helium.commons.dto.EmailTipusEnumDto;
  */
 @Entity
 @Table(name = "hel_anotacio_email")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_anotacio_email")
 public class AnotacioEmail implements Serializable, GenericEntity<Long> {
 
 	

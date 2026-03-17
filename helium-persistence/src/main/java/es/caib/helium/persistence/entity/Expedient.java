@@ -45,12 +45,6 @@ import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
  */
 @Entity
 @Table(name="hel_expedient")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_expedient",
-		indexes = {
-				@Index(name = "hel_expedient_estat_i", columnNames = {"estat_id"}),
-				@Index(name = "hel_expedient_entorn_i", columnNames = {"entorn_id"}),
-				@Index(name = "hel_expedient_tipus_i", columnNames = {"tipus_id"})})
 public class Expedient implements Serializable, GenericEntity<Long> {
 
 	private static final String SEPARADOR_SISTRA = "#";

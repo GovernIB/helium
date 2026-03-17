@@ -38,9 +38,6 @@ import org.hibernate.annotations.Index;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_enumeracio",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id", "expedient_tipus_id"})})
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_enumeracio",
-		indexes = @Index(name = "hel_enum_entorn_i", columnNames = {"entorn_id"}))
 public class Enumeracio implements Serializable {
 
 	private Long id;

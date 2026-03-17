@@ -18,7 +18,7 @@ import es.caib.helium.persistence.repository.RegistreRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class ExpedientRegistreHelper {
 
 	@Resource

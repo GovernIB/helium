@@ -70,7 +70,7 @@ import ma.glasnost.orika.metadata.Type;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class ConversioTipusHelper {
 
 	private MapperFactory mapperFactory;

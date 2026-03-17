@@ -44,7 +44,7 @@ import es.caib.helium.persistence.repository.NotificacioRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class NotificacioHelper {
 
 	@Resource

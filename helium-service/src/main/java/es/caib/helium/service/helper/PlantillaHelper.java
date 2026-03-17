@@ -90,7 +90,7 @@ import net.sf.jooreports.templates.DocumentTemplateFactory;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component("PlantillaHelperV3")
+@Component("PlantillaHelperV3")
 public class PlantillaHelper {
 
 	@Resource

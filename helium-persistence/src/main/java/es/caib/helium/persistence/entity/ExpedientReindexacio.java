@@ -23,10 +23,6 @@ import org.hibernate.annotations.Index;
  */
 @Entity
 @Table(name = "hel_expedient_reindexacio")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_expedient_reindexacio",
-		indexes = {
-				@Index(name = "hel_reindexacio_expedient_fk_i", columnNames = {"expedient_id"})})
 public class ExpedientReindexacio implements Serializable, GenericEntity<Long> {
 
 	

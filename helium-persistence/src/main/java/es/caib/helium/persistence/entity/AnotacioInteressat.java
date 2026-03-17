@@ -31,11 +31,6 @@ import org.hibernate.annotations.Index;
  */
 @Entity
 @Table(	name = "hel_anotacio_interessat")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_anotacio_interessat",
-		indexes = {
-				@Index(name = "hel_anotacio_inter_fk_i", columnNames = {"anotacio_id"}),
-				@Index(name = "hel_representant_anotacio_fk_i", columnNames = {"representant_id"})})
 public class AnotacioInteressat implements Serializable, GenericEntity<Long> {
 
 	@Id

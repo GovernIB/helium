@@ -83,7 +83,7 @@ import es.caib.helium.persistence.repository.TerminiRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class DefinicioProcesHelper {
 	
 	@Resource

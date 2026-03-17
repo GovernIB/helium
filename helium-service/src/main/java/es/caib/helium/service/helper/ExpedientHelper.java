@@ -117,7 +117,7 @@ import javassist.CtClass;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
+@Component
 public class ExpedientHelper {
 
 	@Resource

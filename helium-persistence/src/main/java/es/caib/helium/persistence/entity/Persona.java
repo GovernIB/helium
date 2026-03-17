@@ -30,9 +30,6 @@ import org.hibernate.annotations.Index;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name="hel_persona")
-@org.hibernate.annotations.Table(
-		appliesTo = "hel_persona",
-		indexes = @Index(name = "hel_persona_relleu_i", columnNames = {"relleu_id"}))
 public class Persona implements Serializable, GenericEntity<Long> {
 
 	public enum Sexe {
