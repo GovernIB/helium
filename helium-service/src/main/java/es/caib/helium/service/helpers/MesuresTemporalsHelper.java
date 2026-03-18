@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import es.caib.helium.commons.dto.IntervalEventDto;
@@ -39,14 +40,15 @@ public class MesuresTemporalsHelper {
 	private Map<String, Map<Clau, Estadistiques>> intervalsEstadistiques = new HashMap<String, Map<Clau, Estadistiques>>();
 	private Map<String, TascaComplete> tasquesComplete = new HashMap<String, TascaComplete>();
 
-	public MesuresTemporalsHelper(String sactiu, Integer imesures) {
+	public MesuresTemporalsHelper(@Value("${app.mesura.temps.actiu:false}") String sactiu, @Value("${app.mesura.temps.mesures:100}") Integer imesures) {
 		super();
+		
 		if (!"true".equalsIgnoreCase(sactiu))
 			actiu = false;
 		else 
 			actiu = true;
 		mesures = imesures;
-		inici = new Long(System.currentTimeMillis());
+		inici = System.currentTimeMillis();
 	}
 
 	public void mesuraIniciar(String nom, String familia) {
@@ -70,7 +72,7 @@ public class MesuresTemporalsHelper {
 				if (est == null) {
 					mEstadistiques.put(clau, new Estadistiques());
 				} else {
-					est.setInici(new Long(System.currentTimeMillis()));
+					est.setInici(System.currentTimeMillis());
 				}
 			}
 		} catch (Exception e) {
@@ -479,7 +481,7 @@ public class MesuresTemporalsHelper {
 		
 		public Estadistiques() {
 			super();
-			this.inici = new Long(System.currentTimeMillis());
+			this.inici = System.currentTimeMillis();
 			this.contador = 0L;
 			this.events = new LinkedList<IntervalEvent>();
 		}
@@ -499,9 +501,9 @@ public class MesuresTemporalsHelper {
 				} catch (Exception e) {}
 			events.add(new IntervalEvent(new Date(), diferencia));
 			if (mitja == null)
-				mitja = new Double(diferencia);
+				mitja = diferencia.doubleValue();
 			else
-				mitja = new Double((mitja * (contador - 1) + diferencia) / contador);
+				mitja = Double.valueOf((mitja * (contador - 1) + diferencia) / contador);
 		}
 		
 		public Long getInici() {

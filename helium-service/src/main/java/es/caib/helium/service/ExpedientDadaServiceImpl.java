@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -88,7 +89,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	private VariableHelper variableHelper;
 	@Resource
 	private WorkflowEngineApi jbpmHelper;
-	@Resource
+	@Autowired
 	private IndexHelper indexHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;

@@ -82,7 +82,7 @@ public class AdminServiceImpl implements AdminService {
 	private HibernateHelper hibernateHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
+	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private MonitorIntegracioHelper monitorIntegracioHelper;

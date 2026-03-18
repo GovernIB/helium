@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,9 +65,9 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource
+	@Autowired
 	private IndexHelper indexHelper;
-	@Resource
+	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 

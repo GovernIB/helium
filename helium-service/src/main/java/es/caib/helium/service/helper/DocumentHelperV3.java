@@ -34,6 +34,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -150,7 +151,7 @@ public class DocumentHelperV3 {
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private PdfHelper pdfHelper;
-	@Resource
+	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private FirmaTascaRepository firmaTascaRepository;

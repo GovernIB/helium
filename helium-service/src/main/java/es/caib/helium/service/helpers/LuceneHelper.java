@@ -64,7 +64,7 @@ public class LuceneHelper {
 	private static final String LUCENE_ESCAPE_CHARS = " |\\+|\\-|\\_|\'|\\(|\\)|\\[|\\]|\\&|\\!|\\*|\\{|\\}|\\?|\\:|\\^|\\~|\"|\\\\";
 	private static final String EXPEDIENT_NUMERO_SEPARADOR = ";";
 	
-	@Resource
+	@Autowired
 	protected MesuresTemporalsHelper mesuresTemporalsHelper;
 
 	/** Objecte de sincronització per accedir al LuceneIndex. */

@@ -182,7 +182,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	private DocumentHelperV3 documentHelperV3;
 	@Autowired
 	private MetricRegistry metricRegistry;
-	@Resource
+	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private MailHelper mailHelper;
@@ -192,7 +192,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private DefinicioProcesHelper definicioProcesHelper;
-	@Resource
+	@Autowired
 	private IndexHelper indexHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;

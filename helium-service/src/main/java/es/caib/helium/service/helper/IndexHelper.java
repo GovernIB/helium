@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.codahale.metrics.Counter;
@@ -46,7 +47,7 @@ import es.caib.helium.service.jbpm.Registre;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Service("serviceUtilsV3")
+@Service("serviceUtilsV3")
 public class IndexHelper {
 
 	@Resource
@@ -67,7 +68,7 @@ public class IndexHelper {
 //	private MongoDBHelper mongoDBHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
-	@Resource
+	@Autowired
 	private MetricRegistry metricRegistry;
 
 

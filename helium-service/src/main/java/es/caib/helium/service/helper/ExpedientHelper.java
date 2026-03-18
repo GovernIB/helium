@@ -23,6 +23,7 @@ import org.codehaus.janino.ExpressionEvaluator;
 //import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -165,13 +166,13 @@ public class ExpedientHelper {
 	private PluginHelper pluginHelper;
 //	@Resource
 //	private LuceneHelper luceneHelper;
-	@Resource
+	@Autowired
 	private IndexHelper indexHelper;
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
+	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private DefinicioProcesHelper definicioProcesHelper;

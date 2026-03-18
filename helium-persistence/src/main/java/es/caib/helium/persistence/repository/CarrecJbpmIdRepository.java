@@ -35,15 +35,17 @@ public interface CarrecJbpmIdRepository extends JpaRepository<CarrecJbpmId, Long
 			Pageable pageable);
 
 	@Query("select " +
-				"    distinct m.role," +
-				"    m.group.name " +
+				"    distinct m.groupId," +
+				"    g.name " +
 				"from " +
-				"    org.jbpm.identity.Membership m " +
+				"    org.flowable.idm.engine.impl.persistence.entity.MembershipEntityImpl m " +
+				"    join org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl u on u.id = m.userId " +
+				"    join org.flowable.idm.engine.impl.persistence.entity.GroupEntityImpl g on g.id = m.groupId " +
 				"where " +
-				"    (:esNullFiltre = true or lower(m.role) like lower('%'||:filtre||'%') " +
-				" 		or lower(m.group.name) like lower('%'||:filtre||'%'))" +
+				"    (:esNullFiltre = true or lower(m.groupId) like lower('%'||:filtre||'%') " +
+				" 		or lower(g.name) like lower('%'||:filtre||'%'))" +
 				"    and m.role is not null " +
-				"    and (m.role, m.group.name) not in (" +
+				"    and (m.groupId, g.name) not in (" +
 				"        select " +
 				"            c.codi," +
 				"            c.grup " +
@@ -64,40 +66,46 @@ public interface CarrecJbpmIdRepository extends JpaRepository<CarrecJbpmId, Long
 	@Query("select " +
 			"    m.user.name " +
 			"from " +
-			"    org.jbpm.identity.Membership m " +
+			"    org.flowable.idm.engine.impl.persistence.entity.MembershipEntityImpl m " +
+			"    join org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl u on u.id = m.userId " +
+			"    join org.flowable.idm.engine.impl.persistence.entity.GroupEntityImpl g on g.id = m.groupId " +
 			"where " +
-			"    m.group.name = :grupCodi " +
+			"    g.name = :grupCodi " +
 			"and m.role = :carrecCodi")
 	List<String> findPersonaCodiByGrupCodiAndCarrecCodi(
 			@Param("grupCodi") String grupCodi,
 			@Param("carrecCodi") String carrecCodi);
 
 	@Query("select " +
-			"    m.role " +
+			"    g.name " +
 			"from " +
-			"    org.jbpm.identity.Membership m " +
+			"    org.flowable.idm.engine.impl.persistence.entity.MembershipEntityImpl m " +
+			"    join org.flowable.idm.engine.impl.persistence.entity.GroupEntityImpl g on g.id = m.groupId " +
+			"    join org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl u on u.id = m.userId " +
 			"where " +
-			"    m.user.name = :personaCodi " +
-			"and m.group.name = :grupCodi")
+			"   u.name = :personaCodi " +
+			" and g.name = :grupCodi")
 	List<String> findCarrecsCodiByPersonaCodiAndGrupCodi(
 			@Param("personaCodi") String personaCodi,
 			@Param("grupCodi") String grupCodi);
 
 	@Query("select " +
-			"    m.user.name " +
+			"    u.name " +
 			"from " +
-			"    org.jbpm.identity.Membership m " +
+			"    org.flowable.idm.engine.impl.persistence.entity.MembershipEntityImpl m " +
+			"    join org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl u on u.id = m.userId " +
 			"where " +
-			"    m.role = :carrecCodi")
+			"    m.groupId = :carrecCodi")
 	List<String> findPersonesCodiByCarrecCodi(
 			@Param("carrecCodi") String carrecCodi);
 
 	@Query("select distinct " +
-			"    m.user.name " +
+			"    u.name " +
 			"from " +
-			"    org.jbpm.identity.Membership m " +
+			"    org.flowable.idm.engine.impl.persistence.entity.MembershipEntityImpl m " +
+			"    join org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl u on u.id = m.userId " +
 			"where " +
-			"    m.group.name = :grupCodi")
+			"    m.groupId = :grupCodi")
 	List<String> findPersonesCodiByGrupCodi(
 			@Param("grupCodi") String grupCodi);
 }

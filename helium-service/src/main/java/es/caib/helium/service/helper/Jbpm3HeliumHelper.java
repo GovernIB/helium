@@ -24,6 +24,7 @@ import org.apache.tika.mime.MimeTypes;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -259,10 +260,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
+	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
-	@Resource
+	@Autowired
 	private IndexHelper indexHelper;
 
 	@Resource

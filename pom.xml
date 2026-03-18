@@ -16,7 +16,7 @@
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
 		<hibernate.validator.version></hibernate.validator.version>
-		<metrics.version>3.1.2</metrics.version>
+		<metrics.version>4.2.22</metrics.version>
 		<keycloak.version>22.0.4</keycloak.version>
 		<orika.version>1.5.4</orika.version>
 		<sitemesh.version>2.5.0</sitemesh.version>

@@ -135,7 +135,7 @@ public class AnotacioHelper {
 	private VariableHelper variableHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
-	@Resource
+	@Autowired
 	private IndexHelper indexHelper;
 	@Resource
 	private ExpedientDadaHelper expedientDadaHelper;

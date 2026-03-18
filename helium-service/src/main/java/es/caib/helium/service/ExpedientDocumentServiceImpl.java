@@ -180,7 +180,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private TascaHelper tascaHelper;
 	@Resource
 	private WorkflowEngineApi jbpmHelper;
-	@Resource
+	@Autowired
 	private IndexHelper indexHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;

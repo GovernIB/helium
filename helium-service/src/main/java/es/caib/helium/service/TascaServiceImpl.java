@@ -155,7 +155,7 @@ public class TascaServiceImpl implements TascaService {
 
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
-	@Resource
+	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
@@ -175,7 +175,7 @@ public class TascaServiceImpl implements TascaService {
 	private VariableHelper variableHelper;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
-	@Resource
+	@Autowired
 	private IndexHelper indexHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;

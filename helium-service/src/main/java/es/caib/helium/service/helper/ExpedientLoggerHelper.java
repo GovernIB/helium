@@ -4,9 +4,7 @@
 package es.caib.helium.service.helper;
 
 import java.awt.Color;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.history.ProcessInstanceHistoryLog;
 import org.flowable.task.api.history.HistoricTaskLogEntry;
 import org.flowable.variable.api.history.HistoricVariableInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -48,7 +47,6 @@ import es.caib.helium.logic.intf.dto.engine.WTransitionLog;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.common.jbpm.JbpmVars;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.CampTasca;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.Document;
@@ -98,8 +96,6 @@ public class ExpedientLoggerHelper {
 
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource

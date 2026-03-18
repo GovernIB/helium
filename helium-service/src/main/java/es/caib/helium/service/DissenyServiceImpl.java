@@ -26,6 +26,7 @@ import org.flowable.common.engine.impl.util.IoUtil;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
@@ -134,7 +135,7 @@ public class DissenyServiceImpl implements DissenyService {
 	private WorkflowEngineApi jbpmHelper;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
+	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private EntornHelper entornHelper;

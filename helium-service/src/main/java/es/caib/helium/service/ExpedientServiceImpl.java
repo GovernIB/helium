@@ -300,11 +300,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private PermisosHelper permisosHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
-	@Resource
+	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource
+	@Autowired
 	private IndexHelper indexHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;

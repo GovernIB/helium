@@ -35,7 +35,7 @@ public interface AreaJbpmIdRepository extends JpaRepository<AreaJbpmId, Long> {
 	@Query("select " +
 			"    g.name " +
 			"from " +
-			"    org.jbpm.identity.Group g " +
+			"    org.flowable.idm.engine.impl.persistence.entity.GroupEntityImpl g " +
 			"where " +
 			"	 g.type = 'organisation' " +
 			"    and (:esNullFiltre = true or lower(g.name) like lower('%'||:filtre||'%')) " +
@@ -53,21 +53,23 @@ public interface AreaJbpmIdRepository extends JpaRepository<AreaJbpmId, Long> {
 	AreaJbpmId findByCodi(String codi);
 	
 	@Query( "select " +
-			"    m.group.name " +
+			"    g.name " +
 			"from " +
-			"    org.jbpm.identity.Membership m " +
+			"    org.flowable.idm.engine.impl.persistence.entity.MembershipEntityImpl m " +
+			"    join org.flowable.idm.engine.impl.persistence.entity.GroupEntityImpl g on g.id = m.groupId " +
 			"where " +
-			"    m.user.name = :usuariCodi")
+			"    m.userId = :usuariCodi")
 	List<String> findAreesJbpmIdMembre(
 			@Param("usuariCodi") String usuariCodi);
 	
 	@Query( "select distinct " +
-			"    m.group.name " +
+			"    m.name " +
 			"from " +
-			"    org.jbpm.identity.Membership m " +
+			"    org.flowable.idm.engine.impl.persistence.entity.MembershipEntityImpl m " +
+			"    join org.flowable.idm.engine.impl.persistence.entity.GroupEntityImpl g on g.id = m.groupId " +
 			"where " +
 			"    m.user.name = :usuariCodi " +
-			"	 and m.group.type = 'security-role'")
+			"	 and g.type = 'security-role'")
 	List<String> findRolesAmbUsuariCodi(
 			@Param("usuariCodi") String usuariCodi);
 

@@ -138,7 +138,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private PeticioPinbalRepository peticioPinbalRepository;
 	@Resource
 	private ConsultaPinbalHelper consultaPinbalHelper;
-	@Resource
+	@Autowired
 	private IndexHelper indexHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
