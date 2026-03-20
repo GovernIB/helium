@@ -103,8 +103,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		self = applicationContext.getBean(TascaProgramadaService.class);
 	}
 
-	@Autowired
-	private TascaProgramadaConfig tascaProgramadaConfig;
+//	@Autowired
+//	private TascaProgramadaConfig tascaProgramadaConfig;
 	
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
@@ -887,7 +887,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 			
 	@Override
 	public void restartSchedulledTasks(String taskCodi) {
-		tascaProgramadaConfig.restartSchedulledTasks(taskCodi);
+//		tascaProgramadaConfig.restartSchedulledTasks(taskCodi);
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);	

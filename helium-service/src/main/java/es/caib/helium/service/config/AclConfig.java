@@ -36,7 +36,7 @@ import es.caib.helium.service.security.ExtendedPermission;
 @Configuration
 public class AclConfig {
 
-	private static final boolean CLASS_ID_SUPPORTED = true;
+	private static final boolean CLASS_ID_SUPPORTED = false;
 
 	@Value("${spring.jpa.properties.hibernate.dialect}")
 	private String hibernateDialect;
@@ -84,10 +84,10 @@ public class AclConfig {
 				aclCache(springCacheManager),
 				aclAuthorizationStrategy(),
 				new ConsoleAuditLogger());
-		String tableClass =  getPrefix() + "hel_acl_class";
-		String tableSid =  getPrefix() + "hel_acl_sid";
-		String tableOid =  getPrefix() + "hel_acl_object_identity";
-		String tableEntry =  getPrefix() + "hel_acl_entry";
+		String tableClass =  getPrefix() + "acl_class";
+		String tableSid =  getPrefix() + "acl_sid";
+		String tableOid =  getPrefix() + "acl_object_identity";
+		String tableEntry =  getPrefix() + "acl_entry";
 		String selectClause = "select " + tableOid + ".object_id_identity, "
 				+ tableEntry + ".ace_order,  " + tableOid + ".id as acl_id, " +  tableOid + ".parent_object, "
 				+ tableOid + ".entries_inheriting, " + tableEntry + ".id as ace_id, " + tableEntry + ".mask,  "
@@ -129,10 +129,10 @@ public class AclConfig {
 								parentIdentity.getIdentifier().toString()));
 			}
 		};
-		String tableClass =  getPrefix() + "hel_acl_class";
-		String tableSid =  getPrefix() + "hel_acl_sid";
-		String tableOid =  getPrefix() + "hel_acl_object_identity";
-		String tableEntry =  getPrefix() + "hel_acl_entry";
+		String tableClass =  getPrefix() + "acl_class";
+		String tableSid =  getPrefix() + "acl_sid";
+		String tableOid =  getPrefix() + "acl_object_identity";
+		String tableEntry =  getPrefix() + "acl_entry";
 		jdbcMutableAclService.setAclClassIdSupported(CLASS_ID_SUPPORTED);
 		if (hibernateDialect.toLowerCase().contains("oracle") && isOracleSequenceLegacy()) {
 			jdbcMutableAclService.setClassIdentityQuery("select " + tableClass.toUpperCase() + "_seq.currval from dual");
@@ -184,10 +184,10 @@ public class AclConfig {
 	}
 
 	public String getIdsWithPermissionQuery(boolean anyPermission) {
-		String tableClass =  getPrefix() + "hel_acl_class";
-		String tableSid =  getPrefix() + "hel_acl_sid";
-		String tableOid =  getPrefix() + "hel_acl_object_identity";
-		String tableEntry =  getPrefix() + "hel_acl_entry";
+		String tableClass =  getPrefix() + "acl_class";
+		String tableSid =  getPrefix() + "acl_sid";
+		String tableOid =  getPrefix() + "acl_object_identity";
+		String tableEntry =  getPrefix() + "acl_entry";
 		return "select " +
 				"    distinct " + tableOid + ".object_id_identity id " +
 				"from " +
@@ -203,10 +203,10 @@ public class AclConfig {
 	}
 
 	public String getResourceIdsWithPermissionQuery(boolean anyPermission) {
-		String tableClass =  getPrefix() + "hel_acl_class";
-		String tableSid =  getPrefix() + "hel_acl_sid";
-		String tableOid =  getPrefix() + "hel_acl_object_identity";
-		String tableEntry =  getPrefix() + "hel_acl_entry";
+		String tableClass =  getPrefix() + "acl_class";
+		String tableSid =  getPrefix() + "acl_sid";
+		String tableOid =  getPrefix() + "acl_object_identity";
+		String tableEntry =  getPrefix() + "acl_entry";
 		return "select " +
 				"    distinct " + tableOid + ".object_id_identity " +
 				"from " +

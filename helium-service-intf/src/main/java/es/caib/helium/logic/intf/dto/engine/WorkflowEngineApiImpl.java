@@ -8,7 +8,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.WExpedientDto;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 
 @Component
@@ -507,7 +507,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(Long expedientTipusId,
+	public List<WExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(Long expedientTipusId,
 			Long processDefinitionId) {
 		// TODO Auto-generated method stub
 		return null;

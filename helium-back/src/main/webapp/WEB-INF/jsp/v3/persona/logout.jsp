@@ -18,7 +18,7 @@
 	}
 
 	// Redirigeix a la pàgina inicial.
-	window.location="/helium";
+	window.location="/heliumback";
 </script>
 </head>
 <body>

@@ -20,7 +20,7 @@ public interface ExplotacioDimensioRepository extends JpaRepository<ExplotacioDi
 	@Query("from ExplotacioDimensio order by unitatOrganitzativaId, unitatOrganitzativaCodi, entornId, entornCodi, tipusId, tipusCodi")
 	List<ExplotacioDimensio> findAllOrdered();
 
-	@Query(   "	SELECT new es.caib.helium.logic.intf.dto.ExplotacioDimensioDto( "
+	@Query(   "	SELECT new es.caib.helium.commons.dto.ExplotacioDimensioDto( "
 			+ "		uo.id, "
 			+ "		uo.codi, "
 			+ "		e.entorn.id, "

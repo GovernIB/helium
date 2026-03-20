@@ -35,7 +35,7 @@ import es.caib.helium.service.helper.UsuariActualHelper;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("entornServiceV3")
+@Service
 public class EntornServiceImpl implements EntornService {
 
 	@Resource

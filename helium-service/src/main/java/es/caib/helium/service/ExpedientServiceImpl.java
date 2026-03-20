@@ -194,7 +194,7 @@ import es.caib.helium.service.helper.UsuariActualHelper;
 import es.caib.helium.service.helper.VariableHelper;
 import es.caib.helium.service.helpers.LuceneHelper;
 import es.caib.helium.service.helpers.MesuresTemporalsHelper;
-import es.caib.helium.service.helpers.PermisosHelper;
+import es.caib.helium.service.helper.PermisosHelper;
 import es.caib.helium.service.security.ExtendedPermission;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;

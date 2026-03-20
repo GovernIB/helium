@@ -1,5 +1,6 @@
 package es.caib.helium.back.helper;
 
+
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import es.caib.helium.logic.intf.service.AvisService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class AvisHelper {
+
 	private static final String REQUEST_PARAMETER_AVISOS = "AvisHelper.findAvisos";
 
 
@@ -33,4 +35,6 @@ public class AvisHelper {
 			HttpServletRequest request) {
 		return (List<AvisDto>) request.getAttribute(REQUEST_PARAMETER_AVISOS);
 	}
+	
+
 }

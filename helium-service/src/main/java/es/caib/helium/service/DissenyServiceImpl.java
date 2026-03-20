@@ -1026,13 +1026,13 @@ public class DissenyServiceImpl implements DissenyService {
 						expedientTipusId), 
 						ExpedientTipusDto.class);
 		
-		List<es.caib.helium.logic.intf.dto.ExpedientDto> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		List<es.caib.helium.logic.intf.dto.WExpedientDto> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				expedientTipusId,
 				jbpmId);
 		
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
 		
-		for (es.caib.helium.logic.intf.dto.ExpedientDto pie : afectats) {
+		for (es.caib.helium.logic.intf.dto.WExpedientDto pie : afectats) {
 			ExpedientDto exp = new ExpedientDto();
 			exp.setId(pie.getId());
 			exp.setTipus(expedientTipus);
@@ -1062,13 +1062,13 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 				
-		List<es.caib.helium.logic.intf.dto.ExpedientDto> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		List<es.caib.helium.logic.intf.dto.WExpedientDto> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				expedientTipusId,
 				jbpmId);
 		
 		List<Long> ids = new ArrayList<Long>();
 		
-		for (es.caib.helium.logic.intf.dto.ExpedientDto pie : afectats) {
+		for (es.caib.helium.logic.intf.dto.WExpedientDto pie : afectats) {
 			ids.add(pie.getId());
 		}
 		

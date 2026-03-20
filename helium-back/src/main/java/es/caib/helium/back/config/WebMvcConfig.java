@@ -17,6 +17,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.opensymphony.module.sitemesh.filter.PageFilter;
 
 import es.caib.helium.back.interceptor.AplicacioInterceptor;
+import es.caib.helium.back.interceptor.EntornInterceptor;
+import es.caib.helium.back.interceptor.ModalInterceptor;
+import es.caib.helium.back.interceptor.NodecoInterceptor;
+import es.caib.helium.back.interceptor.PersonaInterceptor;
 
 /**
  * Configuració dels interceptors de peticions.
@@ -30,6 +34,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Autowired
 	private AplicacioInterceptor aplicacioInterceptor;
+	@Autowired
+	private PersonaInterceptor personaInterceptor;
+	@Autowired
+	private ModalInterceptor modalInterceptor;
+	@Autowired
+	private NodecoInterceptor nodecoInterceptor;
+	@Autowired
+	private EntornInterceptor entornInterceptor;
 
 	@Bean
 	public FilterRegistrationBean<PageFilter> sitemeshFilter() {
@@ -66,6 +78,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				"/public/**"
 		};
 		registry.addInterceptor(aplicacioInterceptor).excludePathPatterns(excludedPathPatterns);
+		registry.addInterceptor(personaInterceptor).excludePathPatterns(excludedPathPatterns);
+		registry.addInterceptor(modalInterceptor).excludePathPatterns(excludedPathPatterns);
+		registry.addInterceptor(nodecoInterceptor).excludePathPatterns(excludedPathPatterns);
+		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludedPathPatterns);
 	}
 	
 	/** Configura el firewall per permetre caràcters codificats com el % ja que aquests s'usen en la codificació

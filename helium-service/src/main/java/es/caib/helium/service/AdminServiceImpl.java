@@ -55,6 +55,7 @@ import es.caib.helium.service.helper.HibernateHelper;
 import es.caib.helium.service.helper.MailHelper;
 import es.caib.helium.service.helper.MonitorDominiHelper;
 import es.caib.helium.service.helper.MonitorIntegracioHelper;
+import es.caib.helium.service.helper.PluginHelper;
 import es.caib.helium.service.helper.UsuariActualHelper;
 import es.caib.helium.service.helpers.MesuresTemporalsHelper;
 import es.caib.helium.service.utils.GlobalProperties;
@@ -92,6 +93,8 @@ public class AdminServiceImpl implements AdminService {
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
 	private MailHelper mailHelper;
+	@Resource
+	private PluginHelper pluginHelper;
 
 	@Autowired
 	private MetricRegistry metricRegistry;
@@ -454,8 +457,7 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public PersonaDto findPersonaByCodi(String usuariCodi) {
-		// TODO Auto-generated method stub
-		return null;
+		return pluginHelper.personaFindAmbCodi(usuariCodi);
 	}
 
 }

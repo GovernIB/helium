@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.WExpedientDto;
 import es.caib.helium.logic.intf.dto.engine.WDeployment;
 import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
@@ -723,7 +723,7 @@ public interface WorkflowEngineApi {
 	/** Eliminació de definicions de procés */
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId);
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId);
-	public List<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+	public List<WExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
             Long expedientTipusId,
             Long processDefinitionId);
 

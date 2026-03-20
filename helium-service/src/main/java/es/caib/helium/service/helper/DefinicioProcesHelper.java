@@ -43,6 +43,7 @@ import es.caib.helium.commons.exportacio.RegistreMembreExportacio;
 import es.caib.helium.commons.exportacio.TascaExportacio;
 import es.caib.helium.commons.exportacio.TerminiExportacio;
 import es.caib.helium.commons.exportacio.ValidacioExportacio;
+import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Accio;
 import es.caib.helium.persistence.entity.Camp;
@@ -564,42 +565,43 @@ public class DefinicioProcesHelper {
 			ExpedientTipus expedientTipus) {
 
 		DefinicioProces definicio  = null;
-//		JbpmProcessDefinition dpd = workflowEngineApi.desplegar(
+//		WProcessDefinition dpd = workflowEngineApi.desplegar(
 //				nomDeploy, 
 //				contingutDeploy);
-//		if (dpd != null) {
-//			// Crea la nova definició de procés
-//			definicio = new DefinicioProces(
-//					dpd.getId(),
-//					dpd.getKey(),
-//					dpd.getVersion(),
-//					entorn);
-//			definicio.setExpedientTipus(expedientTipus);
-//			if (expedientTipus != null)
-//				expedientTipus.getDefinicionsProces().add(definicio);
-//			definicio = definicioProcesRepository.saveAndFlush(definicio);
-//			// Crea les tasques publicades
-//			for (String nomTasca: workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(dpd)) {
-//				Tasca tasca = new Tasca(
-//						definicio,
-//						nomTasca,
-//						nomTasca,
-//						TipusTasca.ESTAT);
-//				String prefixRecursBo = "forms/" + nomTasca;
-//				for (String resourceName: workflowEngineApi.getResourceNames(dpd.getId())) {
-//					if (resourceName.startsWith(prefixRecursBo)) {
-//						tasca.setTipus(TipusTasca.FORM);
-//						tasca.setRecursForm(nomTasca);
-//						break;
-//					}
-//				}
-//				tascaRepository.save(tasca);
-//				definicio.getTasques().add(tasca);
-//			}
-//			definicioProcesRepository.save(definicio);
-//		} else
-//			throw new DeploymentException(
-//					messageHelper.getMessage("exportar.validacio.definicio.deploy.error"));
+		WProcessDefinition dpd = null;
+		if (dpd != null) {
+			// Crea la nova definició de procés
+			definicio = new DefinicioProces(
+					dpd.getId(),
+					dpd.getKey(),
+					dpd.getVersion(),
+					entorn);
+			definicio.setExpedientTipus(expedientTipus);
+			if (expedientTipus != null)
+				expedientTipus.getDefinicionsProces().add(definicio);
+			definicio = definicioProcesRepository.saveAndFlush(definicio);
+			// Crea les tasques publicades
+			for (String nomTasca: workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(null, null/*dpd*/)) {
+				Tasca tasca = new Tasca(
+						definicio,
+						nomTasca,
+						nomTasca,
+						TipusTasca.ESTAT);
+				String prefixRecursBo = "forms/" + nomTasca;
+				for (String resourceName: workflowEngineApi.getResourceNames(dpd.getId())) {
+					if (resourceName.startsWith(prefixRecursBo)) {
+						tasca.setTipus(TipusTasca.FORM);
+						tasca.setRecursForm(nomTasca);
+						break;
+					}
+				}
+				tascaRepository.save(tasca);
+				definicio.getTasques().add(tasca);
+			}
+			definicioProcesRepository.save(definicio);
+		} else
+			throw new DeploymentException(
+					messageHelper.getMessage("exportar.validacio.definicio.deploy.error"));
 
 		return definicio;
 	}

@@ -35,7 +35,7 @@ import es.caib.helium.service.helper.ComandaHelper;
 import es.caib.helium.service.helper.ExpedientHelper;
 import es.caib.helium.service.helper.ExpedientLoggerHelper;
 import es.caib.helium.service.helper.TascaHelper;
-import es.caib.helium.service.helpers.PermisosHelper;
+import es.caib.helium.service.helper.PermisosHelper;
 import es.caib.helium.service.security.ExtendedPermission;
 
 

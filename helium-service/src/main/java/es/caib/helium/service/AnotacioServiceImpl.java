@@ -102,7 +102,7 @@ import es.caib.helium.service.helper.PluginHelper;
 import es.caib.helium.service.helper.UnitatOrganitzativaHelper;
 import es.caib.helium.service.helper.UsuariActualHelper;
 import es.caib.helium.service.helper.VariableHelper;
-import es.caib.helium.service.helpers.PermisosHelper;
+import es.caib.helium.service.helper.PermisosHelper;
 import es.caib.helium.service.security.ExtendedPermission;
 import es.caib.plugins.arxiu.api.Document;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;

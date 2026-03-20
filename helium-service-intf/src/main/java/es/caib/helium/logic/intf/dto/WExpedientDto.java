@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Data
-public class ExpedientDto {public Long getId() {
+public class WExpedientDto {public Long getId() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -1,4 +1,4 @@
-<%if (net.conselldemallorca.helium.webapp.v3.helper.ModalHelper.isModal(request)) {%>
+<%if (es.caib.helium.back.helper.ModalHelper.isModal(request)) {%>
 <meta name="decorator" content="senseCapNiPeus"/>
 <script type="text/javascript">
 	$(document).ready(function(){			

@@ -30,7 +30,8 @@ public class I18nConfig {
 	@Bean
 	public MessageSource messageSource() {
 		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-		messageSource.setBasename("classpath:messages");
+		
+		messageSource.addBasenames("classpath:messages", "classpath:messages_v3", "classpath:errors");
 		messageSource.setDefaultLocale(Locale.forLanguageTag("ca"));
 		messageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
 		messageSource.setFallbackToSystemLocale(false);

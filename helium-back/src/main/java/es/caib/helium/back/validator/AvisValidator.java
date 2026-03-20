@@ -1,0 +1,72 @@
+package es.caib.helium.back.validator;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import es.caib.helium.back.command.AvisCommand;
+import es.caib.helium.back.helper.MessageHelper;
+import es.caib.helium.commons.dto.AvisDto;
+import es.caib.helium.logic.intf.service.AvisService;
+
+public class AvisValidator implements ConstraintValidator<Avis, AvisCommand>{
+
+	private Avis avis;
+	@Autowired
+	private AvisService avisService;
+	final String regex = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
+
+	
+	@Override
+	public void initialize(Avis anotacio) {
+		this.avis = anotacio;
+	}
+
+	@Override
+	public boolean isValid(AvisCommand command, ConstraintValidatorContext context) {
+		
+		boolean valid = true;
+		AvisDto repetit = null;
+		
+		if(command!=null && command.getId()!=null)
+			repetit = avisService.findById(command.getId());
+		Pattern p = Pattern.compile(regex);
+		if(command.getHoraInici()!=null) {	
+			Matcher m = p.matcher(command.getHoraInici());
+			valid=m.matches();
+			if(!valid) {
+				context.buildConstraintViolationWithTemplate(
+					MessageHelper.getInstance().getMessage("error.avis.validacio", null))
+					.addConstraintViolation();	
+			}
+		}
+		if(command.getHoraFi()!=null) {
+		   Matcher m = p.matcher(command.getHoraFi());
+	       valid = m.matches();
+	       if(!valid) {
+				context.buildConstraintViolationWithTemplate(
+					MessageHelper.getInstance().getMessage("error.avis.validacio", null))
+					.addConstraintViolation();	
+			}
+		}
+		if(command.getDataFinal()!=null && command.getDataInici()!=null && command.getDataInici().after(command.getDataFinal())) {
+			valid = false;
+			context.buildConstraintViolationWithTemplate(
+					MessageHelper.getInstance().getMessage("error.validacio.avis.dataInici.menor.dataFi", null))
+					.addConstraintViolation();	
+		}
+		if (repetit != null && (command.getId() == null || !command.getId().equals(repetit.getId()))) {
+			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage(avis.codiRepetit()))
+					.addNode("codi").addConstraintViolation();
+			valid = false;
+		}
+		if (!valid)
+			context.disableDefaultConstraintViolation();
+		return valid;
+	}
+
+}

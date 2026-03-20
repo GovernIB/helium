@@ -15,8 +15,8 @@
 		<pattern>/expedient/logRetrocedit*</pattern>
 		<pattern>/expedient/logAccionsTasca*</pattern>
 		<pattern>/signatura/verificar*</pattern>
-		<pattern>/nodeco/*</pattern>
 		<pattern>/v3/metrics*</pattern>
+		<pattern>/nodeco/*</pattern>
 		<pattern>/rest/notib*</pattern>
 		<pattern>/rest/portafib*</pattern>
 		<pattern>/rest/v1/salutPerformance*</pattern>
@@ -26,6 +26,7 @@
 	</decorator>
 	<decorator name="senseCapNiPeus" page="senseCapNiPeus.jsp">
 		<pattern>*/firmapassarela*</pattern>
+		<pattern>/modal/*</pattern>
 	</decorator>
 	<decorator name="default" page="default.jsp">
 		<pattern>/*</pattern>

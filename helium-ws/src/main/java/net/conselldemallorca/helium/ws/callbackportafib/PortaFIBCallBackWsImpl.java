@@ -30,7 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
  * Implementació dels mètodes per al servei de callback del portafirmes per WS SOAP 1.0.
  * També és possible rebre els callbacks per API REST al PortaFIBCallback.
  * 
- * @see net.conselldemallorca.helium.webapp.v3.rest.PortaFIBCallback
+ * @see es.caib.helium.back.rest.PortaFIBCallback
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */

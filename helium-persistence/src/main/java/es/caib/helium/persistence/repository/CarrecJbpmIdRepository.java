@@ -25,9 +25,9 @@ public interface CarrecJbpmIdRepository extends JpaRepository<CarrecJbpmId, Long
 	
 	@Query(	"from CarrecJbpmId c " +
 			"where " +
-			"    (:esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') "
-			+ "		or lower(c.nomHome) like lower('%'||:filtre||'%'))"
-			+ "		or lower(c.nomDona) like lower('%'||:filtre||'%'))"
+			"    :esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') "
+			+ "		or lower(c.nomHome) like lower('%'||:filtre||'%')"
+			+ "		or lower(c.nomDona) like lower('%'||:filtre||'%')"
 			+ " 	or lower(c.descripcio) like lower('%'||:filtre||'%') ")
 	Page<CarrecJbpmId> findConfigurats(
 			@Param("esNullFiltre") boolean esNullFiltre,
