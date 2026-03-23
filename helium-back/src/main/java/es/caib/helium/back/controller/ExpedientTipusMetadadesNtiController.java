@@ -37,7 +37,7 @@ import es.caib.plugins.arxiu.caib.ArxiuCaibException;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusController {
 
 	@Autowired
@@ -66,7 +66,7 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 			model.addAttribute("expedientTipusMetadadesNtiCommand", command);
 			this.afegirDadesUnitatOrganitzativa(request, model, expedientTipus.getNtiOrgano());
 		}
-		return "v3/expedientTipusMetadadesNti";
+		return "expedientTipusMetadadesNti";
 	}
 	
 	/** Mètode per comprovar l'estat de la UO i afegir informació per a que es pinti al model. 
@@ -235,6 +235,6 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 
 		this.afegirDadesUnitatOrganitzativa(request, model, codiUo);
 
-    	return "v3/unitatOrganitzativaComprovar";
+    	return "unitatOrganitzativaComprovar";
 	}	
 }

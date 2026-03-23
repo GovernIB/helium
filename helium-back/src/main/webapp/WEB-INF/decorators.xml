@@ -15,7 +15,7 @@
 		<pattern>/expedient/logRetrocedit*</pattern>
 		<pattern>/expedient/logAccionsTasca*</pattern>
 		<pattern>/signatura/verificar*</pattern>
-		<pattern>/v3/metrics*</pattern>
+		<pattern>/metrics*</pattern>
 		<pattern>/nodeco/*</pattern>
 		<pattern>/rest/notib*</pattern>
 		<pattern>/rest/portafib*</pattern>

@@ -34,7 +34,7 @@ import es.caib.helium.service.helper.EntornHelper;
  */
 
 @Controller(value = "entornAreaControllerV3")
-@RequestMapping("/v3/entorn-area")
+@RequestMapping("/entorn-area")
 public class EntornAreaController extends BaseController {
 	
 	@Autowired
@@ -48,7 +48,7 @@ public class EntornAreaController extends BaseController {
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/entornArea";
+		return "entornArea";
 	}
 	
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)
@@ -72,12 +72,12 @@ public class EntornAreaController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		model.addAttribute("entornTipusArea", entornTipusAreaService.findTipusAreaByEntorn(entornActual.getId()));
 		model.addAttribute("entornArees", entornAreaService.findAreesByEntorn(entornActual.getId()));
 		model.addAttribute(new EntornAreaCommand());
-		return "v3/entornAreaForm";
+		return "entornAreaForm";
 	}
 
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
@@ -86,16 +86,16 @@ public class EntornAreaController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("entornTipusArea", entornTipusAreaService.findTipusAreaByEntorn(entornActual.getId()));
 			model.addAttribute("entornArees", entornAreaService.findAreesByEntorn(entornActual.getId()));
-			return "v3/entornAreaForm";
+			return "entornAreaForm";
 		}
 
 		entornAreaService.create(entornActual.getId(), ConversioTipus.convertir(command, EntornAreaDto.class));
-		return getModalControllerReturnValueSuccess(request, "redirect:/v3/entorn-area", "area.controller.creada");
+		return getModalControllerReturnValueSuccess(request, "redirect:/entorn-area", "area.controller.creada");
 	}
 
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.GET)
@@ -104,7 +104,7 @@ public class EntornAreaController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		EntornAreaDto dto = entornAreaService.findAmbId(entornActual.getId(), id);
 		dto.setTipusId(dto.getTipus().getId());
@@ -116,7 +116,7 @@ public class EntornAreaController extends BaseController {
 		EntornAreaCommand command = ConversioTipus.convertir(dto, EntornAreaCommand.class);
 
 		model.addAttribute("entornAreaCommand", command);
-		return "v3/entornAreaForm";
+		return "entornAreaForm";
 	}
 	
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
@@ -129,16 +129,16 @@ public class EntornAreaController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
         if (bindingResult.hasErrors()) {
         	model.addAttribute("entornTipusArea", entornTipusAreaService.findTipusAreaByEntorn(entornActual.getId()));
 			model.addAttribute("entornArees", entornAreaService.findAreesByEntorn(entornActual.getId()));
-        	return "v3/entornAreaForm";
+        	return "entornAreaForm";
         } 
         
     	entornAreaService.update(entornActual.getId(), ConversioTipus.convertir(command, EntornAreaDto.class));
-		return getModalControllerReturnValueSuccess(request, "redirect:/v3/entorn-area", "area.controller.modificada");
+		return getModalControllerReturnValueSuccess(request, "redirect:/entorn-area", "area.controller.modificada");
 	}
 	
 	@RequestMapping(value = "{entornAreaId}/delete", method = RequestMethod.GET)
@@ -148,7 +148,7 @@ public class EntornAreaController extends BaseController {
 		entornAreaService.delete(entornAreaId);
 		return this.getAjaxControllerReturnValueSuccess(
 				request,
-				"redirect:/v3/entorn-area",
+				"redirect:/entorn-area",
 				"area.controller.esborrada");
 	}
 	

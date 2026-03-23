@@ -58,7 +58,7 @@ import es.caib.helium.service.helper.PluginHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/unitatOrganitzativa")
+@RequestMapping("/unitatOrganitzativa")
 public class UnitatOrganitzativaController extends BaseController {
 	
 	@Autowired
@@ -90,7 +90,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		
 		this.modelEstats(model);
 		model.addAttribute(filtreCommand);
-		return "v3/unitatOrganitzativa";
+		return "unitatOrganitzativa";
 	}
 	
 	
@@ -204,7 +204,7 @@ public class UnitatOrganitzativaController extends BaseController {
 			UnitatOrganitzativaCommand unitatOrganitzativaCommand = new UnitatOrganitzativaCommand();
 			model.addAttribute(unitatOrganitzativaCommand);
 		}
-		return "v3/unitatOrganitzativaForm";
+		return "unitatOrganitzativaForm";
 	}
 	
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
@@ -214,7 +214,7 @@ public class UnitatOrganitzativaController extends BaseController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/unitatOrganitzativaForm";
+        	return "unitatOrganitzativaForm";
         } else {
     		unitatOrganitzativaService.create(
     				ConversioTipus.convertir(
@@ -222,7 +222,7 @@ public class UnitatOrganitzativaController extends BaseController {
     						UnitatOrganitzativaDto.class));
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/unitatOrganitzativa",
+					"redirect:/unitatOrganitzativa",
 					"unitat.organitzativa.controller.creat");
         }
 	}
@@ -238,7 +238,7 @@ public class UnitatOrganitzativaController extends BaseController {
 				ConversioTipus.convertir(
 						dto,
 						UnitatOrganitzativaCommand.class));
-		return "v3/unitatOrganitzativaForm";
+		return "unitatOrganitzativaForm";
 	}
 	
 	@RequestMapping(value = "/{unitatOrganitzativaId}/update", method = RequestMethod.POST)
@@ -249,7 +249,7 @@ public class UnitatOrganitzativaController extends BaseController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/unitatOrganitzativaForm";
+        	return "unitatOrganitzativaForm";
         } else {
 //        	command.setId(unitatOrganitzativaId);
         	unitatOrganitzativaService.update(
@@ -258,7 +258,7 @@ public class UnitatOrganitzativaController extends BaseController {
     						UnitatOrganitzativaDto.class));
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/unitatOrganitzativa",
+					"redirect:/unitatOrganitzativa",
 					"unitat.organitzativa.controller.modificat");
         }
 	}
@@ -371,7 +371,7 @@ public class UnitatOrganitzativaController extends BaseController {
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
 		}
-		return "v3/synchronizationPrediction";
+		return "synchronizationPrediction";
 	}
 	
 	@RequestMapping(value = "/saveSynchronize", method = RequestMethod.POST)
@@ -413,7 +413,7 @@ public class UnitatOrganitzativaController extends BaseController {
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
 		}
-		return "v3/unitatArbre";
+		return "unitatArbre";
 	}
 	
 
@@ -475,7 +475,7 @@ public class UnitatOrganitzativaController extends BaseController {
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
 		}
-		return "v3/unitatOrganitzativaInfo";
+		return "unitatOrganitzativaInfo";
 	}
 	
 

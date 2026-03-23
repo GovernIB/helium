@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
@@ -52,7 +51,6 @@ import es.caib.helium.commons.dto.MostrarAnulatsDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
-import es.caib.helium.logic.intf.service.ExpedientReindexacioService;
 
 /**
  * Controlador per al llistat d'expedients.
@@ -60,11 +58,8 @@ import es.caib.helium.logic.intf.service.ExpedientReindexacioService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient/consulta")
+@RequestMapping("/expedient/consulta")
 public class ExpedientConsultaLlistatController extends BaseExpedientController {
-
-	@Autowired
-	ExpedientReindexacioService expedientReindexacioService;
 
 	@ModelAttribute("expedientConsultaCommand")
 	public Object getFiltreCommand(
@@ -116,7 +111,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 					request, 
 					"Error accedint a la consulta amb id " + consultaId + ": " + e.getMessage() + ". Si és la consulta per defecte revisi el seu perfil.",
 					e);
-			return "redirect:/v3/expedient";
+			return "redirect:/expedient";
 		}
 		
 		model.addAttribute(
@@ -159,7 +154,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 				filtreCommand);
 		model.addAttribute("expedientConsultaCommand", filtreCommand);
 		
-		return "v3/expedientConsultaLlistat";
+		return "expedientConsultaLlistat";
 	}
 
 	@RequestMapping(value = "/{consultaId}", method = RequestMethod.POST)
@@ -178,7 +173,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId,
 				filtreCommand);
-		return "redirect:/v3/expedient/consulta/" + consultaId;
+		return "redirect:/expedient/consulta/" + consultaId;
 	}
 
 	@RequestMapping(value = "/{consultaId}/datatable")
@@ -333,36 +328,6 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		binder.registerCustomEditor(
 				Object.class,
 				new ObjectTypeEditorHelper());
-	}
-
-
-	/** Mètode per consultar via Ajax el contingut de les alertes per si el tipus 
-	 * d'expedient de la consutla conté expedients pendents de reindexar o amb errors
-	 * de reindexació. Retorna el contingut per pintar l'HTML de les alertes de reindexació
-	 * en la pàgina de consultes.
-	 * Les alertes poden carregar la llista d'expedients amb error o pendents de reindexació
-	 * via ajax a partir del ReindexacioController
-	 * @param request
-	 * @param consultaId
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "/{consultaId}/alertes")	
-	public String alertes(
-			HttpServletRequest request,
-			@PathVariable Long consultaId,
-			Model model) {
-
-		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
-
-		// Consulta si hi ha expedients amb error de reindexació o pendents de reindexar
-		Long errorsReindexacio = expedientReindexacioService.consultaCountErrorsReindexacio(consulta.getExpedientTipus().getId());
-		Long pendentsReindexacio = expedientReindexacioService.consultaCountPendentsReindexacio(consulta.getExpedientTipus().getId());
-		model.addAttribute("tipusId", consulta.getExpedientTipus().getId());
-		model.addAttribute("errorsReindexacio", errorsReindexacio);
-		model.addAttribute("pendentsReindexacio", pendentsReindexacio);
-
-		return "v3/expedientConsultaAlertes";
 	}
 	
 	private Map<String, Object> processarValorsFiltre(

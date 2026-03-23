@@ -32,7 +32,7 @@ import es.caib.helium.service.utils.CsvHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/execucionsMassives")
+@RequestMapping("/execucionsMassives")
 public class ExecucionsMassivesController extends BaseExpedientController {
 
 	@Autowired
@@ -116,7 +116,7 @@ public class ExecucionsMassivesController extends BaseExpedientController {
 	@RequestMapping(value = "/{nivell}", method = RequestMethod.GET)
 	public String get(HttpServletRequest request, @PathVariable String nivell, Model model) {
 		model.addAttribute("nivell", nivell);
-		return "v3/execucionsMassives";
+		return "execucionsMassives";
 	}
 
 	@RequestMapping(value = "{nivell}/refreshBarsExpedientMassive", method = RequestMethod.GET, produces = {

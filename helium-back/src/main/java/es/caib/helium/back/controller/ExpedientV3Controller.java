@@ -70,7 +70,7 @@ import es.caib.helium.service.helper.ExpedientHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientV3Controller extends BaseExpedientController {
 
 	@Autowired
@@ -116,9 +116,9 @@ public class ExpedientV3Controller extends BaseExpedientController {
 					getMessage(
 							request, 
 							"error.expedientService.noExisteix"));
-			return "redirect:/v3/expedient";
+			return "redirect:/expedient";
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 
 	@RequestMapping(value = "/{expedientId}/delete", method = RequestMethod.GET)
@@ -133,7 +133,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 					getMessage(
 							request,
 							"info.expedient.esborrat"));
-			return "redirect:/v3/expedient";
+			return "redirect:/expedient";
 		} catch (Exception e) {
 			String errMsg = getMessage(request, "error.esborrant.expedient", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
@@ -167,7 +167,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 					getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage(),
 					ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 	
 	/** Mètode per finalitzar un expedient. Es crida al mètode de servei de finalitzar. Els expedients
@@ -194,7 +194,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 							Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024)),
 					ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 	
 	/** Modal expedients integrats amb l'Arxiu que permet seleccionar quins documents pendents de firma firmar i guardar 
@@ -215,7 +215,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			expedientFinalitzarDto.setError(true);
 		}
 		model.addAttribute(expedientFinalitzarDto);
-		return "v3/expedient/prefinalitzar";
+		return "expedient/prefinalitzar";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/prefinalitzar", method = RequestMethod.POST)
@@ -295,7 +295,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);		
 		model.addAttribute("alertes",alertes);
 		model.addAttribute("persones", persones);
-		return "v3/expedient/alertes";
+		return "expedient/alertes";
 	}
 	
 	private Map<String, String> getNomPersonaPerAlertes(List<AlertaDto> alertes) {
@@ -325,7 +325,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);		
 		model.addAttribute("errors_bas",errors_bas);
 		model.addAttribute("errors_int",errors_int);
-		return "v3/expedient/errors";
+		return "expedient/errors";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/netejarErrorsExp", method = RequestMethod.GET)
@@ -387,7 +387,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 					getMessage(request, "error.canviar.versio.proces"),
 					ex);
 		}
-		return "v3/expedient/canviVersio";
+		return "expedient/canviVersio";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/canviVersio", method = RequestMethod.POST)
@@ -462,7 +462,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 					getMessage(request, "error.buidarlog.expedient") + ": " + ex.getLocalizedMessage(),
 					ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 	
 	
@@ -497,7 +497,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
 		}		
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 	
 	/** Mètode Ajax per refrescar l'estat de l'expedient quan es tramiten tasques des de la gestió
@@ -565,7 +565,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
 		}			
-		return "v3/expedientMetadadesNtiInfo";
+		return "expedientMetadadesNtiInfo";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/sicronitzarArxiu", method = RequestMethod.GET)
@@ -628,7 +628,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 					getMessage(request, "error.migrar.expedient.arxiu") + ": " + ex.getLocalizedMessage(),
 					ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 
 	@RequestMapping(value = "/{expedientId}/estat/{estatId}/canviar", method = RequestMethod.GET)
@@ -864,7 +864,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
     						"expedient.exportacio.eni.error",
     						new Object[]{e.getMessage()}),
 					e);
-    		response.sendRedirect("/helium/v3/expedient/" + expedientId);
+    		response.sendRedirect("/helium/expedient/" + expedientId);
     	}        
 	}
 	
@@ -887,7 +887,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
     						"expedient.exportacio.eni.error",
     						new Object[]{e.getMessage()}),
 					e);
-    		response.sendRedirect("/helium/v3/expedient/" + expedientId);
+    		response.sendRedirect("/helium/expedient/" + expedientId);
     	}        
 	}
 	
@@ -909,7 +909,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
     						"expedient.exportacio.eni.error",
     						new Object[]{e.getMessage()}),
 					e);
-    		response.sendRedirect("/helium/v3/expedient/" + expedientId);
+    		response.sendRedirect("/helium/expedient/" + expedientId);
     	}        
 	}
 	

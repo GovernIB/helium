@@ -51,7 +51,7 @@ import es.caib.helium.service.utils.EntornActual;
  *
  */
 @Controller(value = "definicioProcesVariableControllerV3")
-@RequestMapping("/v3/definicioProces")
+@RequestMapping("/definicioProces")
 public class DefinicioProcesVariableController extends BaseVariableController {
 
 	@Autowired
@@ -81,7 +81,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		model.addAttribute("jbpmKey", jbpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 
-		return "v3/expedientTipusVariable";
+		return "expedientTipusVariable";
 	}
 
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/datatable")
@@ -126,7 +126,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				definicioProcesId,
 				command,
 				model);
-		return "v3/expedientTipusVariableForm";
+		return "expedientTipusVariableForm";
 	}
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/new", method = RequestMethod.POST)
 	public String nouPost(
@@ -144,7 +144,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
     				definicioProcesId, 
     				command,
     				model);
-        	return "v3/expedientTipusVariableForm";
+        	return "expedientTipusVariableForm";
         } else {
         	// Verificar permisos
     		campService.create(
@@ -186,7 +186,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				definicioProcesId, 
 				command,
 				model);
-		return "v3/expedientTipusVariableForm";
+		return "expedientTipusVariableForm";
 	}
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
@@ -205,7 +205,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
     				definicioProcesId, 
     				command,
     				model);
-        	return "v3/expedientTipusVariableForm";
+        	return "expedientTipusVariableForm";
         } else {
         	campService.update(
         			CampCommand.asCampDto(command));
@@ -316,7 +316,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		command.setCampId(campId);
 		model.addAttribute("validacioCommand", command);
 
-		return "v3/expedientTipusValidacio";
+		return "expedientTipusValidacio";
 	}	
 	
 	@RequestMapping(value="/{jbpmKey}/{definicioProcesId}/variable/{campId}/validacio/datatable", method = RequestMethod.GET)
@@ -351,7 +351,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
         if (bindingResult.hasErrors()) {
     		omplirModelValidacionsForm(jbpmKey, definicioProcesId, campId, model);
         	model.addAttribute("mostraCreate", true);
-        	return "v3/expedientTipusValidacio";
+        	return "expedientTipusValidacio";
         } else {
         	// Verificar permisos
         	validacioService.validacioCreate(
@@ -382,7 +382,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
         if (bindingResult.hasErrors()) {
     		omplirModelValidacionsForm(jbpmKey, definicioProcesId, campId, model);
         	model.addAttribute("mostraUpdate", true);
-        	return "v3/expedientTipusValidacio";
+        	return "expedientTipusValidacio";
         } else {
         	validacioService.validacioUpdate(
         			ConversioTipus.convertir(
@@ -522,7 +522,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/helium/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 			// agrupacions heretades
 			model.addAttribute("agrupacionsHeretadesIds", new ArrayList<Long>());
 			model.addAttribute("agrupacionsSobreescriuenIds", new ArrayList<Long>());
@@ -553,7 +553,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		model.addAttribute("definicioProcesId", definicioProcesId);
 		model.addAttribute("baseUrl", "definicioProces/" + jbpmKey + "/" + definicioProcesId);
 
-		return "v3/expedientTipusAgrupacio";
+		return "expedientTipusAgrupacio";
 	}
 
 	/** Mètode per obtenir les agrupacions per al select. */
@@ -596,7 +596,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		AgrupacioCommand command = new AgrupacioCommand();
 		command.setDefinicioProcesId(definicioProcesId);
 		model.addAttribute("agrupacioCommand", command);
-		return "v3/expedientTipusAgrupacioForm";
+		return "expedientTipusAgrupacioForm";
 	}
 
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio/new", method = RequestMethod.POST)
@@ -607,7 +607,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@Validated(AgrupacioCommand.Creacio.class) AgrupacioCommand command,
 			BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
-			return "v3/expedientTipusAgrupacioForm";
+			return "expedientTipusAgrupacioForm";
 		} else {
 			// Verificar permisos
 			campService.agrupacioCreate(
@@ -630,7 +630,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		AgrupacioCommand command = ConversioTipus.convertir(dto,
 				AgrupacioCommand.class);
 		model.addAttribute("agrupacioCommand", command);
-		return "v3/expedientTipusAgrupacioForm";
+		return "expedientTipusAgrupacioForm";
 	}
 
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio/{id}/update", method = RequestMethod.POST)
@@ -642,7 +642,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@Validated(AgrupacioCommand.Modificacio.class) AgrupacioCommand command,
 			BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
-			return "v3/expedientTipusAgrupacioForm";
+			return "expedientTipusAgrupacioForm";
 		} else {
 			campService.agrupacioUpdate(ConversioTipus.convertir(command, CampAgrupacioDto.class));
 			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.campAgrupacio.controller.modificat"));
@@ -716,7 +716,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		model.addAttribute("expedientTipusCampRegistreCommand", command);
 		model.addAttribute("variables", new ArrayList<ParellaCodiValorDto>());		
 
-		return "v3/expedientTipusCampRegistre";
+		return "expedientTipusCampRegistre";
 	}	
 	
 	@RequestMapping(value="/{jbpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/datatable", method = RequestMethod.GET)
@@ -754,7 +754,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
     				campId, 
     				null));		
         	model.addAttribute("mostraCreate", true);
-        	return "v3/expedientTipusCampRegistre";
+        	return "expedientTipusCampRegistre";
         } else {
         	// Verificar permisos
     		campService.registreCreate(
@@ -789,7 +789,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
     				campId, 
     				command.getMembreId()));		
         	model.addAttribute("mostraUpdate", true);
-        	return "v3/expedientTipusCampRegistre";
+        	return "expedientTipusCampRegistre";
         } else {
         	campService.registreUpdate(
         			ConversioTipus.convertir(

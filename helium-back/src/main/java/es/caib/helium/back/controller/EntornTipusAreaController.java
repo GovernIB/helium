@@ -33,7 +33,7 @@ import es.caib.helium.service.helper.EntornHelper;
  */
 
 @Controller(value = "entornTipusAreaControllerV3")
-@RequestMapping("/v3/entorn-tipus-area")
+@RequestMapping("/entorn-tipus-area")
 public class EntornTipusAreaController extends BaseController {
 
 	@Autowired
@@ -43,7 +43,7 @@ public class EntornTipusAreaController extends BaseController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(HttpServletRequest request, Model model) {
-		return "v3/entornTipusArea";
+		return "entornTipusArea";
 	}
 
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
@@ -64,7 +64,7 @@ public class EntornTipusAreaController extends BaseController {
 	public String newGet(HttpServletRequest request, Model model) {
 		
 		model.addAttribute(new EntornTipusAreaCommand());
-		return "v3/entornTipusAreaForm";
+		return "entornTipusAreaForm";
 	}
 
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
@@ -74,14 +74,14 @@ public class EntornTipusAreaController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		if (bindingResult.hasErrors()) {
-			return "v3/entornTipusAreaForm";
+			return "entornTipusAreaForm";
 		}
 
 		entornTipusAreaService.create(entornActual.getId(), ConversioTipus.convertir(command, EntornTipusAreaDto.class));
-		return getModalControllerReturnValueSuccess(request, "redirect:/v3/entorn-tipus-area", "tipusArea.controller.creat");
+		return getModalControllerReturnValueSuccess(request, "redirect:/entorn-tipus-area", "tipusArea.controller.creat");
 	}
 
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.GET)
@@ -90,13 +90,13 @@ public class EntornTipusAreaController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		EntornTipusAreaDto dto = entornTipusAreaService.findAmbId(entornActual.getId(), id);
 		EntornTipusAreaCommand command = ConversioTipus.convertir(dto, EntornTipusAreaCommand.class);
 
 		model.addAttribute("entornTipusAreaCommand", command);
-		return "v3/entornTipusAreaForm";
+		return "entornTipusAreaForm";
 	}
 	
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
@@ -110,10 +110,10 @@ public class EntornTipusAreaController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
         if (bindingResult.hasErrors()) {
-        	return "v3/entornTipusAreaForm";
+        	return "entornTipusAreaForm";
         } 
     		
     	entornTipusAreaService.update(
@@ -123,7 +123,7 @@ public class EntornTipusAreaController extends BaseController {
 						EntornTipusAreaDto.class));
 		return getModalControllerReturnValueSuccess(
 				request,
-				"redirect:/v3/entorn-tipus-area",
+				"redirect:/entorn-tipus-area",
 				"tipusArea.controller.modificat");
 	}
 
@@ -131,7 +131,7 @@ public class EntornTipusAreaController extends BaseController {
 	public String delete(HttpServletRequest request, @PathVariable Long entornTipusAreaId, Model model) {
 		
 		entornTipusAreaService.delete(entornTipusAreaId);
-		return this.getAjaxControllerReturnValueSuccess(request, "redirect:/v3/entorn-tipus-area",
+		return this.getAjaxControllerReturnValueSuccess(request, "redirect:/entorn-tipus-area",
 				"tipusArea.controller.esborrada");
 	}
 }

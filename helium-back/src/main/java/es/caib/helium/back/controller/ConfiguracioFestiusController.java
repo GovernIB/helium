@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.ExpedientTerminiService;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Controlador per a la de configuració de festius.
@@ -23,7 +23,7 @@ import es.caib.helium.service.utils.GlobalProperties;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/configuracio/festius")
+@RequestMapping("/configuracio/festius")
 public class ConfiguracioFestiusController extends BaseController {
 
 	@Autowired
@@ -75,7 +75,7 @@ public class ConfiguracioFestiusController extends BaseController {
 					nolabsStr.split(","));
 		}
 		
-		return "v3/festius";
+		return "festius";
 	}
 	
 	@RequestMapping(value = "/create/{dia}/{mes}/{any}", method = RequestMethod.GET)

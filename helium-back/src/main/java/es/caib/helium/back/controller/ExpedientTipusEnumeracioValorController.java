@@ -44,7 +44,7 @@ import es.caib.helium.logic.intf.service.EnumeracioService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "expedientTipusEnumeracioValorControllerV3")
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusController {
 	
 	@Autowired
@@ -59,7 +59,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 		
 		ompleDadesModel(request, expedientTipusId, enumeracioId, model, true);
 
-		return "v3/expedientTipusEnumeracioValors";
+		return "expedientTipusEnumeracioValors";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/{enumeracioId}/valor/datatable", method = RequestMethod.GET)
@@ -103,7 +103,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 		model.addAttribute("expedientTipusEnumeracioValorCommand", command);
 		model.addAttribute("mostraUpdate", true);
 		//model.addAttribute("inUse", enumeracioService.valorInUse(id));
-		return "v3/expedientTipusEnumeracioValors";
+		return "expedientTipusEnumeracioValors";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/{enumeracioId}/valor/{id}/update", method = RequestMethod.POST)
@@ -119,7 +119,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
 			model.addAttribute("mostraUpdate", true);
-			return "v3/expedientTipusEnumeracioValors";
+			return "expedientTipusEnumeracioValors";
 		} else {		
 			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);
 			
@@ -137,7 +137,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 							request,
 							"expedient.tipus.enumeracio.valors.controller.modificat"));
 			
-			return "v3/expedientTipusEnumeracioValors";
+			return "expedientTipusEnumeracioValors";
 		}
 	}
 	
@@ -157,7 +157,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 						getMessage(
 								request,
 								"expedient.tipus.enumeracio.valors.controller.eliminat.us"));
-				return "v3/expedientTipusEnumeracioValors";
+				return "expedientTipusEnumeracioValors";
 			}
 			
 			enumeracioService.valorDelete(id);
@@ -178,7 +178,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 		}
 		
 		ompleDadesModel(request, expedientTipusId, enumeracioId, model, true);
-		return "v3/expedientTipusEnumeracioValors";
+		return "expedientTipusEnumeracioValors";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/{enumeracioId}/valor/new", method = RequestMethod.POST)
@@ -193,7 +193,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			model.addAttribute("mostraCreate", true);
 			ompleDadesModel(request, expedientTipusId, enumeracioId, model, false);
 			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
-        	return "v3/expedientTipusEnumeracioValors";
+        	return "expedientTipusEnumeracioValors";
 		} else {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);

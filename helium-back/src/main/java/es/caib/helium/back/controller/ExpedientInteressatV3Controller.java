@@ -56,7 +56,7 @@ import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientInteressatV3Controller extends BaseExpedientController {
 
 	@Autowired private ExpedientInteressatService expedientInteressatService;
@@ -85,7 +85,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		model.addAttribute("expedientId", expedientId);	
-		return "v3/interessatLlistat";
+		return "interessatLlistat";
 	}
 
 	@RequestMapping(value="/{expedientId}/interessat/datatable", method = RequestMethod.GET)
@@ -148,7 +148,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 				);
 		model.addAttribute("interessat", interessat);
 
-		return "v3/interessatDetall";
+		return "interessatDetall";
 	}
 
 
@@ -163,7 +163,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(interessatCommand);
 		model.addAttribute("es_representant",false);
-		return "v3/interessatForm";
+		return "interessatForm";
 	}
 	@RequestMapping(value = "/{expedientId}/interessat/new", method = RequestMethod.POST)
 	public String newPost(
@@ -197,7 +197,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         }
     	if (error) {
     		populateModel(request, model, null);
-    		return "v3/interessatForm";
+    		return "interessatForm";
     	} else {
         	return modalUrlTancar(false);
     	}
@@ -232,7 +232,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
     		this.populateUOsCommand(interessatCommand);
     	}
 		model.addAttribute(interessatCommand);
-		return "v3/interessatForm";
+		return "interessatForm";
 	}
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/update", method = RequestMethod.POST)
 	public String updatePost(
@@ -278,7 +278,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         	if (command.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(command.getTipus())) {
     			this.populateUOsCommand(command);
         	}
-        	return "v3/interessatForm";
+        	return "interessatForm";
         } else {
 			return modalUrlTancar(false);        	
         }
@@ -296,7 +296,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(interessatCommand);
 		model.addAttribute("es_representant",true);
-		return "v3/interessatForm";
+		return "interessatForm";
 	}
 		
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/new", method = RequestMethod.POST)
@@ -330,7 +330,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         }
         if (error) {
     		populateModel(request, model, command.getProvincia());
-        	return "v3/interessatForm";
+        	return "interessatForm";
         } else {
   			return modalUrlTancar(false);
         }
@@ -357,7 +357,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		model.addAttribute("interessatId", interessatId);
 		model.addAttribute(interessatCommand);
 		model.addAttribute("es_representant",true);
-		return "v3/interessatCercarRepresentant";
+		return "interessatCercarRepresentant";
 	}
 		
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/search", method = RequestMethod.POST)
@@ -369,7 +369,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/interessatCercarRepresentant";
+        	return "interessatCercarRepresentant";
         } else {
         	InteressatDto interessat =expedientInteressatService.findOne(interessatId);
         	String representantId = command.getRepresentantSeleccionatId();
@@ -463,7 +463,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(request, errMsg, ex);
 		}
-		return "redirect:/v3/expedient/"+expedientId+"?pipellaActiva=interessats";
+		return "redirect:/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/interessat/{representantId}/deleteRepresentant", method = RequestMethod.GET)
@@ -481,7 +481,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(request, errMsg, ex);
 		}
-		return "redirect:/v3/expedient/"+expedientId+"?pipellaActiva=interessats";
+		return "redirect:/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}
 
 	private void populateModel(HttpServletRequest request, Model model, String provincia) {

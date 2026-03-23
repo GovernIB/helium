@@ -31,7 +31,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientAturarController extends BaseExpedientController {
 
 	@Autowired
@@ -44,7 +44,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);
 		ExpedientEinesAturarCommand aturarExpedient = new ExpedientEinesAturarCommand();
 		model.addAttribute(aturarExpedient);
-		return "v3/expedient/aturar";
+		return "expedient/aturar";
 	}
 
 	@RequestMapping(value = "/{expedientId}/aturar", method = RequestMethod.POST)
@@ -64,7 +64,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 					model.addAttribute("expedientId", expedientId);
 					model.addAttribute(aturarExpedient);
-					return "v3/expedient/aturar";
+					return "expedient/aturar";
 				}
 				
 				expedientService.aturar(expedientId, aturarExpedient.getMotiu());
@@ -93,7 +93,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 			logger.error(getMessage(request, "error.reprendre.expedient"), ex);
 		}
 		
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 
 	private class ExpedientAturarValidator implements Validator {

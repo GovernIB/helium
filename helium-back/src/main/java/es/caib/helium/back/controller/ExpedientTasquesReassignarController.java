@@ -39,7 +39,7 @@ import es.caib.helium.logic.intf.service.ExpedientTascaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientTasquesReassignarController extends BaseExpedientController {
 
 	@Autowired
@@ -57,7 +57,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			ModelMap model) {
 		ExpedientTascaReassignarCommand expedientTascaReassignarCommand = new ExpedientTascaReassignarCommand();
 		model.addAttribute(expedientTascaReassignarCommand);
-		return "v3/expedient/tasca/reassignar";
+		return "expedient/tasca/reassignar";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignar", method = RequestMethod.POST)
@@ -75,7 +75,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			new TascaReassignarValidator().setTipus(tipus).validate(expedientTascaReassignarCommand, result);
 	        if (result.hasErrors()) {
 				MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
-	        	return "v3/expedient/tasca/reassignar";
+	        	return "expedient/tasca/reassignar";
 	        }
 			try {
 				String expression = expedientTascaReassignarCommand.getExpression();
@@ -93,7 +93,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 				String errMsg = getMessage(request, "expedient.tasca.accio.reassignar.errror", new Object[] {tascaId, ExceptionUtils.getRootCauseMessage(ex)} );
 				MissatgesHelper.error(request, errMsg, ex);
 	        	logger.error(errMsg, ex);
-	        	return "v3/expedient/tasca/reassignar";
+	        	return "expedient/tasca/reassignar";
 			}
 		}
 		

@@ -35,7 +35,7 @@ import es.caib.helium.service.helper.MonitorHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/monitor")
+@RequestMapping("/monitor")
 public class MonitorSystemController extends BaseController {
 	@Autowired
 	private MonitorTasquesService monitorTasquesService;
@@ -44,7 +44,7 @@ public class MonitorSystemController extends BaseController {
 	public String get(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/monitor";
+		return "monitor";
 	}
 
 	@RequestMapping(value = "/all", method = RequestMethod.GET)

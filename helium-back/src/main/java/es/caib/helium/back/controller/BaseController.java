@@ -39,11 +39,11 @@ public class BaseController implements MessageSourceAware {
 		if (refrescar)
 			return modalUrlTancar();
 		else
-			return "v3/utils/modalTancar";
+			return "utils/modalTancar";
 	}
 
 	protected String modalUrlTancar() {
-		return "v3/utils/modalTancarIRefrescar";
+		return "utils/modalTancarIRefrescar";
 	}
 	
 	protected String ajaxUrlOk() {

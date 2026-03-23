@@ -36,7 +36,7 @@ import es.caib.helium.logic.intf.service.ExpedientDadaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller("expedientLuceneV3")
-@RequestMapping("/v3/expedient/lucene")
+@RequestMapping("/expedient/lucene")
 public class ExpedientLuceneController extends BaseExpedientController {
 	
 	@Autowired
@@ -52,12 +52,12 @@ public class ExpedientLuceneController extends BaseExpedientController {
 			expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			model.addAttribute("expedient", expedient);
 			this.omplirModelDades(request, model, expedient);
-			return "v3/expedientLucene";
+			return "expedientLucene";
 		} catch (Exception e) {
 			String errMsg = "Error consultant les dades indexades de l'expedient amb id " + expedientId + ": " + e.getMessage();
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
-			return "redirect:/v3/expedient" + (expedient != null ? "/" + expedient.getId() : "");
+			return "redirect:/expedient" + (expedient != null ? "/" + expedient.getId() : "");
 		}
 	}
 	
@@ -243,7 +243,7 @@ public class ExpedientLuceneController extends BaseExpedientController {
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage(), ex);
 		}
-		return "redirect:/modal/v3/expedient/lucene/" + expedientId;
+		return "redirect:/modal/expedient/lucene/" + expedientId;
 	}
 
 	

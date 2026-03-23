@@ -61,7 +61,7 @@ import es.caib.helium.service.utils.EntornActual;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/tasca")
+@RequestMapping("/tasca")
 public class TascaLlistatV3Controller extends BaseController {
 
 	@Autowired
@@ -99,7 +99,7 @@ public class TascaLlistatV3Controller extends BaseController {
 			}
 		else 
 			filtreCommand.setNomesTasquesMeves(true);
-		return "v3/tascaLlistat";
+		return "tascaLlistat";
 	}
 
 	@ModelAttribute("prioritats")
@@ -148,12 +148,12 @@ public class TascaLlistatV3Controller extends BaseController {
 								filtreCommand.getExpedientTipusId()));
 			}
 			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
-			return "v3/tascaLlistat";
+			return "tascaLlistat";
 		} catch (Exception e) {
 			MissatgesHelper.error(request, e.getMessage(), e);
 			filtreCommand.setConsultaTramitacioMassivaTascaId(null);
 			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
-			return "redirect:../../../v3/tasca";
+			return "redirect:../../../tasca";
 		}
 	}
 
@@ -320,7 +320,7 @@ public class TascaLlistatV3Controller extends BaseController {
 	@RequestMapping(value = "/filtre/netejar", method = RequestMethod.GET)
 	public String filtreNetejar(HttpServletRequest request) {
 		SessionHelper.getSessionManager(request).removeFiltreConsultaTasca();
-		return "redirect:/v3/tasca";
+		return "redirect:/tasca";
 	}
 
 	@RequestMapping(value = "/pendentsCompletar", method = RequestMethod.GET)
@@ -330,7 +330,7 @@ public class TascaLlistatV3Controller extends BaseController {
 		model.addAttribute("tasques", 
 				(persona.isAdmin())? adminService.getTasquesCompletar() :
 				(entornHelper.esAdminEntorn(EntornActual.getEntornId()))? adminService.getTasquesCompletarAdminEntorn() : new ArrayList<TascaCompleteDto>());
-		return "v3/pendentsCompletar";
+		return "pendentsCompletar";
 	}
 	
 	@ResponseBody

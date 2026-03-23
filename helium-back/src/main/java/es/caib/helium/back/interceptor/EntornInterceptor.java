@@ -52,6 +52,10 @@ public class EntornInterceptor implements HandlerInterceptor {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Object handler) throws Exception {
+		
+		if(request.getServletPath().startsWith("/entorn"))
+				return true;
+		
 		if (request.getUserPrincipal() != null && !isRequestResource(request)) {
 			EntornDto entornSessio = (EntornDto)SessionHelper.getAttribute(
 					request,
@@ -62,8 +66,8 @@ public class EntornInterceptor implements HandlerInterceptor {
 			request.setAttribute("entorns", entorns);
 			// Nova implementació
 			if (entorns.size() == 0) {
-				if (request.getServletPath().startsWith("/v3")) {
-		            ModelAndView mav = new ModelAndView("v3/entornNoDisponible");
+				if (request.getServletPath().startsWith("")) {
+		            ModelAndView mav = new ModelAndView("entornNoDisponible");
 		            throw new ModelAndViewDefiningException(mav);
 				}
 			} else {
@@ -152,7 +156,7 @@ public class EntornInterceptor implements HandlerInterceptor {
 				
 				// Indica si hi ha alertes no llegides 
 				// ELIMINAR DE LA INTERFÍCIE 26
-				if (!request.getRequestURI().contains("/v3")) {
+				if (!request.getRequestURI().contains("")) {
 //					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					int alertesNoLlegides = 0; //alertaService.countActivesAmbEntornIUsuari(entornActual.getId(), auth.getName(), AlertaService.ALERTAS_NO_LLEGIDES);
 					request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
@@ -317,6 +321,7 @@ public class EntornInterceptor implements HandlerInterceptor {
 				uri.contains(root + "/img/") || 
 				uri.contains(root + "/css/") || 
 				uri.contains(root + "/js/") || 
+				uri.contains(root + "/webjars/") || 
 				uri.contains("/datatable") || 
 				uri.contains("/selection"))
 			return true;

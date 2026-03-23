@@ -41,7 +41,7 @@ import es.caib.helium.logic.intf.service.ProcedimentService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/procediment")
+@RequestMapping("/procediment")
 public class ProcedimentController extends BaseController{
 	
 
@@ -61,7 +61,7 @@ public class ProcedimentController extends BaseController{
 		this.modelEstats(model);
 		this.modelTipus(model);
 		
-		return "v3/procedimentLlistat";
+		return "procedimentLlistat";
 	}	
 	
 	@RequestMapping(method = RequestMethod.POST)
@@ -148,7 +148,7 @@ public class ProcedimentController extends BaseController{
 			Model model) throws Exception {
 		
 		model.addAttribute("isUpdatingProcediments", procedimentService.isUpdatingProcediments());
-		return "v3/procedimentActualitzacioForm";
+		return "procedimentActualitzacioForm";
 	}
 	
 	@RequestMapping(value = "/actualitzar", method = RequestMethod.POST)
@@ -162,12 +162,12 @@ public class ProcedimentController extends BaseController{
 			String errMsg = "Error inesperat actualitzant els procediments: " + e.toString();
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
-			return "v3/procedimentActualitzacioForm";
+			return "procedimentActualitzacioForm";
 		}
 
 		return getAjaxControllerReturnValueSuccess(
 				request,
-				"v3/procedimentActualitzacioForm",
+				"procedimentActualitzacioForm",
 				"procediment.controller.actualitzar.ok");
 	}
 	
@@ -176,7 +176,7 @@ public class ProcedimentController extends BaseController{
 			HttpServletRequest request, 
 			Model model) throws Exception {
 		model.addAttribute("isUpdatingProcediments", procedimentService.isUpdatingServeis());
-		return "v3/procedimentServeiActualitzacioForm";
+		return "procedimentServeiActualitzacioForm";
 	}
 	
 	@RequestMapping(value = "/servei/actualitzar", method = RequestMethod.POST)
@@ -189,12 +189,12 @@ public class ProcedimentController extends BaseController{
 			String errMsg = "Error inesperat actualitzant els serveis: " + e.toString();
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
-			return "v3/procedimentServeiActualitzacioForm";
+			return "procedimentServeiActualitzacioForm";
 		}
 
 		return getAjaxControllerReturnValueSuccess(
 				request,
-				"v3/procedimentActualitzacioForm",
+				"procedimentActualitzacioForm",
 				"procediment.controller.actualitzar.servei.ok");
 	}
 	

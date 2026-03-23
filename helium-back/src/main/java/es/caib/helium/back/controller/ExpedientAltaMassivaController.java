@@ -42,7 +42,7 @@ import es.caib.helium.service.utils.EntornActual;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient/altaMassiva")
+@RequestMapping("/expedient/altaMassiva")
 public class ExpedientAltaMassivaController extends BaseExpedientController {
 
 
@@ -71,7 +71,7 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 		ExpedientAltaMassivaCommand expedientAltaMassivaCommand = new ExpedientAltaMassivaCommand();
 		model.addAttribute("command", expedientAltaMassivaCommand);
 						
-		return "v3/expedientAltaMassiva";
+		return "expedientAltaMassiva";
 	}
 	
 	/** 
@@ -127,7 +127,7 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 				MissatgesHelper.error(request, errMsg, e);
 			}
 		}		
-		return "v3/expedientAltaMassiva";
+		return "expedientAltaMassiva";
 	}
 	
 	/** Mètode ajax per consultar les dades JSON de la darrera execució d'alta massiva per saber en quin estat 

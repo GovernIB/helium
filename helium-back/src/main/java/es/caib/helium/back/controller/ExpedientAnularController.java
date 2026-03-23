@@ -31,7 +31,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientAnularController extends BaseExpedientController {
 
 	@Autowired
@@ -42,7 +42,7 @@ public class ExpedientAnularController extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);
 		ExpedientEinesCancelCommand cancelExpedient = new ExpedientEinesCancelCommand();
 		model.addAttribute(cancelExpedient);
-		return "v3/expedient/anular";
+		return "expedient/anular";
 	}	
 
 	@RequestMapping(value = "/{expedientId}/anular", method = RequestMethod.POST)
@@ -61,7 +61,7 @@ public class ExpedientAnularController extends BaseExpedientController {
 				MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 				model.addAttribute("expedientId", expedientId);
 				model.addAttribute(cancelExpedient);
-				return "v3/expedient/anular";
+				return "expedient/anular";
 			}
 			try {
 				expedientService.anular(expedientId, cancelExpedient.getMotiu());
@@ -89,7 +89,7 @@ public class ExpedientAnularController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.activar.expedient"), ex);
 			logger.error(getMessage(request, "error.activar.expedient"), ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 
 

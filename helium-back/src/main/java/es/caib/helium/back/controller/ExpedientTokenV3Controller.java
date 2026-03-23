@@ -47,7 +47,7 @@ import es.caib.helium.logic.intf.service.WorkflowEngineApi;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientTokenV3Controller extends BaseExpedientController {
 
 	@Autowired
@@ -77,7 +77,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 		model.addAttribute("expedient",expedient);
 		model.addAttribute("tokens",tokens);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-		return "v3/expedientToken";
+		return "expedientToken";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/token", method = RequestMethod.GET)
@@ -97,7 +97,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient",expedient);
 		model.addAttribute("tokens",tokens);
-		return "v3/procesTokens";
+		return "procesTokens";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/token/{tokenId}/activar", method = RequestMethod.GET)
@@ -154,7 +154,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 						procesId,
 						tokenId.toString()));
 		model.addAttribute("tokenExpedientCommand",command);
-		return "v3/expedientTokenRetrocedir";
+		return "expedientTokenRetrocedir";
 	}
 
 	@RequestMapping(value="/{expedientId}/proces/{procesId}/token/{tokenId}/retrocedir", method = RequestMethod.POST)
@@ -176,7 +176,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 								expedientId,
 								procesId,
 								tokenId.toString()));
-	        	return "v3/expedientTokenRetrocedir";
+	        	return "expedientTokenRetrocedir";
 	        }
 			expedientTokenService.retrocedir(
 					expedientId,

@@ -58,7 +58,7 @@ import es.caib.helium.service.security.ExtendedPermission;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientInicioPasTitolController extends BaseExpedientIniciController {
 
 
@@ -92,7 +92,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 		// Pot ser que vingui del formulari d'acceptar i crear un expedient per a una anotació de Distribució
 		model.addAttribute("anotacioAcceptarCommand", (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO));
 
-		return "v3/expedient/iniciarPasTitol";
+		return "expedient/iniciarPasTitol";
 	}
 
 	@RequestMapping(value = "/iniciarTitol/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.POST)
@@ -189,7 +189,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 		if (success)
 			return modalUrlTancar(false);
 		else 
-			return "v3/expedient/iniciarPasTitol";
+			return "expedient/iniciarPasTitol";
 	}
 
 	@RequestMapping(value = "/canviAny/{anySel}/{entornId}/{expedientTipusId}", method = RequestMethod.GET)

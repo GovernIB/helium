@@ -17,12 +17,12 @@
 	<meta name="author" content=""/>
 	<link href="<c:url value="/webjars/bootstrap/3.3.6/dist/css/bootstrap.min.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/webjars/font-awesome/4.5.0/css/font-awesome.min.css"/>" rel="stylesheet"/>
-	<link href="<c:url value="/webjars/jquery/1.12.0/dist/jquery-ui.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/webjars/jquery-ui/1.12.0/jquery-ui.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/estils-v3.css"/>" rel="stylesheet">
 	<link rel="shortcut icon" href="<c:url value="/img/ico/favicon.png"/>">
 	<link rel="icon" type="image/png" href="<c:url value="/img/ico/favicon.png"/>">
-	<script src="<c:url value="/webjars/jquery/1.12.0/dist/jquery.min.js"/>" type="text/javascript"></script>
-	<script src="<c:url value="/webjars/jquery/1.12.0/dist/jquery-ui.min.js"/>" type="text/javascript"></script>
+	<script src="<c:url value="/webjars/jquery/2.0.0/jquery.min.js"/>" type="text/javascript"></script>
+	<script src="<c:url value="/webjars/jquery-ui/1.12.0/jquery-ui.min.js"/>" type="text/javascript"></script>
 	<!--[if lt IE 9]>
 		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 		<script type='text/javascript' src="<c:url value="/js/respond.js"/>"></script>
@@ -256,6 +256,14 @@
 					<div id="app-logo" class="pull-left">
 						<a href="<c:url value="/"/>">
 							<img src="<c:url value="/img/logo-helium-w.png"/>" alt="Helium" />
+							<span style="
+							    color: white;
+							    font-size: 1.5em;
+							    font-weight: bold;
+							    position: relative;
+							    left: -1px;
+							    top: -10px;
+							">2</span>
 						</a>
 					</div>
 				</div>
@@ -276,7 +284,7 @@
 								</li>
 								<c:forEach var="entorn" items="${entorns}">
 									<li class="liEntorn">
-										<a href="<c:url value="/v3/index"><c:param name="entornCanviarAmbId" value="${entorn.id}"/></c:url>">${entorn.nom}</a>
+										<a href="<c:url value="/index"><c:param name="entornCanviarAmbId" value="${entorn.id}"/></c:url>">${entorn.nom}</a>
 									</li>
 			    				</c:forEach>
 							</ul>
@@ -296,10 +304,10 @@
 							<c:if test="${fn:length(expedientTipusAccessibles) gt 0}"><b class="caret caret-white"></b></a></c:if>
 							<ul class="dropdown-menu">
 								<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
-									<li><a href="<c:url value="/v3/index"><c:param name="expedientTipusCanviarAmbId" value="${expedientTipus.id}"/></c:url>">${expedientTipus.nom}</a></li>
+									<li><a href="<c:url value="/index"><c:param name="expedientTipusCanviarAmbId" value="${expedientTipus.id}"/></c:url>">${expedientTipus.nom}</a></li>
 								</c:forEach>
 								<li class="divider"></li>
-								<li><a href="<c:url value="/v3/index"><c:param name="expedientTipusCanviarAmbId" value=""/></c:url>"><spring:message code="comuns.tots.tipus"/></a></li>
+								<li><a href="<c:url value="/index"><c:param name="expedientTipusCanviarAmbId" value=""/></c:url>"><spring:message code="comuns.tots.tipus"/></a></li>
 							</ul>
 						</li>
 						<li class="dropdown">
@@ -308,13 +316,13 @@
 								<b class="caret caret-white"></b>
 							</a>
 							<ul id="ul-perfil" class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-								<li><a href="<c:url value="/v3/perfil"/>"><spring:message code='perfil.info.meu_perfil' /></a></li>
-								<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/execucionsMassives/user"/>"><spring:message code='comuns.massiu' /></a></li>
-			    				<li><a href="<c:url value="/v3/perfil/logout"/>"><i class="fa fa-power-off"></i> <spring:message code='login.desconnectar' /></a></li>
+								<li><a href="<c:url value="/perfil"/>"><spring:message code='perfil.info.meu_perfil' /></a></li>
+								<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/execucionsMassives/user"/>"><spring:message code='comuns.massiu' /></a></li>
+			    				<li><a href="<c:url value="/perfil/logout"/>"><i class="fa fa-power-off"></i> <spring:message code='login.desconnectar' /></a></li>
 			    			</ul>
 			    			<script type="text/javascript">
 								$('#ul-perfil a').heliumEvalLink({
-									alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+									alertesRefreshUrl: "<c:url value="/nodeco/missatges"/>",
 									refrescarAlertes: false,
 									refrescarPagina: false
 								});
@@ -325,43 +333,34 @@
 					<div class="btn-group navbar-btn navbar-right">
 						<c:choose>
 							<c:when test="${entornActual.codi == preferenciesUsuari.defaultEntornCodi && preferenciesUsuari.consultaId != null}">
-								<c:url var="expedientsUrl" value="/v3/expedient/consulta/${preferenciesUsuari.consultaId}"/>
+								<c:url var="expedientsUrl" value="/expedient/consulta/${preferenciesUsuari.consultaId}"/>
 							</c:when>
 							<c:otherwise>
-								<c:url var="expedientsUrl" value="/v3/expedient"/>
+								<c:url var="expedientsUrl" value="/expedient"/>
 							</c:otherwise>
 						</c:choose>
 
 						<a id="menuExpedients" class="btn btn-primary" href="${expedientsUrl}"><spring:message code="decorator.menu.expedients"/></a>
 
-						<a id="menuTasques" class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
+						<a id="menuTasques" class="btn btn-primary" href="<c:url value="/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
 
 						<c:if test="${dadesPersona.admin || potProcessarAnotacions}">
-							<a id="menuAnotacions" class="btn btn-primary" href="<c:url value="/v3/anotacio"/>"><spring:message code="decorator.menu.anotacions"/></a>
+							<a id="menuAnotacions" class="btn btn-primary" href="<c:url value="/anotacio"/>"><spring:message code="decorator.menu.anotacions"/></a>
 						</c:if>
 						
-						<a id="menuFluxosFirma" class="btn btn-primary" href="<c:url value="/v3/fluxeFirma"/>"><spring:message code="decorator.menu.fluxes"/></a>
+						<a id="menuFluxosFirma" class="btn btn-primary" href="<c:url value="/fluxeFirma"/>"><spring:message code="decorator.menu.fluxes"/></a>
 											
 						<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
 							<div id="menuDisseny" class="btn-group" >
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu">
 									<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
-										<li><a id="menuTipusExpedient" href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
+										<li><a id="menuTipusExpedient" href="<c:url value="/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
 									</c:if>
 									<c:if test="${potDissenyarEntorn}">
-										<li><a id="menuDefinicioProces" href="<c:url value="/v3/definicioProces"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li>
-										<li><a href="<c:url value="/v3/enumeracio"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li>
-										<li><a href="<c:url value="/v3/domini"/>"><spring:message code='decorators.entorn.dominis' /></a></li>
-									</c:if>
-									<c:if test="${dadesPersona.admin}">
-										<!-- Accés al menú antic només per usuaris HEL_ADMIN -->
-										<li role="separator" class="divider"></li>
-										<li><a target="_BLANK" href="<c:url value="/expedientTipus/llistat.html"/>">
-												<spring:message code="decorators.entorn.disseny.antic"></spring:message>
-												<span class="fa fa-info-circle text-primary" title="<spring:message code="decorators.entorn.disseny.antic.info"/>"></span>
-											</a>
-										</li>
+										<li><a id="menuDefinicioProces" href="<c:url value="/definicioProces"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li>
+										<li><a href="<c:url value="/enumeracio"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li>
+										<li><a href="<c:url value="/domini"/>"><spring:message code='decorators.entorn.dominis' /></a></li>
 									</c:if>
 								</ul>
 							</div>
@@ -370,9 +369,9 @@
 							<div id="menuOrganitzacio" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.organitzacio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="organitzacio">
-									<li><a href="<c:url value="/v3/entorn-area"/>"><spring:message code='comuns.arees' /></a></li>
-									<li><a href="<c:url value="/v3/entorn-tipus-area"/>"><spring:message code='comuns.tipusArea' /></a></li>
-									<li><a href="<c:url value="/v3/entorn-carrec"/>"><spring:message code='comuns.carrecs' /></a></li>
+									<li><a href="<c:url value="/entorn-area"/>"><spring:message code='comuns.arees' /></a></li>
+									<li><a href="<c:url value="/entorn-tipus-area"/>"><spring:message code='comuns.tipusArea' /></a></li>
+									<li><a href="<c:url value="/entorn-carrec"/>"><spring:message code='comuns.carrecs' /></a></li>
 								</ul>
 							</div>
 						</c:if>
@@ -380,16 +379,16 @@
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultar"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="consultar">
 									<c:if test="${dadesPersona.admin || (fn:length(expedientTipusAdmin) gt 0)}">
-										<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.consultes.pinbal' /></a></li>
+										<li><a href="<c:url value="/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.consultes.pinbal' /></a></li>
 									</c:if>
 									
 									<c:if test="${dadesPersona.admin || (fn:length(expedientTipusAdmin) gt 0) || (fn:length(expedientTipusAccessibles) gt 0)}">
-										<li><a href="<c:url value="/v3/notificacionsNotib"/>"><spring:message code='decorator.menu.consultar.notificacions' /></a></li>
-										<li><a href="<c:url value="/v3/enviamentsPortafib"/>"><spring:message code='decorator.menu.consultar.documents.enviats.portafib' /></a></li>
+										<li><a href="<c:url value="/notificacionsNotib"/>"><spring:message code='decorator.menu.consultar.notificacions' /></a></li>
+										<li><a href="<c:url value="/enviamentsPortafib"/>"><spring:message code='decorator.menu.consultar.documents.enviats.portafib' /></a></li>
 									</c:if>
 									
-									<li><a id="unitatsOrganitzatives" href="<c:url value="/v3/unitatOrganitzativa"/>"><spring:message code="decorator.menu.unitats.organitzatives"/></a></li>
-									<li><a id="procediments" href="<c:url value="/v3/procediment"/>"><spring:message code="decorator.menu.procediments"/></a></li>
+									<li><a id="unitatsOrganitzatives" href="<c:url value="/unitatOrganitzativa"/>"><spring:message code="decorator.menu.unitats.organitzatives"/></a></li>
+									<li><a id="procediments" href="<c:url value="/procediment"/>"><spring:message code="decorator.menu.procediments"/></a></li>
 								</ul>
 							</div>
 						<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
@@ -397,66 +396,63 @@
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="mesures">
 									<c:if test="${ globalProperties['app.expedient.monitor'] && potAdministrarEntorn}">
-										<li><a data-toggle="modal" data-maximized="true" id="botoMonitor" href="<c:url value="/modal/v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
+										<li><a data-toggle="modal" data-maximized="true" id="botoMonitor" href="<c:url value="/modal/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
-										<li><a data-toggle="modal" data-maximized="true" id="botoMetriques" href="<c:url value="/v3/metriques"/>"><spring:message code='expedient.metriques' /></a></li>
+										<li><a data-toggle="modal" data-maximized="true" id="botoMetriques" href="<c:url value="/metriques"/>"><spring:message code='expedient.metriques' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
-										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/v3/monitorIntegracio"/>"><spring:message code='decorator.menu.administracio.monitor.integracio' /></a></li>
+										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/monitorIntegracio"/>"><spring:message code='decorator.menu.administracio.monitor.integracio' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
-										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/v3/monitorDomini"/>"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
+										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/monitorDomini"/>"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
 									</c:if>									
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
-										<li><a data-toggle="modal" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
+										<li><a data-toggle="modal" href="<c:url value="/modal/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin}">
 									  <li><a 
 									     data-toggle="modal"
 									     data-maximized="true"
-									     href="<c:url value='/modal/v3/tascaSegonPla'/>">
+									     href="<c:url value='/modal/tascaSegonPla'/>">
 									     <spring:message code='decorator.menu.administracio.tasques.segonPla' />
 									  </a></li>
 									</c:if>
-																		
+									
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
-										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/reindexacions"/>"><spring:message code='decorator.menu.administracio.reindexacions' /></a></li>
+										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
 									</c:if>
-									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
-										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
-									</c:if>
-									<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/entorn"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
+									<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/entorn"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
 									<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
-										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/carrec"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
-										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/v3/area"/>"><spring:message code='comuns.arees' /></a></li></c:if>
+										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/carrec"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
+										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/area"/>"><spring:message code='comuns.arees' /></a></li></c:if>
 									</c:if>
-									<c:if test="${dadesPersona.admin}"><li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/configuracio/festius"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
+									<c:if test="${dadesPersona.admin}"><li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/configuracio/festius"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
 									<c:if test="${dadesPersona.admin}">
-										<li><a data-toggle="modal" href="<c:url value="/modal/v3/configuracio/parametres"/>"><spring:message code='decorators.superior.parametres' /></a></li>
+										<li><a data-toggle="modal" href="<c:url value="/modal/configuracio/parametres"/>"><spring:message code='decorators.superior.parametres' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
-										<li><a id="botoMetriques" href="<c:url value="/v3/estadistica"/>"><spring:message code='decorators.superior.estadistica' /></a></li>
+										<li><a id="botoMetriques" href="<c:url value="/estadistica"/>"><spring:message code='decorators.superior.estadistica' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
-										<li><a id="botoCercaTipologies" href="<c:url value="/v3/cercadorTipologies"/>"><spring:message code='decorator.menu.administracio.cercador.tipologies' /></a></li>
+										<li><a id="botoCercaTipologies" href="<c:url value="/cercadorTipologies"/>"><spring:message code='decorator.menu.administracio.cercador.tipologies' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potDissenyarAvisos}">
-										<li><a id="menuAvisos" href="<c:url value="/v3/avis"/>"><spring:message code="decorator.menu.avisos"/></a></li>
+										<li><a id="menuAvisos" href="<c:url value="/avis"/>"><spring:message code="decorator.menu.avisos"/></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin}">
-										<li><a id="excepcions" href="<c:url value="/v3/excepcions"/>"><spring:message code="decorator.menu.excepcions"/></a></li>
+										<li><a id="excepcions" href="<c:url value="/excepcions"/>"><spring:message code="decorator.menu.excepcions"/></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin}">
-										<li><a id="serveisPinbal" href="<c:url value="/v3/serveisPinbal"/>"><spring:message code="decorator.menu.serveisPinbal"/></a></li>
+										<li><a id="serveisPinbal" href="<c:url value="/serveisPinbal"/>"><spring:message code="decorator.menu.serveisPinbal"/></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin}">
-										<li><a id="usernames" href="<c:url value="/v3/usernames"/>"><spring:message code="decorator.usuari.codi.mapeig"/></a></li>
+										<li><a id="usernames" href="<c:url value="/usernames"/>"><spring:message code="decorator.usuari.codi.mapeig"/></a></li>
 									</c:if>									
 								</ul>
 								<script type="text/javascript">
 									$('#mesures a').heliumEvalLink({
-										alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+										alertesRefreshUrl: "<c:url value="/nodeco/missatges"/>",
 										refrescarAlertes: true,
 										refrescarPagina: false
 									});
@@ -466,7 +462,7 @@
 					</div>
 					<c:if test="${hiHaTramitsPerIniciar}">
 						<div id="iniciar-expediente" class="btn-group navbar-btn navbar-right">
-							<a data-toggle="modal" data-callback="refrescarTaulaDades();" data-maximized="true" class="btn btn-primary" href="<c:url value="/modal/v3/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
+							<a data-toggle="modal" data-callback="refrescarTaulaDades();" data-maximized="true" class="btn btn-primary" href="<c:url value="/modal/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
 							<script type="text/javascript">
 								function refrescarTaulaDades() {
 									try {
@@ -532,14 +528,14 @@
 									<div id="btnConsultes" class="btn-group pull-right" >
 										<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultes"/> <span class="caret"></span></button>
 										<ul class="dropdown-menu">	
-											<li class="nav-consulta-tipus"><a href="<c:url value="/v3/expedient"></c:url>"><spring:message code="decorator.menu.consultes.generic"/></a></li>
+											<li class="nav-consulta-tipus"><a href="<c:url value="/expedient"></c:url>"><spring:message code="decorator.menu.consultes.generic"/></a></li>
 											<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}" varStatus="consultaStatus">
 												<c:if test="${empty expedientTipusActual or expedientTipusActual.id == expedientTipus.id}">
 													<c:if test="${consultaStatus.index == 0}"><li class="divider"></li></c:if>	
 													<li class="nav-header">${expedientTipus.nom}</li>
 													<c:forEach var="consulta" items="${expedientTipus.consultesSort}">
-														<%--li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe?consultaId=${consulta.id}"></c:url>">${consulta.nom}</a></li--%>
-														<li class="nav-consulta-tipus"><a href="<c:url value="/v3/expedient/consulta/${consulta.id}"></c:url>">${consulta.nom}</a></li>
+														<%--li class="nav-consulta-tipus"><a href="<c:url value="/informe?consultaId=${consulta.id}"></c:url>">${consulta.nom}</a></li--%>
+														<li class="nav-consulta-tipus"><a href="<c:url value="/expedient/consulta/${consulta.id}"></c:url>">${consulta.nom}</a></li>
 													</c:forEach>
 												</c:if>
 											</c:forEach>

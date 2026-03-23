@@ -34,7 +34,7 @@ import es.caib.helium.logic.intf.service.CarrecService;
  */
 
 @Controller(value = "carrecControllerV3")
-@RequestMapping("/v3/carrec")
+@RequestMapping("/carrec")
 public class CarrecController extends BaseController {
 	
 	@Autowired
@@ -44,14 +44,14 @@ public class CarrecController extends BaseController {
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/carrecPipelles";
+		return "carrecPipelles";
 	}
 	
 	@RequestMapping(value = "/configurats", method = RequestMethod.GET)
 	public String configurats(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/carrecsConfigurats";
+		return "carrecsConfigurats";
 	}
 	
 	@RequestMapping(value="configurats/datatable", method = RequestMethod.GET)
@@ -71,7 +71,7 @@ public class CarrecController extends BaseController {
 	public String senseConfigurar(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/carrecsSenseConfigurar";
+		return "carrecsSenseConfigurar";
 	}
 
 	@RequestMapping(value = "/sense/configurar/datatable", method = RequestMethod.GET)
@@ -110,7 +110,7 @@ public class CarrecController extends BaseController {
 		command.setCodi(codi);
 		command.setGrup(grup);
 		model.addAttribute("carrecCommand", command);
-		return "v3/carrecConfigurarForm";
+		return "carrecConfigurarForm";
 	}
 	
 	@RequestMapping(value = "{codi}/{grup}/new", method = RequestMethod.POST)
@@ -118,11 +118,11 @@ public class CarrecController extends BaseController {
 			BindingResult bindingResult, Model model) {
 		
 		if (bindingResult.hasErrors()) {
-			return "v3/carrecConfigurarForm";
+			return "carrecConfigurarForm";
 		}
 		
 		carrecService.create(ConversioTipus.convertir(command, CarrecJbpmIdDto.class));
-		return getModalControllerReturnValueSuccess(request, "redirect:/v3/carrec", "carrec.controller.creat");
+		return getModalControllerReturnValueSuccess(request, "redirect:/carrec", "carrec.controller.creat");
 	}
 	
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.GET)
@@ -133,7 +133,7 @@ public class CarrecController extends BaseController {
 		command.setPersonaSexeId(dto.getPersonaSexe().ordinal() == 0 ? 0l : 1l);
 		prepararSexe(model);
 		model.addAttribute("carrecCommand", command);
-		return "v3/carrecConfigurarForm";
+		return "carrecConfigurarForm";
 	}
 	
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
@@ -144,11 +144,11 @@ public class CarrecController extends BaseController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/carrecConfigurarForm";
+        	return "carrecConfigurarForm";
         } 
         
     	carrecService.update(ConversioTipus.convertir(command, CarrecJbpmIdDto.class));
-		return getModalControllerReturnValueSuccess(request, "redirect:/v3/carrec", "carrec.controller.modificat");
+		return getModalControllerReturnValueSuccess(request, "redirect:/carrec", "carrec.controller.modificat");
 	}
 	
 	
@@ -159,7 +159,7 @@ public class CarrecController extends BaseController {
 		carrecService.delete(carrecId);
 		return this.getAjaxControllerReturnValueSuccess(
 				request,
-				"redirect:/v3/carrec",
+				"redirect:/carrec",
 				"carrec.controller.esborrat");
 	}
 }

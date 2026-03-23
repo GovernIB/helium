@@ -21,7 +21,7 @@ import es.caib.helium.logic.intf.service.AdminService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/monitorIntegracio")
+@RequestMapping("/monitorIntegracio")
 public class MonitorIntegracioController extends BaseController {
 
 	@Autowired
@@ -36,7 +36,7 @@ public class MonitorIntegracioController extends BaseController {
 				"integracions",
 				(persona != null && persona.isAdmin())?
 				adminService.monitorIntegracioFindAll() : adminService.monitorIntegracioFindAllEntronActual());
-		return "v3/monitorIntegracio";
+		return "monitorIntegracio";
 	}
 
 	@RequestMapping(value="/{integracioCodi}/datatable", method = RequestMethod.GET)

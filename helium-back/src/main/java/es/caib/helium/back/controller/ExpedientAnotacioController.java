@@ -42,7 +42,7 @@ import es.caib.helium.service.helper.AnotacioHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientAnotacioController extends BaseExpedientController {
 	@Resource
 	private AnotacioHelper anotacioHelper;
@@ -58,7 +58,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			Model model) {
 		model.addAttribute("expedient",expedientService.findAmbId(expedientId));
 		model.addAttribute("expedientId", expedientId);	
-		return "v3/expedientAnotacioLlistat";
+		return "expedientAnotacioLlistat";
 	}
 
 	/** Mètode per retornar les dades pel datatable d'anotacions dins de la gestió de l'expedient. Filtra
@@ -145,7 +145,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			MissatgesHelper.error(request, errMsg, e);
 		}
  
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 	
 	/** Mostra els missatges d'error dels mapejos en un missatge. */
@@ -193,7 +193,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 		ReprocessarMapeigAnotacioDto reprocessarMapeigAnotacioDto = new ReprocessarMapeigAnotacioDto();
 		reprocessarMapeigAnotacioDto.setIdsAnotacions(new ArrayList<Long>(Arrays.asList(anotacioId)));
 		model.addAttribute(reprocessarMapeigAnotacioDto);
-		return "v3/reprocessarMapeigForm";
+		return "reprocessarMapeigForm";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/anotacio/{anotacioId}/{nomesAnnexos}/reprocessarMapeig", method = RequestMethod.POST)

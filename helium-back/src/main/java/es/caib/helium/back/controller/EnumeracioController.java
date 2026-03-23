@@ -48,7 +48,7 @@ import es.caib.helium.logic.intf.service.EnumeracioService;
  *
  */
 @Controller(value = "enumeracioControllerV3")
-@RequestMapping("/v3/enumeracio")
+@RequestMapping("/enumeracio")
 public class EnumeracioController extends BaseDissenyController {
 	
 	@Autowired
@@ -60,10 +60,10 @@ public class EnumeracioController extends BaseDissenyController {
 			HttpServletRequest request,
 			Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
-			return "v3/enumeracioLlistat";
+			return "enumeracioLlistat";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
-			return "redirect:/v3";
+			return "redirect:";
 		}
 	}
 	
@@ -93,10 +93,10 @@ public class EnumeracioController extends BaseDissenyController {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
 			ExpedientTipusEnumeracioCommand command = new ExpedientTipusEnumeracioCommand();
 			model.addAttribute("expedientTipusEnumeracioCommand", command);
-			return "v3/expedientTipusEnumeracioForm";
+			return "expedientTipusEnumeracioForm";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
-			return "redirect:/v3";
+			return "redirect:";
 		}
 	}
 	
@@ -108,7 +108,7 @@ public class EnumeracioController extends BaseDissenyController {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
 			try {
 				if (bindingResult.hasErrors()) {
-					return "v3/expedientTipusEnumeracioForm";
+					return "expedientTipusEnumeracioForm";
 				} else {
 				
 					EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);
@@ -133,7 +133,7 @@ public class EnumeracioController extends BaseDissenyController {
 								new Object[] {ex.getLocalizedMessage()}),
 						ex);
 				logger.error("No s'ha pogut guardar l'enumeració", ex);
-				return "v3/expedientTipusEnumeracioForm";
+				return "expedientTipusEnumeracioForm";
 		    }
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
@@ -150,10 +150,10 @@ public class EnumeracioController extends BaseDissenyController {
 			EnumeracioDto dto = enumeracioService.findAmbId(null, id);
 			ExpedientTipusEnumeracioCommand command = ConversioTipus.convertir(dto, ExpedientTipusEnumeracioCommand.class);
 			model.addAttribute("expedientTipusEnumeracioCommand", command);
-			return "v3/expedientTipusEnumeracioForm";
+			return "expedientTipusEnumeracioForm";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
-			return "redirect:/v3";
+			return "redirect:";
 		}
 		
 	}
@@ -167,7 +167,7 @@ public class EnumeracioController extends BaseDissenyController {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
 			try {
 				if (bindingResult.hasErrors()) {
-					return "v3/expedientTipusEnumeracioForm";
+					return "expedientTipusEnumeracioForm";
 				} else {
 					EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);
 					enumeracioService.update(dto);
@@ -186,11 +186,11 @@ public class EnumeracioController extends BaseDissenyController {
 								new Object[] {ex.getLocalizedMessage()}),
 						ex);
 				logger.error("No s'ha pogut guardar l'enumerat: " + id, ex);
-				return "v3/expedientTipusEnumeracioForm";
+				return "expedientTipusEnumeracioForm";
 		    }
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
-			return "redirect:/v3";
+			return "redirect:";
 		}		
 		return modalUrlTancar(true);
 	}	
@@ -213,7 +213,7 @@ public class EnumeracioController extends BaseDissenyController {
 			}
 			return modalUrlTancar(false);
 		} else {
-			return "redirect:/v3";
+			return "redirect:";
 		}
 	}	
 	
@@ -228,7 +228,7 @@ public class EnumeracioController extends BaseDissenyController {
 		
 		ompleDadesModel(request, enumeracioId, model, true);
 
-		return "v3/expedientTipusEnumeracioValors";
+		return "expedientTipusEnumeracioValors";
 	}
 
 	@RequestMapping(value = "/{enumeracioId}/valor/datatable", method = RequestMethod.GET)
@@ -270,7 +270,7 @@ public class EnumeracioController extends BaseDissenyController {
 		model.addAttribute("expedientTipusEnumeracioValorCommand", command);
 		model.addAttribute("mostraUpdate", true);
 		//model.addAttribute("inUse", enumeracioService.valorInUse(id));
-		return "v3/expedientTipusEnumeracioValors";
+		return "expedientTipusEnumeracioValors";
 	}
 	
 	@RequestMapping(value = "/{enumeracioId}/valor/{id}/update", method = RequestMethod.POST)
@@ -285,7 +285,7 @@ public class EnumeracioController extends BaseDissenyController {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
 			model.addAttribute("mostraUpdate", true);	
-			return "v3/expedientTipusEnumeracioValors";
+			return "expedientTipusEnumeracioValors";
 		} else {		
 		
 			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);
@@ -301,7 +301,7 @@ public class EnumeracioController extends BaseDissenyController {
 							request,
 							"expedient.tipus.enumeracio.valors.controller.modificat"));				
 			
-			return "v3/expedientTipusEnumeracioValors";
+			return "expedientTipusEnumeracioValors";
 		}
 	}
 	
@@ -320,7 +320,7 @@ public class EnumeracioController extends BaseDissenyController {
 						getMessage(
 								request,
 								"expedient.tipus.enumeracio.valors.controller.eliminat.us"));
-				return "v3/expedientTipusEnumeracioValors";
+				return "expedientTipusEnumeracioValors";
 			}
 			
 			enumeracioService.valorDelete(id);
@@ -340,7 +340,7 @@ public class EnumeracioController extends BaseDissenyController {
 		}
 		
 		ompleDadesModel(request, enumeracioId, model, true);
-		return "v3/expedientTipusEnumeracioValors";
+		return "expedientTipusEnumeracioValors";
 	}
 	
 	@RequestMapping(value = "/{enumeracioId}/valor/new", method = RequestMethod.POST)
@@ -355,7 +355,7 @@ public class EnumeracioController extends BaseDissenyController {
 			model.addAttribute("mostraCreate", true);
 			ompleDadesModel(request, enumeracioId, model, false);
 			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
-        	return "v3/expedientTipusEnumeracioValors";
+        	return "expedientTipusEnumeracioValors";
 		} else {
 		
 			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);

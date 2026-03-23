@@ -49,7 +49,7 @@ import es.caib.helium.logic.intf.service.EntornService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/perfil")
+@RequestMapping("/perfil")
 public class PerfilesController extends BaseController {
 
 	@Autowired
@@ -67,7 +67,7 @@ public class PerfilesController extends BaseController {
 			HttpServletRequest request,
 			Model model) {
 		model.addAttribute(getFiltreCommand(request, model));
-		return "v3/persona/perfil";
+		return "persona/perfil";
 	}
 
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
@@ -89,7 +89,7 @@ public class PerfilesController extends BaseController {
 			ck.setMaxAge(0);
 			response.addCookie(ck);
         }
-		return "v3/persona/logout";
+		return "persona/logout";
 	}
 	
 
@@ -298,7 +298,7 @@ public class PerfilesController extends BaseController {
                 personaUsuariCommand.setNumElementosPagina(pars.getNumElementosPagina());
                 personaUsuariCommand.setCorreusBustia(pars.isCorreusBustia());
                 personaUsuariCommand.setCorreusBustiaAgrupatsDia(pars.isCorreusBustiaAgrupatsDia()); 	                
-        		return "v3/persona/perfil";
+        		return "persona/perfil";
         	}
     		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(null);
 			MissatgesHelper.success(request,getMessage(request, "info.perfil.guardat"));

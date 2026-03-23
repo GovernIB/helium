@@ -49,7 +49,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientNotificacioController extends BaseExpedientController {
 
 	@Autowired
@@ -71,7 +71,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 		model.addAttribute("expedient",expedient);
 		model.addAttribute("notificacio",notificacio);
 		
-		return "v3/notificacioInfo";
+		return "notificacioInfo";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/error", method = RequestMethod.GET)
@@ -85,7 +85,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 		
 		model.addAttribute("notificacio",notificacio);
 		
-		return "v3/notificacioError";
+		return "notificacioError";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/processar", method = RequestMethod.GET)
@@ -103,7 +103,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 						"expedient.notificacio.reprocessada"));
 		
 		model.addAttribute("pipellaActiva", "notificacions");
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 	
 	@RequestMapping(value="/{expedientId}/notificacio/{notificacioId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar")
@@ -144,7 +144,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 		model.addAttribute("notificacions", notificacions);
 		modelAddDocumentsNoms(expedient, notificacions, model);
 		
-		return "v3/expedientNotificacioNotib";
+		return "expedientNotificacioNotib";
 	}
 
 	/** Afegeix al model un Map<documentCodi documentNom> amb els noms dels documents notificats, ja que dels documents notificats només en tenim el codi.
@@ -209,7 +209,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 		if ( ModalHelper.isRefererUriModal(request)){
 			ret = "redirect:" + request.getHeader("referer");
 		} else {
-			ret = "redirect:/v3/expedient/" + expedientId +"?pipellaActiva=notificacions";
+			ret = "redirect:/expedient/" + expedientId +"?pipellaActiva=notificacions";
 		}
 		return ret;
 	}

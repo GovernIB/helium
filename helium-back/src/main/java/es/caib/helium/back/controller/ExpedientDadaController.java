@@ -82,7 +82,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientDadaController extends BaseExpedientController {
 
 	@Autowired
@@ -172,7 +172,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 						model,
 						"dades");
 			}
-			return "v3/expedientDadaList";
+			return "expedientDadaList";
 		}
 
 		if (!NodecoHelper.isNodeco(request)) {
@@ -186,7 +186,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				expedientId,
 				false,
 				model);
-		return "v3/expedientDades";
+		return "expedientDades";
 	}
 	@RequestMapping(value = "/{expedientId}/dadaAmbOcults")
 	public String dadesAmbOcults(
@@ -204,7 +204,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				expedientId,
 				true,
 				model);
-		return "v3/expedientDades";
+		return "expedientDades";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada")
@@ -227,7 +227,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			}
 		model.addAttribute("contadorTotals", contadorTotals);
 		model.addAttribute("procesId",procesId);
-		return "v3/procesDades";
+		return "procesDades";
 	}
 
 	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/delete", method = RequestMethod.GET)
@@ -356,7 +356,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			logger.error(e);
 		}
 		
-		return "v3/expedientDadaModificar";
+		return "expedientDadaModificar";
 	}
 
 	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/update", method = RequestMethod.POST)
@@ -406,7 +406,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			validator.setValidarObligatoris(true);
 			validator.validate(commandValidar, result);
 			if (result.hasErrors()) {
-				return "v3/expedientDadaModificar";
+				return "expedientDadaModificar";
 			}
 			expedientDadaService.update(
 					expedientId,
@@ -454,7 +454,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		
 		// Redirigeix al formulari després d'executar l'acció
 		model.asMap().clear();
-		return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + procesId + "/dada/" + varCodi + "/update";
+		return "redirect:/modal/expedient/" + expedientId + "/proces/" + procesId + "/dada/" + varCodi + "/update";
 	}		
 
 	@ModelAttribute("listTerminis")
@@ -574,7 +574,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 						null,
 						null,
 						model));
-		return "v3/expedientDadaNova";
+		return "expedientDadaNova";
 	}
 
 	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/new", method = RequestMethod.POST)
@@ -671,7 +671,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				} else {
 					model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
 				}
-				return "v3/expedientDadaNova";
+				return "expedientDadaNova";
 			}
 			MissatgesHelper.success(request, getMessage(request, "info.dada.nova.proces.creada") );
 		} catch (PermisDenegatException ex) {
@@ -711,7 +711,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 					e);
 		}
 
-		return "v3/expedientDadaEdit";
+		return "expedientDadaEdit";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/edit", method = RequestMethod.POST)
@@ -750,7 +750,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			if (result.hasErrors()) {
 //				model.addAttribute("modificarVariableCommand", command);
 				model.addAttribute("inline", true);
-				return "v3/expedientDadaEdit";
+				return "expedientDadaEdit";
 			}
 
 			if (tascaDada.getVarValor() == null) {
@@ -769,7 +769,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			}
 			DadaListDto dada = expedientDadaService.getDadaList(expedientId, procesId, varCodi);
 			model.addAttribute("dada", dada);
-			return "v3/expedientDadaShow";
+			return "expedientDadaShow";
 		} catch (Exception ex) {
 			logger.error(ex);
 			MissatgesHelper.error(
@@ -798,7 +798,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 
 		// Redirigeix al formulari després d'executar l'acció
 		model.asMap().clear();
-		return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + procesId + "/dada/" + varCodi + "/new";
+		return "redirect:/modal/expedient/" + expedientId + "/proces/" + procesId + "/dada/" + varCodi + "/new";
 	}
 
 	

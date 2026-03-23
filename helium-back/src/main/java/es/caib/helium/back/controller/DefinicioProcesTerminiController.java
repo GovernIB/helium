@@ -38,7 +38,7 @@ import es.caib.helium.commons.dto.TerminiDto;
  * 
  */
 @Controller(value = "definicioProcesTerminiControllerV3")
-@RequestMapping("/v3/definicioProces")
+@RequestMapping("/definicioProces")
 public class DefinicioProcesTerminiController extends BaseDefinicioProcesController {
 	
 	@ModelAttribute("listTerminis")
@@ -69,9 +69,9 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/helium/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
-		return "v3/expedientTipusTermini";
+		return "expedientTipusTermini";
 	}
 
 	@RequestMapping(value="/{jbmpKey}/{definicioProcesId}/termini/datatable", method = RequestMethod.GET)
@@ -102,7 +102,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 		ExpedientTipusTerminiCommand command = new ExpedientTipusTerminiCommand();
 		command.setDefinicioProcesId(definicioProcesId);
 		model.addAttribute("expedientTipusTerminiCommand", command);
-		return "v3/expedientTipusTerminiForm";
+		return "expedientTipusTerminiForm";
 	}
 	
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/new", method = RequestMethod.POST)
@@ -114,7 +114,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/expedientTipusTerminiForm";
+        	return "expedientTipusTerminiForm";
         } else {
         	// Verificar permisos
     		terminiService.create(
@@ -146,7 +146,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 				ExpedientTipusTerminiCommand.class);
 		command.setDefinicioProcesId(definicioProcesId);
 		model.addAttribute("expedientTipusTerminiCommand", command);
-		return "v3/expedientTipusTerminiForm";
+		return "expedientTipusTerminiForm";
 	}
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
@@ -158,7 +158,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/expedientTipusTerminiForm";
+        	return "expedientTipusTerminiForm";
         } else {
         	terminiService.update(
         			ConversioTipus.convertir(

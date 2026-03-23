@@ -26,7 +26,7 @@ import es.caib.helium.logic.intf.service.EntornService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/monitorDomini")
+@RequestMapping("/monitorDomini")
 public class MonitorDominiController extends BaseController {
 
 	@Resource
@@ -59,7 +59,7 @@ public class MonitorDominiController extends BaseController {
 		model.addAttribute(
 				"entornActualId",
 				entornActualId);
-		return "v3/monitorDomini";
+		return "monitorDomini";
 	}
 
 	@RequestMapping(value="/{dominiId}/datatable", method = RequestMethod.GET)

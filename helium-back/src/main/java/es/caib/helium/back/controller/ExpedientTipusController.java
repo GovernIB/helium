@@ -95,7 +95,7 @@ import es.caib.helium.service.helper.UnitatOrganitzativaHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "expedientTipusControllerV3")
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusController extends BaseExpedientTipusController {
 
 	@Autowired
@@ -126,7 +126,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			HttpServletRequest request,
 			Model model) {
 		model.addAttribute("propagarEsborratExpedients",this.isPropagarEsbExp());	
-		return "v3/expedientTipusLlistat";
+		return "expedientTipusLlistat";
 	}
 
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)
@@ -174,7 +174,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				request,
 				expedientTipusId,
 				model);		
-		return "v3/expedientTipusInformacio";
+		return "expedientTipusInformacio";
 	}
 	private void omplirModelPestanyaInformacio(
 			HttpServletRequest request,
@@ -218,7 +218,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Model model) {
 		omplirModelExpedientTipusForm( request, null, model);		
 		model.addAttribute("command", new ExpedientTipusCommand());
-		return "v3/expedientTipusForm";
+		return "expedientTipusForm";
 	}
 	
 	private void omplirModelExpedientTipusForm(
@@ -254,7 +254,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Model model) {
         if (bindingResult.hasErrors()) {
     		omplirModelExpedientTipusForm( request, null, model);		
-        	return "v3/expedientTipusForm";
+        	return "expedientTipusForm";
         } else {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		// Transforma els llistats d'anys i valors 
@@ -273,7 +273,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         			sequenciesValor);
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/expedientTipus",
+					"redirect:/expedientTipus",
 					"expedient.tipus.controller.creat");
         }
 	}
@@ -298,7 +298,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			command.getSequenciesValor().add(any.getSequencia().toString());
 		}
 		model.addAttribute("expedientTipusCommand", command);
-		return "v3/expedientTipusForm";
+		return "expedientTipusForm";
 	}
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
@@ -311,7 +311,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Model model) {
         if (bindingResult.hasErrors()) {
     		omplirModelExpedientTipusForm( request, id, model);		
-        	return "v3/expedientTipusForm";
+        	return "expedientTipusForm";
         } else {
         	boolean actualitzarContingutManual = false;
         	if (eliminarManualAjudaContent) {
@@ -325,7 +325,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					command.setManualAjudaNom(manualAjudaContent.getOriginalFilename());
 				} catch (IOException e) {
 					logger.error("No s'ha pogut guardar el manual: " + id, e);
-					return "redirect:/v3/expedientTipus";
+					return "redirect:/expedientTipus";
 				}
 				actualitzarContingutManual = true;
 			}
@@ -347,7 +347,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         			actualitzarContingutManual);
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/expedientTipus",
+					"redirect:/expedientTipus",
 					"expedient.tipus.controller.modificat");
         }
 	}
@@ -456,7 +456,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 							getMessage(
 									request,
 									"expedient.tipus.controller.eliminar.expedients.relacionats"));
-					return "redirect:/v3/expedientTipus";
+					return "redirect:/expedientTipus";
 			}
 			expedientTipusService.delete(
 					entornActual.getId(),
@@ -467,7 +467,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 							request,
 							"expedient.tipus.controller.eliminat"));
 		} 
-		return "redirect:/v3/expedientTipus";
+		return "redirect:/expedientTipus";
 	}
 	
 	/** Modal per exportar la informació del tipus d'expedient. */
@@ -498,7 +498,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("command", command);
 		this.omplirModelFormulariExportacio(expedientTipusId, model, dto);
 
-		return "v3/expedientTipusExportarForm";
+		return "expedientTipusExportarForm";
 	}	
 	
 	@RequestMapping(value = "/{expedientTipusId}/exportar", method = RequestMethod.POST)
@@ -517,7 +517,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			model.addAttribute("expedientTipus", dto);
 			model.addAttribute("command", command);
 			this.omplirModelFormulariExportacio(expedientTipusId, model, dto);
-        	return "v3/expedientTipusExportarForm";
+        	return "expedientTipusExportarForm";
         } else {
 			model.addAttribute("filename", dto.getCodi() + ".exp");
 			ExpedientTipusExportacio expedientTipusExportacio = 
@@ -602,7 +602,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("command", command);		
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
 		
-		return "v3/expedientTipusImportarForm";
+		return "expedientTipusImportarForm";
 	}	
 	
 	/** Carrega el formulari per ajax i mostra les opcions per importar les dades del fitxer importat. */
@@ -639,7 +639,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
 		model.addAttribute("command", command);
 
-		return "v3/expedientTipusImportarOpcions";
+		return "expedientTipusImportarOpcions";
 	}	
 
 	/** Acció d'enviament del fitxer i les opcions sobre les dades de l'expedient d'exportació.
@@ -669,7 +669,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		if (bindingResult.hasErrors()) {
     		model.addAttribute("command", command);	    		
     		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, request, model);
-        	return "v3/expedientTipusImportarOpcions";
+        	return "expedientTipusImportarOpcions";
         } else {
         	try {
         		
@@ -704,8 +704,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 								"expedient.tipus.importar.form.success"));
 	    		// Indica que la importació ha finalitzat per no haver de processar més codi
 	    		model.addAttribute("importacioFinalitzada", true);
-        		model.addAttribute("redireccioUrl",  request.getContextPath() + "/v3/expedientTipus/" + expedientTipus.getId());
-            	return "v3/expedientTipusImportarOpcions";
+        		model.addAttribute("redireccioUrl",  request.getContextPath() + "/expedientTipus/" + expedientTipus.getId());
+            	return "expedientTipusImportarOpcions";
         	} catch (Exception e) {
         		MissatgesHelper.error(request, 
         							getMessage(request,
@@ -714,7 +714,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         							e);
         		model.addAttribute("command", command);
         		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, request, model);
-            	return "v3/expedientTipusImportarOpcions";
+            	return "expedientTipusImportarOpcions";
         	}
         }
 	}	
@@ -900,7 +900,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute(
 				"permisUO",
 				permisUO);
-		return "v3/expedientTipusPermis";
+		return "expedientTipusPermis";
 	}
 	
 	@RequestMapping(value = "/{id}/permis{permisUO}/datatable")
@@ -942,7 +942,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				expedientTipusDto);
 		model.addAttribute(permisCommand);
 		model.addAttribute("permisUO", permisUO);
-		return "v3/expedientTipusPermisForm";
+		return "expedientTipusPermisForm";
 	}
 	
 	@RequestMapping(value = "/{id}/permis{permisUO}/new", method = RequestMethod.POST)
@@ -997,7 +997,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						permis,
 						PermisCommand.class));
 		model.addAttribute("permisUO", permisUO);
-		return "v3/expedientTipusPermisForm";
+		return "expedientTipusPermisForm";
 	}
 	
 	@RequestMapping(value = "/{id}/permis{permisUO}/{permisId}", method = RequestMethod.POST)
@@ -1016,7 +1016,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         	model.addAttribute(
     				"expedientTipus",
     				expedientTipusDto);
-        	return "v3/expedientTipusPermisForm";
+        	return "expedientTipusPermisForm";
         } else {
         	try {
         		Long unitatOrganitzativaId = null;
@@ -1038,7 +1038,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     			
 		        return getModalControllerReturnValueSuccess(
 							request,
-							"redirect:/v3/expedientTipus/" + id + "/permis",
+							"redirect:/expedientTipus/" + id + "/permis",
 							"expedient.tipus.controller.permis.actualitzat");
     			
         	} catch (Exception e) {
@@ -1054,7 +1054,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     					request,
     					msg,
     					e);
-            	return "v3/expedientTipusPermisForm";
+            	return "expedientTipusPermisForm";
         	}
         }
 	}
@@ -1077,7 +1077,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     				unitatOrganitzativaCodi);
 			return getModalControllerReturnValueSuccess(
 						request,
-						"redirect:/v3/expedientTipus/" + id + "/permis" + (permisUO != null ? permisUO : ""),
+						"redirect:/expedientTipus/" + id + "/permis" + (permisUO != null ? permisUO : ""),
 						"expedient.tipus.controller.permis.esborrat");		
 		} catch (Exception e) {
 			String msg = getMessage(request, "expedient.tipus.controller.permis.esborrar.error",
@@ -1088,7 +1088,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					msg,
 					e);
 		}
-		return "redirect:/v3/expedientTipus/" + id + "/permis" + (permisUO != null ? permisUO : "");
+		return "redirect:/expedientTipus/" + id + "/permis" + (permisUO != null ? permisUO : "");
 	}
 	
 	//eliminar versions de definicons de procés
@@ -1103,7 +1103,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				expedientTipusService.findAmbIdPermisDissenyar(
 						entornActual.getId(),
 						id));
-		return "v3/llistatDpNoUs";
+		return "llistatDpNoUs";
 	}
 	
 	@RequestMapping(value = "/{id}/netejarDp/datatable", method = RequestMethod.GET)
@@ -1168,7 +1168,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         	logger.error("No s'han pogut programar l'eliminació de les definicions de procés", ex);
 		}
 		
-		return "redirect:/v3/expedientTipus/" + id + "/netejarDp";
+		return "redirect:/expedientTipus/" + id + "/netejarDp";
 	}
 	
 	
@@ -1188,7 +1188,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute(
 				"definicioProces",
 				dissenyService.getById(dpId));
-		return "v3/llistatAfectatsDp";
+		return "llistatAfectatsDp";
 	}
 	
 	@RequestMapping(value = "/{id}/afectatsDp/{dpId}/datatable", method = RequestMethod.GET)
@@ -1253,7 +1253,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         	logger.error("No s'han pogut programar l'eliminació dels logs dels expedients seleccionats", ex);
 		}
 		
-		return "redirect:/v3/expedientTipus/" + id + "/afectatsDp/" + dpId;
+		return "redirect:/expedientTipus/" + id + "/afectatsDp/" + dpId;
 	}
 	
 	
@@ -1427,7 +1427,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						e);
 			}			
 		}
-		return "redirect:/v3/expedientTipus/"+expedientTipusId;
+		return "redirect:/expedientTipus/"+expedientTipusId;
 	}
 	
 	/** Acció del menú de la pestanya d'informació per iniciar una tasca en segon pla per 
@@ -1471,7 +1471,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						e);
 			}
 		}
-		return "redirect:/v3/expedientTipus/"+expedientTipusId;
+		return "redirect:/expedientTipus/"+expedientTipusId;
 	}	
 	
 	/** Acció del menú d'accions del tipus d'expedient per propagar els handlers de les darreres versions a les versions anteriors.
@@ -1516,7 +1516,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		}
 		model.addAttribute("definicionsSeleccionades", definicionsSeleccionades);
 
-		return "v3/expedientTipusPropagarHandlersForm";
+		return "expedientTipusPropagarHandlersForm";
 	}	
 	
 	/** Acció del menú d'accions del tipus d'expedient per propagar els handlers de les darreres versions a les versions anteriors.

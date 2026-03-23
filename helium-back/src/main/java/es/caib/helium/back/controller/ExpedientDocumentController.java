@@ -135,7 +135,7 @@ import es.caib.helium.service.utils.StringUtilsHelium;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientDocumentController extends BaseExpedientController {
 
 	@Autowired
@@ -318,7 +318,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				documentsPinbal = documentsPinbal || instanciaProces.isDocumentsPinbal();
 			}
 			model.addAttribute("documentsPinbal", documentsPinbal);
-			return "v3/expedientDocumentList";
+			return "expedientDocumentList";
 			
 		} else {
 			
@@ -336,7 +336,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			}
 			model.addAttribute("documents", documents);
 		}
-		return "v3/expedientDocument";
+		return "expedientDocument";
 	}
 
 	/** Obté un Map<InstanciaProcesDto, List<ExpedientDocumentDto>> amb els documetns per instància de procés
@@ -393,7 +393,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
 		model.addAttribute("portasignaturesPendent", portasignaturesPendent);
-		return "v3/procesDocuments";
+		return "procesDocuments";
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/{documentCodi}/new", method = RequestMethod.GET)
@@ -426,7 +426,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						DocumentTipusFirmaEnumDto.class,
 						"enum.document.tipus.firma."));
 		model.addAttribute("ambDocument", true);
-		return "v3/expedientDocumentForm";
+		return "expedientDocumentForm";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/documentPinbal/{documentId}/info", method = RequestMethod.GET)
@@ -469,7 +469,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		command.setProcessInstanceId(processInstanceId);
 		omplirModelFormDocumentPinbal(request, model, command, false);
 		model.addAttribute("codiDocumentSeleccionat", codiDocument);
-		return "v3/expedientDocumentPinbalForm";
+		return "expedientDocumentPinbalForm";
 	}
 	
 	private void omplirModelFormDocumentPinbal(
@@ -642,7 +642,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		
 		if (bindingResult.hasErrors()) {
 			omplirModelFormDocumentPinbal(request, model, command, true);
-			return "v3/expedientDocumentPinbalForm";
+			return "expedientDocumentPinbalForm";
 		} else {
 			try {
 				String resultat = documentService.createDocumentPinbal(command);
@@ -655,7 +655,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				} else {
 					MissatgesHelper.error(request, getMessage(request, resultat));
 					omplirModelFormDocumentPinbal(request, model, command, true);
-					return "v3/expedientDocumentPinbalForm";
+					return "expedientDocumentPinbalForm";
 				}
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(
@@ -664,7 +664,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						new Object[] {command.getDocumentNom(), command.getCodiServei(), ex.getMessage()}),
 						ex);
 				omplirModelFormDocumentPinbal(request, model, command, true);
-				return "v3/expedientDocumentPinbalForm";
+				return "expedientDocumentPinbalForm";
 			}
 		}
 		
@@ -705,7 +705,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				EnumHelper.getOptionsForEnum(
 						DocumentTipusFirmaEnumDto.class,
 						"enum.document.tipus.firma."));
-		return "v3/expedientDocumentForm";
+		return "expedientDocumentForm";
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/{documentCodi}/new", method = RequestMethod.POST)
@@ -835,7 +835,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				EnumHelper.getOptionsForEnum(
 						DocumentTipusFirmaEnumDto.class,
 						"enum.document.tipus.firma."));
-    	return "v3/expedientDocumentForm";
+    	return "expedientDocumentForm";
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/update", method = RequestMethod.GET)
@@ -890,7 +890,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				EnumHelper.getOptionsForEnum(
 						DocumentTipusFirmaEnumDto.class,
 						"enum.document.tipus.firma."));
-		return "v3/expedientDocumentForm";
+		return "expedientDocumentForm";
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/preview", method = RequestMethod.GET)
@@ -926,7 +926,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		
 		model.addAttribute("documentNom", documentNom);
 		
-		return "v3/expedientDocumentPreview";
+		return "expedientDocumentPreview";
 	}
 	
 	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/update", method = RequestMethod.POST)
@@ -1046,7 +1046,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				EnumHelper.getOptionsForEnum(
 						DocumentTipusFirmaEnumDto.class,
 						"enum.document.tipus.firma."));
-    	return "v3/expedientDocumentForm";
+    	return "expedientDocumentForm";
 	}
 
 	
@@ -1088,7 +1088,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error(errMsg, e);
 			throw new Exception(errMsg, e);
 		}
-		return "v3/expedientDocumentDetall";
+		return "expedientDocumentDetall";
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/notificar", method = RequestMethod.GET)
@@ -1158,7 +1158,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 							new Object[] {PdfUtils.getExtensionsConvertiblesPdf()}));
 			return modalUrlTancar(false);
 		}
-		return "v3/expedientDocumentNotificar";
+		return "expedientDocumentNotificar";
 	}
 	
 	@RequestMapping(value="/checkMidaCampsNotificacio", method = RequestMethod.GET)
@@ -1211,7 +1211,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 		if (result.hasErrors()) {
 			this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
-	    	return "v3/expedientDocumentNotificar";
+	    	return "expedientDocumentNotificar";
 		}
 		try {
 			DadesNotificacioDto dadesNotificacioDto = ConversioTipus.convertir(
@@ -1255,14 +1255,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				logger.error(errMsg, e);
 				MissatgesHelper.error(request, errMsg, e);
 				this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
-				return "v3/expedientDocumentNotificar";
+				return "expedientDocumentNotificar";
 			}
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
 			this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
-			return "v3/expedientDocumentNotificar";
+			return "expedientDocumentNotificar";
 		}
 		return modalUrlTancar(true);
 	}
@@ -1368,7 +1368,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error("Error obtenint el document", exception);
 			MissatgesHelper.error(request, exception.getMessage(), exception);
 			model.addAttribute("pipellaActiva", "documents");
-			ret = "redirect:/v3/expedient/" + expedientId;
+			ret = "redirect:/expedient/" + expedientId;
 		} else {
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
@@ -1397,7 +1397,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error("Error obtenint el document", exception);
 			MissatgesHelper.error(request, exception.getMessage(), exception);
 			model.addAttribute("pipellaActiva", "documents");
-			ret = "redirect:/v3/expedient/" + expedientId;
+			ret = "redirect:/expedient/" + expedientId;
 		}
 		return ret;
 	}
@@ -1425,7 +1425,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error("Error obtenint el document", exception);
 			MissatgesHelper.error(request, exception.getMessage(), exception);
 			model.addAttribute("pipellaActiva", "documents");
-			ret = "redirect:/v3/expedient/" + expedientId;
+			ret = "redirect:/expedient/" + expedientId;
 		}
 		return ret;
 	}
@@ -1486,7 +1486,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error("Error descarregant fitxer", e);
 			MissatgesHelper.error(request, e.getPublicMessage(), e);
 			model.addAttribute("pipellaActiva", "documents");
-			return "redirect:/v3/expedient/" + expedientId;
+			return "redirect:/expedient/" + expedientId;
 		}
 		return "arxiuView";
 	}
@@ -1528,7 +1528,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
 		}
-		return "v3/expedientDocumentMetadadesNti";
+		return "expedientDocumentMetadadesNti";
 	}
 
 	/** Obre una modal per llistar en una taula l'historial de versions del document a l'Arxiu. */
@@ -1577,7 +1577,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			MissatgesHelper.error(request, errMsg, e);
 		}
 
-		return "v3/expedientDocumentVersions";
+		return "expedientDocumentVersions";
 	}
 
 	/** Mètode per incoporar el document a l'Arxiu en el cas que l'expedient estigui integrat però el document no. Acció des
@@ -1633,7 +1633,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error("Error descarregant l'arxiu de firma", e);
 			MissatgesHelper.error(request, e.getPublicMessage(), e);
 			model.addAttribute("pipellaActiva", "documents");
-			return "redirect:/v3/expedient/" + expedientId;
+			return "redirect:/expedient/" + expedientId;
 		}
 		return "arxiuView";
 
@@ -1689,9 +1689,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					processInstanceId,
 					documentCodi);
 			if (document != null) {
-				return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + document.getId() + "/update";
+				return "redirect:/modal/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + document.getId() + "/update";
 			} else {
-				return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/new";
+				return "redirect:/modal/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/new";
 			}
 		} 
 		return "arxiuView";
@@ -1718,7 +1718,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			if (urlVerificacioCustodia != null && !urlVerificacioCustodia.isEmpty()) {
 				model.addAttribute("tittle", getMessage(request, "expedient.document.verif_signatures"));
 				model.addAttribute("url", urlVerificacioCustodia);
-				return "v3/utils/modalIframe";
+				return "utils/modalIframe";
 			}			
 			// Recupera la informació del document i la afegeix al model
 			if (processInstanceId == null) {
@@ -1735,7 +1735,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						expedientDocumentService.findDocumentAmbId(documentStoreId));
 			}			
 			model.addAttribute("signatures", expedientService.verificarSignatura(documentStoreId));
-			return "v3/expedientTascaTramitacioSignarVerificar";
+			return "expedientTascaTramitacioSignarVerificar";
 		} catch(Exception ex) {
 			logger.error("Error al verificar la signatura", ex);
 			throw new ServletException(ex);
@@ -1762,7 +1762,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long documentStoreId,
 			@RequestParam(value = "csv", required = false) final String csv,
 			ModelMap model) throws ServletException {
-		String ret = "redirect:/v3/expedient/";
+		String ret = "redirect:/expedient/";
 		try {
 			if (processInstanceId == null) {
 				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
@@ -1833,7 +1833,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 							expedientId,
 							processInstanceId,
 							documentStoreId));
-			return "v3/expedientDocumentRegistreVerificar";
+			return "expedientDocumentRegistreVerificar";
 		} catch(Exception ex) {
 			logger.error("Error al verificar la signatura", ex);
 			throw new ServletException(ex);
@@ -2071,7 +2071,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("documentExpedientFirmaPassarelaCommand", command);
 		model.addAttribute("potFirmar", potFirmar);
-		return "v3/expedientDocumentFirmaPassarelaForm";
+		return "expedientDocumentFirmaPassarelaForm";
 	}
 	/** 
 	 * Inicia el procés de firma del document i si tot va bé redirigeix cap a la URL retornada pel
@@ -2096,9 +2096,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute("expedientId", expedientId);
 			model.addAttribute("documentExpedientFirmaPassarelaCommand", command);
 			model.addAttribute("potFirmar", true);
-			return "v3/expedientDocumentFirmaPassarelaForm";
+			return "expedientDocumentFirmaPassarelaForm";
 		}
-		String ret = "v3/expedientDocumentFirmaPassarelaForm";
+		String ret = "expedientDocumentFirmaPassarelaForm";
 		try {
 			
 			ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuPdfFindAmbDocument(
@@ -2107,7 +2107,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					documentStoreId);
 			
 			String urlReturnToHelium = ((ModalHelper.isRefererUriModal(request)) ? "/modal" : "") 
-											+ "/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/firmaPassarelaFinal";
+											+ "/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/firmaPassarelaFinal";
 			urlReturnToHelium = UrlHelper.getAbsoluteControllerBase(request,"").concat(urlReturnToHelium);
 
 			String procesFirmaUrl = expedientDocumentService.firmaSimpleWebStart(
@@ -2143,7 +2143,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@RequestParam(value = "transactionID", required = true) String transactionID,
 			Model model) {
 				
-		String ret = "redirect:/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/firmaPassarela";
+		String ret = "redirect:/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/firmaPassarela";
 		try {
 			
 			FirmaResultatDto firmaResultat =  expedientDocumentService.firmaSimpleWebEnd(transactionID);
@@ -2178,7 +2178,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						model.addAttribute("document", document);	
 						model.addAttribute("potFirmar", false);
 						
-						ret = "v3/expedientDocumentFirmaPassarelaForm";
+						ret = "expedientDocumentFirmaPassarelaForm";
 						
 					} catch (Exception e) {
 						String errMsg = getMessage(
@@ -2237,7 +2237,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		command.setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto.ORIGINAL);
 		command.setNtiTipoDocumental(NtiTipoDocumentalEnumDto.NOTIFICACIO);
 		model.addAttribute("documentExpedientNotificarZipCommand", command);
-		return "v3/expedientDocumentNotificarZip";
+		return "expedientDocumentNotificarZip";
 	}
 	
 	/** Mètode per afegir al model de la modal de notificar diferents documents els possibles annexos. */
@@ -2308,7 +2308,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		if (bindingResult.hasErrors()) {
 			emplenarModelNti(expedientId, model);
 			emplenarModelPossiblesAnnexosNotificacioZip(expedientId, processInstanceId, model);		
-			return "v3/expedientDocumentNotificarZip";
+			return "expedientDocumentNotificarZip";
 		}
 		try {
 			Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documentsProces = this.getDocumentsArbreProcessos(expedient, "default");
@@ -2329,7 +2329,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				String documentCodi = command.getTitol();
 				documentStoreId = expedientDocumentService.guardarDocumentProces(expedient.getProcessInstanceId(), null, new Date(), documentCodi+".zip", contingut, annexosPerNotificar);
 			}
-			return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/notificar";	
+			return "redirect:/modal/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/notificar";	
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "expedient.document.notificat.zip.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
@@ -2381,7 +2381,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("notificacions", notificacionsDocument);
 		modelAddDocumentsNoms(expedient, notificacionsDocument, model);
 		
-		return "v3/expedientDocumentNotificacions";
+		return "expedientDocumentNotificacions";
 	}
 	
 	/** Afegeix al model un Map<documentCodi documentNom> amb els noms dels documents notificats, ja que dels documents notificats només en tenim el codi.
@@ -2435,7 +2435,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				processInstanceId, 
 				documentStoreId);
 		
-		return "v3/expedientDocumentEnviarPortasignaturesForm";
+		return "expedientDocumentEnviarPortasignaturesForm";
 	}
 	
 	/** Consulta les plantilles que hagi pogut crear l'usuari i les esborra. */
@@ -2584,7 +2584,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute("urlFluxFirmes", urlMostrarPlantilla);
 		}
 		
-		return "v3/expedientDocumentPendentPortasignaturesForm";
+		return "expedientDocumentPendentPortasignaturesForm";
 	}
 	/** 
 	 * Inicia el procés de firma del document i si tot va bé redirigeix cap a la URL retornada pel
@@ -2601,7 +2601,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) {
 		
 		if (bindingResult.hasErrors()) {
-//			return "v3/expedientDocumentEnviarPortasignaturesForm";
+//			return "expedientDocumentEnviarPortasignaturesForm";
 			for(ObjectError e: bindingResult.getAllErrors()) {
        		 MissatgesHelper.error(
 						request, 
@@ -2642,7 +2642,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				expedientId, 
 				processInstanceId, 
 				documentStoreId);
-		return "v3/expedientDocumentEnviarPortasignaturesForm";
+		return "expedientDocumentEnviarPortasignaturesForm";
 		
 	}
 	private void portasigEnviar(DocumentExpedientEnviarPortasignaturesCommand command, Long documentStoreId, Long expedientId, String processInstanceId) {
@@ -2715,7 +2715,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute("documentExpedientCommand", command);
 			model.addAttribute("potFirmar", true);
 			model.addAttribute("isArxiuActiu", expedient.isArxiuActiu() && expedient.getArxiuUuid() != null);
-			return "v3/expedientDocumentForm";
+			return "expedientDocumentForm";
 		}
 		
 		try {
@@ -2763,7 +2763,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 //			DefinicioProcesDto definicioProcesDto = definicioProcesService.findAmbProcessInstanceId(processInstanceId);
 			urlReturn = UrlHelper.getAbsoluteControllerBase(
 					request,
-					(ModalHelper.isModal(request) ? "/modal" : "") + "/v3/expedient/" +expedientId+ "/proces/"+processInstanceId+"/document/"+documentStoreId+"/portafirmesFlux/returnurl/");
+					(ModalHelper.isModal(request) ? "/modal" : "") + "/expedient/" +expedientId+ "/proces/"+processInstanceId+"/document/"+documentStoreId+"/portafirmesFlux/returnurl/");
 			String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 			transaccioResponse = portafirmesFluxService.iniciarFluxFirma(
 					null, 
@@ -2847,7 +2847,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute("fluxId", resposta.getFluxId());
 			model.addAttribute("FluxNom", resposta.getNom());
 		}
-		return "v3/portafirmesModalTancar";
+		return "portafirmesModalTancar";
 	}
 
 
@@ -2856,7 +2856,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute(
 				"FluxCreat",
 				getMessage(request, "expedient.tipus.document.form.camp.portafirmes.flux.edicio.enum.FINAL_OK"));
-		return "v3/portafirmesModalTancar";
+		return "portafirmesModalTancar";
 	}	
 	
 	/** Mètode AJAX per carregar la URL del Portafirmes per mostrar el flux de firma seleccionat des de la modal d'enviament del document per flux. */

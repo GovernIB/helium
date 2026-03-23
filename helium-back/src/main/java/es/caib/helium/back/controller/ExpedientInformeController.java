@@ -85,7 +85,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/informe")
+@RequestMapping("/informe")
 public class ExpedientInformeController extends BaseExpedientController {
 
 	// Variables exportació
@@ -177,7 +177,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		SessionHelper.setAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId, filtreCommand);
 
 		model.addAttribute("expedientInformeCommand", filtreCommand);
-		return "v3/expedientInforme";
+		return "expedientInforme";
 	}
 	
 	@RequestMapping(method = RequestMethod.POST)
@@ -208,7 +208,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId,
 				filtreCommand);
 		model.addAttribute("expedientInformeCommand", filtreCommand);
-		return "v3/expedientInforme";
+		return "expedientInforme";
 	}
 
 	@RequestMapping(value = "/{consultaId}/datatable", method = RequestMethod.GET)
@@ -287,7 +287,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 
 		model.addAttribute("expedientInformeParametrosCommand", parametrosCommand);
 		model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));			
-		return "v3/expedientInformeParams";
+		return "expedientInformeParams";
 	}
 	
 	@RequestMapping(value = "/{consultaId}/mostrar_informe_params", method = RequestMethod.POST)
@@ -343,7 +343,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		if (expedientsConsultaDissenyDto.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.consulta.informe.expedients.nonhiha"));
 			getConsulta(request,consultaId,model);
-			return "redirect:/v3/informe/"+consultaId;
+			return "redirect:/informe/"+consultaId;
 		}
 		
 		model.addAttribute(

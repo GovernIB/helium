@@ -35,7 +35,7 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.PdfStamper;
 
-import es.caib.helium.service.utils.GlobalProperties;
+import es.caib.helium.commons.utils.GlobalProperties;
 
 /**
  * Vista per mostrar arxius

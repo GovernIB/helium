@@ -43,7 +43,7 @@ import es.caib.helium.logic.intf.service.AdminService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/mesuresTemps")
+@RequestMapping("/mesuresTemps")
 public class MesuresTempsController extends BaseController {
 
 	@Resource
@@ -65,7 +65,7 @@ public class MesuresTempsController extends BaseController {
 	public String get(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/mesuresTemps";
+		return "mesuresTemps";
 	}
 		
 	@SuppressWarnings({ "unchecked", "rawtypes" })

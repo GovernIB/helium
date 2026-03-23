@@ -36,7 +36,7 @@ import es.caib.helium.logic.intf.service.TascaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientTascaController extends BaseExpedientController {
 
 	@Autowired
@@ -64,7 +64,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			}
 			model.addAttribute("tasques", tasques);	
 		}
-		return "v3/expedientTasca";
+		return "expedientTasca";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/refrescarPanel/{procesId}", method = RequestMethod.GET)
@@ -84,7 +84,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("tasques", tasques);	
-		return "v3/procesTasques";
+		return "procesTasques";
 	}
 
 	@RequestMapping(value = "/{expedientId}/refrescarLlistat", method = RequestMethod.GET)
@@ -107,7 +107,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			}
 			model.addAttribute("tasques", tasques);	
 		}
-		return "v3/procesTasques";
+		return "procesTasques";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasquesPendents/{nomesTasquesPersonals}/{nomesTasquesGrup}/consultesTipus", method = RequestMethod.GET)
@@ -144,7 +144,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 		model.addAttribute(
 				"expedient",
 				expedientService.findAmbIdAmbPermis(expedientId));	
-		return "v3/expedientTasquesPendents";
+		return "expedientTasquesPendents";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tascaPendent/{tascaId}", method = RequestMethod.GET)
@@ -155,7 +155,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Model model) {
 		model.addAttribute("expedient", expedientService.findAmbIdAmbPermis(expedientId));
 		model.addAttribute("tasca", tascaService.findAmbIdPerExpedient(tascaId, expedientId));
-		return "v3/expedientTascaPendent";
+		return "expedientTascaPendent";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/cancelar")
@@ -172,7 +172,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			MissatgesHelper.error(request, errMsg, ex);
         	logger.error(errMsg, ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/suspendre")
@@ -189,7 +189,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			MissatgesHelper.error(request, errMsg, ex);
         	logger.error(errMsg, ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reprendre")
@@ -206,7 +206,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			MissatgesHelper.error(request, errMsg, ex);
         	logger.error(errMsg, ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/agafar", method = RequestMethod.GET)
@@ -270,7 +270,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 				return "redirect:"+ referer;
 			}
 		}
-		return "v3/missatgesExecucioSegonPla";
+		return "missatgesExecucioSegonPla";
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTascaController.class);

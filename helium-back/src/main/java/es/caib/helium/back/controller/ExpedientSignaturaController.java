@@ -27,7 +27,7 @@ import es.caib.helium.logic.intf.service.PortasignaturesService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientSignaturaController extends BaseExpedientController {
 
     @Autowired 
@@ -39,7 +39,7 @@ public class ExpedientSignaturaController extends BaseExpedientController {
             @PathVariable Long expedientId,
             Model model) {
 
-        return "v3/expedientSignatura";
+        return "expedientSignatura";
     }
 
 	/** Mètode per retornar les dades pel datatable d'signatures dins de la gestió de l'expedient. Filtra

@@ -46,7 +46,7 @@ import es.caib.helium.logic.intf.service.DominiService;
  *
  */
 @Controller(value = "dominiControllerV3")
-@RequestMapping("/v3/domini")
+@RequestMapping("/domini")
 public class DominiController extends BaseDissenyController {
 	
 	@Autowired
@@ -60,10 +60,10 @@ public class DominiController extends BaseDissenyController {
 			HttpServletRequest request,
 			Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
-			return "v3/dominiLlistat";
+			return "dominiLlistat";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
-			return "redirect:/v3";
+			return "redirect:";
 		}
 	}
 	
@@ -93,10 +93,10 @@ public class DominiController extends BaseDissenyController {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
 			ExpedientTipusDominiCommand command = new ExpedientTipusDominiCommand();
 			model.addAttribute("expedientTipusDominiCommand", command);
-			return "v3/expedientTipusDominiForm";
+			return "expedientTipusDominiForm";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
-			return "redirect:/v3";
+			return "redirect:";
 		}
 	}
 	
@@ -108,7 +108,7 @@ public class DominiController extends BaseDissenyController {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
 			try {
 				if (bindingResult.hasErrors()) {
-					return "v3/expedientTipusDominiForm";
+					return "expedientTipusDominiForm";
 				} else {
 				
 					EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -134,7 +134,7 @@ public class DominiController extends BaseDissenyController {
 								new Object[] {ex.getLocalizedMessage()}),
 						ex);
 				logger.error("No s'ha pogut guardar l'enumeració", ex);
-				return "v3/expedientTipusDominiForm";
+				return "expedientTipusDominiForm";
 		    }
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
@@ -152,10 +152,10 @@ public class DominiController extends BaseDissenyController {
 			ExpedientTipusDominiCommand command = ConversioTipus.convertir(dto, ExpedientTipusDominiCommand.class);
 			model.addAttribute("expedientTipusDominiCommand", command);
 			model.addAttribute("heretat", dto.isHeretat());
-			return "v3/expedientTipusDominiForm";
+			return "expedientTipusDominiForm";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
-			return "redirect:/v3";
+			return "redirect:";
 		}
 		
 	}
@@ -170,7 +170,7 @@ public class DominiController extends BaseDissenyController {
 			try {
 				if (bindingResult.hasErrors()) {
 		    		model.addAttribute("heretat", dominiService.findAmbId(null, id).isHeretat());
-					return "v3/expedientTipusDominiForm";
+					return "expedientTipusDominiForm";
 				} else {
 					dominiService.update(
 							ConversioTipus.convertir(
@@ -193,11 +193,11 @@ public class DominiController extends BaseDissenyController {
 						ex);
 				logger.error("No s'ha pogut guardar l'enumerat: " + id, ex);
 	    		model.addAttribute("heretat", dominiService.findAmbId(null, id).isHeretat());
-				return "v3/expedientTipusDominiForm";
+				return "expedientTipusDominiForm";
 		    }
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
-			return "redirect:/v3";
+			return "redirect:";
 		}		
 	}	
 
@@ -217,7 +217,7 @@ public class DominiController extends BaseDissenyController {
 			}
 			return modalUrlTancar(false);
 		} else {
-			return "redirect:/v3";
+			return "redirect:";
 		}
 	}
 	
@@ -228,7 +228,7 @@ public class DominiController extends BaseDissenyController {
 			@PathVariable Long dominiId,
 			Model model) {
 		model.addAttribute("dominiId", dominiId);
-		return "v3/provaDomini";
+		return "provaDomini";
 	}
 	
 	/** Mètode per provar un domini */

@@ -53,7 +53,7 @@ import es.caib.helium.logic.intf.service.DominiService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusDominiController extends BaseExpedientTipusController {
 
 	@Autowired
@@ -106,7 +106,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
-		return "v3/expedientTipusDomini";
+		return "expedientTipusDomini";
 	}
 
 	@RequestMapping(value="/{expedientTipusId}/dominis/datatable", method = RequestMethod.GET)
@@ -138,7 +138,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("expedientTipusDominiCommand", command);
-		return "v3/expedientTipusDominiForm";
+		return "expedientTipusDominiForm";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/domini/new", method = RequestMethod.POST)
@@ -150,7 +150,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 			Model model) {
         if (bindingResult.hasErrors()) {
         	model.addAttribute("expedientTipusId", expedientTipusId);
-        	return "v3/expedientTipusDominiForm";
+        	return "expedientTipusDominiForm";
         } else {
         	// Verificar permisos
         	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -184,7 +184,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 		model.addAttribute("expedientTipusDominiCommand", command);
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("heretat", dto.isHeretat());
-		return "v3/expedientTipusDominiForm";
+		return "expedientTipusDominiForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/domini/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
@@ -197,7 +197,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
         if (bindingResult.hasErrors()) {
         	model.addAttribute("expedientTipusId", expedientTipusId);
     		model.addAttribute("heretat", dominiService.findAmbId(expedientTipusId, id).isHeretat());
-       	return "v3/expedientTipusDominiForm";
+       	return "expedientTipusDominiForm";
         } else {
         	dominiService.update(
         			ConversioTipus.convertir(
@@ -245,7 +245,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 			@PathVariable Long dominiId,
 			Model model) {
 		model.addAttribute("dominiId", dominiId);
-		return "v3/provaDomini";
+		return "provaDomini";
 	}
 	
 	/** Mètode per provar un domini */

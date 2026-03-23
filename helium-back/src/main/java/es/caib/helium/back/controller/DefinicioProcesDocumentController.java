@@ -56,7 +56,7 @@ import es.caib.helium.logic.intf.service.PortafirmesFluxService;
  * 
  */
 @Controller(value = "definicioProcesDocumentControllerV3")
-@RequestMapping("/v3/definicioProces")
+@RequestMapping("/definicioProces")
 public class DefinicioProcesDocumentController extends BaseDefinicioProcesController {
 	
 	@Autowired
@@ -81,12 +81,12 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/helium/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		model.addAttribute("jbpmKey", jbmpKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 		
-		return "v3/expedientTipusDocument";
+		return "expedientTipusDocument";
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/document/datatable", method = RequestMethod.GET)
@@ -117,7 +117,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		command.setDefinicioProcesId(definicioProcesId);
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelComu(request, definicioProcesId, model);
-		return "v3/expedientTipusDocumentForm";
+		return "expedientTipusDocumentForm";
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/document/new", method = RequestMethod.POST)
@@ -130,7 +130,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		try {
 			if (bindingResult.hasErrors()) {
 				omplirModelComu(request, definicioProcesId, model);
-				return "v3/expedientTipusDocumentForm";
+				return "expedientTipusDocumentForm";
 			} else {
 				byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
 				DocumentDto dto = ExpedientTipusDocumentCommand.asDocumentDto(command);
@@ -148,7 +148,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document", ex);
-			return "v3/expedientTipusDocumentForm";
+			return "expedientTipusDocumentForm";
 	    }
 	}
 
@@ -168,7 +168,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelComu(request, definicioProcesId, model);
 		model.addAttribute("portafirmesFluxSeleccionat", dto.getPortafirmesFluxId());
-		return "v3/expedientTipusDocumentForm";
+		return "expedientTipusDocumentForm";
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/document/{id}/update", method = RequestMethod.POST)
@@ -183,7 +183,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		try {
 			if (bindingResult.hasErrors()) {
 				omplirModelComu(request, definicioProcesId, model);
-				return "v3/expedientTipusDocumentForm";
+				return "expedientTipusDocumentForm";
 			} else {
 	        	boolean actualitzarContingut = false;
 	        	if (eliminarContingut) {
@@ -206,7 +206,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document: " + id, ex);
-			return "v3/expedientTipusDocumentForm";
+			return "expedientTipusDocumentForm";
 	    }
 	}
 
@@ -314,7 +314,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		try {
 			urlReturn = UrlHelper.getAbsoluteControllerBase(
 							request,
-							(ModalHelper.isModal(request) ? "/modal" : "") + "/v3/definicioProces/" +definicioProcesId+ "/document/flux/returnurl/");
+							(ModalHelper.isModal(request) ? "/modal" : "") + "/definicioProces/" +definicioProcesId+ "/document/flux/returnurl/");
 			if (plantillaId != null && !plantillaId.isEmpty()) {
 				transaccioResponse = new PortafirmesIniciFluxRespostaDto();
 				String urlEdicio = portafirmesFluxService.recuperarUrlEdicioPlantilla(plantillaId, urlReturn);
@@ -369,7 +369,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			model.addAttribute("fluxId", resposta.getFluxId());
 			model.addAttribute("FluxNom", resposta.getNom());
 		}
-		return "v3/portafirmesModalTancar";
+		return "portafirmesModalTancar";
 	}
 
 	@RequestMapping(value = "/{definicioProcesId}/document/flux/returnurl/", method = RequestMethod.GET)
@@ -377,7 +377,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		model.addAttribute(
 				"FluxCreat",
 				getMessage(request, "expedient.tipus.document.form.camp.portafirmes.flux.edicio.enum.FINAL_OK"));
-		return "v3/portafirmesModalTancar";
+		return "portafirmesModalTancar";
 	}
 
 	

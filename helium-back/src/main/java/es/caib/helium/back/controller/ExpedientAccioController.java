@@ -28,7 +28,7 @@ import es.caib.helium.service.helper.ExceptionHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientAccioController extends BaseExpedientController {
 
 	@Resource
@@ -51,7 +51,7 @@ public class ExpedientAccioController extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());		
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("accions", accions);
-		return "v3/expedientAccio";
+		return "expedientAccio";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/accio", method = RequestMethod.GET)
@@ -71,7 +71,7 @@ public class ExpedientAccioController extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("accions", accions);	
-		return "v3/procesAccions";
+		return "procesAccions";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/accio/{accioId}/executar", method = RequestMethod.GET)
@@ -107,7 +107,7 @@ public class ExpedientAccioController extends BaseExpedientController {
 			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ th.getMessage(), th);
 		}
 		model.addAttribute("pipellaActiva", "accions");
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 
 	protected static final Log logger = LogFactory.getLog(ExpedientAccioController.class);

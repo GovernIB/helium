@@ -53,13 +53,13 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.repository.CampRepository;
 import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Controlador per a les diferents consultes dels tipus d'expedient.
@@ -67,7 +67,7 @@ import es.caib.helium.service.utils.GlobalProperties;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller("expedientTipusConsultaControllerV3")
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusConsultaController extends BaseExpedientTipusController {
 
 	@Autowired
@@ -99,7 +99,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
-		return "v3/expedientTipusConsulta";
+		return "expedientTipusConsulta";
 	}
 	
 	@RequestMapping(value="/{expedientTipusId}/consulta/datatable", method = RequestMethod.GET)
@@ -130,7 +130,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusConsultaCommand", command);
 		this.omplirModelFormats(request, expedientTipusId, model);
-		return "v3/expedientTipusConsultaForm";
+		return "expedientTipusConsultaForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/consulta/new", method = RequestMethod.POST)
 	public String novaPost(
@@ -142,7 +142,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			Model model) throws PermisDenegatException, IOException {
         if (bindingResult.hasErrors()) {
         	this.omplirModelFormats(request, expedientTipusId, model);
-        	return "v3/expedientTipusConsultaForm";
+        	return "expedientTipusConsultaForm";
         } else {
         	command.setInformeContingut(IOUtils.toByteArray(multipartFile.getInputStream()));
         	// Verificar permisos
@@ -171,7 +171,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusConsultaCommand", command);
     	this.omplirModelFormats(request, expedientTipusId, model);
-		return "v3/expedientTipusConsultaForm";
+		return "expedientTipusConsultaForm";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{id}/update", method = RequestMethod.POST)
@@ -186,7 +186,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			Model model) throws NoTrobatException, PermisDenegatException, IOException {
         if (bindingResult.hasErrors()) {
         	this.omplirModelFormats(request, expedientTipusId, model);
-        	return "v3/expedientTipusConsultaForm";
+        	return "expedientTipusConsultaForm";
         } else {
         	boolean actualitzarContingut = false;
         	if (deleted) {
@@ -476,7 +476,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 				command,
 				model);
 
-		return "v3/expedientTipusConsultaVar";
+		return "expedientTipusConsultaVar";
 	}	
 	
 	/** Mètode privat per omplir el model pel formulari de variables. */
@@ -539,7 +539,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
     				request,
     				command,
     				model);
-        	return "v3/expedientTipusConsultaVar";
+        	return "expedientTipusConsultaVar";
         } else {
         	List<ConsultaCampDto> commandDtos = ExpedientTipusConsultaVarCommand.asConsultaCampDto(command);
         	if (command.getOrigen() >= 0) {
@@ -760,7 +760,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		model.addAttribute("expedientTipusConsultaParamCommand", command);
 		model.addAttribute("tipusParameteres", ConsultaCampDto.TipusParamConsultaCamp.values());
 
-		return "v3/expedientTipusConsultaParam";
+		return "expedientTipusConsultaParam";
 	}
 	
 	@RequestMapping(value="/{expedientTipusId}/consulta/{consultaId}/parametre/datatable", method = RequestMethod.GET)
@@ -795,7 +795,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
     		model.addAttribute("consulta", expedientTipusService.consultaFindAmbId(consultaId));
     		model.addAttribute("tipus", ConsultaCampDto.TipusConsultaCamp.PARAM);
         	model.addAttribute("mostraCreate", true);
-        	return "v3/expedientTipusConsultaParam";
+        	return "expedientTipusConsultaParam";
         } else {
         	// Verificar permisos
     		expedientTipusService.consultaCampCreate(
@@ -824,7 +824,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
     		model.addAttribute("consulta", expedientTipusService.consultaFindAmbId(consultaId));
     		model.addAttribute("tipus", ConsultaCampDto.TipusConsultaCamp.PARAM);
         	model.addAttribute("mostraUpdate", true);
-        	return "v3/expedientTipusConsultaParam";
+        	return "expedientTipusConsultaParam";
         } else {
         	expedientTipusService.consultaCampUpdate(
         			ExpedientTipusConsultaParamCommand.asConsultaCampDto(command));

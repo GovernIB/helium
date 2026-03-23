@@ -40,7 +40,7 @@ import es.caib.helium.commons.dto.ReassignacioDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusRedireccioController extends BaseExpedientTipusController {
 
 	@RequestMapping(value = "/{expedientTipusId}/redireccions")
@@ -62,7 +62,7 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
-		return "v3/expedientTipusRedireccio";
+		return "expedientTipusRedireccio";
 	}
 	
 	@RequestMapping(value="/{expedientTipusId}/redireccio/datatable", method = RequestMethod.GET)
@@ -90,7 +90,7 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusRedireccioCommand", command);
 		this.omplirModelPersones(request, expedientTipusId, model);
-		return "v3/expedientTipusRedireccioForm";
+		return "expedientTipusRedireccioForm";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/redireccio/new", method = RequestMethod.POST)
@@ -102,7 +102,7 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 			Model model) {
         if (bindingResult.hasErrors()) {
     		this.omplirModelPersones(request, expedientTipusId, model);
-        	return "v3/expedientTipusRedireccioForm";
+        	return "expedientTipusRedireccioForm";
         } else {
         	// Verificar permisos
     		expedientTipusService.reassignacioCreate(
@@ -129,7 +129,7 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 				ExpedientTipusRedireccioCommand.class);
 		model.addAttribute("expedientTipusRedireccioCommand", command);
 		this.omplirModelPersones(request, expedientTipusId, model);
-		return "v3/expedientTipusRedireccioForm";
+		return "expedientTipusRedireccioForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/redireccio/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
@@ -141,7 +141,7 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 			Model model) {
         if (bindingResult.hasErrors()) {
     		this.omplirModelPersones(request, expedientTipusId, model);
-        	return "v3/expedientTipusRedireccioForm";
+        	return "expedientTipusRedireccioForm";
         } else {
         	expedientTipusService.reassignacioUpdate(
         			ExpedientTipusRedireccioCommand.asReassignacioDto(command));

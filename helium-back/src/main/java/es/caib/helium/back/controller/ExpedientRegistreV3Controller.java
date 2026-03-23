@@ -28,7 +28,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientRegistreV3Controller extends BaseExpedientController {
 
 	@Autowired
@@ -64,7 +64,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 				expedientRegistreService.registreFindLogsOrdenatsPerData(
 						expedient.getId(),
 						detall));
-		return "v3/expedientLog";
+		return "expedientLog";
 	}
 
 	/** Vista simplificada per expedients basats en estats. En comptes de veuve el registre per
@@ -96,7 +96,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 				expedientRegistreService.registreFindExpedientCanvisEstat(
 						expedient.getId(),
 						detall));
-		return "v3/expedientEstat";
+		return "expedientEstat";
 	}
 
 	@RequestMapping(value = "retrocedir")
@@ -139,7 +139,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 				"tasques",
 				expedientRegistreService.registreFindTasquesPerLogExpedient(
 						expedientId));
-		return "v3/expedient/logRetrocedit";
+		return "expedient/logRetrocedit";
 	}
 
 	@RequestMapping(value = "logAccionsTasca")
@@ -157,7 +157,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 				"tasques",
 				expedientRegistreService.registreFindTasquesPerLogExpedient(
 						expedientId));
-		return "v3/expedient/logRetrocedit";
+		return "expedient/logRetrocedit";
 	}
 
 	@RequestMapping(value = "scriptForm/{logId}")
@@ -169,7 +169,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 				"log",
 				expedientRegistreService.registreFindLogById(
 						logId));
-		return "v3/expedient/logScript";
+		return "expedient/logScript";
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientRegistreV3Controller.class);

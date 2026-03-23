@@ -62,7 +62,7 @@ import es.caib.helium.service.helper.UsuariActualHelper;
  * Controlador per visualitzar la llista notificacions enviades a NOTIB.
  */
 @Controller
-@RequestMapping("/v3/notificacionsNotib")
+@RequestMapping("/notificacionsNotib")
 public class NotificacionsController extends BaseExpedientController {
 	
 	@Autowired
@@ -110,7 +110,7 @@ public class NotificacionsController extends BaseExpedientController {
 		this.modelEstats(model);
 		this.modelTipusEnviament(model);
 		this.modelExpedientsTipus(expedientTipusDtoAccessibles, model);
-		return "v3/notificacionsNotibLlistat";
+		return "notificacionsNotibLlistat";
 	}
 	
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
@@ -156,7 +156,7 @@ public class NotificacionsController extends BaseExpedientController {
 		DocumentNotificacioDto dto = notificacioService.findAmbId(enviamentNotibId);
 		notificacioHelper.completarDocumentNotificacioDto(dto);
 		model.addAttribute("dto", dto);
-		return "v3/notificacioNotibInfo";
+		return "notificacioNotibInfo";
 	}
 	
 	@RequestMapping(value = "/{enviamentNotibId}/consultarEstat", method = RequestMethod.GET)

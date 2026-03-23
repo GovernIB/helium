@@ -55,7 +55,7 @@ import es.caib.helium.service.helper.AnotacioHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientIniciController extends BaseExpedientIniciController {
 	@Resource
 	private AnotacioHelper anotacioHelper;
@@ -86,7 +86,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 		}
 		model.addAttribute("expedientTipus", tipus);
 		model.addAttribute("definicionsProces", definicionsProces);
-		return "v3/expedient/iniciar";
+		return "expedient/iniciar";
 	}
 
 	/** Mètode POST per inciar la creació d'un epedient. Si la definició de procés té una tasca inicial es posaran les dades
@@ -134,9 +134,9 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 								resultatMapeig,
 								true);
 			}
-			return redirectByModal(request, "/v3/expedient/iniciarForm/" + expedientTipusId + "/" + definicioProces.getId());
+			return redirectByModal(request, "/expedient/iniciarForm/" + expedientTipusId + "/" + definicioProces.getId());
 		} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
-			return redirectByModal(request, "/v3/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProces.getId());
+			return redirectByModal(request, "/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProces.getId());
 		} else {
 			// Si no requereix cap pas addicional inicia l'expedient directament
 			try {

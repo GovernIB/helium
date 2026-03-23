@@ -89,7 +89,7 @@ import net.sf.jasperreports.engine.JRException;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient/consulta")
+@RequestMapping("/expedient/consulta")
 public class ExpedientConsultaInformeController extends BaseExpedientController {
 	
 	@Resource
@@ -168,7 +168,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		model.addAttribute("expedientInformeParametrosCommand", parametrosCommand);
 		model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));	
 		model.addAttribute("consultaId", consultaId);
-		return "v3/expedientConsultaInformeParams";
+		return "expedientConsultaInformeParams";
 	}
 	
 	/** Mètode post amb un formulari de paràmetres. */
@@ -312,7 +312,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			String msg = "Error exportant el report: " + e.getMessage();
 			logger.error(msg, e);
 			MissatgesHelper.error(request, msg, e);
-			response.sendRedirect(request.getContextPath() +"/v3/expedient/consulta/" + consultaId);
+			response.sendRedirect(request.getContextPath() +"/expedient/consulta/" + consultaId);
 		}
 	}	
 	

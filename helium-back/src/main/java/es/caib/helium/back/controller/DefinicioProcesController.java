@@ -64,7 +64,7 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
  *
  */
 @Controller(value = "definicioProcesControllerV3")
-@RequestMapping("/v3/definicioProces")
+@RequestMapping("/definicioProces")
 public class DefinicioProcesController extends BaseDefinicioProcesController {
 	
 	@Autowired
@@ -80,9 +80,9 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			HttpServletRequest request,
 			Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
-			return "v3/definicioProcesLlistat";
+			return "definicioProcesLlistat";
 		} else {
-			return "redirect:/v3";
+			return "redirect:";
 		}
 	}
 	
@@ -130,7 +130,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			
 			// Si no es troba la definició de procés anterior torna al llistat
 			if (definicioProces == null) {
-				return "redirect:/v3/definicioProces";		
+				return "redirect:/definicioProces";		
 			}
 			definicioProcesAnteriorId = definicioProces.getId();
 		} catch (Exception e) {
@@ -138,7 +138,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}), e);
 		}
 		// Retorna a la pàgina de pipelles		
-		return "redirect:/v3/definicioProces/"+jbmpKey + (definicioProcesAnteriorId != null ? "/" + definicioProcesAnteriorId : "");
+		return "redirect:/definicioProces/"+jbmpKey + (definicioProcesAnteriorId != null ? "/" + definicioProcesAnteriorId : "");
 	}
 	
 	/** Mètode privat compartit per esborrar una definició de procés. 
@@ -202,7 +202,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				getMessage(
 						request, 
 						"definicio.proces.pipelles.no.identificador"));
-		return "redirect:/v3/definicioProces";			
+		return "redirect:/definicioProces";			
 	}
 
 	/** Vista de les pipelles per a la definició de procés mostrant una específica. */
@@ -247,7 +247,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 						definicioProcesService.findSubDefinicionsProces(definicioProcesId));				
 			}
 		}		
-		return "v3/definicioProcesDetall";
+		return "definicioProcesDetall";
 	}
 	
 	/** Pipella dels recursos. */
@@ -278,7 +278,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				model.addAttribute("recursos", recursos);
 			}
 		}		
-		return "v3/definicioProcesRecurs";
+		return "definicioProcesRecurs";
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/recurs/descarregar")
@@ -348,7 +348,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					getMessage(
 							request, 
 							"definicio.proces.pipelles.no.identificador"));
-			return "redirect:/v3/definicioProces";			
+			return "redirect:/definicioProces";			
 
 		}
 		definicioProces = definicioProcesService.findById(definicioProcesId);
@@ -363,7 +363,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				model, 
 				definicioProces);
 
-		return "v3/definicioProcesExportarForm";
+		return "definicioProcesExportarForm";
 	}	
 	
 	/** Crida Ajax per recarregar les opcions d'exportació quan canvia la versió de la definició de procés
@@ -388,7 +388,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				model, 
 				definicioProces);
 
-		return "v3/definicioProcesExportarOpcions";
+		return "definicioProcesExportarOpcions";
 	}	
 	
 	@RequestMapping(value = "/{jbpmKey}/exportar", method = RequestMethod.POST)
@@ -408,7 +408,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					command.getId(), 
 					model, 
 					dto);        	
-			return "v3/definicioProcesExportarForm";
+			return "definicioProcesExportarForm";
         } else {
         	try {
         		model.addAttribute("filename", dto.getJbpmKey() +"_v" + dto.getVersio() + ".exp");
@@ -432,7 +432,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
     					request,
     					"Error exportant : " + e.getMessage(),
     					e);
-        		return "v3/definicioProcesExportarForm";
+        		return "definicioProcesExportarForm";
         	}
         }
 	}
@@ -499,7 +499,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				}
 			}
 		}
-		return "v3/definicioProcesImportarForm";
+		return "definicioProcesImportarForm";
 	}
 	
 	/** Carrega el formulari per ajax i mostra les opcions per importar les dades del fitxer importat. */
@@ -523,7 +523,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, model);
 
-		return "v3/definicioProcesImportarOpcions";
+		return "definicioProcesImportarOpcions";
 	}		
 	
 	/** Acció d'enviament del fitxer i les opcions sobre les dades de la definició de procés.
@@ -552,7 +552,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		if (bindingResult.hasErrors()) {
     		model.addAttribute("command", command);	    		
     		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, model);
-        	return "v3/definicioProcesImportarOpcions";
+        	return "definicioProcesImportarOpcions";
         } else {
         	DefinicioProcesDto definicioProces = definicioProcesService.importar(
         			entornActual.getId(),
@@ -574,8 +574,8 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	    		return modalUrlTancar();
         	else {        		
         		// retorna la redirecció
-        		model.addAttribute("redireccioUrl",  request.getContextPath() + "/v3/definicioProces/" + definicioProces.getJbpmKey());
-            	return "v3/definicioProcesImportarOpcions";
+        		model.addAttribute("redireccioUrl",  request.getContextPath() + "/definicioProces/" + definicioProces.getJbpmKey());
+            	return "definicioProcesImportarOpcions";
         	}
         }
 	}	
@@ -627,7 +627,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		command.setExpedientTipusId(expedientTipusId);
 		command.setId(definicioProcesId);
 		this.omplirModelFormulariDesplegament(command, model, request);
-		return "v3/definicioProcesDesplegarForm";
+		return "definicioProcesDesplegarForm";
 	}	
 	
 	/** Acció d'enviament del fitxer i les opcions sobre les dades de la definició de procés.
@@ -650,7 +650,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			Model model) throws IOException {
 		if (bindingResult.hasErrors()) {
     		this.omplirModelFormulariDesplegament(command, model, request);
-        	return "v3/definicioProcesDesplegarForm";
+        	return "definicioProcesDesplegarForm";
         } else {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
         	boolean error = false;
@@ -765,7 +765,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         	}
         	if (error) {
         		this.omplirModelFormulariDesplegament(command, model, request);
-            	return "v3/definicioProcesDesplegarForm";
+            	return "definicioProcesDesplegarForm";
         	} else {
         		return modalUrlTancar(false);        		
         	}

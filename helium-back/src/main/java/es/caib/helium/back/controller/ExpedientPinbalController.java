@@ -23,7 +23,7 @@ import es.caib.helium.commons.dto.PeticioPinbalFiltreDto;
 import es.caib.helium.logic.intf.service.ConsultaPinbalService;
 
 @Controller
-@RequestMapping("/v3/expedient/{expedientId}/pinbal")
+@RequestMapping("/expedient/{expedientId}/pinbal")
 public class ExpedientPinbalController extends BaseExpedientController {
 
 	@Autowired private ConsultaPinbalService consultesPinbalService;
@@ -35,7 +35,7 @@ public class ExpedientPinbalController extends BaseExpedientController {
 			Model model) {
 		model.addAttribute("expedient",expedientService.findAmbId(expedientId));
 		model.addAttribute("expedientId", expedientId);
-		return "v3/expedientPinbalLlistat";
+		return "expedientPinbalLlistat";
 	}
 	
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)

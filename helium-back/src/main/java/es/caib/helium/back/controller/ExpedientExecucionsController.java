@@ -37,7 +37,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientExecucionsController extends BaseExpedientController {
 
 	@Autowired
@@ -51,7 +51,7 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		model.addAttribute("processos", arbreProcessos);
 		model.addAttribute(expedientEinesScriptCommand);
-		return "v3/expedient/execucions";
+		return "expedient/execucions";
 	}
 
 	@RequestMapping(value = "/{expedientId}/scriptCommand", method = RequestMethod.POST)
@@ -70,7 +70,7 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 			model.addAttribute("processos", arbreProcessos);
 			model.addAttribute("expedientId", expedientId);
 			model.addAttribute(expedientEinesScriptCommand);
-			return "v3/expedient/execucions";
+			return "expedient/execucions";
 		}
 		try {
 			expedientService.procesScriptExec(
@@ -82,7 +82,7 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 			logger.error("ENTORNID:"+entorn.getId()+" NUMEROEXPEDIENT:"+expedientId+" No disposa de permisos per a executar scripts");
 			MissatgesHelper.error(request, getMessage(request, "error.executar.script.permis.no"));
 			if (!ModalHelper.isModal(request))
-				return "redirect:/v3/expedient/" + expedientId;
+				return "redirect:/expedient/" + expedientId;
 		} catch (Exception ex) {
 			Long entornId = entorn.getId();
 			Throwable t = (ex.getCause() != null? ex.getCause() : ex);

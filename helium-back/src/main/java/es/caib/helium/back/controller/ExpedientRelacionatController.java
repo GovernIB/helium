@@ -38,7 +38,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientRelacionatController extends BaseExpedientController {
 
 	@Autowired
@@ -53,7 +53,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		model.addAttribute(
 				"relacionats",
 				expedientService.relacioFindAmbExpedient(expedientId));
-		return "v3/expedient/relacionar";
+		return "expedient/relacionar";
 	}
 
 	@ModelAttribute("relacionarCommand")
@@ -97,7 +97,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.expedient.relacio.esborrar"), ex);
 			logger.error("No s'ha pogut relacionar l'expedient " + expedientId, ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/expedient/" + expedientId;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/expedient/suggest", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})

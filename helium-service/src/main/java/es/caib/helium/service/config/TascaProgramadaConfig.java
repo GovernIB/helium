@@ -10,12 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.TriggerContext;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
@@ -32,7 +28,6 @@ import es.caib.helium.service.utils.GlobalProperties;
 public class TascaProgramadaConfig implements SchedulingConfigurer {
 
 	public static final String comprovarExecucionsMassives = "comprovarExecucionsMassives";
-	public static final String comprovarReindexacioAsincrona = "comprovarReindexacioAsincrona";
 	public static final String comprovarAnotacionsPendents = "comprovarAnotacionsPendents";
 	public static final String processarAnotacionsAutomatiques = "processarAnotacionsAutomatiques";
 	public static final String actualitzarUnitatsIProcediments = "actualitzarUnitatsIProcediments";
@@ -97,26 +92,6 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
                         }
                     }
 						}
-        );
-		
-		/** Comprovació cada 10 segons si hi ha expedients pendents de reindexació asíncrona segons la taula
-		 * hel_expedient_reindexacio. Cada cop que s'executa va consultant si en queden de pendents fins la 
-		 * propera execució.
-		 */
-    	addTask(
-    			comprovarReindexacioAsincrona,
-                new Runnable() {
-                    @Override
-                    public void run() {
-                    	monitorTasquesService.inici(comprovarReindexacioAsincrona);
-                        try{ 
-                        	getTascaProgramadaService().comprovarReindexacioAsincrona();
-                        	monitorTasquesService.fi(comprovarReindexacioAsincrona);
-                        } catch(Throwable th) {
-                        	tractarErrorTascaSegonPla(th, comprovarReindexacioAsincrona);
-                        }
-                    }
-                    }
         );
 		
 		/** Tasca programada per comprovar les anotacions pendents de consultar periòdicament 
@@ -278,12 +253,12 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
                 	Long value = null;
                 	try {
                 		String strProperty = GlobalProperties.getInstance().getProperty("app.massiu.periode.noves"); 
-                		value = new Long(strProperty);
+                		value = Long.valueOf(strProperty);
                 	} catch (Exception e) {
 						logger.warn("Error consultant la propietat per la propera execució de comprovar execucions massives: " + e.getMessage());
 					}
                 	if (value == null) {
-						value =new Long(10000);
+						value = Long.valueOf(10000);
                 	}
             		PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
                     trigger.setInitialDelay(value);
@@ -293,25 +268,11 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
                     return nextExecution;
                 }
             };
-        } else if (taskCodi.equals(comprovarReindexacioAsincrona)) {
-            return new Trigger() {
-                @Override
-                public Date nextExecutionTime(TriggerContext triggerContext) {
-                	Long value = new Long("10000");
-                    PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
-                    trigger.setInitialDelay(value);
-                    Date nextExecution = trigger.nextExecutionTime(triggerContext);
-
-                    Long longNextExecution = nextExecution.getTime() - System.currentTimeMillis();
-    				monitorTasquesService.updateProperaExecucio(comprovarReindexacioAsincrona, longNextExecution);
-                    return nextExecution;
-                }
-            };
         } else if (taskCodi.equals(comprovarAnotacionsPendents)) {
             return new Trigger() {
                 @Override
                 public Date nextExecutionTime(TriggerContext triggerContext) {
-                	Long value = new Long("10000");
+                	Long value = Long.valueOf("10000");
                     PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
                     trigger.setInitialDelay(value);
                     Date nextExecution = trigger.nextExecutionTime(triggerContext);
@@ -324,7 +285,7 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
             return new Trigger() {
                 @Override
                 public Date nextExecutionTime(TriggerContext triggerContext) {
-                	Long value = new Long("10000");
+                	Long value = Long.valueOf("10000");
                     PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
                     trigger.setInitialDelay(value);
                     Date nextExecution = trigger.nextExecutionTime(triggerContext);
@@ -357,7 +318,7 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
             return new Trigger() {
                 @Override
                 public Date nextExecutionTime(TriggerContext triggerContext) {
-                	Long value = new Long("60000");
+                	Long value = Long.valueOf("60000");
                     PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
                     trigger.setInitialDelay(value);
                     Date nextExecution = trigger.nextExecutionTime(triggerContext);
@@ -370,7 +331,7 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
             return new Trigger() {
                 @Override
                 public Date nextExecutionTime(TriggerContext triggerContext) {
-                	Long value = new Long("60000");
+                	Long value = Long.valueOf("60000");
                     PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
                     trigger.setInitialDelay(value);
                     Date nextExecution = trigger.nextExecutionTime(triggerContext);
@@ -422,9 +383,6 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
 		if (taskRegistrar != null) {
 			if (comprovarExecucionsMassives.equals(taskCodi) || "totes".equals(taskCodi)) {
 				rescheduleTask(comprovarExecucionsMassives);
-			}
-			if (comprovarReindexacioAsincrona.equals(taskCodi) || "totes".equals(taskCodi)) {
-				rescheduleTask(comprovarReindexacioAsincrona);
 			}
 			if (comprovarAnotacionsPendents.equals(taskCodi) || "totes".equals(taskCodi)) {
 				rescheduleTask(comprovarAnotacionsPendents);

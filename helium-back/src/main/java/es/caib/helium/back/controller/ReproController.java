@@ -53,7 +53,7 @@ import es.caib.helium.logic.intf.service.TascaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/repro")
+@RequestMapping("/repro")
 public class ReproController extends BaseController {
 	
 	@Autowired

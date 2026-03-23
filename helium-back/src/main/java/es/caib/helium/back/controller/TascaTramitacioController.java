@@ -103,7 +103,7 @@ import es.caib.helium.service.helper.ParametreHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/tasca")
+@RequestMapping("/tasca")
 public class TascaTramitacioController extends BaseTascaController {
 
 	public static final String VARIABLE_SESSIO_CAMP_FOCUS = "helCampFocus";
@@ -207,7 +207,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			if (ModalHelper.isModal(request)) {
 				return modalUrlTancar(false);
 			} else {
-				return "v3/entitatNoDisponible";
+				return "entitatNoDisponible";
 			}
 		    
 		}
@@ -259,7 +259,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				null,
 				reproId);
 		
-		return "v3/tascaForm";
+		return "tascaForm";
 	}
 
 	@RequestMapping(value = "/{tascaId}/guardar", method = RequestMethod.POST)
@@ -381,7 +381,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		if (ModalHelper.isModal(request))
 			return modalUrlTancar(false);
 		else
-			return "redirect:/v3/tasca";
+			return "redirect:/tasca";
 	}
 
 	@RequestMapping(value = "/{tascaId}/restaurar", method = RequestMethod.POST)
@@ -486,7 +486,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				EnumHelper.getOptionsForEnum(
 						DocumentTipusFirmaEnumDto.class,
 						"enum.document.tipus.firma."));		
-		return "v3/tascaDocument";
+		return "tascaDocument";
 	}
 
 	@RequestMapping(value = "/{tascaId}/isPermetreFinalitzar", method = RequestMethod.POST)
@@ -538,7 +538,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		model.addAttribute("signatures", tascaService.findDocumentsSignar(tascaId));
 		model.addAttribute("passarelaFirmaEnviarCommand", new PassarelaFirmaEnviarCommand());
-		return "v3/tascaSignatura";
+		return "tascaSignatura";
 	}
 
 	@RequestMapping(value = "/{tascaId}/document/{documentId}/firmaPassarela", method = RequestMethod.GET)
@@ -564,7 +564,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			PersonaDto usuariActual = aplicacioService.findPersonaActual();
 			
 			String urlReturnToHelium = ((ModalHelper.isRefererUriModal(request)) ? "/modal" : "") 
-										+ "/v3/tasca/" + tascaId + "/document/" + documentCodi + "/firmaPassarelaFinal";
+										+ "/tasca/" + tascaId + "/document/" + documentCodi + "/firmaPassarelaFinal";
 			urlReturnToHelium = UrlHelper.getAbsoluteControllerBase(request,"").concat(urlReturnToHelium);
 			
 			String procesFirmaUrl = expedientDocumentService.firmaSimpleWebStart(
@@ -585,7 +585,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					request,
 					errMsg,
 					e);
-			return "v3/passarelaFirma/passarelaFiFirma";
+			return "passarelaFirma/passarelaFiFirma";
 		}
 	}
 
@@ -661,7 +661,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			String errMsg = "Error no controlat en el procés de firma en passarel·la web: " + e.getMessage();
 			MissatgesHelper.error(request, errMsg, e);
 		}
-		return "v3/passarelaFirma/passarelaFiFirma";
+		return "passarelaFirma/passarelaFiFirma";
 	}
 
 	@RequestMapping(value = "/{tascaId}/verificarSignatura/{documentStoreId}/{documentCodi}", method = RequestMethod.GET)
@@ -676,7 +676,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			if (urlVerificacioCustodia != null && !urlVerificacioCustodia.isEmpty()) {
 				model.addAttribute("tittle", getMessage(request, "expedient.document.verif_signatures"));
 				model.addAttribute("url", urlVerificacioCustodia);
-				return "v3/utils/modalIframe";
+				return "utils/modalIframe";
 			}
 			model.addAttribute(
 					"signatura",
@@ -684,7 +684,7 @@ public class TascaTramitacioController extends BaseTascaController {
 							tascaId.toString(), 
 							documentCodi));
 			model.addAttribute("signatures", expedientDocumentService.verificarSignatura(documentStoreId));
-			return "v3/expedientTascaTramitacioSignarVerificar";
+			return "expedientTascaTramitacioSignarVerificar";
 		} catch(Exception ex) {
 			logger.error("Error al verificar la signatura", ex);
 			throw new ServletException(ex);
@@ -875,7 +875,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			else
 				MissatgesHelper.error(request, ex.getMessage(), ex);
 			
-			return "redirect:/modal/v3/tasca/" + tascaId + "/document";
+			return "redirect:/modal/tasca/" + tascaId + "/document";
 		}	
 		return "arxiuView";
 	}
@@ -969,7 +969,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			model.addAttribute("tittle", getMessage(request, "tasca.form.dades_form"));
 			model.addAttribute("url", url);
 			model.addAttribute("height", height);
-			return "v3/utils/modalIframe";
+			return "utils/modalIframe";
 		} catch(Exception ex) {
 			logger.error("Error al comprobar el formulario externo", ex);
 			throw new ServletException(ex);
@@ -1006,7 +1006,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		Set<Long> seleccio = getSeleccioConsultaTasca(request);		
 		model.addAttribute("tasques", tascaService.findAmbIds(seleccio));
 		
-		return "v3/import/tasquesMassivaTaula";
+		return "import/tasquesMassivaTaula";
 	}
 
 	/** Obre el formulari de l'enviament al portafirmes desde el formulari de tasca */
@@ -1842,9 +1842,9 @@ public class TascaTramitacioController extends BaseTascaController {
 		String ret;
 		Map<String, Object> dadesTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (dadesTramitacionMasiva != null) {
-			ret = "redirect:/modal/v3/tasca/" + tascaId + "/form";
+			ret = "redirect:/modal/tasca/" + tascaId + "/form";
 		} else {
-			ret = "redirect:/modal/v3/tasca/" + tascaId;
+			ret = "redirect:/modal/tasca/" + tascaId;
 		}
 		return ret;
 	}

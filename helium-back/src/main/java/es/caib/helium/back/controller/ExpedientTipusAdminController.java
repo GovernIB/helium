@@ -31,7 +31,7 @@ import es.caib.helium.service.helper.PluginHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "expedientTipusAdminControllerV3")
-@RequestMapping("/v3/cercadorTipologies")
+@RequestMapping("/cercadorTipologies")
 public class ExpedientTipusAdminController extends BaseController {
 
 	@Resource
@@ -62,11 +62,11 @@ public class ExpedientTipusAdminController extends BaseController {
 							getMessage(
 									request,
 									"error.permis.administracio.entorn"));
-					return "v3/cercadorTipologies";
+					return "cercadorTipologies";
 
 		}
 		
-		return "v3/cercadorTipologies";
+		return "cercadorTipologies";
 	}
 	
 	/** Mètode quan s'envia el formulari del filtre. Actualitza el filtre en sessió. */

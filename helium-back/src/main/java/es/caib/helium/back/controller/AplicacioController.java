@@ -50,22 +50,22 @@ public class AplicacioController extends BaseController {
 	private EntornHelper entornHelper;
 
 
-	@RequestMapping(value = "/v3", method = RequestMethod.GET)
+	@RequestMapping(value = "", method = RequestMethod.GET)
 	public String get(HttpServletRequest request) {
-		return "redirect:/v3/index";
+		return "redirect:/index";
 	}
 
-	@RequestMapping(value = "/v3/missatges", method = RequestMethod.GET)
+	@RequestMapping(value = "/missatges", method = RequestMethod.GET)
 	public String getMissatges(HttpServletRequest request) {
-		return "v3/missatges";//request.getSession().getAttribute(es.caib.helium.back.helper.MissatgesHelper.SESSION_ATTRIBUTE_SUCCESS)
+		return "missatges";//request.getSession().getAttribute(es.caib.helium.back.helper.MissatgesHelper.SESSION_ATTRIBUTE_SUCCESS)
 	}
 
-	@RequestMapping(value = "/v3/utils/modalTancar", method = RequestMethod.GET)
+	@RequestMapping(value = "/utils/modalTancar", method = RequestMethod.GET)
 	public String modalTancar() {
-		return "v3/utils/modalTancar";
+		return "utils/modalTancar";
 	}
 
-	@RequestMapping(value = "/v3/index", method = RequestMethod.GET)
+	@RequestMapping(value = "/index", method = RequestMethod.GET)
 	public String index(HttpServletRequest request) {
 		UsuariPreferenciesDto preferencies = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
 		if (preferencies != null) {
@@ -73,28 +73,28 @@ public class AplicacioController extends BaseController {
 					preferencies.getConsultaId() != null && 
 					SessionHelper.getSessionManager(request).getEntornActual().getCodi().equals(preferencies.getDefaultEntornCodi())) {
 				// Informes
-				return "redirect:/v3/informe?consultaId="+preferencies.getConsultaId();
+				return "redirect:/informe?consultaId="+preferencies.getConsultaId();
 			} else if (preferencies.getListado() == 1) {
 				// Tareas
-				return "redirect:/v3/tasca";
+				return "redirect:/tasca";
 			} else if (preferencies.getConsultaId() != null && 
 						SessionHelper.getSessionManager(request).getEntornActual().getCodi().equals(preferencies.getDefaultEntornCodi())) {
 				// Consulta per defecte
-				return "redirect:/v3/expedient/consulta/" + preferencies.getConsultaId();
+				return "redirect:/expedient/consulta/" + preferencies.getConsultaId();
 			} 
 		}
 		// Expedientes
-		return "redirect:/v3/expedient";
+		return "redirect:/expedient";
 	}
 
-	@RequestMapping(value = "/v3/metrics", method = RequestMethod.GET)
+	@RequestMapping(value = "/metrics", method = RequestMethod.GET)
 	@ResponseBody
 	public String metrics(
 			HttpServletRequest request) {
 		return adminService.getMetrics();
 	}
 
-	@RequestMapping(value = "/v3/metriques", method = RequestMethod.GET)
+	@RequestMapping(value = "/metriques", method = RequestMethod.GET)
 	public String metricsView(
 			HttpServletRequest request,
 			Model model) {
@@ -103,7 +103,7 @@ public class AplicacioController extends BaseController {
 		model.addAttribute("entorns", 
 				(persona != null && persona.isAdmin())?entornService.findActiusAll():
 					(entornHelper.esAdminEntorn(EntornActual.getEntornId()))? entornService.findActiusAmbPermisAdmin():new ArrayList<EntornDto>());
-		return "v3/metrics";
+		return "metrics";
 	}
 
 	
@@ -116,7 +116,7 @@ public class AplicacioController extends BaseController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/v3/personaCarrec/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@RequestMapping(value = "/personaCarrec/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public String personaCarrecSuggestInici(
 			@PathVariable String text,
@@ -146,7 +146,7 @@ public class AplicacioController extends BaseController {
 	}
 	
 	/** Consulta Ajax de la llista de càrrecs definida al Portafirmes. */
-	@RequestMapping(value = "/v3/portasig/carrecs", method = RequestMethod.GET)
+	@RequestMapping(value = "/portasig/carrecs", method = RequestMethod.GET)
 	@ResponseBody
 	public List<PortafirmesCarrecDto> recuperarCarrecs(
 			HttpServletRequest request, 
@@ -154,7 +154,7 @@ public class AplicacioController extends BaseController {
 		return portafirmesFluxService.recuperarCarrecs();
 	}
 	
-//	@RequestMapping(value = "/v3/usuari/codi", method = RequestMethod.POST)
+//	@RequestMapping(value = "/usuari/codi", method = RequestMethod.POST)
 //	public String canviCodiUsuari(
 //			HttpServletRequest request,
 //			@Valid UsuariCodiCommand command,
@@ -202,17 +202,17 @@ public class AplicacioController extends BaseController {
 //					e.getMessage());
 //		}
 //
-//		return "v3/usuariCodiForm";
+//		return "usuariCodiForm";
 //	}
 	
-	@RequestMapping(value = "/v3/usernames", method = RequestMethod.GET)
+	@RequestMapping(value = "/usernames", method = RequestMethod.GET)
 	public String canviCodiUsuariView(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/usuariCodiForm";
+		return "usuariCodiForm";
 	}
 
-	@RequestMapping(value = "/v3/usernames/{codiAntic}/changeTo/{codiNou}", method = RequestMethod.POST, produces = "application/json" )
+	@RequestMapping(value = "/usernames/{codiAntic}/changeTo/{codiNou}", method = RequestMethod.POST, produces = "application/json" )
 	@ResponseBody
 	public UsuariChangeResponse setCanviCodis(
 			HttpServletRequest request,

@@ -11,10 +11,10 @@ import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.CarrecDto;
 import es.caib.helium.commons.dto.EntornDto;
-import es.caib.helium.commons.plugins.persones.PersonesPlugin;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.integracio.plugins.persones.PersonesPlugin;
 import es.caib.helium.logic.intf.service.EntornAreaMembreService;
 import es.caib.helium.logic.intf.service.EntornCarrecService;
-import es.caib.helium.service.utils.GlobalProperties;
 
 public class EntornAreaMembreValidator
 		implements ConstraintValidator<EntornAreaMembre, EntornAreaMembreCommand> {

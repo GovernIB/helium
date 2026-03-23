@@ -32,7 +32,7 @@ import es.caib.helium.logic.intf.service.EntornService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "entornControllerV3")
-@RequestMapping("/v3/entorn")
+@RequestMapping("/entorn")
 public class EntornController extends BaseController {
 
 	@Autowired
@@ -43,7 +43,7 @@ public class EntornController extends BaseController {
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/entornLlistat";
+		return "entornLlistat";
 	}
 
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)
@@ -65,7 +65,7 @@ public class EntornController extends BaseController {
 			HttpServletRequest request,
 			Model model) {
 		model.addAttribute("command", new EntornCommand());
-		return "v3/entornForm";
+		return "entornForm";
 	}
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
 	public String newPost(
@@ -74,7 +74,7 @@ public class EntornController extends BaseController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/entornForm";
+        	return "entornForm";
         } else {
     		entornService.create(
     				ConversioTipus.convertir(
@@ -82,7 +82,7 @@ public class EntornController extends BaseController {
     						EntornDto.class));
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/entorn",
+					"redirect:/entorn",
 					"entorn.controller.creat");
         }
 	}
@@ -99,7 +99,7 @@ public class EntornController extends BaseController {
 				ConversioTipus.convertir(
 						dto,
 						EntornCommand.class));
-		return "v3/entornForm";
+		return "entornForm";
 	}
 	@RequestMapping(value = "/{entornId}/update", method = RequestMethod.POST)
 	public String updatePost(
@@ -109,7 +109,7 @@ public class EntornController extends BaseController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/entornForm";
+        	return "entornForm";
         } else {
         	command.setId(entornId);
         	entornService.update(
@@ -118,7 +118,7 @@ public class EntornController extends BaseController {
     						EntornDto.class));
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/entorn",
+					"redirect:/entorn",
 					"entorn.controller.modificat");
         }
 	}
@@ -131,7 +131,7 @@ public class EntornController extends BaseController {
 		entornService.delete(entornId);
 		return this.getAjaxControllerReturnValueSuccess(
 				request,
-				"redirect:/v3/entorn",
+				"redirect:/entorn",
 				"entorn.controller.esborrat");
 	}
 
@@ -144,7 +144,7 @@ public class EntornController extends BaseController {
 				"entorn",
 				entornService.findOne(
 						entornId));
-		return "v3/entornPermis";
+		return "entornPermis";
 	}
 
 	@RequestMapping(value = "/{entornId}/permis/new", method = RequestMethod.GET)
@@ -157,7 +157,7 @@ public class EntornController extends BaseController {
 				entornService.findOne(
 						entornId));
 		model.addAttribute("command", new PermisCommand());
-		return "v3/entornPermisForm";
+		return "entornPermisForm";
 	}
 	@RequestMapping(value = "/{entornId}/permis/new", method = RequestMethod.POST)
 	public String permisNewPost(
@@ -191,7 +191,7 @@ public class EntornController extends BaseController {
 				ConversioTipus.convertir(
 						permis,
 						PermisCommand.class));
-		return "v3/entornPermisForm";
+		return "entornPermisForm";
 	}
 	@RequestMapping(value = "/{entornId}/permis/{permisId}", method = RequestMethod.POST)
 	public String permisUpdatePost(
@@ -207,7 +207,7 @@ public class EntornController extends BaseController {
     				"entorn",
     				entornService.findOne(
     						entornId));
-        	return "v3/entornPermisForm";
+        	return "entornPermisForm";
         } else {
     		entornService.permisUpdate(
     				entornId,
@@ -240,7 +240,7 @@ public class EntornController extends BaseController {
 				entornService.findOne(
 						entornId));
 		model.addAttribute(new PermisCommand());
-		return "redirect:/v3/entorn/" + entornId + "/permis";
+		return "redirect:/entorn/" + entornId + "/permis";
 	}
 
 	@RequestMapping(value = "/{entornId}/permis/datatable", method = RequestMethod.GET)

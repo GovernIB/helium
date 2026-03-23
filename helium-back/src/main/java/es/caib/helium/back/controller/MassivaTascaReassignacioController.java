@@ -50,7 +50,7 @@ import es.caib.helium.logic.intf.service.ExecucioMassivaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/tasca")
+@RequestMapping("/tasca")
 public class MassivaTascaReassignacioController extends BaseExpedientController {
 	
 	@Autowired
@@ -79,7 +79,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		model.addAttribute("massiva", massiva);		
 		model.addAttribute("reassignacioTasquesCommand", new ReassignacioTasquesCommand());
 		
-		return "v3/tasquesReassignacio";
+		return "tasquesReassignacio";
 	}
 
 	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
@@ -149,7 +149,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		validator.validate(reassignacioTasquesCommand, result);
 		if (result.hasErrors()) {
 			MissatgesHelper.error(request, getMessage(request, "error.executar.reassignacio"));
-			return "v3/tasquesReassignacio";
+			return "tasquesReassignacio";
         }
 
 		Date dInici = new Date();
@@ -203,7 +203,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 					getMessage(request, "error.no.massiu"),
 					e);
 			logger.error("Error al programar les accions massives", e);
-			return "v3/tasquesReassignacio";
+			return "tasquesReassignacio";
 		}
 		return modalUrlTancar(false);
 	}

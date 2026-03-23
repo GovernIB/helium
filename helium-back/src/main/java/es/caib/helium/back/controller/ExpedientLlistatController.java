@@ -76,7 +76,7 @@ import es.caib.helium.service.helper.UsuariActualHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientLlistatController extends BaseExpedientController {
 
 	@Autowired
@@ -89,11 +89,11 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			HttpServletRequest request,
 			Model model) {
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
-		model.addAttribute("command", filtreCommand);		
+		model.addAttribute("expedientConsulta", filtreCommand);		
 		if (filtreCommand.isConsultaRealitzada()) {
 			omplirModelGet(request, model);
 		}
-		return "v3/expedientLlistat";
+		return "expedientLlistat";
 	}
 	@RequestMapping(method = RequestMethod.POST)
 	public String post(

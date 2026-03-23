@@ -30,7 +30,7 @@ import es.caib.helium.logic.intf.service.TascaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/domini")
+@RequestMapping("/domini")
 public class ExpedientConsultaDominioController extends BaseExpedientController {
 	@Autowired
 	private TascaService tascaService;

@@ -86,7 +86,7 @@ import es.caib.helium.logic.intf.service.TascaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient/massiva")
+@RequestMapping("/expedient/massiva")
 public class MassivaExpedientController extends BaseExpedientController {
 
 	@Autowired
@@ -140,7 +140,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			logger.error("Error en recuperar la llista dels expedients seleccionats", e);
 		}
 		model.addAttribute("expedients", expedients);
-		return "v3/massivaInfoExpedients";
+		return "massivaInfoExpedients";
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -156,10 +156,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 			ids = guardarIdsAccionesMasivas(request, consultaId);
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
-			return "redirect:/v3";
+			return "redirect:";
 		} if (expedientService.isDiferentsTipusExpedients(ids)) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec.diferenttipus"));
-			return "redirect:/v3";
+			return "redirect:";
 		} else {
 			List<Long> listIds = new ArrayList<Long>(ids);			
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(listIds.get(0));
@@ -218,7 +218,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute("documents", documents);
 			
 			model.addAttribute("permisAdministrador", expedient.isPermisAdministration());
-			return "v3/massivaInfo";
+			return "massivaInfo";
 		}
 	}
 
@@ -365,7 +365,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		Set<Long> ids = recuperarIdsAccionesMasivas(request);
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
-			return "redirect:/v3";
+			return "redirect:";
 		}
 
 		Date dInici = new Date();
@@ -616,7 +616,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				validator.validate(commandPerValidacio, result);
 				if (result.hasErrors()) {
 					model.addAttribute("modificarVariablesCommand", command);
-					return "v3/massivaInfoModificarVariables";
+					return "massivaInfoModificarVariables";
 		        }
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_VARIABLE);
 				dto.setParam1(varCodi);
@@ -636,7 +636,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			logger.error("Error al programar les accions massives", e);
 		}
 		
-		return "redirect:/v3/expedient/massiva?readIdsAccionesMasivas=true";
+		return "redirect:/expedient/massiva?readIdsAccionesMasivas=true";
 	}
 	
 	@ModelAttribute("modificarVariablesCommand")
@@ -693,7 +693,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {
 		Object command = populateCommand(request, campId, model);
 		model.addAttribute("modificarVariablesCommand", command);
-		return "v3/massivaInfoModificarVariables";
+		return "massivaInfoModificarVariables";
 	}
 
 	@RequestMapping(value = "/documentMassiu", method = RequestMethod.GET)
@@ -730,7 +730,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		Set<Long> ids = recuperarIdsAccionesMasivas(request);
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
-			return "redirect:/v3";
+			return "redirect:";
 		}
 		DocumentDto documentDto = null;
 		if (docId != null) {
@@ -768,7 +768,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 						DocumentTipusFirmaEnumDto.class,
 						"enum.document.tipus.firma."));
 		model.addAttribute("adjuntar", adjuntar);
-		return "v3/massivaInfoDocumentForm";
+		return "massivaInfoDocumentForm";
 	}
 	
 	@RequestMapping(value="/documentMasForm", method = RequestMethod.POST)

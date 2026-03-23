@@ -10,8 +10,6 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Value;
-
 /**
  * Utilitat per a finestres modals.
  * 
@@ -78,7 +76,7 @@ public class ModalHelper {
 	private static void marcarModal(HttpServletRequest request) {
 		request.setAttribute(
 				REQUEST_ATTRIBUTE_MODAL,
-				new Boolean(true));
+				true);
 	}
 
 }

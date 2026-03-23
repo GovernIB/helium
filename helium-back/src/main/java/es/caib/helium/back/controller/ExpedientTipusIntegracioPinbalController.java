@@ -33,7 +33,7 @@ import es.caib.helium.commons.exception.PermisDenegatException;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusIntegracioPinbalController extends BaseExpedientTipusController {
 
 	@RequestMapping(value = "/{expedientTipusId}/integracioPinbal")
@@ -60,7 +60,7 @@ public class ExpedientTipusIntegracioPinbalController extends BaseExpedientTipus
 			command.setPinbalNifCif(expedientTipus.getPinbalNifCif());
 			model.addAttribute("expedientTipusIntegracioPinbalCommand", command);
 		}
-		return "v3/expedientTipusIntegracioPinbal";
+		return "expedientTipusIntegracioPinbal";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/integracioPinbal", method = RequestMethod.POST)

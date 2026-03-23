@@ -50,7 +50,7 @@ import es.caib.helium.commons.exception.PermisDenegatException;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 
 
@@ -71,7 +71,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 				request,
 				expedientTipusId,
 				model);
-		return "v3/expedientTipusTasca";
+		return "expedientTipusTasca";
 	}
 	
 	/** Mètode per obtenir les possibles versions per al select de definicions de procés via ajax. */
@@ -199,7 +199,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 		DefinicioProcesTascaCommand command = DefinicioProcesTascaCommand.toDefinicioProcesTascaCommand(dto);	
 		model.addAttribute("definicioProcesTascaCommand", command);
 		model.addAttribute("heretat", dto.isHeretat());
-		return "v3/definicioProcesTascaForm";	
+		return "definicioProcesTascaForm";	
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/update", method = RequestMethod.POST)
@@ -211,7 +211,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 			BindingResult bindingResult,
 			Model model) throws NoTrobatException, PermisDenegatException, IOException {
         if (bindingResult.hasErrors()) {
-        	return "v3/definicioProcesTascaForm";
+        	return "definicioProcesTascaForm";
         } else {
         	definicioProcesService.tascaUpdate(
         			DefinicioProcesTascaCommand.asTascaDto(command));
@@ -236,7 +236,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 		// Especifica les URLs per la pàgina
 		String basicUrl = "expedientTipus/" + expedientTipusId  + "/tasca/" + tascaId;
 		model.addAttribute("basicUrl", basicUrl);
-		model.addAttribute("baseUrl", "/helium/v3/" + basicUrl);
+		model.addAttribute("baseUrl", "/helium/" + basicUrl);
 	}
 	
 	
@@ -261,7 +261,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 
 		omplirModelVariables(expedientTipusId, id, model);
 
-		return "v3/definicioProcesTascaVariable";
+		return "definicioProcesTascaVariable";
 	}
 	
 	/** Modal per veure els camps de la tasca de tipus filtre. */
@@ -282,7 +282,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 
 		omplirModelVariables(expedientTipusId, id, model);
 
-		return "v3/definicioProcesTascaVariableDisseny";
+		return "definicioProcesTascaVariableDisseny";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/variable/all", method = RequestMethod.GET)
@@ -326,7 +326,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 			Model model) {
         if (bindingResult.hasErrors()) {
     		omplirModelVariables(expedientTipusId, id, model);
-    		return "v3/definicioProcesTascaVariable";
+    		return "definicioProcesTascaVariable";
         } else {
         	// Verificar permisos
         	CampTascaDto camp = definicioProcesService.tascaCampCreate(
@@ -525,7 +525,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 
 		omplirModelDocuments(expedientTipusId, id, model);
 
-		return "v3/definicioProcesTascaDocument";
+		return "definicioProcesTascaDocument";
 	}	
 	
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/document/datatable", method = RequestMethod.GET)
@@ -559,7 +559,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 
     		omplirModelDocuments(expedientTipusId, id, model);
 
-    		return "v3/definicioProcesTascaDocument";
+    		return "definicioProcesTascaDocument";
         } else {
         	// Verificar permisos
     		definicioProcesService.tascaDocumentCreate(
@@ -743,7 +743,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 
 		omplirModelFirmes(expedientTipusId, id, model);
 
-		return "v3/definicioProcesTascaFirma";
+		return "definicioProcesTascaFirma";
 	}	
 	
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/firma/datatable", method = RequestMethod.GET)
@@ -777,7 +777,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 
     		omplirModelFirmes(expedientTipusId, id, model);
 
-    		return "v3/definicioProcesTascaFirma";
+    		return "definicioProcesTascaFirma";
         } else {
         	// Verificar permisos
     		definicioProcesService.tascaFirmaCreate(

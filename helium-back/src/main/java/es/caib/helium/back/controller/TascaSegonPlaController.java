@@ -32,7 +32,7 @@ import es.caib.helium.logic.intf.service.TascaProgramadaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/tascaSegonPla")
+@RequestMapping("/tascaSegonPla")
 public class TascaSegonPlaController extends BaseController {
 
 	@Autowired
@@ -40,10 +40,9 @@ public class TascaSegonPlaController extends BaseController {
 	@Autowired
 	private TascaProgramadaService tascaProgramadaService;
 
-	    
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String schedulingGet(HttpServletRequest request, Model model) {
-    	return "v3/tascaSegonPla";
+    	return "tascaSegonPla";
     }  
     
     @RequestMapping(value = "/datatable", method = RequestMethod.GET)
@@ -58,7 +57,7 @@ public class TascaSegonPlaController extends BaseController {
 				}
 			});
 		} catch (Exception ex) {}
-		return DatatablesHelper.getDatatableResponse(
+ 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
 				tasques);

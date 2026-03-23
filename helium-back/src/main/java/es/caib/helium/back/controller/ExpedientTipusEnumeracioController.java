@@ -38,7 +38,7 @@ import es.caib.helium.logic.intf.service.EnumeracioService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "expedientTipusEnumeracioControllerV3")
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusEnumeracioController extends BaseExpedientTipusController {
 
 	@Autowired
@@ -57,7 +57,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("pipellaActiva", "enumeracions");
 		}
-		return "v3/expedientTipusEnumeracio";
+		return "expedientTipusEnumeracio";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/datatable", method = RequestMethod.GET)
@@ -79,7 +79,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 		ExpedientTipusEnumeracioCommand command = new ExpedientTipusEnumeracioCommand();
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusEnumeracioCommand", command);
-		return "v3/expedientTipusEnumeracioForm";
+		return "expedientTipusEnumeracioForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/new", method = RequestMethod.POST)
@@ -90,7 +90,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			BindingResult bindingResult, Model model) {
 		try {
 			if (bindingResult.hasErrors()) {
-				return "v3/expedientTipusEnumeracioForm";
+				return "expedientTipusEnumeracioForm";
 			} else {
 			
 				EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);
@@ -114,7 +114,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 							"expedient.tipus.enumeracio.controller.creat.error",
 							new Object[] {ex.getLocalizedMessage()}),
 					ex);
-			return "v3/expedientTipusEnumeracioForm";
+			return "expedientTipusEnumeracioForm";
 	    }
 	}
 
@@ -128,7 +128,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 		ExpedientTipusEnumeracioCommand command = ConversioTipus.convertir(dto, ExpedientTipusEnumeracioCommand.class);
 		model.addAttribute("expedientTipusEnumeracioCommand", command);
 		model.addAttribute("heretat", dto.isHeretat());
-		return "v3/expedientTipusEnumeracioForm";
+		return "expedientTipusEnumeracioForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/{id}/update", method = RequestMethod.POST)
@@ -141,7 +141,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 		try {
 			if (bindingResult.hasErrors()) {
 	    		model.addAttribute("heretat", enumeracioService.findAmbId(expedientTipusId, id).isHeretat());
-				return "v3/expedientTipusEnumeracioForm";
+				return "expedientTipusEnumeracioForm";
 			} else {
 				EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);
 				enumeracioService.update(dto);
@@ -162,7 +162,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 							"expedient.tipus.enumeracio.controller.modificat.error",
 							new Object[] {ex.getLocalizedMessage()}),
 					ex);
-			return "v3/expedientTipusEnumeracioForm";
+			return "expedientTipusEnumeracioForm";
 	    }
 	}
 

@@ -23,11 +23,11 @@ import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.AreaMembreDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.plugins.persones.PersonesPlugin;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.integracio.plugins.persones.PersonesPlugin;
 import es.caib.helium.logic.intf.service.EntornAreaMembreService;
 import es.caib.helium.logic.intf.service.EntornCarrecService;
 import es.caib.helium.service.helper.EntornHelper;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Controlador per a la gestió de les àrees
@@ -35,7 +35,7 @@ import es.caib.helium.service.utils.GlobalProperties;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "entornAreaMembresControllerV3")
-@RequestMapping("/v3/entorn-area")
+@RequestMapping("/entorn-area")
 public class EntornAreaMembresController extends BaseController {
 
 	private PersonesPlugin personesPlugin;
@@ -51,14 +51,14 @@ public class EntornAreaMembresController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		prepararModel(request, entornAreaId, model, entornActual);
 		model.addAttribute("mostraCreate", false);
 		model.addAttribute("areaId", entornAreaId);
 		EntornAreaMembreCommand command = new EntornAreaMembreCommand();
 		model.addAttribute(command);
-		return "v3/entornAreaMembre";
+		return "entornAreaMembre";
 	}
 	
 	@RequestMapping(value = "{entornAreaId}/membres/datatable", method = RequestMethod.GET)
@@ -83,14 +83,14 @@ public class EntornAreaMembresController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		prepararModel(request, entornAreaId, model, entornActual);
 		model.addAttribute("areaId", entornAreaId);
 		EntornAreaMembreCommand command = new EntornAreaMembreCommand();
 		command.setAreaId(entornAreaId);
 		model.addAttribute(command);
-		return "v3/entornAreaMembre";
+		return "entornAreaMembre";
 	}
 	
 	@RequestMapping(value = "{entornAreaId}/membres/new", method = RequestMethod.POST)
@@ -100,14 +100,14 @@ public class EntornAreaMembresController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		prepararModel(request, entornAreaId, model, entornActual);
 		
 		model.addAttribute("entornCarrecs", entornCarrecService.findCarrecsByEntornAndArea(entornActual.getId(), entornAreaId));
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("mostraCreate", true);
-			return "v3/entornAreaMembre";
+			return "entornAreaMembre";
 		}
 		model.addAttribute("mostraCreate", false);
 		AreaMembreDto areaMembre = new AreaMembreDto();
@@ -115,7 +115,7 @@ public class EntornAreaMembresController extends BaseController {
 		areaMembre.setCodi(command.getCodi());
 		entornAreaMembreService.create(entornActual.getId(), command.getCarrecId(), areaMembre);
 		
-		return "v3/entornAreaMembre";
+		return "entornAreaMembre";
 	}
 	
 	private String prepararModel(HttpServletRequest request,Long entornAreaId, Model model, EntornDto entornActual) {
@@ -128,7 +128,7 @@ public class EntornAreaMembresController extends BaseController {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		
 		model.addAttribute("entornCarrecs", entornCarrecService.findCarrecsByEntornAndArea(entornActual.getId(), entornAreaId));
@@ -146,7 +146,7 @@ public class EntornAreaMembresController extends BaseController {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-				return "v3/modalBlank";
+				return "modalBlank";
 			}
 			model.addAttribute("entornCarrecs", entornCarrecService.findCarrecsByEntornAndArea(entornActual.getId(), entornAreaId));
 			prepararModel(request, entornAreaId, model, entornActual);
@@ -169,7 +169,7 @@ public class EntornAreaMembresController extends BaseController {
 			logger.error("S'ha produit un error al intentar el membre amb id '" + id + "' de l'àrea amb id '" + entornAreaId, e);
 		}
 		
-		return "/v3/entornAreaMembre";
+		return "/entornAreaMembre";
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(EntornAreaMembresController.class);

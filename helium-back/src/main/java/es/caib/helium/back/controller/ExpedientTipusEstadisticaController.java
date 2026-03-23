@@ -57,7 +57,7 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "entornEstadisticaControllerV3")
-@RequestMapping("/v3/estadistica")
+@RequestMapping("/estadistica")
 public class ExpedientTipusEstadisticaController extends BaseController {
 
 	@Resource
@@ -97,7 +97,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 					getMessage(
 							request,
 							"error.permis.administracio.entorn"));
-			return "v3/estadisticaEntorns";
+			return "estadisticaEntorns";
 
 		}
 		// Afegeix els diferents entorns
@@ -203,7 +203,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		}
 		model.addAttribute("estadisticaPerEntorn", estadisticaPerEntorn);		
 		
-		return "v3/estadisticaEntorns";
+		return "estadisticaEntorns";
 	}
 	
 	/** Obté la llista de parelles codi valor pel model d'estats amb l'estat inicialitzat i finalitzat

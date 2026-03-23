@@ -23,7 +23,7 @@ import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.service.helper.UsuariActualHelper;
 
 @Controller
-@RequestMapping("/v3/excepcions")
+@RequestMapping("/excepcions")
 public class ExcepcioLogController extends BaseController {
 
 	@Autowired private AplicacioService aplicacioService;
@@ -33,7 +33,7 @@ public class ExcepcioLogController extends BaseController {
 			HttpServletRequest request,
 			Model model) {
 		if (UsuariActualHelper.isAdministrador(SecurityContextHolder.getContext().getAuthentication())) {
-			return "v3/excepcio";
+			return "excepcio";
 		} else {
 			MissatgesHelper.error(request, "Es requereix el rol d'administrador per consultar el registre d'excepcions.");
 			return "redirect:/";
@@ -80,7 +80,7 @@ public class ExcepcioLogController extends BaseController {
 			@PathVariable Long index,
 			Model model) {
 		model.addAttribute("excepcio", aplicacioService.excepcioFindOne(index));
-		return "v3/excepcioDetall";
+		return "excepcioDetall";
 	}
 
 }

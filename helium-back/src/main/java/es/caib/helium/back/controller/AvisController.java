@@ -37,7 +37,7 @@ import es.caib.helium.logic.intf.service.AvisService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "avisControllerV3")
-@RequestMapping("/v3/avis")
+@RequestMapping("/avis")
 public class AvisController extends BaseController {
 	
 	@Autowired
@@ -59,10 +59,10 @@ public class AvisController extends BaseController {
 							getMessage(
 									request,
 									"error.permis.disseny.avis"));
-					return "v3/avis";
+					return "avis";
 
 		}
-		return "v3/avis";
+		return "avis";
 	}
 	
 	
@@ -97,7 +97,7 @@ public class AvisController extends BaseController {
 			avisCommand.setDataInici(new Date());
 			model.addAttribute(avisCommand);
 		}
-		return "v3/avisForm";
+		return "avisForm";
 	}
 	
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
@@ -107,7 +107,7 @@ public class AvisController extends BaseController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/avisForm";
+        	return "avisForm";
         } else {
     		avisService.create(
     				ConversioTipus.convertir(
@@ -115,7 +115,7 @@ public class AvisController extends BaseController {
     						AvisDto.class));
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/avis",
+					"redirect:/avis",
 					"avis.controller.creat");
         }
 	}
@@ -131,7 +131,7 @@ public class AvisController extends BaseController {
 				ConversioTipus.convertir(
 						dto,
 						AvisCommand.class));
-		return "v3/avisForm";
+		return "avisForm";
 	}
 	
 	@RequestMapping(value = "/{avisId}/update", method = RequestMethod.POST)
@@ -142,7 +142,7 @@ public class AvisController extends BaseController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/avisForm";
+        	return "avisForm";
         } else {
         	command.setId(avisId);
         	avisService.update(
@@ -151,7 +151,7 @@ public class AvisController extends BaseController {
     						AvisDto.class));
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/avis",
+					"redirect:/avis",
 					"avis.controller.modificat");
         }
 	}
@@ -162,7 +162,7 @@ public class AvisController extends BaseController {
 //			@Valid AvisCommand command,
 //			BindingResult bindingResult) {
 //		if (bindingResult.hasErrors()) {
-//			return "v3/avisForm";
+//			return "avisForm";
 //		}
 //		if (command.getId() != null) {
 //			avisService.update(AvisCommand.asDto(command));

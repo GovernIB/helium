@@ -46,7 +46,7 @@ import es.caib.helium.commons.dto.handlers.HandlerDto;
  * 
  */
 @Controller(value = "definicioProcesAccioControllerV3")
-@RequestMapping("/v3/definicioProces")
+@RequestMapping("/definicioProces")
 public class DefinicioProcesAccioController extends BaseDefinicioProcesController {
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accions")
@@ -68,9 +68,9 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/helium/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
-		return "v3/expedientTipusAccio";
+		return "expedientTipusAccio";
 	}
 	
 	@RequestMapping(value="/{jbmpKey}/{definicioProcesId}/accio/datatable", method = RequestMethod.GET)
@@ -106,7 +106,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 				definicioProcesId,
 				command, model);
 		
-		return "v3/expedientTipusAccioForm";
+		return "expedientTipusAccioForm";
 	}
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/new", method = RequestMethod.POST)
 	public String novaPost(
@@ -121,7 +121,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
     				request,
     				definicioProcesId,
     				command, model);
-        	return "v3/expedientTipusAccioForm";
+        	return "expedientTipusAccioForm";
         } else {
         	// Verificar permisos
         	accioService.create(
@@ -183,7 +183,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 				command, 
 				model);
 		
-		return "v3/expedientTipusAccioForm";
+		return "expedientTipusAccioForm";
 	}
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
@@ -199,7 +199,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
     				request,
     				definicioProcesId,
     				command, model);
-        	return "v3/expedientTipusAccioForm";
+        	return "expedientTipusAccioForm";
         } else {
         	accioService.update(
         			ExpedientTipusAccioCommand.asAccioDto(command));

@@ -55,7 +55,7 @@ import es.caib.helium.logic.intf.service.ExpedientTerminiService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientTerminiV3Controller extends BaseExpedientController {
 
 	@Autowired
@@ -116,7 +116,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 					model,
 					"terminis");
 		}
-		return "v3/expedientTermini";
+		return "expedientTermini";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/termini", method = RequestMethod.GET)
@@ -143,7 +143,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", procesId);
 		model.addAttribute("terminis",terminis);
 		model.addAttribute("iniciats",iniciats);
-		return "v3/procesTerminis";
+		return "procesTerminis";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/termini/{terminiId}/iniciar", method = RequestMethod.GET)
@@ -265,7 +265,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		model.addAttribute(expedientTerminiModificarCommand);
 		model.addAttribute("listTerminis", valors12());
 		model.addAttribute("listTipus", getTipus(request));
-		return "v3/expedient/terminiModificar";
+		return "expedient/terminiModificar";
 	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/termini/{terminiIniciatId}/modificar", method = RequestMethod.POST)
 	public String terminiModificar(

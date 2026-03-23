@@ -29,7 +29,7 @@ import es.caib.helium.logic.intf.service.AreaService;
  */
 
 @Controller(value = "areaControllerV3")
-@RequestMapping("/v3/area")
+@RequestMapping("/area")
 public class AreaController extends BaseController {
 	
 	@Autowired
@@ -39,14 +39,14 @@ public class AreaController extends BaseController {
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/areaPipelles";
+		return "areaPipelles";
 	}
 	
 	@RequestMapping(value = "/configurades", method = RequestMethod.GET)
 	public String configurades(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/areaConfigurades";
+		return "areaConfigurades";
 	}
 
 	@RequestMapping(value = "/configurades/datatable", method = RequestMethod.GET)
@@ -65,7 +65,7 @@ public class AreaController extends BaseController {
 	public String senseConfigurar(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/areaSenseConfigurar";
+		return "areaSenseConfigurar";
 	}
 
 	@RequestMapping(value = "/sense/configurar/datatable", method = RequestMethod.GET)
@@ -86,7 +86,7 @@ public class AreaController extends BaseController {
 		AreaCommand command = new AreaCommand();
 		command.setCodi(codi);
 		model.addAttribute("areaCommand", command);
-		return "v3/areaConfigurarForm";
+		return "areaConfigurarForm";
 	}
 	
 	@RequestMapping(value = "{codi}/new", method = RequestMethod.POST)
@@ -94,11 +94,11 @@ public class AreaController extends BaseController {
 			BindingResult bindingResult, Model model) {
 		
 		if (bindingResult.hasErrors()) {
-			return "v3/areaConfigurarForm";
+			return "areaConfigurarForm";
 		}
 		
 		areaService.create(ConversioTipus.convertir(command, AreaJbpmIdDto.class));
-		return getModalControllerReturnValueSuccess(request, "redirect:/v3/area", "area.controller.creada");
+		return getModalControllerReturnValueSuccess(request, "redirect:/area", "area.controller.creada");
 	}
 	
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.GET)
@@ -107,7 +107,7 @@ public class AreaController extends BaseController {
 		AreaJbpmIdDto dto = areaService.findAmbId(id);
 		AreaCommand command = ConversioTipus.convertir(dto, AreaCommand.class);
 		model.addAttribute("areaCommand", command);
-		return "v3/areaConfigurarForm";
+		return "areaConfigurarForm";
 	}
 	
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
@@ -118,11 +118,11 @@ public class AreaController extends BaseController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/areaConfigurarForm";
+        	return "areaConfigurarForm";
         } 
         
     	areaService.update(ConversioTipus.convertir(command, AreaJbpmIdDto.class));
-		return getModalControllerReturnValueSuccess(request, "redirect:/v3/area", "area.controller.modificada");
+		return getModalControllerReturnValueSuccess(request, "redirect:/area", "area.controller.modificada");
 	}
 	
 	@RequestMapping(value ="{areaId}/delete", method = RequestMethod.GET)
@@ -132,7 +132,7 @@ public class AreaController extends BaseController {
 		areaService.delete(areaId);
 		return this.getAjaxControllerReturnValueSuccess(
 				request,
-				"redirect:/v3/area",
+				"redirect:/area",
 				"area.controller.esborrada");
 	}
 		

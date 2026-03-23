@@ -42,7 +42,7 @@ import es.caib.helium.commons.exception.ExportException;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusController {
 
 	@RequestMapping(value = "/{expedientTipusId}/definicionsProces")
@@ -64,7 +64,7 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
-		return "v3/expedientTipusDefinicioProces";
+		return "expedientTipusDefinicioProces";
 	}
 	
 	@RequestMapping(value="/{expedientTipusId}/definicionsProces/datatable", method = RequestMethod.GET)
@@ -137,7 +137,7 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 		model.addAttribute("potCanviarTasques", definicioProces.getExpedientTipus() != null 
 												&& definicioProces.getExpedientTipus().getId().equals(expedientTipusId));
 
-		return "v3/expedientTipusDefinicioProcesIncorporarForm";
+		return "expedientTipusDefinicioProcesIncorporarForm";
 	}
 			
 	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/{id}/incorporar", method = RequestMethod.POST)
@@ -154,7 +154,7 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
     		model.addAttribute("definicioProces", definicioProcesService.findById(id));
     		DefinicioProcesDto definicioProces = definicioProcesService.findById(id);
     		model.addAttribute("potCanviarTasques", expedientTipusId.equals(definicioProces.getExpedientTipus().getId()));
-        	return "v3/expedientTipusDefinicioProcesIncorporarForm";
+        	return "expedientTipusDefinicioProcesIncorporarForm";
         } else {
         	if (command.getDefinicioProcesId() == null)
         		command.setDefinicioProcesId(id);

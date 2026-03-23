@@ -53,7 +53,7 @@ import es.caib.helium.commons.dto.handlers.HandlerDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusAccioController extends BaseExpedientTipusController {
 
 	@RequestMapping(value = "/{expedientTipusId}/accions")
@@ -77,7 +77,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("baseUrl", expedientTipus.getId());
 		}
-		return "v3/expedientTipusAccio";
+		return "expedientTipusAccio";
 	}
 	
 	@RequestMapping(value="/{expedientTipusId}/accio/datatable", method = RequestMethod.GET)
@@ -111,7 +111,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 				command,
 				model);
 
-		return "v3/expedientTipusAccioForm";
+		return "expedientTipusAccioForm";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/accio/new", method = RequestMethod.POST)
@@ -127,7 +127,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     				expedientTipusId,
 					command,
     				model);
-        	return "v3/expedientTipusAccioForm";
+        	return "expedientTipusAccioForm";
         } else {
         	// Verificar permisos
         	accioService.create(
@@ -190,7 +190,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 				model);
 		model.addAttribute("heretat", dto.isHeretat());
 
-		return "v3/expedientTipusAccioForm";
+		return "expedientTipusAccioForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/accio/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
@@ -208,7 +208,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     		model.addAttribute("heretat", accioService.findAmbId(
     				expedientTipusId, 
     				id).isHeretat());
-        	return "v3/expedientTipusAccioForm";
+        	return "expedientTipusAccioForm";
         } else {
         	accioService.update(
         			ExpedientTipusAccioCommand.asAccioDto(command));
@@ -336,7 +336,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		command.setEntornId(entornActual.getId());
 		model.addAttribute("expedientTipus", expedientTipus);
 		model.addAttribute("command", command);
-		return "v3/expedientTipusAccioDesplegarForm";
+		return "expedientTipusAccioDesplegarForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/accio/desplegar", method = RequestMethod.POST)
@@ -379,7 +379,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
-			return "v3/expedientTipusAccioDesplegarForm";
+			return "expedientTipusAccioDesplegarForm";
 		} else {
 			return modalUrlTancar(false);
 		}

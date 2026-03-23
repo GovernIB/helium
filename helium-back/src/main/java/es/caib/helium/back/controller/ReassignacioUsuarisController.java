@@ -37,7 +37,7 @@ import es.caib.helium.logic.intf.service.TascaService;
  */
 
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ReassignacioUsuarisController extends BaseExpedientController {
 
 	@Autowired
@@ -77,7 +77,7 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 						tascaId,
 						expedientId));
 		
-		return "v3/expedient/tasca/reassignarUsuaris";
+		return "expedient/tasca/reassignarUsuaris";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignarUsuaris", method = RequestMethod.POST)
@@ -90,7 +90,7 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 			SessionStatus status) {		
 		(new ReassignacioUsuarisValidatorHelper()).validate(command, result);
         if (result.hasErrors()) {
-        	return "v3/expedient/tasca/reassignarUsuaris";
+        	return "expedient/tasca/reassignarUsuaris";
         }
 		
         try {
@@ -117,10 +117,10 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
         } catch (Exception ex) {
         	MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"), ex);
         	logger.error("No s'ha pogut guardar el registre", ex);
-        	return "v3/expedient/tasca/reassignarUsuaris";
+        	return "expedient/tasca/reassignarUsuaris";
         }
         
-        return "redirect:/v3/expedient/"+expedientId;
+        return "redirect:/expedient/"+expedientId;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignarCancelar", method = RequestMethod.POST)
@@ -129,7 +129,7 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 			@RequestParam(value = "id", required = true) Long id) {		
 		adminService.deleteReassignacio(id);
 		MissatgesHelper.success(request, getMessage(request, "info.reassignacio.cancelat") );
-		return "v3/expedient/tasca/reassignarUsuaris";
+		return "expedient/tasca/reassignarUsuaris";
 	}
 	
 	@InitBinder

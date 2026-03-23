@@ -54,7 +54,7 @@ import es.caib.helium.logic.intf.service.ReproService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientInicioPasFormController extends BaseExpedientIniciController {
 
 	@Autowired
@@ -162,7 +162,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 		model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
 		// Pot ser que vingui del formulari d'acceptar i crear un expedient per a una anotació de Distribució
 		model.addAttribute("anotacioAcceptarCommand", (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO));
-		return "v3/expedient/iniciarPasForm";
+		return "expedient/iniciarPasForm";
 	}
 
 	@RequestMapping(value = "/iniciarForm/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.POST)
@@ -208,7 +208,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
 			model.addAttribute("anotacioAcceptarCommand", (AnotacioAcceptarCommand) request.getSession().getAttribute(CLAU_SESSIO_ANOTACIO));
-			return "v3/expedient/iniciarPasForm";
+			return "expedient/iniciarPasForm";
 		}
 		// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
 		if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
@@ -217,7 +217,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 					ExpedientIniciController.CLAU_SESSIO_FORM_VALORS,
 					valors);
 			// Redirigeix al formulari del títol
-			return redirectByModal(request, "/v3/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProces.getId());
+			return redirectByModal(request, "/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProces.getId());
 		} else {
 			try {
 				super.iniciarExpedient(
@@ -261,7 +261,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 				model.addAttribute("entornId", entorn.getId());
 				model.addAttribute("expedientTipus", expedientTipus);
 				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
-				return "v3/expedient/iniciarPasForm";
+				return "expedient/iniciarPasForm";
 			}
 		}
 		return modalUrlTancar(false);
@@ -346,7 +346,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 //			MissatgesHelper.error(request, ex.getMessage());
 //			logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": " + ex.getMessage(), ex);
 //		}
-		return "v3/campsTascaRegistreRow";
+		return "campsTascaRegistreRow";
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciController.class);

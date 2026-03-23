@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Trusted-Library: true
-Application-Name: HELIUM Applet de firma
-Permissions: all-permissions
-Caller-Allowable-Codebase: *
-Codebase: *
-Application-Library-Allowable-Codebase: *
-

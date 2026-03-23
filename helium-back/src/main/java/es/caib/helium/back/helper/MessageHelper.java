@@ -8,14 +8,12 @@ import java.util.Locale;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.NoSuchMessageException;
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a mostrar missatges multiidioma.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-//@Component
 public class MessageHelper implements MessageSourceAware {
 
 	private MessageSource messageSource;
@@ -64,11 +62,15 @@ public class MessageHelper implements MessageSourceAware {
 	}
 
 	public void setMessageSource(MessageSource messageSource) {
-		INSTANCE.messageSource = messageSource;
+		this.messageSource = messageSource;
 	}
-
 	
-	public static MessageHelper INSTANCE = new MessageHelper();
+	public static MessageHelper INSTANCE = null;
+	
+	public static MessageHelper init() {
+		INSTANCE = new MessageHelper();
+		return INSTANCE;
+	}
 	
 	public static MessageHelper getInstance() {
 		return INSTANCE;

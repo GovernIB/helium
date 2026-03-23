@@ -43,7 +43,7 @@ import es.caib.helium.commons.exception.PermisDenegatException;
  *
  */
 @Controller(value = "definicioProcesTascaControllerV3")
-@RequestMapping("/v3/definicioProces")
+@RequestMapping("/definicioProces")
 public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	
 	/** Pipella del tasques. */
@@ -64,7 +64,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		model.addAttribute("jbpmKey", jbpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 				
-		return "v3/definicioProcesTasques";
+		return "definicioProcesTasques";
 	}	
 	
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/datatable")
@@ -98,7 +98,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		TascaDto dto = definicioProcesService.tascaFindAmbId(null, tascaId);
 		DefinicioProcesTascaCommand command = DefinicioProcesTascaCommand.toDefinicioProcesTascaCommand(dto);	
 		model.addAttribute("definicioProcesTascaCommand", command);
-		return "v3/definicioProcesTascaForm";
+		return "definicioProcesTascaForm";
 	}
 	
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/update", method = RequestMethod.POST)
@@ -111,7 +111,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			BindingResult bindingResult,
 			Model model) throws NoTrobatException, PermisDenegatException, IOException {
         if (bindingResult.hasErrors()) {
-        	return "v3/definicioProcesTascaForm";
+        	return "definicioProcesTascaForm";
         } else {
         	definicioProcesService.tascaUpdate(
         			DefinicioProcesTascaCommand.asTascaDto(command));
@@ -137,7 +137,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		// Especifica les URLs per la pàgina
 		String basicUrl = "definicioProces/" + jbpmKey + "/" + definicioProcesId.toString() + "/tasca/" + tascaId;
 		model.addAttribute("basicUrl", basicUrl);
-		model.addAttribute("baseUrl", "/helium/v3/" + basicUrl);
+		model.addAttribute("baseUrl", "/helium/" + basicUrl);
 
 	}
 
@@ -162,7 +162,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
 		omplirModelVariables(jbpmKey, definicioProcesId, id, model);
 
-		return "v3/definicioProcesTascaVariable";
+		return "definicioProcesTascaVariable";
 	}	
 	
 	// Manteniment de variables de la tasca
@@ -186,7 +186,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
 		omplirModelVariables(jbpmKey, definicioProcesId, id, model);
 
-		return "v3/definicioProcesTascaVariableDisseny";
+		return "definicioProcesTascaVariableDisseny";
 	}
 	
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/all", method = RequestMethod.GET)
@@ -238,7 +238,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
 
     		omplirModelVariables(jbpmKey, definicioProcesId, id, model);
-    		return "v3/definicioProcesTascaVariable";
+    		return "definicioProcesTascaVariable";
         } else {
         	// Verificar permisos
     		definicioProcesService.tascaCampCreate(
@@ -411,7 +411,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
 		omplirModelDocuments(jbpmKey, definicioProcesId, id, model);
 
-		return "v3/definicioProcesTascaDocument";
+		return "definicioProcesTascaDocument";
 	}	
 	
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/datatable", method = RequestMethod.GET)
@@ -447,7 +447,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
     		omplirModelDocuments(jbpmKey, definicioProcesId, id, model);
 
-    		return "v3/definicioProcesTascaDocument";
+    		return "definicioProcesTascaDocument";
         } else {
         	// Verificar permisos
     		definicioProcesService.tascaDocumentCreate(
@@ -613,7 +613,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
 		omplirModelFirmes(jbpmKey, definicioProcesId, id, model);
 
-		return "v3/definicioProcesTascaFirma";
+		return "definicioProcesTascaFirma";
 	}	
 	
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/datatable", method = RequestMethod.GET)
@@ -649,7 +649,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
     		omplirModelFirmes(jbpmKey, definicioProcesId, id, model);
 
-    		return "v3/definicioProcesTascaFirma";
+    		return "definicioProcesTascaFirma";
         } else {
         	// Verificar permisos
     		definicioProcesService.tascaFirmaCreate(

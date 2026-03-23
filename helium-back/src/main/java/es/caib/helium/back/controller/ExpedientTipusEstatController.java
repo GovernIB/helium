@@ -78,7 +78,7 @@ import es.caib.helium.commons.exportacio.EstatExportacio;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusEstatController extends BaseExpedientTipusController {
 
 
@@ -102,7 +102,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 					.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
-		return "v3/expedientTipusEstat";
+		return "expedientTipusEstat";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estats/datatable", method = RequestMethod.GET)
@@ -132,7 +132,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 					.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
-		return "v3/expedientTipusEstatForm";
+		return "expedientTipusEstatForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/new", method = RequestMethod.POST)
@@ -147,7 +147,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 						.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 				model.addAttribute("expedientTipus", expedientTipus);
 			}
-			return "v3/expedientTipusEstatForm";
+			return "expedientTipusEstatForm";
 		} else {
 			// Verificar permisos
 			expedientTipusService.estatCreate(expedientTipusId,
@@ -175,7 +175,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		model.addAttribute("expedientTipusEstatCommand", command);
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("heretat", dto.isHeretat());
-		return "v3/expedientTipusEstatForm";
+		return "expedientTipusEstatForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{id}/update", method = RequestMethod.POST)
@@ -191,7 +191,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 						.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId);
 				model.addAttribute("expedientTipus", expedientTipus);
 			}
-			return "v3/expedientTipusEstatForm";
+			return "expedientTipusEstatForm";
 		} else {
 			expedientTipusService.estatUpdate(ConversioTipus.convertir(command, EstatDto.class));
 			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.controller.modificat"));
@@ -306,7 +306,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 	public String importar(HttpServletRequest request, @PathVariable Long expedientTipusId, Model model) {
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute(new ImportarDadesCommand());
-		return "v3/expedientTipusEstatImportarForm";
+		return "expedientTipusEstatImportarForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/importar", method = RequestMethod.POST)
@@ -319,7 +319,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		}
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("importarDadesCommand", command);
-			return "v3/expedientTipusEstatImportarForm";
+			return "expedientTipusEstatImportarForm";
 		} else {
 
 			int insercions = 0;
@@ -503,7 +503,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 		model.addAttribute("expedientTipus", expedientTipus);
 		model.addAttribute("estat", estat);
-		return "v3/expedientTipusEstatPermisos";
+		return "expedientTipusEstatPermisos";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/datatable", method = RequestMethod.GET)
@@ -518,7 +518,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable Long estatId, Model model) {
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 		model.addAttribute(new PermisCommand());
-		return "v3/expedientTipusEstatPermisForm";
+		return "expedientTipusEstatPermisForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/new", method = RequestMethod.POST)
@@ -534,7 +534,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 		PermisDto permis = expedientTipusService.estatPermisFindById(estatId, permisId);
 		model.addAttribute(ConversioTipus.convertir(permis, PermisCommand.class));
-		return "v3/expedientTipusEstatPermisForm";
+		return "expedientTipusEstatPermisForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/{permisId}", method = RequestMethod.POST)
@@ -543,7 +543,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			BindingResult bindingResult, Model model) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
-			return "v3/expedientTipusEstatPermisForm";
+			return "expedientTipusEstatPermisForm";
 		} else {
 			expedientTipusService.estatPermisUpdate(estatId, ConversioTipus.convertir(command, PermisDto.class));
 
@@ -561,7 +561,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 		model.addAttribute(new PermisCommand());
-		return "redirect:/v3/expedientTipus/" + expedientTipusId + "/estat/" + estatId + "/permisos";
+		return "redirect:/expedientTipus/" + expedientTipusId + "/estat/" + estatId + "/permisos";
 	}
 
 	// REGLES
@@ -580,7 +580,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		model.addAttribute("estat", estat);
 		model.addAttribute("heretat", estat.isHeretat());
 
-		return "v3/expedientTipusEstatRegles";
+		return "expedientTipusEstatRegles";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/regles", method = RequestMethod.GET)
@@ -597,7 +597,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		model.addAttribute("expedientTipus", expedientTipus);
 		model.addAttribute("reglesTipusExpedient", true);
 
-		return "v3/expedientTipusEstatRegles";
+		return "expedientTipusEstatRegles";
 	}
 
 	/** Regles per un estat concret. */
@@ -629,7 +629,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		}
 		model.addAttribute(EstatReglaCommand.builder().estatId(estatId).expedientTipusId(expedientTipusId).build());
 		modelRegles(model, expedientTipusId, null);
-		return "v3/expedientTipusEstatReglaForm";
+		return "expedientTipusEstatReglaForm";
 	}
 
 	/** Obre la modal per crear una regla a nivell de tipus d'expedient. */
@@ -658,7 +658,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		EstatReglaDto regla = expedientTipusService.estatReglaFindById(expedientTipusId, reglaId);
 		model.addAttribute(ConversioTipus.convertir(regla, EstatReglaCommand.class));
 		modelRegles(model, expedientTipusId, regla.getQue());
-		return "v3/expedientTipusEstatReglaForm";
+		return "expedientTipusEstatReglaForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/regla/{reglaId}", method = RequestMethod.GET)
@@ -669,7 +669,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		model.addAttribute("heretat", regla.isHeretat());
 		model.addAttribute(ConversioTipus.convertir(regla, EstatReglaCommand.class));
 		modelRegles(model, expedientTipusId, regla.getQue());
-		return "v3/expedientTipusEstatReglaForm";
+		return "expedientTipusEstatReglaForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}", method = RequestMethod.POST)
@@ -679,7 +679,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 			modelRegles(model, expedientTipusId, command.getQue());
-			return "v3/expedientTipusEstatReglaForm";
+			return "expedientTipusEstatReglaForm";
 		} else {
 			if (reglaId == null) {
 				expedientTipusService.estatReglaCreate(expedientTipusId, estatId,
@@ -701,7 +701,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("estat", null);
 			modelRegles(model, expedientTipusId, command.getQue());
-			return "v3/expedientTipusEstatReglaForm";
+			return "expedientTipusEstatReglaForm";
 		} else {
 			if (reglaId == null) {
 				expedientTipusService.estatReglaCreate(expedientTipusId, null,
@@ -725,7 +725,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 		model.addAttribute(new EstatReglaCommand());
-		return "redirect:/v3/expedientTipus/" + expedientTipusId + "/estat/" + estatId + "/regles";
+		return "redirect:/expedientTipus/" + expedientTipusId + "/estat/" + estatId + "/regles";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/regla/{reglaId}/delete")
@@ -739,7 +739,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 		model.addAttribute("estat", null);
 		model.addAttribute(new EstatReglaCommand());
-		return "redirect:/v3/expedientTipus/" + expedientTipusId + "/estat" + "/regles";
+		return "redirect:/expedientTipus/" + expedientTipusId + "/estat" + "/regles";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}/moure/{posicio}", method = RequestMethod.GET)
@@ -899,7 +899,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		model.addAttribute("heretat", estat.isHeretat());
 		model.addAttribute("accions", accioService.findAll(expedientTipusId, null));
 
-		return "v3/expedientTipusEstatAccions";
+		return "expedientTipusEstatAccions";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/entrada/datatable", method = RequestMethod.GET)
@@ -1039,7 +1039,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		model.addAttribute("heretat", estat.isHeretat());
 		model.addAttribute("estatsSortida", expedientTipusService.estatFindAll(expedientTipusId, true));
 
-		return "v3/expedientTipusEstatSortida";
+		return "expedientTipusEstatSortida";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/sortida/datatable", method = RequestMethod.GET)

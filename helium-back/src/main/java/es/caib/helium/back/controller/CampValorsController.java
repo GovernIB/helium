@@ -33,7 +33,7 @@ import es.caib.helium.logic.intf.service.TascaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/camp")
+@RequestMapping("/camp")
 public class CampValorsController extends BaseExpedientController {
 
 	@Autowired

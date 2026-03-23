@@ -32,7 +32,7 @@ import es.caib.helium.logic.intf.service.ExpedientDadaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/camptasca")
+@RequestMapping("/camptasca")
 public class CampTascaController extends BaseExpedientController {
 
 	@Autowired
@@ -74,7 +74,7 @@ public class CampTascaController extends BaseExpedientController {
 			MissatgesHelper.error(request, ex.getMessage(), ex);
 			logger.error("No s'ha pogut obtenir la informació del camp amb id " + campId + ": " + ex.getMessage(), ex);
 		}
-		return "v3/campsTascaRegistreRow";
+		return "campsTascaRegistreRow";
 	}
 				
 				

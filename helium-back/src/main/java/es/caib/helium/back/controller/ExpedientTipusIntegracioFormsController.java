@@ -33,7 +33,7 @@ import es.caib.helium.commons.exception.PermisDenegatException;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusIntegracioFormsController extends BaseExpedientTipusController {
 
 	@RequestMapping(value = "/{expedientTipusId}/integracioForms")
@@ -68,7 +68,7 @@ public class ExpedientTipusIntegracioFormsController extends BaseExpedientTipusC
 			model.addAttribute("expedientTipusIntegracioFormsCommand", command);
 		}
 		
-		return "v3/expedientTipusIntegracioForms";
+		return "expedientTipusIntegracioForms";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/integracioForms", method = RequestMethod.POST)

@@ -7,7 +7,7 @@ function webutilModalTancarPath() {
 }
 function webutilRefreshMissatges() {
 	jQuery.ajaxSetup({async:false});
-	$('#contingut-alertes').load(webutilContextPath() + "/nodeco/v3/missatges");
+	$('#contingut-alertes').load(webutilContextPath() + "/nodeco/missatges");
 	jQuery.ajaxSetup({async:true});	
 }
 

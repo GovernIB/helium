@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
@@ -56,7 +58,7 @@ import es.caib.helium.logic.intf.service.PortafirmesFluxService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusDocumentController extends BaseExpedientTipusController {
 
 	@Autowired
@@ -80,7 +82,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("baseUrl", expedientTipus.getId());
 		}
-		return "v3/expedientTipusDocument";
+		return "expedientTipusDocument";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/document/datatable", method = RequestMethod.GET)
@@ -106,20 +108,20 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelComu(request, expedientTipusId, model);
-		return "v3/expedientTipusDocumentForm";
+		return "expedientTipusDocumentForm";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/document/new", method = RequestMethod.POST)
 	public String nouPost(
 			HttpServletRequest request, 
 			@PathVariable Long expedientTipusId,
-			@RequestParam(value = "arxiuContingut_multipartFile", required = false) final CommonsMultipartFile arxiuContingut,
-			@Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
+			@RequestPart(value = "arxiuContingut_multipartFile", required = false) final CommonsMultipartFile arxiuContingut,
+			@RequestPart @Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
 			if (bindingResult.hasErrors()) {
 				omplirModelComu(request, expedientTipusId, model);
-				return "v3/expedientTipusDocumentForm";
+				return "expedientTipusDocumentForm";
 			} else {
 				byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
 				DocumentDto dto = ExpedientTipusDocumentCommand.asDocumentDto(command);
@@ -137,7 +139,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document", ex);
-			return "v3/expedientTipusDocumentForm";
+			return "expedientTipusDocumentForm";
 	    }
 	}
 
@@ -157,7 +159,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		model.addAttribute("heretat", dto.isHeretat());
 		model.addAttribute("portafirmesFluxSeleccionat", dto.getPortafirmesFluxId());
 		model.addAttribute("expedientTipusDocumentCommand", command);
-		return "v3/expedientTipusDocumentForm";
+		return "expedientTipusDocumentForm";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/document/{id}/update", method = RequestMethod.POST)
@@ -173,7 +175,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			if (bindingResult.hasErrors()) {
 				omplirModelComu(request, expedientTipusId, model);
 				model.addAttribute("heretat", documentService.findAmbId(expedientTipusId, id).isHeretat());
-				return "v3/expedientTipusDocumentForm";
+				return "expedientTipusDocumentForm";
 			} else {
 	        	boolean actualitzarContingut = false;
 	        	if (eliminarContingut) {
@@ -197,7 +199,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document: " + id, ex);
 			model.addAttribute("heretat", documentService.findAmbId(expedientTipusId, id).isHeretat());
-			return "v3/expedientTipusDocumentForm";
+			return "expedientTipusDocumentForm";
 	    }
 	}
 
@@ -311,7 +313,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		try {
 			urlReturn = UrlHelper.getAbsoluteControllerBase(
 							request,
-							(ModalHelper.isModal(request) ? "/modal" : "") + "/v3/expedientTipus/" +expedientTipusId+ "/document/flux/returnurl/");
+							(ModalHelper.isModal(request) ? "/modal" : "") + "/expedientTipus/" +expedientTipusId+ "/document/flux/returnurl/");
 			if (plantillaId != null && !plantillaId.isEmpty()) {
 				transaccioResponse = new PortafirmesIniciFluxRespostaDto();
 				String urlEdicio = portafirmesFluxService.recuperarUrlEdicioPlantilla(plantillaId, urlReturn);
@@ -368,7 +370,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			model.addAttribute("fluxId", resposta.getFluxId());
 			model.addAttribute("FluxNom", resposta.getNom());
 		}
-		return "v3/portafirmesModalTancar";
+		return "portafirmesModalTancar";
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/document/flux/returnurl/", method = RequestMethod.GET)
@@ -376,7 +378,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		model.addAttribute(
 				"FluxCreat",
 				getMessage(request, "expedient.tipus.document.form.camp.portafirmes.flux.edicio.enum.FINAL_OK"));
-		return "v3/portafirmesModalTancar";
+		return "portafirmesModalTancar";
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientTipusDocumentController.class);

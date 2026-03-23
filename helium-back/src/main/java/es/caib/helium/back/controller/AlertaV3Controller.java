@@ -21,7 +21,7 @@ import es.caib.helium.logic.intf.service.AlertaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/alerta")
+@RequestMapping("/alerta")
 public class AlertaV3Controller extends BaseController {
 
 	@Autowired
@@ -31,20 +31,20 @@ public class AlertaV3Controller extends BaseController {
 	public String llegir(HttpServletRequest request, @PathVariable Long alertaId, Model model) {
 		AlertaDto alerta = alertaService.marcarLlegida(alertaId);
 		
-		return "redirect:/modal/v3/expedient/" + alerta.getExpedient().getId() + "/alertes";
+		return "redirect:/modal/expedient/" + alerta.getExpedient().getId() + "/alertes";
 	}
 	
 	@RequestMapping(value = "/{alertaId}/noLlegir", method = RequestMethod.GET)
 	public String noLlegir(HttpServletRequest request, @PathVariable Long alertaId, Model model) {
 		AlertaDto alerta = alertaService.marcarNoLlegida(alertaId);
 		
-		return "redirect:/modal/v3/expedient/" + alerta.getExpedient().getId() + "/alertes";
+		return "redirect:/modal/expedient/" + alerta.getExpedient().getId() + "/alertes";
 	}
 	
 	@RequestMapping(value = "/{alertaId}/esborrar", method = RequestMethod.GET)
 	public String esborrar(HttpServletRequest request, @PathVariable Long alertaId, Model model) {
 		AlertaDto alerta = alertaService.marcarEsborrada(alertaId);
 		
-		return "redirect:/modal/v3/expedient/" + alerta.getExpedient().getId() + "/alertes";
+		return "redirect:/modal/expedient/" + alerta.getExpedient().getId() + "/alertes";
 	}
 }

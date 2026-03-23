@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.mapping.MappableAttributesRetriever;
 
-import es.caib.helium.service.utils.GlobalProperties;
+import es.caib.helium.commons.utils.GlobalProperties;
 
 /**
  * Aconsegueix els rols que seran rellevants per a l'aplicació.

@@ -60,7 +60,7 @@ import es.caib.helium.service.helper.UsuariActualHelper;
  * Controlador per visualitzar la llista de peticions enviades des d'Helium al PortaFib.
  */
 @Controller
-@RequestMapping("/v3/enviamentsPortafib")
+@RequestMapping("/enviamentsPortafib")
 public class EnviamentsPortafibController extends BaseExpedientController {
 	
 	@Autowired private PortasignaturesService portasignaturesService;
@@ -99,7 +99,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 		model.addAttribute(filtreCommand);
 		modelExpedientsTipus(expedientTipusDtoAccessibles, model);
 		modelEstats(model);
-		return "v3/consultesPortafibLlistat";
+		return "consultesPortafibLlistat";
 	}
 	
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
@@ -135,7 +135,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 			@PathVariable Long peticioPortafibId,
 			Model model) {
 		model.addAttribute("dto", portasignaturesService.findById(peticioPortafibId));
-		return "v3/consultesPortafibInfo";
+		return "consultesPortafibInfo";
 	}
 	
 	private ConsultesPortafibFiltreCommand getFiltreCommand(HttpServletRequest request) {

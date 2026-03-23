@@ -40,10 +40,10 @@ import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
 import es.caib.helium.commons.dto.procediment.ProcedimentDto;
 import es.caib.helium.commons.dto.procediment.ProcedimentTipusEnumDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.ParametreService;
 import es.caib.helium.logic.intf.service.ProcedimentService;
 import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Controlador per a la pestanya de d'integració dels tipus d'expedient com a backoffice de Distribucio.
@@ -54,7 +54,7 @@ import es.caib.helium.service.utils.GlobalProperties;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusIntegracioDistribucioController extends BaseExpedientTipusController {
 
 	@Autowired
@@ -97,7 +97,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			model.addAttribute("sino", getSiNo());
 		}
 		
-		return "v3/expedientTipusIntegracioDistribucio";
+		return "expedientTipusIntegracioDistribucio";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/integracioDistribucio", method = RequestMethod.POST)
@@ -250,7 +250,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			logger.error(errMsg, e);			
 			MissatgesHelper.error(request, errMsg);
 		}
-		return "v3/expedientTipusIntegracioDistribucioConsultaRegla";
+		return "expedientTipusIntegracioDistribucioConsultaRegla";
 	}
 	
 	/** Mètode per consultar la regla a Distribució **/

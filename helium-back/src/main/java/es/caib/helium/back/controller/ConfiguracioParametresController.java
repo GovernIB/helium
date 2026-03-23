@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import es.caib.helium.back.command.ParametresCommand;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.commons.dto.ParametreDto;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.ParametreService;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Controlador per a la pàgina de configuració de paràmetres de l'aplicació Helium.
@@ -30,7 +30,7 @@ import es.caib.helium.service.utils.GlobalProperties;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/configuracio/parametres")
+@RequestMapping("/configuracio/parametres")
 public class ConfiguracioParametresController extends BaseController {
 	
 	@Autowired
@@ -62,7 +62,7 @@ public class ConfiguracioParametresController extends BaseController {
 		model.addAttribute("entorn", GlobalProperties.getInstance().getProperty("app.entorn.helium", ""));
 		model.addAttribute("parametres", parametres);
 		model.addAttribute("parametresCommand", parametresCommand);
-		return "v3/parametres";
+		return "parametres";
 	}
 	
 	@RequestMapping(method = RequestMethod.POST)
@@ -117,7 +117,7 @@ public class ConfiguracioParametresController extends BaseController {
 						request, 
 						messageKey));
 
-		return "redirect:/modal/v3/configuracio/parametres";
+		return "redirect:/modal/configuracio/parametres";
 	}
 
 	/** Mètode per guardar el valor per defecte de la propietat de propagació d'esborrat d'expedients.*/

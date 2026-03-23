@@ -42,7 +42,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientInformacioController extends BaseExpedientController {
 
 	/** Constant per indicar l'id de l'estat finalitzat. */
@@ -67,7 +67,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		estats.add(new EstatDto(ESTAT_FINALITZAT_ID, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 		model.addAttribute("estats", estats);
 		model.addAttribute(getCommandModificar(request, expedient));
-		return "v3/expedient/modificarInformacio";
+		return "expedient/modificarInformacio";
 	}
 
 	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.POST)
@@ -84,7 +84,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			List<EstatDto> estats = expedientTipusService.estatFindAll(expedient.getTipus().getId(), true);
 			estats.add(new EstatDto(ESTAT_FINALITZAT_ID, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 			model.addAttribute("estats", estats);
-			return "v3/expedient/modificarInformacio";
+			return "expedient/modificarInformacio";
 		}
 		
 		boolean fullActualitzat = expedientService.update(

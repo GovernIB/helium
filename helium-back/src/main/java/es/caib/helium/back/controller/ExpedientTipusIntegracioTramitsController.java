@@ -47,7 +47,7 @@ import es.caib.helium.commons.exception.PermisDenegatException;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipusController {
 
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits")
@@ -96,7 +96,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			model.addAttribute("adjuntsCount" , recomptes.get(TipusMapeig.Adjunt));
 		}
 		
-		return "v3/expedientTipusIntegracioTramits";
+		return "expedientTipusIntegracioTramits";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits", method = RequestMethod.POST)
@@ -222,7 +222,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 					expedientTipusId,
 					command.getTipus()));
 
-		return "v3/expedientTipusIntegracioTramitsMapeig";
+		return "expedientTipusIntegracioTramitsMapeig";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}/datatable", method = RequestMethod.GET)
@@ -261,7 +261,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
     				command.getTipus()));
         	model.addAttribute("mostraCreate", true);
         	
-        	return "v3/expedientTipusIntegracioTramitsMapeig";
+        	return "expedientTipusIntegracioTramitsMapeig";
         } else {
         	// Verificar permisos
     		expedientTipusService.mapeigCreate(
@@ -294,7 +294,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
     				expedientTipusId,
     				command.getTipus()));
         	model.addAttribute("mostraUpdate", true);
-        	return "v3/expedientTipusIntegracioTramitsMapeig";
+        	return "expedientTipusIntegracioTramitsMapeig";
         } else {
         	expedientTipusService.mapeigUpdate(
         			ExpedientTipusIntegracioTramitsMapeigCommand.asMapeigSistraDto(command));

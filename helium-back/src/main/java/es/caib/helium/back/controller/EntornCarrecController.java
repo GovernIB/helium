@@ -34,7 +34,7 @@ import es.caib.helium.service.helper.EntornHelper;
  */
 
 @Controller(value = "entornCarrecControllerV3")
-@RequestMapping("/v3/entorn-carrec")
+@RequestMapping("/entorn-carrec")
 public class EntornCarrecController extends BaseController {
 
 	@Autowired
@@ -46,7 +46,7 @@ public class EntornCarrecController extends BaseController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(HttpServletRequest request, Model model) {
-		return "v3/entornCarrec";
+		return "entornCarrec";
 	}
 
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
@@ -67,11 +67,11 @@ public class EntornCarrecController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		model.addAttribute("entornArees", entornAreaService.findAreesByEntorn(entornActual.getId()));
 		model.addAttribute(new EntornCarrecCommand());
-		return "v3/entornCarrecForm";
+		return "entornCarrecForm";
 	}
 
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
@@ -81,15 +81,15 @@ public class EntornCarrecController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("entornArees", entornAreaService.findAreesByEntorn(entornActual.getId()));
-			return "v3/entornCarrecForm";
+			return "entornCarrecForm";
 		}
 
 		entornCarrecService.create(entornActual.getId(), ConversioTipus.convertir(command, CarrecDto.class));
-		return getModalControllerReturnValueSuccess(request, "redirect:/v3/entorn-carrec", "carrec.controller.creat");
+		return getModalControllerReturnValueSuccess(request, "redirect:/entorn-carrec", "carrec.controller.creat");
 	}
 
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.GET)
@@ -98,14 +98,14 @@ public class EntornCarrecController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
 		CarrecDto dto = entornCarrecService.findAmbId(entornActual.getId(), id);
 		model.addAttribute("entornArees", entornAreaService.findAreesByEntorn(entornActual.getId()));
 		EntornCarrecCommand command = ConversioTipus.convertir(dto, EntornCarrecCommand.class);
 
 		model.addAttribute("entornCarrecCommand", command);
-		return "v3/entornCarrecForm";
+		return "entornCarrecForm";
 	}
 	
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
@@ -118,20 +118,20 @@ public class EntornCarrecController extends BaseController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			return "v3/modalBlank";
+			return "modalBlank";
 		}
         if (bindingResult.hasErrors()) {
     		model.addAttribute("entornArees", entornAreaService.findAreesByEntorn(entornActual.getId()));
-        	return "v3/entornCarrecForm";
+        	return "entornCarrecForm";
         } 
         
     	entornCarrecService.update(entornActual.getId(), ConversioTipus.convertir(command, CarrecDto.class));
-		return getModalControllerReturnValueSuccess(request, "redirect:/v3/entorn-carrec", "carrec.controller.modificat");
+		return getModalControllerReturnValueSuccess(request, "redirect:/entorn-carrec", "carrec.controller.modificat");
 	}
 
 	@RequestMapping(value = "{entornCarrecId}/delete", method = RequestMethod.GET)
 	public String delete(HttpServletRequest request, @PathVariable Long entornCarrecId, Model model) {
 		entornCarrecService.delete(entornCarrecId);
-		return this.getAjaxControllerReturnValueSuccess(request, "redirect:/v3/entorn-carrec", "carrec.controller.esborrat");
+		return this.getAjaxControllerReturnValueSuccess(request, "redirect:/entorn-carrec", "carrec.controller.esborrat");
 	}
 }

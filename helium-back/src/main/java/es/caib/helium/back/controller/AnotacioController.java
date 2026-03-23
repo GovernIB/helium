@@ -83,6 +83,7 @@ import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
 import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.dto.ReprocessarMapeigAnotacioDto;
 import es.caib.helium.commons.exception.SistemaExternException;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
@@ -90,7 +91,6 @@ import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.service.helper.UsuariActualHelper;
 import es.caib.helium.service.utils.EntornActual;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Controlador per visualitzar la llista de peticions d'anotacions que han arribat a Helium
@@ -98,7 +98,7 @@ import es.caib.helium.service.utils.GlobalProperties;
  *
  */
 @Controller
-@RequestMapping("/v3/anotacio")
+@RequestMapping("/anotacio")
 public class AnotacioController extends BaseExpedientController {
 	
 	@Autowired
@@ -136,7 +136,7 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		this.modelExpedientsTipus(expedientTipusDtoAccessiblesAnotacions, model);
 		model.addAttribute("maxConsultaIntents", this.getMaxConsultaIntents());
-		return "v3/anotacioLlistat";
+		return "anotacioLlistat";
 	}
 	
 	/** Mètode quan s'envia el formulari del filtre. Actualitza el filtre en sessió. */
@@ -307,7 +307,7 @@ public class AnotacioController extends BaseExpedientController {
 			}			
 		}		
 		model.addAttribute("documents", documents);
-		return "v3/anotacioDetall";
+		return "anotacioDetall";
 	}
 	
 	/** Mètode per obrir el formulari per acceptar la petició d'anotació i processar-la
@@ -356,7 +356,7 @@ public class AnotacioController extends BaseExpedientController {
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 		this.modelExpedientsTipus(expedientTipusDtoAccessiblesAnotacions, model);
 		
-		return "v3/anotacioAcceptar";
+		return "anotacioAcceptar";
 	}
 	
 	/** Mètode per tractar la petició post d'acceptar una petició d'anotació de registre de Distribucio.
@@ -384,7 +384,7 @@ public class AnotacioController extends BaseExpedientController {
 					SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 			this.modelExpedientsTipus(expedientTipusDtoAccessiblesAnotacions, model);
 			
-			return "v3/anotacioAcceptar";
+			return "anotacioAcceptar";
 		}
 		String ret = null;
 		try {
@@ -556,7 +556,7 @@ public class AnotacioController extends BaseExpedientController {
 		model.addAttribute("anotacio", anotacio);
 		model.addAttribute("anotacioRebutjarCommand", anotacioRebutjarCommand);
 				
-		return "v3/anotacioRebutjar";
+		return "anotacioRebutjar";
 	}
 	
 	/** Mètode per tractar la petició de rebuig d'una petició d'anotació de registre.
@@ -578,7 +578,7 @@ public class AnotacioController extends BaseExpedientController {
 		AnotacioDto anotacio = anotacioService.findAmbId(anotacioId);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("anotacio", anotacio);			
-			return "v3/anotacioRebutjar";
+			return "anotacioRebutjar";
 		}		
 		String ret;
 		try {
@@ -600,7 +600,7 @@ public class AnotacioController extends BaseExpedientController {
 							"anotacio.form.rebutjar.accio.rebutjar.error",
 							new Object[] {e.getMessage()}),
         			e);
-			ret = "v3/anotacioRebutjar";
+			ret = "anotacioRebutjar";
 		}
 		return ret; 
 	}
@@ -635,7 +635,7 @@ public class AnotacioController extends BaseExpedientController {
 							new Object[] {id, e.getMessage()}),
         			e);
 		}
-		return "redirect:/v3/anotacio";
+		return "redirect:/anotacio";
 	}
 	
 	/** Mètode per tornar a reprocessar anotacions en estat d'error de processament.
@@ -678,7 +678,7 @@ public class AnotacioController extends BaseExpedientController {
 							new Object[] {id, e.getMessage()}),
         			e);
 		}
-		return "redirect:/v3/anotacio";
+		return "redirect:/anotacio";
 	}
 	
 	/** Mètode per marcar com a pendent una anotació en estat de processament error.
@@ -710,7 +710,7 @@ public class AnotacioController extends BaseExpedientController {
 							new Object[] {id, e.getMessage()}),
 					e);
 		}
-		return "redirect:/v3/anotacio";
+		return "redirect:/anotacio";
 	}
 
 	/** Mètode per fixar el número d'intents a 0 i que es torni a consultar a Distribucio.
@@ -742,7 +742,7 @@ public class AnotacioController extends BaseExpedientController {
 							new Object[] {id, e.getMessage()}),
 					e);
 		}
-		return "redirect:/v3/anotacio";
+		return "redirect:/anotacio";
 	}
 	
 	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/descarregar/original", method = RequestMethod.GET)
@@ -868,7 +868,7 @@ public class AnotacioController extends BaseExpedientController {
 		} catch (Exception e) {
 			model.addAttribute("errorMsg", "Error obtenint les firmes: " + e.getMessage());
 		}
-		return "v3/anotacioAnnexFirmes";
+		return "anotacioAnnexFirmes";
 	}
 
 	/** Mètode per reintentar el processament de l'annex per guardar-lo a Helium dins l'arxiu o la BBDD 
@@ -891,7 +891,7 @@ public class AnotacioController extends BaseExpedientController {
 					errMsg,
 					e);
 		}
-		return "redirect:/modal/v3/anotacio/" + anotacioId;
+		return "redirect:/modal/anotacio/" + anotacioId;
 	}	
 	
 
@@ -1261,7 +1261,7 @@ public class AnotacioController extends BaseExpedientController {
 			// Neteja la selecció
 			sessionManager.getSeleccioAnotacio().clear();
 		}
-		return "redirect:/v3/anotacio";
+		return "redirect:/anotacio";
 	}
 	
 	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per esborrar  les
@@ -1300,7 +1300,7 @@ public class AnotacioController extends BaseExpedientController {
 			// Neteja la selecció
 			sessionManager.getSeleccioAnotacio().clear();
 		}
-		return "redirect:/v3/anotacio";
+		return "redirect:/anotacio";
 	}
 	
 	
@@ -1341,7 +1341,7 @@ public class AnotacioController extends BaseExpedientController {
 			// Neteja la selecció
 			sessionManager.getSeleccioAnotacio().clear();
 		}
-		return "redirect:/v3/anotacio";
+		return "redirect:/anotacio";
 	}
 	
 	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reprocessar el mapeig de les
@@ -1354,7 +1354,7 @@ public class AnotacioController extends BaseExpedientController {
 		ReprocessarMapeigAnotacioDto reprocessarMapeigAnotacioDto = new ReprocessarMapeigAnotacioDto();
 		reprocessarMapeigAnotacioDto.setIdsAnotacions(SessionHelper.getSessionManager(request).getSeleccioAnotacio());
 		model.addAttribute(reprocessarMapeigAnotacioDto);
-		return "v3/reprocessarMapeigForm";
+		return "reprocessarMapeigForm";
 	}
 	
 	@RequestMapping(value = "/reprocessarMapeig", method = RequestMethod.POST)
@@ -1385,7 +1385,7 @@ public class AnotacioController extends BaseExpedientController {
 			if ("000".equals(dto.getParam1())) {
 				MissatgesHelper.error(request, getMessage(request, "anotacio.llistat.error.no.accio"));
 				model.addAttribute(reprocessarMapeigAnotacioDto);
-				return "v3/reprocessarMapeigForm"; //Tornam al formulari, no tancam la modal
+				return "reprocessarMapeigForm"; //Tornam al formulari, no tancam la modal
 			} else {
 			
 				dto.setAuxIds(ids);
@@ -1449,7 +1449,7 @@ public class AnotacioController extends BaseExpedientController {
 			}					
 			sessionManager.getSeleccioAnotacio().clear();
 		}
-		return "redirect:/v3/anotacio";
+		return "redirect:/anotacio";
 	}
 
 	/** Acció del menú desplegable d'accions sobre una anotació per programar manualmnet l'avís per email de nova anotació.
@@ -1500,7 +1500,7 @@ public class AnotacioController extends BaseExpedientController {
 							new Object[] {e.getMessage()}),
 					e);
 		}
-		return "redirect:/v3/anotacio";
+		return "redirect:/anotacio";
 	}
 
 	private static final Log logger = LogFactory.getLog(AnotacioController.class);

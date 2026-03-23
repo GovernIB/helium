@@ -22,7 +22,7 @@ import es.caib.helium.logic.intf.service.ExpedientTerminiService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/expedient")
 public class ExpedientTimelineController extends BaseExpedientController {
 
 	@Autowired
@@ -41,7 +41,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("arbreProcessos", expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId())));
 		model.addAttribute("instanciaProces", expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));
-		return "v3/expedient/timeline";
+		return "expedient/timeline";
 	}
 
 	@RequestMapping(value = "/{expedientId}/timelineXml", method = RequestMethod.GET)
@@ -58,7 +58,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 				expedientTerminiService.iniciatFindAmbProcessInstanceId(
 						expedientId,
 						expedient.getProcessInstanceId()));
-		return "v3/expedient/timelineXml";
+		return "expedient/timelineXml";
 	}
 
 }

@@ -55,7 +55,7 @@ import es.caib.helium.logic.intf.service.ValidacioService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusVariableController extends BaseVariableController {
 
 	@Autowired
@@ -79,7 +79,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 				request,
 				expedientTipusId,
 				model);
-		return "v3/expedientTipusVariable";
+		return "expedientTipusVariable";
 	}
 	
 	/** Retorna les dades de les variables pel datatables de variables. Es pot filtrar per agrupació
@@ -129,7 +129,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 				expedientTipusId, 
 				command,
 				model);
-		return "v3/expedientTipusVariableForm";
+		return "expedientTipusVariableForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/variable/new", method = RequestMethod.POST)
 	public String nouPost(
@@ -144,7 +144,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
     				expedientTipusId, 
     				command,
     				model);
-        	return "v3/expedientTipusVariableForm";
+        	return "expedientTipusVariableForm";
         } else {
         	// Verificar permisos
     		campService.create(
@@ -183,7 +183,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 				expedientTipusId, 
 				command,
 				model);
-		return "v3/expedientTipusVariableForm";
+		return "expedientTipusVariableForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/variable/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
@@ -201,7 +201,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
     				expedientTipusId, 
     				command,
     				model);
-        	return "v3/expedientTipusVariableForm";
+        	return "expedientTipusVariableForm";
         } else {
         	campService.update(
         			CampCommand.asCampDto(command));
@@ -303,7 +303,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("baseUrl", "expedientTipus/" + expedientTipusId);
 		
-		return "v3/expedientTipusAgrupacio";
+		return "expedientTipusAgrupacio";
 	}
 	
 	/** Mètode per obtenir les agrupacions per al select. */
@@ -345,7 +345,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		AgrupacioCommand command = new AgrupacioCommand();
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("agrupacioCommand", command);
-		return "v3/expedientTipusAgrupacioForm";
+		return "expedientTipusAgrupacioForm";
 	}	
 	
 	@RequestMapping(value = "/{expedientTipusId}/agrupacio/new", method = RequestMethod.POST)
@@ -356,7 +356,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/expedientTipusAgrupacioForm";
+        	return "expedientTipusAgrupacioForm";
         } else {
         	// Verificar permisos
     		campService.agrupacioCreate(
@@ -385,7 +385,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 				dto,
 				AgrupacioCommand.class);
 		model.addAttribute("agrupacioCommand", command);
-		return "v3/expedientTipusAgrupacioForm";
+		return "expedientTipusAgrupacioForm";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/agrupacio/{id}/update", method = RequestMethod.POST)
@@ -397,7 +397,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/expedientTipusAgrupacioForm";
+        	return "expedientTipusAgrupacioForm";
         } else {
         	campService.agrupacioUpdate(
         			ConversioTipus.convertir(
@@ -476,7 +476,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		command.setCampId(campId);
 		model.addAttribute("validacioCommand", command);
 
-		return "v3/expedientTipusValidacio";
+		return "expedientTipusValidacio";
 	}	
 	
 	@RequestMapping(value="/{expedientTipusId}/variable/{campId}/validacio/datatable", method = RequestMethod.GET)
@@ -509,7 +509,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
         if (bindingResult.hasErrors()) {
     		omplirModelValidacionsForm(expedientTipusId, campId, model);
         	model.addAttribute("mostraCreate", true);
-        	return "v3/expedientTipusValidacio";
+        	return "expedientTipusValidacio";
         } else {
         	// Verificar permisos
         	validacioService.validacioCreate(
@@ -539,7 +539,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
         if (bindingResult.hasErrors()) {
     		omplirModelValidacionsForm(expedientTipusId, campId, model);
         	model.addAttribute("mostraUpdate", true);
-        	return "v3/expedientTipusValidacio";
+        	return "expedientTipusValidacio";
         } else {
         	validacioService.validacioUpdate(
         			ConversioTipus.convertir(
@@ -731,7 +731,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		model.addAttribute("expedientTipusCampRegistreCommand", command);
 		model.addAttribute("variables", new ArrayList<ParellaCodiValorDto>());		
 
-		return "v3/expedientTipusCampRegistre";
+		return "expedientTipusCampRegistre";
 	}	
 	
 	@RequestMapping(value="/{expedientTipusId}/variable/{campId}/campRegistre/datatable", method = RequestMethod.GET)
@@ -767,7 +767,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
     				campId, 
     				null));		
         	model.addAttribute("mostraCreate", true);
-        	return "v3/expedientTipusCampRegistre";
+        	return "expedientTipusCampRegistre";
         } else {
         	// Verificar permisos
     		campService.registreCreate(
@@ -801,7 +801,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
     				campId, 
     				command.getMembreId()));		
         	model.addAttribute("mostraUpdate", true);
-        	return "v3/expedientTipusCampRegistre";
+        	return "expedientTipusCampRegistre";
         } else {
         	campService.registreUpdate(
         			ConversioTipus.convertir(

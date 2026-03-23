@@ -40,7 +40,7 @@ public class BaseWebSecurityConfig {
 				new AntPathRequestMatcher("/fonts/**/*"),
 				new AntPathRequestMatcher("/img/**/*"),
 				new AntPathRequestMatcher("/js/**/*"),
-				new AntPathRequestMatcher("/webjars/**/*"),
+				new AntPathRequestMatcher("/webjars/**"),
 		};
 	}
 

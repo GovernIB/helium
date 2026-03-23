@@ -27,7 +27,7 @@ import es.caib.helium.logic.intf.service.ConsultaPinbalService;
 import es.caib.helium.service.helper.UsuariActualHelper;
 
 @Controller
-@RequestMapping("/v3/serveisPinbal")
+@RequestMapping("/serveisPinbal")
 public class ServeiPinbalController extends BaseController {
 
 	@Autowired
@@ -38,7 +38,7 @@ public class ServeiPinbalController extends BaseController {
 			HttpServletRequest request,
 			Model model) {
 		if (UsuariActualHelper.isAdministrador(SecurityContextHolder.getContext().getAuthentication())) {
-			return "v3/serveiPinbalList";
+			return "serveiPinbalList";
 		} else {
 			MissatgesHelper.error(request, "Es requereix el rol d'administrador per consultar el llistat de serveis de PINBAL.");
 			return "redirect:/";
@@ -75,7 +75,7 @@ public class ServeiPinbalController extends BaseController {
 		ParellaCodiValorDto pas = new ParellaCodiValorDto("Passaport", "Passaport");
 		llistaDocsPermesos.add(pas);
 		model.addAttribute("tipusDocsList", llistaDocsPermesos);
-		return "v3/serveiPinbalForm";
+		return "serveiPinbalForm";
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)

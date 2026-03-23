@@ -30,7 +30,7 @@ import es.caib.helium.commons.dto.PortafirmesIniciFluxRespostaDto;
 import es.caib.helium.logic.intf.service.PortafirmesFluxService;
 
 @Controller
-@RequestMapping("/v3/fluxeFirma")
+@RequestMapping("/fluxeFirma")
 public class FluxosFirmaController extends BaseExpedientController {
 
 	@Autowired
@@ -40,7 +40,7 @@ public class FluxosFirmaController extends BaseExpedientController {
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/fluxeFirmaLlistat";
+		return "fluxeFirmaLlistat";
 	}
 	
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)
@@ -124,7 +124,7 @@ public class FluxosFirmaController extends BaseExpedientController {
 		try {
 			urlReturn = UrlHelper.getAbsoluteControllerBase(
 					request,
-					(ModalHelper.isModal(request) ? "/modal" : "") + "/v3/fluxeFirma/returnurl/");
+					(ModalHelper.isModal(request) ? "/modal" : "") + "/fluxeFirma/returnurl/");
 			
 			if (fluxId==null || "NULL".equalsIgnoreCase(fluxId)) {
 				transaccioResponse = portafirmesFluxService.iniciarFluxFirma(
@@ -159,7 +159,7 @@ public class FluxosFirmaController extends BaseExpedientController {
 					getMessage(request, "fluxosFirma.taula.boto.eliminar.ko") + ": " + ex.getMessage(),
 					ex);
 		}
-		return "redirect:/v3/fluxeFirma";
+		return "redirect:/fluxeFirma";
 	}
 	
 	@RequestMapping(value = "/returnurl", method = RequestMethod.GET)
@@ -198,6 +198,6 @@ public class FluxosFirmaController extends BaseExpedientController {
 		}
 		
 		model.addAttribute("OrigenFlux", "FluxUsuariList");		
-		return "v3/portafirmesModalTancar";
+		return "portafirmesModalTancar";
 	}
 }

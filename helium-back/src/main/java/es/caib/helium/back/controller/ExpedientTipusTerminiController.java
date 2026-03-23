@@ -41,7 +41,7 @@ import es.caib.helium.commons.dto.TerminiDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedientTipus")
+@RequestMapping("/expedientTipus")
 public class ExpedientTipusTerminiController extends BaseExpedientTipusController {
 	
 	@ModelAttribute("listTerminis")
@@ -74,7 +74,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 			model.addAttribute("baseUrl", expedientTipus.getId());
 		}
 
-		return "v3/expedientTipusTermini";
+		return "expedientTipusTermini";
 	}
 
 	@RequestMapping(value="/{expedientTipusId}/termini/datatable", method = RequestMethod.GET)
@@ -109,7 +109,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 		ExpedientTipusTerminiCommand command = new ExpedientTipusTerminiCommand();
 		model.addAttribute("expedientTipusTerminiCommand", command);
 		model.addAttribute("expedientTipus", expedientTipusService.findAmbId(expedientTipusId));
-		return "v3/expedientTipusTerminiForm";
+		return "expedientTipusTerminiForm";
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/termini/new", method = RequestMethod.POST)
@@ -122,7 +122,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
         if (bindingResult.hasErrors()) {
         	model.addAttribute("expedientTipusId", expedientTipusId);
         	model.addAttribute("expedientTipus", expedientTipusService.findAmbId(expedientTipusId));
-        	return "v3/expedientTipusTerminiForm";
+        	return "expedientTipusTerminiForm";
         } else {
         	// Verificar permisos
     		terminiService.create(
@@ -155,7 +155,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("expedientTipus", expedientTipusService.findAmbId(expedientTipusId));
 		model.addAttribute("heretat", dto.isHeretat());
-		return "v3/expedientTipusTerminiForm";
+		return "expedientTipusTerminiForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/termini/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
@@ -169,7 +169,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
         	model.addAttribute("expedientTipusId", expedientTipusId);
         	model.addAttribute("expedientTipus", expedientTipusService.findAmbId(expedientTipusId));
     		model.addAttribute("heretat", terminiService.findAmbId(expedientTipusId, id).isHeretat());
-        	return "v3/expedientTipusTerminiForm";
+        	return "expedientTipusTerminiForm";
         } else {
         	terminiService.update(
         			ConversioTipus.convertir(

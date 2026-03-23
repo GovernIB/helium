@@ -45,7 +45,7 @@ import es.caib.helium.service.helper.ConsultaPinbalHelper;
 import es.caib.helium.service.helper.UsuariActualHelper;
 
 @Controller
-@RequestMapping("/v3/consultesPinbal")
+@RequestMapping("/consultesPinbal")
 public class ConsultesPinbalController extends BaseExpedientController {
 
 	@Autowired private ConsultaPinbalService consultesPinbalService;
@@ -86,7 +86,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 		model.addAttribute(filtreCommand);
 		modelExpedientsTipus(expedientTipusDtoAccessibles, model);
 		modelEstats(model);
-		return "v3/consultesPinbalLlistat";
+		return "consultesPinbalLlistat";
 	}
 	
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
@@ -116,7 +116,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 			@PathVariable Long peticioPinbalId,
 			Model model) {
 		model.addAttribute("peticioPinbalDto", consultesPinbalService.findById(peticioPinbalId));
-		return "v3/consultesPinbalInfo";
+		return "consultesPinbalInfo";
 	}
 	
 	@RequestMapping(value = "/infoByDocument/{expedientId}/{documentStoreId}", method = RequestMethod.GET)

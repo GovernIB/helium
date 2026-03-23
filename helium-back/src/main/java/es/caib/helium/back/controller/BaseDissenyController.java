@@ -65,7 +65,7 @@ public class BaseDissenyController extends BaseController {
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
 		
-		return "v3/expedientTipusPipelles";
+		return "expedientTipusPipelles";
 	}
 	
 	protected String mostrarInformacioDefinicioProcesPerPipelles(
@@ -89,7 +89,7 @@ public class BaseDissenyController extends BaseController {
 						getMessage(request, 
 								"definicio.proces.pipelles.definicio.no.trobada", 
 								new Object[] {jbmpKey}));
-				return "redirect:/v3/definicioProces";			
+				return "redirect:/definicioProces";			
 			}		
 
 			// Comprova si pot dissenyar la definició de procés
@@ -125,7 +125,7 @@ public class BaseDissenyController extends BaseController {
 			else
 				model.addAttribute("pipellaActiva", "detall");		
 					
-			return "v3/definicioProcesPipelles";
+			return "definicioProcesPipelles";
 			
 		} else {
 			return "redirect:/";
