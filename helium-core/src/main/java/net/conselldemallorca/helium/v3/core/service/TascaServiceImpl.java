@@ -883,7 +883,14 @@ public class TascaServiceImpl implements TascaService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Agafar tasca \"" + tasca.getTitol() + "\"");
 		
-		comandaHelper.upsertTasca(id, tasca.getTitol(), tasca.getExpedientNumero(), task, ComandaTascaEstat.PENDENT);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		comandaHelper.upsertTasca(
+				id, 
+				tasca.getTascaNom(), 
+				expedient.getNumero(), 
+				expedient.getTipus().getNom(), 
+				task, 
+				ComandaTascaEstat.PENDENT);
 		
 		return tasca;
 	}
@@ -921,7 +928,14 @@ public class TascaServiceImpl implements TascaService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Amollar tasca \"" + tasca.getTitol() + "\"");
 		
-		comandaHelper.upsertTasca(id, tasca.getTitol(), tasca.getExpedientNumero(), task, ComandaTascaEstat.PENDENT);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		comandaHelper.upsertTasca(
+				id, 
+				tasca.getTascaNom(), 
+				expedient.getNumero(), 
+				expedient.getTipus().getNom(), 
+				task, 
+				ComandaTascaEstat.PENDENT);
 		
 		return tasca;
 	}
@@ -1120,7 +1134,14 @@ public class TascaServiceImpl implements TascaService {
 			registreRepository.save(registre);
 		}
 		
-		comandaHelper.upsertTasca(taskId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.INICIADA);
+		String descripcio = String.format("[%s] %s", expedient.getNumero(), expedient.getTitol());
+		comandaHelper.upsertTasca(
+				taskId, 
+				tasca.getNom(), 
+				expedient.getNumero(), 
+				expedient.getTipus().getNom(), 
+				task, 
+				ComandaTascaEstat.INICIADA);
 	}
 
 	@Override
@@ -1448,7 +1469,13 @@ public class TascaServiceImpl implements TascaService {
 					Registre.Entitat.TASCA,
 					tascaId);
 			
-			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.FINALITZADA);
+			comandaHelper.upsertTasca(
+					tascaId, 
+					tasca.getNom(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getNom(), 
+					task, 
+					ComandaTascaEstat.FINALITZADA);
 			
 			registre.setMissatge("Finalitzar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 			registreRepository.save(registre);

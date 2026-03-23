@@ -174,7 +174,12 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					Registre.Accio.CANCELAR);
 
 			Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
-			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.CANCELADA);
+			comandaHelper.upsertTasca(
+					tascaId, 
+					tasca.getNom(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getNom(), 
+					task, ComandaTascaEstat.CANCELADA);
 		} else {
 			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}
@@ -209,7 +214,13 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.ATURAR);
 			Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
-			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.PENDENT);
+			comandaHelper.upsertTasca(
+					tascaId, 
+					tasca.getNom(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getNom(), 
+					task, 
+					ComandaTascaEstat.PENDENT);
 		} else {
 			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}
@@ -244,7 +255,13 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.REPRENDRE);
 			Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
-			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.INICIADA);
+			comandaHelper.upsertTasca(
+					tascaId, 
+					tasca.getNom(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getNom(), 
+					task, 
+					ComandaTascaEstat.INICIADA);
 		} else {
 			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}
@@ -289,7 +306,13 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 			
 			JbpmTask task = jbpmHelper.getTaskById(tascaId);
 			Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
-			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.PENDENT);
+			comandaHelper.upsertTasca(
+					tascaId, 
+					tasca.getNom(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getNom(), 
+					task, 
+					ComandaTascaEstat.PENDENT);
 		} else {
 			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}

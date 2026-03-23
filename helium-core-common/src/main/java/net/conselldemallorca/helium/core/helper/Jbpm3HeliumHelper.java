@@ -3888,7 +3888,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			JbpmTask task = jbpmHelper.getTaskById(taskId);
 			Tasca tasca = tascaHelper.findTascaByJbpmTaskId(taskId);
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-			comandaHelper.upsertTasca(taskId, tasca.getNom(), expedient.getNumero(), task, estat);
+			comandaHelper.upsertTasca(
+					taskId, 
+					tasca.getNom(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getNom(), 
+					task, 
+					estat);
 		} catch(Exception e) {
 			logger.error("Error inesperat refrescant dades de comanda per la tasca amb ID: " + taskId, e);
 		}
