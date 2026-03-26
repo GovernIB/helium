@@ -1672,17 +1672,19 @@ public class DistribucioHelper {
 				resultat.addResultatAnnex(a, resultatAnnex);
 				// Recupera el contingut del document i crea un document a Helium
 				contingut = annex.getContingut();
-				if (contingut == null) {
-					// Recupera el contingut de l'Arxiu
-					Document documentArxiu = pluginHelper.arxiuDocumentInfo(annex.getUuid(), null, true, true);
-					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
-				}
 				annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);					
 				// Posa el resultat per evitar error
 				resultatAnnex.setAccio(AnnexAccio.MOGUT);
 			}
+			// Si no està integrat amb Sistra 
 			if (	!isSistra 
 					&& AnotacioAnnexEstatEnumDto.MOGUT.equals(annex.getEstat())) {
+				// Si no integra amb l'Arxiu i no té contingut llavors recupera el document original
+				if (contingut == null && !expedient.isArxiuActiu()) {
+					// Recupera el contingut de l'Arxiu
+					Document documentArxiu = pluginHelper.arxiuDocumentOriginal(annex.getUuid(), null);
+					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+				}
 				// Crea un document a Helium 
 				Long documentStoreId = documentHelper.crearDocument(
 						null, 

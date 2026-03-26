@@ -31,6 +31,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.util.StringUtilsHelium;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiDocumentoFormato;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
@@ -443,6 +444,17 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public void setDocumentError(String documentError) {
 		this.documentError = documentError;
 	}
+
+	/** Afegeix l'error al possible error existent. */
+	public void addDocumentError(String error) {
+		if (this.documentError != null) {
+			this.documentError = this.documentError + ". " + error;
+		} else {
+			this.documentError = error;
+		}
+		this.documentError = StringUtilsHelium.abreuja(this.documentError, 1000);
+	}
+
 	
 	@Column(name = "annex_id")
 	public Long getAnnexId() {
