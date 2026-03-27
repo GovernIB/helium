@@ -391,12 +391,20 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				anotacio = anotacioRepository.findOne(anotacioId);
 				ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);				
 				if (expedientTipus.isDistribucioSistra()) {
-					// Extreu documents i variables segons el mapeig sistra
+					// Si el tipus no integra amb l'Arxiu llavors s'obtindran els documents amb contingut
 					boolean ambContingut = !expedientTipus.isArxiuActiu(); 
+					// Extreu documents i variables segons el mapeig sistra
 					resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
-					if (variables == null)
-						variables = new HashMap<String, Object>();
-					variables.putAll(resultatMapeig.getDades());
+					if (variables == null) {
+						variables = new HashMap<String, Object>(resultatMapeig.getDades());
+					} else {
+						// Si ja hi ha variabls només s'afegeixen les del mapeig que no hi siguin
+						for (String varCodi : resultatMapeig.getDades().keySet()) {
+							if ( ! variables.containsKey(varCodi)) {
+								variables.put(varCodi, resultatMapeig.getDades().get(varCodi));
+							}
+						}
+					}
 					if (documents == null) 
 						documents = new HashMap<String, DadesDocumentDto>();
 					documents.putAll(resultatMapeig.getDocuments());
@@ -1706,11 +1714,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			expedientHelper.tancarExpedientArxiu(id, true);
 		} catch(Exception ex) {
 			String errorDescripcio = "Error finalitzant l'expedient migrant " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
-			try {
-				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
-			} catch(Exception aex) {
-				logger.error("Error esborrant l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.", aex);
-			}
 			throw new TramitacioException(
 					expedient.getEntorn().getId(), 
 					expedient.getEntorn().getCodi(), 
