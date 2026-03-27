@@ -136,7 +136,7 @@ public interface ExpedientService {
 			IniciadorTipusDto iniciadorTipus,
 			String iniciadorCodi,
 			String responsableCodi,
-			List<DadesDocumentDto> documents,
+			Map<String, DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts,
 			Long anotacioId,
 			boolean anotacioInteressatsAssociar) throws Exception;
