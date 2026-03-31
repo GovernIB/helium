@@ -37,8 +37,9 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 import es.caib.helium.commons.dto.ExpedientDocumentDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.service.utils.GlobalProperties;
 import es.caib.plugins.arxiu.api.DocumentEstat;
 
 @Component

@@ -43,6 +43,7 @@ import es.caib.helium.commons.exportacio.RegistreMembreExportacio;
 import es.caib.helium.commons.exportacio.TascaExportacio;
 import es.caib.helium.commons.exportacio.TerminiExportacio;
 import es.caib.helium.commons.exportacio.ValidacioExportacio;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Accio;
@@ -599,10 +600,10 @@ public class DefinicioProcesHelper {
 				definicio.getTasques().add(tasca);
 			}
 			definicioProcesRepository.save(definicio);
-		} else
+		} /*else
 			throw new DeploymentException(
 					messageHelper.getMessage("exportar.validacio.definicio.deploy.error"));
-
+*/
 		return definicio;
 	}
 

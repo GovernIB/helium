@@ -35,8 +35,8 @@
 									title="${campActual.campEtiqueta}">
 									${campActual.campEtiqueta}
 						</label>
-						<c:set var="urlConsultaInicial" value="/helium/expedient/consulta/${consulta.id}/suggest/expedient/inici"/>
-						<c:set var="urlConsultaLlistat" value="/helium/expedient/consulta/${consulta.id}/suggest/expedient/llista/${consulta.expedientTipus.id}"/>
+						<c:set var="urlConsultaInicial" value="/expedient/consulta/${consulta.id}/suggest/expedient/inici"/>
+						<c:set var="urlConsultaLlistat" value="/expedient/consulta/${consulta.id}/suggest/expedient/llista/${consulta.expedientTipus.id}"/>
 						<div class="col-md-6 pr-15">
 								<hel:inputSuggest inline="true" 
 									name="${campPath}[0]" 
@@ -180,9 +180,7 @@
 				</script>
 			</c:when>			
 			<c:when test="${campActual.campTipus == 'SUGGEST'}">
-					<c:set var="urlConsultaInicial" value="domini/consulta/inicial/${campActual.campId}"/>
-					<c:set var="urlConsultaLlistat" value="domini/consulta/${campActual.campId}"/>
-					<hel:inputSuggest inline="true" name="${campPath}" urlConsultaInicial="${urlConsultaInicial}" urlConsultaLlistat="${urlConsultaLlistat}" placeholder="${campActual.campEtiqueta}" text="${campActual.campEtiqueta}"/>
+					<hel:inputSuggest inline="true" name="${campPath}" urlConsultaInicial="/domini/consulta/inicial/${campActual.campId}" urlConsultaLlistat="/domini/consulta/${campActual.campId}" placeholder="${campActual.campEtiqueta}" text="${campActual.campEtiqueta}"/>
 			</c:when>
 			<c:otherwise>
 				¿¿¿No contemplada???

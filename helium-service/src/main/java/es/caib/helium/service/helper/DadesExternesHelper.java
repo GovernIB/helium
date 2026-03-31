@@ -17,12 +17,12 @@ import es.caib.helium.commons.dto.PaisDto;
 import es.caib.helium.commons.dto.ProvinciaDto;
 import es.caib.helium.commons.dto.TipusViaDto;
 import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.commons.plugins.dadesext.ComunitatAutonoma;
-import es.caib.helium.commons.plugins.dadesext.Municipi;
-import es.caib.helium.commons.plugins.dadesext.NivellAdministracio;
-import es.caib.helium.commons.plugins.dadesext.Pais;
-import es.caib.helium.commons.plugins.dadesext.Provincia;
-import es.caib.helium.commons.plugins.dadesext.TipusVia;
+import es.caib.helium.integracio.plugins.dadesext.ComunitatAutonoma;
+import es.caib.helium.integracio.plugins.dadesext.Municipi;
+import es.caib.helium.integracio.plugins.dadesext.NivellAdministracio;
+import es.caib.helium.integracio.plugins.dadesext.Pais;
+import es.caib.helium.integracio.plugins.dadesext.Provincia;
+import es.caib.helium.integracio.plugins.dadesext.TipusVia;
 
 
 @Component

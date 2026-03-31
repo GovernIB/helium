@@ -64,7 +64,7 @@ public class EntornController extends BaseController {
 	public String newGet(
 			HttpServletRequest request,
 			Model model) {
-		model.addAttribute("command", new EntornCommand());
+		model.addAttribute("modelAttribute", new EntornCommand());
 		return "entornForm";
 	}
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
@@ -95,7 +95,7 @@ public class EntornController extends BaseController {
 		EntornDto dto = entornService.findOne(
 				entornId);
 		model.addAttribute(
-				"command",
+				"entornCommand",
 				ConversioTipus.convertir(
 						dto,
 						EntornCommand.class));

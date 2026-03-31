@@ -73,8 +73,8 @@
 			<hel:inputSuggest 
 				inline="true" 
 				name="usuari" 
-				urlConsultaInicial="/helium/tasca/persona/suggestInici" 
-				urlConsultaLlistat="/helium/tasca/persona/suggest" 
+				urlConsultaInicial="/tasca/persona/suggestInici" 
+				urlConsultaLlistat="/tasca/persona/suggest" 
 				placeholderKey="consultes.pinbal.camp.usuari"/>		
 							 
 							   

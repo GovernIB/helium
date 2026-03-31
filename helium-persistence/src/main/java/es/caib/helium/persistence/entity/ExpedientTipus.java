@@ -61,7 +61,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private Boolean demanaTitol;
 	private String expressioNumero;
 	private long sequencia = 1;
-	private long sequenciaDefault = 1;
+	private long sequenciaDef = 1;
 	private boolean reiniciarCadaAny;
 	private int anyActual = 0;
 	private String responsableDefecteCodi;
@@ -268,11 +268,11 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="sequencia_def")
-	public long getSequenciaDefault() {
-		return sequenciaDefault;
+	public long getSequenciaDef() {
+		return sequenciaDef;
 	}
-	public void setSequenciaDefault(long sequenciaDefault) {
-		this.sequenciaDefault = sequenciaDefault;
+	public void setSequenciaDef(long sequenciaDefault) {
+		this.sequenciaDef = sequenciaDefault;
 	}
 
 	@Column(name="reiniciar_anual")
@@ -752,13 +752,13 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		if (any == null) any = Calendar.getInstance().get(Calendar.YEAR);
 		if (this.isReiniciarCadaAny()) {
 			if (this.getSequenciaDefaultAny().containsKey(any)) {
-				this.getSequenciaDefaultAny().get(any).setSequenciaDefault(this.getSequenciaDefaultAny().get(any).getSequenciaDefault() + increment);
+				this.getSequenciaDefaultAny().get(any).setSequenciadefault(this.getSequenciaDefaultAny().get(any).getSequenciadefault() + increment);
 			} else {
 				SequenciaDefaultAny sda = new SequenciaDefaultAny(this, any, increment);
 				this.getSequenciaDefaultAny().put(any, sda);
 			}
 		} else {
-			this.sequenciaDefault = this.sequenciaDefault + increment;
+			this.sequenciaDef = this.sequenciaDef + increment;
 		}
 	}
 	

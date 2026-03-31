@@ -64,15 +64,15 @@ $(document).ready(function() {
 				<div id="inputs-notib" style="display:${expedientTipusIntegracioNotibCommand.notibActiu? 'inline' : 'none'}">
 					<hel:inputSuggest 
 						name="notibEmisor" 
-						urlConsultaInicial="/helium/unitatOrganitzativa/suggestInici"
-						urlConsultaLlistat="/helium/unitatOrganitzativa/suggest"
+						urlConsultaInicial="/unitatOrganitzativa/suggestInici"
+						urlConsultaLlistat="/unitatOrganitzativa/suggest"
 						textKey="expedient.tipus.integracio.notib.organisme.emisor"
 						placeholderKey="expedient.tipus.integracio.notib.organisme.emisor"
 						required="true" />
 					<hel:inputSuggest
 						name="notibCodiProcediment"
-						urlConsultaInicial="/helium/procediment/suggestInici"
-						urlConsultaLlistat="/helium/procediment/suggest"
+						urlConsultaInicial="/procediment/suggestInici"
+						urlConsultaLlistat="/procediment/suggest"
 						textKey="expedient.tipus.integracio.notib.sia.codiprocediment"
 						placeholderKey="expedient.tipus.integracio.notib.sia.codiprocediment"
 						required="true" />

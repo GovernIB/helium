@@ -11,10 +11,11 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.Sexe;
+import es.caib.helium.commons.dto.ArxiuDto;
+import es.caib.helium.commons.dto.FirmaResultatDto;
+import es.caib.helium.commons.dto.PersonaDto;
+import es.caib.helium.commons.dto.Sexe;
+import es.caib.helium.integracio.plugins.firmaweb.FirmaSimpleWebPluginPortafib;
 
 /** Prova d'enviar a firmar, recollir la URL, obtenir el transaction ID i el document firmat. */
 public class FirmaSimpleWebPluginPortafibTest {
@@ -31,7 +32,7 @@ public class FirmaSimpleWebPluginPortafibTest {
 			properties.put("app.plugin.passarelafirma.plugins.signatureweb.portafib.apifirmawebsimple.password", "****");
 			properties.put("app.plugin.passarelafirma.plugins.signatureweb.portafib.apifirmawebsimple.perfil", "");
 
-			FirmaWebPlugin plugin = new FirmaSimpleWebPluginPortafib(properties);
+			FirmaSimpleWebPluginPortafib plugin = new FirmaSimpleWebPluginPortafib(properties);
 			
 			// Envia a firmar
 			ArxiuDto arxiu = new ArxiuDto(

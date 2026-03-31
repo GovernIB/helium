@@ -22,9 +22,8 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import es.caib.comanda.model.v1.tasca.Prioritat;
 import es.caib.comanda.model.v1.tasca.Tasca;
 import es.caib.comanda.model.v1.tasca.TascaEstat;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
-import es.caib.helium.service.utils.GlobalProperties;
-
 import es.caib.helium.logic.intf.util.DatesUtils;
 
 /**

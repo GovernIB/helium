@@ -18,6 +18,9 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import es.caib.helium.integracio.plugins.firma.FirmaPluginPortafib;
+import es.caib.helium.integracio.plugins.firma.FirmaResposta;
+
 /**
  * Test del plugin de firma simple del portasignatures.
  * 

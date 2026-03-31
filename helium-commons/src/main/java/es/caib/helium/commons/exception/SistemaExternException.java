@@ -17,6 +17,12 @@ public class SistemaExternException extends HeliumException {
 	protected String publicMessage;
 	
 	public SistemaExternException(
+			String message,
+			Throwable cause) {
+		super(message, cause);
+	}
+	
+	public SistemaExternException(
 			Long entornId,
 			String entornCodi,
 			String entornNom,

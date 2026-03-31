@@ -20,7 +20,6 @@ import org.hibernate.annotations.ForeignKey;
 import es.caib.helium.commons.dto.procediment.ProcedimentEstatEnumDto;
 import es.caib.helium.commons.dto.procediment.ProcedimentTipusEnumDto;
 
-
 /**
  * Classe del model de dades que representa 
  * els procediments.
@@ -118,12 +117,12 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 		this.unitatOrganitzativa = unitatOrganitzativa;
 	}
 
-	public ProcedimentTipusEnumDto getTipus() {
-		return tipus;
-	}
-	public void setTipus(ProcedimentTipusEnumDto tipus) {
-		this.tipus = tipus;
-	}
+//	public ProcedimentTipusEnumDto getTipus() {
+//		return tipus;
+//	}
+//	public void setTipus(ProcedimentTipusEnumDto tipus) {
+//		this.tipus = tipus;
+//	}
 	
 	
 	public boolean isComu() {
@@ -183,10 +182,10 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 			built.unitatOrganitzativa = unitatOrganitzativa;
 		}
 		
-		public Builder tipus(ProcedimentTipusEnumDto tipus) {
-			built.tipus = tipus;
-			return this;
-		}
+//		public Builder tipus(ProcedimentTipusEnumDto tipus) {
+//			built.tipus = tipus;
+//			return this;
+//		}
 		
 		public Procediment built() {
 			return built;

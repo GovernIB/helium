@@ -27,7 +27,7 @@ import es.caib.helium.commons.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.commons.dto.IntegracioDto;
 import es.caib.helium.commons.dto.IntegracioParametreDto;
 import es.caib.helium.commons.dto.PeticioPinbalEstatEnum;
-import es.caib.helium.commons.plugins.pinbal.DadesConsultaPinbal;
+import es.caib.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.PeticioPinbal;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;
@@ -244,7 +244,7 @@ public class MonitorIntegracioHelper {
 		} else {
 			int index = 0;
 			for (IntegracioAccioDto accio: accions) {
-				accio.setIndex(new Long(index++));
+				accio.setIndex(Long.valueOf(index++));
 			}
 		}
 		return accions;
@@ -253,7 +253,7 @@ public class MonitorIntegracioHelper {
 			String integracioCodi) {
 		Integer max = maxAccionsIntegracio.get(integracioCodi);
 		if (max == null) {
-			max = new Integer(MAX_ACCIONS_PER_INTEGRACIO);
+			max = Integer.valueOf(MAX_ACCIONS_PER_INTEGRACIO);
 			maxAccionsIntegracio.put(
 					integracioCodi,
 					max);

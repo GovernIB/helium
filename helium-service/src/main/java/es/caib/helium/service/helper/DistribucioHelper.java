@@ -76,6 +76,8 @@ import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
 import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.persistence.entity.Alerta;
@@ -102,7 +104,6 @@ import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.MapeigSistraRepository;
 import es.caib.helium.service.utils.EntornActual;
-import es.caib.helium.service.utils.GlobalProperties;
 import es.caib.plugins.arxiu.api.Document;
 
 /**
@@ -351,9 +352,9 @@ public class DistribucioHelper {
 				usuariCodi(anotacioEntrada.getUsuariCodi()).
 				usuariNom(anotacioEntrada.getUsuariNom()).
 				destiDescripcio(anotacioEntrada.getDestiDescripcio()).
-				presencial(anotacioEntrada.isPresencial()).
-				tramitCodi(anotacioEntrada.getTramitCodi()).
-				tramitNom(anotacioEntrada.getTramitNom()).
+//				presencial(anotacioEntrada.isPresencial()).
+//				tramitCodi(anotacioEntrada.getTramitCodi()).
+				//tramitNom(anotacioEntrada.getTramitNom()).
 				build();
 		
 		anotacioRepository.save(anotacioEntity);
@@ -516,9 +517,9 @@ public class DistribucioHelper {
 		anotacio.setUsuariCodi(anotacioEntrada.getUsuariCodi());
 		anotacio.setUsuariNom(anotacioEntrada.getUsuariNom());
 		anotacio.setDestiDescripcio(anotacioEntrada.getDestiDescripcio());
-		anotacio.setPresencial(anotacioEntrada.isPresencial());
-		anotacio.setTramitCodi(anotacioEntrada.getTramitCodi());
-		anotacio.setTramitNom(anotacioEntrada.getTramitNom());
+//		anotacio.setPresencial(anotacioEntrada.isPresencial());
+//		anotacio.setTramitCodi(anotacioEntrada.getTramitCodi());
+		//anotacio.setTramitNom(anotacioEntrada.getTramitNom());
 				
 		// Crea els interessats
 		for (Interessat interessat: anotacioEntrada.getInteressats()) {

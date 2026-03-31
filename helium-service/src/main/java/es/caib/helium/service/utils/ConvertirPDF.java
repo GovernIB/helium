@@ -12,6 +12,8 @@ import com.artofsolving.jodconverter.DocumentFormatRegistry;
 import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
 import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocumentConverter;
 
+import es.caib.helium.commons.utils.GlobalProperties;
+
 /**
  * Classe per converir documents a PDF.
  * 

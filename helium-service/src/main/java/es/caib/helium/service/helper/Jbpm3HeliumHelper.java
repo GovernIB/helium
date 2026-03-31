@@ -79,9 +79,9 @@ import es.caib.helium.commons.dto.RespostaJustificantDetallRecepcioDto;
 import es.caib.helium.commons.dto.RespostaJustificantRecepcioDto;
 import es.caib.helium.commons.dto.RespostaNotificacio;
 import es.caib.helium.commons.dto.RespostaNotificacio.NotificacioEstat;
-import es.caib.helium.commons.dto.ScspAtributos;
+import es.caib.helium.commons.dto.ScspAtributosPinbal;
 import es.caib.helium.commons.dto.ScspConfirmacioPeticioPinbal;
-import es.caib.helium.commons.dto.ScspJustificant;
+import es.caib.helium.commons.dto.ScspJustificantPinbal;
 import es.caib.helium.commons.dto.ScspRespostaPinbal;
 import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.dto.TerminiDto;
@@ -93,20 +93,21 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
-import es.caib.helium.commons.plugins.pinbal.DadesConsultaPinbal;
-import es.caib.helium.commons.plugins.pinbal.Funcionari;
-import es.caib.helium.commons.plugins.pinbal.Titular;
-import es.caib.helium.commons.plugins.registre.DadesAssumpte;
-import es.caib.helium.commons.plugins.registre.DadesExpedient;
-import es.caib.helium.commons.plugins.registre.DadesInteressat;
-import es.caib.helium.commons.plugins.registre.DadesNotificacio;
-import es.caib.helium.commons.plugins.registre.DadesOficina;
-import es.caib.helium.commons.plugins.registre.DocumentRegistre;
-import es.caib.helium.commons.plugins.registre.RegistreNotificacio;
-import es.caib.helium.commons.plugins.registre.RespostaAnotacioRegistre;
-import es.caib.helium.commons.plugins.registre.RespostaJustificantDetallRecepcio;
-import es.caib.helium.commons.plugins.registre.RespostaJustificantRecepcio;
 import es.caib.helium.commons.registre.RegistreAnotacio;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
+import es.caib.helium.integracio.plugins.pinbal.Funcionari;
+import es.caib.helium.integracio.plugins.pinbal.Titular;
+import es.caib.helium.integracio.plugins.registre.DadesAssumpte;
+import es.caib.helium.integracio.plugins.registre.DadesExpedient;
+import es.caib.helium.integracio.plugins.registre.DadesInteressat;
+import es.caib.helium.integracio.plugins.registre.DadesNotificacio;
+import es.caib.helium.integracio.plugins.registre.DadesOficina;
+import es.caib.helium.integracio.plugins.registre.DocumentRegistre;
+import es.caib.helium.integracio.plugins.registre.RegistreNotificacio;
+import es.caib.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import es.caib.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
@@ -165,7 +166,6 @@ import es.caib.helium.service.helper.TascaSegonPlaHelper.InfoSegonPla;
 import es.caib.helium.service.helpers.MesuresTemporalsHelper;
 import es.caib.helium.service.security.ExtendedPermission;
 import es.caib.helium.service.utils.EntornActual;
-import es.caib.helium.service.utils.GlobalProperties;
 import es.caib.helium.service.utils.StringUtilsHelium;
 
 
@@ -748,7 +748,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"taskInstanceId=" + taskInstanceId + ")");
 		Date ara = new Date();
 		List<TerminiIniciat> terminis = terminiIniciatRepository.findByTaskInstanceId(
-				new Long(taskInstanceId).toString());
+				Long.valueOf(taskInstanceId).toString());
 		for (TerminiIniciat termini: terminis) {
 			for (Alerta alerta: termini.getAlertes()) {
 				alerta.setDataEliminacio(ara);
@@ -1436,7 +1436,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public List<DocumentTascaDto> findDocumentsPerTaskInstance(
 			long taskInstanceId) {
 		logger.debug("Consultant els documents de la tasca (taskInstanceId=" + taskInstanceId + ")");
-		WTaskInstance task = workflowEngineApi.getTaskById(new Long(taskInstanceId).toString());
+		WTaskInstance task = workflowEngineApi.getTaskById(Long.valueOf(taskInstanceId).toString());
 		if (task == null)
 			throw new NoTrobatException(WTaskInstance.class, taskInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
@@ -1871,7 +1871,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			
 			if(scspConfirmacioPeticioPinbal!=null && scspConfirmacioPeticioPinbal.getAtributos()!=null) {
 
-				ScspAtributos scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
+				ScspAtributosPinbal scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
 				respostaPinbal.setIdPeticion(scspAtributos.getIdPeticion());
 				dadesConsultaPinbal.setCodiProcediment(scspAtributos.getCodigoCertificado());
 				
@@ -1917,7 +1917,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					expedient, 
 					null);//Al ser consultaGenèrica, li passen directament ells el serveiCodi
 			
-			ScspJustificant justificant = new ScspJustificant();
+			ScspJustificantPinbal justificant = new ScspJustificantPinbal();
 			
 			if (respostaPinbal!=null) {
 				justificant = respostaPinbal.getJustificant();
@@ -2028,7 +2028,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			
 			if(scspConfirmacioPeticioPinbal!=null && scspConfirmacioPeticioPinbal.getAtributos()!=null) {
 				
-				ScspAtributos scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
+				ScspAtributosPinbal scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
 				respostaPinbal.setIdPeticion(scspAtributos.getIdPeticion());
 				dadesConsultaPinbal.setCodiProcediment(PluginHelper.serveiConsultaDades);
 				
@@ -2074,7 +2074,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient, 
 				PluginHelper.serveiConsultaDades);
 		
-			ScspJustificant justificant = new ScspJustificant();
+			ScspJustificantPinbal justificant = new ScspJustificantPinbal();
 		
 			if (respostaPinbal!=null) {
 				justificant = respostaPinbal.getJustificant();
@@ -2210,7 +2210,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			
 			if(scspConfirmacioPeticioPinbal!=null && scspConfirmacioPeticioPinbal.getAtributos()!=null) {
 				
-				ScspAtributos scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
+				ScspAtributosPinbal scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
 				respostaPinbal.setIdPeticion(scspAtributos.getIdPeticion());
 				dadesConsultaPinbal.setCodiProcediment(PluginHelper.serveiVerificacioDades);
 				
@@ -2257,7 +2257,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					expedient, 
 					PluginHelper.serveiVerificacioDades);
 			
-			ScspJustificant justificant = new ScspJustificant();
+			ScspJustificantPinbal justificant = new ScspJustificantPinbal();
 			
 			if (respostaPinbal!=null) {
 				justificant = respostaPinbal.getJustificant();	
@@ -2362,7 +2362,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			
 			if(scspConfirmacioPeticioPinbal!=null && scspConfirmacioPeticioPinbal.getAtributos()!=null) {
 				
-				ScspAtributos scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
+				ScspAtributosPinbal scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
 				respostaPinbal.setIdPeticion(scspAtributos.getIdPeticion());
 				dadesConsultaPinbal.setCodiProcediment(PluginHelper.serveiObligacionsTributaries);
 				
@@ -2409,7 +2409,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					expedient, 
 					PluginHelper.serveiObligacionsTributaries);
 			
-			ScspJustificant justificant = new ScspJustificant();
+			ScspJustificantPinbal justificant = new ScspJustificantPinbal();
 			
 			if (respostaPinbal!=null) {
 				justificant = respostaPinbal.getJustificant();
@@ -2870,7 +2870,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			ZonaperExpedientDto dadesExpedient) {
 		
 			String identificador = expedient.getNumeroDefault();
-			String clau = new Long(System.currentTimeMillis()).toString();
+			String clau = Long.valueOf(System.currentTimeMillis()).toString();
 			dadesExpedient.setExpedientIdentificador(identificador);
 			dadesExpedient.setExpedientClau(clau);
 			pluginHelper.tramitacioZonaperExpedientCrear(expedient, dadesExpedient);
@@ -2986,7 +2986,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"nodeName=" + nodeName + ", " +
 				"cancelarTasques=" + cancelarTasques + ")");
 		expedientHelper.tokenRetrocedir(
-				new Long(tokenId).toString(),
+				Long.valueOf(tokenId).toString(),
 				nodeName,
 				cancelarTasques);
 	}

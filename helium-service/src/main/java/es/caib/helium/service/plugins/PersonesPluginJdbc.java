@@ -16,11 +16,11 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import es.caib.helium.commons.plugins.persones.DadesPersona;
-import es.caib.helium.commons.plugins.persones.DadesPersona.Sexe;
-import es.caib.helium.commons.plugins.persones.PersonesPlugin;
-import es.caib.helium.commons.plugins.persones.PersonesPluginException;
-import es.caib.helium.service.utils.GlobalProperties;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.integracio.plugins.persones.DadesPersona;
+import es.caib.helium.integracio.plugins.persones.DadesPersona.Sexe;
+import es.caib.helium.integracio.plugins.persones.PersonesPlugin;
+import es.caib.helium.integracio.plugins.persones.PersonesPluginException;
 
 public class PersonesPluginJdbc implements PersonesPlugin {
 	

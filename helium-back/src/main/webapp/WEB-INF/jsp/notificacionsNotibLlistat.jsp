@@ -75,8 +75,8 @@
 		<div class="col-md-3">
 			<hel:inputSuggest 
 					name="unitatOrganitzativaCodi" 
-					urlConsultaInicial="/helium/unitatOrganitzativa/suggestInici" 
-					urlConsultaLlistat="/helium/unitatOrganitzativa/suggest" 
+					urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
+					urlConsultaLlistat="/unitatOrganitzativa/suggest" 
 					placeholderKey="notificacio.llistat.filtre.camp.organ.emissor"
 					inline="true"
 					/>	

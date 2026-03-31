@@ -51,6 +51,7 @@ import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
 import es.caib.helium.commons.dto.procediment.ProgresActualitzacioDto;
 import es.caib.helium.commons.exception.ExecucioMassivaException;
 import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientService;
@@ -84,7 +85,6 @@ import es.caib.helium.service.helper.IndexHelper;
 import es.caib.helium.service.helper.MonitorIntegracioHelper;
 import es.caib.helium.service.helper.NotificacioHelper;
 import es.caib.helium.service.helper.PluginHelper;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Servei per gestionar els terminis dels expedients

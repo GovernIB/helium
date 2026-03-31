@@ -180,8 +180,8 @@ tr.clicable {
 						<div class="guardar incorporar">
 							<hel:inputSuggest 
 								name="expedientId"
-								urlConsultaInicial="/helium/anotacio/suggest/expedient/inici" 
-								urlConsultaLlistat="/helium/anotacio/suggest/expedient/llista/${anotacioAcceptarCommand.expedientTipusId}" 
+								urlConsultaInicial="/anotacio/suggest/expedient/inici" 
+								urlConsultaLlistat="/anotacio/suggest/expedient/llista/${anotacioAcceptarCommand.expedientTipusId}" 
 								textKey="anotacio.form.acceptar.camp.expedient"
 								disabled="${anotacioAcceptarCommand.expedientTipusId == null}"/>
 						</div>

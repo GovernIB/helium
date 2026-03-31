@@ -3,8 +3,6 @@
  */
 package es.caib.helium.commons.registre;
 
-import es.caib.helium.commons.plugins.registre.RegistreInteressatDocumentTipusEnum;
-import es.caib.helium.commons.plugins.registre.RegistreInteressatTipusEnum;
 
 /**
  * Classe que representa un interessat d'una anotació de registre.

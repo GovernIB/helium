@@ -22,6 +22,11 @@
 <c:set var="campPath" value="${name}"/>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 <c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
+
+
+<c:url value="${urlConsultaLlistat}" var="fullUrlConsultaLlistat" />
+<c:url value="${urlConsultaInicial}" var="fullUrlConsultaInicial" />
+
 <c:choose>
 	<c:when test="${not empty placeholderKey}"><c:set var="placeholderText"><spring:message code="${placeholderKey}"/></c:set></c:when>
 	<c:otherwise><c:set var="placeholderText" value="${placeholder}"/></c:otherwise>
@@ -40,13 +45,13 @@
 				</c:if>
 			</label>
 			<div class="controls col-xs-${12 - labelSize}">
-				<form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}" />
+				<form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"  data-url-llistat="${fullUrlConsultaLlistat}" data-url-inicial="${fullUrlConsultaInicial}" />
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
 		</div>
 	</c:when>
 	<c:otherwise>
-		<form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}"/>
+		<form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}"  data-url-llistat="${fullUrlConsultaLlistat}" data-url-inicial="${fullUrlConsultaInicial}"/>
 	</c:otherwise>
 </c:choose>
 <script type="text/javascript">

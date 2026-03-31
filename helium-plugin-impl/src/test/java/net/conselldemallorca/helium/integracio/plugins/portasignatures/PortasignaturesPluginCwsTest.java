@@ -12,6 +12,11 @@ import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import es.caib.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
+import es.caib.helium.integracio.plugins.portasignatures.PortafirmesFluxBloc;
+import es.caib.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
+import es.caib.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
+
 /**
  * Test de la implementació de l'API de l'arxiu que utilitza
  * l'API REST de l'arxiu de la CAIB.
@@ -42,7 +47,6 @@ public class PortasignaturesPluginCwsTest {
 		System.setProperty(
 				"app.portasignatures.plugin.checkcerts",
 				"false");
-		portasignaturesPlugin = new PortasignaturesPluginCaib();
 	}
 
 	@Test

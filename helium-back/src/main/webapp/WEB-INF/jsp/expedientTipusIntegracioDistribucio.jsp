@@ -24,8 +24,8 @@
 				<div id="inputs_integracioDistribucio" style="display:${expedientTipusIntegracioDistribucioCommand.actiu? 'inline' : 'none'}">
 						<hel:inputSuggest 
 							name="codiProcediment" 
-							urlConsultaInicial="/helium/procediment/suggestInici" 
-							urlConsultaLlistat="/helium/procediment/suggest" 
+							urlConsultaInicial="/procediment/suggestInici" 
+							urlConsultaLlistat="/procediment/suggest" 
 							placeholderKey="expedient.tipus.integracio.distribucio.codiProcediment"
 							textKey="expedient.tipus.integracio.distribucio.codiProcediment"
 							info="expedient.tipus.integracio.distribucio.codiProcediment.comment"

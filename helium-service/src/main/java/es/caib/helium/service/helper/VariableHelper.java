@@ -28,6 +28,8 @@ import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.dto.ValidacioDto;
 import es.caib.helium.commons.exception.SistemaExternException;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.dto.engine.WDelegationInfo;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ExpedientService;
@@ -56,7 +58,6 @@ import es.caib.helium.persistence.repository.DefinicioProcesRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.TascaRepository;
 import es.caib.helium.service.helpers.MesuresTemporalsHelper;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Helper per a gestionar les variables dels expedients.

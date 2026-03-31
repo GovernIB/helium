@@ -19,13 +19,14 @@ import es.caib.helium.commons.domini.ParellaCodiValor;
 import es.caib.helium.commons.dto.FormulariExternDto;
 import es.caib.helium.commons.formulari.IniciFormulari;
 import es.caib.helium.commons.formulari.RespostaIniciFormulari;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.persistence.common.jbpm.JbpmVars;
 import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.FormulariExtern;
 import es.caib.helium.persistence.entity.Tasca;
 import es.caib.helium.persistence.repository.FormulariExternRepository;
 import es.caib.helium.service.helper.WsClientHelper.WsClientAuth;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Helper per a accedir a la funcionalitat dels plugins.

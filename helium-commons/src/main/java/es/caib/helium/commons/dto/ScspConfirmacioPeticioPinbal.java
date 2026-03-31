@@ -9,13 +9,13 @@ package es.caib.helium.commons.dto;
  */
 public class ScspConfirmacioPeticioPinbal {
 	
-	private ScspAtributos atributos;
+	private ScspAtributosPinbal atributos;
 
-	public ScspAtributos getAtributos() {
+	public ScspAtributosPinbal getAtributos() {
 		return this.atributos;
 	}
 
-	public void setAtributos(ScspAtributos atributos) {
+	public void setAtributos(ScspAtributosPinbal atributos) {
 		this.atributos = atributos;
 	}
 }

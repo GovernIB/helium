@@ -13,9 +13,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import es.caib.helium.commons.dto.PinbalConsentimentEnum;
+import es.caib.helium.commons.dto.ScspRespostaPinbal;
+import es.caib.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
+import es.caib.helium.integracio.plugins.pinbal.Funcionari;
+import es.caib.helium.integracio.plugins.pinbal.PinbalPlugin;
+import es.caib.helium.integracio.plugins.pinbal.Titular;
 import es.caib.pinbal.client.recobriment.model.ScspJustificante;
-import net.conselldemallorca.helium.v3.core.api.dto.PinbalConsentimentEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 
 /**
  * Test del client genèric del recobriment.

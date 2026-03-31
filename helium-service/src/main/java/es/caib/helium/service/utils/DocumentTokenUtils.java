@@ -10,6 +10,8 @@ import javax.crypto.spec.DESKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
+import es.caib.helium.commons.utils.GlobalProperties;
+
 /**
  * Classe per a la codificació i descodificació de tokens per a accedir als
  * documents

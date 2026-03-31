@@ -14,6 +14,11 @@ import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import es.caib.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
+import es.caib.helium.integracio.plugins.portasignatures.PortafirmesFluxBloc;
+import es.caib.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
+import es.caib.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
+
 /**
  * Test de la implementació del plugin d'enviament al Portasignatures per l'API REST simple del 
  * PortaFIB.
@@ -45,7 +50,6 @@ public class PortasignaturesPluginPortafibSimpleTest {
 		System.setProperty(
 				"app.portasignatures.plugin.portafib.perfil",
 				"");
-		portasignaturesPlugin = new PortasignaturesPluginPortafibSimple();
 	}
 
 	@Test

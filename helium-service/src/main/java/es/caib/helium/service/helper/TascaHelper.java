@@ -25,6 +25,7 @@ import es.caib.helium.commons.dto.Sexe;
 import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.TascaNoDisponibleException;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.dto.engine.WDelegationInfo;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;

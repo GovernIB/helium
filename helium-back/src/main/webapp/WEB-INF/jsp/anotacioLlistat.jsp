@@ -59,8 +59,8 @@
 		<div class="col-md-4">							
 			<hel:inputSuggest 
 					name="codiProcediment" 
-					urlConsultaInicial="/helium/procediment/suggestInici" 
-					urlConsultaLlistat="/helium/procediment/suggest" 
+					urlConsultaInicial="/procediment/suggestInici" 
+					urlConsultaLlistat="/procediment/suggest" 
 					placeholderKey="anotacio.llistat.filtre.camp.codiProcediment"
 					inline="true"
 					/>	
@@ -81,8 +81,8 @@
 		<div class="col-md-4">
 			<hel:inputSuggest 
 					name="unitatOrganitzativaCodi" 
-					urlConsultaInicial="/helium/unitatOrganitzativa/suggestInici" 
-					urlConsultaLlistat="/helium/unitatOrganitzativa/suggest" 
+					urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
+					urlConsultaLlistat="/unitatOrganitzativa/suggest" 
 					placeholderKey="anotacio.llistat.filtre.camp.unitat.organitzativa.desti"
 					inline="true"
 					/>	

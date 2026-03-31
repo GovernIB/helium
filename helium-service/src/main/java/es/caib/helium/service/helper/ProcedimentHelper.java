@@ -22,7 +22,7 @@ import es.caib.helium.commons.dto.procediment.ProgresActualitzacioDto;
 import es.caib.helium.commons.dto.procediment.ProgresActualitzacioDto.ActualitzacioInfo;
 import es.caib.helium.commons.dto.procediment.ProgresActualitzacioDto.NivellInfo;
 import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.commons.plugins.procediment.UnitatAdministrativa;
+import es.caib.helium.integracio.plugins.procediment.UnitatAdministrativa;
 import es.caib.helium.logic.intf.service.ParametreService;
 import es.caib.helium.persistence.entity.Parametre;
 import es.caib.helium.persistence.entity.Procediment;
@@ -56,7 +56,7 @@ public class ProcedimentHelper {
 	 */
 	@Transactional( propagation = Propagation.REQUIRES_NEW)
 	public void actualtizarProcedimentsNoVigents(
-			Map<String, es.caib.helium.commons.plugins.procediment.Procediment> procedimentsRolsacMap,
+			Map<String, es.caib.helium.integracio.plugins.procediment.Procediment> procedimentsRolsacMap,
 			ProgresActualitzacioDto progres,
 			ProcedimentTipusEnumDto tipus) {
 
@@ -98,7 +98,7 @@ public class ProcedimentHelper {
 	 */
 	@Transactional( propagation = Propagation.REQUIRES_NEW)
 	public void actualitzaProcediment(
-			es.caib.helium.commons.plugins.procediment.Procediment procedimentRolsac, 
+			es.caib.helium.integracio.plugins.procediment.Procediment procedimentRolsac, 
 			Map<String, UnitatOrganitzativa> unitatsOrganitzatives,
 			ProgresActualitzacioDto progres) {
 		
@@ -123,7 +123,7 @@ public class ProcedimentHelper {
 						ProcedimentEstatEnumDto.VIGENT,
 						procedimentRolsac.isComu(),
 						unitatOrganitzativa)
-						.tipus(procedimentRolsac.getTipus())
+//						.tipus(procedimentRolsac.getTipus())
 						.built();
 				procedimentRepository.save(procediment);
 				info.setText("Nou procediment creat");
@@ -194,7 +194,7 @@ public class ProcedimentHelper {
 	 */
 	private UnitatOrganitzativa resoldreUnitatOrganitzativa(
 			Map<String, UnitatOrganitzativa> unitatsOranitzatives,
-			es.caib.helium.commons.plugins.procediment.Procediment procedimentRolsac, 
+			es.caib.helium.integracio.plugins.procediment.Procediment procedimentRolsac, 
 			ProgresActualitzacioDto progres, 
 			ActualitzacioInfo info) {
 		UnitatOrganitzativa uo = null;

@@ -24,6 +24,8 @@ import es.caib.helium.commons.dto.EmailTipusEnumDto;
 import es.caib.helium.commons.dto.PermisDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.persistence.entity.Anotacio;
 import es.caib.helium.persistence.entity.AnotacioEmail;
 import es.caib.helium.persistence.entity.Expedient;
@@ -36,7 +38,6 @@ import es.caib.helium.persistence.repository.AnotacioEmailRepository;
 import es.caib.helium.persistence.repository.ProcedimentRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 import es.caib.helium.persistence.repository.UsuariPreferenciesRepository;
-import es.caib.helium.service.utils.GlobalProperties;
 import es.caib.helium.service.utils.StringUtilsHelium;
 
 

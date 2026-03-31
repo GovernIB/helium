@@ -3,26 +3,19 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.portasignatures;
 
-import static org.junit.Assert.fail;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.ApiFlowTemplateSimple;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleFlowTemplateList;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleGetTransactionIdRequest;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleKeyValue;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleStartTransactionRequest;
-import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleViewFlowTemplateRequest;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.jersey.ApiFlowTemplateSimpleJersey;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,9 +23,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
-import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPluginPortafibRest;
+import es.caib.helium.commons.exception.SistemaExternException;
+import es.caib.helium.integracio.plugins.portasignatures.PortafirmesFluxResposta;
 
 
 /**
@@ -43,9 +35,6 @@ import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPluginPo
  */
 public class PortafirmesPluginFluxFirmaTest {
 
-	@Autowired
-	PluginHelper pluginHelper;
-	
 	private static final String BASE_URL = "https://dev.caib.es/portafib/common/rest/apiflowtemplatesimple/v1/";//"https://dev.caib.es/portafib";
 	private static final String USERNAME = "$ripea_portafib";
 	private static final String PASSWORD = "ripea_portafib";
@@ -71,8 +60,6 @@ public class PortafirmesPluginFluxFirmaTest {
 				"");
 		
 	}
-	PortasignaturesPluginPortafibSimple plugin;
-	
 
 //	@Test
 //	public void iniciarFluxDeFirma() throws SistemaExternException {

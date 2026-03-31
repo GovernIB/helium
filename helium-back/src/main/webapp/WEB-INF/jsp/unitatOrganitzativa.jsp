@@ -58,8 +58,8 @@
 			<div class="col-md-3">
 				<hel:inputSuggest 
 					name="codiUnitatSuperior" 
-					urlConsultaInicial="/helium/unitatOrganitzativa/suggestInici" 
-					urlConsultaLlistat="/helium/unitatOrganitzativa/suggest" 
+					urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
+					urlConsultaLlistat="/unitatOrganitzativa/suggest" 
 					textKey="unitat.organitzativa.unitat.superior" 
 					placeholderKey="unitat.organitzativa.unitat.superior"
 					inline="true"/>

@@ -11,7 +11,7 @@ import java.util.Date;
 public class ScspRespostaPinbal {
 	
 	private String idPeticion;
-	private ScspJustificant justificant;
+	private ScspJustificantPinbal justificant;
 	private Date dataProcessament;
 	private PeticioPinbalEstatEnum estatAsincron;
 	private String errorProcessament;
@@ -22,10 +22,10 @@ public class ScspRespostaPinbal {
 	public void setIdPeticion(String idPeticion) {
 		this.idPeticion = idPeticion;
 	}
-	public ScspJustificant getJustificant() {
+	public ScspJustificantPinbal getJustificant() {
 		return justificant;
 	}
-	public void setJustificant(ScspJustificant justificant) {
+	public void setJustificant(ScspJustificantPinbal justificant) {
 		this.justificant = justificant;
 	}
 	public Date getDataProcessament() {

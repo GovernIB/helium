@@ -39,6 +39,7 @@ import es.caib.helium.commons.dto.Sexe;
 import es.caib.helium.commons.dto.TascaCompleteDto;
 import es.caib.helium.commons.dto.UsuariPreferenciesDto;
 import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.AdminService;
 import es.caib.helium.persistence.entity.Domini;
 import es.caib.helium.persistence.entity.Entorn;
@@ -58,7 +59,6 @@ import es.caib.helium.service.helper.MonitorIntegracioHelper;
 import es.caib.helium.service.helper.PluginHelper;
 import es.caib.helium.service.helper.UsuariActualHelper;
 import es.caib.helium.service.helpers.MesuresTemporalsHelper;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Servei per gestionar la configuració de l'aplicació.

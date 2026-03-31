@@ -178,7 +178,7 @@
 					</div>
 			</div>						
 			</div>
-			<hel:inputSuggest inline="false" name="responsableDefecteCodi" urlConsultaInicial="/helium/tasca/persona/suggestInici" urlConsultaLlistat="/helium/tasca/persona/suggest" textKey="expedient.tipus.form.camp.responsableDefecteCodi" placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi"/>
+			<hel:inputSuggest inline="false" name="responsableDefecteCodi" urlConsultaInicial="/tasca/persona/suggestInici" urlConsultaLlistat="/tasca/persona/suggest" textKey="expedient.tipus.form.camp.responsableDefecteCodi" placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi"/>
 			<hel:inputCheckbox name="restringirPerGrup" textKey="expedient.tipus.form.camp.restringirPerGrup" info="expedient.tipus.form.camp.restringirPerGrup.info" />
 			<hel:inputCheckbox name="seleccionarAny" textKey="expedient.tipus.form.camp.seleccionarAny" />
 			<c:if test="${potDissenyar}">

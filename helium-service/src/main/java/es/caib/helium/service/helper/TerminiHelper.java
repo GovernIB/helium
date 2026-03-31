@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import es.caib.helium.commons.dto.TerminiIniciatDto;
 import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.Expedient;
@@ -26,7 +28,6 @@ import es.caib.helium.persistence.repository.FestiuRepository;
 import es.caib.helium.persistence.repository.RegistreRepository;
 import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import es.caib.helium.persistence.repository.TerminiRepository;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Helper per a enviament de correus

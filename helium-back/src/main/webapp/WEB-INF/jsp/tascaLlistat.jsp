@@ -376,12 +376,12 @@
 							<c:choose>
 								<c:when test="${not empty expedientTipus and expedientTipus.permisTaskSupervision}">
 									<div class="col-md-12" id="responsableDiv">
-										<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+										<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="/tasca/persona/suggestInici" urlConsultaLlistat="/tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 									</div>
 								</c:when>
 								<c:otherwise>
 									<div class="col-md-12" id="responsableDiv" style="display: none">
-										<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+										<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="/tasca/persona/suggestInici" urlConsultaLlistat="/tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 									</div>
 								</c:otherwise>
 								</c:choose>

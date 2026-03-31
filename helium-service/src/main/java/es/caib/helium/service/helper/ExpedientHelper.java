@@ -59,6 +59,8 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.dto.engine.WToken;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -104,7 +106,6 @@ import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 //import es.caib.helium.service.helpers.LuceneHelper;
 import es.caib.helium.service.helpers.MesuresTemporalsHelper;
 import es.caib.helium.service.security.ExtendedPermission;
-import es.caib.helium.service.utils.GlobalProperties;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
@@ -1434,7 +1435,7 @@ public class ExpedientHelper {
 			ExpedientTipus expedientTipus,
 			int any,
 			long increment) {
-		long seq = expedientTipus.getSequenciaDefault();
+		long seq = expedientTipus.getSequenciaDef();
 		return getNumeroExpedientExpressio(
 				expedientTipus,
 				getNumexpDefaultExpression(),
@@ -1520,7 +1521,7 @@ public class ExpedientHelper {
 			if (any != 0) {
 				if (numeroDefault) {
 					if (expedientTipus.getSequenciaDefaultAny().containsKey(any)) {
-						seq = expedientTipus.getSequenciaDefaultAny().get(any).getSequenciaDefault() + increment;
+						seq = expedientTipus.getSequenciaDefaultAny().get(any).getSequenciadefault() + increment;
 					} else {
 						// TODO: podriem comprovar, segons el format del número per defecte si hi ha expedients ja creats de 
 						// l'any, i d'aquesta manera assignar com a número inicial el major utilitzat + 1

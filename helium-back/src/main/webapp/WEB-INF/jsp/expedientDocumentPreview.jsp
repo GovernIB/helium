@@ -61,7 +61,7 @@
 
     $.ajax({
         type: 'GET',
-        url: '/helium/modal/expedient/' + expedientId + '/document/' + documentId + '/returnFitxer',
+        url: 'modal/expedient/' + expedientId + '/document/' + documentId + '/returnFitxer',
         success: function(json) {
             if (json.error) {
                 $('#viewer').prepend('<div class="alert alert-danger">' + json.errorMsg + '</div>');

@@ -71,7 +71,7 @@ tr.clicable {
             return;
         }
 
-        var pdfUrl = '/helium/anotacio/' + anotacioId + '/annex/' + annexId + '/returnFitxer';
+        var pdfUrl = '<c:url value="/anotacio"/>/' + anotacioId + '/annex/' + annexId + '/returnFitxer';
 
         var $previewRow = $(`
             <tr class="preview-row">

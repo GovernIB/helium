@@ -19,13 +19,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import es.caib.helium.commons.dto.EntornDto;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.persistence.entity.AreaMembre;
 import es.caib.helium.persistence.entity.Entorn;
 import es.caib.helium.persistence.repository.AreaJbpmIdRepository;
 import es.caib.helium.persistence.repository.AreaMembreRepository;
 import es.caib.helium.persistence.repository.EntornRepository;
 import es.caib.helium.service.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Helper per consultes de permisos sobre l'usuari actual.

@@ -67,8 +67,8 @@
 			<div class="col-md-3">
 				<hel:inputSuggest 
 					name="unitatOrganitzativa" 
-					urlConsultaInicial="/helium/unitatOrganitzativa/suggestInici" 
-					urlConsultaLlistat="/helium/unitatOrganitzativa/suggest" 
+					urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
+					urlConsultaLlistat="/unitatOrganitzativa/suggest" 
 					textKey="procediment.llistat.columna.unitatOrganitzativa" 
 					placeholderKey="procediment.llistat.columna.unitatOrganitzativa"
 					inline="true" />			

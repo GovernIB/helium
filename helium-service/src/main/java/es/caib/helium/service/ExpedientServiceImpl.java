@@ -100,9 +100,8 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.TramitacioException;
-import es.caib.helium.commons.exception.TramitacioHandlerException;
 import es.caib.helium.commons.exception.TramitacioValidacioException;
-import es.caib.helium.logic.intf.dto.engine.WExecucioHandlerException;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.AnotacioService;
@@ -183,7 +182,6 @@ import es.caib.helium.service.helper.ExpedientRegistreHelper;
 import es.caib.helium.service.helper.ExpedientTipusHelper;
 import es.caib.helium.service.helper.HerenciaHelper;
 import es.caib.helium.service.helper.IndexHelper;
-import es.caib.helium.service.helper.MessageHelper;
 import es.caib.helium.service.helper.MonitorIntegracioHelper;
 import es.caib.helium.service.helper.NotificacioHelper;
 import es.caib.helium.service.helper.PaginacioHelper;
@@ -683,8 +681,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				processInstancesTree,
 				new Comparator<WProcessInstance>() {
 					public int compare(WProcessInstance o1, WProcessInstance o2) {
-						Long l1 = new Long(o1.getId());
-						Long l2 = new Long(o2.getId());
+						Long l1 = o1.getId();
+						Long l2 = o2.getId();
 						return l2.compareTo(l1);
 					}
 				});

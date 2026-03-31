@@ -80,8 +80,8 @@ public class ProcedimentServiceImpl implements ProcedimentService{
 						filtre.getCodiSia() != null ? filtre.getCodiSia() : "", 
 						filtre.getEstat() == null, 
 						filtre.getEstat(),
-						filtre.getTipus() == null, 
-						filtre.getTipus(),
+//						filtre.getTipus() == null, 
+//						filtre.getTipus(),
 						paginacioHelper.toSpringDataPageable(paginacioParams, mapeigPropietatsOrdenacio)), 
 				ProcedimentDto.class);
 
@@ -134,7 +134,7 @@ public class ProcedimentServiceImpl implements ProcedimentService{
 			
 			// Consultar els procediments de l'entitat amb 3 reintents
 			progres.addInfo("Obtenint tots els procediments per l'entitat " + CODI_DIR3 + "...");
-			List<es.caib.helium.commons.plugins.procediment.Procediment> procedimentsRolsac = null;
+			List<es.caib.helium.integracio.plugins.procediment.Procediment> procedimentsRolsac = null;
 			int reintents = 1;
 			boolean errorRolsac = false;
 			Exception exRolsac = null;
@@ -162,9 +162,9 @@ public class ProcedimentServiceImpl implements ProcedimentService{
 			// Processa els procediments consultats
 			progres.addInfo("S'han obtingut " + procedimentsRolsac.size() + " procediments vigents de Rolsac.");
 			// Crea un Map amb els procediments de Rolsac per codi
-			Map<String, es.caib.helium.commons.plugins.procediment.Procediment> procedimentsRolsacMap =
-					new HashMap<String, es.caib.helium.commons.plugins.procediment.Procediment>();
-			for (es.caib.helium.commons.plugins.procediment.Procediment procedimentRolsac 
+			Map<String, es.caib.helium.integracio.plugins.procediment.Procediment> procedimentsRolsacMap =
+					new HashMap<String, es.caib.helium.integracio.plugins.procediment.Procediment>();
+			for (es.caib.helium.integracio.plugins.procediment.Procediment procedimentRolsac 
 					: procedimentsRolsac) {
 				procedimentsRolsacMap.put(procedimentRolsac.getCodi(), procedimentRolsac);
 			}
@@ -178,7 +178,7 @@ public class ProcedimentServiceImpl implements ProcedimentService{
 
 			// Map<codi unitat rolsac, unitatOrganitzativa> per no haver de consultar la UO de totes les unitats per codi rolsac
 			Map<String, UnitatOrganitzativa> unitatsOrganitzatives = new HashMap<String, UnitatOrganitzativa>();
-			for (es.caib.helium.commons.plugins.procediment.Procediment procedimentRolsac : procedimentsRolsac) {
+			for (es.caib.helium.integracio.plugins.procediment.Procediment procedimentRolsac : procedimentsRolsac) {
 				// Tracata el procediment en una transacció a part.
 				procedimentHelper.actualitzaProcediment(procedimentRolsac, unitatsOrganitzatives, progres);
 			}
@@ -231,7 +231,7 @@ public class ProcedimentServiceImpl implements ProcedimentService{
 			
 			// Consultar els procediments de l'entitat amb 3 reintents
 			progres.addInfo("Obtenint tots els serveis per l'entitat " + CODI_DIR3 + "...");
-			List<es.caib.helium.commons.plugins.procediment.Procediment> serveisRolsac = null;
+			List<es.caib.helium.integracio.plugins.procediment.Procediment> serveisRolsac = null;
 			int reintents = 1;
 			boolean errorServeisRolsac = false;
 			Exception exRolsac = null;
@@ -261,9 +261,9 @@ public class ProcedimentServiceImpl implements ProcedimentService{
 			// Processa els procediments consultats
 			progres.addInfo("S'han obtingut " + serveisRolsac.size() + " serveis vigents de Rolsac.");
 			// Crea un Map amb els procediments de Rolsac per codi
-			Map<String, es.caib.helium.commons.plugins.procediment.Procediment> procedimentsRolsacMap =
-					new HashMap<String, es.caib.helium.commons.plugins.procediment.Procediment>();
-			for (es.caib.helium.commons.plugins.procediment.Procediment procedimentRolsac 
+			Map<String, es.caib.helium.integracio.plugins.procediment.Procediment> procedimentsRolsacMap =
+					new HashMap<String, es.caib.helium.integracio.plugins.procediment.Procediment>();
+			for (es.caib.helium.integracio.plugins.procediment.Procediment procedimentRolsac 
 					: serveisRolsac) {
 				procedimentsRolsacMap.put(procedimentRolsac.getCodi(), procedimentRolsac);
 			}
@@ -277,7 +277,7 @@ public class ProcedimentServiceImpl implements ProcedimentService{
 
 			// Map<codi unitat rolsac, unitatOrganitzativa> per no haver de consultar la UO de totes les unitats per codi rolsac
 			Map<String, UnitatOrganitzativa> unitatsOrganitzatives = new HashMap<String, UnitatOrganitzativa>();
-			for (es.caib.helium.commons.plugins.procediment.Procediment procedimentRolsac : serveisRolsac) {
+			for (es.caib.helium.integracio.plugins.procediment.Procediment procedimentRolsac : serveisRolsac) {
 				// Tracata el procediment en una transacció a part.
 				procedimentHelper.actualitzaProcediment(procedimentRolsac, unitatsOrganitzatives, progres);
 			}

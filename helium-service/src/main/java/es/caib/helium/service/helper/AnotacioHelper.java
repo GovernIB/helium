@@ -41,6 +41,7 @@ import es.caib.helium.commons.dto.InteressatDocumentTipusEnumDto;
 import es.caib.helium.commons.dto.InteressatTipusEnumDto;
 import es.caib.helium.commons.dto.DadesEnviamentDto.EntregaPostalTipus;
 import es.caib.helium.commons.exception.PermisDenegatException;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.persistence.common.jbpm.JbpmVars;
 import es.caib.helium.persistence.entity.Alerta;
 import es.caib.helium.persistence.entity.Alerta.AlertaPrioritat;

@@ -178,8 +178,8 @@ div.dropdown-menu.loading .rmodal_carrecs {
 						<hel:inputSuggest 
 							inline="false" 
 							name="portafirmesResponsables" 
-							urlConsultaInicial="/helium/personaCarrec/suggestInici" 
-							urlConsultaLlistat="/helium/expedient/persona/suggest" 
+							urlConsultaInicial="/personaCarrec/suggestInici" 
+							urlConsultaLlistat="/expedient/persona/suggest" 
 							textKey="expedient.document.enviar.portasignatures.camp.responsables" 
 							placeholderKey="expedient.document.enviar.portasignatures.camp.responsables" 
 							multiple="true"/>

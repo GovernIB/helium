@@ -16,9 +16,9 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.exception.SistemaExternException;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.persistence.entity.Domini;
 import es.caib.helium.persistence.entity.Domini.OrigenCredencials;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * 

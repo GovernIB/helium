@@ -24,7 +24,7 @@ $(document).ready(function() {
 		var url = $(this).attr('action'); 
 		$.ajax({
 			type: "POST",
-			url: "/helium/expedientTipus/${expedientTipus.id}/integracioPinbal",
+			url: '<c:url value="/expedientTipus/${expedientTipus.id}/integracioPinbal"/>',
 			data: $(this).serialize(),
 			success: function(ajaxResponse) {
 				if (ajaxResponse.estatError) {

@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>es.caib.helium</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.3</version>
+		<version>4.0</version>
 	</parent>
 	<artifactId>helium-plugin-impl</artifactId>
 	<properties>
@@ -19,97 +19,13 @@
 			<version>${lombok.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>es.caib</groupId>
-			<artifactId>signaturacaib</artifactId>
-			<version>3.1.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/signaturacaib.core-3.1.0-api-unsigned.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>es.caib</groupId>
-			<artifactId>seyconsession-common</artifactId>
-			<version>3.2.8-caib7</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/libext/seyconsession-common.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss</groupId>
-			<artifactId>jboss-jmx</artifactId>
-			<version>3.2.8</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/libext/jboss-jmx.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>es.caib</groupId>
-			<artifactId>valcert-client-axis</artifactId>
-			<version>1.5</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/valcert-client-axis-1.5.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>es.caib</groupId>
-			<artifactId>valcert-sar-axis</artifactId>
-			<version>1.5</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/valcert-sar-axis-1.5-HELIUM.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>org.alfresco</groupId>
-			<artifactId>webservice-client</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/alfresco-web-service-client.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>es.caib</groupId>
-			<artifactId>sistra-wsdl</artifactId>
-			<version>1.1.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/sistra-wsdl-1.1.0.jar</systemPath>
-		</dependency>
+		
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>esbcim-wsdl</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/esbcim-wsdl-1.0.jar</systemPath>
+			<artifactId>helium-plugin</artifactId>
+			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>es.caib</groupId>
-			<artifactId>regweb-client</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/regweb-client.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>es.caib</groupId>
-			<artifactId>regweb-ws</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/regweb-ws.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>es.caib</groupId>
-			<artifactId>regweb-logic</artifactId>
-			<version>1.0.5</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/logic-1.0.5-client.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>es.caib</groupId>
-			<artifactId>portasignatures-wsdl</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/portasignatures-wsdl.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>netscape</groupId>
-			<artifactId>jsobject</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/libext/plugin.jar</systemPath>
-		</dependency>
+		
 		<dependency>
 			<groupId>axis</groupId>
 			<artifactId>axis</artifactId>
@@ -122,13 +38,14 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
- 		<dependency>
-			<groupId>es.caib.portafib</groupId>
-			<artifactId>portafib-ws-api</artifactId>
-			<version>1.1</version>
-		</dependency>
 		
 		<!-- Portafirmes API REST -->
+		<dependency>
+			<groupId>es.caib.portafib</groupId>
+			<artifactId>portafib-ws-api</artifactId>
+			<version>${portafib.version}</version>
+		</dependency>
+		
 		<dependency>
 			<artifactId>apifirmaasyncsimple-api</artifactId>
 			<groupId>org.fundaciobit.apisib.apifirmaasyncsimple</groupId>
@@ -230,31 +147,16 @@
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
-		<!--dependency>
-			<groupId>jaxen</groupId>
-			<artifactId>jaxen</artifactId>
-			<version>1.1.1</version>
-			<type>jar</type>
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>xom</artifactId>
-					<groupId>xom</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency-->
 		<!-- Dependències REGWEB3 -->
-		<dependency>
+		<!--<dependency>
             <groupId>es.caib.regweb3</groupId>
             <artifactId>regweb3-utils</artifactId>
-            <version>${regweb3.version}</version>
-            <scope>compile</scope>
-        </dependency>
+            <version>${regweb.version}</version>
+        </dependency>-->
         <dependency>
             <groupId>es.caib.regweb3</groupId>
             <artifactId>regweb3-ws-api</artifactId>
-            <version>${regweb3.version}</version>
-            <scope>compile</scope>
+            <version>${regweb.version}</version>
         </dependency>
 		<dependency>
 		    <groupId>wsdl4j</groupId>
@@ -281,17 +183,7 @@
 			<type>jar</type>
 		</dependency>
 		<!-- /Dependències Firma servidor -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-plugin-api</artifactId>
-			<version>${helium.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-core-common</artifactId>
-			<version>${helium.version}</version>
-		</dependency>
-		        
+		
         <dependency>
 			<groupId>es.caib.notib</groupId>
 			<artifactId>notib-client</artifactId>
@@ -318,10 +210,40 @@
 			<artifactId>pinbal-client</artifactId>
 			<version>1.4.40.2</version>		
 		</dependency>
+		<dependency>
+			<groupId>es.caib.dir3caib</groupId>
+			<artifactId>dir3caib-ws-api</artifactId>
+			<version>${dir3caib.version}</version>
+		</dependency>
+		<dependency>
+			 <groupId>org.fundaciobit.plugins</groupId>
+			 <artifactId>plugins-api</artifactId>
+			 <version>1.0.0</version>
+			 <scope>provided</scope>
+		 </dependency>
+		 <dependency>
+			 <groupId>org.fundaciobit.plugins</groupId>
+			 <artifactId>plugin-signatureweb-api</artifactId>
+			 <version>2.0.0</version>
+			 <scope>provided</scope>
+		 </dependency>
+		 
+		 <dependency>
+			<groupId>org.glassfish.corba</groupId>
+			<artifactId>glassfish-corba-orb</artifactId>
+			<version>4.2.0</version>
+		</dependency>
+		 
+		<dependency>
+		    <groupId>junit</groupId>
+		    <artifactId>junit</artifactId>
+		    <scope>test</scope>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
+			<!--<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<fork>true</fork>
@@ -329,7 +251,7 @@
 					<source>${java.version}</source>
 					<target>${java.version}</target>
 				</configuration>
-			</plugin>
+			</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>

@@ -44,7 +44,7 @@ $(document).ready(function() {
 		var url = $(this).attr('action'); 
 		$.ajax({
 			type: "POST",
-			url: "/helium/expedientTipus/${expedientTipus.id}/metadadesNti",
+			url: '<c:url value="/expedientTipus/${expedientTipus.id}/metadadesNti"/>',
 			data: $(this).serialize(),
 			success: function(ajaxResponse) {
 				if (ajaxResponse.estatError) {
@@ -97,6 +97,7 @@ function carregarInformacioOrgan() {
 
 // ]]>
 </script>
+
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
 		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusMetadadesNtiCommand">
@@ -106,8 +107,8 @@ function carregarInformacioOrgan() {
 					<div id="input_clasificacio">
 						<hel:inputSuggest 
 							name="clasificacion" 
-							urlConsultaInicial="/helium/procediment/suggestInici" 
-							urlConsultaLlistat="/helium/procediment/suggest" 
+							urlConsultaInicial="/procediment/suggestInici" 
+							urlConsultaLlistat="/procediment/suggest" 
 							placeholderKey="expedient.tipus.metadades.nti.clasificacion"
 							textKey="expedient.tipus.metadades.nti.clasificacion" 
 							required="true"
@@ -125,8 +126,8 @@ function carregarInformacioOrgan() {
 
 						<hel:inputSuggest 
 							name="organo" 
-							urlConsultaInicial="/helium/unitatOrganitzativa/suggestInici" 
-							urlConsultaLlistat="/helium/unitatOrganitzativa/suggest" 
+							urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
+							urlConsultaLlistat="/unitatOrganitzativa/suggest" 
 							textKey="expedient.tipus.metadades.nti.organo" 
 							placeholderKey="expedient.tipus.metadades.nti.organo.placeholder" 
 							required="true"

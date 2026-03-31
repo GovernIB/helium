@@ -82,74 +82,75 @@ import es.caib.helium.commons.dto.ZonaperEventDto;
 import es.caib.helium.commons.dto.ZonaperExpedientDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.commons.plugins.custodia.CustodiaPlugin;
-import es.caib.helium.commons.plugins.custodia.CustodiaPluginException;
-import es.caib.helium.commons.plugins.dadesext.DadesExternesPlugin;
-import es.caib.helium.commons.plugins.firma.FirmaPlugin;
-import es.caib.helium.commons.plugins.firma.FirmaResposta;
-import es.caib.helium.commons.plugins.firmaweb.FirmaWebPlugin;
-import es.caib.helium.commons.plugins.gesdoc.GestioDocumentalPlugin;
-import es.caib.helium.commons.plugins.notificacio.Enviament;
-import es.caib.helium.commons.plugins.notificacio.Notificacio;
-import es.caib.helium.commons.plugins.notificacio.NotificacioPlugin;
-import es.caib.helium.commons.plugins.notificacio.RespostaConsultaEstatEnviament;
-import es.caib.helium.commons.plugins.notificacio.RespostaConsultaEstatNotificacio;
-import es.caib.helium.commons.plugins.notificacio.RespostaEnviar;
-import es.caib.helium.commons.plugins.persones.DadesPersona;
-import es.caib.helium.commons.plugins.persones.PersonesPlugin;
-import es.caib.helium.commons.plugins.persones.PersonesPluginException;
-import es.caib.helium.commons.plugins.pinbal.DadesConsultaPinbal;
-import es.caib.helium.commons.plugins.pinbal.PinbalPluginInterface;
-import es.caib.helium.commons.plugins.portasignatures.DocumentPortasignatures;
-import es.caib.helium.commons.plugins.portasignatures.PortafirmesCarrec;
-import es.caib.helium.commons.plugins.portasignatures.PortafirmesFluxBloc;
-import es.caib.helium.commons.plugins.portasignatures.PortafirmesFluxInfo;
-import es.caib.helium.commons.plugins.portasignatures.PortafirmesFluxResposta;
-import es.caib.helium.commons.plugins.portasignatures.PortafirmesIniciFluxResposta;
-import es.caib.helium.commons.plugins.portasignatures.PortasignaturesPlugin;
-import es.caib.helium.commons.plugins.portasignatures.PortasignaturesPluginException;
-import es.caib.helium.commons.plugins.procediment.Procediment;
-import es.caib.helium.commons.plugins.procediment.ProcedimentPlugin;
-import es.caib.helium.commons.plugins.procediment.UnitatAdministrativa;
-import es.caib.helium.commons.plugins.registre.DadesAssumpte;
-import es.caib.helium.commons.plugins.registre.DadesExpedient;
-import es.caib.helium.commons.plugins.registre.DadesInteressat;
-import es.caib.helium.commons.plugins.registre.DadesNotificacio;
-import es.caib.helium.commons.plugins.registre.DadesOficina;
-import es.caib.helium.commons.plugins.registre.DadesRepresentat;
-import es.caib.helium.commons.plugins.registre.DocumentRegistre;
-import es.caib.helium.commons.plugins.registre.RegistreAssentament;
-import es.caib.helium.commons.plugins.registre.RegistreAssentamentInteressat;
-import es.caib.helium.commons.plugins.registre.RegistreEntrada;
-import es.caib.helium.commons.plugins.registre.RegistreInteressatDocumentTipusEnum;
-import es.caib.helium.commons.plugins.registre.RegistreInteressatTipusEnum;
-import es.caib.helium.commons.plugins.registre.RegistreNotificacio;
-import es.caib.helium.commons.plugins.registre.RegistrePlugin;
-import es.caib.helium.commons.plugins.registre.RegistrePluginException;
-import es.caib.helium.commons.plugins.registre.RegistrePluginRegWeb3;
-import es.caib.helium.commons.plugins.registre.RegistreSortida;
-import es.caib.helium.commons.plugins.registre.RespostaAnotacioRegistre;
-import es.caib.helium.commons.plugins.registre.RespostaConsultaRegistre;
-import es.caib.helium.commons.plugins.registre.RespostaJustificantDetallRecepcio;
-import es.caib.helium.commons.plugins.registre.RespostaJustificantRecepcio;
-import es.caib.helium.commons.plugins.registre.TramitSubsanacio;
-import es.caib.helium.commons.plugins.registre.TramitSubsanacioParametre;
-import es.caib.helium.commons.plugins.signatura.RespostaValidacioSignatura;
-import es.caib.helium.commons.plugins.signatura.SignaturaPlugin;
-import es.caib.helium.commons.plugins.signatura.SignaturaPluginException;
-import es.caib.helium.commons.plugins.tramitacio.DadesTramit;
-import es.caib.helium.commons.plugins.tramitacio.DocumentTramit;
-import es.caib.helium.commons.plugins.tramitacio.Event;
-import es.caib.helium.commons.plugins.tramitacio.ObtenirDadesTramitRequest;
-import es.caib.helium.commons.plugins.tramitacio.PublicarEventRequest;
-import es.caib.helium.commons.plugins.tramitacio.PublicarExpedientRequest;
-import es.caib.helium.commons.plugins.tramitacio.Signatura;
-import es.caib.helium.commons.plugins.tramitacio.TramitacioPlugin;
-import es.caib.helium.commons.plugins.tramitacio.TramitacioPluginException;
-import es.caib.helium.commons.plugins.unitat.UnitatsOrganiquesPlugin;
 import es.caib.helium.commons.registre.RegistreAnnex;
 import es.caib.helium.commons.registre.RegistreAnotacio;
 import es.caib.helium.commons.registre.RegistreInteressat;
+import es.caib.helium.commons.registre.RegistreInteressatDocumentTipusEnum;
+import es.caib.helium.commons.registre.RegistreInteressatTipusEnum;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.integracio.plugins.custodia.CustodiaPlugin;
+import es.caib.helium.integracio.plugins.custodia.CustodiaPluginException;
+import es.caib.helium.integracio.plugins.dadesext.DadesExternesPlugin;
+import es.caib.helium.integracio.plugins.firma.FirmaPlugin;
+import es.caib.helium.integracio.plugins.firma.FirmaResposta;
+import es.caib.helium.integracio.plugins.firmaweb.FirmaWebPlugin;
+import es.caib.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
+import es.caib.helium.integracio.plugins.notificacio.Enviament;
+import es.caib.helium.integracio.plugins.notificacio.Notificacio;
+import es.caib.helium.integracio.plugins.notificacio.NotificacioPlugin;
+import es.caib.helium.integracio.plugins.notificacio.RespostaConsultaEstatEnviament;
+import es.caib.helium.integracio.plugins.notificacio.RespostaConsultaEstatNotificacio;
+import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
+import es.caib.helium.integracio.plugins.persones.DadesPersona;
+import es.caib.helium.integracio.plugins.persones.PersonesPlugin;
+import es.caib.helium.integracio.plugins.persones.PersonesPluginException;
+import es.caib.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
+import es.caib.helium.integracio.plugins.pinbal.PinbalPluginInterface;
+import es.caib.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
+import es.caib.helium.integracio.plugins.portasignatures.PortafirmesCarrec;
+import es.caib.helium.integracio.plugins.portasignatures.PortafirmesFluxBloc;
+import es.caib.helium.integracio.plugins.portasignatures.PortafirmesFluxInfo;
+import es.caib.helium.integracio.plugins.portasignatures.PortafirmesFluxResposta;
+import es.caib.helium.integracio.plugins.portasignatures.PortafirmesIniciFluxResposta;
+import es.caib.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
+import es.caib.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
+import es.caib.helium.integracio.plugins.procediment.Procediment;
+import es.caib.helium.integracio.plugins.procediment.ProcedimentPlugin;
+import es.caib.helium.integracio.plugins.procediment.UnitatAdministrativa;
+import es.caib.helium.integracio.plugins.registre.DadesAssumpte;
+import es.caib.helium.integracio.plugins.registre.DadesExpedient;
+import es.caib.helium.integracio.plugins.registre.DadesInteressat;
+import es.caib.helium.integracio.plugins.registre.DadesNotificacio;
+import es.caib.helium.integracio.plugins.registre.DadesOficina;
+import es.caib.helium.integracio.plugins.registre.DadesRepresentat;
+import es.caib.helium.integracio.plugins.registre.DocumentRegistre;
+import es.caib.helium.integracio.plugins.registre.RegistreAssentament;
+import es.caib.helium.integracio.plugins.registre.RegistreAssentamentInteressat;
+import es.caib.helium.integracio.plugins.registre.RegistreEntrada;
+import es.caib.helium.integracio.plugins.registre.RegistreNotificacio;
+import es.caib.helium.integracio.plugins.registre.RegistrePlugin;
+import es.caib.helium.integracio.plugins.registre.RegistrePluginException;
+import es.caib.helium.integracio.plugins.registre.RegistrePluginRegWeb3;
+import es.caib.helium.integracio.plugins.registre.RegistreSortida;
+import es.caib.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import es.caib.helium.integracio.plugins.registre.RespostaConsultaRegistre;
+import es.caib.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
+import es.caib.helium.integracio.plugins.registre.TramitSubsanacio;
+import es.caib.helium.integracio.plugins.registre.TramitSubsanacioParametre;
+import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import es.caib.helium.integracio.plugins.signatura.SignaturaPlugin;
+import es.caib.helium.integracio.plugins.signatura.SignaturaPluginException;
+import es.caib.helium.integracio.plugins.tramitacio.DadesTramit;
+import es.caib.helium.integracio.plugins.tramitacio.DocumentTramit;
+import es.caib.helium.integracio.plugins.tramitacio.Event;
+import es.caib.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
+import es.caib.helium.integracio.plugins.tramitacio.PublicarEventRequest;
+import es.caib.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
+import es.caib.helium.integracio.plugins.tramitacio.Signatura;
+import es.caib.helium.integracio.plugins.tramitacio.TramitacioPlugin;
+import es.caib.helium.integracio.plugins.tramitacio.TramitacioPluginException;
+import es.caib.helium.integracio.plugins.unitat.UnitatsOrganiquesPlugin;
 import es.caib.helium.persistence.entity.Alerta;
 import es.caib.helium.persistence.entity.DocumentNotificacio;
 import es.caib.helium.persistence.entity.DocumentStore;
@@ -161,7 +162,6 @@ import es.caib.helium.persistence.entity.Portasignatures.Transicio;
 import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.PortasignaturesRepository;
-import es.caib.helium.service.utils.GlobalProperties;
 import es.caib.helium.service.utils.PdfUtils;
 import es.caib.plugins.arxiu.api.ConsultaFiltre;
 import es.caib.plugins.arxiu.api.ConsultaOperacio;
@@ -700,7 +700,7 @@ public class PluginHelper {
 			logger.info("###===> Entrem en apartat relacionat amb expedients ");
 			logger.info("###===> Comprovant si existeix expedient en la zona personal de l'interessat");
 			if (!getTramitacioPlugin().existeixExpedient(
-					new Long(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()),
+					Long.valueOf(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()),
 					registreNotificacio.getDadesExpedient().getIdentificador())) {
 					crearExpedientPerNotificacio(registreNotificacio, expedient, parametres);
 			}
@@ -2216,7 +2216,7 @@ public class PluginHelper {
 						(signatura != null ? signatura.length : 0) + " bytes"),
 				new IntegracioParametreDto(
 						"obtenirDadesCertificat",
-						new Boolean(obtenirDadesCertificat).toString())
+						Boolean.valueOf(obtenirDadesCertificat).toString())
 		};
 		long t0 = System.currentTimeMillis();
 		try {
@@ -2874,7 +2874,7 @@ public class PluginHelper {
 		parametres.add(
 				new IntegracioParametreDto(
 						"firmaPdfFitxerTamany",
-						new Long(firmaPdf.getTamany()).toString()));
+						Long.valueOf(firmaPdf.getTamany()).toString()));
 		long t0 = System.currentTimeMillis();
 		try {
 			ContingutArxiu documentPerRetornar = getArxiuPlugin().documentModificar(
@@ -2939,7 +2939,7 @@ public class PluginHelper {
 		parametres.add( new IntegracioParametreDto( "tipusFirma", tipusFirma));
 		parametres.add( new IntegracioParametreDto( "tipusFirmaEni", tipusFirmaEni));
 		parametres.add( new IntegracioParametreDto( "perfilFirma", perfilFirmaEni));
-		parametres.add( new IntegracioParametreDto( "firmaFitxerTamany", new Long(firma.getTamany()).toString()));
+		parametres.add( new IntegracioParametreDto( "firmaFitxerTamany", Long.valueOf(firma.getTamany()).toString()));
 		long t0 = System.currentTimeMillis();
 		try {
 			ArxiuDto arxiu = new ArxiuDto();

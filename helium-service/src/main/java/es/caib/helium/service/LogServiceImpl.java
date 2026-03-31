@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 import es.caib.comanda.model.v1.log.FitxerContingut;
 import es.caib.comanda.model.v1.log.FitxerInfo;
 import es.caib.comanda.service.v1.avis.ApiException;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.LogService;
-import es.caib.helium.service.utils.GlobalProperties;
 
 @Service
 public class LogServiceImpl implements LogService {

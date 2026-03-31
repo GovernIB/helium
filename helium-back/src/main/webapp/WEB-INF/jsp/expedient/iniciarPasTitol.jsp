@@ -79,8 +79,8 @@
 			<div class="control-group fila_reducida">
 				<hel:inputSuggest 
 						name="unitatOrganitzativaCodi" 
-						urlConsultaInicial="/helium/unitatOrganitzativa/suggestInici" 
-						urlConsultaLlistat="/helium/unitatOrganitzativa/suggest" 
+						urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
+						urlConsultaLlistat="/unitatOrganitzativa/suggest" 
 						textKey="expedient.tipus.permis.form.camp.unitat.organitzativa" 
 						placeholderKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
 						required="true"

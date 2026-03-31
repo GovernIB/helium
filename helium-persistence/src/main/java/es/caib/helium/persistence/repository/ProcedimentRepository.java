@@ -13,7 +13,6 @@ import es.caib.helium.commons.dto.procediment.ProcedimentTipusEnumDto;
 import es.caib.helium.persistence.entity.Procediment;
 import es.caib.helium.persistence.entity.UnitatOrganitzativa;
 
-
 /**
  * Definició dels mètodes necessaris per a gestionar una entitat de base
  * de dades del tipus procediment.
@@ -29,8 +28,8 @@ public interface ProcedimentRepository extends JpaRepository<Procediment, Long>{
 			"and (:isCodiNull = true or lower(pro.codi) like lower('%'||:codi||'%')) " + 
 			"and (:isNomNull = true or lower(pro.nom) like lower('%'||:nom||'%')) " + 
 			"and (:isCodiSiaNull = true or lower(pro.codiSia) like lower('%'||:codiSia||'%'))" + 
-			"and (:isEstatNull = true or pro.estat = :estat) " +
-			"and (:isTipusNull = true or pro.tipus = :tipus)")
+			"and (:isEstatNull = true or pro.estat = :estat) ") // +
+//			"and (:isTipusNull = true or pro.tipus = :tipus)")
 	Page<Procediment> findAmbFiltrePaginat(
 			@Param("isNullUnitatOrganitzativa") boolean isNullUnitatOrganitzativa, 
 			@Param("unitatOrganitzativa") UnitatOrganitzativa unitatorganitzativa, 
@@ -42,8 +41,8 @@ public interface ProcedimentRepository extends JpaRepository<Procediment, Long>{
 			@Param("codiSia") String codiSia, 
 			@Param("isEstatNull") boolean isEstatNull, 
 			@Param("estat") ProcedimentEstatEnumDto estat,
-			@Param("isTipusNull") boolean isTipusNull, 
-			@Param("tipus") ProcedimentTipusEnumDto tipus,
+//			@Param("isTipusNull") boolean isTipusNull, 
+//			@Param("tipus") ProcedimentTipusEnumDto tipus,
 			Pageable pageable);
 	
 	
@@ -96,19 +95,22 @@ public interface ProcedimentRepository extends JpaRepository<Procediment, Long>{
 	 * @return Llistat de procediments que tenen aquell estat.
 	 */
 	List<Procediment> findAllByEstat(ProcedimentEstatEnumDto estat);
+
+
+	List<Procediment> findAllByEstatAndTipus(ProcedimentEstatEnumDto vigent, ProcedimentTipusEnumDto tipus);
 	
 	/** Troba tots els procediments per tipus.
 	 * 
 	 * @param tipus
 	 * @return Llistat de procediments que tenen aquell tipus.
 	 */
-	List<Procediment> findAllByTipus(ProcedimentTipusEnumDto tipus);
+//	List<Procediment> findAllByTipus(ProcedimentTipusEnumDto tipus);
 	
 	/** Troba tots els procediments per estat i tipus.
 	 * 
 	 * @param estat
 	 * @return Llistat de procediments que tenen aquell estat.
 	 */
-	List<Procediment> findAllByEstatAndTipus(ProcedimentEstatEnumDto estat, ProcedimentTipusEnumDto tipus);
+//	List<Procediment> findAllByEstatAndTipus(ProcedimentEstatEnumDto estat, ProcedimentTipusEnumDto tipus);
 
 }

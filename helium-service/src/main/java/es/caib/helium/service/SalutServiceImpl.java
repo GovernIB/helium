@@ -38,12 +38,12 @@ import es.caib.helium.commons.dto.AvisNivellEnumDto;
 import es.caib.helium.commons.dto.IntegracioAccioDto;
 import es.caib.helium.commons.dto.IntegracioAccioEstatEnumDto;
 import es.caib.helium.commons.dto.IntegracioAccioTipusEnumDto;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.SalutService;
 import es.caib.helium.logic.intf.util.DatesUtils;
 import es.caib.helium.persistence.entity.Avis;
 import es.caib.helium.persistence.repository.AvisRepository;
 import es.caib.helium.service.helper.MonitorIntegracioHelper;
-import es.caib.helium.service.utils.GlobalProperties;
 
 @Service
 public class SalutServiceImpl implements SalutService {

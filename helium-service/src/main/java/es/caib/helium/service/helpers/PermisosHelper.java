@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 
 import es.caib.helium.commons.dto.PermisDto;
 import es.caib.helium.commons.dto.PrincipalTipusEnumDto;
-import es.caib.helium.service.utils.GlobalProperties;
+import es.caib.helium.commons.utils.GlobalProperties;
 
 
 /**

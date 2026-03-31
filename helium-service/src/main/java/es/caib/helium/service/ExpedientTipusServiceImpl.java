@@ -104,6 +104,7 @@ import es.caib.helium.commons.exportacio.RegistreMembreExportacio;
 import es.caib.helium.commons.exportacio.TascaExportacio;
 import es.caib.helium.commons.exportacio.TerminiExportacio;
 import es.caib.helium.commons.exportacio.ValidacioExportacio;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
@@ -181,7 +182,6 @@ import es.caib.helium.service.helper.EntornHelper;
 import es.caib.helium.service.helper.ExpedientHelper;
 import es.caib.helium.service.helper.ExpedientTipusHelper;
 import es.caib.helium.service.helper.HerenciaHelper;
-import es.caib.helium.service.helper.MessageHelper;
 import es.caib.helium.service.helper.PaginacioHelper;
 import es.caib.helium.service.helper.PermisosHelper;
 import es.caib.helium.service.helper.PermisosHelper.ObjectIdentifierExtractor;
@@ -355,8 +355,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (ExpedientTipusTipusEnumDto.ESTAT.equals(entity.getTipus())) {
 			// Associa el tipus al flux senzill
 			expedientTipusRepository.saveAndFlush(entity);
-			DefinicioProces definicioProcesEstat = definicioProcesRepository.saveAndFlush(this.getDefinicioProcesEstats(entity, entorn));
-			entity.setJbpmProcessDefinitionKey(definicioProcesEstat.getJbpmKey());
+//			DefinicioProces definicioProcesEstat = definicioProcesRepository.saveAndFlush(this.getDefinicioProcesEstats(entity, entorn));
+//			entity.setJbpmProcessDefinitionKey(definicioProcesEstat.getJbpmKey());
 
 			// Crea un estata per defecte
 			Estat estat = new Estat();
@@ -380,7 +380,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					this.getContingutHelJbpmFlow(expedientTipus.getCodi()),
 					entorn,
 					expedientTipus);
-			logger.info("Desplegada la definició de procés pel flux hel_jbpm_flow per expedients basats en estats: " + definicioProces.getIdPerMostrar() );
+//			logger.info("Desplegada la definició de procés pel flux hel_jbpm_flow per expedients basats en estats: " + definicioProces.getIdPerMostrar() );
 		}
 		return definicioProces;
 	}
@@ -706,7 +706,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setAmbInfoPropia(tipus.isAmbInfoPropia());
 		exportacio.setReindexacioAsincrona(tipus.isReindexacioAsincrona());
 		exportacio.setSequencia(tipus.getSequencia());
-		exportacio.setSequenciaDefault(tipus.getSequenciaDefault());
+		exportacio.setSequenciaDefault(tipus.getSequenciaDef());
 		exportacio.setTeNumero(tipus.getTeNumero());
 		exportacio.setTeTitol(tipus.getTeTitol());
 		exportacio.setTramitacioMassiva(tipus.isTramitacioMassiva());						
@@ -733,7 +733,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			SequenciaDefaultAnyDto valueDto = new SequenciaDefaultAnyDto();
 			valueDto.setAny(value.getAny());
 			valueDto.setId(value.getId());
-			valueDto.setSequenciaDefault(value.getSequenciaDefault());							
+			valueDto.setSequenciaDefault(value.getSequenciadefault());							
 			sequenciaAnyDefaultMap.put(entry.getKey(), valueDto);
 		}					    
 		exportacio.setSequenciaDefaultAny(sequenciaAnyDefaultMap);

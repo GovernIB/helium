@@ -18,9 +18,9 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.PeriodicTrigger;
 
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.MonitorTasquesService;
 import es.caib.helium.logic.intf.service.TascaProgramadaService;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /** Configura les tasques en segon pla. */
 //@Configuration

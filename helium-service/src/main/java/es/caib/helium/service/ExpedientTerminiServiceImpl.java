@@ -22,6 +22,8 @@ import es.caib.helium.commons.dto.regles.CampFormProperties;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.ValidacioException;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.ExpedientTerminiService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -41,11 +43,9 @@ import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import es.caib.helium.persistence.repository.TerminiRepository;
 import es.caib.helium.service.helper.ConversioTipusHelper;
 import es.caib.helium.service.helper.ExpedientHelper;
-import es.caib.helium.service.helper.MessageHelper;
 import es.caib.helium.service.helper.TerminiHelper;
 import es.caib.helium.service.regles.ReglaHelper;
 import es.caib.helium.service.security.ExtendedPermission;
-import es.caib.helium.service.utils.GlobalProperties;
 
 /**
  * Servei per gestionar els terminis dels expedients

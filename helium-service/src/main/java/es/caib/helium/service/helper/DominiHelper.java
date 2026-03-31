@@ -44,6 +44,7 @@ import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.SistemaExternTimeoutException;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.persistence.entity.Area;
 import es.caib.helium.persistence.entity.AreaMembre;
 import es.caib.helium.persistence.entity.Camp;
@@ -66,7 +67,6 @@ import es.caib.helium.persistence.repository.EntornRepository;
 import es.caib.helium.persistence.repository.PermisRepository;
 import es.caib.helium.persistence.repository.UsuariRepository;
 import es.caib.helium.service.helper.WsClientHelper.WsClientAuth;
-import es.caib.helium.service.utils.GlobalProperties;
 import es.caib.helium.service.utils.ws.RestClient;
 import net.sf.ehcache.Element;
 

@@ -876,7 +876,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	public String permisGet(
 			HttpServletRequest request,
 			@PathVariable Long id,
-			@PathVariable String permisUO,
+			@PathVariable(required=false) String permisUO,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(entornActual.getId(),id);
@@ -908,7 +908,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	DatatablesResponse permisDatatable(
 			HttpServletRequest request,
 			@PathVariable Long id,
-			@PathVariable String permisUO,
+			@PathVariable(required=false) String permisUO,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		List<PermisDto> permisos = null;
@@ -930,7 +930,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	public String permisNewGet(
 			HttpServletRequest request,
 			@PathVariable Long id,
-			@PathVariable String permisUO,
+			@PathVariable(required=false) String permisUO,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipusDto =  expedientTipusService.findAmbIdPermisDissenyar(
@@ -949,7 +949,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	public String permisNewPost(
 			HttpServletRequest request,
 			@PathVariable Long id,
-			@PathVariable String permisUO,
+			@PathVariable(required=false) String permisUO,
 			@Validated(Tipus.class) PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
@@ -968,7 +968,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			HttpServletRequest request,
 			@PathVariable Long id,
 			@PathVariable Long permisId,
-			@PathVariable String permisUO,
+			@PathVariable(required=false) String permisUO,
 			@RequestParam(value = "unitatOrganitzativaCodi", required = false) String unitatOrganitzativaCodi,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -1005,7 +1005,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			HttpServletRequest request,
 			@PathVariable Long id,
 			@PathVariable Long permisId,
-			@PathVariable String permisUO,
+			@PathVariable(required=false) String permisUO,
 			@Validated(Tipus.class) PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
@@ -1063,7 +1063,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	public String permisDelete(
 			HttpServletRequest request,
 			@PathVariable Long id,
-			@PathVariable String permisUO,
+			@PathVariable(required=false) String permisUO,
 			@PathVariable Long permisId,
 			@RequestParam(value = "unitatOrganitzativaCodi", required = false) String unitatOrganitzativaCodi,
 			Model model) {

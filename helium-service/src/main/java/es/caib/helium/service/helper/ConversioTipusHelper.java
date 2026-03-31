@@ -37,7 +37,8 @@ import es.caib.helium.commons.dto.PortasignaturesDto;
 import es.caib.helium.commons.dto.SequenciaAnyDto;
 import es.caib.helium.commons.dto.SequenciaDefaultAnyDto;
 import es.caib.helium.commons.dto.regles.EstatReglaDto;
-import es.caib.helium.commons.plugins.notificacio.InteressatTipusEnum;
+import es.caib.helium.integracio.plugins.notificacio.InteressatTipusEnum;
+import es.caib.helium.integracio.plugins.notificacio.Persona;
 import es.caib.helium.persistence.entity.AnotacioAnnex;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.CampRegistre;
@@ -53,7 +54,6 @@ import es.caib.helium.persistence.entity.Estat;
 import es.caib.helium.persistence.entity.EstatRegla;
 import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.FirmaTasca;
-import es.caib.helium.commons.plugins.notificacio.Persona;
 import es.caib.helium.persistence.entity.Portasignatures;
 import es.caib.helium.persistence.entity.Portasignatures.Transicio;
 import es.caib.helium.persistence.entity.SequenciaAny;
@@ -307,7 +307,7 @@ public class ConversioTipusHelper {
 						target.setNotificacioOficiTitol(source.getNotificacioOficiTitol());
 						target.setNotificacioOficiText(source.getNotificacioOficiText());
 						target.setSequencia(source.getSequencia());
-						target.setSequenciaDefault(source.getSequenciaDefault());
+						target.setSequenciaDefault(source.getSequenciaDef());
 						target.setTeNumero(source.getTeNumero());
 						target.setTeTitol(source.getTeTitol());
 						target.setTramitacioMassiva(source.isTramitacioMassiva());
@@ -334,7 +334,7 @@ public class ConversioTipusHelper {
 							SequenciaDefaultAnyDto valueDto = new SequenciaDefaultAnyDto();
 							valueDto.setAny(value.getAny());
 							valueDto.setId(value.getId());
-							valueDto.setSequenciaDefault(value.getSequenciaDefault());							
+							valueDto.setSequenciaDefault(value.getSequenciadefault());							
 							sequenciaAnyDefaultMap.put(entry.getKey(), valueDto);
 						}					    
 						target.setSequenciaDefaultAny(sequenciaAnyDefaultMap);
@@ -398,7 +398,7 @@ public class ConversioTipusHelper {
 						target.setNotificacioOficiTitol(source.getNotificacioOficiTitol());
 						target.setNotificacioOficiText(source.getNotificacioOficiText());
 						target.setSequencia(source.getSequencia());
-						target.setSequenciaDefault(source.getSequenciaDefault());
+						target.setSequenciaDef(source.getSequenciaDefault());
 						target.setTeNumero(source.isTeNumero());
 						target.setTeTitol(source.isTeTitol());
 						target.setTramitacioMassiva(source.isTramitacioMassiva());
@@ -424,7 +424,7 @@ public class ConversioTipusHelper {
 							SequenciaDefaultAny value = new SequenciaDefaultAny();
 							value.setAny(valueDto.getAny());
 							value.setId(valueDto.getId());
-							value.setSequenciaDefault(valueDto.getSequenciaDefault());
+							value.setSequenciadefault(valueDto.getSequenciaDefault());
 							sequenciaAnyDefaultSorted.put(entry.getKey(), value);
 						}					
 						target.setSequenciaDefaultAny(sequenciaAnyDefaultSorted);

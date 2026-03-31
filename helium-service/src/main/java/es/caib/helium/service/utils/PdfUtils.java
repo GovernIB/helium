@@ -25,6 +25,8 @@ import com.lowagie.text.pdf.PdfStamper;
 
 import es.caib.helium.commons.exception.SistemaExternConversioDocumentException;
 import es.caib.helium.commons.exception.ValidacioException;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.OpenOfficeUtils;
 
 /**
  * Classe per converir documents a PDF.

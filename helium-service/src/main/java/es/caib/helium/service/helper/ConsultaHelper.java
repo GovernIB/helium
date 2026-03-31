@@ -15,6 +15,7 @@ import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.DadaIndexadaDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
+import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.Consulta;

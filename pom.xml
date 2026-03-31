@@ -27,6 +27,10 @@
 		<cxf.version>2.2.10</cxf.version>
 		<lucene.version>2.9.4</lucene.version>
 		<spring-security.version>5.7.11</spring-security.version>
+		<jackson.version>3.1.0</jackson.version>
+		<regweb.version>3.2.5</regweb.version>
+		<dir3caib.version>1.0.7</dir3caib.version>
+		<portafib.version>1.1</portafib.version>
 	</properties>
 	<profiles>
 		<profile>
@@ -40,6 +44,8 @@
 	<modules>
 		<module>helium-commons</module>
 		<module>helium-persistence</module>
+		<module>helium-plugin</module>
+		<module>helium-plugin-impl</module>
 		<module>helium-service-intf</module>
 		<module>helium-service</module>
 		<module>helium-ejb</module>

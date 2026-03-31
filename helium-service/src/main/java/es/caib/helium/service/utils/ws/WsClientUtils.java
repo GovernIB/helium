@@ -19,7 +19,7 @@ import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.handler.WSHandlerConstants;
 
-import es.caib.helium.service.utils.GlobalProperties;
+import es.caib.helium.commons.utils.GlobalProperties;
 
 /**
  * Utilitat per a configurar de manera centralitzada

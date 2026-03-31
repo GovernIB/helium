@@ -65,7 +65,7 @@
 					$(this).dialog("close");
 				},
 				"<fmt:message key='temps.exportar' />": function() {
-					window.location="/helium/mesura/mesuresTempsExport.html";
+					window.location='<c:url value="/mesura/mesuresTempsExport.html"/>';
 				}
 			},
 			close: function(){
@@ -132,7 +132,7 @@
 	
 	function carregaMonitor() {
         $.ajax({
-            url: "/helium/monitor/all.html",
+            url: '<c:url value="/monitor/all.html"/>',
             dataType: 'json',
              async: false,
             success: function(data){
@@ -185,7 +185,7 @@
     
 	function carregaMesuresTemps() {
         $.ajax({
-            url: "/helium/mesura/mesuresTemps.html",
+            url: '<c:url value="/mesura/mesuresTemps.html"/>',
             dataType: 'json',
             data: {familia: fam},
              async: false,
@@ -360,7 +360,7 @@
 	function carregaExecucionsMassives(numResultats) {
 		numResults = numResultats;
 		$.ajax({
-			url: "/helium/expedient/refreshBarsExpedientMassive.html",
+			url: '<c:url value="/expedient/refreshBarsExpedientMassive.html"/>',
 			dataType: 'json',
 			data: {results: numResultats},
 			async: false,
@@ -452,7 +452,7 @@
 	
 	function refreshExecucionsMassives() {
 		$.ajax({
-			url: "/helium/expedient/refreshBarsExpedientMassive.html",
+			url: '<c:url value="/expedient/refreshBarsExpedientMassive.html"/>',
 			dataType: 'json',
 			data: {results: numResults},
 			async: false,

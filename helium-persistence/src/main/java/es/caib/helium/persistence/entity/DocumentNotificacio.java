@@ -33,7 +33,7 @@ import org.hibernate.annotations.ForeignKey;
 import es.caib.helium.commons.dto.EnviamentTipusEnumDto;
 import es.caib.helium.commons.dto.NotificacioEnviamentEstatEnumDto;
 import es.caib.helium.commons.dto.NotificacioEstatEnumDto;
-import es.caib.helium.commons.plugins.notificacio.EnviamentEstat;
+import es.caib.helium.integracio.plugins.notificacio.EnviamentEstat;
 
 /**
  * Objecte de domini que representa una notificació electronica de un expedient.

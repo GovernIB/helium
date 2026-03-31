@@ -33,8 +33,8 @@
 		<c:if test="${permisUO != null}">
 			<hel:inputSuggest 
 					name="unitatOrganitzativaCodiNom" 
-					urlConsultaInicial="/helium/unitatOrganitzativa/suggestInici" 
-					urlConsultaLlistat="/helium/unitatOrganitzativa/suggest" 
+					urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
+					urlConsultaLlistat="/unitatOrganitzativa/suggest" 
 					textKey="expedient.tipus.permis.form.camp.unitat.organitzativa" 
 					placeholderKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
 					disabled="${not empty permisCommand.id}"

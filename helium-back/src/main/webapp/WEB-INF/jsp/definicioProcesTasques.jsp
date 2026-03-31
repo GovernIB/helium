@@ -18,7 +18,7 @@
 		<table	id="definicioProcesTasques"
 				data-rowId="id"
 				data-toggle="datatable"
-				data-url="/helium/definicioProces/${jbpmKey}/${definicioProcesId}/tasca/datatable"
+				data-url="definicioProces/${jbpmKey}/${definicioProcesId}/tasca/datatable"
 				data-paging-enabled="true"
 				data-info-type="search"
 				data-ordering="true"

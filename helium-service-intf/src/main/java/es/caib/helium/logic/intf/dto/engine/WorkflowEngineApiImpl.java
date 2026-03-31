@@ -1,5 +1,6 @@
 package es.caib.helium.logic.intf.dto.engine;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -577,7 +578,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 			boolean nomesTasquesPersonals, boolean nomesTasquesGrup, boolean b, Object object,
 			PaginacioParamsDto paginacioParams, boolean c, boolean nomesErrorsArxiu, Set<Long> idsSeleccionats) {
 		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<Long>();
 	}
 
 	@Override

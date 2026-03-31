@@ -31,13 +31,13 @@ public class SequenciaDefaultAny implements Serializable, GenericEntity<Long> {
 	private Long id;
 	private ExpedientTipus expedientTipus;
 	private Integer any;
-	private Long sequenciaDefault;
+	private Long sequenciadefault;
 
 	public SequenciaDefaultAny() {}
 	public SequenciaDefaultAny(ExpedientTipus expedientTipus, Integer any, Long sequenciaDefault) {
 		this.expedientTipus = expedientTipus;
 		this.any = any;
-		this.sequenciaDefault = sequenciaDefault;
+		this.sequenciadefault = sequenciaDefault;
 	}
 
 	@Id
@@ -71,12 +71,12 @@ public class SequenciaDefaultAny implements Serializable, GenericEntity<Long> {
 		this.any = any;
 	}
 
-	@Column(name="sequenciaDefault", nullable=false)
-	public Long getSequenciaDefault() {
-		return sequenciaDefault;
+	@Column(name="sequenciadefault", nullable=false)
+	public Long getSequenciadefault() {
+		return sequenciadefault;
 	}
-	public void setSequenciaDefault(Long sequenciaDefault) {
-		this.sequenciaDefault = sequenciaDefault;
+	public void setSequenciadefault(Long sequenciaDefault) {
+		this.sequenciadefault = sequenciaDefault;
 	}
 
 	@Override
