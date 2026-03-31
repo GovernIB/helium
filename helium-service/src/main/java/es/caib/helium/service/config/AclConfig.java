@@ -2,8 +2,13 @@ package es.caib.helium.service.config;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
+import org.hibernate.Session;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -38,7 +43,10 @@ public class AclConfig {
 
 	private static final boolean CLASS_ID_SUPPORTED = false;
 
-	@Value("${spring.jpa.properties.hibernate.dialect}")
+	@PersistenceContext
+	private EntityManager entityManager;
+
+	@Value("${spring.jpa.properties.hibernate.dialect:#{null}}")
 	private String hibernateDialect;
 
 	@Autowired
@@ -133,6 +141,15 @@ public class AclConfig {
 		String tableSid =  getPrefix() + "acl_sid";
 		String tableOid =  getPrefix() + "acl_object_identity";
 		String tableEntry =  getPrefix() + "acl_entry";
+		
+		if (hibernateDialect == null) {
+			// Obté a partir del dialectectat de la connexió amb la BD. 
+			Session session = (Session) entityManager.getDelegate();
+			SessionFactoryImpl sessionFactory = (SessionFactoryImpl) session.getSessionFactory();
+			Dialect dialect = sessionFactory.getJdbcServices().getDialect();
+			hibernateDialect = dialect.toString();
+		}
+
 		jdbcMutableAclService.setAclClassIdSupported(CLASS_ID_SUPPORTED);
 		if (hibernateDialect.toLowerCase().contains("oracle") && isOracleSequenceLegacy()) {
 			jdbcMutableAclService.setClassIdentityQuery("select " + tableClass.toUpperCase() + "_seq.currval from dual");

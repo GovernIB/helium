@@ -1303,6 +1303,20 @@ CREATE TABLE HEL_DOCUMENT_CONTINGUT (
   DOCUMENT_CONTINGUT NUMBER(19)			NOT NULL
 );
 
+-- Taula per les dades dels expedients
+CREATE TABLE HEL_EXPEDIENT_DADES
+(
+  ID                   NUMBER(19)      NOT NULL,
+  EXPEDIENT_TIPUS_ID   NUMBER(19),
+  EXPEDIENT_ID         NUMBER(19),
+  PRINCIPAL            NUMBER(1),
+  PROCESS_ID           NUMBER(19),
+  TASK_ID              NUMBER(19),
+  DADES                CLOB
+      CONSTRAINT HEL_EXP_DADES_JSON_CHK
+      CHECK (DADES IS JSON)
+);
+
 
 --------------------------------------------------------
 -- Triggers de la lista de control d'accès
