@@ -5,7 +5,7 @@ import java.util.Date;
 
 public interface WToken {
 
-	Long getId();
+	String getId();
 
 	String getName();
 

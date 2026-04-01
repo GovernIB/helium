@@ -48,8 +48,10 @@ public class BaseExpedientController extends BaseController {
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("participants", expedientService.findParticipants(expedientId));
 		model.addAttribute("relacionats", expedientService.relacioFindAmbExpedient(expedientId));
-		DefinicioProcesVersioDto definicioProces = dissenyService.getByVersionsInstanciaProcesById(expedient.getProcessInstanceId());
-		model.addAttribute("definicioProces", definicioProces);
+		if(expedient.getTipus().getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
+			DefinicioProcesVersioDto definicioProces = dissenyService.getByVersionsInstanciaProcesById(expedient.getProcessInstanceId());
+			model.addAttribute("definicioProces", definicioProces);
+		}
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)
@@ -61,26 +63,28 @@ public class BaseExpedientController extends BaseController {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedientTipusDto.getManualAjudaNom());
 			expedient.getTipus().setManualAjudaNom(expedientTipusDto.getManualAjudaNom());
 		}
-		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-		int numAccions = 0;
-		List<String> subprocessos = new ArrayList<String>();
-		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-			// Subprocessos
-			if (!instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-				String subproces = instanciaProces.getTitol() + " v." + instanciaProces.getDefinicioProces().getVersio();
-				subprocessos.add(subproces);
+		if(expedient.getTipus().getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
+			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
+			int numAccions = 0;
+			List<String> subprocessos = new ArrayList<String>();
+			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+				// Subprocessos
+				if (!instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+					String subproces = instanciaProces.getTitol() + " v." + instanciaProces.getDefinicioProces().getVersio();
+					subprocessos.add(subproces);
+				}
+				// Accions
+				List<AccioDto> accionsTrobades = expedientService.accioFindVisiblesAmbProcessInstanceId(
+						expedientId,
+						instanciaProces.getId());
+				numAccions += accionsTrobades.size();
 			}
-			// Accions
-			List<AccioDto> accionsTrobades = expedientService.accioFindVisiblesAmbProcessInstanceId(
-					expedientId,
-					instanciaProces.getId());
-			numAccions += accionsTrobades.size();
-		}
-		
-		WProcessInstance jbpmProcessInstance = jbpmHelper.getProcessInstance(expedient.getProcessInstanceId());
-		model.addAttribute("processInstance", jbpmProcessInstance != null? jbpmProcessInstance.getProcessInstance() : null);
+			
+			WProcessInstance jbpmProcessInstance = jbpmHelper.getProcessInstance(expedient.getProcessInstanceId());
+			model.addAttribute("processInstance", jbpmProcessInstance != null? jbpmProcessInstance.getProcessInstance() : null);
 		model.addAttribute("subprocessos", subprocessos);
 		model.addAttribute("numAccions", numAccions);
+		}
 		model.addAttribute("numPinbals", consultaPinbalService.findConsultesPinbalPerExpedient(expedientId).size());
 		model.addAttribute("perEstats", ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus()));
 		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {

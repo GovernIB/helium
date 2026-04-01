@@ -4,6 +4,6 @@ public interface WProcessLog {
 
 	public WToken getToken();
 
-	public Long getId();
+	public String getId();
 
 }

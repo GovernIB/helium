@@ -566,7 +566,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 	@Override
 	public List<WTaskInstance> findTaskInstancesForProcessInstance(String processInstanceId) {
 		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<WTaskInstance>();
 	}
 
 	@Override
@@ -657,13 +657,13 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public Long getVariableIdFromVariableLog(Long id) {
+	public String getVariableIdFromVariableLog(String id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Long getTaskInstanceIdByTokenId(Long tokenId) {
+	public String getTaskInstanceIdByTokenId(String tokenId) {
 		// TODO Auto-generated method stub
 		return null;
 	}

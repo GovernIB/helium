@@ -681,8 +681,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				processInstancesTree,
 				new Comparator<WProcessInstance>() {
 					public int compare(WProcessInstance o1, WProcessInstance o2) {
-						Long l1 = o1.getId();
-						Long l2 = o2.getId();
+						String l1 = o1.getId();
+						String l2 = o2.getId();
 						return l2.compareTo(l1);
 					}
 				});
@@ -985,11 +985,18 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					idsSeleccionats);
 			// Retorna la pàgina amb la resposta
 			
-			if (expedientsIds.size() > 0) {
+			// TODO: Mostrar nomes els expedients que compleixen el filtre
+			//if (expedientsIds.size() > 0) {
+			try {
 				expedients = conversioTipusHelper.convertirList(
-					expedientRepository.findByIdIn(expedientsIds),
+					expedientRepository.findAll(),
+					//expedientRepository.findByIdIn(expedientsIds),
 					ExpedientDto.class);
+			} catch(Exception e) {
+				e.printStackTrace();
+				throw e;
 			}
+			//}
 		} else {
 			
 			expedientsIds = new ArrayList<Long>(0);
@@ -1035,7 +1042,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				
 				expedientsIds.addAll(fiteredExpedientsIds);
 				
-				expedients.addAll(conversioTipusHelper.convertirList(expedientRepository.findByIdIn(fiteredExpedientsIds), ExpedientDto.class));
+				// TODO: Mostrar nomes els expedients que compleixen el filtre
+				expedients.addAll(
+						conversioTipusHelper.convertirList(
+								expedientRepository.findAll(),
+//								expedientRepository.findByIdIn(fiteredExpedientsIds), 
+								ExpedientDto.class));
 			}
 			
 			paginacioParams.setPaginaTamany(expedients.size());
@@ -2330,8 +2342,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Override
 	@Transactional(readOnly = true)
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
-				Long processInstanceId) {
-		return expedientHelper.getArbreInstanciesProces(String.valueOf(processInstanceId));
+			String processInstanceId) {
+		return expedientHelper.getArbreInstanciesProces(processInstanceId);
 	}
 
 	/**

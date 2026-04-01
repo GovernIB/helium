@@ -62,7 +62,7 @@ import es.caib.helium.service.utils.EntornActual;
  */
 @Controller
 @RequestMapping("/tasca")
-public class TascaLlistatV3Controller extends BaseController {
+public class TascaLlistatController extends BaseController {
 
 	@Autowired
 	private AdminService adminService;
@@ -435,6 +435,6 @@ public class TascaLlistatV3Controller extends BaseController {
 		return idsAgafats;
 	}
 
-	protected static final Log logger = LogFactory.getLog(TascaLlistatV3Controller.class);
+	protected static final Log logger = LogFactory.getLog(TascaLlistatController.class);
 
 }

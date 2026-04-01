@@ -5,53 +5,31 @@ package es.caib.helium.integracio.plugins.signatura;
 
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Resposta a una petició de validació de signatura
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+
+@Getter @Setter
 public class RespostaValidacioSignatura {
 
-	public static final String ESTAT_OK = "OK";
+	public static final String ESTAT_VALID = "VALID";
+	public static final String ESTAT_INVALID = "INVALID";
 	public static final String ESTAT_ERROR = "ERROR";
 
 	protected String estat;
-	protected String errorCodi;
-	protected String errorDescripcio;
+	protected String errorMsg;
+	protected Throwable errorException;
 	private List<DadesCertificat> dadesCertificat;
 
-
-
-	public String getEstat() {
-		return estat;
-	}
-	public void setEstat(String estat) {
-		this.estat = estat;
-	}
-	public String getErrorCodi() {
-		return errorCodi;
-	}
-	public void setErrorCodi(String errorCodi) {
-		this.errorCodi = errorCodi;
-	}
-	public String getErrorDescripcio() {
-		return errorDescripcio;
-	}
-	public void setErrorDescripcio(String errorDescripcio) {
-		this.errorDescripcio = errorDescripcio;
-	}
-	public List<DadesCertificat> getDadesCertificat() {
-		return dadesCertificat;
-	}
-	public void setDadesCertificat(List<DadesCertificat> dadesCertificat) {
-		this.dadesCertificat = dadesCertificat;
-	}
-
-	public boolean isEstatOk() {
-		return ESTAT_OK.equals(estat);
+	public boolean isEstatValid() {
+		return ESTAT_VALID.equals(estat);
 	}
 	public boolean isEstatError() {
 		return ESTAT_ERROR.equals(estat);
 	}
-
 }

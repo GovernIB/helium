@@ -671,6 +671,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		return infoAturat != null;
 	}
 
+	@Transient
 	public String getComentariAnulat() {
 		return comentariAnulat;
 	}

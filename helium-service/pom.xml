@@ -31,6 +31,12 @@
 			<groupId>dom4j</groupId>
 		 	<artifactId>dom4j</artifactId>
 		 	<version>1.6.1</version>
+		 	<exclusions>
+				<exclusion>
+		            <groupId>xml-apis</groupId>
+		            <artifactId>xml-apis</artifactId>
+				</exclusion>
+		 	</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
@@ -156,15 +162,15 @@
 			<artifactId>easy-rules-support</artifactId>
 			<version>3.4.0</version>
 		</dependency>
-		<dependency>
+	<!--	<dependency>
 			<groupId>org.fundaciobit.pluginsib.validatecertificate</groupId>
 			<artifactId>pluginsib-validatecertificate-api</artifactId>
 			<version>2.0.0</version>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>org.fundaciobit.pluginsib.validatesignature</groupId>
 			<artifactId>pluginsib-validatesignature-afirmacxf</artifactId>
-			<version>2.0.7</version>
+			<version>3.0.0-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>xerces</groupId>

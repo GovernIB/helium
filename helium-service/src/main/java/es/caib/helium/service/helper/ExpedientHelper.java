@@ -43,6 +43,7 @@ import es.caib.helium.commons.dto.AccioTipusEnumDto;
 import es.caib.helium.commons.dto.AnotacioMapeigResultatDto;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.DadesDocumentDto;
+import es.caib.helium.commons.dto.DefinicioProcesDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.EstatDto;
 import es.caib.helium.commons.dto.ExpedientDto;
@@ -61,6 +62,7 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.dto.engine.WToken;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -72,6 +74,7 @@ import es.caib.helium.persistence.entity.Anotacio;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.DefinicioProces;
+import es.caib.helium.persistence.entity.Document;
 import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.Entorn;
 import es.caib.helium.persistence.entity.Estat;
@@ -1269,18 +1272,18 @@ public class ExpedientHelper {
 	
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
 		Expedient expedient = null;
-//		ProcessInstanceExpedient piexp = workflowEngineApi.expedientFindByProcessInstanceId(
-//				processInstanceId);
-//		if (piexp != null)
-//			expedient = expedientRepository.findOne(piexp.getId());
-//		if (expedient == null) {
-//			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
-//			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
-//				expedient = expedientIniciant;
-//			} else {
-//				throw new NoTrobatException(Expedient.class, "PID:" + processInstanceId);
-//			}
-//		}
+		es.caib.helium.commons.dto.ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
+				processInstanceId);
+		if (piexp != null)
+			expedient = expedientRepository.findById(piexp.getId()).orElse(null);
+		if (expedient == null) {
+			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
+			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
+				expedient = expedientIniciant;
+			} else {
+				throw new NoTrobatException(Expedient.class, "PID:" + processInstanceId);
+			}
+		}
 		return expedient;
 	}
 	
@@ -1471,40 +1474,38 @@ public class ExpedientHelper {
 
 	public List<InstanciaProcesDto> getArbreInstanciesProces(String processInstanceId) {
 		
-//		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
-//		JbpmProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
-//		List<JbpmProcessInstance> piTree = workflowEngineApi.getProcessInstanceTree(rootProcessInstance.getId());
-//		
-//		for (JbpmProcessInstance jpi: piTree) {
-//			InstanciaProcesDto ip = getInstanciaProcesById(jpi.getId());
-//			
-//			List<Document> documents = documentHelper.findDocumentsExpedient(findExpedientByProcessInstanceId(processInstanceId), jpi.getId());
-//			if (documents!=null) {
-//				for (Document doc: documents) {
-//					if (doc.isPinbalActiu()) {
-//						ip.setDocumentsPinbal(true);
-//						break;
-//					}
-//				}
-//			}
-//			
-//			resposta.add(ip);
-//		}
-//		return resposta;
-		return null;
+		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
+		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
+		List<WProcessInstance> piTree = workflowEngineApi.getProcessInstanceTree(rootProcessInstance.getId());
+		
+		for (WProcessInstance jpi: piTree) {
+			InstanciaProcesDto ip = getInstanciaProcesById(jpi.getId());
+			
+			List<Document> documents = documentHelper.findDocumentsExpedient(findExpedientByProcessInstanceId(processInstanceId), jpi.getId());
+			if (documents!=null) {
+				for (Document doc: documents) {
+					if (doc.isPinbalActiu()) {
+						ip.setDocumentsPinbal(true);
+						break;
+					}
+				}
+			}
+			
+			resposta.add(ip);
+		}
+		return resposta;
 	}
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
-//		InstanciaProcesDto dto = new InstanciaProcesDto();
-//		dto.setId(processInstanceId);
-//		JbpmProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
-//		if (pi.getProcessInstance() == null)
-//			return null;
-//		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
-//		if (pi.getDescription() != null && pi.getDescription().length() > 0)
-//			dto.setTitol(pi.getDescription());
-//		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
-//		return dto;
-		return null;
+		InstanciaProcesDto dto = new InstanciaProcesDto();
+		dto.setId(processInstanceId);
+		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
+		if (pi.getProcessInstance() == null)
+			return null;
+		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
+		if (pi.getDescription() != null && pi.getDescription().length() > 0)
+			dto.setTitol(pi.getDescription());
+		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
+		return dto;
 	}
 
 
@@ -1566,9 +1567,8 @@ public class ExpedientHelper {
 //				return "#invalid expression#";
 //			}
 //		} else {
-//			return new Long(seq).toString();
+			return Long.valueOf(seq).toString();
 //		}
-		return null;
 	}
 
 	private Camp getCampExpedient(String campCodi) {
@@ -1978,11 +1978,14 @@ public class ExpedientHelper {
 					expedientTipus.getJbpmProcessDefinitionKey());
 		}
 		//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
-//		JbpmProcessInstance processInstance = workflowEngineApi.startProcessInstanceById(
-//				IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
-//				definicioProces.getJbpmId(),
-//				variables);
-//		expedient.setProcessInstanceId(processInstance.getId());
+		WProcessInstance processInstance = null;
+		if(expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
+			processInstance = workflowEngineApi.startProcessInstanceById(
+					IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
+					definicioProces.getJbpmId(),
+					variables);
+			expedient.setProcessInstanceId(processInstance.getId().toString());
+		}
 		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 		
@@ -1993,11 +1996,13 @@ public class ExpedientHelper {
 
 		// Verificar la ultima vegada que l'expedient va modificar el seu estat
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
-		ExpedientLog log = expedientLoggerHelper.afegirLogExpedientPerProces(
-				null, // processInstance.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
-				null);
-		log.setEstat(ExpedientLogEstat.IGNORAR);
+		if(expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
+			ExpedientLog log = expedientLoggerHelper.afegirLogExpedientPerProces(
+					processInstance.getId().toString(),
+					ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
+					null);
+			log.setEstat(ExpedientLogEstat.IGNORAR);
+		}
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");

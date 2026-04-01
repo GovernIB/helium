@@ -49,7 +49,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 	 * @param expedientTipusId
 	 * @return
 	 */
-	@Lock(LockModeType.PESSIMISTIC_WRITE)
+//	TODO: solucionar error amb Lock al cridar a la query es queda penjat
+//	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("from ExpedientTipus where id = :expedientTipusId")
 	public ExpedientTipus findByIdAmbBloqueig(@Param("expedientTipusId") Long expedientTipusId);
 

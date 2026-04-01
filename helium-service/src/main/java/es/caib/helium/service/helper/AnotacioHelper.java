@@ -490,7 +490,7 @@ public class AnotacioHelper {
 			docTipusAnotacio = InteressatDocumentTipusEnumDto.NIF.getValor();
 		}	
 		if(interessatEntity!=null)
-			interessatEntity.setTipusDocIdent(docTipusAnotacio);
+			interessatEntity.setTipusdocident(docTipusAnotacio);
 		return docTipusAnotacio;
 	}
 	

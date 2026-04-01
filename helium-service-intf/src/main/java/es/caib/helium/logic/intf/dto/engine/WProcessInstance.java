@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 
 public interface WProcessInstance {
 
-	public Long getId();
+	public String getId();
 	public String getProcessDefinitionId();
 	public String getProcessDefinitionName();
 	public String getParentProcessInstanceId();

@@ -108,35 +108,40 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 			@RequestParam(value = "anotacioId", required = false) Long anotacioId, 
 			Model model,
 			AnotacioDto anotacio) throws Exception {
-		request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID, "TIE_" + System.currentTimeMillis());
 		
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		boolean hasStartTask = false;
+		request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID, "TIE_" + System.currentTimeMillis());
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		
-		// Si l'expedient requereix dades inicials redirigeix al pas per demanar aquestes dades
-		DefinicioProcesDto definicioProces = null;
-		if (definicioProcesId != null) {
-			definicioProces = dissenyService.getById(definicioProcesId);
-		} else {
-			definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+		if(expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
+			DefinicioProcesDto definicioProces = null;
+			if (definicioProcesId != null) {
+				definicioProces = dissenyService.getById(definicioProcesId);
+			} else {
+				definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+			}
+			
+			definicioProcesId = definicioProces.getId();
+			hasStartTask = definicioProces.isHasStartTask(); 
 		}
 		
-		if (definicioProces.isHasStartTask()) {
+		// Si l'expedient requereix dades inicials redirigeix al pas per demanar aquestes dades
+		if (hasStartTask) {
 			//Si venim d'acceptar una anotació, mapejarem les dades d'aquesta, en cas q el tipus d'expedient tingui habilitat isDistribucioSistra
 			if(anotacio!=null && anotacio.getId()!=null && expedientTipus.isDistribucioSistra()) {
 				AnotacioMapeigResultatDto resultatMapeig = anotacioHelper.processarMapeigAnotacioExpedient(expedientTipus.getId(), anotacio.getId());
 				return expedientInicioPasFormController.iniciarFormGet(
 								request,
 								expedientTipus.getId(),
-								definicioProces.getId(),
+								definicioProcesId,
 								null,
 								model,
 								resultatMapeig,
 								true);
 			}
-			return redirectByModal(request, "/expedient/iniciarForm/" + expedientTipusId + "/" + definicioProces.getId());
+			return redirectByModal(request, "/expedient/iniciarForm/" + expedientTipusId + "/" + definicioProcesId);
 		} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
-			return redirectByModal(request, "/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProces.getId());
+			return redirectByModal(request, "/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProcesId);
 		} else {
 			// Si no requereix cap pas addicional inicia l'expedient directament
 			try {
@@ -145,7 +150,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 							request,
 							expedientTipus.getEntorn().getId(),//entorn.getId(),
 							expedientTipusId,
-							definicioProces.getId(),
+							definicioProcesId,
 							(String)request.getSession().getAttribute(CLAU_SESSIO_UNITAT_ORGANITZATIVA_CODI),
 							(String)request.getSession().getAttribute(CLAU_SESSIO_NUMERO),
 							(String)request.getSession().getAttribute(CLAU_SESSIO_TITOL),

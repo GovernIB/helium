@@ -22,7 +22,7 @@ import es.caib.helium.logic.intf.service.AlertaService;
  */
 @Controller
 @RequestMapping("/alerta")
-public class AlertaV3Controller extends BaseController {
+public class AlertaController extends BaseController {
 
 	@Autowired
 	private AlertaService alertaService;

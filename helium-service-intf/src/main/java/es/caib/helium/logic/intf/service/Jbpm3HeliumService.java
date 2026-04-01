@@ -1203,7 +1203,7 @@ public interface Jbpm3HeliumService {
 	 * @param activar
 	 * @return
 	 */
-	public boolean tokenActivar(long tokenId, boolean activar);
+	public boolean tokenActivar(String tokenId, boolean activar);
 
 	/**
 	 * Desfinalitzar un expedient
@@ -1231,19 +1231,19 @@ public interface Jbpm3HeliumService {
 	 * Error completar tasca en segon pla
 	 * 
 	 */
-	public void setErrorTascaSegonPla(Long taskId, Exception ex);
+	public void setErrorTascaSegonPla(String taskId, Exception ex);
 	
 	/**
 	 * Obtenir id de tasca a partir de Token
 	 * 
 	 */
-	public Long getTaskInstanceIdByTokenId(Long tokenId);
+	public String getTaskInstanceIdByTokenId(String tokenId);
 	
 	/**
 	 * Afegir missatge d'execució a la informació de la tasca en segón pla
 	 * 
 	 */
-	public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message);
+	public void addMissatgeExecucioTascaSegonPla(String taskId, String[] message);
 
 	/**
 	 * Obtenir la llista de rols a partir del codi d'un usuari
@@ -1259,7 +1259,7 @@ public interface Jbpm3HeliumService {
 	 * @param codi taska
 	 * @return booleà si la tasca està en segón pla o no
 	 */
-	public boolean isTascaEnSegonPla(Long taskId);
+	public boolean isTascaEnSegonPla(String taskId);
 
 	/** Retorna la llista de definicions de processos que siguin sub proces de l'indicat.
 	 * 

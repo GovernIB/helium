@@ -33,7 +33,7 @@ import org.fundaciobit.apisib.apifirmaasyncsimple.v2.jersey.ApiFirmaAsyncSimpleJ
 import org.fundaciobit.apisib.core.exceptions.AbstractApisIBException;
 import org.fundaciobit.apisib.core.exceptions.ApisIBClientException;
 import org.fundaciobit.apisib.core.exceptions.ApisIBServerException;
-import org.fundaciobit.pluginsib.core.utils.FileUtils;
+import org.fundaciobit.pluginsib.core.v3.utils.FileUtils;
 
 /**
  * 

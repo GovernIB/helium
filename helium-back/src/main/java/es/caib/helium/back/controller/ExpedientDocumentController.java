@@ -310,7 +310,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 
 		// Obté l'arbre de processos però retorna un map amb tots els processos consultant només el principal
-		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
 			
 			boolean documentsPinbal = false;
@@ -349,7 +349,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private Map<InstanciaProcesDto, List<ExpedientDocumentDto>> getDocumentsArbreProcessos(
 			ExpedientDto expedient, 
 			String sort) {
-		List<InstanciaProcesDto> processos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		List<InstanciaProcesDto> processos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
 		// Per a cada instància de procés ordenem les dades per agrupació  
 		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta

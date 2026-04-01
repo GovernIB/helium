@@ -100,7 +100,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	private Date data = new Date();
 	private String targetId;
 	private Long jbpmLogId;
-	private Long processInstanceId;
+	private String processInstanceId;
 	private ExpedientLogEstat estat = ExpedientLogEstat.NORMAL;
 	private ExpedientLogAccioTipus accioTipus;
 	private Expedient expedient;
@@ -178,10 +178,10 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="process_instance_id")
-	public Long getProcessInstanceId() {
+	public String getProcessInstanceId() {
 		return processInstanceId;
 	}
-	public void setProcessInstanceId(Long processInstanceId) {
+	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
 	}
 

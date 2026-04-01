@@ -57,7 +57,7 @@ import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
  */
 @Controller
 @RequestMapping("/expedient")
-public class ExpedientInteressatV3Controller extends BaseExpedientController {
+public class ExpedientInteressatController extends BaseExpedientController {
 
 	@Autowired private ExpedientInteressatService expedientInteressatService;
 	@Autowired private UnitatOrganitzativaService unitatOrganitzativaService;
@@ -220,10 +220,10 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		model.addAttribute("tipus",dto.getTipus());
 		model.addAttribute("es_representant",dto.getEs_representant());
 		//posem el valor de l'enum tal com apareix al llistat
-		if(dto.getTipusDocIdent()==null) { //En el cas d'interessats antics no té tipusDocIdent li posem NIF de moment
-			dto.setTipusDocIdent(InteressatDocumentTipusEnumDto.NIF.name());
+		if(dto.getTipusdocident()==null) { //En el cas d'interessats antics no té tipusDocIdent li posem NIF de moment
+			dto.setTipusdocident(InteressatDocumentTipusEnumDto.NIF.name());
 		} else {
-			dto.setTipusDocIdent(this.populateInteressatDocumentTipus(dto));
+			dto.setTipusdocident(this.populateInteressatDocumentTipus(dto));
 		}
 		interessatCommand = ConversioTipus.convertir(
 				dto,
@@ -399,7 +399,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	
 	public String populateInteressatDocumentTipus(InteressatDto interessatDto) {
 		//Si ve buit, per defecte posarem NIF
-		String docIdentTipus = interessatDto.getTipusDocIdent() != null ? interessatDto.getTipusDocIdent() : InteressatDocumentTipusEnumDto.NIF.toString();
+		String docIdentTipus = interessatDto.getTipusdocident() != null ? interessatDto.getTipusdocident() : InteressatDocumentTipusEnumDto.NIF.toString();
 		if("NIF".equals(docIdentTipus) || "N".equals(docIdentTipus)) {
 			docIdentTipus = InteressatDocumentTipusEnumDto.NIF.toString();
 		} else if("CIF".equals(docIdentTipus) || "C".equals(docIdentTipus)) {
@@ -683,6 +683,6 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	
 	
 	
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientInteressatV3Controller.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientInteressatController.class);
 
 }

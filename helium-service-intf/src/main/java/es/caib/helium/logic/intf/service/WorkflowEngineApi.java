@@ -810,9 +810,9 @@ public interface WorkflowEngineApi {
 			boolean mostrarAssignadesUsuari, boolean mostrarAssignadesGrup, boolean b, boolean administrador,
 			PaginacioParamsDto paginacioParams);
 
-	public Long getVariableIdFromVariableLog(Long id);
+	public String getVariableIdFromVariableLog(String id);
 
-	public Long getTaskInstanceIdByTokenId(Long tokenId);
+	public String getTaskInstanceIdByTokenId(String tokenId);
 
 	public void executeHandler(String processInstanceId, String handlerClassPerRecurs, Map<String, String> dades);
 

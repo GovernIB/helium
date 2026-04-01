@@ -217,7 +217,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			HttpServletRequest request,
 			Model model) {
 		omplirModelExpedientTipusForm( request, null, model);		
-		model.addAttribute("command", new ExpedientTipusCommand());
+		model.addAttribute("expedientTipusCommand", new ExpedientTipusCommand());
 		return "expedientTipusForm";
 	}
 	

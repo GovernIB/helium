@@ -15,9 +15,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
+import es.caib.helium.commons.dto.DadesEnviamentDto.EntregaPostalTipus;
 import es.caib.helium.commons.dto.InteressatTipusEnumDto;
 import es.caib.helium.commons.dto.PinbalServeiDocPermesEnumDto;
-import es.caib.helium.commons.dto.DadesEnviamentDto.EntregaPostalTipus;
 import es.caib.helium.commons.dto.TitularDto.ScspTipoDocumentacion;
 
 @Entity
@@ -41,7 +41,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	private String codiPostal;
 	private boolean entregaDeh;
 	private boolean entregaDehObligat;
-	private String tipusDocIdent;
+	private String tipusdocident;
 	@Column(name="codidire", length=21)
 	private String codiDire;
 	@Column(name="direccio", length=160)
@@ -118,7 +118,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.codiPostal = codiPostal;
 		this.entregaDeh = entregaDeh;
 		this.entregaDehObligat = entregaDehObligat;
-		this.tipusDocIdent=tipusDocIdent;
+		this.tipusdocident=tipusDocIdent;
 		this.direccio=direccio;
 		this.observacions=observacions;
 		this.es_representant=es_representant;
@@ -286,11 +286,11 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public String getDocumentIdent() {
 		return documentIdent;
 	}
-	public String getTipusDocIdent() {
-		return tipusDocIdent != null ? this.tipusDocIdent : "N";
+	public String getTipusdocident() {
+		return tipusdocident != null ? this.tipusdocident : "N";
 	}
-	public void setTipusDocIdent(String tipusDocIdent) {
-		this.tipusDocIdent = tipusDocIdent;
+	public void setTipusdocident(String tipusDocIdent) {
+		this.tipusdocident = tipusDocIdent;
 	}
 	public void setDocumentIdent(String documentIdent) {
 		this.documentIdent = documentIdent;
@@ -347,22 +347,22 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			List<PinbalServeiDocPermesEnumDto> pinbalServeiDocsPermesos = serveiPinbal.getPinbalServeiDocsPermesos();
 			//Persona física
 			if (this.tipus.equals(InteressatTipusEnumDto.FISICA)) {
-				if ("N".equals(this.getTipusDocIdent())) {
+				if ("N".equals(this.getTipusdocident())) {
 					if (pinbalServeiDocsPermesos.isEmpty() || pinbalServeiDocsPermesos.contains(PinbalServeiDocPermesEnumDto.DNI)) {
 						return ScspTipoDocumentacion.DNI;
 					} else {
 						return ScspTipoDocumentacion.NIF;
 					}
-				} else if ("P".equals(this.getTipusDocIdent()) && serveiPinbal.isPinbalServeiDocPermesPas()) {
+				} else if ("P".equals(this.getTipusdocident()) && serveiPinbal.isPinbalServeiDocPermesPas()) {
 					return ScspTipoDocumentacion.Pasaporte;
-				} else if ("E".equals(this.getTipusDocIdent()) && serveiPinbal.isPinbalServeiDocPermesNie()) {
+				} else if ("E".equals(this.getTipusdocident()) && serveiPinbal.isPinbalServeiDocPermesNie()) {
 					return ScspTipoDocumentacion.NIE;
 				}
 			} else {
 				//Persona jurídica o administració
-				if ("C".equals(this.getTipusDocIdent()) && serveiPinbal.isPinbalServeiDocPermesCif()) {
+				if ("C".equals(this.getTipusdocident()) && serveiPinbal.isPinbalServeiDocPermesCif()) {
 					return ScspTipoDocumentacion.CIF;
-				} else if ("N".equals(this.getTipusDocIdent()) && serveiPinbal.isPinbalServeiDocPermesNif()) {
+				} else if ("N".equals(this.getTipusdocident()) && serveiPinbal.isPinbalServeiDocPermesNif()) {
 					return ScspTipoDocumentacion.NIF;
 				}
 			}

@@ -74,7 +74,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			interessat.getCodiPostal(),
 			interessat.getEntregaDeh(),
 			interessat.getEntregaDehObligat(),
-			interessat.getTipusDocIdent(),
+			interessat.getTipusdocident(),
 			interessat.getDireccio(),
 			interessat.getObservacions(),
 			interessat.getEs_representant(),
@@ -101,7 +101,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				propArxiu = false;
 			}
 		}
-		interessatEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(interessatEntity.getTipusDocIdent()).getValor())    ;
+		interessatEntity.setTipusdocident(InteressatDocumentTipusEnumDto.valueOf(interessatEntity.getTipusdocident()).getValor())    ;
 		interessatEntity = interessatRepository.save(interessatEntity);
 		InteressatDto resultat = conversioTipusHelper.convertir(interessatEntity, InteressatDto.class);
 		resultat.setPropagatArxiu(propArxiu);
@@ -137,7 +137,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
 		interessatEntity.setObservacions(interessat.getObservacions());
-		interessatEntity.setTipusDocIdent(translateTipusDocIdentToSave(interessat.getTipusDocIdent()));
+		interessatEntity.setTipusdocident(translateTipusDocIdentToSave(interessat.getTipusdocident()));
 		interessatEntity.setCodiDire(interessat.getCodiDire());
 		interessatEntity.setDireccio(interessat.getDireccio());
 		interessatEntity.setRaoSocial(interessat.getRaoSocial());
@@ -425,7 +425,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			representant.getCodiPostal(),
 			representant.getEntregaDeh(),
 			representant.getEntregaDehObligat(),
-			representant.getTipusDocIdent(),
+			representant.getTipusdocident(),
 			representant.getDireccio(),
 			representant.getObservacions(),
 			representant.getEs_representant(),
@@ -436,7 +436,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			representant.getCanalNotif(),
 			representant.getCodiDire()
 			);
-		representantEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(representantEntity.getTipusDocIdent()).getValor())    ;
+		representantEntity.setTipusdocident(InteressatDocumentTipusEnumDto.valueOf(representantEntity.getTipusdocident()).getValor())    ;
 		if(representant.getEs_representant()) {
 			interessat.setRepresentant(representantEntity);
 //			representantEntity.setRepresentat(interessat);

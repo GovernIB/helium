@@ -469,7 +469,7 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<InstanciaProcesDto> getArbreInstanciesProces(Long processInstanceId) {
+	public List<InstanciaProcesDto> getArbreInstanciesProces(String processInstanceId) {
 		return delegate.getArbreInstanciesProces(processInstanceId);
 	}
 

@@ -4,16 +4,19 @@
 package es.caib.helium.integracio.plugins.signatura;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.ws.security.util.Base64;
+import org.fundaciobit.pluginsib.validatecertificate.InformacioCertificat;
+import org.fundaciobit.pluginsib.validatesignature.api.SignatureDetailInfo;
+import org.fundaciobit.pluginsib.validatesignature.api.SignatureRequestedInformation;
+import org.fundaciobit.pluginsib.validatesignature.api.TimeStampInfo;
+import org.fundaciobit.pluginsib.validatesignature.api.ValidateSignatureRequest;
+import org.fundaciobit.pluginsib.validatesignature.api.ValidateSignatureResponse;
+import org.fundaciobit.pluginsib.validatesignature.api.ValidationStatus;
 
+import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
-import es.caib.helium.integracio.plugins.signatura.afirma.AfirmaUtils;
-import es.caib.helium.integracio.plugins.signatura.afirma.ValidarSignaturaResponse;
-
 
 /**
  * Implementació del plugin de signatura emprant els
@@ -23,82 +26,97 @@ import es.caib.helium.integracio.plugins.signatura.afirma.ValidarSignaturaRespon
  */
 public class SignaturaPluginAfirma implements SignaturaPlugin {
 
-	private AfirmaUtils afirmaUtils;
-
-
-
+	@Override
 	public RespostaValidacioSignatura verificarSignatura(
-			byte[] document,
-			byte[] signatura,
+			byte[] documentContingut, 
+			byte[] firmaContingut, 
 			boolean obtenirDadesCertificat) throws SignaturaPluginException {
+	
+		ValidateSignatureRequest validationRequest = new ValidateSignatureRequest();
+		RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
+		
+		if (documentContingut != null && firmaContingut == null) {
+			firmaContingut = documentContingut;
+			documentContingut = null;
+		}
+		if (firmaContingut != null) {
+			validationRequest.setSignedDocumentData(documentContingut);
+			validationRequest.setSignatureData(firmaContingut);
+		} else {
+			validationRequest.setSignatureData(documentContingut);
+		}
+		SignatureRequestedInformation sri = new SignatureRequestedInformation();
+		sri.setReturnSignatureTypeFormatProfile(true);
+		sri.setReturnCertificateInfo(true);
+		sri.setReturnValidationChecks(false);
+		sri.setValidateCertificateRevocation(false);
+		sri.setReturnCertificates(false);
+		sri.setReturnTimeStampInfo(true);
+		validationRequest.setSignatureRequestedInformation(sri);
+		ValidateSignatureResponse validateSignatureResponse;
 		try {
-			ValidarSignaturaResponse response = getAfirmaUtils().validarSignatura(
-					Base64.encode(document),
-					Base64.encode(signatura),
-					obtenirDadesCertificat);
-			RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
-			if (response.isEstatOk()) {
-				resposta.setEstat(RespostaValidacioSignatura.ESTAT_OK);
-				if (response.getDadesCertificat() != null) {
-					List<DadesCertificat> dadesCertificats = new ArrayList<DadesCertificat>();
-					for (es.caib.helium.integracio.plugins.signatura.afirma.DadesCertificat dc: response.getDadesCertificat()) {
-						DadesCertificat dadesCertificat = new DadesCertificat();
-						dadesCertificat.setTipoCertificado(dc.getTipoCertificado());
-						dadesCertificat.setSubject(dc.getSubject());
-						dadesCertificat.setNombreResponsable(dc.getNombreResponsable());
-						dadesCertificat.setPrimerApellidoResponsable(dc.getPrimerApellidoResponsable());
-						dadesCertificat.setSegundoApellidoResponsable(dc.getSegundoApellidoResponsable());
-						dadesCertificat.setNifResponsable(dc.getNifResponsable());
-						dadesCertificat.setIdEmisor(dc.getIdEmisor());
-						dadesCertificat.setNifCif(dc.getNifCif());
-						dadesCertificat.setEmail(dc.getEmail());
-						dadesCertificat.setFechaNacimiento(dc.getFechaNacimiento());
-						dadesCertificat.setRazonSocial(dc.getRazonSocial());
-						dadesCertificat.setClasificacion(dc.getClasificacion());
-						dadesCertificat.setNumeroSerie(dc.getNumeroSerie());
-						dadesCertificats.add(dadesCertificat);
-					}
-					resposta.setDadesCertificat(dadesCertificats);
+			
+			validateSignatureResponse = new org.fundaciobit.pluginsib.validatesignature.afirmacxf.AfirmaCxfValidateSignaturePlugin(
+					"app.signatura.plugin.",
+					GlobalProperties.getInstance()).
+			validateSignature(validationRequest);
+		} catch (Exception e) {
+			logger.error("Error validant signatura", e);
+			throw new SistemaExternException(e);
+		}
+		
+		// Completa la resposta
+		String estat = RespostaValidacioSignatura.ESTAT_INVALID;
+		switch(validateSignatureResponse.getValidationStatus().getStatus()) {
+		case ValidationStatus.SIGNATURE_ERROR:
+			estat = RespostaValidacioSignatura.ESTAT_ERROR;
+			break;
+		case ValidationStatus.SIGNATURE_VALID:
+			estat = RespostaValidacioSignatura.ESTAT_VALID;
+			break;
+		case ValidationStatus.SIGNATURE_INVALID:
+			estat = RespostaValidacioSignatura.ESTAT_INVALID;
+			break;
+		}
+		
+		resposta.setEstat(estat);
+		resposta.setErrorMsg(validateSignatureResponse.getValidationStatus().getErrorMsg());
+		resposta.setErrorException(validateSignatureResponse.getValidationStatus().getErrorException());
+		resposta.setDadesCertificat(new ArrayList<DadesCertificat>());
+		if (validateSignatureResponse.getSignatureDetailInfo() != null) {
+			for (SignatureDetailInfo signatureInfo: validateSignatureResponse.getSignatureDetailInfo()) {
+				DadesCertificat detall = new DadesCertificat();
+				TimeStampInfo timeStampInfo = signatureInfo.getTimeStampInfo();
+				if (timeStampInfo != null) {
+					detall.setData(timeStampInfo.getCreationTime());
+				} else {
+					detall.setData(signatureInfo.getSignDate());
 				}
-			} else {
-				resposta.setEstat(RespostaValidacioSignatura.ESTAT_ERROR);
-				resposta.setErrorDescripcio(response.getErrorDescripcio());
+				InformacioCertificat certificateInfo = signatureInfo.getCertificateInfo();
+				if (certificateInfo != null) {
+					detall.setNifResponsable(certificateInfo.getNifResponsable());
+					detall.setNomResponsable(certificateInfo.getNomResponsable());
+					detall.setPrimerLlinatgeResponsable(certificateInfo.getPrimerLlinatgeResponsable());
+					detall.setSegonLlinatgeResponsable(certificateInfo.getSegonLlinatgeResponsable());
+					detall.setSubject(certificateInfo.getSubject());
+					detall.setNifResponsable(certificateInfo.getNifResponsable());
+					detall.setIdEmisor(certificateInfo.getEmissorID());
+					detall.setNifCif(certificateInfo.getUnitatOrganitzativaNifCif());
+					detall.setEmail(certificateInfo.getEmail());
+					detall.setDataNaixement(certificateInfo.getDataNaixement());
+					detall.setRazonSocial(certificateInfo.getRaoSocial());
+					detall.setClasificacio(certificateInfo.getClassificacioEidas());
+					detall.setNumeroSerie(certificateInfo.getNumeroSerie().toString());
+				}
+				resposta.getDadesCertificat().add(detall);
 			}
-			return resposta;
-		} catch (Exception ex) {
-			logger.error("Error verificant la signatura", ex);
-			throw new SignaturaPluginException("Error verificant la signatura", ex);
+//			resposta.setPerfil(ArxiuConversions.toPerfilFirmaArxiu(validateSignatureResponse.getSignProfile()));
+//			resposta.setTipus(ArxiuConversions.toFirmaTipus(
+//					validateSignatureResponse.getSignType(),
+//					validateSignatureResponse.getSignFormat()));
 		}
-	}
-
-
-
-	private AfirmaUtils getAfirmaUtils() {
-		if (afirmaUtils == null) {
-			String url = GlobalProperties.getInstance().getProperty(
-					"app.signatura.plugin.afirma.urlbase");
-			String idAplicacio = GlobalProperties.getInstance().getProperty(
-					"app.signatura.plugin.afirma.appid");
-			String usuari = GlobalProperties.getInstance().getProperty(
-					"app.signatura.plugin.afirma.usuari");
-			String contrasenya = GlobalProperties.getInstance().getProperty(
-					"app.signatura.plugin.afirma.contrasenya");
-			if (usuari != null && usuari.length() > 0) {
-				afirmaUtils = new AfirmaUtils(
-						url,
-						idAplicacio,
-						usuari,
-						contrasenya);
-			} else {
-				afirmaUtils = new AfirmaUtils(
-						url,
-						idAplicacio);
-			}
-			//afirmaUtils.setLogMissatges(true);
-		}
-		return afirmaUtils;
+		return resposta;
 	}
 
 	private static final Log logger = LogFactory.getLog(SignaturaPluginAfirma.class);
-
 }

@@ -146,7 +146,7 @@ public class ExpedientLoggerHelper {
 				usuari,
 				processInstanceId,
 				tipus);
-		expedientLog.setProcessInstanceId(new Long(processInstanceId));
+		expedientLog.setProcessInstanceId(processInstanceId);
 		Long jbpmLogId = workflowEngineApi.addProcessInstanceMessageLog(
 				expedientLog.getExpedient().getProcessInstanceId(),
 				getMessageLogPerTipus(tipus));
@@ -161,14 +161,14 @@ public class ExpedientLoggerHelper {
 	private Collection<LogObjectDto> getAccionsJbpmPerRetrocedir(
 			List<ExpedientLog> expedientLogs,
 			List<WProcessLog> logsSorted) {
-		Map<Long, LogObjectDto> LogObjectDtos = new HashMap<Long, LogObjectDto>();
-		long currentMessageLogId = -1;
+		Map<String, LogObjectDto> LogObjectDtos = new HashMap<String, LogObjectDto>();
+		String currentMessageLogId = null;
 		for (WProcessLog plog: logsSorted) {
 			if (plog instanceof WMessageLog) {
 				WMessageLog mlog = (WMessageLog)plog;
 				if (mlog.getMessage().startsWith(MESSAGE_LOGINFO_PREFIX)) {
 					
-					Long objId = Long.valueOf(plog.getToken().getProcessInstance().getId());
+					String objId = plog.getToken().getProcessInstance().getId();
 					LogObjectDto lobj = LogObjectDtos.get(objId);
 					
 					if (lobj == null) {
@@ -178,7 +178,7 @@ public class ExpedientLoggerHelper {
 						LogInfo li = LogInfo.valueOf(sTipus);
 						
 						lobj = new LogObjectDto(
-								objId.longValue(),
+								objId,
 								plog.getId(),
 								//objId.toString(),
 								li.name(),
@@ -226,11 +226,11 @@ public class ExpedientLoggerHelper {
 				}
 			} else if (plog instanceof WTaskLog) {
 				WTaskInstance taskInstance = ((WTaskLog)plog).getTaskInstance();
-				Long objId = new Long(taskInstance.getId());
+				String objId = taskInstance.getId();
 				LogObjectDto lobj = LogObjectDtos.get(objId);
 				if (lobj == null) {
 					lobj = new LogObjectDto(
-							objId.longValue(),
+							objId,
 							plog.getId(),
 							taskInstance.getTaskName(),
 							LogObjectDto.LOG_OBJECT_TASK,
@@ -306,22 +306,21 @@ public class ExpedientLoggerHelper {
 					}
 					if (!ignored) {
 						if (variableInstance.getVariableName() != null || variableInstance.getValue() != null) {
-							Long variableInstanceId = workflowEngineApi.getVariableIdFromVariableLog(plog.getId());
-							Long taskInstanceId = workflowEngineApi.getVariableIdFromVariableLog(plog.getId());
-							Long objId = Long.valueOf(variableInstanceId);
-							LogObjectDto lobj = LogObjectDtos.get(objId);
+							String variableInstanceId = workflowEngineApi.getVariableIdFromVariableLog(plog.getId());
+							String taskInstanceId = workflowEngineApi.getVariableIdFromVariableLog(plog.getId());
+							LogObjectDto lobj = LogObjectDtos.get(variableInstanceId);
 							if (lobj == null) {
 								lobj = new LogObjectDto(
-										objId.longValue(),
+										variableInstanceId,
 										plog.getId(),
 										variableInstance.getVariableName(),
 										(taskInstanceId != null) ? LogObjectDto.LOG_OBJECT_VARTASCA : LogObjectDto.LOG_OBJECT_VARPROCES,
 										plog.getToken().getProcessInstance().getId(),
 										plog.getToken().getId());
 								if (taskInstanceId != null) {
-									lobj.setTaskInstanceId(taskInstanceId.longValue());
+									lobj.setTaskInstanceId(taskInstanceId);
 								}
-								LogObjectDtos.put(objId, lobj);
+								LogObjectDtos.put(variableInstanceId, lobj);
 							}
 //							if (plog instanceof VariableCreateLog)
 //								lobj.addAccio(LogObjectDto.LOG_ACTION_CREATE);
@@ -376,11 +375,11 @@ public class ExpedientLoggerHelper {
 //					lobj.setValorInicial(trlog.getSourceNode().getName());
 //				}
 			} else if (plog instanceof ProcessInstanceHistoryLog) {// || plog instanceof ProcessInstanceEndLog) {
-				Long objId = Long.valueOf(plog.getToken().getProcessInstance().getId());
+				String objId = plog.getToken().getProcessInstance().getId();
 				LogObjectDto lobj = LogObjectDtos.get(objId);
 				if (lobj == null) {
 					lobj = new LogObjectDto(
-							objId.longValue(),
+							objId,
 							plog.getId(),
 							objId.toString(),
 							LogObjectDto.LOG_OBJECT_PROCES,
@@ -530,7 +529,7 @@ public class ExpedientLoggerHelper {
 		return logsJbpm;
 	}
 		
-	private List<WProcessLog> getJbpmLogsPerInstanciaProces(Long processInstanceId, boolean asc) {
+	private List<WProcessLog> getJbpmLogsPerInstanciaProces(String processInstanceId, boolean asc) {
 		 
 		List<WProcessLog> logsJbpm = new ArrayList<WProcessLog>();
 		 
@@ -581,7 +580,7 @@ public class ExpedientLoggerHelper {
 			WNode join = null;
 			for (WProcessLog plog: logsJbpm) {
 				// L'índex inicial correspon al lloc a on es troba el log marcat per jbpmLogId
-				if (plog.getId() == expedientLog.getJbpmLogId()) {
+				if (plog.getId() == expedientLog.getJbpmLogId().toString()) {
 					indexInici = index;
 				} else if (indexInici != -1 && plog instanceof WTransitionLog) {
 					// Comprovam si hi ha hagut una transició a un join
@@ -1357,7 +1356,7 @@ public class ExpedientLoggerHelper {
 		return tasca.getDocuments();
 	}
 	
-	private WNode getForkNode(long processInstanceId, Object joinNode) {
+	private WNode getForkNode(String processInstanceId, Object joinNode) {
 		List<WProcessLog> logsJbpm = getJbpmLogsPerInstanciaProces(processInstanceId, false);
 		if (logsJbpm != null && logsJbpm.size() > 0) {
 			boolean trobat = false;
@@ -1488,7 +1487,7 @@ public class ExpedientLoggerHelper {
 				usuari,
 				taskInstanceId,
 				tipus);
-		expedientLog.setProcessInstanceId(new Long(task.getProcessInstanceId()));
+		expedientLog.setProcessInstanceId(task.getProcessInstanceId());
 		expedientLog.setJbpmLogId(jbpmLogId);
 		if (accioParams != null)
 			expedientLog.setAccioParams(accioParams);
@@ -1518,7 +1517,7 @@ public class ExpedientLoggerHelper {
 				usuari,
 				processInstanceId,
 				tipus);
-		expedientLog.setProcessInstanceId(new Long(processInstanceId));
+		expedientLog.setProcessInstanceId(processInstanceId);
 		expedientLog.setJbpmLogId(jbpmLogId);
 		if (accioParams != null)
 			expedientLog.setAccioParams(accioParams);

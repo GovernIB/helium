@@ -309,7 +309,7 @@ public class DocumentHelper {
 							dto.getVistaContingut(),
 							signatura,
 							false);
-					if (resposta.isEstatOk()) {
+					if (resposta.isEstatValid()) {
 						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
 								referenciaCustodia,
 								documentStore.getReferenciaFont(),

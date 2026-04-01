@@ -56,7 +56,7 @@ import es.caib.helium.logic.intf.service.ExpedientTerminiService;
  */
 @Controller
 @RequestMapping("/expedient")
-public class ExpedientTerminiV3Controller extends BaseExpedientController {
+public class ExpedientTerminiController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
@@ -71,7 +71,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {		
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 		Map<InstanciaProcesDto, List<TerminiDto>> terminis = new LinkedHashMap<InstanciaProcesDto, List<TerminiDto>>();
 		Map<String, List<TerminiIniciatDto>> iniciats = new LinkedHashMap<String, List<TerminiIniciatDto>>();
 		boolean perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus());
@@ -350,6 +350,6 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		return resposta;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientTerminiV3Controller.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientTerminiController.class);
 
 }

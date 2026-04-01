@@ -1498,7 +1498,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				Object[] param2 = (Object[]) deserialize(ome.getExecucioMassiva().getParam2());
 				// Proces principal
 				Long definicioProcesId = (Long) param2[0];
-				Long expedientProcesInstanceId = Long.parseLong(exp.getProcessInstanceId());
+				String expedientProcesInstanceId = exp.getProcessInstanceId();
 				InstanciaProcesDto instanciaProces = expedientService
 						.getInstanciaProcesById(exp.getProcessInstanceId());
 				DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
@@ -1592,7 +1592,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 															? getErrorMsg(ex.getCause())
 															: getErrorMsg(ex.getCause().getCause());
 
-					Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
+//					String processInstanceId = definicioProces.getJbpmId();
 
 					if (msg.contains("HELIUM.FK_TASKINST_TASK"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.taskinstance");
@@ -2468,7 +2468,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				switch(camp.getTipus()) {
 				case BOOLEAN:
 					valor = valor.toLowerCase().trim();
-					valorHelium  = new Boolean("s".equals(valor) || "true".equals(valor));
+					valorHelium  = ("s".equals(valor) || "true".equals(valor));
 					break;
 				case DATE:
 					if (!"".equals(valor.trim())) {

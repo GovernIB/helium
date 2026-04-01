@@ -38,7 +38,7 @@ public class InteressatDto {
 	private Boolean entregaDehObligat;
 	
 	private String observacions;
-	private String tipusDocIdent;
+	private String tipusdocident;
 	private String codiDire;
 	private String direccio;
 	private String raoSocial;
@@ -247,11 +247,11 @@ public class InteressatDto {
 	public void setObservacions(String observacions) {
 		this.observacions = observacions;
 	}
-	public String getTipusDocIdent() {
-		return tipusDocIdent;
+	public String getTipusdocident() {
+		return tipusdocident;
 	}
-	public void setTipusDocIdent(String tipusDocIdent) {
-		this.tipusDocIdent = tipusDocIdent;
+	public void setTipusdocident(String tipusdocident) {
+		this.tipusdocident = tipusdocident;
 	}
 	public String getCodiDire() {
 		return codiDire;

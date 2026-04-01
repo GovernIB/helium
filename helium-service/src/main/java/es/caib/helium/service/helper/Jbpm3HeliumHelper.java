@@ -549,7 +549,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				interessat.getCodiPostal(),
 				interessat.getEntregaDeh(),
 				interessat.getEntregaDehObligat(),
-				interessat.getTipusDocIdent(),
+				interessat.getTipusdocident(),
 				interessat.getDireccio(),
 				interessat.getObservacions(),
 				interessat.getEs_representant(),
@@ -600,7 +600,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		
 		interessatEntity.setNom(interessat.getNom());
 		interessatEntity.setRaoSocial(interessat.getRaoSocial());
-		interessatEntity.setTipusDocIdent(interessat.getTipusDocIdent());
+		interessatEntity.setTipusdocident(interessat.getTipusdocident());
 		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());
@@ -1612,7 +1612,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	
 	
 	@Override
-	public boolean tokenActivar(long tokenId, boolean activar) {
+	public boolean tokenActivar(String tokenId, boolean activar) {
 		logger.debug("tokenActivar (" +
 				"tokenId=" + tokenId + ", " +
 				"activar=" + activar + ")");
@@ -3266,7 +3266,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	
 	@Override
-	public void setErrorTascaSegonPla(Long taskId, Exception ex) {
+	public void setErrorTascaSegonPla(String taskId, Exception ex) {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
 			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 			if (map.containsKey(taskId)) {
@@ -3276,12 +3276,12 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public Long getTaskInstanceIdByTokenId(Long tokenId) {
+	public String getTaskInstanceIdByTokenId(String tokenId) {
 		return workflowEngineApi.getTaskInstanceIdByTokenId(tokenId);
 	}
 	
 	@Override
-	public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message) {
+	public void addMissatgeExecucioTascaSegonPla(String taskId, String[] message) {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
 			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 			if (map.containsKey(taskId)) {
@@ -3291,7 +3291,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	
 	@Override
-	public boolean isTascaEnSegonPla(Long taskId) {
+	public boolean isTascaEnSegonPla(String taskId) {
 		boolean result = false;
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
 			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();

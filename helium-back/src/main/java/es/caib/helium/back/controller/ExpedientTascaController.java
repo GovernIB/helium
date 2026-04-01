@@ -53,7 +53,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		if (expedient.isPermisAdministration() || expedient.isPermisRead() || expedient.isPermisSupervision()) {
-			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			model.addAttribute("expedient", expedient);
@@ -94,7 +94,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		if (expedient.isPermisAdministration() || expedient.isPermisRead() || expedient.isPermisSupervision()) {
-			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			model.addAttribute("expedient", expedient);

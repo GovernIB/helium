@@ -18,16 +18,16 @@ public class LogObjectDto {
 	public static final String LOG_ACTION_END = "E";
 	public static final String LOG_ACTION_ASSIGN = "A";
 	public static final String LOG_ACTION_EXEC = "X";
-	private long objectId;
-	private long logId;
+	private String objectId;
+	private String logId;
 	private String name;
-	private long processInstanceId;
-	private long tokenId;
-	private long taskInstanceId;
+	private String processInstanceId;
+	private String tokenId;
+	private String taskInstanceId;
 	private int tipus;
 	private List<String> accions = new ArrayList<String>();
 	private Object valorInicial = null;
-	public LogObjectDto(long objectId, long logId, String name, int tipus, long processInstanceId, long tokenId) {
+	public LogObjectDto(String objectId, String logId, String name, int tipus, String processInstanceId, String tokenId) {
 		this.objectId = objectId;
 		this.logId = logId;
 		this.name = name;
@@ -35,16 +35,16 @@ public class LogObjectDto {
 		this.processInstanceId = processInstanceId;
 		this.tokenId = tokenId;
 	}
-	public long getObjectId() {
+	public String getObjectId() {
 		return objectId;
 	}
-	public void setObjectId(long objectId) {
+	public void setObjectId(String objectId) {
 		this.objectId = objectId;
 	}
-	public long getLogId() {
+	public String getLogId() {
 		return logId;
 	}
-	public void setLogId(long logId) {
+	public void setLogId(String logId) {
 		this.logId = logId;
 	}
 	public String getName() {
@@ -53,22 +53,22 @@ public class LogObjectDto {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public long getProcessInstanceId() {
+	public String getProcessInstanceId() {
 		return processInstanceId;
 	}
-	public void setProcessInstanceId(long processInstanceId) {
+	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
 	}
-	public long getTokenId() {
+	public String getTokenId() {
 		return tokenId;
 	}
-	public void setTokenId(long tokenId) {
+	public void setTokenId(String tokenId) {
 		this.tokenId = tokenId;
 	}
-	public long getTaskInstanceId() {
+	public String getTaskInstanceId() {
 		return taskInstanceId;
 	}
-	public void setTaskInstanceId(long taskInstanceId) {
+	public void setTaskInstanceId(String taskInstanceId) {
 		this.taskInstanceId = taskInstanceId;
 	}
 	public int getTipus() {

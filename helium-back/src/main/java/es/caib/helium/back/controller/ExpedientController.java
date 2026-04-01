@@ -71,7 +71,7 @@ import es.caib.helium.service.helper.ExpedientHelper;
  */
 @Controller
 @RequestMapping("/expedient")
-public class ExpedientV3Controller extends BaseExpedientController {
+public class ExpedientController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
@@ -941,5 +941,5 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				new ObjectTypeEditorHelper());
 	}
 	
-	private static final Log logger = LogFactory.getLog(ExpedientV3Controller.class);
+	private static final Log logger = LogFactory.getLog(ExpedientController.class);
 }

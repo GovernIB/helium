@@ -39,7 +39,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 			ModelMap model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		model.addAttribute("expedient", expedient);
-		model.addAttribute("arbreProcessos", expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId())));
+		model.addAttribute("arbreProcessos", expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId()));
 		model.addAttribute("instanciaProces", expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));
 		return "expedient/timeline";
 	}

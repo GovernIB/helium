@@ -791,7 +791,7 @@ public interface ExpedientService {
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornid, String text);
 
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
-			Long processInstanceId);
+			String processInstanceId);
 
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId);
 
