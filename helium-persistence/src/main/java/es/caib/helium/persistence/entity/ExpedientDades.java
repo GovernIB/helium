@@ -49,9 +49,12 @@ public class ExpedientDades implements Serializable, GenericEntity<Long> {
 			name = "expedient_id",
 			foreignKey = @ForeignKey(name = "hel_ed_ex_fk"))
 	private Expedient expedient;
-	
-	private Long processInstanceId;
-	private Long taskId;
+	@Column(name="principal")
+	private Boolean principal;
+	@Column(name="process_id")
+	private String processId;
+	@Column(name="task_id")
+	private String taskId;
 
 	/** Columna on es guarda el JSON amb les dades. */ 
 	@Lob
@@ -76,16 +79,22 @@ public class ExpedientDades implements Serializable, GenericEntity<Long> {
 	public void setExpedient(Expedient expedient) {
 		this.expedient = expedient;
 	}
-	public Long getProcessInstanceId() {
-		return processInstanceId;
+	public boolean getPrincipal() {
+		return principal != null? principal.booleanValue() : false;
 	}
-	public void setProcessInstanceId(Long processInstanceId) {
-		this.processInstanceId = processInstanceId;
+	public void setPrincipal(Boolean principal) {
+		this.principal = principal;
 	}
-	public Long getTaskId() {
+	public String getProcessId() {
+		return processId;
+	}
+	public void setProcessId(String processId) {
+		this.processId = processId;
+	}
+	public String getTaskId() {
 		return taskId;
 	}
-	public void setTaskId(Long taskId) {
+	public void setTaskId(String taskId) {
 		this.taskId = taskId;
 	}
 	public String getDades() {
@@ -101,7 +110,7 @@ public class ExpedientDades implements Serializable, GenericEntity<Long> {
 		int result = super.hashCode();
 		result = prime * result + ((expedientTipus == null) ? 0 : expedientTipus.hashCode());
 		result = prime * result + ((expedient == null) ? 0 : expedient.hashCode());
-		result = prime * result + ((processInstanceId == null) ? 0 : processInstanceId.hashCode());
+		result = prime * result + ((processId == null) ? 0 : processId.hashCode());
 		result = prime * result + ((taskId == null) ? 0 : taskId.hashCode());
 		return result;
 	}
@@ -124,10 +133,10 @@ public class ExpedientDades implements Serializable, GenericEntity<Long> {
 				return false;
 		} else if (!expedient.equals(other.expedient))
 			return false;
-		if (processInstanceId == null) {
-			if (other.processInstanceId != null)
+		if (processId == null) {
+			if (other.processId != null)
 				return false;
-		} else if (!processInstanceId.equals(other.processInstanceId))
+		} else if (!processId.equals(other.processId))
 			return false;
 		if (taskId == null) {
 			if (other.taskId != null)

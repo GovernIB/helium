@@ -133,7 +133,7 @@
 				<hel:inputSelect inline="true" name="${campPath}" emptyOption="true" optionItems="${valorsBoolea}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'SELECCIO'}">
-				<c:set var="EXPEDIENT_ESTAT" value="<%=es.caib.helium.logic.intf.dto.ExpedientCamps.EXPEDIENT_CAMP_ESTAT%>"></c:set>
+				<c:set var="EXPEDIENT_ESTAT" value="<%=es.caib.helium.commons.constants.ExpedientCamps.EXPEDIENT_CAMP_ESTAT%>"></c:set>
 				<div class="col-xs-13">
 				<c:choose>
 					<c:when test="${campPath == EXPEDIENT_ESTAT}">

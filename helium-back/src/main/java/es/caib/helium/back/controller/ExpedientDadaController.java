@@ -105,11 +105,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		if (ambOcultsParam != null) {
 		    ambOcults = Boolean.parseBoolean(ambOcultsParam);
 		}
-//		Boolean ambOcults = Boolean.parseBoolean(request.getParameter("ambOcults"));
-//		Boolean noPendents = Boolean.parseBoolean(request.getParameter("noPendents"));
-//		String filtre = request.getParameter("filtre");
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
-//		paginacioParams.setFiltre(filtre);
 
 		return DatatablesHelper.getDatatableResponse(
 				request,

@@ -30,7 +30,6 @@ import es.caib.helium.commons.dto.ValidacioDto;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.logic.intf.dto.engine.WDelegationInfo;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -93,6 +92,8 @@ public class VariableHelper {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private MessageHelper messageHelper;
+	@Resource
+	private ExpedientDadaHelper expedientDadaHelper;
 
 
 
@@ -163,8 +164,6 @@ public class VariableHelper {
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp);
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "0");
 		}
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				processInstanceId);
 		Map<String, Camp> campsIndexatsPerCodi = new HashMap<String, Camp>();
 		Set<Camp> camps;
 		if (expedientTipus.isAmbInfoPropia()) {
@@ -175,6 +174,8 @@ public class VariableHelper {
 			}
 			camps = expedientTipus.getCamps();
 		} else {
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+					processInstanceId);
 			camps = definicioProces.getCamps();
 		}
 		
@@ -183,8 +184,7 @@ public class VariableHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "0");
 		mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		List<ExpedientDadaDto> resposta = new ArrayList<ExpedientDadaDto>();
-		Map<String, Object> varsInstanciaProces = workflowEngineApi.getProcessInstanceVariables(
-				processInstanceId);
+		Map<String, Object> varsInstanciaProces = expedientDadaHelper.getDadesValors(exp, exp.getProcessInstanceId(), null);
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		if (varsInstanciaProces != null) {
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");
@@ -243,24 +243,27 @@ public class VariableHelper {
 			String processInstanceId,
 			String variableCodi, 
 			boolean incloureVariablesBuides) {
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		
 		Camp camp;
-		if (expedientTipus.isAmbInfoPropia())
+		if (expedientTipus.isAmbInfoPropia()) {
 			camp = campRepository.findByExpedientTipusAndCodi(
 					expedientTipus.getId(),
 					variableCodi,
 					expedientTipus.getExpedientTipusPare() != null);
-		else
+		} else {
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+					processInstanceId);
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProces,
 					variableCodi);
+		}
 		
-		Object valor = workflowEngineApi.getProcessInstanceVariable(
-				processInstanceId,
+		Object valor = expedientDadaHelper.getDada(
+				expedient, 
+				processInstanceId, 
+				null, 
 				variableCodi);
 
 		ExpedientDadaDto dto = null;

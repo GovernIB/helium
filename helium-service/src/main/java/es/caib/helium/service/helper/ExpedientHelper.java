@@ -1274,8 +1274,11 @@ public class ExpedientHelper {
 		Expedient expedient = null;
 		es.caib.helium.commons.dto.ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
 				processInstanceId);
-		if (piexp != null)
+		if (piexp != null) {
 			expedient = expedientRepository.findById(piexp.getId()).orElse(null);
+		} else {
+			expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		}
 		if (expedient == null) {
 			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
 			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {

@@ -19,7 +19,6 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,7 +33,6 @@ import es.caib.helium.commons.dto.ExpedientDadaDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.regles.CampFormProperties;
-import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
@@ -60,7 +58,6 @@ import es.caib.helium.service.helper.ExpedientDadaHelper;
 import es.caib.helium.service.helper.ExpedientHelper;
 import es.caib.helium.service.helper.ExpedientLoggerHelper;
 import es.caib.helium.service.helper.HerenciaHelper;
-import es.caib.helium.service.helper.IndexHelper;
 import es.caib.helium.service.helper.VariableHelper;
 import es.caib.helium.service.regles.ReglaHelper;
 import es.caib.helium.service.security.ExtendedPermission;
@@ -89,8 +86,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	private VariableHelper variableHelper;
 	@Resource
 	private WorkflowEngineApi jbpmHelper;
-	@Autowired
-	private IndexHelper indexHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -129,15 +124,14 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
-				varCodi);
-		expedientDadaHelper.optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processInstanceId, varCodi, varValor);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+//		expedientLoggerHelper.afegirLogExpedientPerProces(
+//				processInstanceId != null ? processInstanceId : expedient.getProcessInstanceId(),
+//				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
+//				varCodi);
+		expedientDadaHelper.setDada(expedient, processInstanceId, null, varCodi, varValor);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
-				processInstanceId,
+				processInstanceId != null ? processInstanceId : expedient.getProcessInstanceId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				Registre.Accio.MODIFICAR);
 		registre.setMissatge("Crear variable '" + varCodi + "'");
@@ -172,12 +166,12 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 //		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
 		// Esborra la descripció per variables que mantenen el valor de la consulta
 		Camp camp;
-		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findById(instanciaProces.getDefinicioProces().getId()).orElse(null);
 		if (expedient.getTipus().isAmbInfoPropia()) {
 			// obtenir el camp amb expedient tipus codi i codi de la variable
 			camp = campRepository.findByExpedientTipusAndCodi(expedient.getTipus().getId(), varCodi, expedient.getTipus().getExpedientTipusPare() != null);
 		}else {
+			InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
+			DefinicioProces definicioProces = definicioProcesRepository.findById(instanciaProces.getDefinicioProces().getId()).orElse(null);
 			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
 		}
 		if (camp != null && camp.isDominiCacheText())
@@ -192,7 +186,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				processInstanceId,
 				varCodi,
 				varValor);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,
@@ -228,25 +221,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
 				varCodi);
-		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
-		// Esborra la descripció per variables que mantenen el valor de la consulta
-		Camp camp;
-		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findById(instanciaProces.getDefinicioProces().getId()).orElse(null);
-		if (e.getTipus().isAmbInfoPropia()) {
-			// obtenir el camp amb expedient tipus codi i codi de la variable
-			camp = campRepository.findByExpedientTipusAndCodi(e.getTipus().getId(), varCodi, e.getTipus().getExpedientTipusPare() != null);
-		}else {
-			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
-		}			
-		if (camp != null && camp.isDominiCacheText())
-			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
-		
-		if (e.getTipus().isAmbInfoPropia()) {
-			indexHelper.expedientIndexLuceneDelete(processInstanceId, varCodi);
-		} else {
-			indexHelper.expedientIndexLuceneDelete(processInstanceId, definicioProces.getJbpmKey() + "." + varCodi);
-		}
+		expedientDadaHelper.deleteDada(e, processInstanceId, null, varCodi);
 		
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
@@ -669,6 +644,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	}
 
 	@Override
+	@Transactional
 	public DadaListDto getDadaList(Long expedientId, String procesId, String varCodi) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, true, false, false, false);
 		Camp camp = campRepository.findByExpedientTipusAndCodi(expedient.getTipus().getId(), varCodi, false);

@@ -55,9 +55,9 @@
 </style>
 <script>
 
-var $ADMINISTRACIO = '<%=es.caib.helium.logic.intf.dto.InteressatTipusEnumDto.ADMINISTRACIO%>';
-var $FISICA = '<%=es.caib.helium.logic.intf.dto.InteressatTipusEnumDto.FISICA%>';
-var $JURIDICA = '<%=es.caib.helium.logic.intf.dto.InteressatTipusEnumDto.JURIDICA%>';
+var $ADMINISTRACIO = '<%=es.caib.helium.commons.dto.InteressatTipusEnumDto.ADMINISTRACIO%>';
+var $FISICA = '<%=es.caib.helium.commons.dto.InteressatTipusEnumDto.FISICA%>';
+var $JURIDICA = '<%=es.caib.helium.commons.dto.InteressatTipusEnumDto.JURIDICA%>';
 
 function ajustarTipus(tipus) {
   	if (tipus == $ADMINISTRACIO) {
@@ -191,12 +191,12 @@ $(document).ready(function() {
 		webutilModalAdjustHeight();
 		netejar();
 		var tipusInt = 1;
- 		if (this.value == '<%=es.caib.helium.logic.intf.dto.InteressatTipusEnumDto.FISICA%>') {
+ 		if (this.value == '<%=es.caib.helium.commons.dto.InteressatTipusEnumDto.FISICA%>') {
  			tipusInt = 1;
 			$('#tipusdocident').val("NIF");
 			$('#tipusdocident').prop("readonly", false);
 		
- 		} else if (this.value == '<%=es.caib.helium.logic.intf.dto.InteressatTipusEnumDto.JURIDICA%>') {
+ 		} else if (this.value == '<%=es.caib.helium.commons.dto.InteressatTipusEnumDto.JURIDICA%>') {
  			tipusInt = 2;
  			$('#tipusdocident').val("NIF");
  			$('#tipusdocident').prop("readonly", false);
@@ -231,7 +231,7 @@ $(document).ready(function() {
 	$('select#pais').change(function() {
  		if ($(this).val() == '724') {
 			$('#provincia').prop('disabled',false); 
- 	 		if ($('select#tipus').val() != '<%=es.caib.helium.logic.intf.dto.InteressatTipusEnumDto.ADMINISTRACIO%>') {
+ 	 		if ($('select#tipus').val() != '<%=es.caib.helium.commons.dto.InteressatTipusEnumDto.ADMINISTRACIO%>') {
 				$('#provincia').change();
  	 			$('#provincia').prop("readonly", false);
 				$('#municipi').prop("readonly", false);
