@@ -28,10 +28,12 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.NumberUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -57,6 +59,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.conselldemallorca.helium.report.FieldValue;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
@@ -99,6 +106,8 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	JasperReportsHelper jasperReportsHelper;
 	@Autowired
 	ExpedientTipusService expedientTipusService;
+	
+	private ObjectMapper om = new ObjectMapper();
 
 	/** maxim  **/
 	private final static int MAX_ORDER_COLUMNS = 5;
@@ -411,16 +420,50 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		dGreyStyle.setFont(greyFont);
 		dGreyStyle.setDataFormat(format.getFormat("0.00"));
 		XSSFSheet sheet = wb.createSheet("Hoja 1");
+		
+		Map<String, List<String>> registresHeaders = new HashMap<String, List<String>>();
+		for (ExpedientConsultaDissenyDto expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
+			Map<String, DadaIndexadaDto> dades = expedientConsultaDissenyDto.getDadesExpedient();
+			for (TascaDadaDto camp: informeCamps) {
+				try {
+					if(camp.getCampTipus() == CampTipusDto.REGISTRE) {
+						if (!registresHeaders.containsKey(camp.getVarCodi()))
+							registresHeaders.put(camp.getVarCodi(), new ArrayList<String>());
+						
+						List<String> registreCols = registresHeaders.get(camp.getVarCodi());
+						DadaIndexadaDto dada = dades.get(camp.getVarCodi());
+						if (dada.getValor() == null)
+							continue;
+						
+						Map<String, List<Object>> data = om.readValue( 
+												(String) dada.getValor(), 
+												new TypeReference<Map<String, List<Object>>>(){});
+						// Columnes
+						for (Object c : data.get("c")) {
+							if(!registreCols.contains(c))
+								registreCols.add((String) c);
+						}
+					}
+				} catch (Exception e) {
+					logger.error("Erro obtenint columnes de registres", e);
+				}
+			}
+		}
+		
+		
 		if (!expedientsConsultaDissenyDto.isEmpty())
 			createHeader(
 					wb,
 					sheet,
-					informeCamps);
-		int rowNum = 1;
+					informeCamps,
+					registresHeaders);
+		int rowNum = 2;
 		int colNum = 0;
-		for (ExpedientConsultaDissenyDto  expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
+		
+		for (ExpedientConsultaDissenyDto expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
 			try {
-				XSSFRow xlsRow = sheet.createRow(rowNum++);
+				int currentRow = rowNum;
+				XSSFRow xlsRow = sheet.createRow(rowNum);
 				colNum = 0;
 				ExpedientDto exp = expedientConsultaDissenyDto.getExpedient();
 				Map<String, DadaIndexadaDto> dades = expedientConsultaDissenyDto.getDadesExpedient();
@@ -441,8 +484,8 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				for (TascaDadaDto camp: informeCamps) {
 					if(dades.containsKey(camp.getVarCodi())) {
 						DadaIndexadaDto dada = dades.get(camp.getVarCodi());
-						cell = xlsRow.createCell(colNum++);
 						if (camp.getCampTipus().equals(CampTipusDto.INTEGER) || camp.getCampTipus().equals(CampTipusDto.FLOAT) || camp.getCampTipus().equals(CampTipusDto.PRICE) ) {
+							cell = xlsRow.createCell(colNum++);
 							cell.setCellType(XSSFCell.CELL_TYPE_NUMERIC);
 							if(dada.getValor() != null) {
 								if( camp.getCampTipus().equals(CampTipusDto.INTEGER)) {
@@ -457,12 +500,50 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 									cell.setCellValue(dada.getValorMostrar());
 								}
 							}
+						} else if(camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+							// currentRow = (currentRow < rowNum)? rowNum : currentRow;
+							if (!registresHeaders.containsKey(camp.getVarCodi()))
+								registresHeaders.put(camp.getVarCodi(), new ArrayList<String>());
+							if (dada.getValor() == null) {
+								List<String> regHeaders = registresHeaders.get(camp.getVarCodi());
+								colNum += regHeaders.size();
+							} else {
+								int currentCol = colNum;
+								Map<String, List<Object>> data = om.readValue( 
+														(String) dada.getValor(), 
+														new TypeReference<Map<String, List<Object>>>(){});
+								List<Object> rows = data.get("v");
+								int nextRow = (rowNum + (rows.size() - 1));
+								currentRow = nextRow > currentRow? nextRow : currentRow;
+								for (int x = 0; x < rows.size(); x++) {
+									currentCol = colNum;
+									List<String> values = (List<String>) rows.get(x);
+									XSSFRow regRow = sheet.getRow(rowNum + x);
+									if(regRow == null)
+										regRow = sheet.createRow(rowNum + x);
+									
+									for(String value : values) {
+										XSSFCell regCell = regRow.getCell(currentCol);
+										if(regCell == null)
+											regCell = regRow.createCell(currentCol);
+										
+										if(StringUtils.isNumeric(value))
+											regCell.setCellStyle(dStyle);
+										
+										regCell.setCellValue(value);
+										currentCol++;
+									}
+								}
+								colNum = currentCol;
+							}
 						} else {
+							cell = xlsRow.createCell(colNum++);
 							cell.setCellValue(StringEscapeUtils.unescapeHtml(dada.getValorMostrar()));
 							cell.setCellStyle(dStyle);
 						}
 					}
 				}
+				rowNum = currentRow + 1;
 			} catch (Exception e) {
 				logger.error("Export Excel: No s'ha pogut crear la línia: " + rowNum + " - amb ID: " + expedientConsultaDissenyDto.getExpedient().getId(), e);
 			}
@@ -486,7 +567,8 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	private void createHeader(
 			XSSFWorkbook wb,
 			XSSFSheet sheet,
-			List<TascaDadaDto> informeCamps) {
+			List<TascaDadaDto> informeCamps,
+			Map<String, List<String>> registresHeaders) {
 		XSSFFont bold;
 		bold = wb.createFont();
 		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
@@ -498,17 +580,55 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		headerStyle.setFont(bold);
 		int rowNum = 0;
 		int colNum = 0;
+		int colNumR = 0;
 		// Capçalera
 		XSSFRow xlsRow = sheet.createRow(rowNum++);
+		XSSFRow xlsRowRegistres = sheet.createRow(rowNum++);
 		XSSFCell cell;
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Expedient")));
 		cell.setCellStyle(headerStyle);
+		
+		XSSFCell cr = xlsRowRegistres.createCell(colNumR++);
+		cr.setCellStyle(headerStyle);
+		
 		for (TascaDadaDto camp : informeCamps) {
-			sheet.autoSizeColumn(colNum);
-			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(camp.getCampEtiqueta())));
-			cell.setCellStyle(headerStyle);
+			if(camp.getCampTipus() == CampTipusDto.REGISTRE) {
+				int firstCelIndex = colNumR;
+				int lastCelIndex = colNumR;
+				
+				if(registresHeaders.containsKey(camp.getVarCodi())) {
+					for(String col : registresHeaders.get(camp.getVarCodi())) {
+						cr = xlsRowRegistres.createCell(colNumR++);
+						cr.setCellStyle(headerStyle);
+						cr.setCellValue(new XSSFRichTextString(StringUtils.capitalize(col)));
+						lastCelIndex++;
+						
+						cell = xlsRow.createCell(colNum++);
+						cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(camp.getCampEtiqueta())));
+						cell.setCellStyle(headerStyle);
+					}
+				} else {
+					cr = xlsRowRegistres.createCell(colNumR++);
+					cr.setCellStyle(headerStyle);
+					cr.setCellValue(new XSSFRichTextString(""));
+					lastCelIndex++;
+					
+					cell = xlsRow.createCell(colNum++);
+					cell.setCellValue(new XSSFRichTextString(""));
+					cell.setCellStyle(headerStyle);
+				}
+				sheet.addMergedRegion(new CellRangeAddress(0 , 0, firstCelIndex , lastCelIndex-1));
+			} else {
+				sheet.autoSizeColumn(colNum);
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(camp.getCampEtiqueta())));
+				cell.setCellStyle(headerStyle);
+				
+				cr = xlsRowRegistres.createCell(colNumR++);
+				cr.setCellStyle(headerStyle);
+				cr.setCellValue(new XSSFRichTextString(""));
+			}
 		}
 	}
 

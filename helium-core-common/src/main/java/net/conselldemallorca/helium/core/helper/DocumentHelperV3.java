@@ -246,11 +246,12 @@ public class DocumentHelperV3 {
 		
 		if (expedient.isArxiuActiu()) {
 
+			String arxiuNom = FilenameUtils.removeExtension(documentStore.getArxiuNom());
+			String arxiuExtensio = FilenameUtils.getExtension(documentStore.getArxiuNom());
 			// #1697 Es revisa que no retorni contingut null i es reintenta
 			es.caib.plugins.arxiu.api.Document documentArxiu = null;
 			int intents = 0;
 			byte[] arxiuContingut = documentStore.getArxiuContingut();
-			resposta.setNom(documentStore.getArxiuNom());
 			if(arxiuContingut==null && documentStore.getArxiuUuid()!=null) {
 				do {
 					if(documentStore.getArxiuUuid()!=null) {
@@ -277,16 +278,18 @@ public class DocumentHelperV3 {
 							" amb uuid=" + documentStore.getArxiuUuid() + " i " + (documentStore.isAdjunt() ? "títol d'adjunt " + documentStore.getAdjuntTitol() : "codi de document " + documentStore.getCodiDocument()) +
 							" després de " + intents + "intents.",
 							null);
+				} else {
+					arxiuExtensio = FilenameUtils.getExtension(documentArxiu.getContingut().getArxiuNom());
 				}
 				resposta.setContingut(documentArxiu.getContingut().getContingut());
 				resposta.setTipusMime(
 						documentArxiu.getContingut().getTipusMime() != null ? 
 								documentArxiu.getContingut().getTipusMime() : 
 									getContentType(documentStore.getArxiuNom()));
-				
-				String nom = documentArxiu.getNom();
-				
-				if(!nom.contains(".")) {
+
+				// Construeix el nom de l'arxiu a partir del nom original i de l'extensió del document recuperat de l'Arxiu
+				String nom = arxiuNom + (arxiuExtensio != null && !arxiuExtensio.isEmpty() ? "." + arxiuExtensio : "") ;
+				if( arxiuExtensio == null || arxiuExtensio.trim().isEmpty()) {
 					MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
 					try {
 						MimeType mimeType = allTypes.forName(resposta.getTipusMime());
@@ -295,7 +298,6 @@ public class DocumentHelperV3 {
 						logger.warn("No s'ha pogut determinar la extensió del fitxer " + nom);
 					}
 				}
-				
 				resposta.setNom(nom);
 
 			} else {
@@ -461,12 +463,27 @@ public class DocumentHelperV3 {
 							" després de " + intents + "intents.",
 							null);
 				}
+				String arxiuNom = FilenameUtils.removeExtension(documentArxiu.getNom());
+				String arxiuExtensio = FilenameUtils.getExtension(documentArxiu.getNom());
+				
 				resposta.setContingut(documentArxiu.getContingut().getContingut());
 				resposta.setTipusMime(
 						documentArxiu.getContingut().getTipusMime() != null ? 
 								documentArxiu.getContingut().getTipusMime() : 
 									getContentType(documentArxiu.getNom()));
-				resposta.setNom(documentArxiu.getNom());
+
+				// Construeix el nom de l'arxiu a partir del nom original i de l'extensió del document recuperat de l'Arxiu
+				String nom = arxiuNom + (arxiuExtensio != null && !arxiuExtensio.isEmpty() ? "." + arxiuExtensio : "") ;
+				if(arxiuExtensio == null || arxiuExtensio.trim().isEmpty()) {
+					MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+					try {
+						MimeType mimeType = allTypes.forName(resposta.getTipusMime());
+						nom += mimeType.getExtension();
+					} catch (MimeTypeException e) {
+						logger.warn("No s'ha pogut determinar la extensió del fitxer " + documentArxiu.getNom());
+					}
+				}
+				resposta.setNom(nom);
 
 			} else {
 				resposta.setContingut(arxiuContingut);
@@ -1001,6 +1018,8 @@ public class DocumentHelperV3 {
 				new Date(),
 				documentData,
 				arxiuNom);
+		documentStore.setDocumentValid(documentValid);
+		documentStore.setDocumentError(documentError);
 		documentStore.setAdjunt(isAdjunt);
 		if (isAdjunt) {
 			documentStore.setAdjuntTitol(adjuntTitol);
@@ -1059,8 +1078,8 @@ public class DocumentHelperV3 {
 				expedient.addErrorArxiu("Error de sincronització amb arxiu al crear el document:  <b>" + nomDoc +
 						"</b> amb id <b>"+documentStore.getId()+"</b>: "+seex.getPublicMessage());
 	
-				documentValid = false;
-				documentError = "No està sincronitzat amb l'arxiu.";
+				documentStoreCreat.setDocumentValid(false);
+				documentStoreCreat.addDocumentError("No està sincronitzat amb l'arxiu.");
 			}
 		}
 		
@@ -1078,8 +1097,6 @@ public class DocumentHelperV3 {
 					documentStore.getId());
 		}
 
-		documentStoreCreat.setDocumentValid(documentValid);
-		documentStoreCreat.setDocumentError(documentError);
 		return documentStoreCreat;
 	}
 
@@ -1318,27 +1335,27 @@ public class DocumentHelperV3 {
 			arxiuContentType = this.getContentType(arxiuNom);
 		if (documentStore == null) {
 			
-			boolean isValid = true;
-			String validationMessage = null;
-			PdfReader pdfReader;
-			boolean isSignat = false;
-			try {
-				if(arxiuContentType.equals("application/pdf") && !(firmaSeparada && firmaContingut != null)) {
-					pdfReader = new PdfReader(arxiuContingut);
-					AcroFields acroFields = pdfReader.getAcroFields();
-					List<String> signatures = acroFields.getSignatureNames();
-					isSignat = !(signatures == null || signatures.isEmpty());
-				}
-			} catch (IOException e) {
-				logger.error("Error inesperat comprovant firma de document " + arxiuNom + " a la tasca amb ID: " + taskInstanceId, e);
-			}
-			
-			if(isSignat || (firmaSeparada && firmaContingut != null)) {
-				ArxiuFirmaValidacioDetallDto firmaValidacio = 
-					pluginHelper.validaSignaturaObtenirDetalls(arxiuContingut, firmaContingut);
-				isValid = firmaValidacio.isValid();
-				validationMessage = firmaValidacio.getMessage();
-			}
+//			boolean isValid = true;
+//			String validationMessage = null;
+//			PdfReader pdfReader;
+//			boolean isSignat = false;
+//			try {
+//				if(arxiuContentType.equals("application/pdf") && !(firmaSeparada && firmaContingut != null)) {
+//					pdfReader = new PdfReader(arxiuContingut);
+//					AcroFields acroFields = pdfReader.getAcroFields();
+//					List<String> signatures = acroFields.getSignatureNames();
+//					isSignat = !(signatures == null || signatures.isEmpty());
+//				}
+//			} catch (IOException e) {
+//				logger.error("Error inesperat comprovant firma de document " + arxiuNom + " a la tasca amb ID: " + taskInstanceId, e);
+//			}
+//			
+//			if(isSignat || (firmaSeparada && firmaContingut != null)) {
+//				ArxiuFirmaValidacioDetallDto firmaValidacio = 
+//					pluginHelper.validaSignaturaObtenirDetalls(arxiuContingut, firmaContingut);
+//				isValid = firmaValidacio.isValid();
+//				validationMessage = firmaValidacio.getMessage();
+//			}
 			
 			return crearDocument(
 					taskInstanceId,
@@ -1358,8 +1375,8 @@ public class DocumentHelperV3 {
 					ntiEstadoElaboracion,
 					ntiTipoDocumental,
 					ntiIdDocumentoOrigen,
-					isValid,
-					validationMessage,
+					true, // Vàlid
+					null, // Error de validació
 					null, // annexId
 					null);
 		} else {
@@ -2853,17 +2870,13 @@ public class DocumentHelperV3 {
 		if (arxiuNom != null && !arxiuNom.equals("")) {
 			documentStore.setArxiuNom(arxiuNom);
 		}
-//		boolean prova = false;
-//		if (prova) {
-//			throw new SistemaExternException("Arxiu", "Error document provocat");
-//		}
 		
-		// Actualitza les metadades NTI
 		Document document = findDocumentPerInstanciaProcesICodi(
 				processInstanceId,
 				documentStore.getCodiDocument());
 		
 		if (expedient.isNtiActiu()) {
+			// Actualitza les metadades NTI
 			actualizarMetadadesNti(
 					expedient,
 					document,
@@ -2876,6 +2889,7 @@ public class DocumentHelperV3 {
 		
 		List<ArxiuFirmaDto> firmes = null;
 		es.caib.plugins.arxiu.api.Document documentArxiu = null;
+		// Si arriba com a firmat valida les firmes abans de guardar el document
 		if (ambFirma) {
 			// Obté les firmes del plugin de validació a partir del contingut
 			if (arxiuUuid == null) {
@@ -2895,6 +2909,31 @@ public class DocumentHelperV3 {
 				if (documentArxiu.getFirmes() != null) {
 					firmes =PluginHelper.toArxiusFirmesDto(documentArxiu.getFirmes());
 				}
+			}
+		} else {
+			// Si és un PDF i no arriba com a firmat llavors valida igualment les seves firmes per detectar firmes invàlides
+			try {
+				// Comprova si és un PDF amb firmes
+				PdfReader pdfReader;
+				boolean isSignat = false;
+				if(((arxiuContentType != null && arxiuContentType.equals("application/pdf") )
+						|| arxiuNom.toLowerCase().endsWith(".pdf"))
+						&& !(firmaSeparada && firmaContingut != null)) {
+					pdfReader = new PdfReader(arxiuContingut);
+					AcroFields acroFields = pdfReader.getAcroFields();
+					List<String> signatures = acroFields.getSignatureNames();
+					isSignat = !(signatures == null || signatures.isEmpty());
+				}
+				if(isSignat || (firmaSeparada && firmaContingut != null)) {
+					ArxiuFirmaValidacioDetallDto firmaValidacio = 
+						pluginHelper.validaSignaturaObtenirDetalls(arxiuContingut, firmaContingut);
+					if (!firmaValidacio.isValid()) {
+						documentStore.setDocumentValid(false);
+						documentStore.addDocumentError(firmaValidacio.getMessage());
+					}
+				}
+			} catch (Exception e) {
+				logger.error("Error inesperat comprovant firma de document " + arxiuNom + " a la tasca amb ID: " + taskInstanceId + ": " + e.getMessage(), e);
 			}
 		}
 		

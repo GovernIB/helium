@@ -46,6 +46,7 @@ public class CampCommand {
 	private boolean ocult;
 	/** No retrocedir valor */
 	private boolean ignored;
+	private boolean indexable;
 
 	// Dades consulta
 	private Long enumeracioId;
@@ -158,6 +159,12 @@ public class CampCommand {
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
 	}
+	public boolean isIndexable() {
+		return indexable;
+	}
+	public void setIndexable(boolean indexable) {
+		this.indexable = indexable;
+	}
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
 	}
@@ -260,6 +267,7 @@ public class CampCommand {
 		dto.setMultiple(command.isMultiple());
 		dto.setOcult(command.isOcult());
 		dto.setIgnored(command.isIgnored());
+		dto.setIndexable(command.isIndexable());
 		
 		// Dades consulta
 		if(command.getEnumeracioId() != null) {

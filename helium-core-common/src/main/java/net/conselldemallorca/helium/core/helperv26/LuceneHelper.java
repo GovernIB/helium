@@ -86,7 +86,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 
 	/** Objecte de sincronització per accedir al LuceneIndex. */
 	private static Object syncObj = new Object();
-
+	
+	private ObjectMapper om = new ObjectMapper();
 
 	// TODO Ha d'estar actiu mentre els expedients no es reindexin totalment
 	// si es desactiva abans de la reindexació total aleshores hi haura expedients
@@ -1143,18 +1144,75 @@ public class LuceneHelper extends LuceneIndexSupport {
 			// Expedient tipus
 			clauIndex = camp.getCodi();
 		if (valor != null) {
-			if (checkMultiple && camp.isMultiple()) {
+			
+			if (camp.getTipus().equals(TipusCamp.REGISTRE) && !camp.isIndexable())
+				return;
+				
+			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+				Object[] valors = camp.isMultiple()? ((Object[]) valor) : new Object[] {valor};
+				Map<String, Object> registre = new HashMap<String, Object>();
+				List<String> columns = new ArrayList<String>();
+				List<String> tipus = new ArrayList<String>();
+				List<List<String>> valorsList = new ArrayList<List<String>>();
+				boolean update = isUpdate && !campsActualitzats.contains(clauIndex);
+				for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
+					columns.add(camp.getRegistreMembres().get(i).getMembre().getEtiqueta());
+					tipus.add(camp.getRegistreMembres().get(i).getMembre().getTipus().toString());
+				}
+				
+				for(Object o : valors) {
+					List<String> valorsFormat = new ArrayList<String>();
+					Object[] valorsMembres = (Object[]) o;
+					int index = 0;
+					for(CampRegistre campRegistre : camp.getRegistreMembres()) {
+						Camp membre = campRegistre.getMembre();
+						if(index < valorsMembres.length) {
+							String val = "";
+							switch(membre.getTipus()) {
+							case DATE:
+								DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:SS");
+								val = sdf.format(valorsMembres[index++]);
+								break;
+							case INTEGER:
+								val = ((Long) valorsMembres[index++]).toString();
+								break;
+							case FLOAT:
+								val = ((Double) valorsMembres[index++]).toString();
+								break;
+							case BOOLEAN:
+								val = ((Boolean) valorsMembres[index++]) ? "Si" : "No";
+								break;
+							case TERMINI:
+								Termini term = (Termini) valorsMembres[index++];
+								val = term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
+								break;
+							case SELECCIO:
+							case SUGGEST:
+							case STRING:
+							case TEXTAREA:
+								val = (String) valorsMembres[index++];
+								break;
+							default:
+								val = valorsMembres[index++].toString();
+							}
+							valorsFormat.add(val);
+						}
+					}
+					valorsList.add(valorsFormat);
+				}
+				
+				registre.put("c", columns);
+				registre.put("v", valorsList);
+				String jsonValue = null;
+				try {
+					jsonValue = om.writeValueAsString(registre);
+				} catch(Exception e) {}
+				
+				createOrUpdateDocumentField(document, new Field(clauIndex, jsonValue, Field.Store.YES, Field.Index.ANALYZED), update);
+			} else if (checkMultiple && camp.isMultiple()) {
 				Object[] valors = (Object[]) valor;
 				for (Object o : valors) {
 					updateDocumentCamp(document, definicioProces, camp, o, textDominis, false, isUpdate, campsActualitzats);
-				}
-			} else if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
-				Object[] valorsMembres = (Object[]) valor;
-				int index = 0;
-				for (CampRegistre campRegistre : camp.getRegistreMembres()) {
-					Camp membre = campRegistre.getMembre();
-					if (index < valorsMembres.length)
-						updateDocumentCamp(document, definicioProces, membre, valorsMembres[index++], textDominis, false, isUpdate, campsActualitzats);
 				}
 			} else {
 				String valorIndex = valorIndexPerCamp(camp, valor);

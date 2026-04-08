@@ -101,7 +101,30 @@ function comprovarPendentsReindexacio() {
 	comprovacio_numero++;
 }
 
-$(document).ready(function() {	
+function showRegistre(el) {
+	var dades = $(el).data('content');
+	dades = Array.isArray(dades)? dades[0] : dades;
+	var theader = $('thead > tr', $('#modal-registre'));
+	var tbody = $('tbody', $('#modal-registre'));
+	theader.html('');
+	
+	for(c of (dades?.c||[])) {
+		theader.append('<td>' + c + '</td>');
+	}
+	
+	tbody.html('');
+	for(r of (dades?.v||[])) {
+		var tr = $('<tr></tr>');
+		for(v of r) {
+			tr.append('<td>' + v + '</td>');
+		}
+		tbody.append(tr);
+	}
+	
+	$('#modal-registre').modal('show');
+}
+
+$(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
 		ajaxSourceUrl: "<c:url value="/v3/expedient/consulta/${consulta.id}/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
@@ -288,7 +311,7 @@ $(document).ready(function() {
 					</script>
 				</th>
 				<c:forEach var="camp" items="${campsInforme}" varStatus="status">
-					<th <c:if test="${camp.varCodi == 'expedient\$estat'}">data-rdt-template="cellEstatTemplate"</c:if> data-rdt-property="dadesExpedient.${camp.varCodi}.valorMostrar" data-visible=true >
+					<th <c:if test="${camp.varCodi == 'expedient\$estat'}">data-rdt-template="cellEstatTemplate"</c:if> data-rdt-property="dadesExpedient.${camp.varCodi}.valorMostrar" data-visible=true data-tipus="${camp.campTipus}">
 					${camp.campEtiqueta}
 					<c:if test="${camp.varCodi == 'expedient\$estat'}">
 						<script id="cellEstatTemplate" type="text/x-jsrender">
@@ -383,6 +406,30 @@ $(document).ready(function() {
 			</c:if>
 		</div>			
 	</script>
+	
+	<div id="modal-registre" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"></h4>
+				</div>
+				
+				<div class="modal-body">
+				<table class="table table-striped table-bordered table-hover">
+					<thead>
+						<tr class="panel-heading clicable proces">
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
+				</div>
+			</div>
+		</div>
+	</div>
 	
 	<div id="modal-error" class="modal fade">
 		<div class="modal-dialog">

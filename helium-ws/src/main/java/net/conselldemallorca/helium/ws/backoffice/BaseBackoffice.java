@@ -234,7 +234,7 @@ public abstract class BaseBackoffice {
 		
 	}
 
-	private List<DadesDocumentDto> getDocumentsInicials(
+	private Map<String, DadesDocumentDto> getDocumentsInicials(
 			ExpedientTipus expedientTipus,
 			DadesTramit tramit) {
 
@@ -242,31 +242,36 @@ public abstract class BaseBackoffice {
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
-		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
+		boolean trobat = false;
+		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
 		List<Document> documents = getDocuments(expedientTipus);
 		
 		for (MapeigSistra mapeig : mapeigsSistra){
+			trobat = true;
+			Document docHelium = null;
 			for (Document document : documents){
 				if (document.getCodi().equalsIgnoreCase(mapeig.getCodiHelium())){
-					try {
-						if (document != null) {
-							DadesDocumentDto dadesDocument = documentSistra(tramit, mapeig.getCodiSistra(), document);
-							if (dadesDocument != null) {
-								dadesDocument.setDocumentCodi(mapeig.getCodiHelium());
-								resposta.add(dadesDocument);
-							}
-						}
-					} catch (Exception ex) {
-						logger.error("Error llegint dades del document de SISTRA", ex);
+					docHelium = document;
+					break;
+				}
+			}
+			try {
+				if (docHelium != null) {
+					DadesDocumentDto document = documentSistra(tramit, mapeig.getCodiSistra(), docHelium);
+					if (document != null) {
+						resposta.put(mapeig.getCodiHelium(), document);
 					}
 				}
+			} catch (Exception ex) {
+				logger.error("Error llegint dades del document de SISTRA", ex);
 			}
 		}
 		
-		if (resposta.isEmpty())
+		if (trobat)
+			return resposta;
+		else
 			return null;
 		
-		return resposta;
 	}
 
 

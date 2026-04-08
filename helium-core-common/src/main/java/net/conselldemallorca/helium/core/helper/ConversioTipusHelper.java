@@ -138,6 +138,7 @@ public class ConversioTipusHelper {
 						target.setMultiple(source.isMultiple());
 						target.setOcult(source.isOcult());
 						target.setIgnored(source.isIgnored());
+						target.setIndexable(source.isIndexable());
 						
 						if (source.getExpedientTipus() != null) {
 							target.setExpedientTipus(convertir(source.getExpedientTipus(), ExpedientTipusDto.class));

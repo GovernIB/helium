@@ -1743,7 +1743,7 @@ public class ExpedientHelper {
 			IniciadorTipusDto iniciadorTipus,
 			String iniciadorCodi,
 			String responsableCodi,
-			List<DadesDocumentDto> documents,
+			Map<String, DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts,
 			Long anotacioId,
 			AnotacioMapeigResultatDto resultatMapeig,
@@ -1816,7 +1816,7 @@ public class ExpedientHelper {
 			IniciadorTipusDto iniciadorTipus,
 			String iniciadorCodi,
 			String responsableCodi,
-			List<DadesDocumentDto> documents,
+			Map<String, DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts,
 			Long anotacioId,
 			AnotacioMapeigResultatDto resultatMapeig,
@@ -2041,7 +2041,7 @@ public class ExpedientHelper {
 			// Afegim els documents
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
 			if (documents != null) {
-				for (DadesDocumentDto document : documents) {
+				for (DadesDocumentDto document : documents.values()) {
 					this.crearDocumentAdjuntInicial(
 							false, 
 							expedient, 
@@ -2176,7 +2176,7 @@ public class ExpedientHelper {
 				document.getArxiuNom(),
 				document.getArxiuContingut(),
 				document.getUuid(),
-				document.getTipusMime() != null ? document.getTipusMime() : documentHelper.getContentType(document.getArxiuNom()),
+				document.getTipusMime(),
 				expedient.isArxiuActiu() && document.getFirmaTipus() != null,	// amb firma
 				false,	// firma separada
 				null,	// firma contingut

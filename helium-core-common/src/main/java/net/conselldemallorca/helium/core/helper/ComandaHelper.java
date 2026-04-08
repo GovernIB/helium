@@ -170,6 +170,10 @@ public class ComandaHelper {
 	
 	public Client getClient() {
 		Client client = Client.create();
+		// Temps de connnexió en ms
+		client.setConnectTimeout(5000);
+		// Temps de lectura en ms
+		client.setReadTimeout(30000);
 		client.addFilter(new HTTPBasicAuthFilter(API_USER, API_PASS));
 		return client;
 	}

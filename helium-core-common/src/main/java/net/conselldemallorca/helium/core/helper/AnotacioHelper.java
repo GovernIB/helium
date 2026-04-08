@@ -625,25 +625,20 @@ public class AnotacioHelper {
 		if(expedientTipus.isDistribucioSistra()) {
 			//Recuperar mapejos
 			Map<String, Object> variables = null;
-			List<DadesDocumentDto> documents = null;
+			Map<String, DadesDocumentDto> documents = null;
 			List<DadesDocumentDto> annexos = null;
 			List<AnotacioInteressatDto> interessats = null;
 			MapeigSistra mapeigSistra = null;
 			ExpedientDadaDto dada = null;
+			DadesDocumentDto dadesDocumentDto = null;
 
 			// Extreu variables i documents i annexos segons el mapeig sistra
-			boolean ambContingut = true; // expedient != null ? !expedient.isArxiuActiu() : !expedientTipus.isArxiuActiu(); 
+			boolean ambContingut = expedient != null ? !expedient.isArxiuActiu() : !expedientTipus.isArxiuActiu(); 
 			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 			variables = resultatMapeig.getDades();
 			documents = resultatMapeig.getDocuments();
 			annexos = resultatMapeig.getAdjunts();
 			interessats = resultatMapeig.getInteressats();
-			
-			for(DadesDocumentDto dd : documents)
-				dd.setUuid(null);
-			for(DadesDocumentDto dd : annexos)
-				dd.setUuid(null);
-			
 			if(variables!=null && mapejarVariables) {
 				for (String varCodi : variables.keySet()) {	
 					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
@@ -665,8 +660,7 @@ public class AnotacioHelper {
 			
 			//Fem el mateix per els documents del mapeig
 			if (mapejarDocuments) {
-				for (DadesDocumentDto dadesDocumentDto : documents) {
-					String documentCodi = dadesDocumentDto.getDocumentCodi();
+				for (String documentCodi : documents.keySet()) {
 					
 					mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, documentCodi);
 					
@@ -704,7 +698,9 @@ public class AnotacioHelper {
 							expedient, 
 							document, 
 							documentExisteix, 
-							mapeigSistra.isEvitarSobreescriptura());
+							mapeigSistra.isEvitarSobreescriptura(), 
+							documents, 
+							mapeigSistra.getCodiHelium());
 					
 				}
 			}
@@ -823,8 +819,13 @@ public class AnotacioHelper {
 			Expedient expedient, 
 			ExpedientDocumentDto document, 
 			boolean documentExisteix,
-			boolean evitarSobreescriptura) {
+			boolean evitarSobreescriptura,
+			Map<String, DadesDocumentDto> documents,
+			String codiHelium) {
+		
 		if (documentExisteix && !evitarSobreescriptura) {
+			// Si existeix i es pot sobreescriure, l'actualitzem, sino el creem
+			dadesDocumentDto = documents.get(codiHelium);
 			DocumentStore documentStore = documentStoreRepository.findOne(document.getId());
 			documentHelper.actualitzarDocument(
 					documentStore.getId(),
@@ -847,6 +848,7 @@ public class AnotacioHelper {
 					dadesDocumentDto.getAnnexId(), 
 					dadesDocumentDto.getUuid());
 		} else if (!documentExisteix) {
+			dadesDocumentDto = documents.get(codiHelium);
 			documentHelper.crearDocument(
 					null, //taskInstanceId
 					expedient.getProcessInstanceId(),
@@ -857,7 +859,7 @@ public class AnotacioHelper {
 					dadesDocumentDto.getArxiuNom(),
 					dadesDocumentDto.getArxiuContingut(),
 					dadesDocumentDto.getUuid(),
-					dadesDocumentDto.getTipusMime() != null ? dadesDocumentDto.getTipusMime() : documentHelper.getContentType(dadesDocumentDto.getArxiuNom()),
+					dadesDocumentDto.getTipusMime(),
 					expedient.isArxiuActiu() && dadesDocumentDto.getFirmaTipus() != null,	// amb firma
 					false,	// firma separada
 					null,	// firma contingut
