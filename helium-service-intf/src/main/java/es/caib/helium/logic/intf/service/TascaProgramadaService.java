@@ -1,7 +1,5 @@
 package es.caib.helium.logic.intf.service;
 
-import java.util.Date;
-
 import es.caib.helium.commons.exception.ExecucioMassivaException;
 import es.caib.helium.commons.exception.NoTrobatException;
 
@@ -13,16 +11,6 @@ public interface TascaProgramadaService {
 	public void updatePeticionsAsincronesPinbal() throws ExecucioMassivaException;
 	
 	public void comprovarExecucionsMassives() throws NoTrobatException, ExecucioMassivaException;
-	
-	public void comprovarReindexacioAsincrona() throws NoTrobatException;
-	
-	public void setReindexarAsincronament(boolean reindexar);
-	
-	public boolean isReindexarAsincronament();
-	
-	public void reindexarExpedient (Long expedientId) throws NoTrobatException;
-	
-	public void actualitzarExpedientReindexacioData(Long expedientId, Date dataReindexacio);
 	
 	public void comprovarEstatNotificacions() throws NoTrobatException;
 	

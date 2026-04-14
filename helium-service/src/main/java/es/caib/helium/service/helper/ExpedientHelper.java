@@ -168,10 +168,8 @@ public class ExpedientHelper {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private PluginHelper pluginHelper;
-//	@Resource
-//	private LuceneHelper luceneHelper;
 	@Autowired
-	private IndexHelper indexHelper;
+	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
@@ -677,10 +675,8 @@ public class ExpedientHelper {
 					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
 			expedient.setGrupCodi(grupCodi);
 		}
-		// Reindexació a lucene. Pot ser síncrona o asíncrona depenent del tipus d'expedient
-		indexHelper.expedientIndexLuceneUpdate(
-				expedient.getProcessInstanceId(), 
-				false);
+		// Actualitza les dades de l'expedient al servei de dades
+		expedientDadaHelper.setExpedientDades(expedient);
 		
 		//Actualitzem el nom de l'expedient a l'arxiu
 		if (expedient.isArxiuActiu() && atributsArxiuCanviats) {
@@ -2098,7 +2094,7 @@ public class ExpedientHelper {
 			// Indexam l'expedient
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
 			mesuresTemporalsHelper.mesuraIniciar("Indexar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
-			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+			expedientDadaHelper.setExpedientDades(expedientPerRetornar);
 			mesuresTemporalsHelper.mesuraCalcular("Indexar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 
 		} catch( Throwable ex) {

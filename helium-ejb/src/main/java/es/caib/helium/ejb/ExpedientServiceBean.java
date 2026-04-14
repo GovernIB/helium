@@ -18,7 +18,6 @@ import es.caib.helium.commons.dto.AlertaDto;
 import es.caib.helium.commons.dto.ArxiuDetallDto;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.DadaIndexadaDto;
 import es.caib.helium.commons.dto.DadesDocumentDto;
 import es.caib.helium.commons.dto.DadesNotificacioDto;
 import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
@@ -27,6 +26,8 @@ import es.caib.helium.commons.dto.EstatDto;
 import es.caib.helium.commons.dto.ExpedientConsultaDissenyDto;
 import es.caib.helium.commons.dto.ExpedientDocumentDto;
 import es.caib.helium.commons.dto.ExpedientDto;
+import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
+import es.caib.helium.commons.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
@@ -37,8 +38,6 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.RespostaValidacioSignaturaDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
-import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
-import es.caib.helium.commons.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.ExpedientService;
@@ -642,18 +641,6 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, boolean nomesMeves, boolean nomesAlertes, boolean mostrarAnulats, boolean nomesTasquesPersonals, boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) {
 		return delegate.findConsultaInformePaginat(consultaId, valorsPerService, nomesMeves, nomesAlertes, mostrarAnulats, nomesTasquesPersonals, nomesTasquesGrup, paginacioParams);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean luceneReindexarExpedient(Long expedientId) {
-		return delegate.luceneReindexarExpedient(expedientId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Map<String, DadaIndexadaDto>> luceneGetDades(long expedientId) {
-		return delegate.luceneGetDades(expedientId);
 	}
 
 	@Override

@@ -921,8 +921,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					+ execucioMassiva.getParam1();
 		} else if (tipus.equals(ExecucioMassivaTipus.MODIFICAR_DOCUMENT)) {
 			label = messageHelper.getMessage("expedient.massiva.documents");
-		} else if (tipus.equals(ExecucioMassivaTipus.REINDEXAR)) {
-			label = messageHelper.getMessage("expedient.eines.reindexar.expedients");
 		} else if (tipus.equals(ExecucioMassivaTipus.BUIDARLOG)) {
 			label = messageHelper.getMessage("expedient.eines.buidarlog.expedients");
 		} else if (tipus.equals(ExecucioMassivaTipus.REPRENDRE_EXPEDIENT)) {
@@ -1104,10 +1102,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				mesuresTemporalsHelper.mesuraIniciar("Modificar document", "massiva", expedient_s);
 				modificarDocument(ome);
 				mesuresTemporalsHelper.mesuraCalcular("Modificar document", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.REINDEXAR) {
-				mesuresTemporalsHelper.mesuraIniciar("Reindexar", "massiva", expedient_s);
-				reindexarExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Reindexar", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.BUIDARLOG) {
 				mesuresTemporalsHelper.mesuraIniciar("Buidar log", "massiva", expedient_s);
 				buidarLogExpedient(ome);
@@ -1918,26 +1912,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			execucioMassivaExpedientRepository.save(ome);
 		} catch (Exception ex) {
 			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut modificar el document", ex);
-			throw ex;
-		}
-	}
-
-	private void reindexarExpedient(ExecucioMassivaExpedient ome) throws Exception {
-		Expedient exp = ome.getExpedient();
-		try {
-			ome.setDataInici(new Date());
-			if (expedientService.luceneReindexarExpedient(exp.getId()))
-				ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
-			else {
-				ome.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
-				ome.setError("No s'ha reindexat tot l'expedient correctament, cal entrar a revisar les dades");
-				ome.setAuxText(
-						"El procés de reindexació ha retornat que no s'ha reindexar totalment l'expedient, cal entrar en la gestió de l'expedient per revisar les dades");
-			}
-			ome.setDataFi(new Date());
-			execucioMassivaExpedientRepository.saveAndFlush(ome);
-		} catch (Exception ex) {
-			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut reindexar l'expedient", ex);
 			throw ex;
 		}
 	}

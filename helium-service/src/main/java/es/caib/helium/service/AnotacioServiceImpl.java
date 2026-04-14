@@ -95,14 +95,13 @@ import es.caib.helium.service.helper.ExpedientDadaHelper;
 import es.caib.helium.service.helper.ExpedientHelper;
 import es.caib.helium.service.helper.ExpedientLoggerHelper;
 import es.caib.helium.service.helper.ExpedientTipusHelper;
-import es.caib.helium.service.helper.IndexHelper;
 import es.caib.helium.service.helper.MonitorIntegracioHelper;
 import es.caib.helium.service.helper.PaginacioHelper;
+import es.caib.helium.service.helper.PermisosHelper;
 import es.caib.helium.service.helper.PluginHelper;
 import es.caib.helium.service.helper.UnitatOrganitzativaHelper;
 import es.caib.helium.service.helper.UsuariActualHelper;
 import es.caib.helium.service.helper.VariableHelper;
-import es.caib.helium.service.helper.PermisosHelper;
 import es.caib.helium.service.security.ExtendedPermission;
 import es.caib.plugins.arxiu.api.Document;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
@@ -171,8 +170,6 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private VariableHelper variableHelper;
 	@Resource
 	private WorkflowEngineApi jbpmHelper;
-	@Autowired
-	private IndexHelper indexHelper;
 	@Resource
 	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource

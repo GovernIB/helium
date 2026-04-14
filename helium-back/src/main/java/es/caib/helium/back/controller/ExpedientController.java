@@ -142,33 +142,6 @@ public class ExpedientController extends BaseExpedientController {
 		    return "redirect:"+ referer;
 		}			
 	}
-
-	@RequestMapping(value = "/{expedientId}/reindexa", method = RequestMethod.GET)
-	public String reindexa(
-			HttpServletRequest request,
-			@PathVariable Long expedientId, 
-			Model model) {
-		try {
-			if (expedientService.luceneReindexarExpedient(expedientId))
-				MissatgesHelper.success(
-						request,
-						getMessage(
-								request,
-								"info.expedient.reindexat"));
-			else 
-				MissatgesHelper.error(
-						request,
-						getMessage(
-								request,
-								"info.expedient.reindexat.error"));
-		} catch (Exception ex) {
-			MissatgesHelper.error(
-					request,
-					getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage(),
-					ex);
-		}
-		return "redirect:/expedient/" + expedientId;
-	}
 	
 	/** Mètode per finalitzar un expedient. Es crida al mètode de servei de finalitzar. Els expedients
 	 * integrats amb l'Arxiu passen pel mètode prefinalitzar que permet escollir quins documents signar.

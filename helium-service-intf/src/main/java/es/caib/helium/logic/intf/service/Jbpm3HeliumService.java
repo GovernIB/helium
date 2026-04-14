@@ -108,14 +108,6 @@ public interface Jbpm3HeliumService {
 			String numero) throws NoTrobatException;
 	
 	/**
-	 * Borra l'expedient arrel donada una instància de procés jBPM.
-	 * 
-	 * @param processInstanceId
-	 */
-	public void luceneDeleteExpedient(
-			String processInstanceId);
-
-	/**
 	 * Obté l'expedient arrel donada una instància de procés jBPM.
 	 * 
 	 * @param executionContext

@@ -188,13 +188,6 @@
 		        </exclusion>
 			</exclusions>
 		</dependency>
-
-		<!-- Flowable --> 
-		<dependency>
-			<groupId>org.flowable</groupId>
-			<artifactId>flowable-spring-boot-starter-process</artifactId>
-			<version>6.8.0</version>
-		</dependency>
 		
 		<!-- WEBJARS -->
 		<dependency>

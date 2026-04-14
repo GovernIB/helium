@@ -264,7 +264,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 	@Autowired
-	private IndexHelper indexHelper;
+	private ExpedientDadaHelper expedientDadaHelper;
 
 	@Resource
 	private MetricRegistry metricRegistry;
@@ -342,13 +342,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				ExpedientDto.class);
 	}
 
-	@Override
-	public void luceneDeleteExpedient(String processInstanceId) {
-		logger.debug("Esborra expedient donada una instància de procés (" +
-				"processInstanceId=" + processInstanceId + ")");
-		indexHelper.expedientIndexLuceneDelete(processInstanceId);
-	}
-	
 	@Override
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(
 			String processInstanceId) {
@@ -955,7 +948,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId) {
 		logger.debug("Reindexant expedient (processInstanceId=" + processInstanceId + ")");
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		return indexHelper.expedientIndexLuceneRecrear(expedient);
+		return expedientDadaHelper.setExpedientDades(expedient);
 	}
 
 	@Override
@@ -3190,7 +3183,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		List<Camp> filtreCamps = new ArrayList<Camp>(campsIndexatsPerCodi.values());
 
 		// consultar a l'índex
-		List<Long> expedientsIds = indexHelper.findExpedientsIdsByFiltre(
+		List<Long> expedientsIds = expedientDadaHelper.findExpedientsIdsByFiltre(
 				entorn,
 				expedientTipus,
 				filtreCamps,
@@ -3681,7 +3674,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
 				ntiIdOrigen);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+		expedientDadaHelper.setExpedientDades(expedient);
 		expedientRegistreHelper.crearRegistreModificarDocumentInstanciaProces(
 				expedient.getId(),
 				processInstanceId,
@@ -3763,7 +3756,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				null,
 				null,
 				annexosPerNotificar).getId();
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+		expedientDadaHelper.setExpedientDades(expedient);
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
 				expedient.getId(),
 				processInstanceId,

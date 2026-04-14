@@ -958,11 +958,7 @@ public interface ExpedientService {
 	public void deleteSignatura(Long expedientId, Long documentStoreId) throws NoTrobatException, SistemaExternException;
 
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
-
-	public List<Map<String, DadaIndexadaDto>> luceneGetDades(long expedientId);
 	
-	public boolean luceneReindexarExpedient(Long expedientId) throws PermisDenegatException, NoTrobatException;
-
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
 
 	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero);

@@ -176,15 +176,16 @@ import es.caib.helium.service.helper.DistribucioHelper;
 import es.caib.helium.service.helper.DocumentHelperV3;
 import es.caib.helium.service.helper.EntornHelper;
 import es.caib.helium.service.helper.ExceptionHelper;
+import es.caib.helium.service.helper.ExpedientDadaHelper;
 import es.caib.helium.service.helper.ExpedientHelper;
 import es.caib.helium.service.helper.ExpedientLoggerHelper;
 import es.caib.helium.service.helper.ExpedientRegistreHelper;
 import es.caib.helium.service.helper.ExpedientTipusHelper;
 import es.caib.helium.service.helper.HerenciaHelper;
-import es.caib.helium.service.helper.IndexHelper;
 import es.caib.helium.service.helper.MonitorIntegracioHelper;
 import es.caib.helium.service.helper.NotificacioHelper;
 import es.caib.helium.service.helper.PaginacioHelper;
+import es.caib.helium.service.helper.PermisosHelper;
 import es.caib.helium.service.helper.PluginHelper;
 import es.caib.helium.service.helper.TascaHelper;
 import es.caib.helium.service.helper.UnitatOrganitzativaHelper;
@@ -192,7 +193,6 @@ import es.caib.helium.service.helper.UsuariActualHelper;
 import es.caib.helium.service.helper.VariableHelper;
 import es.caib.helium.service.helpers.LuceneHelper;
 import es.caib.helium.service.helpers.MesuresTemporalsHelper;
-import es.caib.helium.service.helper.PermisosHelper;
 import es.caib.helium.service.security.ExtendedPermission;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
@@ -303,7 +303,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Autowired
-	private IndexHelper indexHelper;
+	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;
 	@Resource
@@ -578,38 +578,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				geoReferencia,
 				grupCodi,
 				execucioDinsHandler);
-	}
-
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<Map<String, DadaIndexadaDto>> luceneGetDades(long expedientId) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		return indexHelper.expedientIndexLuceneGetDades(expedient.getProcessInstanceId());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public boolean luceneReindexarExpedient(Long expedientId) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
-		
-		return indexHelper.expedientIndexLuceneRecrear(expedient);
 	}
 	
 	/**
@@ -1943,7 +1911,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		
 		
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+		expedientDadaHelper.setExpedientDades(expedient);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR,
@@ -2146,7 +2114,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						ex);
 			}
 			expedientHelper.verificarFinalitzacioExpedient(expedient);
-			indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+			expedientDadaHelper.setExpedientDades(expedient);
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 		} else {
 			throw new PermisDenegatException(
@@ -2224,7 +2192,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					ex);
 		}
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+		expedientDadaHelper.setExpedientDades(expedient);
 		mesuresTemporalsHelper.mesuraCalcular("Executar CAMP ACCIO" + accioCamp, "expedient", expedient.getTipus().getNom());
 	}
 
@@ -3973,8 +3941,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 		// Reindexa l'expedient
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
-		indexHelper.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
-		
+		expedientDadaHelper.setExpedientDades(expedient);		
 		
 		return conversioTipusHelper.convertir(estat, EstatDto.class);
 	}

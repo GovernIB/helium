@@ -160,12 +160,7 @@ public class IndexHelper {
 	}
 
 //	mètode per a marcar les reindexacions en segon pla si es el cas
-	
-	public void expedientIndexLuceneUpdate(
-  			String processInstanceId) {
- 		expedientIndexLuceneUpdate(processInstanceId, false);
- 	}
-	
+		
 	public void expedientIndexLuceneUpdate(
 			String processInstanceId,
 			boolean isExecucioMassiva) {

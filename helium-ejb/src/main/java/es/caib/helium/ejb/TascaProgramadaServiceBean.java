@@ -1,7 +1,5 @@
 package es.caib.helium.ejb;
 
-import java.util.Date;
-
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
@@ -26,41 +24,9 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void comprovarReindexacioAsincrona() {
-		delegate.comprovarReindexacioAsincrona();
-	}
-	
-	@Override
-	@RolesAllowed({"HEL_ADMIN"})
-	public void setReindexarAsincronament(boolean reindexar) {
-		delegate.setReindexarAsincronament(reindexar);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean isReindexarAsincronament() {
-		return delegate.isReindexarAsincronament();
-	}
-
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void actualitzarEstatNotificacions(Long notificacioId) throws NoTrobatException {
 		delegate.actualitzarEstatNotificacions(notificacioId);
 	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void reindexarExpedient(Long expedientId) throws NoTrobatException {
-		delegate.reindexarExpedient(expedientId);
-	}
-	
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void actualitzarExpedientReindexacioData(Long expedientId, Date dataReindexacio) {
-		delegate.actualitzarExpedientReindexacioData(expedientId, dataReindexacio);
-	}
-
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
