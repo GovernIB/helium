@@ -549,7 +549,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				interessat.getCodiPostal(),
 				interessat.getEntregaDeh(),
 				interessat.getEntregaDehObligat(),
-				interessat.getTipusdocident(),
+				interessat.getTipusDocIdent(),
 				interessat.getDireccio(),
 				interessat.getObservacions(),
 				interessat.getEs_representant(),
@@ -600,7 +600,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		
 		interessatEntity.setNom(interessat.getNom());
 		interessatEntity.setRaoSocial(interessat.getRaoSocial());
-		interessatEntity.setTipusdocident(interessat.getTipusdocident());
+		interessatEntity.setTipusDocIdent(interessat.getTipusDocIdent());
 		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());

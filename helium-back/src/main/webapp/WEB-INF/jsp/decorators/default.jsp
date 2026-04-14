@@ -115,19 +115,13 @@
 <c:choose>
 	<c:when test="${entornActual.colorFons!=null  && not empty entornActual.colorFons}">
 		.navbar-app {
-			background-color: ${entornActual.colorFons} !important;
-		}
-		.navbar-app .list-inline li.dropdown>a {
-			background-color: ${entornActual.colorFons} !important;
+			background: ${entornActual.colorFons} !important;
 		}
 	</c:when>
 	<c:otherwise>
 		<c:if test="${!empty globalProperties['app.capsalera.color.fons']}">
 			.navbar-app {
-				background-color: ${globalProperties['app.capsalera.color.fons']} !important;
-			}		
-			.navbar-app .list-inline li.dropdown>a { 
-				background-color: ${globalProperties['app.capsalera.color.fons']} !important;
+				background: ${globalProperties['app.capsalera.color.fons']} !important;
 			}
 		</c:if>		
 	</c:otherwise>

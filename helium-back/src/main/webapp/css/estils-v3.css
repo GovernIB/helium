@@ -31,10 +31,14 @@
 .navbar-app .list-inline li.dropdown>a {
 	color: white;
 	text-decoration: none;
-	background-color: #ff9523;
 }
 .navbar-app .navbar-nav {
 	padding-top: 16px;
+}
+
+.nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
+    background-color: #eeeeee3b;
+    border-color: #337ab7;
 }
 
 /* CONTINGUT */

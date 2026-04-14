@@ -16,6 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.opensymphony.module.sitemesh.filter.PageFilter;
 
+import es.caib.helium.back.interceptor.AjaxInterceptor;
 import es.caib.helium.back.interceptor.AplicacioInterceptor;
 import es.caib.helium.back.interceptor.EntornInterceptor;
 import es.caib.helium.back.interceptor.ModalInterceptor;
@@ -42,6 +43,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	private NodecoInterceptor nodecoInterceptor;
 	@Autowired
 	private EntornInterceptor entornInterceptor;
+	@Autowired
+	private AjaxInterceptor ajaxInterceptor;
 
 	@Bean
 	public FilterRegistrationBean<PageFilter> sitemeshFilter() {
@@ -83,6 +86,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addInterceptor(modalInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(nodecoInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludedPathPatterns);
+		registry.addInterceptor(ajaxInterceptor).excludePathPatterns(excludedPathPatterns);
 	}
 	
 	/** Configura el firewall per permetre caràcters codificats com el % ja que aquests s'usen en la codificació

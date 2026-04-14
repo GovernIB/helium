@@ -16,8 +16,6 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Index;
-
 
 /**
  * Objecte de domini que representa una entrada a la taula HEL_PARAMETRE amb els paràmetres de configuració d'Helim guardats

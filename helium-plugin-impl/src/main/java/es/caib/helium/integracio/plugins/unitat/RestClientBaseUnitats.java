@@ -1,8 +1,18 @@
 package es.caib.helium.integracio.plugins.unitat;
 
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.UriBuilder;
 
@@ -19,7 +29,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.representation.Form;
-
 
 
 
@@ -55,6 +64,7 @@ public class RestClientBaseUnitats {
 	}
 
 	protected Client generarClient() {
+		doTrustToCertificates();
 	    this.jerseyClient = Client.create();
 	    jerseyClient.setConnectTimeout(connecTimeout);
 	    jerseyClient.setReadTimeout(readTimeout);
@@ -109,6 +119,43 @@ public class RestClientBaseUnitats {
 	    );
 	    return jerseyClient;
 	}
+	
+	// trusting all certificate 
+	 public void doTrustToCertificates() {
+	 	try {
+	        //Security.addProvider(new Provider());
+	        TrustManager[] trustAllCerts = new TrustManager[]{
+	                new X509TrustManager() {
+	                    public X509Certificate[] getAcceptedIssuers() {
+	                        return null;
+	                    }
+
+	                    public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+	                        return;
+	                    }
+
+	                    public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+	                        return;
+	                    }
+	                }
+	        };
+
+	        SSLContext sc = SSLContext.getInstance("SSL");
+	        sc.init(null, trustAllCerts, new SecureRandom());
+	        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+	        HostnameVerifier hv = new HostnameVerifier() {
+	            public boolean verify(String urlHostName, SSLSession session) {
+	                if (!urlHostName.equalsIgnoreCase(session.getPeerHost())) {
+	                    System.out.println("Warning: URL host '" + urlHostName + "' is different to SSLSession host '" + session.getPeerHost() + "'.");
+	                }
+	                return true;
+	            }
+	        };
+	        HttpsURLConnection.setDefaultHostnameVerifier(hv);
+	 	} catch(Exception e) {
+	 		e.printStackTrace();
+	 	}
+    }
 
 	protected void autenticarClient(Client jerseyClient, String urlAmbMetode, String username, String password) throws Exception {
 	    if (!autenticacioBasic) {

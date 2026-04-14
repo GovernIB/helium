@@ -33,12 +33,15 @@
 					'	</div>' +
 					'</div>');
 			var modalUrl = settings.modalUrl;
-			if (modalUrl.lastIndexOf("http") !== 0) {
-				if (modalUrl.indexOf("../") != -1)
+			/*if (modalUrl.lastIndexOf("http") !== 0) {
+				if (modalUrl.indexOf("../") != -1) {
 					modalUrl = modalUrl.substr(0, modalUrl.lastIndexOf("../") + "../".length) + "modal/" + modalUrl.substr(modalUrl.lastIndexOf("../") + "../".length);
-				else
+				} else if (modalUrl.startsWith('/')) {
+					modalUrl = modalUrl.split('/').map((x, i) => i==1? `${x}/modal`: x).join('/')
+				} else {
 					modalUrl = "modal/" + modalUrl;
-			}
+				}
+			}*/
 			var modalobj = $('div.modal', this);
 			/*if (settings.maximize)
 				modalobj.css('top', '1%');*/

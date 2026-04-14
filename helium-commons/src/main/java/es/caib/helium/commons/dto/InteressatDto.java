@@ -38,7 +38,7 @@ public class InteressatDto {
 	private Boolean entregaDehObligat;
 	
 	private String observacions;
-	private String tipusdocident;
+	private InteressatDocumentTipusEnumDto tipusDocIdent;
 	private String codiDire;
 	private String direccio;
 	private String raoSocial;
@@ -247,11 +247,11 @@ public class InteressatDto {
 	public void setObservacions(String observacions) {
 		this.observacions = observacions;
 	}
-	public String getTipusdocident() {
-		return tipusdocident;
+	public InteressatDocumentTipusEnumDto getTipusDocIdent() {
+		return tipusDocIdent;
 	}
-	public void setTipusdocident(String tipusdocident) {
-		this.tipusdocident = tipusdocident;
+	public void setTipusDocIdent(InteressatDocumentTipusEnumDto tipusDocIdent) {
+		this.tipusDocIdent = tipusDocIdent;
 	}
 	public String getCodiDire() {
 		return codiDire;

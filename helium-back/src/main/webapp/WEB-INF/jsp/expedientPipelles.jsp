@@ -127,7 +127,7 @@ dd.subproc {
 		$('#desfinalitzarBtn').unbind();
 		$('#desfinalitzarBtn').click(function(e) {
 			e.preventDefault();
-			var potDesfinalitzarUrl = '<c:url value="../../expedient/${expedientId}/potDesfinalitzar"/>';
+			var potDesfinalitzarUrl = '<c:url value="/modal/expedient/${expedientId}/potDesfinalitzar"/>';
 			var confirmMsg = $(this).data('rdt-link-confirm');
 			var href = $(desfinalitzarBtn).attr('href');
 			$.ajax({
@@ -380,7 +380,7 @@ dd.subproc {
 				<h3>
 					<spring:message code="expedient.info.informacio"/>
 					<c:if test="${expedient.ntiActiu and expedient.permisRead}">
-						<a	href="<c:url value="../../expedient/${expedient.id}/metadadesNti"/>"
+						<a	href="<c:url value="/modal/expedient/${expedient.id}/metadadesNti"/>"
 							data-rdt-link-modal="true"
 							data-rdt-link-modal-min-height="500"
 							id="nti">
@@ -411,7 +411,7 @@ dd.subproc {
 					<dt><spring:message code="expedient.info.camp.tipus"/></dt>
 					<dd>${expedient.tipus.nom}
 						<c:if test="${expedient.tipus.manualAjudaNom != null}">
-							<c:set var="arxiuUrl">../../expedient/${expedient.tipus.id}/documentDownload"</c:set>
+							<c:set var="arxiuUrl">/modal/expedient/${expedient.tipus.id}/documentDownload"</c:set>
 								<a id="descarregarZip"
 									href="<c:url value="${arxiuUrl}"/>" class="fa fa-book" title="<spring:message code="expedient.tipus.form.camp.manual.ajuda.descarregar"/>">
 								</a>
@@ -498,7 +498,7 @@ dd.subproc {
 							<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
 							&nbsp;<label id="desc_def_proc"><c:out value="${definicioProces.etiqueta}"/></label>&nbsp;
 	<%-- 						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span></c:if> --%>
-							<c:if test="${expedient.permisDefprocUpdate}"><a id="canviversio" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true" href="<c:url value="../../expedient/${expedientId}/canviVersio"/>"><span class="fa fa-pencil edita"></span></a></c:if>
+							<c:if test="${expedient.permisDefprocUpdate}"><a id="canviversio" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true" href="<c:url value="/modal/expedient/${expedientId}/canviVersio"/>"><span class="fa fa-pencil edita"></span></a></c:if>
 							<%-- 				
 							<div id="imgDefinicioProcesJbpm" class="hide">
 								<img src="<c:url value="/expedient/${expedientId}/imatgeDefProces"/>"/>
@@ -558,10 +558,10 @@ dd.subproc {
 							<c:if test="${expedient.permisStop}">
 								<c:choose>
 									<c:when test="${not expedient.aturat}">
-											<li><a data-rdt-link-modal="true" href="<c:url value="../../expedient/${expedientId}/aturar"/>"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
+											<li><a data-rdt-link-modal="true" href="<c:url value="/modal/expedient/${expedientId}/aturar"/>"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
 									</c:when>
 									<c:otherwise>
-										<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.confirm_reprendre_tramitacio"/>" href="<c:url value="../../expedient/${expedientId}/reprendre"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.info.accio.reprendre"/></a></li>
+										<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.confirm_reprendre_tramitacio"/>" href="<c:url value="/modal/expedient/${expedientId}/reprendre"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.info.accio.reprendre"/></a></li>
 									</c:otherwise>
 								</c:choose>
 							</c:if>								
@@ -569,16 +569,16 @@ dd.subproc {
 							<c:if test="${expedient.permisCancel}">
 								<c:choose>
 									<c:when test="${not expedient.anulat}">
-										<li><a data-rdt-link-modal="true" href="<c:url value="../../expedient/${expedientId}/anular"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
+										<li><a data-rdt-link-modal="true" href="<c:url value="/modal/expedient/${expedientId}/anular"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
 									</c:when>
 									<c:otherwise>
-										<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>" href="<c:url value="../../expedient/${expedientId}/activar"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.info.accio.activar"/></a></li>
+										<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>" href="<c:url value="/modal/expedient/${expedientId}/activar"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.info.accio.activar"/></a></li>
 									</c:otherwise>
 								</c:choose>
 							</c:if>								
 
 							<c:if test="${expedient.permisDelete}">
-								<li><a href="<c:url value="../../expedient/${expedientId}/delete"/>" data-rdt-link-ajax="false" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a href="<c:url value="/modal/expedient/${expedientId}/delete"/>" data-rdt-link-ajax="false" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</c:if>
 							
 							<c:if test="${expedient.permisWrite || expedient.permisRead}">
@@ -592,59 +592,59 @@ dd.subproc {
 												data-rdt-link-confirm="<spring:message code="expedient.eines.confirm.finalitzar.expedient.arxiu"/>"
 												data-toggle="modal"
 												data-maximized="true"
-												href="<c:url value="../../expedient/${expedientId}/prefinalitzar"/>">
+												href="<c:url value="/modal/expedient/${expedientId}/prefinalitzar"/>">
 													<span class="fa fa-power-off"></span>&nbsp;<spring:message code="expedient.info.accio.finalitzar"/> ...
 												</a>
 											</c:when>
 											<c:otherwise>
-												<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.finalitzar"/>" href="<c:url value="../../expedient/${expedientId}/finalitzar"/>"><span class="fa fa-power-off"></span>&nbsp;<spring:message code="expedient.info.accio.finalitzar"/></a></li>
+												<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.finalitzar"/>" href="<c:url value="/modal/expedient/${expedientId}/finalitzar"/>"><span class="fa fa-power-off"></span>&nbsp;<spring:message code="expedient.info.accio.finalitzar"/></a></li>
 											</c:otherwise>
 										</c:choose>
 									</li>
 								</c:if>
 							</c:if>
 							<c:if test="${expedient.permisWrite}">
-								<li><a data-rdt-link-modal="true" href="<c:url value="../../expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
+								<li><a data-rdt-link-modal="true" href="<c:url value="/modal/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
 							</c:if>
 							<c:if test="${expedient.permisRelate}">
-								<li><a data-rdt-link-modal-min-height="190" data-rdt-link-modal="true" href="<c:url value="../../expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
+								<li><a data-rdt-link-modal-min-height="190" data-rdt-link-modal="true" href="<c:url value="/modal/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
 							</c:if>
 							<c:if test="${expedient.permisScriptExe}">
-								<li><a data-rdt-link-modal="true" href="<c:url value="../../expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
+								<li><a data-rdt-link-modal="true" href="<c:url value="/modal/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
 							</c:if>
 							<c:if test="${expedient.permisUndoEnd}">
 								<c:if test="${not empty expedient.dataFi}">
 									<c:choose>
 										<c:when test="${expedient.arxiuActiu}">
-											<li><a id="desfinalitzarBtn" data-rdt-link-confirm="<spring:message code="expedient.eines.confirm.desfinalitzar.expedient.arxiu"/>" href="<c:url value="../../expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
+											<li><a id="desfinalitzarBtn" data-rdt-link-confirm="<spring:message code="expedient.eines.confirm.desfinalitzar.expedient.arxiu"/>" href="<c:url value="/modal/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
 										</c:when>
 										<c:otherwise>
-											<li><a id="desfinalitzarBtn" data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desfinalitzar"/>" href="<c:url value="../../expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
+											<li><a id="desfinalitzarBtn" data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desfinalitzar"/>" href="<c:url value="/modal/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
 										</c:otherwise>
 									</c:choose>
 								</c:if>
 							</c:if>
 							<c:if test="${expedient.permisWrite}">
-								<li><a data-rdt-link-confirm="<spring:message code="expedient.accio.reindexa.confirmacio"/>" href="<c:url value="../../expedient/${expedientId}/reindexa"/>"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="expedient.info.accio.reindexa"/></a></li>
+								<li><a data-rdt-link-confirm="<spring:message code="expedient.accio.reindexa.confirmacio"/>" href="<c:url value="/modal/expedient/${expedientId}/reindexa"/>"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="expedient.info.accio.reindexa"/></a></li>
 							</c:if>
 							<c:if test="${expedient.permisLogManage}">
-								<li><a href="<c:url value="../../expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
+								<li><a href="<c:url value="/modal/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
 							</c:if>
 							<c:if test="${expedient.permisAdministration and expedient.tipus.arxiuActiu and empty expedient.arxiuUuid}">
-								<li><a href="<c:url value="../../expedient/${expedientId}/migrarArxiu"/>" onclick="return confirmarMigrarArxiu(event)"><span class="fa fa-suitcase"></span>&nbsp;<spring:message code="expedient.info.accio.migrararxiu"/></a></li>
+								<li><a href="<c:url value="/modal/expedient/${expedientId}/migrarArxiu"/>" onclick="return confirmarMigrarArxiu(event)"><span class="fa fa-suitcase"></span>&nbsp;<spring:message code="expedient.info.accio.migrararxiu"/></a></li>
 							</c:if>
 							
 							<c:if test="${tePermisAdministrar}">
 								<li class="divider"></li>
-								<li><a href="<c:url value="../../expedient/${expedientId}/generarIndexExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.exportarIndex.title"/>">
+								<li><a href="<c:url value="/modal/expedient/${expedientId}/generarIndexExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.exportarIndex.title"/>">
 									<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.exportarIndex"/>
 								</a></li>
 								
 								<c:if test="${not empty expedient.arxiuUuid}">
-									<li><a href="<c:url value="../../expedient/${expedientId}/exportarEniExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.eniExp.title"/>">
+									<li><a href="<c:url value="/modal/expedient/${expedientId}/exportarEniExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.eniExp.title"/>">
 										<span class="fa fa-file-code-o"></span>&nbsp;<spring:message code="expedient.info.accio.eniExp"/>
 									</a></li>							
-									<li><a href="<c:url value="../../expedient/${expedientId}/exportarEniDocumentsAmbIndex"/>" target="_blank" title="<spring:message code="expedient.info.accio.eni.title"/>">
+									<li><a href="<c:url value="/modal/expedient/${expedientId}/exportarEniDocumentsAmbIndex"/>" target="_blank" title="<spring:message code="expedient.info.accio.eni.title"/>">
 										<span class="fa fa-file-code-o"></span>&nbsp;<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.eni"/>
 									</a></li>
 								</c:if>
@@ -687,7 +687,7 @@ dd.subproc {
 				<div class="alert alert-danger" role="alert">
 					<span class="fa fa-exclamation-triangle"></span>
 					<strong><spring:message code="expedient.info.errors"/>: </strong><spring:message code="expedient.consulta.errors"/>
-					<a class="btn btn-default btn-sm right-btn error-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../../expedient/${expedientId}/errors"/>"><spring:message code="expedient.boto.veure_errors"/></a>
+					<a class="btn btn-default btn-sm right-btn error-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/expedient/${expedientId}/errors"/>"><spring:message code="expedient.boto.veure_errors"/></a>
 				</div>
 			</c:if>
 			<c:if test="${not empty expedient.infoAturat}">
@@ -711,7 +711,7 @@ dd.subproc {
 					<c:if test="${not empty expedient.alertesPendents}">
 						<strong>${expedient.alertesPendents} <spring:message code="expedient.info.alertes.complement"/></strong>
 					</c:if>
-					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../../expedient/${expedientId}/alertes"/>"><spring:message code="expedient.boto.veure_alertes"/></a>
+					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/expedient/${expedientId}/alertes"/>"><spring:message code="expedient.boto.veure_alertes"/></a>
 				</div>
 			</c:if>
 			
@@ -721,7 +721,7 @@ dd.subproc {
 					<strong><spring:message code="expedient.info.reindexacio"/>: </strong>
 					<c:if test="${expedient.reindexarData != null}"> <spring:message code="expedient.consulta.reindexacio.asincrona.data" arguments="${expedient.reindexarData}"/>. </c:if>
 					<spring:message code="expedient.consulta.reindexacio.error.full"/>.					
-					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value='../../expedient/lucene/${expedientId}'/>"><spring:message code="expedient.boto.veure_dades"/></a>
+					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value='/modal/expedient/lucene/${expedientId}'/>"><spring:message code="expedient.boto.veure_dades"/></a>
 				</div>
 			</c:if>
 

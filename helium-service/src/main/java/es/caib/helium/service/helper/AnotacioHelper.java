@@ -136,8 +136,6 @@ public class AnotacioHelper {
 	private VariableHelper variableHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
-	@Autowired
-	private IndexHelper indexHelper;
 	@Resource
 	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource
@@ -470,28 +468,11 @@ public class AnotacioHelper {
 		}
 	}
 	
-	public String populateInteressatDocumentTipus(Interessat interessatEntity, AnotacioInteressat anotacioInteressat) {
+	public InteressatDocumentTipusEnumDto populateInteressatDocumentTipus(Interessat interessatEntity, AnotacioInteressat anotacioInteressat) {
 		//Si ve buit, per defecte posarem NIF
 		String docTipusAnotacio = anotacioInteressat.getDocumentTipus() != null ? anotacioInteressat.getDocumentTipus() : InteressatDocumentTipusEnumDto.NIF.getValor();
 		//Possibles valors que ens arriben de l'anotació:  NIF, CIF, PASSAPORT, NIE, CODI_ORIGEN, ALTRES;
-		if("NIF".equals(docTipusAnotacio)) {
-			docTipusAnotacio = InteressatDocumentTipusEnumDto.NIF.getValor();
-		} else if("CIF".equals(docTipusAnotacio)) {
-			docTipusAnotacio = InteressatDocumentTipusEnumDto.CIF.getValor();
-		} else if("PASSAPORT".equals(docTipusAnotacio)) {
-			docTipusAnotacio = InteressatDocumentTipusEnumDto.PASSAPORT.getValor();
-		} else if("NIE".equals(docTipusAnotacio)) {
-			docTipusAnotacio = InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS.getValor();
-		} else if("CODI_ORIGEN".equals(docTipusAnotacio)) {
-			docTipusAnotacio = InteressatDocumentTipusEnumDto.CODI_ORIGEN.getValor();
-		} else if("ALTRES".equals(docTipusAnotacio)) {
-			docTipusAnotacio = InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.getValor();
-		} else {
-			docTipusAnotacio = InteressatDocumentTipusEnumDto.NIF.getValor();
-		}	
-		if(interessatEntity!=null)
-			interessatEntity.setTipusdocident(docTipusAnotacio);
-		return docTipusAnotacio;
+		return InteressatDocumentTipusEnumDto.valueOf(docTipusAnotacio);
 	}
 	
 	public String populateInteressatCanalNotif(Interessat interessatEntity, AnotacioInteressat anotacioInteressat) {

@@ -37,7 +37,7 @@ public interface InteressatRepository extends JpaRepository<Interessat, Long> {
 			" 			or (lower(i.documentIdent) like lower('%'||:filtre||'%')) " +
 			" 			or (lower(i.dir3Codi) like lower('%'||:filtre||'%')) " +
 			" 			or (lower(i.codi) like lower('%'||:filtre||'%'))) ")
-	Page<ExpedientTipus> findByFiltrePaginat(
+	Page<Interessat> findByFiltrePaginat(
 			@Param("expedient") Expedient expedient,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		

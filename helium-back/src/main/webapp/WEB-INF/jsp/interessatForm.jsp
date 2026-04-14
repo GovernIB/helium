@@ -87,34 +87,34 @@ function adaptarVisibilitat(tipus){
 			 $('.personajuridica').addClass('hidden');
 			 $('.administracio').addClass('hidden');
 			 $('.personafisica').removeClass('hidden');
-			 $('#tipusdocident option[value="'+altres_de_persona_fisica+'"]').prop('disabled',false); 
-			 $('#tipusdocident option[value="'+passaport+'"]').prop('disabled',false); 
-			 $('#tipusdocident option[value="'+cif+'"]').prop('disabled',true); 
-			 $('#tipusdocident option[value="'+codi_origen+'"]').prop('disabled',true); 
+			 $('#tipusDocIdent option[value="'+altres_de_persona_fisica+'"]').prop('disabled',false); 
+			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',false); 
+			 $('#tipusDocIdent option[value="'+cif+'"]').prop('disabled',true); 
+			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true); 
 			 $('#documentIdent').prop("readonly", false);
 		} else if (tipus == 'JURIDICA'){
 			 $('.visibilitatCodi').removeClass('hidden');
 			 $('.personafisica').addClass('hidden');
 			 $('.administracio').addClass('hidden');
 			 $('.personajuridica').removeClass('hidden');	
-			 $('#tipusdocident option[value="'+cif+'"]').prop('disabled',false); 
-			 $('#tipusdocident option[value="'+codi_origen+'"]').prop('disabled',true); 
-			 $('#tipusdocident option[value="'+altres_de_persona_fisica+'"]').prop('disabled',true); 
-			 $('#tipusdocident option[value="'+passaport+'"]').prop('disabled',true); 
+			 $('#tipusDocIdent option[value="'+cif+'"]').prop('disabled',false); 
+			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true); 
+			 $('#tipusDocIdent option[value="'+altres_de_persona_fisica+'"]').prop('disabled',true); 
+			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',true); 
 			 $('#documentIdent').prop("readonly", false);
 		}else if (tipus == 'ADMINISTRACIO'){
 			 $('.visibilitatCodi').removeClass('hidden');
 			 $('.personafisica').addClass('hidden');
 			 $('.personajuridica').addClass('hidden');
 			 $('.administracio').removeClass('hidden');
-			 $('#tipusdocident option[value="'+codi_origen+'"]').prop('disabled',false); 
-	 	 	 $('#tipusdocident').val(codi_origen);	
-	 	 	 $('#tipusdocident').prop("readonly", true);
+			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',false); 
+	 	 	 $('#tipusDocIdent').val(codi_origen);	
+	 	 	 $('#tipusDocIdent').prop("readonly", true);
 		}
 		 $('#cifOrganGestor').val($('#dir3Codi').val()).change();
-		 $('#tipusdocident').change();
-		 $('#tipusdocident').select2("destroy");
-	 	 $('#tipusdocident').select2(select2Options);
+		 $('#tipusDocIdent').change();
+		 $('#tipusDocIdent').select2("destroy");
+	 	 $('#tipusDocIdent').select2(select2Options);
 	 	 $("#tipusHiddenId").val(tipus);
 }
 
@@ -131,7 +131,7 @@ function netejar(){
 		$('#direccio').val("");
 		$('#direccio').prop("readonly", false);
 		$('#documentIdent').val("");
-		$('#tipusdocident').val("NIF");
+		$('#tipusDocIdent').val("NIF");
 }
 
 $(document).ready(function() {
@@ -193,19 +193,19 @@ $(document).ready(function() {
 		var tipusInt = 1;
  		if (this.value == '<%=es.caib.helium.commons.dto.InteressatTipusEnumDto.FISICA%>') {
  			tipusInt = 1;
-			$('#tipusdocident').val("NIF");
-			$('#tipusdocident').prop("readonly", false);
+			$('#tipusDocIdent').val("NIF");
+			$('#tipusDocIdent').prop("readonly", false);
 		
  		} else if (this.value == '<%=es.caib.helium.commons.dto.InteressatTipusEnumDto.JURIDICA%>') {
  			tipusInt = 2;
- 			$('#tipusdocident').val("NIF");
- 			$('#tipusdocident').prop("readonly", false);
+ 			$('#tipusDocIdent').val("NIF");
+ 			$('#tipusDocIdent').prop("readonly", false);
  	 	} else {
  			tipusInt = 3;
  	 	}
- 		$('#tipusdocident').change();
-		$('#tipusdocident').select2("destroy");
- 	 	$('#tipusdocident').select2(select2Options);
+ 		$('#tipusDocIdent').change();
+		$('#tipusDocIdent').select2("destroy");
+ 	 	$('#tipusDocIdent').select2(select2Options);
 	});
 	
  	
@@ -365,11 +365,11 @@ $(document).ready(function() {
  	 					type: 'GET',
  	 					url: "<c:url value="/expedient/organ/"/>" + $(this).val(),
  	 					success: function(data) {
- 	 						$('#tipusdocident').val("CODI_ORIGEN");
- 	 						$('#tipusdocident').prop("readonly", true);
- 	 						$('#tipusdocident').change();
- 	 			 	 		$('#tipusdocident').select2("destroy");
- 	 			 	 		$('#tipusdocident').select2(select2Options);
+ 	 						$('#tipusDocIdent').val("CODI_ORIGEN");
+ 	 						$('#tipusDocIdent').prop("readonly", true);
+ 	 						$('#tipusDocIdent').change();
+ 	 			 	 		$('#tipusDocIdent').select2("destroy");
+ 	 			 	 		$('#tipusDocIdent').select2(select2Options);
  	 						$('#codi').val(data.codi).change();
  	 						$('#dir3Codi').val(data.codi).change();
  	 						$('#documentIdent').val(data.nifCif);
@@ -402,11 +402,11 @@ $(document).ready(function() {
  	 					error: function(data) {
  	 						$('.alert.alert-danger').remove();
  							webutilAlertaError(data.responseJSON.error);
- 	 						$('#tipusdocident').val(null);
- 	 						$('#tipusdocident').prop("readonly", true);
- 	 						$('#tipusdocident').change();
- 	 			 	 		$('#tipusdocident').select2("destroy");
- 	 			 	 		$('#tipusdocident').select2(select2Options);
+ 	 						$('#tipusDocIdent').val(null);
+ 	 						$('#tipusDocIdent').prop("readonly", true);
+ 	 						$('#tipusDocIdent').change();
+ 	 			 	 		$('#tipusDocIdent').select2("destroy");
+ 	 			 	 		$('#tipusDocIdent').select2(select2Options);
  	 						$('#codi').val(null).change();
  	 						$('#dir3Codi').val(null).change();
  	 						$('#documentIdent').val(null);
@@ -676,7 +676,7 @@ $(document).ready(function() {
 				<hel:inputSelect 
 					readonly="false"
 					required="true" 
-					name="tipusdocident"
+					name="tipusDocIdent"
 					optionItems="${interessatTipusDocuments}" 
 					optionValueAttribute="valor"
 					optionTextAttribute="codi" 

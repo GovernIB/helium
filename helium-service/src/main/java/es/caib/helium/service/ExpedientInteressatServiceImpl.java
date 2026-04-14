@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.caib.helium.commons.dto.InteressatDocumentTipusEnumDto;
 import es.caib.helium.commons.dto.InteressatDto;
 import es.caib.helium.commons.dto.InteressatTipusEnumDto;
 import es.caib.helium.commons.dto.PaginaDto;
@@ -74,7 +73,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			interessat.getCodiPostal(),
 			interessat.getEntregaDeh(),
 			interessat.getEntregaDehObligat(),
-			interessat.getTipusdocident(),
+			interessat.getTipusDocIdent(),
 			interessat.getDireccio(),
 			interessat.getObservacions(),
 			interessat.getEs_representant(),
@@ -101,7 +100,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				propArxiu = false;
 			}
 		}
-		interessatEntity.setTipusdocident(InteressatDocumentTipusEnumDto.valueOf(interessatEntity.getTipusdocident()).getValor())    ;
+		interessatEntity.setTipusDocIdent(interessatEntity.getTipusDocIdent());
 		interessatEntity = interessatRepository.save(interessatEntity);
 		InteressatDto resultat = conversioTipusHelper.convertir(interessatEntity, InteressatDto.class);
 		resultat.setPropagatArxiu(propArxiu);
@@ -137,7 +136,8 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
 		interessatEntity.setObservacions(interessat.getObservacions());
-		interessatEntity.setTipusdocident(translateTipusDocIdentToSave(interessat.getTipusdocident()));
+		// interessatEntity.setTipusDocIdent(translateTipusDocIdentToSave(interessat.getTipusdocident()));
+		interessatEntity.setTipusDocIdent(interessat.getTipusDocIdent());
 		interessatEntity.setCodiDire(interessat.getCodiDire());
 		interessatEntity.setDireccio(interessat.getDireccio());
 		interessatEntity.setRaoSocial(interessat.getRaoSocial());
@@ -163,25 +163,6 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		}
 		
 		return resultat;
-	}
-	
-	private String translateTipusDocIdentToSave(String documentTipus) {
-		String valorTraduit=null;
-		if (documentTipus != null) {
-			if(documentTipus.equals(InteressatDocumentTipusEnumDto.NIF.name()))
-					valorTraduit=InteressatDocumentTipusEnumDto.NIF.getValor();
-			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.CIF.name()))
-				valorTraduit=InteressatDocumentTipusEnumDto.CIF.getValor();
-			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.name()))
-				valorTraduit=InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.getValor();
-			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.CODI_ORIGEN.name()))
-				valorTraduit=InteressatDocumentTipusEnumDto.CODI_ORIGEN.getValor();
-			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS.name()))
-				valorTraduit=InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS.getValor();
-			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.PASSAPORT.name()))
-				valorTraduit=InteressatDocumentTipusEnumDto.PASSAPORT.getValor();
-			}
-		return valorTraduit;
 	}
 
 	public Interessat comprovarInteressat(
@@ -425,7 +406,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			representant.getCodiPostal(),
 			representant.getEntregaDeh(),
 			representant.getEntregaDehObligat(),
-			representant.getTipusdocident(),
+			representant.getTipusDocIdent(),
 			representant.getDireccio(),
 			representant.getObservacions(),
 			representant.getEs_representant(),
@@ -436,7 +417,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			representant.getCanalNotif(),
 			representant.getCodiDire()
 			);
-		representantEntity.setTipusdocident(InteressatDocumentTipusEnumDto.valueOf(representantEntity.getTipusdocident()).getValor())    ;
+		representantEntity.setTipusDocIdent(representantEntity.getTipusDocIdent());
 		if(representant.getEs_representant()) {
 			interessat.setRepresentant(representantEntity);
 //			representantEntity.setRepresentat(interessat);
