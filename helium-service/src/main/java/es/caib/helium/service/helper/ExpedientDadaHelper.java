@@ -19,6 +19,7 @@ import es.caib.helium.commons.dades.DadesValor;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.DefinicioProces;
+import es.caib.helium.persistence.entity.Entorn;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.ExpedientDades;
 import es.caib.helium.persistence.entity.ExpedientTipus;
@@ -253,4 +254,16 @@ public class ExpedientDadaHelper {
 		}
 	}
 
+	/** Actualitza les dades de l'expedient al servei de dade. */
+	public boolean setExpedientDades(Expedient expedient) {
+		// TODO Auto-generated method stub		
+		return true;
+	}
+
+	/** Mètode de l'IndexHelper que s'ha de substituir. */
+	public List<Long> findExpedientsIdsByFiltre(Entorn entorn, ExpedientTipus expedientTipus, List<Camp> filtreCamps,
+			Map<String, Object> filtreValors) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -38,7 +38,6 @@ import es.caib.helium.persistence.repository.ExpedientLoggerRepository;
 import es.caib.helium.service.helper.ConversioTipusHelper;
 import es.caib.helium.service.helper.ExpedientHelper;
 import es.caib.helium.service.helper.ExpedientLoggerHelper;
-import es.caib.helium.service.helper.IndexHelper;
 import es.caib.helium.service.helper.TascaHelper;
 import es.caib.helium.service.helpers.MesuresTemporalsHelper;
 import es.caib.helium.service.security.ExtendedPermission;
@@ -65,8 +64,6 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Autowired
-	private IndexHelper indexHelper;
 	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
@@ -212,8 +209,6 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 							log.getAccioParams());
 			expedientLoggerHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
 			logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
-			indexHelper.expedientIndexLuceneUpdate(
-					log.getExpedient().getProcessInstanceId());
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
 	}

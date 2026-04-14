@@ -1,7 +1,0 @@
---#1782 Sincronització amb l'Arxiu
-
--- Oracle
-ALTER TABLE HEL_EXPEDIENT ADD (ERROR_ARXIU CLOB);
-
--- Postgresql
-ALTER TABLE HEL_EXPEDIENT ADD ERROR_ARXIU TEXT;

@@ -119,7 +119,6 @@ import es.caib.helium.service.helper.DocumentHelperV3;
 import es.caib.helium.service.helper.ExpedientHelper;
 import es.caib.helium.service.helper.ExpedientLoggerHelper;
 import es.caib.helium.service.helper.ExpedientRegistreHelper;
-import es.caib.helium.service.helper.IndexHelper;
 import es.caib.helium.service.helper.NotificacioHelper;
 import es.caib.helium.service.helper.PaginacioHelper;
 import es.caib.helium.service.helper.PluginHelper;
@@ -180,8 +179,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private TascaHelper tascaHelper;
 	@Resource
 	private WorkflowEngineApi jbpmHelper;
-	@Autowired
-	private IndexHelper indexHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -296,7 +293,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				validationMessage,
 				null,
 				annexosPerNotificar);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
 				expedient.getId(),
 				processInstanceId,
@@ -379,7 +375,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
 				ntiIdOrigen);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientRegistreHelper.crearRegistreModificarDocumentInstanciaProces(
 				expedient.getId(),
 				processInstanceId,

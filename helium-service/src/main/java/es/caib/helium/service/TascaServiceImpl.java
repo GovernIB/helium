@@ -92,13 +92,13 @@ import es.caib.helium.service.helper.ComandaHelper;
 import es.caib.helium.service.helper.ConversioTipusHelper;
 import es.caib.helium.service.helper.DocumentHelperV3;
 import es.caib.helium.service.helper.EntornHelper;
+import es.caib.helium.service.helper.ExpedientDadaHelper;
 import es.caib.helium.service.helper.ExpedientHelper;
 import es.caib.helium.service.helper.ExpedientLoggerHelper;
 import es.caib.helium.service.helper.ExpedientRegistreHelper;
 import es.caib.helium.service.helper.ExpedientTipusHelper;
 import es.caib.helium.service.helper.FormulariExternHelper;
 import es.caib.helium.service.helper.HerenciaHelper;
-import es.caib.helium.service.helper.IndexHelper;
 import es.caib.helium.service.helper.PaginacioHelper;
 import es.caib.helium.service.helper.PaginacioHelper.Converter;
 import es.caib.helium.service.helper.PermisosHelper;
@@ -172,7 +172,7 @@ public class TascaServiceImpl implements TascaService {
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Autowired
-	private IndexHelper indexHelper;
+	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -864,7 +864,6 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		jbpmHelper.takeTaskInstance(id, auth.getName());
-		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
@@ -902,7 +901,6 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		jbpmHelper.releaseTaskInstance(id);
-		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
@@ -1432,7 +1430,6 @@ public class TascaServiceImpl implements TascaService {
 			actualitzarTerminisIAlertes(tascaId, expedientLog.getExpedient());
 			expedientHelper.verificarFinalitzacioExpedient(
 					expedientLog.getExpedient());
-			indexHelper.expedientIndexLuceneUpdate(expedientLog.getExpedient().getProcessInstanceId());
 			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 					task.getTaskName(),
 					task.getProcessDefinitionId());
@@ -1515,7 +1512,8 @@ public class TascaServiceImpl implements TascaService {
 				accio, 
 				herenciaHelper.getProcessDefinitionIdHeretadaAmbTaskId(tascaId)
 				);
-		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		// Actualitza les dades de l'expedient per si canvien.
+		expedientDadaHelper.setExpedientDades(expedientRepository.findById(task.getProcessInstance().getExpedientId()).get());
 	}
 
 	@Override

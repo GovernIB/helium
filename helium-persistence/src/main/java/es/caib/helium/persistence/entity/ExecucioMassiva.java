@@ -27,7 +27,6 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -50,7 +49,6 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		ATURAR_EXPEDIENT,
 		MODIFICAR_VARIABLE,
 		MODIFICAR_DOCUMENT,
-		REINDEXAR,
 		REASSIGNAR,
 		BUIDARLOG,
 		REPRENDRE_EXPEDIENT,
