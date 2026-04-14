@@ -963,16 +963,26 @@ public class ExpedientHelper {
 			expedient.setNtiSerieDocumental(expedient.getTipus().getNtiSerieDocumental());
 			expedient.setNtiActiu(true);
 		}
-
-		// Migra a l'Arxiu o actualitzar en el seu cas
-		pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
+		
+		boolean crearActualitzar = true;
+		if (expedient.getArxiuUuid() != null) {
+			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			// Si existeix i no està obert llavors no crea ni actualitza
+			if (expedientArxiu != null 
+					&& !ExpedientEstat.OBERT.equals(expedientArxiu.getMetadades().getEstat()) ) {
+				crearActualitzar = false;
+			}
+		}
+		if (crearActualitzar) {
+			// Migra a l'Arxiu o actualitzar en el seu cas
+			pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
+		}
 		// Si no posam a true ara, el prostprocessar no pujará els fitxers a l'arxiu
 		expedient.setArxiuActiu(true);
 		
 		// Informa convorme l'expedient és NTI i a l'Arxiu
 		expedient.setNtiActiu(true);
 		expedient.setErrorArxiu(null);
-		
 	}
 	
 	@Transactional

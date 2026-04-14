@@ -1600,7 +1600,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		try {
 			expedientHelper.migrarExpedientArxiu(expedient);
 		} catch (Exception ex) {
-			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
+			String errorDescripcio = "Error sincronitzant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			if (esborrarExpSiError && expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
 				logger.info("Es procedeix a esborrar l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.");
 				try{
@@ -1680,7 +1680,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		// Comprovam si ja s'esta executant la migració per aquest expedient
 		if(isCurrentlyMigrating(id))
 			return;
-		logger.debug("Migrar l'expedient (id=" + id + ") a l'arxiu");
+		logger.debug("Sincronitzant l'expedient (id=" + id + ") amb l'arxiu");
 		expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				id,
 				ExpedientLogAccioTipus.EXPEDIENT_MIGRAR_ARXIU,
@@ -1692,8 +1692,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			this.migrarDocumentsArxiu(id, esborrarExpSiError);
 			this.finalitzaArxiuMigrat(id);
 		} catch(TramitacioException ex) {
-			this.undoSincronitzacioArxiu(id);
-			this.undoSincronitzacioDocumentsArxiu(documentsEstatAnterior);
+			if (esborrarExpSiError) {
+				this.undoSincronitzacioArxiu(id);
+				this.undoSincronitzacioDocumentsArxiu(documentsEstatAnterior);
+			}
 			throw ex;
 		} finally {
 			deleteCurrentlyMigrating(id);

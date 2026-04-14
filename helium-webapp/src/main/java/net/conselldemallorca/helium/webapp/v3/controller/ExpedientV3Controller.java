@@ -617,7 +617,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			if (expedient.isPermisAdministration()) {
-				expedientService.sincronitzarArxiu(expedient.getId(), true);
+				expedientService.sincronitzarArxiu(expedient.getId(), false);
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.migrat.arxiu"));
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.migrar.expedient.arxiu"));
