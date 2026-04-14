@@ -39,7 +39,7 @@
 	</bean>
 	
 	<!-- Make this available across all of Spring MVC -->
-	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager" />
+	<!-- <mvc:annotation-driven content-negotiation-manager="contentNegotiationManager" /> -->
 
 	<context:annotation-config/>
 	<mvc:annotation-driven/>
