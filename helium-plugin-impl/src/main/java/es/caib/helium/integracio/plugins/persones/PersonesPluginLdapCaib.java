@@ -1,4 +1,4 @@
-package es.caib.helium.service.plugins;
+package es.caib.helium.integracio.plugins.persones;
 
 import java.util.List;
 

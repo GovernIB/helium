@@ -5,11 +5,18 @@ package es.caib.helium.integracio.plugins.persones;
 
 import java.io.Serializable;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 /**
  * Classe que representa una persona d'un sistema extern
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DadesPersona implements Serializable {
 
 	public enum Sexe {

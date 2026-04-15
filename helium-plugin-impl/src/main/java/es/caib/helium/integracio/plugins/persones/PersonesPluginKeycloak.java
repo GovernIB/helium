@@ -1,11 +1,10 @@
-package es.caib.helium.service.plugins;
+package es.caib.helium.integracio.plugins.persones;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,19 +22,12 @@ import org.keycloak.representations.idm.UserRepresentation;
 
 import com.google.common.collect.Lists;
 
-import es.caib.helium.integracio.plugins.persones.DadesPersona;
-import es.caib.helium.integracio.plugins.persones.PersonesPlugin;
-import es.caib.helium.integracio.plugins.persones.PersonesPluginException;
+import es.caib.helium.commons.utils.GlobalProperties;
 
 public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implements PersonesPlugin {
-
 	
-	public PersonesPluginKeycloak(String propertyKeyBase, Properties properties, boolean configuracioEspecifica) {
-		super(propertyKeyBase, properties);
-	}
-	
-	public PersonesPluginKeycloak(String propertyKeyBase) {
-		super(propertyKeyBase);
+	public PersonesPluginKeycloak() {
+		super("app.plugin.persones.", GlobalProperties.getInstance());
 	}
 	
 	@Override
@@ -64,9 +56,11 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 	@Override
 	public DadesPersona findAmbCodi(String codi) throws PersonesPluginException {
 		try {
-			UserInfo userInfo = getUserInfoByAdministrationID(codi);
+			UserInfo userInfo = getUserInfoByUserName(codi);
 			return toDadesPersona(userInfo);
 		} catch (Exception e) {
+			throw new PersonesPluginException("Error cercant dades persona per codi: " + codi, e);
+		} catch(Throwable e) {
 			throw new PersonesPluginException("Error cercant dades persona per codi: " + codi, e);
 		}
 	}
@@ -172,21 +166,25 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 		default:
 			sexe = DadesPersona.Sexe.SEXE_HOME;
 		}
-		return new DadesPersona(
-				ui.getUsername(), 
-				ui.getName(),
-				(ui.getSurname1() != null? ui.getSurname1() : "") + (ui.getSurname2() != null? " " + ui.getSurname2() : ""),
-				ui.getEmail(),
-				sexe);
+		
+		return DadesPersona
+			.builder()
+			.codi(ui.getUsername())
+			.nom(ui.getName())
+			.llinatge1(ui.getSurname1())
+			.llinatge2(ui.getSurname2())
+			.sexe(sexe)
+			.dni(ui.getAdministrationID())
+			.build();
 	}
 	
 	private DadesPersona toDadesPersona(UserRepresentation ur) {
-		return new DadesPersona(
-				ur.getUsername(), 
-				ur.getFirstName(),
-				ur.getLastName(),
-				ur.getEmail(),
-				null);
+		return DadesPersona
+				.builder()
+				.codi(ur.getUsername())
+				.nom(ur.getFirstName())
+				.llinatge1(ur.getLastName())
+				.build();
 	}
 
 }

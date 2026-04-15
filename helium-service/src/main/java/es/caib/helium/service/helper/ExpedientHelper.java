@@ -16,11 +16,6 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.codehaus.janino.ExpressionEvaluator;
-//import org.jbpm.graph.exe.ProcessInstanceExpedient;
-//import org.jbpm.jpdl.el.ELException;
-//import org.jbpm.jpdl.el.VariableResolver;
-//import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1234,7 +1229,7 @@ public class ExpedientHelper {
 		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
 				token.getProcessInstanceId());
 		workflowEngineApi.tokenRedirect(
-				new Long(tokenId).longValue(),
+				Long.valueOf(tokenId),
 				nodeName,
 				cancelTasks,
 				true,
@@ -1423,7 +1418,7 @@ public class ExpedientHelper {
 		List<Alerta> alertes = alertaRepository.findByExpedientAndDataEliminacioNull(expedient);
 		long pendents = 0L;
 		if (!alertes.isEmpty()) {
-			dto.setAlertesTotals(new Long(alertes.size()));
+			dto.setAlertesTotals(Long.valueOf(alertes.size()));
 			dto.setAlertesPendents(0L);
 			for (Alerta alerta: alertes) {
 				if (alerta.getDataLectura() == null)
@@ -1475,6 +1470,8 @@ public class ExpedientHelper {
 		
 		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
 		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
+		if(rootProcessInstance == null)
+			return resposta;
 		List<WProcessInstance> piTree = workflowEngineApi.getProcessInstanceTree(rootProcessInstance.getId());
 		
 		for (WProcessInstance jpi: piTree) {

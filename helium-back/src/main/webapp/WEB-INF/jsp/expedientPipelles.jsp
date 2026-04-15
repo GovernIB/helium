@@ -584,7 +584,7 @@ dd.subproc {
 							<c:if test="${expedient.permisWrite || expedient.permisRead}">
 								<li class="divider"></li>
 								<c:if test="${empty expedient.dataFi}">
-									<li
+									<li>
 										<c:choose>
 											<c:when test="${expedient.arxiuActiu}">
 												<!--  Modal per seleccionar i firmar documents -->

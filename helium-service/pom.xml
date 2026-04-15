@@ -287,11 +287,6 @@
 			<artifactId>ehcache</artifactId>
 			<version>1.5.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.fundaciobit.pluginsib.userinformation</groupId>
-			<artifactId>pluginsib-userinformation-keycloak</artifactId>
-			<version>4.0.0-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
