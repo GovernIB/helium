@@ -591,18 +591,11 @@ public class DocumentHelper {
 					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
 				}
 				if (document.isSignat()) {
-//					dto.setUrlVerificacioCustodia(
-//							pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-//									document.getReferenciaCustodia()));
-					if (document.getArxiuUuid() == null) {
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
+					if (!expedient.isArxiuActiu()) {
 						dto.setUrlVerificacioCustodia(
 								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
 										document.getReferenciaCustodia()));
-//						dto.set.setSignaturaUrlVerificacio(
-//								dto.getUrlVerificacioCustodia());
-					} else {
-//						dto.setSignaturaUrlVerificacio(
-//								getPropertyArxiuVerificacioBaseUrl() + document.getNtiCsv());
 					}
 					
 				}

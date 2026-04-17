@@ -2530,7 +2530,8 @@ public class DocumentHelperV3 {
 				dto.setSignat(documentStore.isSignat());
 				dto.setRegistrat(documentStore.isRegistrat());
 				if (documentStore.isSignat()) {
-					if (documentStore.getArxiuUuid() == null) {
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+					if (!expedient.isArxiuActiu()) {
 						dto.setUrlVerificacioCustodia(
 								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
 										documentStore.getReferenciaCustodia()));

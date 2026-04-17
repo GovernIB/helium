@@ -2050,7 +2050,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				processInstanceId,
 				documentStoreId);
 		boolean potFirmar = true;
-		if (document.getArxiuUuid() == null && document.getCustodiaCodi() == null) {
+		DocumentExpedientFirmaPassarelaCommand command = new DocumentExpedientFirmaPassarelaCommand();
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		if (!expedient.isArxiuActiu() && document.getCustodiaCodi() == null) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.document.firmaPassarela.validacio.custodia.codi"));
 			potFirmar = false;
 		} 
@@ -2061,8 +2063,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 							"expedient.document.firmaPassarela.validacio.no.convertible",
 							new Object[] {PdfUtils.getExtensionsConvertiblesPdf()}));
 		}
-		DocumentExpedientFirmaPassarelaCommand command = new DocumentExpedientFirmaPassarelaCommand();
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		command.setMotiu(getMessage(request, "expedient.document.firmaPassarela.camp.motiu.default", new Object[] {expedient.getNumero()}));
 		model.addAttribute("document", document);	
 		model.addAttribute("expedientId", expedientId);
@@ -2476,12 +2476,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				documentStoreId);
 
 		boolean potFirmar = true;
-		if (expedientDocumentDto.getArxiuUuid() == null && expedientDocumentDto.getCustodiaCodi() == null) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		if (!expedient.isArxiuActiu() && expedientDocumentDto.getCustodiaCodi() == null) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.document.firmaPassarela.validacio.custodia.codi"));
 			potFirmar = false;
 		}
 		
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		if(expedientDocumentDto.getDocumentCodi()!=null) {
 
 			if (command != null) {
