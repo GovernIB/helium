@@ -9,7 +9,8 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.campRegistre.llistat.titol" arguments="${camp.etiqueta}"/></c:set>
-<c:set var="baseUrl"><c:url value="/modal/${basicUrl}/variable/${camp.id}/campRegistre"></c:url></c:set>
+<c:set var="baseUrl"><c:url value="/${basicUrl}/variable/${camp.id}/campRegistre"></c:url></c:set>
+<c:set var="baseModalUrl"><c:url value="/modal/${basicUrl}/variable/${camp.id}/campRegistre"></c:url></c:set>
 
 <html>
 <head>
@@ -189,7 +190,7 @@
 		$('#btnCreate').show();
 		$('#btnUpdate').hide();
 		resetFormulari();
-		$('#campRegistre-form').attr('action','${baseUrl}/new');
+		$('#campRegistre-form').attr('action','${baseModalUrl}/new');
 	}
 	
 	function mostraFormulariUpdate(id, membreId) {
@@ -197,7 +198,7 @@
 		$('#btnNew').hide();
 		$('#btnCreate').hide();
 		$('#btnUpdate').show();
-		$('#campRegistre-form').attr('action','${baseUrl}/'+id+'/update');
+		$('#campRegistre-form').attr('action','${baseModalUrl}/'+id+'/update');
 		// Copia els valors
 		$("#inputCampRegistreId").val(id);
 		$row = $("#campRegistre tr[id='row_"+id+"']");		
@@ -210,7 +211,7 @@
 	function canviarPosicioCampRegistre( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
 		$('#campRegistre').DataTable().order([7, 'asc']);
-		var getUrl = '<c:url value="${baseUrl}"/>/'+id+'/moure/'+pos;
+		var getUrl = '${baseUrl}/'+id+'/moure/'+pos;
 		$.ajax({
 			type: 'GET',
 			url: getUrl,
@@ -249,7 +250,7 @@
 	}
 	
 	function refrescarVariables(membreId) {
-		var getUrl = '<c:url value="${baseUrl}/select"/>';
+		var getUrl = '${baseUrl}/select';
 		$.ajax({
 			type: 'GET',
 			url: getUrl,

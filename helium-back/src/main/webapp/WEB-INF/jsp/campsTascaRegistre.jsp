@@ -54,6 +54,7 @@
 				</c:if>
 				
 				<c:set var="mida" value="${fn:length(command[dadaActual.varCodi])}"/>
+				<c:set var="mida" value="${mida == 0? 1 : mida}"/>
 				<tbody>
 				<c:forEach var="i" begin="1" end="${mida}">
 					<tr class="multiple">

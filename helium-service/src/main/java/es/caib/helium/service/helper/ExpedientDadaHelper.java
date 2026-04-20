@@ -3,19 +3,29 @@
  */
 package es.caib.helium.service.helper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManagerFactory;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.persister.entity.AbstractEntityPersister;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dades.DadesValor;
+import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -53,6 +63,12 @@ public class ExpedientDadaHelper {
 //	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private VariableHelper variableHelper;
+	
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	private EntityManagerFactory entityManagerFactory;
 
 	// Objectes estàtics per fer la conversió JSON/Map
 	private static ObjectMapper mapper; 
@@ -265,5 +281,128 @@ public class ExpedientDadaHelper {
 			Map<String, Object> filtreValors) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Transactional
+	public List<Map<String, Object>> queryConsultaPaginat(
+			Long entornId,
+			Map<String, Object> filtre, 
+			List<TascaDadaDto> filtreCamps, 
+			List<TascaDadaDto> informeCamps, 
+			PaginacioParamsDto paginacioParams) {
+		
+		List<Object> args = new ArrayList<Object>();
+		StringBuilder query = new StringBuilder("SELECT * FROM ( SELECT rownum r__, t.* FROM ( ");
+		query.append(" SELECT expedient.ID, ");
+		
+		// Afegim les columnes del select a la query
+		query.append(String.join(
+				", ", 
+				informeCamps
+					.stream()
+					.map((ic) -> {
+						if(ic.getVarCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+							return ic.getVarCodi().replace(ExpedientCamps.EXPEDIENT_PREFIX, "expedient.");
+						return "d.DADES." + ic.getVarCodi() + ".v as " + ic.getVarCodi();
+					})
+					.collect(Collectors.toList())));
+		
+		query.append(" FROM HEL_EXPEDIENT_DADES d, HEL_EXPEDIENT expedient ");
+		query.append(" WHERE expedient.ID = d.EXPEDIENT_ID ");
+		query.append(" AND expedient.ENTORN_ID = ? ");
+		args.add(entornId);
+		
+		SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class);
+		AbstractEntityPersister persister = ((AbstractEntityPersister)sessionFactory.getClassMetadata(Expedient.class));
+		
+		// FILTRE
+		for(TascaDadaDto f : filtreCamps) {
+			Object filtreVal = filtre.get(f.getVarCodi());
+			
+			String campNom = f.getVarCodi();
+			if(campNom.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+				campNom = campNom.substring(campNom.indexOf("$")+1);
+				String[] columns = persister.getPropertyColumnNames(campNom);
+				campNom = "expedient." + columns[0];
+			} else {
+				campNom = "d.DADES." + campNom + ".v";
+			}
+			if(filtreVal == null)
+				continue;
+			
+			if(filtreVal != null) {
+				switch(f.getCampTipus()) {
+//				case DATE:
+//					Date[] fdates = (Date[])filtreVal;
+//					if(fdates[0] == null && fdates[1] == null)
+//						break;
+//					query.append(" AND " + campNom + " BETWEEN ? AND ? ");
+//					args.add(fdates[0] != null? fdates[0] : new Date());
+//					args.add(fdates[1] != null? fdates[1] : new Date());
+//					break;
+				case TEXTAREA:
+				case STRING:
+					query.append(" AND " + campNom + " like ? ");
+					args.add("%" + filtreVal + "%");
+					break;
+				case DATE:
+				case INTEGER:
+				case FLOAT:
+				case PRICE:
+					if(filtreVal instanceof Object[]) {
+						Object[] frange = (Object[])filtreVal;
+						if(frange[0] != null) {
+							query.append(" AND " + campNom + " >= ? ");
+							args.add(frange[0]);
+						}
+						if(frange[1] != null) {
+							query.append(" AND " + campNom + " <= ? ");
+							args.add(frange[1]);
+						}
+						break;
+					}
+				case SELECCIO:
+				case SUGGEST:
+				default:
+					query.append(" AND " + campNom + " = ? ");
+					args.add(filtreVal);
+					break;
+				}
+			}
+		}
+		
+		// ORDENACIÓ
+		if(paginacioParams.getOrdres() == null || paginacioParams.getOrdres().isEmpty()) {
+			query.append(" ORDER BY expedient.ID DESC ");
+		} else {
+			query.append(" ORDER BY " +
+					String.join(", ", 
+							paginacioParams
+							.getOrdres()
+							.stream()
+							.map(o -> {
+								if(o.getCamp().equals("expedient.identificador")) {
+									return " expedient.NUMERO " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC") + 
+											" ,expedient.NUMERO_DEFAULT " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC");
+								}
+								String camp = o.getCamp().replaceFirst("dadesExpedient.", "d.DADES.");
+								return camp.substring(0, camp.lastIndexOf(".valor")) + ".v " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC");
+							})
+							.collect(Collectors.toList())));
+		}
+		
+		if(paginacioParams.getPaginaTamany() > 0) {
+			query.append(" ) t WHERE rownum < ((? * ?) + 1 ) ");
+			args.add(paginacioParams.getPaginaNum()+1);
+			args.add(paginacioParams.getPaginaTamany());
+			
+			query.append(" ) WHERE r__ >= (((? - 1) * ?) + 1) ");
+			args.add(paginacioParams.getPaginaNum()+1);
+			args.add(paginacioParams.getPaginaTamany());
+		} else {
+			query.append(" ) t ) ");
+		}
+		
+		return jdbcTemplate.queryForList(query.toString(), args.toArray());
 	}
 }

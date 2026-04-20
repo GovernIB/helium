@@ -874,8 +874,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long campId,
-			@RequestParam Long membreId,
-			Model model) {
+			@RequestParam(required=false) Long membreId) {
 		return obtenirParellesCampRegistre(expedientTipusId, campId, membreId);
 	}	
 	

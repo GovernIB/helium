@@ -9,7 +9,8 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.consulta.vars.llistat.titol" arguments="${tipus},${consulta.nom}"/></c:set>
-<c:set var="baseUrl"><c:url value="/modal/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var"></c:url></c:set>
+<c:set var="baseUrlModal"><c:url value="/modal/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var"></c:url></c:set>
+<c:set var="baseUrl"><c:url value="/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var"></c:url></c:set>
 
 <html>
 <head>
@@ -35,7 +36,7 @@
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 	</div>
 	
-	<form:form id="consulta-var-form" cssClass="form-horizontal" action="${baseUrl}/new" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusConsultaVarCommand">
+	<form:form id="consulta-var-form" cssClass="form-horizontal" action="${baseUrlModal}/new" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusConsultaVarCommand">
 				<input type="hidden" name="expedientTipusId" id="inputExpedientTipusId" value="${expedientTipusConsultaVarCommand.expedientTipusId}"/>
 				<input type="hidden" name="consultaId" id="inputConsultaId" value="${expedientTipusConsultaVarCommand.consultaId}"/>
 				<input type="hidden" name="tipus" id="inputTipus" value="${expedientTipusConsultaVarCommand.tipus}"/>
@@ -119,7 +120,7 @@
 					</th>
 					<th data-col-name="id" width="100px" data-template="#cellConsultaVarTemplate" data-orderable="false" width="10%">
 						<script id="cellConsultaVarTemplate" type="text/x-jsrender">
-							<a href="${baseUrl}/{{:id}}/delete" class="btn btn-default ajax-delete" data-confirm="<spring:message code="expedient.tipus.consulta.vars.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a>
+							<a href="${baseUrlModal}/{{:id}}/delete" class="btn btn-default ajax-delete" data-confirm="<spring:message code="expedient.tipus.consulta.vars.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a>
 						</script>
 					</th>
 				</tr>

@@ -5,6 +5,7 @@ package es.caib.helium.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -2906,82 +2907,100 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 					consulta.getExpedientTipus().getId());
 		// Obte la llista d'expedients permesos
-		List<Long> expedientIdsPermesos;
-		if (expedientIdsSeleccio != null && !expedientIdsSeleccio.isEmpty()) {
-			expedientIdsPermesos = new ArrayList<Long>(expedientIdsSeleccio);
-		} else {
-			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
-			Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
-			List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
-			Permission[] permisosRequerits= new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION};
-			unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entorn.getId(),expTipUnitOrgList, permisosRequerits);
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			List<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
-					entorn.getId(),
-					auth.getName(),
-					tipusPermesosIds,
-					unitatsPerTipusComu,
-					null,
-					null,
-					null,//unitatOrganitzativaCodi
-					expedientTipus.getId(),
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					false,
-					false,
-					MostrarAnulatsDto.SI.equals(mostrarAnulats),
-					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-					nomesAlertes,
-					nomesErrors,
-					nomesTasquesPersonals,
-					nomesTasquesGrup,
-					nomesMeves,
-					usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entorn.getId())? null : usuariActualHelper.getAreesGrupsUsuariActual(),
-					new PaginacioParamsDto(),
-					false,
-					nomesErrorsArxiu,
-					null // idsSeleccionats
-					);
-			expedientIdsPermesos = expedientsIds;
-		}
+//		List<Long> expedientIdsPermesos;
+//		if (expedientIdsSeleccio != null && !expedientIdsSeleccio.isEmpty()) {
+//			expedientIdsPermesos = new ArrayList<Long>(expedientIdsSeleccio);
+//		} else {
+//			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+//			Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
+//			List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
+//			Permission[] permisosRequerits= new Permission[] {
+//					ExtendedPermission.READ,
+//					ExtendedPermission.ADMINISTRATION};
+//			unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entorn.getId(),expTipUnitOrgList, permisosRequerits);
+//			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//			List<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
+//					entorn.getId(),
+//					auth.getName(),
+//					tipusPermesosIds,
+//					unitatsPerTipusComu,
+//					null,
+//					null,
+//					null,//unitatOrganitzativaCodi
+//					expedientTipus.getId(),
+//					null,
+//					null,
+//					null,
+//					null,
+//					null,
+//					null,
+//					null,
+//					null,
+//					null,
+//					false,
+//					false,
+//					MostrarAnulatsDto.SI.equals(mostrarAnulats),
+//					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+//					nomesAlertes,
+//					nomesErrors,
+//					nomesTasquesPersonals,
+//					nomesTasquesGrup,
+//					nomesMeves,
+//					usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entorn.getId())? null : usuariActualHelper.getAreesGrupsUsuariActual(),
+//					new PaginacioParamsDto(),
+//					false,
+//					nomesErrorsArxiu,
+//					null // idsSeleccionats
+//					);
+//			expedientIdsPermesos = expedientsIds;
+//		}
 		// Obte la llista d'expedients de lucene passant els expedients permesos
 		// com a paràmetres
-		List<Camp> filtreCamps = consultaHelper.toListCamp(
-				consultaHelper.findCampsPerCampsConsulta(
+//		List<Camp> filtreCamps = consultaHelper.toListCamp(
+//				consultaHelper.findCampsPerCampsConsulta(
+//				consulta,
+//				TipusConsultaCamp.FILTRE));
+//		afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
+		
+//		expedientIdsPermesos = this.filtrarExpedientsIdsIniciFi(expedientIdsPermesos, filtreCamps , filtreValors);
+		
+//		consultaHelper.findCampsPerCampsConsulta(
+//				consulta,
+//				TipusConsultaCamp.INFORME);
+		
+		List<TascaDadaDto> campsConsulta = consultaHelper.findCampsPerCampsConsulta(
 				consulta,
-				TipusConsultaCamp.FILTRE));
-		afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
+				TipusConsultaCamp.INFORME);
 		
-		expedientIdsPermesos = this.filtrarExpedientsIdsIniciFi(expedientIdsPermesos, filtreCamps , filtreValors);
-		
-		List<Camp> informeCamps = consultaHelper.toListCamp(
+		List<Map<String, Object>> result = expedientDadaHelper.queryConsultaPaginat(
+				consulta.getEntorn().getId(),
+				filtreValors,
 				consultaHelper.findCampsPerCampsConsulta(
 						consulta,
-						TipusConsultaCamp.INFORME));
+						TipusConsultaCamp.FILTRE),
+				campsConsulta,
+				paginacioParams);
+		
+//		List<Camp> informeCamps = consultaHelper.toListCamp(
+//				consultaHelper.findCampsPerCampsConsulta(
+//						consulta,
+//						TipusConsultaCamp.INFORME)
+//				);
 
-		Object[] respostaLucene = null;
+		// Object[] respostaLucene = null;
 		
 //		boolean ctxLuceneStoped = false;
 //		try {
 //			contextConsultaLuceneTotal = timerConsultaLuceneTotal.time();
 			
-			respostaLucene = luceneHelper.findPaginatAmbDadesV3(
-					entorn,
-					expedientTipus,
-					expedientIdsPermesos,
-					filtreCamps,
-					filtreValors,
-					informeCamps,
-					paginacioParams);
+//			respostaLucene = luceneHelper.findPaginatAmbDadesV3(
+//					entorn,
+//					expedientTipus,
+//					expedientIdsPermesos,
+//					filtreCamps,
+//					filtreValors,
+//					informeCamps,
+//					paginacioParams);
 			
 //			contextConsultaLuceneTotal.stop();
 //			ctxLuceneStoped = true;
@@ -3000,30 +3019,60 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 //			contextConsultaMongoTotal.stop();
 //		}
 		
-		@SuppressWarnings("unchecked")
-		List<Map<String, DadaIndexadaDto>> dadesExpedients = (List<Map<String, DadaIndexadaDto>>)respostaLucene[0];
-		Long count = (Long)respostaLucene[1];
+//		@SuppressWarnings("unchecked")
+//		List<Map<String, DadaIndexadaDto>> dadesExpedients = (List<Map<String, DadaIndexadaDto>>)respostaLucene[0];
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
-		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
-			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+//		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
+//			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+//			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
+//			Expedient expedient = expedientRepository.findById(Long.parseLong(dadaExpedientId.getValorIndex())).orElse(null);
+//			if (expedient != null) {
+//				ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
+//				expedientHelper.omplirPermisosExpedient(expedientDto);
+//				fila.setExpedient(expedientDto);
+//				consultaHelper.revisarDadesExpedientAmbValorsEnumeracionsODominis(
+//						dadesExpedient,
+//						informeCamps,
+//						expedient);
+//				fila.setDadesExpedient(dadesExpedient);
+//				resposta.add(fila);
+//			}
+//			dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
+//		}
+		
+		for(Map<String, Object> row : result) {
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
-			Expedient expedient = expedientRepository.findById(Long.parseLong(dadaExpedientId.getValorIndex())).orElse(null);
+			Expedient expedient = expedientRepository.findById(((BigDecimal)row.get("ID")).longValue()).orElse(null);
 			if (expedient != null) {
+				Map<String, DadaIndexadaDto> dadesExpedient = new HashMap<String, DadaIndexadaDto>();
+				
+				for(String k : row.keySet()) {
+					TascaDadaDto dada = campsConsulta.stream().filter(cc -> {
+						return cc.getVarCodi()
+								.replace(ExpedientCamps.EXPEDIENT_PREFIX, "")
+								.equalsIgnoreCase(k);
+					}).findFirst().orElse(null);
+					DadaIndexadaDto di;
+					if(dada != null) {
+						di = new DadaIndexadaDto(dada.getVarCodi(), dada.getCampEtiqueta());
+					} else {
+						di = new DadaIndexadaDto(k, k);
+					}
+					di.setValor(row.get(k));
+					dadesExpedient.put(di.getCampCodi(), di);
+				}
+				
 				ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
 				expedientHelper.omplirPermisosExpedient(expedientDto);
 				fila.setExpedient(expedientDto);
-				consultaHelper.revisarDadesExpedientAmbValorsEnumeracionsODominis(
-						dadesExpedient,
-						informeCamps,
-						expedient);
 				fila.setDadesExpedient(dadesExpedient);
 				resposta.add(fila);
 			}
-			dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
 		}
+		
 		return paginacioHelper.toPaginaDto(
 				resposta,
-				count.intValue(),
+				result.size(),
 				paginacioParams);
 	}
 	

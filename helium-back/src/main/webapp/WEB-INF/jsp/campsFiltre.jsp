@@ -62,17 +62,18 @@
 					</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'INTEGER'}">
+				<div class="col-xs-6 p-0 pr-15">
 					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
 					<div class="col-xs-13">
 						<form:input path="${campPath}[0]" cssClass="form-control text-right enter" id="${campPath}[0]" data-required="false"/>
 					</div>
 				</div>
-				<div class="col-xs-6">
+				<div class="col-xs-6 p-0 pr-15">
 					<label class="control-label col-xs-4 hide" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
 					<div class="col-xs-13">
 						<form:input path="${campPath}[1]" cssClass="form-control text-right enter" id="${campPath}[1]" data-required="false"/>
 					</div>
-				<!-- </div> -->
+				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'FLOAT'}">
 				<div class="col-xs-6 p-0 pr-15">

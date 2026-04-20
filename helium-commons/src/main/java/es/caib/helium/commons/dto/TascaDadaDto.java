@@ -289,7 +289,7 @@ public class TascaDadaDto {
 		if (CampTipusDto.STRING.equals(campTipus)) {
 			return String.class;
 		} else if (CampTipusDto.INTEGER.equals(campTipus)) {
-			return Long.class;
+			return Integer.class;
 		} else if (CampTipusDto.FLOAT.equals(campTipus)) {
 			return Double.class;
 		} else if (CampTipusDto.BOOLEAN.equals(campTipus)) {

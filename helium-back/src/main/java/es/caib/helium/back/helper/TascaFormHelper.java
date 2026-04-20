@@ -370,25 +370,29 @@ public class TascaFormHelper {
 					// 4. En cas contrari assignarem els valor obtinguts a l'objecte Registre
 					} else {
 						if (camp.isCampMultiple()) {
-							int mida = ((Object[])valor).length;
-							Object[] linies = (Object[])Array.newInstance(registre.getClass(), mida);
-							for (int l = 0; l < mida; l++){
-								linies[l] = registre.getClass().newInstance();
-							}
-							int i = 0; // Elements del registre
-							for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
-								Method metodeSet = registre.getClass().getMethod(
-										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
-										campRegistre.getJavaClass());
-								int l = 0; // linies
-								for (Object linia: linies){
-									Object[] valin = (Object[])((Object[])valor)[l++];
-									Object valent = (valin != null && valin.length > i) ? valin[i] : null; 
-									metodeSet.invoke(linia, valent);
-								}
-								i++;
-							}
-							valorRegistre = linies;
+							valorRegistre = (List)valor;
+							
+							Method metodeSet = registre.getClass().getMethod(
+									"set" + camp.getVarCodi().substring(0, 1).toUpperCase() + camp.getVarCodi().substring(1), 
+									camp.getJavaClass());
+							
+							metodeSet.invoke(command, valorRegistre);
+//							metodeSet.invoke(linia, valent);
+//							List<Object> linies = (List)valor;
+//							int i = 0; // Elements del registre
+//							for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
+//								Method metodeSet = registre.getClass().getMethod(
+//										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
+//										campRegistre.getJavaClass());
+//								int l = 0; // linies
+//								for (Object linia: linies) {
+//									List<Object> valin = (List)((List)valor).get(l++);
+//									Object valent = (valin != null && valin.size() > i) ? valin.get(i) : null;
+//									metodeSet.invoke(linia, valent);
+//								}
+//								i++;
+//							}
+//							valorRegistre = linies;
 						} else {
 							valorRegistre = registre;
 							int i = 0;
@@ -397,8 +401,9 @@ public class TascaFormHelper {
 										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
 										campRegistre.getJavaClass());
 								Object valorReg = null;
-								if (((Object[])valor).length > i)
-									valorReg = ((Object[])valor)[i++];
+								List<Object> lvalue = (List<Object>)valor;
+								if (lvalue.size() > i)
+									valorReg = lvalue.get(i++);
 								metodeSet.invoke(valorRegistre, valorReg);
 							}
 						}
@@ -497,19 +502,20 @@ public class TascaFormHelper {
 			} else if (!esConsultaPerTipus) {
 				Object valorRegistre = null;
 				try {
+					valorRegistre = camp.getVarValor();
 					// En al cas de que el camp a emplenar els valor sigui tipus registre, calcularem el seu contingut a valorRegistre:
-					Object registre = registres.get(camp.getVarCodi());
-					if (camp.isCampMultiple()) {
-						valorRegistre = Array.newInstance(registre.getClass(), camp.isRequired() ? 1 : 0);
-						if (camp.isRequired() && !camp.isReadOnly())
-							((Object[])valorRegistre)[0] = registre;
-					} else {
-						valorRegistre = registre;
-					}
+//					Object registre = registres.get(camp.getVarCodi());
+//					if (camp.isCampMultiple()) {
+//						valorRegistre = Array.newInstance(registre.getClass(), camp.isRequired() ? 1 : 0);
+//						if (camp.isRequired() && !camp.isReadOnly())
+//							((Object[])valorRegistre)[0] = registre;
+//					} else {
+//						valorRegistre = registre;
+//					}
 					setSimpleProperty(
 							command, 
 							camp.getVarCodi(),
-							valorRegistre);
+							camp.getVarValor());
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut afegir el camp tipus registre al command (" +
 							"campCodi=" + camp.getVarCodi() + ", " +
