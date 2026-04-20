@@ -2082,7 +2082,9 @@ public class ExpedientHelper {
 			
 			// Inicia el flux del procés
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
-			//workflowEngineApi.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
+			if (expedient.getProcessInstanceId() != null) {
+				workflowEngineApi.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
+			}
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
 
 			// Comprova si després de l'inici ja està en un node fi

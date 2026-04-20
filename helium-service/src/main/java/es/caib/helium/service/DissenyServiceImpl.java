@@ -26,7 +26,6 @@ import org.flowable.common.engine.impl.util.IoUtil;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
@@ -63,7 +62,6 @@ import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
-import es.caib.helium.logic.intf.dto.engine.WProcessDefinitionImpl;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -107,7 +105,6 @@ import es.caib.helium.service.helper.HerenciaHelper;
 import es.caib.helium.service.helper.PaginacioHelper;
 import es.caib.helium.service.helper.PermisosHelper;
 import es.caib.helium.service.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.service.helpers.MesuresTemporalsHelper;
 import es.caib.helium.service.security.ExtendedPermission;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -132,11 +129,9 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
-	private WorkflowEngineApi jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
-	@Autowired
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
@@ -200,7 +195,7 @@ public class DissenyServiceImpl implements DissenyService {
 		logger.debug("Consulta de les accions JBPM d'una definicio de proces(" +
 					"defincioProcesId = " + definicioProcesId + ")");
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
-		List<String> accions = jbpmHelper.listActions(definicioProces.getJbpmId());
+		List<String> accions = workflowEngineApi.listActions(definicioProces.getJbpmId());
 		Collections.sort(accions);
 		return accions;
 	}
@@ -242,7 +237,7 @@ public class DissenyServiceImpl implements DissenyService {
 
     private void getAllDefinicioProcesOrderByVersio (DefinicioProcesDto definicioProcesDto, ExpedientTipus expedientTipus) {
 		
-		WProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProcesDto.getJbpmId());
+		WProcessDefinition jb = workflowEngineApi.getProcessDefinition(definicioProcesDto.getJbpmId());
 		definicioProcesDto.setEtiqueta(jb.getProcessDefinition().getName()+" v."+jb.getVersion());
 		
 		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesHelper.findVersionsDefinicioProces(
@@ -264,7 +259,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) {
-		WProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
 		if (pi == null)
 			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
 
@@ -290,7 +285,7 @@ public class DissenyServiceImpl implements DissenyService {
 															expedientTipus, 
 															expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null) {
-				WProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
+				WProcessDefinition jb = workflowEngineApi.getProcessDefinition(definicioProces.getJbpmId());
 				return getDefinicioProcesByEntornIdAmbJbpmId(
 						definicioProces.getEntorn().getId(), 
 						jb.getKey(), 
@@ -307,7 +302,7 @@ public class DissenyServiceImpl implements DissenyService {
 			Long procesId) {		
 		DefinicioProces definicioProces = definicioProcesRepository.findById(procesId).orElse(null);
 		if (definicioProces != null) {
-			WProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
+			WProcessDefinition jb = workflowEngineApi.getProcessDefinition(definicioProces.getJbpmId());
 			return getDefinicioProcesByEntornIdAmbJbpmId(
 					definicioProces.getEntorn().getId(), 
 					jb.getKey(), 
@@ -326,11 +321,11 @@ public class DissenyServiceImpl implements DissenyService {
 			throw new NoTrobatException(DefinicioProces.class, jbpmId);
 		
 		List<String> jbpmIds = new ArrayList<String>(); 
-		afegirJbpmIdProcesAmbSubprocessos(jbpmHelper.getProcessDefinition(jbpmId), jbpmIds, false);
+		afegirJbpmIdProcesAmbSubprocessos(workflowEngineApi.getProcessDefinition(jbpmId), jbpmIds, false);
 		List<DefinicioProcesExpedientDto> subprocessos = new ArrayList<DefinicioProcesExpedientDto>();
 		DefinicioProcesExpedientDto dp;
 		for(String id: jbpmIds){
-			WProcessDefinition jb = jbpmHelper.getProcessDefinition(id);
+			WProcessDefinition jb = workflowEngineApi.getProcessDefinition(id);
 			dp = getDefinicioProcesByEntornIdAmbJbpmId(definicioProces.getEntorn().getId(), jb.getKey(), expedientTipus);
 			if (dp != null) {
 				subprocessos.add(dp);
@@ -357,7 +352,7 @@ public class DissenyServiceImpl implements DissenyService {
 					jbpmKey);
 
 		if (definicioProces != null) {
-			WProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());			
+			WProcessDefinition jb = workflowEngineApi.getProcessDefinition(definicioProces.getJbpmId());			
 			dto.setId(definicioProces.getId());
 			dto.setJbpmId(definicioProces.getJbpmId());
 			dto.setJbpmKey(definicioProces.getJbpmKey());
@@ -394,7 +389,7 @@ public class DissenyServiceImpl implements DissenyService {
 			List<String> jbpmIds, 
 			Boolean incloure) {
 		if (jpd != null) {
-			List<WProcessDefinition> subPds = jbpmHelper.getSubProcessDefinitions(jpd.getId());
+			List<WProcessDefinition> subPds = workflowEngineApi.getSubProcessDefinitions(jpd.getId());
 			if (subPds != null) {
 				for (WProcessDefinition subPd: subPds)
 					if (!jbpmIds.contains(subPd.getId())) {
@@ -463,8 +458,8 @@ public class DissenyServiceImpl implements DissenyService {
 		Long definicioProcesId = definicioProces.getId();
 		Boolean result = hasStartTask.get(definicioProcesId);
 		if (result == null) {
-			result = new Boolean(false);
-			String startTaskName = jbpmHelper.getStartTaskName(
+			result = false;
+			String startTaskName = workflowEngineApi.getStartTaskName(
 					definicioProces.getJbpmId());
 			if (startTaskName != null) {
 				Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
@@ -472,7 +467,7 @@ public class DissenyServiceImpl implements DissenyService {
 						definicioProces.getJbpmId());
 				if (tasca != null) {
 					List<CampTasca> camps = campTascaRepository.findAmbTascaOrdenats(tasca.getId(), expedientTipusId);
-					result = new Boolean(camps.size() > 0);
+					result = camps.size() > 0;
 				}
 			}
 			hasStartTask.put(definicioProcesId, result);
@@ -656,7 +651,7 @@ public class DissenyServiceImpl implements DissenyService {
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
 		
-		return jbpmHelper.getResourceBytes(
+		return workflowEngineApi.getResourceBytes(
 				definicioProces.getJbpmId(),
 				resourceName);
 	}
@@ -902,7 +897,7 @@ public class DissenyServiceImpl implements DissenyService {
 		Set<String> resposta = null;
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		if (definicioProces != null)
-			resposta = jbpmHelper.getResourceNames(definicioProces.getJbpmId());
+			resposta = workflowEngineApi.getResourceNames(definicioProces.getJbpmId());
 		return resposta;
 	}
 	
@@ -911,7 +906,7 @@ public class DissenyServiceImpl implements DissenyService {
 		Set<String> resposta = null;
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		if (definicioProces != null)
-			resposta = jbpmHelper.getHandlerNames(definicioProces.getJbpmId());
+			resposta = workflowEngineApi.getHandlerNames(definicioProces.getJbpmId());
 		return resposta;
 	}
 
@@ -925,7 +920,7 @@ public class DissenyServiceImpl implements DissenyService {
 	}
 	
 	private byte[] getRecursContingut(String processDefinitionId, String nom) {
-		return jbpmHelper.getResourceBytes(
+		return workflowEngineApi.getResourceBytes(
 				processDefinitionId, 
 				nom);		
 	}
@@ -975,7 +970,7 @@ public class DissenyServiceImpl implements DissenyService {
 
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		
-		List<String> noUtilitzades = jbpmHelper.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
+		List<String> noUtilitzades = workflowEngineApi.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
 		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
 			PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
 					definicioProcesRepository.findAmbExpedientTipusIJbpmIds(
@@ -997,7 +992,7 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 				
-		List<String> noUtilitzades = jbpmHelper.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
+		List<String> noUtilitzades = workflowEngineApi.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
 		List<Long> result = new ArrayList<Long>();
 		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
 			result = definicioProcesRepository.findIdsAmbExpedientTipusIJbpmIds(
@@ -1026,7 +1021,7 @@ public class DissenyServiceImpl implements DissenyService {
 						expedientTipusId), 
 						ExpedientTipusDto.class);
 		
-		List<es.caib.helium.logic.intf.dto.WExpedientDto> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		List<es.caib.helium.logic.intf.dto.WExpedientDto> afectats = workflowEngineApi.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				expedientTipusId,
 				jbpmId);
 		
@@ -1062,7 +1057,7 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 				
-		List<es.caib.helium.logic.intf.dto.WExpedientDto> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		List<es.caib.helium.logic.intf.dto.WExpedientDto> afectats = workflowEngineApi.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				expedientTipusId,
 				jbpmId);
 		
@@ -1198,7 +1193,7 @@ public class DissenyServiceImpl implements DissenyService {
 				handlers.put(nom, bytesMap.get(nom));
 			}
 		// Actualitza els handlers de la darrera versió de la definició de procés
-		jbpmHelper.updateHandlers(
+		workflowEngineApi.updateHandlers(
 				Long.parseLong(darrera.getJbpmId()), 
 				handlers);
 		
@@ -1218,7 +1213,7 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProces definicioProcesOrigen = definicioProcesRepository.findById(idDefinicioProcesOrigen).orElse(null);
 		
 		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
-		WProcessDefinition jbpmProcessDefinition = jbpmHelper.getProcessDefinition(definicioProcesOrigen.getJbpmId());
+		WProcessDefinition jbpmProcessDefinition = workflowEngineApi.getProcessDefinition(definicioProcesOrigen.getJbpmId());
 		@SuppressWarnings("unchecked")
 		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
 		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
@@ -1232,7 +1227,7 @@ public class DissenyServiceImpl implements DissenyService {
 		for (Long idDefinicioProcesDesti : idsDefinicioProcesDesti) {
 			definicioProcesDesti = definicioProcesRepository.findById(idDefinicioProcesDesti).orElse(null);
 			// Actualitza els handlers de la darrera versió de la definició de procés
-			jbpmHelper.updateHandlers(
+			workflowEngineApi.updateHandlers(
 					Long.parseLong(definicioProcesDesti.getJbpmId()), 
 					handlers);	
 		}
@@ -1254,7 +1249,7 @@ public class DissenyServiceImpl implements DissenyService {
 			Map<String, byte[]> recursos = processJarHandlersFile(zipInputStream);
 			// Actualitza els handlers de la darrera versió de la definició de procés
 			if (!recursos.isEmpty()) {
-				jbpmHelper.updateHandlers(Long.parseLong(definicioProces.getJbpmId()), recursos);
+				workflowEngineApi.updateHandlers(Long.parseLong(definicioProces.getJbpmId()), recursos);
 				for(String recurs : recursos.keySet()) {
 					nomsHandlers.add(expedientHelper.resourceToHandler(recurs));
 				}
@@ -1297,27 +1292,23 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProcesExportacio exportacio = new DefinicioProcesExportacio();
 
 		// Comprova el nom de l'arxiu
-		if (! fitxer.endsWith("ar")) {
+		if (! (fitxer.endsWith(".bpmn") || fitxer.endsWith(".bpmn2") || fitxer.endsWith(".xml"))){
 			throw new RuntimeException(
 					messageHelper.getMessage("definicio.proces.actualitzar.error.arxiuNom", new Object[] {fitxer}));
 		}
-		// Obrir el .par i comprovar que és correcte
-		// Thanks to George Mournos who helped to improve this:
-		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
-		ProcessDefinition processDefinition;
-		try {
-			//processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
-		} catch (Exception e) {
+		// Obrir el contingut i comprovar que és correcte
+		List<String> errors = workflowEngineApi.validateProcess(contingut);
+		if (errors.size() > 0) {
 			throw new DeploymentException(
 					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));		
 		}
 		exportacio.setNomDeploy(fitxer);
 		exportacio.setContingutDeploy(contingut);
-		WProcessDefinition jbpmProcessDefinition = null; //new WProcessDefinition(processDefinition);
-		DefinicioProcesDto dto = new DefinicioProcesDto();
-		dto.setJbpmKey(jbpmProcessDefinition.getKey());
-		dto.setJbpmName(jbpmProcessDefinition.getName());
-		exportacio.setDefinicioProcesDto(dto);
+//		//WProcessDefinition processDefinition = new WProcessDefinition(processDefinition);
+//		DefinicioProcesDto dto = new DefinicioProcesDto();
+//		dto.setJbpmKey(processDefinition.getKey());
+//		dto.setJbpmName(processDefinition.getName());
+//		exportacio.setDefinicioProcesDto(dto);
 				
 		return exportacio;
 	}

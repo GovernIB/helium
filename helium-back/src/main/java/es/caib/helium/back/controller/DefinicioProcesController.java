@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -28,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import es.caib.helium.back.command.DefinicioProcesDesplegarCommand;
-import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.ACCIO_JBPM;
+import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.ACCIO_PROCES;
 import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.Desplegament;
 import es.caib.helium.back.command.DefinicioProcesExportarCommand;
 import es.caib.helium.back.command.DefinicioProcesExportarCommand.Exportacio;
@@ -623,7 +622,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			Model model) {
 		
 		DefinicioProcesDesplegarCommand command = new DefinicioProcesDesplegarCommand();
-		command.setAccio(ACCIO_JBPM.JBPM_DESPLEGAR);
+		command.setAccio(ACCIO_PROCES.PROCES_DESPLEGAR);
 		command.setExpedientTipusId(expedientTipusId);
 		command.setId(definicioProcesId);
 		this.omplirModelFormulariDesplegament(command, model, request);
@@ -655,7 +654,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
         	boolean error = false;
         	try {
-        		if (ACCIO_JBPM.JBPM_DESPLEGAR.equals(command.getAccio())) {
+        		if (ACCIO_PROCES.PROCES_DESPLEGAR.equals(command.getAccio())) {
         			// Recupera la informació del contingut del fitxer
         			DefinicioProcesExportacio exportacio = 
         					dissenyService.getDefinicioProcesExportacioFromContingut(
@@ -714,7 +713,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		        				error = true;
 		        			}
             		}
-        		} else if (ACCIO_JBPM.JBPM_ACTUALITZAR.equals(command.getAccio())){
+        		} else if (ACCIO_PROCES.PROCES_ACTUALITZAR.equals(command.getAccio())){
         			DefinicioProcesDto definicioProces = null;
         			try {
         				definicioProces = dissenyService.updateHandlers(
@@ -802,12 +801,12 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		// Select de les accions jbpm
 		List<ParellaCodiValorDto> accions = new ArrayList<ParellaCodiValorDto>();
 		accions.add(new ParellaCodiValorDto(
-				DefinicioProcesDesplegarCommand.ACCIO_JBPM.JBPM_DESPLEGAR.toString(), 
+				DefinicioProcesDesplegarCommand.ACCIO_PROCES.PROCES_DESPLEGAR.toString(), 
 				getMessage(request, "definicio.proces.desplegar.form.accio.desplegar")));
 		accions.add(new ParellaCodiValorDto(
-				DefinicioProcesDesplegarCommand.ACCIO_JBPM.JBPM_ACTUALITZAR.toString(), 
+				DefinicioProcesDesplegarCommand.ACCIO_PROCES.PROCES_ACTUALITZAR.toString(), 
 				getMessage(request, "definicio.proces.desplegar.form.accio.actualitzar")));
-		model.addAttribute("accionsJbpm", accions);
+		model.addAttribute("accionsProces", accions);
 		
 	}
 

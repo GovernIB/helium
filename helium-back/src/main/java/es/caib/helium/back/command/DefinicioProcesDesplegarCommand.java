@@ -17,11 +17,11 @@ import es.caib.helium.back.validator.DefinicioProcesDesplegar;
 public class DefinicioProcesDesplegarCommand {
 	
 	/** Enumeració per distingir la acció a realitzar amb el desplegament JBPM. */
-	public enum ACCIO_JBPM {
+	public enum ACCIO_PROCES {
 		// Realitza un desplegament normal	
-		JBPM_DESPLEGAR,
+		PROCES_DESPLEGAR,
 		// Sobreescriu els handlers
-		JBPM_ACTUALITZAR;
+		PROCES_ACTUALITZAR;
 	}
 
 	/** Id de la definició de procés sobre la que es desplega la definició de procés. */
@@ -37,7 +37,7 @@ public class DefinicioProcesDesplegarCommand {
 	/** Contingut del fitxer */
 	private MultipartFile file;
 	/** Indica si augmentar la versió o sobre escriure els handlers. */
-	private ACCIO_JBPM accio;
+	private ACCIO_PROCES accio;
 		
 	public Long getId() {
 		return id;
@@ -76,10 +76,10 @@ public class DefinicioProcesDesplegarCommand {
 		this.file = file;
 	}
 	
-	public ACCIO_JBPM getAccio() {
+	public ACCIO_PROCES getAccio() {
 		return accio;
 	}
-	public void setAccio(ACCIO_JBPM accio) {
+	public void setAccio(ACCIO_PROCES accio) {
 		this.accio = accio;
 	}
 

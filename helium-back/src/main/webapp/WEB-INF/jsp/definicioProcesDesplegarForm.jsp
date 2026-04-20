@@ -49,7 +49,7 @@
 				}); 	
 				
 				function actualitzaControls() {
-					$("#actualitzarExpedientsActius,#etiqueta").prop('disabled', $("#accio").val() != "JBPM_DESPLEGAR");
+					$("#actualitzarExpedientsActius,#etiqueta").prop('disabled', $("#accio").val() != "PROCES_DESPLEGAR");
 				}
 				// ]]>
 			</script>			
@@ -60,7 +60,7 @@
 		<div class="form-group">
 			<label class="control-label col-xs-4 obligatori" for="file"><spring:message code="definicio.proces.desplegar.form.file"/></label>
 			<div class="col-xs-8">
-				<input type="file" name="file" id="file" />
+				<input type="file" name="file" id="file" accept="application/bpmn+xml, .bpmn, .bpmn2, .xml" />
 				<c:set var="fileErrors"><form:errors path="file"/></c:set>
 				<c:if test="${not empty fileErrors}">
 					<div class="has-error">
@@ -69,7 +69,7 @@
 				</c:if>
 			</div>
 		</div>
-		<hel:inputSelect emptyOption="false" name="accio" textKey="definicio.proces.desplegar.form.accio" optionItems="${accionsJbpm}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+		<hel:inputSelect emptyOption="false" name="accio" textKey="definicio.proces.desplegar.form.accio" optionItems="${accionsProces}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		<hel:inputSelect emptyOption="${potDissenyarEntorn}" name="expedientTipusId" textKey="definicio.proces.desplegar.form.tipusExpedient" placeholderKey="definicio.proces.desplegar.form.tipusExpedient.placeholder" optionItems="${expedientsTipus}" optionValueAttribute="id" optionTextAttribute="nom"/>
 		<hel:inputText name="etiqueta" textKey="definicio.proces.desplegar.form.etiqueta" />
 		<hel:inputCheckbox name="actualitzarExpedientsActius" textKey="definicio.proces.desplegar.form.actualitzarExpedientsActius" />

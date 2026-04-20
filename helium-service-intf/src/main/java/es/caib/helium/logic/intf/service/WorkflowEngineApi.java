@@ -820,4 +820,11 @@ public interface WorkflowEngineApi {
 
 	public void signalToken(long longValue, String transicioOK);
 
+	/** Mètode per validar el contingut com un procés vàlid.
+	 * 
+	 * @param contingut
+	 * @return Retorna una llista d'errors identificats.
+	 */
+	public List<String> validateProcess(byte[] contingut);
+
 }

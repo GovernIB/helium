@@ -9,7 +9,6 @@ import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import es.caib.helium.back.command.DefinicioProcesDesplegarCommand;
-import es.caib.helium.back.helper.ConversioTipus;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
@@ -18,7 +17,7 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.service.helper.ExpedientTipusHelper;
 
 /**
- * Validador per a la comanda de desplegament d'un .par de la definició de correu.
+ * Validador per a la comanda de desplegament d'un procés .bpmn de la definició de procés.
  */
 public class DefinicioProcesDesplegarValidator implements ConstraintValidator<DefinicioProcesDesplegar, DefinicioProcesDesplegarCommand>{
 
@@ -46,7 +45,7 @@ public class DefinicioProcesDesplegarValidator implements ConstraintValidator<De
 			if (command.getFile().getBytes() == null || command.getFile().getBytes().length == 0) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.buit"))
-				.addNode("file")
+				.addPropertyNode("file")
 				.addConstraintViolation();
 				valid = false;
 			} 

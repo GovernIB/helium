@@ -1,4 +1,4 @@
-package es.caib.helium.logic.intf.dto.engine;
+package es.caib.helium.service.flowable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -6,15 +6,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.flowable.bpmn.converter.BpmnXMLConverter;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.common.engine.api.io.InputStreamProvider;
+import org.flowable.common.engine.impl.util.io.BytesStreamSource;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.validation.ValidationError;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.WExpedientDto;
+import es.caib.helium.logic.intf.dto.engine.WDeployment;
+import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
+import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
+import es.caib.helium.logic.intf.dto.engine.WProcessLog;
+import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.logic.intf.dto.engine.WToken;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 
+/** Implementació de l'API del WorkflowEngine pel motor BPMN 2.0. Flowable
+ * 
+ */
 @Component
-public class WorkflowEngineApiImpl implements WorkflowEngineApi {
+public class FlowableEngineImpl implements WorkflowEngineApi {
 
+	@Autowired
+	private ProcessEngine processEngine;
+	
 	@Override
 	public WDeployment desplegar(String nomArxiu, byte[] contingut) {
 		// TODO Auto-generated method stub
@@ -684,6 +703,26 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 	public void signalToken(long longValue, String transicioOK) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public List<String> validateProcess(byte[] contingut) {
+		List<String> errors = new ArrayList<>();
+		if (contingut == null || contingut.length == 0) {
+			errors.add("El contingut és nul.");
+		} else {
+			try {
+				InputStreamProvider in = new BytesStreamSource(contingut); 
+				BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(in, false, false);
+				List<ValidationError> validationErrors = processEngine.getRepositoryService().validateProcess(bpmnModel);
+				for (ValidationError validationError : validationErrors) {
+					errors.add(validationError.toString());
+				}
+			} catch(Exception e) {
+				errors.add("Error no controlat validant el contingut");
+			}
+		}
+		return errors;
 	}
 
 }
