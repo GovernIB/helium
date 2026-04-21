@@ -20,7 +20,7 @@ public class CampDto extends HeretableDto implements Serializable {
 	
 	private Long id;
 	private String codi;
-	private CampTipusDto tipus;
+	private CampTipusEnum tipus;
 	private String etiqueta;
 	private String observacions;
 
@@ -81,10 +81,10 @@ public class CampDto extends HeretableDto implements Serializable {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-	public CampTipusDto getTipus() {
+	public CampTipusEnum getTipus() {
 		return tipus;
 	}
-	public void setTipus(CampTipusDto tipus) {
+	public void setTipus(CampTipusEnum tipus) {
 		this.tipus = tipus;
 	}
 	public String getEtiqueta() {
@@ -114,23 +114,23 @@ public class CampDto extends HeretableDto implements Serializable {
 	}
 	@SuppressWarnings("rawtypes")
 	public Class getJavaClass() {
-		if (CampTipusDto.STRING.equals(tipus)) {
+		if (CampTipusEnum.STRING.equals(tipus)) {
 			return String.class;
-		} else if (CampTipusDto.INTEGER.equals(tipus)) {
+		} else if (CampTipusEnum.INTEGER.equals(tipus)) {
 			return Long.class;
-		} else if (CampTipusDto.FLOAT.equals(tipus)) {
+		} else if (CampTipusEnum.FLOAT.equals(tipus)) {
 			return Double.class;
-		} else if (CampTipusDto.BOOLEAN.equals(tipus)) {
+		} else if (CampTipusEnum.BOOLEAN.equals(tipus)) {
 			return Boolean.class;
-		} else if (CampTipusDto.TEXTAREA.equals(tipus)) {
+		} else if (CampTipusEnum.TEXTAREA.equals(tipus)) {
 			return String.class;
-		} else if (CampTipusDto.DATE.equals(tipus)) {
+		} else if (CampTipusEnum.DATE.equals(tipus)) {
 			return Date.class;
-		} else if (CampTipusDto.PRICE.equals(tipus)) {
+		} else if (CampTipusEnum.PRICE.equals(tipus)) {
 			return BigDecimal.class;
-		} else if (CampTipusDto.TERMINI.equals(tipus)) {
+		} else if (CampTipusEnum.TERMINI.equals(tipus)) {
 			return TerminiDto.class;
-		} else if (CampTipusDto.REGISTRE.equals(tipus)) {
+		} else if (CampTipusEnum.REGISTRE.equals(tipus)) {
 			return Object[].class;
 		} else {
 			return String.class;
@@ -138,28 +138,28 @@ public class CampDto extends HeretableDto implements Serializable {
 	}
 
 	public static String getComText(
-			CampTipusDto tipus,
+			CampTipusEnum tipus,
 			Object valor,
 			String valorDomini) {
 		if (valor == null)
 			return null;
 		try {
 			String text = null;
-			if (tipus.equals(CampTipusDto.INTEGER)) {
+			if (tipus.equals(CampTipusEnum.INTEGER)) {
 				text = new DecimalFormat("#").format((Long)valor);
-			} else if (tipus.equals(CampTipusDto.FLOAT)) {
+			} else if (tipus.equals(CampTipusEnum.FLOAT)) {
 				text = new DecimalFormat("#.##########").format((Double)valor);
-			} else if (tipus.equals(CampTipusDto.PRICE)) {
+			} else if (tipus.equals(CampTipusEnum.PRICE)) {
 				text = new DecimalFormat("#,##0.00").format((BigDecimal)valor);
-			} else if (tipus.equals(CampTipusDto.DATE)) {
+			} else if (tipus.equals(CampTipusEnum.DATE)) {
 				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
-			} else if (tipus.equals(CampTipusDto.BOOLEAN)) {
+			} else if (tipus.equals(CampTipusEnum.BOOLEAN)) {
 				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
-			} else if (tipus.equals(CampTipusDto.SELECCIO)) {
+			} else if (tipus.equals(CampTipusEnum.SELECCIO)) {
 				text = valorDomini;
-			} else if (tipus.equals(CampTipusDto.SUGGEST)) {
+			} else if (tipus.equals(CampTipusEnum.SUGGEST)) {
 				text = valorDomini;
-			} else if (tipus.equals(CampTipusDto.TERMINI)) {
+			} else if (tipus.equals(CampTipusEnum.TERMINI)) {
 				TerminiDto termini = ((TerminiDto)valor);
 				text = termini.getAnys()+"/"+termini.getMesos()+"/"+termini.getDies();
 			} else {
@@ -172,27 +172,27 @@ public class CampDto extends HeretableDto implements Serializable {
 	}
 	
 	public static Object getComObject(
-			CampTipusDto tipus,
+			CampTipusEnum tipus,
 			String text) {
 		if (text == null)
 			return null;
 		try {
 			Object obj = null;
-			if (tipus.equals(CampTipusDto.INTEGER)) {
+			if (tipus.equals(CampTipusEnum.INTEGER)) {
 				obj = new Long(text);
-			} else if (tipus.equals(CampTipusDto.FLOAT)) {
+			} else if (tipus.equals(CampTipusEnum.FLOAT)) {
 				obj = new Double(text);
-			} else if (tipus.equals(CampTipusDto.PRICE)) {
+			} else if (tipus.equals(CampTipusEnum.PRICE)) {
 				obj = new BigDecimal(text);
-			} else if (tipus.equals(CampTipusDto.DATE)) {
+			} else if (tipus.equals(CampTipusEnum.DATE)) {
 				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
-			} else if (tipus.equals(CampTipusDto.BOOLEAN)) {
+			} else if (tipus.equals(CampTipusEnum.BOOLEAN)) {
 				obj = new Boolean("S".equals(text));
-			} else if (tipus.equals(CampTipusDto.SELECCIO)) {
+			} else if (tipus.equals(CampTipusEnum.SELECCIO)) {
 				obj = text;
-			} else if (tipus.equals(CampTipusDto.SUGGEST)) {
+			} else if (tipus.equals(CampTipusEnum.SUGGEST)) {
 				obj = text;
-			} else if (tipus.equals(CampTipusDto.TERMINI)) {
+			} else if (tipus.equals(CampTipusEnum.TERMINI)) {
 				String[] parts = text.split("/");
 				TerminiDto termini = new TerminiDto();
 				if (parts.length == 3) {

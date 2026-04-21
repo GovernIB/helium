@@ -61,6 +61,7 @@ import es.caib.helium.commons.dto.AnotacioInteressatDto;
 import es.caib.helium.commons.dto.AnotacioMapeigResultatDto;
 import es.caib.helium.commons.dto.ArxiuEstat;
 import es.caib.helium.commons.dto.ArxiuFirmaPerfilEnumDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DadesDocumentDto;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
 import es.caib.helium.commons.dto.DocumentDto;
@@ -86,7 +87,6 @@ import es.caib.helium.persistence.entity.Anotacio;
 import es.caib.helium.persistence.entity.AnotacioAnnex;
 import es.caib.helium.persistence.entity.AnotacioInteressat;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.CampTasca;
 import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.Expedient;
@@ -1216,7 +1216,7 @@ public class DistribucioHelper {
 	
 	private Object valorVariableHelium(Campo campo, Camp camp) throws Exception {
 		Object valorHelium = null;
-		if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+		if (camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
 			if (SISTRA2_CAMP_FORM_LISTA.equals(campo.getTipo())) {
 				// Camp registre
 				
@@ -1291,11 +1291,11 @@ public class DistribucioHelper {
 	private Object valorPerHeliumSimple(String valor, Camp camp) {
 		try {
 			if (camp == null) {
-			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.DATE)) {
 				return new SimpleDateFormat("dd/MM/yyyy").parse(valor);
-			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.BOOLEAN)) {
 				return new Boolean(valor);
-			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.PRICE)) {
 				Object preu = null;
 				try {
 					preu = new BigDecimal(valor);
@@ -1305,9 +1305,9 @@ public class DistribucioHelper {
 					preu = new BigDecimal(df.parse(valor).doubleValue());
 				}
 				return preu;
-			} else if (camp.getTipus().equals(TipusCamp.INTEGER)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.INTEGER)) {
 				return new Long(valor);
-			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.FLOAT)) {
 				try {
 					return new Double(valor);
 				} catch(Exception e) {

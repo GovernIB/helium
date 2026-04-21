@@ -8,7 +8,7 @@ package es.caib.helium.commons.dto;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public enum CampTipusDto {
+public enum CampTipusEnum {
 	STRING,
 	INTEGER,
 	FLOAT,

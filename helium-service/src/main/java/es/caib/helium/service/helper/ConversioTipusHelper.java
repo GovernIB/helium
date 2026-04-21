@@ -17,7 +17,7 @@ import es.caib.helium.commons.dto.CampAgrupacioDto;
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.CampRegistreDto;
 import es.caib.helium.commons.dto.CampTascaDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.ConsultaCampDto;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.DocumentDto;
@@ -129,7 +129,7 @@ public class ConversioTipusHelper {
 						target.setEtiqueta(source.getEtiqueta());
 						target.setObservacions(source.getObservacions());
 						target.setTipus(
-								CampTipusDto.valueOf(
+								CampTipusEnum.valueOf(
 										source.getTipus().toString()));	
 						target.setAgrupacio(
 								mapperFacade.map(
@@ -463,7 +463,7 @@ public class ConversioTipusHelper {
 						target.setMembreCodi(source.getMembre().getCodi());
 						target.setMembreEtiqueta(source.getMembre().getEtiqueta());
 						target.setMembreTipus(  
-								CampTipusDto.valueOf(source.getMembre().getTipus().toString()));
+								CampTipusEnum.valueOf(source.getMembre().getTipus().toString()));
 						target.setOrdre(source.getOrdre());
 						target.setObligatori(source.isObligatori());
 						target.setLlistar(source.isLlistar());

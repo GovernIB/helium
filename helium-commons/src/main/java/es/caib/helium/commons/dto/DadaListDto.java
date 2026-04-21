@@ -26,7 +26,7 @@ public class DadaListDto {
 
 	private Long campId;
 	private String campCodi;
-	private CampTipusDto tipus;
+	private CampTipusEnum tipus;
 	private boolean registre;
 	private boolean multiple;
 	private boolean ocult;

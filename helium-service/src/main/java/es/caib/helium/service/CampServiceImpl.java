@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import es.caib.helium.commons.dto.CampAgrupacioDto;
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.CampRegistreDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
@@ -30,7 +30,6 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.CampService;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.CampAgrupacio;
 import es.caib.helium.persistence.entity.CampRegistre;
 import es.caib.helium.persistence.entity.CampTasca;
@@ -107,7 +106,7 @@ public class CampServiceImpl implements CampService {
 		
 		Camp entity = new Camp();
 		entity.setCodi(camp.getCodi());
-		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
+		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusEnum.class));
 		entity.setEtiqueta(camp.getEtiqueta());
 		entity.setObservacions(camp.getObservacions());
 		entity.setMultiple(camp.isMultiple());
@@ -190,7 +189,7 @@ public class CampServiceImpl implements CampService {
 				QueEnum.DADA);
 		
 		entity.setCodi(camp.getCodi());
-		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
+		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusEnum.class));
 		entity.setEtiqueta(camp.getEtiqueta());
 		entity.setObservacions(camp.getObservacions());
 		entity.setMultiple(camp.isMultiple());
@@ -433,7 +432,7 @@ public class CampServiceImpl implements CampService {
 				}
 			}
 			// Camps registre
-			if (dto.getTipus() == CampTipusDto.REGISTRE) {
+			if (dto.getTipus() == CampTipusEnum.REGISTRE) {
 				for (Object[] reg: countMembres) {
 					Long campId = (Long)reg[0];
 					if (campId.equals(dto.getId())) {
@@ -962,11 +961,11 @@ public class CampServiceImpl implements CampService {
 		if (expedientTipusId != null)
 			camps = campRepository.findByExpedientTipusAndTipus(
 									expedientTipusRepository.findById(expedientTipusId).orElse(null), 
-									TipusCamp.DATE);
+									CampTipusEnum.DATE);
 		else 
 			camps = campRepository.findByDefinicioProcesAndTipus(
 					definicioProcesRepository.findById(definicioProcesId).orElse(null), 
-					TipusCamp.DATE);
+					CampTipusEnum.DATE);
 		return conversioTipusHelper.convertirList(
 				camps, 
 				CampDto.class);

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.CampTascaDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.DocumentTascaDto;
 import es.caib.helium.commons.dto.FirmaTascaDto;
@@ -61,7 +61,7 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 			CampDto camp;
 			while (it.hasNext()) {
 				camp = it.next();
-				if (camp.getTipus().equals(CampTipusDto.ACCIO))
+				if (camp.getTipus().equals(CampTipusEnum.ACCIO))
 					it.remove();
 			}
 		}

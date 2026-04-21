@@ -36,6 +36,7 @@ import com.codahale.metrics.Timer;
 
 import es.caib.comanda.model.v1.tasca.TascaEstat;
 import es.caib.helium.commons.dto.ArxiuDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
@@ -59,7 +60,6 @@ import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.common.ThreadLocalInfo;
 import es.caib.helium.persistence.entity.Alerta;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.CampRegistre;
 import es.caib.helium.persistence.entity.CampTasca;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -776,7 +776,7 @@ public class TascaServiceImpl implements TascaService {
 			for (CampTasca campTasca: tasca.getCamps()) {
 				if (campTasca.getCamp().equals(camp)) {
 					trobat = true;
-				} else if (campTasca.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
+				} else if (campTasca.getCamp().getTipus().equals(CampTipusEnum.REGISTRE)) {
 					for (CampRegistre campReg: campTasca.getCamp().getRegistreMembres()) {
 						if (campReg.getMembre().equals(camp)) {
 							trobat = true;

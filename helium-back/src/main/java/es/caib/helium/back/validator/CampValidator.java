@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import es.caib.helium.back.command.CampCommand;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.logic.intf.service.CampService;
 
 /**
@@ -48,7 +48,7 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 			}
 		}
 		if (camp.getTipus() != null) {
-				if (camp.getTipus().equals(CampTipusDto.ACCIO)) {
+				if (camp.getTipus().equals(CampTipusEnum.ACCIO)) {
 					if (camp.getDefinicioProcesId() == null &&  (camp.getDefprocJbpmKey() == null || "".equals(camp.getDefprocJbpmKey().trim()))) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage("NotEmpty", null))
@@ -64,7 +64,7 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 						valid = false;								
 					}
 				}
-				if (camp.getTipus().equals(CampTipusDto.SELECCIO) || camp.getTipus().equals(CampTipusDto.SUGGEST)) {
+				if (camp.getTipus().equals(CampTipusEnum.SELECCIO) || camp.getTipus().equals(CampTipusEnum.SUGGEST)) {
 					if ((camp.getDominiId() == null 
 							&& !camp.isDominiIntern()) 
 							&& camp.getEnumeracioId() == null 

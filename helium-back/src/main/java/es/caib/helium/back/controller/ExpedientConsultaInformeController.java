@@ -68,7 +68,7 @@ import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
 import es.caib.helium.back.helper.TascaFormHelper;
 import es.caib.helium.commons.constants.ExpedientCamps;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.DadaIndexadaDto;
 import es.caib.helium.commons.dto.ExpedientConsultaDissenyDto;
@@ -441,15 +441,15 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 					if(dades.containsKey(camp.getVarCodi())) {
 						DadaIndexadaDto dada = dades.get(camp.getVarCodi());
 						cell = xlsRow.createCell(colNum++);
-						if (camp.getCampTipus().equals(CampTipusDto.INTEGER) || camp.getCampTipus().equals(CampTipusDto.FLOAT) || camp.getCampTipus().equals(CampTipusDto.PRICE) ) {
+						if (camp.getCampTipus().equals(CampTipusEnum.INTEGER) || camp.getCampTipus().equals(CampTipusEnum.FLOAT) || camp.getCampTipus().equals(CampTipusEnum.PRICE) ) {
 							cell.setCellType(XSSFCell.CELL_TYPE_NUMERIC);
 							if(dada.getValor() != null) {
-								if( camp.getCampTipus().equals(CampTipusDto.INTEGER)) {
+								if( camp.getCampTipus().equals(CampTipusEnum.INTEGER)) {
 									cell.setCellValue((Long) dada.getValor());
-								} else if (camp.getCampTipus().equals(CampTipusDto.FLOAT)) {
+								} else if (camp.getCampTipus().equals(CampTipusEnum.FLOAT)) {
 									cell.setCellValue((Double) dada.getValor());
 									cell.setCellStyle(dStyle);
-								} else if (camp.getCampTipus().equals(CampTipusDto.PRICE)) {
+								} else if (camp.getCampTipus().equals(CampTipusEnum.PRICE)) {
 									cell.setCellValue(((BigDecimal) dada.getValor()).doubleValue());
 									cell.setCellStyle(dStyle);
 								} else {
@@ -756,7 +756,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			clau = clau.replace(
 					ExpedientCamps.EXPEDIENT_PREFIX_JSP,
 					ExpedientCamps.EXPEDIENT_PREFIX);
-			if (CampTipusDto.BOOLEAN.equals(dada.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, dada.getVarCodi())) {
+			if (CampTipusEnum.BOOLEAN.equals(dada.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, dada.getVarCodi())) {
 				Boolean valor = (Boolean) PropertyUtils.getSimpleProperty(
 						filtreCommand,
 						dada.getVarCodi());

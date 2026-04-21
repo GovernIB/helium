@@ -431,15 +431,15 @@
 		}
 		return mostrar;
 	}
-	
+
 	function executarAccio(event, botoAccio) {
 		event.preventDefault();
 		if (!confirm("<spring:message code='js.helforms.confirmacio' />")) {
-			return false; 
-		} else { 
-			window.location.href = $(botoAccio).data("href"); 
-			return false; 
-		} 
+			return false;
+		} else {
+			window.location.href = $(botoAccio).data("href");
+			return false;
+		}
 	}
 
 </script>
@@ -582,14 +582,14 @@
 						<li class="list-group-item d-flex justify-content-between border-0">
 							{{for valor.valorHeader}}
 								{{props #data}}
-									<div class="d-flex flex-column text-dark font-weight-bold text-sm {{if prop}}obligatori{{/if}}">{{>key}}</div>
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm {{if prop}}obligatori{{/if}}">{{:key}}</div>
 								{{/props}}
 							{{/for}}
 						</li>
 						{{for valor.valorBody}}
 							<li class="list-group-item d-flex justify-content-between border-0">
 								{{for #data}}
-									<div class="d-flex flex-column text-sm">{{>#data}}</div>
+									<div class="d-flex flex-column text-sm">{{:#data}}</div>
 								{{/for}}
 							</li>
 						{{/for}}
@@ -599,7 +599,7 @@
 						<ul class="list-group multiple">
 							{{for valor.valorMultiple}}
 								<li class="list-group-item d-flex justify-content-between border-0">
-									<div class="d-flex flex-column text-sm">{{>#data}}</div>
+									<div class="d-flex flex-column text-sm">{{:#data}}</div>
 								</li>
 							{{/for}}
 						</ul>

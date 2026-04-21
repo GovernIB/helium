@@ -34,6 +34,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import es.caib.helium.commons.constants.ExpedientCamps;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.TerminiDto;
 
 /**
@@ -46,24 +47,24 @@ import es.caib.helium.commons.dto.TerminiDto;
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
 public class Camp implements Serializable, GenericEntity<Long> {
 
-	public enum TipusCamp {
-		STRING,
-		INTEGER,
-		FLOAT,
-		BOOLEAN,
-		TEXTAREA,
-		DATE,
-		PRICE,
-		TERMINI,
-		SELECCIO,
-		SUGGEST,
-		REGISTRE,
-		ACCIO
-	}
+//	public enum CampTipusEnum {
+//		STRING,
+//		INTEGER,
+//		FLOAT,
+//		BOOLEAN,
+//		TEXTAREA,
+//		DATE,
+//		PRICE,
+//		TERMINI,
+//		SELECCIO,
+//		SUGGEST,
+//		REGISTRE,
+//		ACCIO
+//	}
 
 	private Long id;
 	private String codi;
-	private TipusCamp tipus;
+	private CampTipusEnum tipus;
 	private String etiqueta;
 	private String observacions;
 	private String dominiId;
@@ -95,18 +96,18 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private Integer ordre;
 
 	public Camp() {}
-	public Camp(String codi, TipusCamp tipus, String etiqueta) {
+	public Camp(String codi, CampTipusEnum tipus, String etiqueta) {
 		this.codi = codi;
 		this.tipus = tipus;
 		this.etiqueta = etiqueta;
 	}
-	public Camp(DefinicioProces definicioProces, String codi, TipusCamp tipus, String etiqueta) {
+	public Camp(DefinicioProces definicioProces, String codi, CampTipusEnum tipus, String etiqueta) {
 		this.definicioProces = definicioProces;
 		this.codi = codi;
 		this.tipus = tipus;
 		this.etiqueta = etiqueta;
 	}
-	public Camp(ExpedientTipus expedientTipus, String codi, TipusCamp tipus, String etiqueta) {
+	public Camp(ExpedientTipus expedientTipus, String codi, CampTipusEnum tipus, String etiqueta) {
 		this.expedientTipus = expedientTipus;
 		this.codi = codi;
 		this.tipus = tipus;
@@ -133,10 +134,10 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="tipus", length=255, nullable=false)
-	public TipusCamp getTipus() {
+	public CampTipusEnum getTipus() {
 		return tipus;
 	}
-	public void setTipus(TipusCamp tipus) {
+	public void setTipus(CampTipusEnum tipus) {
 		this.tipus = tipus;
 	}
 
@@ -410,23 +411,23 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	@SuppressWarnings("rawtypes")
 	@Transient
 	public Class getJavaClass() {
-		if (TipusCamp.STRING.equals(tipus)) {
+		if (CampTipusEnum.STRING.equals(tipus)) {
 			return String.class;
-		} else if (TipusCamp.INTEGER.equals(tipus)) {
+		} else if (CampTipusEnum.INTEGER.equals(tipus)) {
 			return Long.class;
-		} else if (TipusCamp.FLOAT.equals(tipus)) {
+		} else if (CampTipusEnum.FLOAT.equals(tipus)) {
 			return Double.class;
-		} else if (TipusCamp.BOOLEAN.equals(tipus)) {
+		} else if (CampTipusEnum.BOOLEAN.equals(tipus)) {
 			return Boolean.class;
-		} else if (TipusCamp.TEXTAREA.equals(tipus)) {
+		} else if (CampTipusEnum.TEXTAREA.equals(tipus)) {
 			return String.class;
-		} else if (TipusCamp.DATE.equals(tipus)) {
+		} else if (CampTipusEnum.DATE.equals(tipus)) {
 			return Date.class;
-		} else if (TipusCamp.PRICE.equals(tipus)) {
+		} else if (CampTipusEnum.PRICE.equals(tipus)) {
 			return BigDecimal.class;
-		} else if (TipusCamp.TERMINI.equals(tipus)) {
+		} else if (CampTipusEnum.TERMINI.equals(tipus)) {
 			return String.class;
-		} else if (TipusCamp.REGISTRE.equals(tipus)) {
+		} else if (CampTipusEnum.REGISTRE.equals(tipus)) {
 			return Object[].class;
 		} else {
 			return String.class;
@@ -434,28 +435,28 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	public static String getComText(
-			TipusCamp tipus,
+			CampTipusEnum tipus,
 			Object valor,
 			String valorDomini) {
 		if (valor == null)
 			return null;
 		try {
 			String text = null;
-			if (tipus.equals(TipusCamp.INTEGER)) {
+			if (tipus.equals(CampTipusEnum.INTEGER)) {
 				text = new DecimalFormat("#").format((Long)valor);
-			} else if (tipus.equals(TipusCamp.FLOAT)) {
+			} else if (tipus.equals(CampTipusEnum.FLOAT)) {
 				text = new DecimalFormat("#.##########").format((Double)valor);
-			} else if (tipus.equals(TipusCamp.PRICE)) {
+			} else if (tipus.equals(CampTipusEnum.PRICE)) {
 				text = new DecimalFormat("#,##0.00").format((BigDecimal)valor);
-			} else if (tipus.equals(TipusCamp.DATE)) {
+			} else if (tipus.equals(CampTipusEnum.DATE)) {
 				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
-			} else if (tipus.equals(TipusCamp.BOOLEAN)) {
+			} else if (tipus.equals(CampTipusEnum.BOOLEAN)) {
 				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
-			} else if (tipus.equals(TipusCamp.SELECCIO)) {
+			} else if (tipus.equals(CampTipusEnum.SELECCIO)) {
 				text = valorDomini;
-			} else if (tipus.equals(TipusCamp.SUGGEST)) {
+			} else if (tipus.equals(CampTipusEnum.SUGGEST)) {
 				text = valorDomini;
-			} else if (tipus.equals(TipusCamp.TERMINI)) {
+			} else if (tipus.equals(CampTipusEnum.TERMINI)) {
 				if (valor instanceof Termini) {
 					text = ((Termini)valor).toString();
 				} else {
@@ -477,27 +478,27 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	public static Object getComObject(
-			TipusCamp tipus,
+			CampTipusEnum tipus,
 			String text) {
 		if (text == null)
 			return null;
 		try {
 			Object obj = null;
-			if (tipus.equals(TipusCamp.INTEGER)) {
+			if (tipus.equals(CampTipusEnum.INTEGER)) {
 				obj = new Long(text);
-			} else if (tipus.equals(TipusCamp.FLOAT)) {
+			} else if (tipus.equals(CampTipusEnum.FLOAT)) {
 				obj = new Double(text);
-			} else if (tipus.equals(TipusCamp.PRICE)) {
+			} else if (tipus.equals(CampTipusEnum.PRICE)) {
 				obj = new BigDecimal(text);
-			} else if (tipus.equals(TipusCamp.DATE)) {
+			} else if (tipus.equals(CampTipusEnum.DATE)) {
 				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
-			} else if (tipus.equals(TipusCamp.BOOLEAN)) {
+			} else if (tipus.equals(CampTipusEnum.BOOLEAN)) {
 				obj = new Boolean("S".equals(text));
-			} else if (tipus.equals(TipusCamp.SELECCIO)) {
+			} else if (tipus.equals(CampTipusEnum.SELECCIO)) {
 				obj = text;
-			} else if (tipus.equals(TipusCamp.SUGGEST)) {
+			} else if (tipus.equals(CampTipusEnum.SUGGEST)) {
 				obj = text;
-			} else if (tipus.equals(TipusCamp.TERMINI)) {
+			} else if (tipus.equals(CampTipusEnum.TERMINI)) {
 				String[] parts = text.split("/");
 				Termini termini = new Termini();
 				if (parts.length == 3) {

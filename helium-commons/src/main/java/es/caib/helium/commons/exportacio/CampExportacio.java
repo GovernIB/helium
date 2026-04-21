@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import es.caib.helium.commons.dto.CampAgrupacioDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 
 
 
@@ -20,7 +20,7 @@ import es.caib.helium.commons.dto.CampTipusDto;
 public class CampExportacio implements Serializable {
 
 	private String codi;
-	private CampTipusDto tipus;
+	private CampTipusEnum tipus;
 	private String etiqueta;
 	private String observacions;
 	private String dominiId;
@@ -51,7 +51,7 @@ public class CampExportacio implements Serializable {
 	
 	public CampExportacio(
 			String codi,
-			CampTipusDto tipus,
+			CampTipusEnum tipus,
 			String etiqueta,
 			String observacions,
 			String dominiId,
@@ -108,10 +108,10 @@ public class CampExportacio implements Serializable {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-	public CampTipusDto getTipus() {
+	public CampTipusEnum getTipus() {
 		return tipus;
 	}
-	public void setTipus(CampTipusDto tipus) {
+	public void setTipus(CampTipusEnum tipus) {
 		this.tipus = tipus;
 	}
 	public String getEtiqueta() {

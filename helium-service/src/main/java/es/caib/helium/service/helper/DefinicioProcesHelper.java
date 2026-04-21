@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.helium.commons.dto.AccioTipusEnumDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
 import es.caib.helium.commons.dto.PortafirmesFluxInfoDto;
 import es.caib.helium.commons.dto.TascaDto;
@@ -48,7 +48,6 @@ import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Accio;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.CampAgrupacio;
 import es.caib.helium.persistence.entity.CampRegistre;
 import es.caib.helium.persistence.entity.CampTasca;
@@ -225,12 +224,12 @@ public class DefinicioProcesHelper {
 							camp = new Camp(
 									definicio, 
 									campExportat.getCodi(),
-									TipusCamp.valueOf(campExportat.getTipus().toString()),
+									CampTipusEnum.valueOf(campExportat.getTipus().toString()),
 									campExportat.getEtiqueta());
 							definicio.getCamps().add(camp);
 							camp = campRepository.saveAndFlush(camp);
 						} else {
-							camp.setTipus(TipusCamp.valueOf(campExportat.getTipus().toString()));
+							camp.setTipus(CampTipusEnum.valueOf(campExportat.getTipus().toString()));
 							camp.setEtiqueta(campExportat.getEtiqueta());
 						}
 						camp.setIgnored(campExportat.isIgnored());
@@ -280,7 +279,7 @@ public class DefinicioProcesHelper {
 						if (campExportat.getCodiConsulta() != null)
 							campsTipusConsulta.put(camp, campExportat);
 						// Guarda els registres per processar-los després de tots els camps
-						if (camp.getTipus() == TipusCamp.REGISTRE) {
+						if (camp.getTipus() == CampTipusEnum.REGISTRE) {
 							registres.put(camp, campExportat);
 						}						
 					}
@@ -940,14 +939,14 @@ public class DefinicioProcesHelper {
 			for (Camp camp : definicio.getCamps()) 
 				if (exportAll || command.getVariables().contains(camp.getCodi())) {
 					boolean necessitaDadesExternes = 
-							TipusCamp.SELECCIO.equals(camp.getTipus()) 
-							|| TipusCamp.SUGGEST.equals(camp.getTipus());			
+							CampTipusEnum.SELECCIO.equals(camp.getTipus()) 
+							|| CampTipusEnum.SUGGEST.equals(camp.getTipus());			
 					boolean necessitaDadesExternesEntorn = 
 							(camp.getDomini() != null && camp.getDomini().getExpedientTipus() == null)
 							|| (camp.getEnumeracio() != null && camp.getEnumeracio().getExpedientTipus() == null);
 					CampExportacio campExportacio = new CampExportacio(
 		                    camp.getCodi(),
-		                    CampTipusDto.valueOf(camp.getTipus().toString()),
+		                    CampTipusEnum.valueOf(camp.getTipus().toString()),
 		                    camp.getEtiqueta(),
 		                    camp.getObservacions(),
 		                    (necessitaDadesExternes) ? camp.getDominiId() : null,
@@ -1182,7 +1181,7 @@ public class DefinicioProcesHelper {
 		}
 		// Propaga els membres dels camps de tipus registre
 		for (Camp camp: origen.getCamps()) {
-			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+			if (camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
 				for (CampRegistre membre: camp.getRegistreMembres()) {
 					CampRegistre campRegistre = new CampRegistre(
 							camps.get(camp.getCodi()),

@@ -15,15 +15,22 @@
 
 <%-- VARIABLES SENZILLES ----------------------------------------------------------------------------%>
 <%---------------------------------------------------------------------------------------------------%>
-			
+
 <%-- STRING -------------------------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'STRING'}">
+				<i>x</i>
 				<c:choose>
-					<c:when test='${dada.campMultiple or isMultiple}'><input type="text" id="${campCodi}" name="${campNom}" class="form-control camp-multiple" data-required="${dada.required}" value="${command[campNom][campIndex]}"/></c:when>
-					<c:otherwise><form:input path="${campCodi}" cssClass="form-control" id="${campCodi}" data-required="${dada.required}" /></c:otherwise>
+					<c:when test='${dada.campMultiple or isMultiple}'>
+						<i>y</i>
+						<input type="text" id="${campCodi}" name="${campNom}" class="form-control camp-multiple" data-required="${dada.required}" value="${command[campNom][campIndex]}"/>
+					</c:when>
+					<c:otherwise>
+						<i>x</i>
+						<form:input path="${campCodi}" cssClass="form-control" id="${campCodi}" data-required="${dada.required}" />
+					</c:otherwise>
 				</c:choose>
 			</c:if>
-			
+
 <%-- TEXTAREA -----------------------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'TEXTAREA'}">
 				<c:choose>
@@ -31,7 +38,7 @@
 					<c:otherwise><form:textarea path="${campCodi}" cssClass="form-control" id="${campCodi}" data-required="${dada.required}" rows="6"/></c:otherwise>
 				</c:choose>
 			</c:if>
-			
+
 <%-- INTEGER, FLOAT i PRICE ---------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'INTEGER' or dada.campTipus == 'FLOAT' or dada.campTipus == 'PRICE'}">
 			<c:set var="tipusnum"><c:choose><c:when test="${dada.campTipus == 'INTEGER'}">enter</c:when><c:when test="${dada.campTipus == 'FLOAT'}">float</c:when><c:when test="${dada.campTipus == 'PRICE'}">price</c:when></c:choose></c:set>
@@ -40,8 +47,8 @@
 					<c:otherwise><form:input path="${campCodi}" cssClass="form-control text-right ${tipusnum}" id="${campCodi}" data-required="${dada.required}"/></c:otherwise>
 				</c:choose>
 			</c:if>
-			
-<%-- DATE ---------------------------------------------------------------------------------------%>		
+
+<%-- DATE ---------------------------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'DATE'}">
 				<div class="input-group">
 					<c:choose>
@@ -57,7 +64,7 @@
 					<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 				</div>
 			</c:if>
-			
+
 <%-- TERMINI ------------------------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'TERMINI'}">
 				<c:set var="tercodi"><c:choose><c:when test='${dada.campMultiple or isMultiple}'>${campNom}[${campIndex}]</c:when><c:otherwise>${campCodi}</c:otherwise></c:choose></c:set>
@@ -101,8 +108,8 @@
 	 				</div>
 	 			</div>
 			</c:if>
-			
-<%-- BOOLEAN ------------------------------------------------------------------------------------%>					
+
+<%-- BOOLEAN ------------------------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'BOOLEAN'}">
 				<c:choose>
 					<c:when test='${dada.campMultiple or isMultiple}'>
@@ -114,20 +121,20 @@
 					<c:otherwise><form:checkbox path="${campCodi}" id="${campCodi}" data-required="${dada.required}" style="max-width: 27px;" cssClass="checkbox"/></c:otherwise>
 				</c:choose>
 			</c:if>
-			
-<%-- ACCIO --------------------------------------------------------------------------------------%>					
+
+<%-- ACCIO --------------------------------------------------------------------------------------%>
 			<c:if test="${!bloquejarEdicioTasca and dada.campTipus == 'ACCIO'}">
 				<button  class="btn btn-primary pull-lef btn_accio tasca-boto" name="accio" type="submit" value="accio" data-action="${dada.jbpmAction}" data-confirmacio="<spring:message code='js.helforms.confirmacio' />">
 					<spring:message code="common.camptasca.executar" />
 				</button>
-				
+
 				<c:if test="${not empty campFocus}">
 					<script>
 						campOnFocus(${dada.jbpmAction});
 					</script>
 				</c:if>
 			</c:if>
-			
+
 <%-- SUGGEST ------------------------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'SUGGEST'}">
 				<c:choose>
@@ -152,8 +159,8 @@
 					<c:otherwise><form:input path="${campCodi}" cssClass="form-control suggest" id="${campCodi}" disabled="${disabled}" data-placeholder="${placeholder}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}" data-campparams="${dada.campParamsConcatenats}"/></c:otherwise>
 				</c:choose>
 			</c:if>
-			
-<%-- SELECCIO ------------------------------------------------------------------------------------%>					
+
+<%-- SELECCIO ------------------------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'SELECCIO'}">
 				<c:choose>
 					<c:when test="${not empty tasca and not tasca.inicial}">
@@ -181,17 +188,17 @@
 					</c:otherwise>
 				</c:choose>
 			</c:if>
-			
+
 <%-- Fi VARIABLES SENZILLES -------------------------------------------------------------------------%>
 <%---------------------------------------------------------------------------------------------------%>
 
 <%-- VARIABLES MULTIPLES ----------------------------------------------------------------------------%>
 <%---------------------------------------------------------------------------------------------------%>
 			<c:if test="${not tasca.validada and ((dada.campMultiple and isRegistre) or isMultiple)}">
-					<button  
-						class="btn btn_eliminar fa fa-times" 
-						type="button" 
-						value="<spring:message code='comuns.esborrar' />" 
+					<button
+						class="btn btn_eliminar fa fa-times"
+						type="button"
+						value="<spring:message code='comuns.esborrar' />"
 						title="<spring:message code='comuns.esborrar' />">
 					</button>
 			</c:if>

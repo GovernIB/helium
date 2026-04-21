@@ -17,7 +17,7 @@ import es.caib.helium.back.command.DefinicioProcesExportarCommand;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
 import es.caib.helium.commons.dto.DocumentDto;
@@ -170,7 +170,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 			CampExportacio camp;
 			for (String campCodi : command.getVariables()) {
 				camp = campsMap.get(campCodi);
-				if (camp.getTipus() == CampTipusDto.REGISTRE) {
+				if (camp.getTipus() == CampTipusEnum.REGISTRE) {
 					// Comprova que les variables de tipus registre exportades tinguin les seves variables exportables.
 					for (RegistreMembreExportacio membre : camp.getRegistreMembres())
 						if (!command.getVariables().contains(membre.getCodi())) {
@@ -182,7 +182,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 							.addConstraintViolation();
 							valid = false;
 						}
-				} else if (camp.getTipus() == CampTipusDto.SELECCIO) {
+				} else if (camp.getTipus() == CampTipusEnum.SELECCIO) {
 					// Comprova les dependències del camp de tipus seleció
 					if (camp.getCodiEnumeracio() != null && !"".equals(camp.getCodiEnumeracio().trim())) {
 						// Comprova l'enumeració

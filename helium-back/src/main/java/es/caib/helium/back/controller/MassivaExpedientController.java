@@ -60,7 +60,7 @@ import es.caib.helium.back.helper.SessionHelper.SessionManager;
 import es.caib.helium.back.helper.TascaFormHelper;
 import es.caib.helium.back.helper.TascaFormValidatorHelper;
 import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.DocumentTipusFirmaEnumDto;
@@ -202,7 +202,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				for (CampDto camp : expedientService.getCampsInstanciaProcesById(
 						expedient.getTipus().getId(),
 						expedient.getProcessInstanceId())){
-					if (!CampTipusDto.ACCIO.equals(camp.getTipus())) {
+					if (!CampTipusEnum.ACCIO.equals(camp.getTipus())) {
 						variables.add(camp);
 					}
 				}
@@ -585,7 +585,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				for (CampDto camp : expedientService.getCampsInstanciaProcesById(
 						expedient.getTipus().getId(),
 						processInstanceId)){
-					if (!CampTipusDto.ACCIO.equals(camp.getTipus()) && campId.equals(camp.getId())) {
+					if (!CampTipusEnum.ACCIO.equals(camp.getTipus()) && campId.equals(camp.getId())) {
 						varCodi = camp.getCodi();
 					}
 				}
@@ -654,7 +654,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			for (CampDto camp : expedientService.getCampsInstanciaProcesById(
 					expedient.getTipus().getId(),
 					expedient.getProcessInstanceId())){
-				if (!CampTipusDto.ACCIO.equals(camp.getTipus()) && campId.equals(camp.getId())) {
+				if (!CampTipusEnum.ACCIO.equals(camp.getTipus()) && campId.equals(camp.getId())) {
 					campo = camp;
 				}
 			}

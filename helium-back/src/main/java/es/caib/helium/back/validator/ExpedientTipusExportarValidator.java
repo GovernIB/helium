@@ -17,7 +17,7 @@ import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.CampTascaDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.ConsultaCampDto;
 import es.caib.helium.commons.dto.ConsultaCampDto.TipusConsultaCamp;
 import es.caib.helium.commons.dto.ConsultaDto;
@@ -114,7 +114,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 					.addConstraintViolation();
 					valid = false;
 				}					
-				if (camp.getTipus() == CampTipusDto.REGISTRE) {
+				if (camp.getTipus() == CampTipusEnum.REGISTRE) {
 					// Comprova que les variables de tipus registre exportades tinguin les seves variables exportables.
 					for (CampDto membre : campService.registreFindMembresAmbRegistreId(camp.getId()))
 						if (!command.getVariables().contains(membre.getCodi())) {
@@ -126,7 +126,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 							.addConstraintViolation();
 							valid = false;
 						}
-				} else if (camp.getTipus() == CampTipusDto.ACCIO) {
+				} else if (camp.getTipus() == CampTipusEnum.ACCIO) {
 					// Comprova que la definició de procés també s'exporti
 					if (!command.getDefinicionsProces().contains(camp.getDefprocJbpmKey())) {
 						context.buildConstraintViolationWithTemplate(
@@ -137,7 +137,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						.addConstraintViolation();
 						valid = false;
 					}
-				}  else if (camp.getTipus() == CampTipusDto.SELECCIO) {
+				}  else if (camp.getTipus() == CampTipusEnum.SELECCIO) {
 					// Comprova les dependències del camp de tipus seleció
 					if (camp.getEnumeracio() != null)
 						if (!command.getEnumeracions().contains(camp.getEnumeracio().getCodi())

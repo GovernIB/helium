@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.ExpedientDadaDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.PersonaDto;
@@ -32,7 +33,6 @@ import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.common.jbpm.DominiCodiDescripcio;
 import es.caib.helium.persistence.common.jbpm.JbpmVars;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.CampTasca;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.DocumentTasca;
@@ -692,8 +692,8 @@ public class TascaHelper {
 		for (CampTasca campTasca: campsTasca) {
 			if (campTasca.getCamp().isDominiCacheText()) {
 				Object campValor = variables.get(campTasca.getCamp().getCodi());
-				if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
-						campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
+				if (	campTasca.getCamp().getTipus().equals(CampTipusEnum.SELECCIO) ||
+						campTasca.getCamp().getTipus().equals(CampTipusEnum.SUGGEST)) {
 					if (campValor instanceof DominiCodiDescripcio) {
 						variables.put(
 								campTasca.getCamp().getCodi(),

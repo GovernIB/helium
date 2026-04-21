@@ -33,6 +33,7 @@ import com.codahale.metrics.Timer;
 import es.caib.helium.commons.domini.DominiHelium;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DominiDto.OrigenCredencials;
 import es.caib.helium.commons.dto.DominiDto.TipusDomini;
 import es.caib.helium.commons.dto.ExpedientDadaDto;
@@ -48,7 +49,6 @@ import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.persistence.entity.Area;
 import es.caib.helium.persistence.entity.AreaMembre;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.CampRegistre;
 import es.caib.helium.persistence.entity.Carrec;
 import es.caib.helium.persistence.entity.Domini;
@@ -772,7 +772,7 @@ public class DominiHelper {
 //			JbpmTask task = workflowEngineApi.getTaskById(taskInstanceId);
 //			TascaDadaDto dada = variableHelper.findDadaPerInstanciaTasca(task, variable); 
 //			camp = campRepository.findOne(dada.getCampId());
-//			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+//			if (camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
 //				if (camp.isMultiple()) {
 //					valor = dada.getVarValor();
 //					for (TascaDadaDto dm : dada.getMultipleDades()) {
@@ -796,7 +796,7 @@ public class DominiHelper {
 		} else if (processInstanceId != null) {
 			ExpedientDadaDto dada = variableHelper.getDadaPerInstanciaProces(processInstanceId, variable);
 			camp = campRepository.findById(dada.getCampId()).orElse(null);
-			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+			if (camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
 				if (camp.isMultiple()) {
 					valor = dada.getVarValor();
 					for (ExpedientDadaDto dm : dada.getMultipleDades()) {
@@ -818,7 +818,7 @@ public class DominiHelper {
 				}
 			}
 		}
-		if (valor != null && valor instanceof Object[] && camp.getTipus().equals(TipusCamp.REGISTRE)) {
+		if (valor != null && valor instanceof Object[] && camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
 			Object[] registres = (Object[])valor;
 			int indexFila = 0;
 			for (int i = 0; i < registres.length; i++) {

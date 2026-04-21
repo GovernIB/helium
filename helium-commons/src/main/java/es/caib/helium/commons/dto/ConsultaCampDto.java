@@ -39,7 +39,7 @@ public class ConsultaCampDto implements Serializable {
 	private int buitCols;
 	private TipusParamConsultaCamp paramTipus;
 
-	private CampTipusDto campTipus;
+	private CampTipusEnum campTipus;
 
 	public ConsultaCampDto() {}
 	public ConsultaCampDto(String campCodi, TipusConsultaCamp tipus) {
@@ -47,10 +47,10 @@ public class ConsultaCampDto implements Serializable {
 		this.tipus = tipus;
 	}
 
-	public CampTipusDto getCampTipus() {
+	public CampTipusEnum getCampTipus() {
 		return campTipus;
 	}
-	public void setCampTipus(CampTipusDto campTipus) {
+	public void setCampTipus(CampTipusEnum campTipus) {
 		this.campTipus = campTipus;
 	}
 	public Long getId() {

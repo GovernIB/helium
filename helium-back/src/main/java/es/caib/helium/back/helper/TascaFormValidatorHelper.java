@@ -29,7 +29,7 @@ import org.springmodules.validation.bean.conf.loader.SimpleBeanValidationConfigu
 import org.springmodules.validation.bean.rule.ExpressionValidationRule;
 import org.springmodules.validation.util.cel.valang.ValangConditionExpressionParser;
 
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.dto.ValidacioDto;
 import es.caib.helium.logic.intf.service.ExpedientService;
@@ -91,8 +91,8 @@ public class TascaFormValidatorHelper implements Validator {
 		try {
 			List<TascaDadaDto> tascaDades = getTascaDades(command);
 			for (TascaDadaDto camp : tascaDades) {
-				if (validarObligatoris && (camp.isRequired() || camp.getCampTipus().equals(CampTipusDto.REGISTRE))) {
-					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+				if (validarObligatoris && (camp.isRequired() || camp.getCampTipus().equals(CampTipusEnum.REGISTRE))) {
+					if (camp.getCampTipus().equals(CampTipusEnum.REGISTRE)) {
 						Object valorRegistre = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
 						if ((valorRegistre == null && camp.isRequired()) || registreInvalid(camp, valorRegistre, errors)) {
 							if (camp.isReadOnly())
@@ -143,7 +143,7 @@ public class TascaFormValidatorHelper implements Validator {
 							}
 						}
 					} else if (!camp.isCampMultiple()) {
-						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+						if (camp.getCampTipus().equals(CampTipusEnum.TERMINI)) {
 							Object termini = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
 							String[] termini_arr = (String[])termini;
 							if (termini == null || termini_arr.length < 3 || (termini_arr[0].equalsIgnoreCase("0") && termini_arr[1].equalsIgnoreCase("0") && (termini_arr[2].equalsIgnoreCase("") || termini_arr[2] == null)))
@@ -158,7 +158,7 @@ public class TascaFormValidatorHelper implements Validator {
 						} else {
 							for (int i = 0; i < Array.getLength(valors); i++) {
 								Object valor = Array.get(valors, i);
-								if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+								if (camp.getCampTipus().equals(CampTipusEnum.TERMINI)) {
 									String[] valor_arr = (String[])valor;
 									if (valor == null || (valor_arr).length < 3 || (valor_arr[0].equalsIgnoreCase("0") && valor_arr[1].equalsIgnoreCase("0") && (valor_arr[2].equalsIgnoreCase("0") || valor_arr[2] == null)))
 										errors.rejectValue(camp.getVarCodi() + "[" + i + "]", "not.blank");
@@ -269,7 +269,7 @@ public class TascaFormValidatorHelper implements Validator {
 
 	private void comprovaCamp(TascaDadaDto camp, Object command, Errors errors) throws Exception {
 		if (camp != null && camp.getCampTipus() != null) {
-			if (camp.getCampTipus().equals(CampTipusDto.STRING)) {
+			if (camp.getCampTipus().equals(CampTipusEnum.STRING)) {
 				try {
 					if (camp.isCampMultiple()) {
 						String[] valors = (String[]) PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
@@ -286,7 +286,7 @@ public class TascaFormValidatorHelper implements Validator {
 				} catch (NoSuchMethodException ex) {
 					logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
 				}
-			} else if (camp.getCampTipus().equals(CampTipusDto.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
+			} else if (camp.getCampTipus().equals(CampTipusEnum.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
 				try {
 					PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
 					String valor = camp.getText(); 
@@ -347,7 +347,7 @@ public class TascaFormValidatorHelper implements Validator {
 			Object command, 
 			DefaultBeanValidationConfiguration beanValidationConfiguration) {
 		
-		if (camp.getCampTipus() == CampTipusDto.REGISTRE) {
+		if (camp.getCampTipus() == CampTipusEnum.REGISTRE) {
 			if (camp.getRegistreDades() != null) {
 				for (TascaDadaDto registreDada : camp.getRegistreDades()) {
 					// Crida aquest mètode sobre els camps del registre passant el registre com a paràmetre
@@ -393,19 +393,19 @@ public class TascaFormValidatorHelper implements Validator {
 						if (valors != null) {
 							String expressio = validacio.getExpressio();
 							if (expressio.indexOf("sum(" + codiVariable + ")") != -1) {
-								if (camp.getCampTipus().equals(CampTipusDto.INTEGER)) {
+								if (camp.getCampTipus().equals(CampTipusEnum.INTEGER)) {
 									Long suma = 0L;
 									for (Long valor: (Long[])valors) {
 										suma += (valor == null ? 0L : valor); 
 									}
 									expressio = expressio.replace("sum(" + codiVariable + ")", suma.toString());
-								} else if (camp.getCampTipus().equals(CampTipusDto.FLOAT)) {
+								} else if (camp.getCampTipus().equals(CampTipusEnum.FLOAT)) {
 									Double suma = 0.0;
 									for (Double valor: (Double[])valors) {
 										suma += (valor == null ? 0.0 : valor); 
 									}
 									expressio = expressio.replace("sum(" + codiVariable + ")", suma.toString());
-								} else if (camp.getCampTipus().equals(CampTipusDto.PRICE)) {
+								} else if (camp.getCampTipus().equals(CampTipusEnum.PRICE)) {
 									BigDecimal suma = new BigDecimal(0);
 									for (BigDecimal valor: (BigDecimal[])valors) {
 										if (valor == null) valor = new BigDecimal(0);

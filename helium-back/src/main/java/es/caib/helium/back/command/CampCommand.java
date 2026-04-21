@@ -13,7 +13,7 @@ import es.caib.helium.back.validator.Camp;
 import es.caib.helium.back.validator.CodiVariable;
 import es.caib.helium.commons.dto.CampAgrupacioDto;
 import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.DominiDto;
 import es.caib.helium.commons.dto.EnumeracioDto;
@@ -35,7 +35,7 @@ public class CampCommand {
 	@CodiVariable(groups = {Creacio.class, Modificacio.class})
 	private String codi;
 	@NotNull(groups = {Creacio.class, Modificacio.class})
-	private CampTipusDto tipus;
+	private CampTipusEnum tipus;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String etiqueta;
@@ -102,10 +102,10 @@ public class CampCommand {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-	public CampTipusDto getTipus() {
+	public CampTipusEnum getTipus() {
 		return tipus;
 	}
-	public void setTipus(CampTipusDto tipus) {
+	public void setTipus(CampTipusEnum tipus) {
 		this.tipus = tipus;
 	}
 	public String getEtiqueta() {

@@ -30,7 +30,7 @@ public class ExpedientDadaDto {
 	private Object varValor;
 
 	private Long campId;
-	private CampTipusDto campTipus;
+	private CampTipusEnum campTipus;
 	private String campEtiqueta;
 	private boolean campMultiple;
 	private boolean campOcult;
@@ -104,11 +104,11 @@ public class ExpedientDadaDto {
 	}
 
 	public boolean isFontExterna() {
-		return CampTipusDto.SELECCIO.equals(campTipus) || CampTipusDto.SUGGEST.equals(campTipus);
+		return CampTipusEnum.SELECCIO.equals(campTipus) || CampTipusEnum.SUGGEST.equals(campTipus);
 	}
 
 	public boolean isCampTipusRegistre() {
-		return CampTipusDto.REGISTRE.equals(campTipus);
+		return CampTipusEnum.REGISTRE.equals(campTipus);
 	}
 
 	public String getTextMultiple() {
@@ -123,23 +123,23 @@ public class ExpedientDadaDto {
 	}
 
 	public  Class<?> getJavaClass() {
-		if (CampTipusDto.STRING.equals(campTipus)) {
+		if (CampTipusEnum.STRING.equals(campTipus)) {
 			return String.class;
-		} else if (CampTipusDto.INTEGER.equals(campTipus)) {
+		} else if (CampTipusEnum.INTEGER.equals(campTipus)) {
 			return Long.class;
-		} else if (CampTipusDto.FLOAT.equals(campTipus)) {
+		} else if (CampTipusEnum.FLOAT.equals(campTipus)) {
 			return Double.class;
-		} else if (CampTipusDto.BOOLEAN.equals(campTipus)) {
+		} else if (CampTipusEnum.BOOLEAN.equals(campTipus)) {
 			return Boolean.class;
-		} else if (CampTipusDto.TEXTAREA.equals(campTipus)) {
+		} else if (CampTipusEnum.TEXTAREA.equals(campTipus)) {
 			return String.class;
-		} else if (CampTipusDto.DATE.equals(campTipus)) {
+		} else if (CampTipusEnum.DATE.equals(campTipus)) {
 			return Date.class;
-		} else if (CampTipusDto.PRICE.equals(campTipus)) {
+		} else if (CampTipusEnum.PRICE.equals(campTipus)) {
 			return BigDecimal.class;
-		} else if (CampTipusDto.TERMINI.equals(campTipus)) {
+		} else if (CampTipusEnum.TERMINI.equals(campTipus)) {
 			return TerminiDto.class;
-		} else if (CampTipusDto.REGISTRE.equals(campTipus)) {
+		} else if (CampTipusEnum.REGISTRE.equals(campTipus)) {
 			return Object[].class;
 		} else {
 			return String.class;

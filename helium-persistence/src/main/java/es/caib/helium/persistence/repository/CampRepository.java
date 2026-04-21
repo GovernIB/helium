@@ -12,8 +12,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.ExpedientTipus;
 
@@ -109,7 +109,7 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	
 	List<Camp> findByExpedientTipusAndTipus(
 			ExpedientTipus expedientTipus,
-			TipusCamp estat);
+			CampTipusEnum estat);
 	
 	List<Camp> findByExpedientTipusOrderByCodiAsc(
 			ExpedientTipus expedientTipus);
@@ -138,7 +138,7 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	
 	List<Camp> findByDefinicioProcesAndTipus(
 			DefinicioProces definicioProces,
-			TipusCamp estat);
+			CampTipusEnum estat);
 	
 	/** Compta el número de validacions per a cada camp passat per la llista d'identificadors. */
 	@Query(	"select " +
@@ -177,7 +177,7 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
 			"		or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
-			"   and c.tipus = es.caib.helium.persistence.entity.Camp$TipusCamp.REGISTRE " +
+			"   and c.tipus = es.caib.helium.commons.dto.CampTipusEnum.REGISTRE " +
 			"	and ((:totes = true) or (:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
 			"group by id ")
 	List<Object[]> countMembres(

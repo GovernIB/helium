@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
 import es.caib.helium.commons.dto.CampAgrupacioDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.ExpedientDadaDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.ParellaCodiValorDto;
@@ -37,7 +37,6 @@ import es.caib.helium.persistence.common.jbpm.BasicActionHandler;
 import es.caib.helium.persistence.common.jbpm.DominiCodiDescripcio;
 import es.caib.helium.persistence.common.jbpm.JbpmVars;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.CampAgrupacio;
 import es.caib.helium.persistence.entity.CampRegistre;
 import es.caib.helium.persistence.entity.CampTasca;
@@ -204,7 +203,7 @@ public class VariableHelper {
 							false);
 					// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
 					try {
-						if (camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
+						if (camp != null && (CampTipusEnum.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
 							List<Object> registreValors = (List)varsInstanciaProces.get(var);
 							varAmbContingut = !registreValors.isEmpty();
 						}
@@ -279,7 +278,7 @@ public class VariableHelper {
 					false);
 			// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
 			try {
-				if (camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
+				if (camp != null && (CampTipusEnum.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
 					List<Object> registreValors = (List)valor;
 					varAmbContingut = !registreValors.isEmpty();
 				}						
@@ -447,7 +446,7 @@ public class VariableHelper {
 					variableCodi);
 		}
 		boolean varAmbContingut = valor != null;
-		if (varAmbContingut && camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
+		if (varAmbContingut && camp != null && (CampTipusEnum.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
 			Object[] registreValors = (Object[])valor;
 			varAmbContingut = registreValors.length > 0;
 		}
@@ -485,7 +484,7 @@ public class VariableHelper {
 		if (valor == null)
 			return null;
 		String valorFontExterna = null;
-		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
+		if (CampTipusEnum.SELECCIO.equals(camp.getTipus()) || CampTipusEnum.SUGGEST.equals(camp.getTipus())) {
 			
 			ParellaCodiValorDto parella = getTextPerCampAmbValor(
 					camp,
@@ -511,8 +510,8 @@ public class VariableHelper {
 			String taskInstanceId,
 			String processInstanceId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		TipusCamp tipus = camp.getTipus();
-		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
+		CampTipusEnum tipus = camp.getTipus();
+		if (tipus.equals(CampTipusEnum.SELECCIO) || tipus.equals(CampTipusEnum.SUGGEST)) {
 			if (camp.getDominiIntern() || camp.getDomini() != null ) {
 				Map<String, Object> parametres = getParamsConsulta(
 						taskInstanceId,
@@ -551,7 +550,7 @@ public class VariableHelper {
 									(
 										valor == null || 
 										parellaCodi.getValor().toString().equals(valor) ||
-										(tipus.equals(TipusCamp.SUGGEST) && parellaCodi.getValor().toString().toUpperCase().indexOf(valor.toString().toUpperCase()) != -1)
+										(tipus.equals(CampTipusEnum.SUGGEST) && parellaCodi.getValor().toString().toUpperCase().indexOf(valor.toString().toUpperCase()) != -1)
 									)
 								) {
 								for (ParellaCodiValor parellaValor: fr.getColumnes()) {
@@ -819,14 +818,14 @@ public class VariableHelper {
 		}
 		tascaDto.setVarCodi(varCodi);
 		tascaDto.setCampId(camp.getId());
-		tascaDto.setCampTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class));
+		tascaDto.setCampTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusEnum.class));
 		tascaDto.setCampEtiqueta(camp.getEtiqueta());
 		tascaDto.setCampMultiple(camp.isMultiple());
 		tascaDto.setObservacions(camp.getObservacions());
 		tascaDto.setJbpmAction(camp.getJbpmAction());
 		tascaDto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
 		
-		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
+		if (CampTipusEnum.SELECCIO.equals(camp.getTipus()) || CampTipusEnum.SUGGEST.equals(camp.getTipus())) {
 			try {
 				tascaDto.setVarValor(
 						getPossiblesValorsCamp(
@@ -881,7 +880,7 @@ public class VariableHelper {
 			dto.setCampId(camp.getId());
 			dto.setVarCodi(camp.getCodi());
 			dto.setCampEtiqueta(camp.getEtiqueta());
-			dto.setCampTipus(CampTipusDto.valueOf(camp.getTipus().name()));
+			dto.setCampTipus(camp.getTipus());
 			dto.setCampMultiple(camp.isMultiple());
 			dto.setCampOcult(camp.isOcult());
 			dto.setObservacions(camp.getObservacions());
@@ -896,13 +895,13 @@ public class VariableHelper {
 		} else {
 			dto.setCampEtiqueta(varCodi);
 			dto.setText(String.valueOf(varValor));
-			dto.setCampTipus(CampTipusDto.STRING);
+			dto.setCampTipus(CampTipusEnum.STRING);
 		}
-		boolean esCampTipusAccio = camp != null && TipusCamp.ACCIO.equals(camp.getTipus());
+		boolean esCampTipusAccio = camp != null && CampTipusEnum.ACCIO.equals(camp.getTipus());
 		if (camp != null && !esCampTipusAccio) {
 			try {
 				if (!camp.isMultiple() || forsarSimple) {
-					if (TipusCamp.REGISTRE.equals(camp.getTipus())) {
+					if (CampTipusEnum.REGISTRE.equals(camp.getTipus())) {
 						List<ExpedientDadaDto> registreDades = new ArrayList<ExpedientDadaDto>();
 						List<Object> valorsRegistres = (List)varValor;
 						// Construeix el map per als valors addicionals dels parámetres del domini
@@ -959,13 +958,18 @@ public class VariableHelper {
 				} else {
 					Object[] valorsMultiples = null;
 					// Comprovam que el valor desat actual és de tipus array. En cas contrari el convertim a array
+//					if (varValor == null) {
+//						valorsMultiples = (Object[])varValor;
+//					} else {
+//						valorsMultiples = new Object[] {};
+//					}
 					if (varValor == null 
 							|| (varValor instanceof Object[] 
 									&& ((Object[]) varValor).length > 0)) {
 						valorsMultiples = (Object[])varValor;
 					} else { 
 						valorsMultiples = new Object[] {varValor};
-					}	
+					}
 					List<ExpedientDadaDto> multipleDades = new ArrayList<ExpedientDadaDto>();
 					if (valorsMultiples != null) {
 						for (Object valor : valorsMultiples) {

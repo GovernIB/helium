@@ -20,13 +20,13 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DadaIndexadaDto;
 import es.caib.helium.commons.exception.IndexacioException;
 import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.common.jbpm.DominiCodiDescripcio;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.CampRegistre;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.Entorn;
@@ -549,7 +549,7 @@ public class IndexHelper {
 			for (Camp camp: mapCamps.get(clau)) {
 				if (mapValors.get(clau) != null) {
 					Object valor = mapValors.get(clau).get(camp.getCodi());
-					if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+					if (camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
 						if (valor != null) {
 							String[] columnesRegistre = new String[camp.getRegistreMembres().size()];
 							for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
@@ -596,7 +596,7 @@ public class IndexHelper {
 			Camp camp,
 			Object valor) {
 		if (!(valor instanceof String) || ((String)valor).length() > 0) {
-			if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
+			if (camp.getTipus().equals(CampTipusEnum.SELECCIO) || camp.getTipus().equals(CampTipusEnum.SUGGEST)) {
 				if (valor != null) {
 					String valorDomini = variableHelper.getTextPerCamp(
 							camp,

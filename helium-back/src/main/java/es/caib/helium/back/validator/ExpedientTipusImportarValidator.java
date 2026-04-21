@@ -24,7 +24,7 @@ import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.ConsultaCampDto.TipusConsultaCamp;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
@@ -289,7 +289,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 			CampExportacio camp;
 			for (String campCodi : command.getVariables()) {
 				camp = campsMap.get(campCodi);
-				if (camp.getTipus() == CampTipusDto.REGISTRE) {
+				if (camp.getTipus() == CampTipusEnum.REGISTRE) {
 					// Comprova que les variables de tipus registre exportades tinguin les seves variables exportables.
 					for (RegistreMembreExportacio membre : camp.getRegistreMembres())
 						if (!command.getVariables().contains(membre.getCodi())) {
@@ -301,7 +301,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 							.addConstraintViolation();
 							valid = false;
 						}
-				} else if (camp.getTipus() == CampTipusDto.ACCIO) {
+				} else if (camp.getTipus() == CampTipusEnum.ACCIO) {
 					// Comprova que la definició de procés també s'exporti
 					if (!( command.getAccions().contains(camp.getJbpmAction()) 
 						|| (	camp.getDefprocJbpmKey() != null && 
@@ -318,7 +318,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						.addConstraintViolation();
 						valid = false;
 					}
-				}  else if (camp.getTipus() == CampTipusDto.SELECCIO) {
+				}  else if (camp.getTipus() == CampTipusEnum.SELECCIO) {
 					// Comprova les dependències del camp de tipus seleció
 					if (camp.getCodiEnumeracio() != null && !"".equals(camp.getCodiEnumeracio().trim()))
 						if (!command.getEnumeracions().contains(camp.getCodiEnumeracio()) || camp.isDependenciaEntorn()) {

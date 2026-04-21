@@ -15,7 +15,7 @@ public class CampRegistreDto {
 	private Long membreId;
 	private String membreCodi;
 	private String membreEtiqueta;
-	private CampTipusDto membreTipus;
+	private CampTipusEnum membreTipus;
 	private boolean obligatori;
 	private boolean llistar;
 	private int ordre;
@@ -64,10 +64,10 @@ public class CampRegistreDto {
 	public void setMembreEtiqueta(String membreEtiqueta) {
 		this.membreEtiqueta = membreEtiqueta;
 	}
-	public CampTipusDto getMembreTipus() {
+	public CampTipusEnum getMembreTipus() {
 		return membreTipus;
 	}
-	public void setMembreTipus(CampTipusDto membreTipus) {
+	public void setMembreTipus(CampTipusEnum membreTipus) {
 		this.membreTipus = membreTipus;
 	}
 	public boolean isObligatori() {

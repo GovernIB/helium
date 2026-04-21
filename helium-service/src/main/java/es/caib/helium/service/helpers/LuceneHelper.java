@@ -7,39 +7,23 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.star.util.SortField;
-
-import es.caib.helium.commons.constants.ExpedientCamps;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DadaIndexadaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDto;
-import es.caib.helium.persistence.common.ThreadLocalInfo;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
-import es.caib.helium.persistence.entity.CampRegistre;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.persistence.entity.EnumeracioValors;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.Termini;
@@ -707,7 +691,7 @@ public class LuceneHelper {
 //				luceneSort = new Sort(new SortField(sort, SortField.STRING, !asc));
 //			} else {
 //				for (Camp camp: informeCamps) {
-//					if (camp != null && sort.endsWith(camp.getCodi()) && (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA))) {
+//					if (camp != null && sort.endsWith(camp.getCodi()) && (camp.getTipus().equals(CampTipusEnum.STRING) || camp.getTipus().equals(CampTipusEnum.TEXTAREA))) {
 //						sort = sort + "_no_analyzed";
 //						break;
 //					}
@@ -831,7 +815,7 @@ public class LuceneHelper {
 //						}
 //					}
 //					if (camp != null) {
-//						if (camp.getTipus().equals(TipusCamp.INTEGER) || camp.getTipus().equals(TipusCamp.FLOAT) || camp.getTipus().equals(TipusCamp.DATE) || camp.getTipus().equals(TipusCamp.PRICE)) {
+//						if (camp.getTipus().equals(CampTipusEnum.INTEGER) || camp.getTipus().equals(CampTipusEnum.FLOAT) || camp.getTipus().equals(CampTipusEnum.DATE) || camp.getTipus().equals(CampTipusEnum.PRICE)) {
 //							Object valorInicial = ((Object[]) valorFiltre)[0];
 //							Object valorFinal = ((Object[]) valorFiltre)[1];
 //							if (valorInicial != null && valorFinal != null) {
@@ -841,7 +825,7 @@ public class LuceneHelper {
 //							} else if (valorFinal != null) {
 //								return new TermRangeQuery(codiCamp, MIN_VALUE, valorIndexPerCamp(camp, valorFinal), true, true);
 //							}
-//						} else if (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA)) {
+//						} else if (camp.getTipus().equals(CampTipusEnum.STRING) || camp.getTipus().equals(CampTipusEnum.TEXTAREA)) {
 //							String valorIndex = valorIndexPerCamp(camp, valorFiltre).toLowerCase();
 //							if (valorIndex != null && valorIndex.length() > 0) {
 //								return queryPerStringAmbWildcards(codiCamp, valorIndex);
@@ -910,7 +894,7 @@ public class LuceneHelper {
 //				sort = sort + "_no_analyzed";
 //			} else {
 //				for (Camp camp : campsInforme) {
-//					if (camp != null && sort.endsWith(camp.getCodi()) && (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA))) {
+//					if (camp != null && sort.endsWith(camp.getCodi()) && (camp.getTipus().equals(CampTipusEnum.STRING) || camp.getTipus().equals(CampTipusEnum.TEXTAREA))) {
 //						sort = sort + "_no_analyzed";
 //						break;
 //					}
@@ -1005,14 +989,14 @@ public class LuceneHelper {
 //														dadaCamp = new DadaIndexadaDto(partsCodi[0], camp.getEtiqueta());
 //												}
 //											}
-//											if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST))
+//											if (camp.getTipus().equals(CampTipusEnum.SELECCIO) || camp.getTipus().equals(CampTipusEnum.SUGGEST))
 //												dadaCamp.setOrdenarPerValorMostrar(true);
 //											dadaCamp.setMultiple(camp.isMultiple());
 //											dadaCamp.addValorIndex(valorIndex);
 //											dadaCamp.addValorMultiple(valor.toString());
 //											dadaCamp.addValorIndexMultiple(valorIndex);
 //											
-//											if(i!=0 && TipusCamp.STRING.equals(camp.getTipus())) {
+//											if(i!=0 && CampTipusEnum.STRING.equals(camp.getTipus())) {
 //												Object valorConcat = String.valueOf(valor).concat(" , ").concat(dadaCamp.getValor().toString());
 //												dadaCamp.setValor(valorConcat);
 //												String textDomini = null;
@@ -1148,7 +1132,7 @@ public class LuceneHelper {
 //				for (Object o : valors) {
 //					updateDocumentCamp(document, definicioProces, camp, o, textDominis, false, isUpdate, campsActualitzats);
 //				}
-//			} else if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+//			} else if (camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
 //				Object[] valorsMembres = (Object[]) valor;
 //				int index = 0;
 //				for (CampRegistre campRegistre : camp.getRegistreMembres()) {
@@ -1158,7 +1142,7 @@ public class LuceneHelper {
 //				}
 //			} else {
 //				String valorIndex = valorIndexPerCamp(camp, valor);
-//				boolean analyzed = camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA);
+//				boolean analyzed = camp.getTipus().equals(CampTipusEnum.STRING) || camp.getTipus().equals(CampTipusEnum.TEXTAREA);
 //				boolean update = isUpdate && !campsActualitzats.contains(clauIndex);
 //				campsActualitzats.add(clauIndex);
 //				createOrUpdateDocumentField(document, new Field(clauIndex, valorIndex, Field.Store.YES, (analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED), update);
@@ -1166,7 +1150,7 @@ public class LuceneHelper {
 //				campsActualitzats.add(clauIndex + "_no_analyzed");
 //				createOrUpdateDocumentField(document, new Field(clauIndex + "_no_analyzed", valorIndex, Field.Store.NO, Field.Index.NOT_ANALYZED), update);
 //				String textDomini = textDominis.get(camp.getCodi() + "@" + valorIndex);
-//				if (textDomini != null && (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) && document.get(clauIndex + VALOR_DOMINI_SUFIX + valorIndex) == null) {
+//				if (textDomini != null && (camp.getTipus().equals(CampTipusEnum.SELECCIO) || camp.getTipus().equals(CampTipusEnum.SUGGEST)) && document.get(clauIndex + VALOR_DOMINI_SUFIX + valorIndex) == null) {
 //					update = isUpdate && !campsActualitzats.contains(clauIndex + VALOR_DOMINI_SUFIX + valorIndex);
 //					campsActualitzats.add(clauIndex + VALOR_DOMINI_SUFIX + valorIndex);
 //					createOrUpdateDocumentField(document, new Field(clauIndex + VALOR_DOMINI_SUFIX + valorIndex, textDomini, Field.Store.YES, Field.Index.ANALYZED), update);
@@ -1179,17 +1163,17 @@ public class LuceneHelper {
 
 	protected String valorIndexPerCamp(Camp camp, Object valor) {
 		if (valor != null) {
-			if (camp.getTipus().equals(TipusCamp.INTEGER)) {
+			if (camp.getTipus().equals(CampTipusEnum.INTEGER)) {
 				return numberPerIndexar((Long) valor);
-			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.FLOAT)) {
 				return numberPerIndexar((Double) valor);
-			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.BOOLEAN)) {
 				return ((Boolean) valor) ? "S" : "N";
-			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.DATE)) {
 				return dataPerIndexar((Date) valor);
-			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.PRICE)) {
 				return numberPerIndexar((BigDecimal) valor);
-			} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.TERMINI)) {
 				if (valor instanceof Termini) {
 					Termini term = (Termini) valor;
 					return term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
@@ -1198,13 +1182,13 @@ public class LuceneHelper {
 				} else {
 					return valor.toString();
 				}
-			} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.SELECCIO)) {
 				return (String) valor;
-			} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.SUGGEST)) {
 				return (String) valor;
-			} else if (camp.getTipus().equals(TipusCamp.STRING)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.STRING)) {
 				return ((String) valor);
-			} else if (camp.getTipus().equals(TipusCamp.TEXTAREA)) {
+			} else if (camp.getTipus().equals(CampTipusEnum.TEXTAREA)) {
 				return ((String) valor);
 			} else {
 				return valor.toString();
@@ -1214,30 +1198,30 @@ public class LuceneHelper {
 	}
 
 	protected Object valorCampPerIndex(Camp camp, String valor) throws Exception {
-		if (camp.getTipus().equals(TipusCamp.INTEGER)) {
+		if (camp.getTipus().equals(CampTipusEnum.INTEGER)) {
 			return Long.parseLong(valor.split("\\.")[0]);
-		} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
+		} else if (camp.getTipus().equals(CampTipusEnum.FLOAT)) {
 			return Double.parseDouble(valor);
-		} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
+		} else if (camp.getTipus().equals(CampTipusEnum.BOOLEAN)) {
 			return new Boolean("S".equals(valor));
-		} else if (camp.getTipus().equals(TipusCamp.DATE)) {
+		} else if (camp.getTipus().equals(CampTipusEnum.DATE)) {
 			if (!VALOR_CAMP_BUIT.equals(valor)) {
 				return new SimpleDateFormat(PATRO_DATES_INDEX).parse(valor);
 			} else {
 				return "";
 			}
-		} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
+		} else if (camp.getTipus().equals(CampTipusEnum.PRICE)) {
 			return new BigDecimal(valor);
-		} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
+		} else if (camp.getTipus().equals(CampTipusEnum.TERMINI)) {
 			/*String[] parts = valor.split("/");
 			Termini term = new Termini();
 			term.setAnys(Integer.parseInt(parts[0]));
 			term.setMesos(Integer.parseInt(parts[0]));
 			term.setDies(Integer.parseInt(parts[0]));*/
 			return valor;
-		} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
+		} else if (camp.getTipus().equals(CampTipusEnum.SELECCIO)) {
 			return (String) valor;
-		} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
+		} else if (camp.getTipus().equals(CampTipusEnum.SUGGEST)) {
 			return (String) valor;
 		} else {
 			return valor;

@@ -3,7 +3,11 @@
  */
 package es.caib.helium.service.helper;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,15 +28,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dades.DadesValor;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
+import es.caib.helium.commons.dto.TerminiDto;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.Entorn;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.ExpedientDades;
 import es.caib.helium.persistence.entity.ExpedientTipus;
+import es.caib.helium.persistence.entity.Termini;
 import es.caib.helium.persistence.repository.CampRepository;
 import es.caib.helium.persistence.repository.DefinicioProcesRepository;
 import es.caib.helium.persistence.repository.ExpedientDadesRepository;
@@ -104,8 +110,8 @@ public class ExpedientDadaHelper {
 		}
 		if (camp != null && camp.isDominiCacheText()) {
 			if (varValue != null) {
-				if (camp.getTipus().equals(TipusCamp.SELECCIO) ||
-					camp.getTipus().equals(TipusCamp.SUGGEST)) {
+				if (camp.getTipus().equals(CampTipusEnum.SELECCIO) ||
+					camp.getTipus().equals(CampTipusEnum.SUGGEST)) {
 					
 					String text;
 					try {
@@ -286,6 +292,7 @@ public class ExpedientDadaHelper {
 	@Transactional
 	public List<Map<String, Object>> queryConsultaPaginat(
 			Long entornId,
+			Long expedientTipusId,
 			Map<String, Object> filtre, 
 			List<TascaDadaDto> filtreCamps, 
 			List<TascaDadaDto> informeCamps, 
@@ -311,6 +318,8 @@ public class ExpedientDadaHelper {
 		query.append(" WHERE expedient.ID = d.EXPEDIENT_ID ");
 		query.append(" AND expedient.ENTORN_ID = ? ");
 		args.add(entornId);
+		query.append(" AND expedient.TIPUS_ID = ? ");
+		args.add(expedientTipusId);
 		
 		SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class);
 		AbstractEntityPersister persister = ((AbstractEntityPersister)sessionFactory.getClassMetadata(Expedient.class));
@@ -403,6 +412,65 @@ public class ExpedientDadaHelper {
 			query.append(" ) t ) ");
 		}
 		
-		return jdbcTemplate.queryForList(query.toString(), args.toArray());
+		List<Map<String, Object>> resposta = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> result = jdbcTemplate.queryForList(query.toString(), args.toArray());
+		
+		for(Map<String, Object> row : result) {
+			Map<String, Object> fila = new HashMap<String, Object>();
+			fila.put("id", ((BigDecimal)row.get("ID")).longValue());
+			for(int i = 0; i < informeCamps.size(); i++) {
+				TascaDadaDto td = informeCamps.get(i);
+				fila.put(
+						td.getVarCodi(), 
+						getComText(td.getCampTipus(), (String)row.get(td.getVarCodi()), null));
+			}
+			resposta.add(fila);
+		}
+		
+		return resposta;
+	}
+	
+	private String getComText(
+			CampTipusEnum tipus,
+			String valor,
+			String valorDomini) {
+		if (valor == null)
+			return null;
+		try {
+			String text = null;
+			if (tipus.equals(CampTipusEnum.INTEGER)) {
+				text = new DecimalFormat("#").format(Long.valueOf(valor));
+			} else if (tipus.equals(CampTipusEnum.FLOAT)) {
+				text = new DecimalFormat("#.##########").format(Double.valueOf(valor));
+			} else if (tipus.equals(CampTipusEnum.PRICE)) {
+				text = new DecimalFormat("#,##0.00").format(new BigDecimal(valor));
+			} else if (tipus.equals(CampTipusEnum.DATE)) {
+				// text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
+				text = valor;
+			} else if (tipus.equals(CampTipusEnum.BOOLEAN)) {
+				text = Boolean.valueOf(valor) ? "Si" : "No";
+			} else if (tipus.equals(CampTipusEnum.SELECCIO)) {
+				text = valorDomini;
+			} else if (tipus.equals(CampTipusEnum.SUGGEST)) {
+				text = valorDomini;
+			} else if (tipus.equals(CampTipusEnum.TERMINI)) {
+				//if (valor instanceof Termini) {
+					//text = ((Termini)valor).toString();
+				//} else {
+					String termtxt = (String)valor;
+					String[] parts = termtxt.split("/");
+					TerminiDto t = new TerminiDto();
+					t.setAnys((parts.length >= 0) ? new Integer(parts[0]).intValue() : 0);
+					t.setMesos((parts.length >= 1) ? new Integer(parts[1]).intValue() : 0);
+					t.setDies((parts.length >= 2) ? new Integer(parts[2]).intValue() : 0);
+					text = t.toString();
+				//}
+			} else {
+				text = valor.toString();
+			}
+			return text;
+		} catch (Exception ex) {
+			return valor.toString();
+		}
 	}
 }

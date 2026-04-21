@@ -32,7 +32,7 @@ import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.CampAgrupacioDto;
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.CampRegistreDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
@@ -462,7 +462,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 
 		// TipusCamp
 		List<ParellaCodiValorDto> tipusCamp = new ArrayList<ParellaCodiValorDto>();
-		for (CampTipusDto campTipus : CampTipusDto.values()) {
+		for (CampTipusEnum campTipus : CampTipusEnum.values()) {
 			tipusCamp.add(new ParellaCodiValorDto(campTipus.toString(), campTipus));
 		}
 		model.addAttribute("tipusCamp",tipusCamp);
@@ -904,7 +904,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		while (it.hasNext()) {
 			CampDto camp = it.next();
 			if ((registreId.equals(camp.getId())) // Treu el propi registre
-				|| CampTipusDto.REGISTRE.equals(camp.getTipus()) ) {// Treu les variables tipus registre
+				|| CampTipusEnum.REGISTRE.equals(camp.getTipus()) ) {// Treu les variables tipus registre
 				it.remove();
 			} else if (membreId == null || !membreId.equals(camp.getId())) {
 				// Treu els que ja pertanyen al registre a no ser que sigui el que conicideix amb memberId per als updates

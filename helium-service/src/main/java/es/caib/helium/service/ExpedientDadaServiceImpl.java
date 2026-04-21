@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.helium.commons.dto.CampAgrupacioDto;
 import es.caib.helium.commons.dto.CampInfoDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DadaListDto;
 import es.caib.helium.commons.dto.DadaValorDto;
 import es.caib.helium.commons.dto.ExpedientDadaDto;
@@ -430,7 +430,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					dades.add(DadaListDto.builder()
 							.campId(camp.getId())
 							.campCodi(camp.getCodi())
-							.tipus(CampTipusDto.valueOf(camp.getTipus().name()))
+							.tipus(CampTipusEnum.valueOf(camp.getTipus().name()))
 							.nom(camp.getEtiqueta())
 							.processInstanceId(processInstanceId)
 							.expedientId(expedientId)
@@ -461,7 +461,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					.nom(dadaExp.getVarCodi())
 					.valor(DadaValorDto.builder().valorSimple(dadaExp.getText()).build())
 					.campCodi(dadaExp.getVarCodi())
-					.tipus(CampTipusDto.STRING)
+					.tipus(CampTipusEnum.STRING)
 					.agrupacioOrdre(Integer.MAX_VALUE)
 					.agrupacioNom("Dades adjuntes")
 					.processInstanceId(processInstanceId)
@@ -504,7 +504,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				.valor(getDadaValor(camp, dadaExp))
 				.campId(camp.getId())
 				.campCodi(camp.getCodi())
-				.tipus(CampTipusDto.valueOf(camp.getTipus().name()))
+				.tipus(CampTipusEnum.valueOf(camp.getTipus().name()))
 				.registre(dadaExp.isCampTipusRegistre())
 				.multiple(camp.isMultiple())
 				.ocult(ocultFinal)
@@ -674,7 +674,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					.nom(dadaExp.getVarCodi())
 					.valor(DadaValorDto.builder().valorSimple(dadaExp.getText()).build())
 					.campCodi(dadaExp.getVarCodi())
-					.tipus(CampTipusDto.STRING)
+					.tipus(CampTipusEnum.STRING)
 					.agrupacioOrdre(Integer.MAX_VALUE)
 					.agrupacioNom("Dades adjuntes")
 					.processInstanceId(procesId)

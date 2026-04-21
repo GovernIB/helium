@@ -11,13 +11,12 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import es.caib.helium.commons.constants.ExpedientCamps;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DadaIndexadaDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Camp.TipusCamp;
 import es.caib.helium.persistence.entity.Consulta;
 import es.caib.helium.persistence.entity.ConsultaCamp;
 import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
@@ -106,19 +105,19 @@ public class ConsultaHelper {
 		TascaDadaDto tascaDadaDto = null;
 		if (TipusConsultaCamp.PARAM.equals(camp.getTipus())) {
 			if (TipusParamConsultaCamp.SENCER.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.INTEGER, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusEnum.INTEGER, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
 			} else if (TipusParamConsultaCamp.FLOTANT.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.FLOAT, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusEnum.FLOAT, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
 			} else if (TipusParamConsultaCamp.DATA.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.DATE, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusEnum.DATE, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
 			} else if (TipusParamConsultaCamp.BOOLEAN.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.BOOLEAN, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusEnum.BOOLEAN, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
 			} else {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.STRING, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusEnum.STRING, camp.getCampDescripcio() != null ? camp.getCampDescripcio() : camp.getCampCodi()));
 			}
 		} else {
 			String description = camp.getCampDescripcio() == null ? camp.getCampCodi() : camp.getCampDescripcio();
-			tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.STRING, description));
+			tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusEnum.STRING, description));
 		}
 		return tascaDadaDto;
 	}
@@ -174,43 +173,43 @@ public class ConsultaHelper {
 		Camp campExpedient = new Camp();
 		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.STRING);
+			campExpedient.setTipus(CampTipusEnum.STRING);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.id"));
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.STRING);
+			campExpedient.setTipus(CampTipusEnum.STRING);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.numero"));
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.STRING);
+			campExpedient.setTipus(CampTipusEnum.STRING);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.titol"));
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.STRING);
+			campExpedient.setTipus(CampTipusEnum.STRING);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.comentari"));
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.SUGGEST);
+			campExpedient.setTipus(CampTipusEnum.SUGGEST);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.iniciador"));
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.SUGGEST);
+			campExpedient.setTipus(CampTipusEnum.SUGGEST);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.responsable"));
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.DATE);
+			campExpedient.setTipus(CampTipusEnum.DATE);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.data_ini"));
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_FI.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.DATE);
+			campExpedient.setTipus(CampTipusEnum.DATE);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.data_fi"));
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_NIF.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.STRING);
+			campExpedient.setTipus(CampTipusEnum.STRING);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.nif"));			
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.SELECCIO);
+			campExpedient.setTipus(CampTipusEnum.SELECCIO);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.estat"));
 		} else {
 			campExpedient = null;
@@ -275,7 +274,7 @@ public class ConsultaHelper {
 			if (camp == null) {
 				camp = new Camp(
 						tascaDadaDto.getVarCodi(),
-						conversioTipusHelper.convertir(tascaDadaDto.getCampTipus(), TipusCamp.class),
+						conversioTipusHelper.convertir(tascaDadaDto.getCampTipus(), CampTipusEnum.class),
 						tascaDadaDto.getCampEtiqueta()  == null ? tascaDadaDto.getVarCodi() : tascaDadaDto.getCampEtiqueta());
 			}
 			listCamp.add(camp);

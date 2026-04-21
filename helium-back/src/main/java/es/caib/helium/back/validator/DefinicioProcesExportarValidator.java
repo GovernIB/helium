@@ -12,7 +12,7 @@ import es.caib.helium.back.command.DefinicioProcesExportarCommand;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.CampTascaDto;
-import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.DocumentTascaDto;
 import es.caib.helium.commons.dto.FirmaTascaDto;
@@ -66,7 +66,7 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 					.addConstraintViolation();
 					valid = false;
 				}					
-				if (camp.getTipus() == CampTipusDto.REGISTRE) {
+				if (camp.getTipus() == CampTipusEnum.REGISTRE) {
 					// Comprova que les variables de tipus registre exportades tinguin les seves variables exportables.
 					for (CampDto membre : campService.registreFindMembresAmbRegistreId(camp.getId()))
 						if (!command.getVariables().contains(membre.getCodi())) {
