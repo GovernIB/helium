@@ -50,17 +50,17 @@ import es.caib.helium.commons.dto.UnitatOrganitzativaFiltreDto;
 import es.caib.helium.logic.intf.service.DadesExternesService;
 import es.caib.helium.logic.intf.service.ParametreService;
 import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
-import es.caib.helium.service.helper.PluginHelper;
+import es.caib.helium.logic.helper.PluginHelper;
 
 /**
  * Controlador per al manteniment de avisos.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
 @RequestMapping("/unitatOrganitzativa")
 public class UnitatOrganitzativaController extends BaseController {
-	
+
 	@Autowired
 	private UnitatOrganitzativaService unitatOrganitzativaService;
 	@Autowired
@@ -69,38 +69,38 @@ public class UnitatOrganitzativaController extends BaseController {
 	private ParametreService parametreService;
 	@Autowired
 	private PluginHelper pluginHelper;
-	
+
 	private static final String SESSION_ATTRIBUTE_FILTRE = "UnitatOrganitzativaController.session.filtre";
-	
+
 	private static  List<PaisDto> paisos = null;
 	private static  List<ProvinciaDto> provincies = null;
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
 		UnitatOrganitzativaCommand filtreCommand = getFiltreCommand(request);
-		
+
 		ParametreDto param = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 		model.addAttribute("codiUnitatArrel", param != null ? param.getValor() : "-" );
 		param = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_DATA_SINCRONITZACIO_UO);
 		model.addAttribute("dataSincronitzacio", param != null ? param.getValor() : "-" );
 		param = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_DATA_ACTUALITZACIO_UO);
 		model.addAttribute("dataActualitzacio", param != null ? param.getValor() : "-");
-		
+
 		this.modelEstats(model);
 		model.addAttribute(filtreCommand);
 		return "unitatOrganitzativa";
 	}
-	
-	
+
+
 	/** Posa els valors de l'enumeració estats en el model */
 	private void modelEstats(Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 		for(UnitatOrganitzativaEstatEnumDto estat : UnitatOrganitzativaEstatEnumDto.values())
 			opcions.add(new ParellaCodiValorDto(
 					estat.name(),
-					MessageHelper.getInstance().getMessage("unitat.organitzativa.estat.enum." + estat.name())));		
+					MessageHelper.getInstance().getMessage("unitat.organitzativa.estat.enum." + estat.name())));
 
 		model.addAttribute("estats", opcions);
 	}
@@ -144,7 +144,7 @@ public class UnitatOrganitzativaController extends BaseController {
 			HttpServletRequest request,
 			@PathVariable String text,
 			Model model) {
-	
+
 		String decodedToUTF8 = null;
 		try {
 			decodedToUTF8 = new String(text.getBytes("ISO-8859-1"), "UTF-8");
@@ -158,7 +158,7 @@ public class UnitatOrganitzativaController extends BaseController {
 			return "{\"codi\":\"" + decodedToUTF8 + "\", \"nom\":\"" +decodedToUTF8  + " (No trobat en l'arbre intern d'unitats organitzatives)"+ "\"}";
 
 	}
-	
+
 	@RequestMapping(method = RequestMethod.POST)
 	public String post(
 			HttpServletRequest request,
@@ -172,7 +172,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		}
 		return "redirect:unitatOrganitzativa";
 	}
-	
+
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse datatable(
@@ -184,7 +184,7 @@ public class UnitatOrganitzativaController extends BaseController {
 				unitatOrganitzativaService.findAmbFiltrePaginat(
 						ConversioTipus.convertir(filtreCommand, UnitatOrganitzativaFiltreDto.class),
 						DatatablesHelper.getPaginacioDtoFromRequest(request)),
-				"id");		
+				"id");
 	}
 
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
@@ -206,7 +206,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		}
 		return "unitatOrganitzativaForm";
 	}
-	
+
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
 	public String newPost(
 			HttpServletRequest request,
@@ -226,7 +226,7 @@ public class UnitatOrganitzativaController extends BaseController {
 					"unitat.organitzativa.controller.creat");
         }
 	}
-	
+
 	@RequestMapping(value = "/{unitatOrganitzativaId}/update", method = RequestMethod.GET)
 	public String updateGet(
 			HttpServletRequest request,
@@ -240,7 +240,7 @@ public class UnitatOrganitzativaController extends BaseController {
 						UnitatOrganitzativaCommand.class));
 		return "unitatOrganitzativaForm";
 	}
-	
+
 	@RequestMapping(value = "/{unitatOrganitzativaId}/update", method = RequestMethod.POST)
 	public String updatePost(
 			HttpServletRequest request,
@@ -262,12 +262,12 @@ public class UnitatOrganitzativaController extends BaseController {
 					"unitat.organitzativa.controller.modificat");
         }
 	}
-	
+
 	@RequestMapping(value = "/synchronizeGet", method = RequestMethod.GET)
 	public String synchronizeGet(
 			HttpServletRequest request,
 			Model model) {
-	
+
 		try {
 			MultiHashMap splitMap = new MultiHashMap();
 			MultiHashMap mergeOrSubstMap = new MultiHashMap();
@@ -282,7 +282,7 @@ public class UnitatOrganitzativaController extends BaseController {
 			if(unitatDto==null) {
 				 unitatDto =pluginHelper.findUnidad(
 						 parametreArrel.getValor(),
-						new Timestamp(System.currentTimeMillis()), 
+						new Timestamp(System.currentTimeMillis()),
 						new Timestamp(System.currentTimeMillis()));
 				unitatOrganitzativaService.create(unitatDto);
 			}
@@ -291,11 +291,11 @@ public class UnitatOrganitzativaController extends BaseController {
 				unitatsVigentsFirstSincro = unitatOrganitzativaService.predictFirstSynchronization(unitatDto.getId());
 			} else {
 				try {
-					
+
 		            //Getting list of unitats that are now vigent in db but syncronization is marking them as obsolete
 					List<UnitatOrganitzativaDto> unitatsVigentObsoleteDto = unitatOrganitzativaService
 							.getObsoletesFromWS(unitatDto.getId());
-		
+
 					// differentiate between split and (subst or merge)
 					for (UnitatOrganitzativaDto vigentObsolete : unitatsVigentObsoleteDto) {
 						if (vigentObsolete.getLastHistoricosUnitats().size() > 1) {
@@ -321,8 +321,8 @@ public class UnitatOrganitzativaController extends BaseController {
 							}
 						}
 					}
-		
-		
+
+
 					// differantiate between substitution and merge
 					Set<UnitatOrganitzativaDto> keysMergeOrSubst = mergeOrSubstMap.keySet();
 					for (UnitatOrganitzativaDto mergeOrSubstKey : keysMergeOrSubst) {
@@ -336,36 +336,36 @@ public class UnitatOrganitzativaController extends BaseController {
 							substMap.put(mergeOrSubstKey, values.get(0));
 						}
 					}
-		
+
 					// Getting list of unitats that are now vigent in db and in syncronization are also vigent but with properties changed
 					unitatsVigents = unitatOrganitzativaService
 							.getVigentsFromWebService(unitatDto.getId());
-					
-					
+
+
 					// Getting list of unitats that are totally new (doesnt exist in database)
 					unitatsNew = unitatOrganitzativaService
 							.getNewFromWS(unitatDto.getId());
-						
+
 				} catch(Exception ex) {
 					String missatgeError = "unitat.controller.synchronize.error";
 					logger.warn(missatgeError);
 					MissatgesHelper.error(
 										request,
-										getMessage(request, missatgeError) + " : " + 
+										getMessage(request, missatgeError) + " : " +
 											(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
 										ex);
-					
-				}	
+
+				}
 			}
-		
+
 			model.addAttribute("isFirstSincronization", isFirstSincronization);
 			model.addAttribute("unitatsVigentsFirstSincro", unitatsVigentsFirstSincro);
-			
+
 			model.addAttribute("splitMap", splitMap);
 			model.addAttribute("mergeMap", mergeMap);
 			model.addAttribute("substMap", substMap);
 			model.addAttribute("unitatsVigents", unitatsVigents);
-			model.addAttribute("unitatsNew", unitatsNew);			
+			model.addAttribute("unitatsNew", unitatsNew);
 		} catch(Exception e) {
 			String errMsg = "Error construint la predicció de la sincronització: " + e.toString();
 			logger.error(errMsg, e);
@@ -373,7 +373,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		}
 		return "synchronizationPrediction";
 	}
-	
+
 	@RequestMapping(value = "/saveSynchronize", method = RequestMethod.POST)
 	public String synchronizePost(
 			HttpServletRequest request) {
@@ -391,8 +391,8 @@ public class UnitatOrganitzativaController extends BaseController {
 		}
 		return ret;
 	}
-	
-	
+
+
 	@RequestMapping(value = "/mostrarArbre", method = RequestMethod.GET)
 	public String mostrarArbre(
 			HttpServletRequest request,
@@ -400,7 +400,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		try {
 			ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 			UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
-			
+
 			if (unitatDto != null) {
 				model.addAttribute(
 						"arbreUnitatsOrganitzatives",
@@ -415,7 +415,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		}
 		return "unitatArbre";
 	}
-	
+
 
 
 	@RequestMapping(value = "/{unitatOrganitzativaId}/delete", method = RequestMethod.GET)
@@ -428,7 +428,7 @@ public class UnitatOrganitzativaController extends BaseController {
 				"redirect:../../unitatOrganitzativa",
 				"unitat.organitzativa.controller.esborrat.ok");
 	}
-	
+
 	@RequestMapping(value = "/{unitatOrganitzativaId}/info", method = RequestMethod.GET)
 	public String info(
 			HttpServletRequest request,
@@ -442,12 +442,12 @@ public class UnitatOrganitzativaController extends BaseController {
 			model.addAttribute("unitatOrganitzativaDto", unitatDto);
 			model.addAttribute("unitatArrel", unitatArrel);
 			model.addAttribute("unitatSuperior", unitatSuperior);
-			
-			
+
+
 			if(paisos==null || paisos.isEmpty()) {
 				paisos = dadesExternesService.findPaisos();
-			} 
-			
+			}
+
 			if(unitatDto.getNomPais()==null || unitatDto.getNomPais().isEmpty()){
 				for(PaisDto pais: paisos ) {
 					if(pais.getCodi().equals(unitatDto.getCodiPais())) {
@@ -456,11 +456,11 @@ public class UnitatOrganitzativaController extends BaseController {
 					}
 				}
 			}
-			
+
 			if(provincies==null || provincies.isEmpty()) {
 				provincies=dadesExternesService.findProvincies();
-			} 
-			
+			}
+
 			if(unitatDto.getNomProvincia()==null || unitatDto.getNomProvincia().isEmpty()){
 				for(ProvinciaDto provincia:provincies) {
 					if(provincia.getCodi().equals(unitatDto.getCodiProvincia())) {
@@ -469,7 +469,7 @@ public class UnitatOrganitzativaController extends BaseController {
 					}
 				}
 			}
-			
+
 		} catch(Exception e) {
 			String errMsg = "Error obtenint la informació de la unitat organitzativa: " +unitatOrganitzativaId +" " + e.toString();
 			logger.error(errMsg, e);
@@ -477,7 +477,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		}
 		return "unitatOrganitzativaInfo";
 	}
-	
+
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
@@ -486,9 +486,9 @@ public class UnitatOrganitzativaController extends BaseController {
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
-	
+
 	/** MÃ¨tode per obtenir o inicialitzar el filtre del formulari de cerca.
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -497,12 +497,12 @@ public class UnitatOrganitzativaController extends BaseController {
 		UnitatOrganitzativaCommand filtreCommand = (UnitatOrganitzativaCommand) SessionHelper.getAttribute(request, SESSION_ATTRIBUTE_FILTRE);
 		if (filtreCommand == null) {
 			filtreCommand = new UnitatOrganitzativaCommand();
-			filtreCommand.setEstat(UnitatOrganitzativaEstatEnumDto.VIGENTE);		
+			filtreCommand.setEstat(UnitatOrganitzativaEstatEnumDto.VIGENTE);
 			SessionHelper.setAttribute(request, SESSION_ATTRIBUTE_FILTRE, filtreCommand);
 		}
 		return filtreCommand;
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ExpedientTipusController.class);
 
 }

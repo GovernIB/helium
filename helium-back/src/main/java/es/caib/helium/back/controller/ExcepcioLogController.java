@@ -20,7 +20,7 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.commons.dto.ExcepcioLogDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.AplicacioService;
-import es.caib.helium.service.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 
 @Controller
 @RequestMapping("/excepcions")
@@ -43,19 +43,19 @@ public class ExcepcioLogController extends BaseController {
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse datatable(HttpServletRequest request) {
-		
+
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
-		List<ExcepcioLogDto> resultat = aplicacioService.excepcioFindAll();		
+		List<ExcepcioLogDto> resultat = aplicacioService.excepcioFindAll();
 		List<ExcepcioLogDto> llistaFiltrada = new ArrayList<ExcepcioLogDto>();
-		
+
 		boolean filtreAlpicat = false;
 		if (paginacioParams!=null) {
-			
+
 			//FILTRE
 			if (paginacioParams.getFiltre()!=null && !"".equals(paginacioParams.getFiltre())) {
 				filtreAlpicat = true;
 				for (ExcepcioLogDto aux: resultat) {
-					if ((aux.getPeticio()!=null && aux.getPeticio().contains(paginacioParams.getFiltre())) || 
+					if ((aux.getPeticio()!=null && aux.getPeticio().contains(paginacioParams.getFiltre())) ||
 						(aux.getParams()!=null && aux.getParams().contains(paginacioParams.getFiltre())) ||
 						(aux.getObjectClass()!=null && aux.getObjectClass().toString().contains(paginacioParams.getFiltre())) ||
 						(aux.getMessage()!=null && aux.getMessage().contains(paginacioParams.getFiltre())) ){
@@ -63,10 +63,10 @@ public class ExcepcioLogController extends BaseController {
 					}
 				}
 			}
-			
+
 			if (!filtreAlpicat) { llistaFiltrada = resultat; }
 		}
-		
+
 		if (filtreAlpicat) {
 			return DatatablesHelper.getDatatableResponse(request, null, llistaFiltrada);
 		} else {

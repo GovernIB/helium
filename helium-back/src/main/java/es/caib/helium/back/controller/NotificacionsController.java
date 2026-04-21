@@ -56,15 +56,15 @@ import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
 import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.NotificacioService;
-import es.caib.helium.service.helper.NotificacioHelper;
-import es.caib.helium.service.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 /**
  * Controlador per visualitzar la llista notificacions enviades a NOTIB.
  */
 @Controller
 @RequestMapping("/notificacionsNotib")
 public class NotificacionsController extends BaseExpedientController {
-	
+
 	@Autowired
 	private NotificacioHelper notificacioHelper;
 	@Autowired
@@ -73,54 +73,54 @@ public class NotificacionsController extends BaseExpedientController {
 	private ExpedientDocumentService expedientDocumentService;
 
 	private static final String SESSION_ATTRIBUTE_FILTRE = "NotificacionsController.session.filtre";
-	
+
 	/** Accés al llistat de notificacions des del menú Consultar a la capçalera. */
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(HttpServletRequest request, Model model) {
-		
+
 		NotificacioFiltreCommand filtreCommand = getFiltreCommand(request);
 		List<ExpedientTipusDto> expedientTipusDtoAccessibles = null;
-		
+
 		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();
 		if (expedientTipusActual != null) {
 			filtreCommand.setTipusId(expedientTipusActual.getId());
 		}
-		
+
 		//Si ets admin, no filtra per entorn actual.
 		//ELs tipus de expedient del filtre son tots els accessibles
 		if (UsuariActualHelper.isAdministrador(SecurityContextHolder.getContext().getAuthentication())) {
-			
+
 			expedientTipusDtoAccessibles = SessionHelper.getSessionManager(request).getExpedientTipusAccessibles();
-			
+
 		} else {
-		
+
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			if (entornActual != null) {
 				filtreCommand.setEntornId(entornActual.getId());
 				expedientTipusDtoAccessibles = expedientTipusService.findAmbEntornPermisConsultar(entornActual.getId());
 			}
-	
+
 			if (expedientTipusDtoAccessibles==null || expedientTipusDtoAccessibles.size()==0) {
 				MissatgesHelper.error(request, "No teniu permís d'administració sobre cap tipus d'expedient dins l'entorn actual.");
 				return "redirect:/";
 			}
 		}
-		
+
 		model.addAttribute(filtreCommand);
 		this.modelEstats(model);
 		this.modelTipusEnviament(model);
 		this.modelExpedientsTipus(expedientTipusDtoAccessibles, model);
 		return "notificacionsNotibLlistat";
 	}
-	
+
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse datatable(HttpServletRequest request) {
-		
+
 		NotificacioFiltreCommand filtreCommand = getFiltreCommand(request);
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		filtreCommand.setEntornId(entornActual.getId());
-		
+
 		Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
 		mapeigOrdenacions.put("interessatFullNomNif", new String[] {"titularNom", "titularLlinatge1", "titularLlinatge2"});
 		mapeigOrdenacions.put("destinatariNomILlinatges", new String[] {"destinatariNom", "destinatariLlinatge1", "destinatariLlinatge2"});
@@ -132,7 +132,7 @@ public class NotificacionsController extends BaseExpedientController {
 				paginacioParams);
 		return DatatablesHelper.getDatatableResponse(request, null, resultat);
 	}
-	
+
 	/** Mètode quan s'envia el formulari del filtre. Actualitza el filtre en sessió. */
 	@RequestMapping(method = RequestMethod.POST)
 	public String post(
@@ -147,7 +147,7 @@ public class NotificacionsController extends BaseExpedientController {
 		}
 		return "redirect:notificacionsNotib";
 	}
-	
+
 	@RequestMapping(value = "/{enviamentNotibId}/info", method = RequestMethod.GET)
 	public String info(
 			HttpServletRequest request,
@@ -158,7 +158,7 @@ public class NotificacionsController extends BaseExpedientController {
 		model.addAttribute("dto", dto);
 		return "notificacioNotibInfo";
 	}
-	
+
 	@RequestMapping(value = "/{enviamentNotibId}/consultarEstat", method = RequestMethod.GET)
 	public String consultarEstat(
 			HttpServletRequest request,
@@ -167,15 +167,15 @@ public class NotificacionsController extends BaseExpedientController {
 		DocumentNotificacioDto dto = notificacioService.findAmbId(enviamentNotibId);
 		//Si volem obtenir els documents dins zip hem de mirar les notificacions de l'expedient
 //		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(dto.getExpedient().getId());
-//		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedient.getId());	
+//		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedient.getId());
 		if (dto != null) {
 			try {
 				// Processa el canvi d'estat
 				expedientDocumentService.notificacioActualitzarEstat(
-						dto.getEnviamentIdentificador(), 
+						dto.getEnviamentIdentificador(),
 						dto.getEnviamentReferencia());
 				MissatgesHelper.success(request, getMessage(request, "expedient.notificacio.consultar.estat.success"));
-			} catch (Exception e) {				
+			} catch (Exception e) {
 				String errMsg = getMessage(request, "expedient.notificacio.consultar.estat.error", new Object[] {e.getMessage()});
 				logger.error(errMsg, e);
 				MissatgesHelper.error(request, errMsg, e);
@@ -185,7 +185,7 @@ public class NotificacionsController extends BaseExpedientController {
 		}
 		return "redirect:" + request.getHeader("referer");
 	}
-	
+
 	/** Posa els expedients tipus al model als quals l'usuari té permís per consultar a l'entorn
 	 * @param entornActual */
 	private void modelExpedientsTipus(List<ExpedientTipusDto> expedientTipusDtoAccessibles, Model model) {
@@ -194,12 +194,12 @@ public class NotificacionsController extends BaseExpedientController {
 				if (expedientTipus.isDistribucioActiu())
 					opcions.add(new ParellaCodiValorDto(
 							expedientTipus.getId().toString(),
-							String.format("%s - %s", expedientTipus.getCodi(), expedientTipus.getNom())));		
-		
+							String.format("%s - %s", expedientTipus.getCodi(), expedientTipus.getNom())));
+
 		model.addAttribute("expedientsTipus", opcions);
 	}
-	
-	
+
+
 	/** Mètode per obtenir o inicialitzar el filtre del formulari de cerca.
 	 * @param request
 	 * @return
@@ -213,31 +213,31 @@ public class NotificacionsController extends BaseExpedientController {
 		}
 		return filtreCommand;
 	}
-	
+
 	/** Posa els valors de l'enumeració estats en el model */
 	private void modelEstats(Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 		for(NotificacioEstatEnumDto estat : NotificacioEstatEnumDto.values())
 			opcions.add(new ParellaCodiValorDto(
 					estat.name(),
-					MessageHelper.getInstance().getMessage("notificacio.etst.enum." + estat.name())));		
+					MessageHelper.getInstance().getMessage("notificacio.etst.enum." + estat.name())));
 
 		model.addAttribute("estats", opcions);
 	}
-	
+
 	/** Posa els valors de l'enumeració dels tipus d'enviament en el model */
 	private void modelTipusEnviament(Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 		for(EnviamentTipusEnumDto tipus : EnviamentTipusEnumDto.values())
 			opcions.add(new ParellaCodiValorDto(
 					tipus.name(),
-					MessageHelper.getInstance().getMessage("notifica.enviament.tipus.enum." + tipus.name())));		
+					MessageHelper.getInstance().getMessage("notifica.enviament.tipus.enum." + tipus.name())));
 
 		model.addAttribute("tipusEnviaments", opcions);
 	}
-	
+
 	/** Mètode pel suggest d'expedients inicial
-	 * 
+	 *
 	 * @param text
 	 * @param model
 	 * @return
@@ -261,7 +261,7 @@ public class NotificacionsController extends BaseExpedientController {
 	}
 
 	/** Mètode per cercar un expedient per número o títol per a un control de tipus suggest
-	 * 
+	 *
 	 * @param text
 	 * 			Tetxt per filtrar.
 	 * @param model
@@ -292,7 +292,7 @@ public class NotificacionsController extends BaseExpedientController {
 		return resultat;
 
 	}
-	
+
 	private final int MAX_FILES = 1000;
 	@RequestMapping(value = "/descarregardades", method = RequestMethod.GET)
 	@ResponseBody
@@ -305,7 +305,7 @@ public class NotificacionsController extends BaseExpedientController {
 			NotificacioFiltreCommand filtreCommand = getFiltreCommand(request);
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			filtreCommand.setEntornId(entornActual.getId());
-			
+
 			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
 			paginacioParams.setPaginaNum(0);
 			paginacioParams.setPaginaTamany(MAX_FILES);
@@ -315,7 +315,7 @@ public class NotificacionsController extends BaseExpedientController {
 					paginacioParams);
 			if (resultat.getElementsTotal() > MAX_FILES) {
 				MissatgesHelper.warning(request, "S'han obtingut " + resultat.getTotal() + " resultats, només es descarregaran les " + MAX_FILES + " primeres files.");
-				
+
 			}
 			List<DocumentNotificacioDto> notificacions = resultat.getContingut();
 			exportXLS(response, notificacions);
@@ -331,7 +331,7 @@ public class NotificacionsController extends BaseExpedientController {
 			throw(e);
 		}
 	}
-	
+
 	private void exportXLS(HttpServletResponse response, List<DocumentNotificacioDto> notificacions) {
 
 		Workbook workbook = null;
@@ -348,7 +348,7 @@ public class NotificacionsController extends BaseExpedientController {
 
 			CellStyle headerStyle = workbook.createCellStyle();
 			headerStyle.setFont(headerFont);
-			
+
 			// Estil per a dates
 			CellStyle dateStyle = workbook.createCellStyle();
 			short dateFormat = workbook.createDataFormat().getFormat("dd/MM/yyyy HH:mm:ss");
@@ -366,56 +366,56 @@ public class NotificacionsController extends BaseExpedientController {
 			cell = headerRow.createCell(1);
 			cell.setCellValue("Numero Expedient");
 			cell.setCellStyle(headerStyle);
-			
+
 			cell = headerRow.createCell(2);
 			cell.setCellValue("Data Enviament");
 			cell.setCellStyle(headerStyle);
-			
+
 			cell = headerRow.createCell(3);
 			cell.setCellValue("Òrgan Emissor");
 			cell.setCellStyle(headerStyle);
-			
+
 			cell = headerRow.createCell(4);
 			cell.setCellValue("Interessat");
 			cell.setCellStyle(headerStyle);
-			
+
 			cell = headerRow.createCell(5);
 			cell.setCellValue("Tipus Enviament");
 			cell.setCellStyle(headerStyle);
-			
+
 			cell = headerRow.createCell(6);
 			cell.setCellValue("Concepte");
 			cell.setCellStyle(headerStyle);
-			
+
 			cell = headerRow.createCell(7);
 			cell.setCellValue("Nom Document");
 			cell.setCellStyle(headerStyle);
-			
+
 			cell = headerRow.createCell(8);
 			cell.setCellValue("Estat");
 			cell.setCellStyle(headerStyle);
-			
+
 			cell = headerRow.createCell(9);
 			cell.setCellValue("Estat Enviament");
 			cell.setCellStyle(headerStyle);
-			
+
 			cell = headerRow.createCell(10);
 			cell.setCellValue("Justificant");
 			cell.setCellStyle(headerStyle);
-			
-			
+
+
 
 			// Files de dades
 			for (DocumentNotificacioDto dto : notificacions) {
 				Row row = sheet.createRow(rowIndex++);
 				// Assegurem no passar null a setCellValue amb es helper valor
 				row.createCell(0).setCellValue(valor(dto.getExpedientTipusNom()));
-				
+
 			// Columna Expedient (codi dins de [] i en majúscules + identificador sense primer '[')
 				if (dto.getExpedient() != null) {
 					String codi = dto.getExpedientTipusCodi() != null ? dto.getExpedientTipusCodi().toUpperCase() : "";
 					String identificador = dto.getExpedient().getIdentificador();
-					
+
 					// Eliminar el primer '[' si existeix
 					if (identificador != null && identificador.startsWith("[")) {
 						identificador = identificador.substring(1);
@@ -429,7 +429,7 @@ public class NotificacionsController extends BaseExpedientController {
 				}
 
 
-				
+
 			// Cel·la de data
 				Cell dateCell = row.createCell(2);
 				Date dataEnv = dto.getEnviatData();
@@ -439,7 +439,7 @@ public class NotificacionsController extends BaseExpedientController {
 				} else {
 					dateCell.setCellValue(""); // por si ve null
 				}
-				
+
 				row.createCell(3).setCellValue(valor(dto.getOrganEmissorCodiAndNom()));
 				row.createCell(4).setCellValue(valor(dto.getInteressatFullNomNif()));
 
@@ -451,14 +451,14 @@ public class NotificacionsController extends BaseExpedientController {
 				}
 				row.createCell(6).setCellValue(valor(dto.getConcepte()));
 				row.createCell(7).setCellValue(valor(dto.getNomDocument()));
-				
+
 				NotificacioEstatEnumDto estat = dto.getEstat();
 				if (estat != null) {
 					row.createCell(8).setCellValue(estat.name());
 				} else {
 					row.createCell(8).setCellValue("");
 				}
-				
+
 				NotificacioEnviamentEstatEnumDto enviamentEstat = dto.getEnviamentDatatEstat();
 				if (enviamentEstat != null) {
 					row.createCell(9).setCellValue(enviamentEstat.name());
@@ -501,7 +501,7 @@ public class NotificacionsController extends BaseExpedientController {
 			if (out != null) {
 				try { out.close(); } catch (Exception ignore) {}
 			}
-			
+
 			// En POI 3.7 Workbook no te close(); alliberem la referència i deixem que el GC faci el seu treball
 			workbook = null;
 		}
@@ -517,8 +517,8 @@ public class NotificacionsController extends BaseExpedientController {
 		// if (o instanceof Date) return new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format((Date) o);
 		return o.toString();
 	}
-	
-	
+
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
@@ -526,6 +526,6 @@ public class NotificacionsController extends BaseExpedientController {
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(NotificacionsController.class);
 }

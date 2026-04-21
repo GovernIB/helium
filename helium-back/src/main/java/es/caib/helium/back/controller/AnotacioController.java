@@ -89,8 +89,8 @@ import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.service.helper.UsuariActualHelper;
-import es.caib.helium.service.utils.EntornActual;
+import es.caib.helium.logic.helper.UsuariActualHelper;
+import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Controlador per visualitzar la llista de peticions d'anotacions que han arribat a Helium
@@ -100,23 +100,23 @@ import es.caib.helium.service.utils.EntornActual;
 @Controller
 @RequestMapping("/anotacio")
 public class AnotacioController extends BaseExpedientController {
-	
+
 	@Autowired
 	private AnotacioService anotacioService;
-	
+
 	private @Autowired ExpedientIniciController expedientIniciController;
-	
+
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
 
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
-	
+
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
 
 	private static final String SESSION_ATTRIBUTE_FILTRE = "AnotacioController.session.filtre";
-	
+
 	/** Accés al llistat d'anotacions des de l'opció a la capçalera per ususaris amb permís de relacionar expedients. */
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
@@ -129,7 +129,7 @@ public class AnotacioController extends BaseExpedientController {
 				request,
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if ((expedientTipusDtoAccessiblesAnotacions == null || expedientTipusDtoAccessiblesAnotacions.isEmpty()) 
+		if ((expedientTipusDtoAccessiblesAnotacions == null || expedientTipusDtoAccessiblesAnotacions.isEmpty())
 				&& UsuariActualHelper.isAdministrador(auth)) {
 			MissatgesHelper.error(request, "No teniu permís de relacionar sobre cap tipus en aquest entorn per gestionar anotacions.");
 			return "redirect:/";
@@ -138,7 +138,7 @@ public class AnotacioController extends BaseExpedientController {
 		model.addAttribute("maxConsultaIntents", this.getMaxConsultaIntents());
 		return "anotacioLlistat";
 	}
-	
+
 	/** Mètode quan s'envia el formulari del filtre. Actualitza el filtre en sessió. */
 	@RequestMapping(method = RequestMethod.POST)
 	public String post(
@@ -153,13 +153,13 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		return "redirect:anotacio";
 	}
-	
+
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
 		List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
@@ -173,11 +173,11 @@ public class AnotacioController extends BaseExpedientController {
 							expedientTipusDtoAccessibles,
 							ConversioTipus.convertir(filtreCommand, AnotacioFiltreDto.class),
 							DatatablesHelper.getPaginacioDtoFromRequest(request)),
-					"id");		
-	}	
-	
+					"id");
+	}
+
 	/** Mètode per obtenir o inicialitzar el filtre del formulari de cerca.
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -191,8 +191,8 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		return filtreCommand;
 	}
-	
-	
+
+
 	@RequestMapping(value = "/seleccioTots", method = RequestMethod.GET)
 	@ResponseBody
 	public String seleccioTots(
@@ -200,7 +200,7 @@ public class AnotacioController extends BaseExpedientController {
 			@RequestParam(value = "ids[]", required = false) Long[] ids,
 			@RequestParam(value = "method", required = false) String method,
 			Model model) {
-		
+
 		List<Long> llistaIds = selectionTipus(request, "all", null, "all", model);
 		return String.valueOf(llistaIds.size());
 	}
@@ -215,7 +215,7 @@ public class AnotacioController extends BaseExpedientController {
 		List<Long> llistaIds = selectionTipus(request, "clear", null, "clear", model);
 		return String.valueOf(llistaIds.size());
 	}
-	
+
 	@RequestMapping(value = "/selection", method = RequestMethod.POST)
 	@ResponseBody
 	public List<Long> selection(
@@ -265,17 +265,17 @@ public class AnotacioController extends BaseExpedientController {
 					request,
 					SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 			seleccio.addAll(anotacioService.findIdsAmbFiltre(
-					entornActual.getId(), 
+					entornActual.getId(),
 					expedientTipusDtoAccessibles,
 					ConversioTipus.convertir(this.getFiltreCommand(request), AnotacioFiltreDto.class)));
 		}
 
 		sessionManager.setSeleccioAnotacio(seleccio);
 		return seleccio;
-	}	
-	
+	}
+
 	/** Mètode per veure el detall d'una anotació provinent de Distribució
-	 * 
+	 *
 	 * @param request
 	 * @param id
 	 * @param model
@@ -283,7 +283,7 @@ public class AnotacioController extends BaseExpedientController {
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public String detall(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long id,
 			@RequestParam(value = "annexId", required = false) Long annexId,
 			Model model) {
@@ -304,14 +304,14 @@ public class AnotacioController extends BaseExpedientController {
 						documents.get(d.getAnotacioAnnexId()).add(d);
 					}
 				}
-			}			
-		}		
+			}
+		}
 		model.addAttribute("documents", documents);
 		return "anotacioDetall";
 	}
-	
+
 	/** Mètode per obrir el formulari per acceptar la petició d'anotació i processar-la
-	 * 
+	 *
 	 * @param request
 	 * @param id
 	 * @param model
@@ -319,16 +319,16 @@ public class AnotacioController extends BaseExpedientController {
 	 */
 	@RequestMapping(value = "/{anotacioId}/acceptar", method = RequestMethod.GET)
 	public String acceptar(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long anotacioId,
 			Model model) {
-		
+
 		AnotacioDto anotacio = anotacioService.findAmbId(anotacioId);
-		Long expedientTipusId = anotacio.getExpedientTipus() != null ? 
-											anotacio.getExpedientTipus().getId() 
+		Long expedientTipusId = anotacio.getExpedientTipus() != null ?
+											anotacio.getExpedientTipus().getId()
 											: null;
-		Long expedientId = expedientTipusId != null && anotacio.getExpedient() != null ? 
-											anotacio.getExpedient().getId() 
+		Long expedientId = expedientTipusId != null && anotacio.getExpedient() != null ?
+											anotacio.getExpedient().getId()
 											: null;
 		AnotacioAcceptarCommand anotacioAcceptarCommand = new AnotacioAcceptarCommand();
 		anotacioAcceptarCommand.setEntornId(EntornActual.getEntornId());
@@ -349,18 +349,18 @@ public class AnotacioController extends BaseExpedientController {
 		anotacioAcceptarCommand.setAssociarInteressats(true);
 		model.addAttribute("anotacio", anotacio);
 		model.addAttribute("anotacioAcceptarCommand", anotacioAcceptarCommand);
-		
+
 		this.modelAccions(model);
 		List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 		this.modelExpedientsTipus(expedientTipusDtoAccessiblesAnotacions, model);
-		
+
 		return "anotacioAcceptar";
 	}
-	
+
 	/** Mètode per tractar la petició post d'acceptar una petició d'anotació de registre de Distribucio.
-	 * 
+	 *
 	 * @param request
 	 * @param id
 	 * @param model
@@ -368,8 +368,8 @@ public class AnotacioController extends BaseExpedientController {
 	 */
 	@RequestMapping(value = "/{anotacioId}/acceptar", method = RequestMethod.POST)
 	public String acceptarPost(
-			HttpServletRequest request, 
-			HttpServletResponse response, 
+			HttpServletRequest request,
+			HttpServletResponse response,
 			@PathVariable Long anotacioId,
 			@Validated(CrearIncorporar.class) AnotacioAcceptarCommand command,
 			BindingResult bindingResult,
@@ -377,21 +377,21 @@ public class AnotacioController extends BaseExpedientController {
 
 		AnotacioDto anotacio = anotacioService.findAmbId(anotacioId);
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("anotacio", anotacio);			
+			model.addAttribute("anotacio", anotacio);
 			this.modelAccions(model);
 			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
 					request,
 					SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 			this.modelExpedientsTipus(expedientTipusDtoAccessiblesAnotacions, model);
-			
+
 			return "anotacioAcceptar";
 		}
 		String ret = null;
 		try {
 			ExpedientTipusDto expedientTipusDto = null;
-			
+
 			if(command.getExpedientTipusId()!=null)
-				expedientTipusDto = expedientTipusService.findAmbId((command.getExpedientTipusId())); 
+				expedientTipusDto = expedientTipusService.findAmbId((command.getExpedientTipusId()));
 			if(expedientTipusDto!=null && expedientTipusDto.isProcedimentComu()) {
 				command.setUnitatOrganitzativaCodi(anotacio.getDestiCodi());
 			}
@@ -403,14 +403,14 @@ public class AnotacioController extends BaseExpedientController {
 						command.getExpedientTipusId(),
 						command.getExpedientId());
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"anotacio.form.acceptar.guardar.success",
 								new Object[] {
 										command.getExpedientId(),
 										anotacio.getIdentificador()}));
-				ret = this.modalUrlTancar(false); 
+				ret = this.modalUrlTancar(false);
 				break;
 			case CREAR:
 				// Afegeix la informació de l'anotació a la sessió i redirigeix cap al formulari de creació
@@ -421,10 +421,10 @@ public class AnotacioController extends BaseExpedientController {
 				request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_ANY, command.getAny());
 
 				ret = expedientIniciController.iniciarPost(
-						request, 
-						command.getExpedientTipusId(), 
-						null, 
-						command.getId(), 
+						request,
+						command.getExpedientTipusId(),
+						null,
+						command.getId(),
 						model,
 						anotacio);
 				break;
@@ -437,11 +437,11 @@ public class AnotacioController extends BaseExpedientController {
 						command.isAssociarInteressats(),
 						true,
 						true);
-			
+
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"anotacio.form.acceptar.incorporar.success",
 								new Object[] {
 										anotacio.getIdentificador(),
@@ -449,28 +449,28 @@ public class AnotacioController extends BaseExpedientController {
 				// Comprova si hi ha cap annex amb error per advertir a l'usuari
 				if (anotacio.isErrorAnnexos())
 					MissatgesHelper.warning(
-							request, 
-							getMessage(	request, 
+							request,
+							getMessage(	request,
 										"anotacio.form.acceptar.incorporar.errorAnnexos",
 										new Object[] { anotacio.getIdentificador(), anotacio.getExpedient().getIdentificadorLimitat()}));
-				ret = this.modalUrlTancar(false); 
-				break;		
+				ret = this.modalUrlTancar(false);
+				break;
 			default:
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"anotacio.form.acceptar.noaccio",
 								new Object[] {
 										command.getExpedientId(),
 										anotacio.getIdentificador()}));
-				ret = this.modalUrlTancar(false); 
+				ret = this.modalUrlTancar(false);
 			}
 		} catch (Exception e) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"anotacio.form.acceptar.error",
 							new Object[] {command.getAccio(), e.getMessage()}),
         			e);
@@ -478,9 +478,9 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		return ret;
 	}
-	
+
 	/** Mètode pel suggest d'expedients inicial
-	 * 
+	 *
 	 * @param text
 	 * @param model
 	 * @return
@@ -504,7 +504,7 @@ public class AnotacioController extends BaseExpedientController {
 	}
 
 	/** Mètode per cercar un expedient per número o títol per a un control de tipus suggest
-	 * 
+	 *
 	 * @param text
 	 * 			Tetxt per filtrar.
 	 * @param model
@@ -535,9 +535,9 @@ public class AnotacioController extends BaseExpedientController {
 		return resultat;
 
 	}
-		
+
 	/** Mètode per obrir el formulari per rebutjar la petició d'anotació de registre de Distribució.
-	 * 
+	 *
 	 * @param request
 	 * @param id
 	 * @param model
@@ -545,23 +545,23 @@ public class AnotacioController extends BaseExpedientController {
 	 */
 	@RequestMapping(value = "/{anotacioId}/rebutjar", method = RequestMethod.GET)
 	public String rebutjar(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long anotacioId,
 			Model model) {
-		
+
 		AnotacioDto anotacio = anotacioService.findAmbId(anotacioId);
 		AnotacioRebutjarCommand anotacioRebutjarCommand = new AnotacioRebutjarCommand();
 		anotacioRebutjarCommand.setAnotacioId(anotacioId);
 
 		model.addAttribute("anotacio", anotacio);
 		model.addAttribute("anotacioRebutjarCommand", anotacioRebutjarCommand);
-				
+
 		return "anotacioRebutjar";
 	}
-	
+
 	/** Mètode per tractar la petició de rebuig d'una petició d'anotació de registre.
 
-	 * 
+	 *
 	 * @param request
 	 * @param id
 	 * @param model
@@ -569,44 +569,44 @@ public class AnotacioController extends BaseExpedientController {
 	 */
 	@RequestMapping(value = "/{anotacioId}/rebutjar", method = RequestMethod.POST)
 	public String rebutjarPost(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long anotacioId,
 			@Valid AnotacioRebutjarCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		
+
 		AnotacioDto anotacio = anotacioService.findAmbId(anotacioId);
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("anotacio", anotacio);			
+			model.addAttribute("anotacio", anotacio);
 			return "anotacioRebutjar";
-		}		
+		}
 		String ret;
 		try {
 			anotacioService.rebutjar(
-					anotacioId, 
+					anotacioId,
 					command.getObservacions());
 			MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"anotacio.form.rebutjar.accio.rebutjar.success"));
 			ret = this.modalUrlTancar(false);
 		} catch(Exception e) {
 			model.addAttribute("anotacio", anotacio);
 			MissatgesHelper.error(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"anotacio.form.rebutjar.accio.rebutjar.error",
 							new Object[] {e.getMessage()}),
         			e);
 			ret = "anotacioRebutjar";
 		}
-		return ret; 
+		return ret;
 	}
-	
+
 	/** Mètode per esborrar una petició d'anotació pendent. Comprova que estigui pendent.
-	 * 
+	 *
 	 * @param request
 	 * @param id
 	 * @param model
@@ -637,9 +637,9 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		return "redirect:/anotacio";
 	}
-	
+
 	/** Mètode per tornar a reprocessar anotacions en estat d'error de processament.
-	 * 
+	 *
 	 * @param request
 	 * @param id
 	 * @param model
@@ -680,9 +680,9 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		return "redirect:/anotacio";
 	}
-	
+
 	/** Mètode per marcar com a pendent una anotació en estat de processament error.
-	 * 
+	 *
 	 * @param request
 	 * @param id
 	 * @param model
@@ -714,7 +714,7 @@ public class AnotacioController extends BaseExpedientController {
 	}
 
 	/** Mètode per fixar el número d'intents a 0 i que es torni a consultar a Distribucio.
-	 * 
+	 *
 	 * @param request
 	 * @param id
 	 * @param model
@@ -744,7 +744,7 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		return "redirect:/anotacio";
 	}
-	
+
 	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/descarregar/original", method = RequestMethod.GET)
 	public String descarregarAnnexOriginal(
 			HttpServletRequest request,
@@ -763,7 +763,7 @@ public class AnotacioController extends BaseExpedientController {
 			}
 			success = true;
 		} catch (SistemaExternException e) {
-			error = e.getPublicMessage();	
+			error = e.getPublicMessage();
 			ex = e;
 		} catch (Exception e) {
 			error = e.getMessage();
@@ -773,18 +773,18 @@ public class AnotacioController extends BaseExpedientController {
 			return "arxiuView";
 		else {
 			String errMsg = getMessage(
-					request, 
+					request,
 					"anotacio.annex.descarregar.error",
 					new Object[] {error});
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(
-					request, 
+					request,
 					errMsg,
 					ex);
 			return "redirect:" + request.getHeader("referer");
 		}
 	}
-	
+
 	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/descarregar/imprimible", method = RequestMethod.GET)
 	public String descarregarAnnexImprimible(
 			HttpServletRequest request,
@@ -803,7 +803,7 @@ public class AnotacioController extends BaseExpedientController {
 			}
 			success = true;
 		} catch (SistemaExternException e) {
-			error = e.getPublicMessage();	
+			error = e.getPublicMessage();
 			ex = e;
 		} catch (Exception e) {
 			error = e.getMessage();
@@ -813,18 +813,18 @@ public class AnotacioController extends BaseExpedientController {
 			return "arxiuView";
 		else {
 			String errMsg = getMessage(
-					request, 
+					request,
 					"anotacio.annex.descarregar.error",
 					new Object[] {error});
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(
-					request, 
+					request,
 					errMsg,
 					ex);
 			return "redirect:" + request.getHeader("referer");
 		}
 	}
-	
+
 	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/returnFitxer", method = RequestMethod.GET)
 	@ResponseBody
 	public JsonResponse annexPrevisualitzacio(
@@ -835,16 +835,16 @@ public class AnotacioController extends BaseExpedientController {
 
 	    try {
 	        ArxiuDto arxiu = anotacioService.getAnnexContingutVersioImprimible(annexId);
-	        
+
 	        if (arxiu == null) {
 	            return new JsonResponse(true, "No s'ha trobat el contingut de l'annex");
 	        }
-	        
+
 	        return new JsonResponse(arxiu);
 
 	    } catch (SistemaExternException e) {
 	        logger.error("Error obteniendo y convirtiendo anexos", e);
-	        
+
 	        return new JsonResponse(true, e.getMessage());
 	    } catch (Exception e) {
 	        logger.error("Error inesperado obteniendo anexos", e);
@@ -852,7 +852,7 @@ public class AnotacioController extends BaseExpedientController {
 	    }
 	}
 
-	
+
 	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/firmaInfo", method = RequestMethod.GET)
 	public String firmaInfo(
 			HttpServletRequest request,
@@ -861,8 +861,8 @@ public class AnotacioController extends BaseExpedientController {
 			@PathVariable Long annexId,
 			Model model) throws IOException {
 		try {
-			List<ArxiuFirmaDto> firmes = anotacioService.getAnnexFirmes(annexId); 
-			
+			List<ArxiuFirmaDto> firmes = anotacioService.getAnnexFirmes(annexId);
+
 			model.addAttribute("annexId",annexId);
 			model.addAttribute("firmes", firmes);
 		} catch (Exception e) {
@@ -871,7 +871,7 @@ public class AnotacioController extends BaseExpedientController {
 		return "anotacioAnnexFirmes";
 	}
 
-	/** Mètode per reintentar el processament de l'annex per guardar-lo a Helium dins l'arxiu o la BBDD 
+	/** Mètode per reintentar el processament de l'annex per guardar-lo a Helium dins l'arxiu o la BBDD
 	 * des de la taula d'annexos de l'expedient. */
 	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/reintentar", method = RequestMethod.GET)
 	public String reintentarAnnex(
@@ -881,48 +881,48 @@ public class AnotacioController extends BaseExpedientController {
 		try {
 			this.anotacioService.reintentarAnnex(anotacioId, annexId);
 			MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(request, "anotacio.annex.reintentar.success"));
 		} catch (Exception e) {
 			String errMsg = getMessage(request, "anotacio.annex.reintentar.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(
-					request, 
+					request,
 					errMsg,
 					e);
 		}
 		return "redirect:/modal/anotacio/" + anotacioId;
-	}	
-	
+	}
+
 
 	/** Posa els valors de l'enumeració estats en el model */
 	private void modelEstats(Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 		//Ordre del llistat del select: Comunicada, rebutjada, pendent, pendent de processar automàticament, error processant
-		opcions.add(0, 
+		opcions.add(0,
 				new ParellaCodiValorDto(
 						AnotacioEstatEnumDto.COMUNICADA.toString(),
-						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.COMUNICADA)));	
+						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.COMUNICADA)));
 		opcions.add(1,
 				new ParellaCodiValorDto(
 						AnotacioEstatEnumDto.REBUTJADA.toString(),
-						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.REBUTJADA)));	
-		opcions.add(2, 
+						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.REBUTJADA)));
+		opcions.add(2,
 				new ParellaCodiValorDto(
 						AnotacioEstatEnumDto.PENDENT.toString(),
 						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.PENDENT)));
-		opcions.add(3, 
+		opcions.add(3,
 				new ParellaCodiValorDto(
 						AnotacioEstatEnumDto.PENDENT_AUTO.toString(),
-						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.PENDENT_AUTO)));	
-		opcions.add(4, 
+						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.PENDENT_AUTO)));
+		opcions.add(4,
 				new ParellaCodiValorDto(
 						AnotacioEstatEnumDto.ERROR_PROCESSANT.toString(),
 						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.ERROR_PROCESSANT)));
-		opcions.add(5, 
+		opcions.add(5,
 				new ParellaCodiValorDto(
 						AnotacioEstatEnumDto.PROCESSADA.toString(),
-						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.PROCESSADA)));	
+						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.PROCESSADA)));
 		model.addAttribute("estats", opcions);
 	}
 
@@ -934,7 +934,7 @@ public class AnotacioController extends BaseExpedientController {
 						AnotacioAccioEnumDto.class,
 						"enum.anotacio.accio."));
 		model.addAttribute(
-				"anysSeleccionables", 
+				"anysSeleccionables",
 				BaseExpedientIniciController.getAnysSeleccionables());
 	}
 
@@ -946,12 +946,12 @@ public class AnotacioController extends BaseExpedientController {
 				if (expedientTipus.isDistribucioActiu())
 					opcions.add(new ParellaCodiValorDto(
 							expedientTipus.getId().toString(),
-							String.format("%s - %s", expedientTipus.getCodi(), expedientTipus.getNom())));		
-		
+							String.format("%s - %s", expedientTipus.getCodi(), expedientTipus.getNom())));
+
 		model.addAttribute("expedientsTipus", opcions);
 	}
-	
-	
+
+
 	private String getMaxConsultaIntents() {
 		String maxConsultaIntents = GlobalProperties.getInstance().getProperty("app.anotacions.pendents.comprovar.intents", "5");
 		if (maxConsultaIntents == null || "".equals(maxConsultaIntents.trim())) {
@@ -966,7 +966,7 @@ public class AnotacioController extends BaseExpedientController {
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
-	    
+
 		binder.registerCustomEditor(
 				Long.class,
 				new CustomNumberEditor(Long.class, true));
@@ -974,29 +974,29 @@ public class AnotacioController extends BaseExpedientController {
 		binder.registerCustomEditor(
 				Double.class,
 				new CustomNumberEditor(Double.class, true));
-		
+
 		binder.registerCustomEditor(
 				BigDecimal.class,
 				new CustomNumberEditor(
 						BigDecimal.class,
 						new DecimalFormat("#,##0.00"),
 						true));
-		
+
 		binder.registerCustomEditor(
 				Boolean.class,
 				new CustomBooleanEditor(true));
 	}
-	
+
 	@RequestMapping(value = "/excel", method = RequestMethod.GET)
 	public void excel(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			HttpSession session,
-			Model model) 
+			Model model)
 					throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
-		
+
 		List<AnotacioListDto> anotacions = this.anotacionsList(entornActual, filtreCommand, request);
 
 		generarExcel(
@@ -1004,19 +1004,19 @@ public class AnotacioController extends BaseExpedientController {
 				response,
 				anotacions);
 	}
-	
+
 	private List<AnotacioListDto> anotacionsList (EntornDto entornActual, AnotacioFiltreCommand filtreCommand, HttpServletRequest request){
 		List<AnotacioListDto> anotacions = new ArrayList<AnotacioListDto>();
 		int nPagina = 0;
 		int grandariaPagina = 100;
-		
+
 		PaginaDto<AnotacioListDto> paginaDto;
 		PaginacioParamsDto paginacio = new PaginacioParamsDto();
 		paginacio.setPaginaTamany(grandariaPagina);
 		paginacio.afegirOrdre(
 				"data",
 				OrdreDireccioDto.DESCENDENT);
-		
+
 		do {
 			paginacio.setPaginaNum(nPagina++);
 			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
@@ -1026,18 +1026,18 @@ public class AnotacioController extends BaseExpedientController {
 					entornActual.getId(),
 					expedientTipusDtoAccessiblesAnotacions,
 					ConversioTipus.convertir(filtreCommand, AnotacioFiltreDto.class),
-					paginacio);	
-			anotacions.addAll(paginaDto.getContingut());			
+					paginacio);
+			anotacions.addAll(paginaDto.getContingut());
 		} while(!paginaDto.isDarrera());
 		return anotacions;
 	}
-	
+
 	private void generarExcel(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			List<AnotacioListDto> anotacions) {
-	
-		
+
+
 		XSSFWorkbook wb;
 		XSSFCellStyle cellStyle;
 		XSSFCellStyle dStyle;
@@ -1047,31 +1047,31 @@ public class AnotacioController extends BaseExpedientController {
 		XSSFCellStyle dGreyStyle;
 		XSSFFont greyFont;
 		wb = new XSSFWorkbook();
-	
+
 		bold = wb.createFont();
 		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
 		bold.setColor(IndexedColors.WHITE.getIndex());
-		
+
 		greyFont = wb.createFont();
 		greyFont.setColor(IndexedColors.GREY_25_PERCENT.getIndex());
 		greyFont.setCharSet(XSSFFont.ANSI_CHARSET);
-		
+
 		cellStyle = wb.createCellStyle();
 		cellStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
 		cellStyle.setWrapText(true);
-		
+
 		cellGreyStyle = wb.createCellStyle();
 		cellGreyStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
 		cellGreyStyle.setWrapText(true);
 		cellGreyStyle.setFont(greyFont);
-		
+
 		greyStyle = wb.createCellStyle();
 		greyStyle.setFont(greyFont);
-	
+
 		DataFormat format = wb.createDataFormat();
 		dStyle = wb.createCellStyle();
 		dStyle.setDataFormat(format.getFormat("0.00"));
-	
+
 		dGreyStyle = wb.createCellStyle();
 		dGreyStyle.setFont(greyFont);
 		dGreyStyle.setDataFormat(format.getFormat("0.00"));
@@ -1087,48 +1087,48 @@ public class AnotacioController extends BaseExpedientController {
 		for (AnotacioListDto  anotacioDto : anotacions) {
 			try {
 				XSSFRow xlsRow = sheet.createRow(rowNum++);
-				colNum = 0;	
+				colNum = 0;
 				XSSFCell cell = xlsRow.createCell(colNum);
 
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(anotacioDto.getData());
 				cell.setCellStyle(cellStyle);//format de data
-						
+
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(anotacioDto.getIdentificador());//Número de registre
 				cell.setCellStyle(dStyle);
-						
+
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(anotacioDto.getExtracte());
 				cell.setCellStyle(dStyle);
-						
+
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(anotacioDto.getProcedimentCodi());
 				cell.setCellStyle(dStyle);
-						
+
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(anotacioDto.getExpedientNumero());
 				cell.setCellStyle(dStyle);
-						
+
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(anotacioDto.getDataRecepcio());
 				cell.setCellStyle(cellStyle);//format de data
-						
+
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(anotacioDto.getExpedientTipus() != null ? anotacioDto.getExpedientTipus().getCodi() : "");
 				cell.setCellStyle(dStyle);
-					
+
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(anotacioDto.getExpedient() != null ? anotacioDto.getExpedient().getNumeroIdentificador() : "");
 				cell.setCellStyle(dStyle);
-								
+
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(anotacioDto.getEstat().name());
 				cell.setCellStyle(dStyle);
 			} catch (Exception e) {
 				logger.error("Export Excel: No s'ha pogut crear la línia: " + rowNum + " - amb ID: " + anotacioDto.getExpedient().getId(), e);
 			}
-	
+
 		}
 		for(int i=0; i<colNum; i++)
 			sheet.autoSizeColumn(i);
@@ -1146,7 +1146,7 @@ public class AnotacioController extends BaseExpedientController {
 		}
 	}
 
-	
+
 	private void createHeader(
 			XSSFWorkbook wb,
 			XSSFSheet sheet,
@@ -1171,61 +1171,61 @@ public class AnotacioController extends BaseExpedientController {
 		sheet.autoSizeColumn(colNum);
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
-						request, 
+						request,
 						"anotacio.llistat.columna.data"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
-					request, 
+					request,
 					"anotacio.llistat.columna.identificador"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
-					request, 
+					request,
 					"anotacio.llistat.columna.extracte"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
-					request, 
+					request,
 					"anotacio.llistat.columna.procedimentCodi"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
-					request, 
+					request,
 					"anotacio.llistat.columna.expedientNumero"))));
 		cell.setCellStyle(headerStyle);
-			
+
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
-					request, 
+					request,
 					"anotacio.llistat.columna.dataRecepcio"))));
 		cell.setCellStyle(headerStyle);
-			
+
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
-					request, 
+					request,
 					"anotacio.llistat.columna.expedientTipus"))));
 		cell.setCellStyle(headerStyle);
-			
+
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
-					request, 
+					request,
 					"anotacio.llistat.columna.expedient"))));
 		cell.setCellStyle(headerStyle);
-			
+
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
-					request, 
+					request,
 					"anotacio.llistat.columna.estat"))));
 		cell.setCellStyle(headerStyle);
 	}
-	
-	
-	
+
+
+
 	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per Reintentar consulta  de les
 	 * anotacions seleccionades a le taula d'anotacions  (les que estan en consulta error es tornarien a consultar i potser processar)
 	 */
@@ -1257,13 +1257,13 @@ public class AnotacioController extends BaseExpedientController {
 								request,
 								"anotacio.llistat.accio.massiva.info.reintentar.consulta.error",
 								new Object[] {e.getMessage()}));
-			}					
+			}
 			// Neteja la selecció
 			sessionManager.getSeleccioAnotacio().clear();
 		}
 		return "redirect:/anotacio";
 	}
-	
+
 	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per esborrar  les
 	 * anotacions seleccionades a le taula d'anotacions
 	 */
@@ -1296,14 +1296,14 @@ public class AnotacioController extends BaseExpedientController {
 								"anotacio.llistat.accio.massiva.info.esborrar.anotacions.error",
 								new Object[] {e.getMessage()}),
 						e);
-			}					
+			}
 			// Neteja la selecció
 			sessionManager.getSeleccioAnotacio().clear();
 		}
 		return "redirect:/anotacio";
 	}
-	
-	
+
+
 	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reintentar el processament de les
 	 * anotacions seleccionades a le taula d'anotacions (les que tenen error de processament es tornarien a intentar processar i les anotacions
 	 *	pendents d'accio manual es miraria si es pot processar amb algun tipus d'expedient)
@@ -1337,13 +1337,13 @@ public class AnotacioController extends BaseExpedientController {
 								"anotacio.llistat.accio.massiva.info.reintentar.processament.error",
 								new Object[] {e.getMessage()}),
 						e);
-			}					
+			}
 			// Neteja la selecció
 			sessionManager.getSeleccioAnotacio().clear();
 		}
 		return "redirect:/anotacio";
 	}
-	
+
 	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reprocessar el mapeig de les
 	 * anotacions seleccionades a le taula d'anotacions (les que tenen un expedient associat es tornaria a aplicar el mapeig)
 	 */
@@ -1356,28 +1356,28 @@ public class AnotacioController extends BaseExpedientController {
 		model.addAttribute(reprocessarMapeigAnotacioDto);
 		return "reprocessarMapeigForm";
 	}
-	
+
 	@RequestMapping(value = "/reprocessarMapeig", method = RequestMethod.POST)
 	public String reprocessarMapeigPost(
 			HttpServletRequest request,
 			@ModelAttribute("reprocessarMapeigAnotacioDto") ReprocessarMapeigAnotacioDto reprocessarMapeigAnotacioDto,
 			Model model) {
-		
+
 		// Programa la execució massiva
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		ExecucioMassivaDto dto = new ExecucioMassivaDto();
 		dto.setTipus(ExecucioMassivaTipusDto.REINTENTAR_MAPEIG_ANOTACIONS);
 		dto.setEnviarCorreu(false);
-		
+
 		//Aprofitam el param1 de l'objecte de exec. massiva per guardar la configuració seleccionada.
-		//Per defecte 111 es que s'executen les 4 accions. 100 (nomes variables),  011 (documents i adjunts, pero no variables), etc. 
+		//Per defecte 111 es que s'executen les 4 accions. 100 (nomes variables),  011 (documents i adjunts, pero no variables), etc.
 		StringBuilder sb = new StringBuilder("1111");
 		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigVariables())	{ sb.setCharAt(0, '0'); } //Variables
 		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigDocuments())	{ sb.setCharAt(1, '0'); } //Documents
 		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigAdjunts())		{ sb.setCharAt(2, '0'); } //Adjunts
 		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigInteressats())		{ sb.setCharAt(3, '0'); } //Interessats
 		dto.setParam1(sb.toString());
-		
+
 		List<Long> ids =  sessionManager.getSeleccioAnotacio();
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.anotacio.selec"));
@@ -1387,7 +1387,7 @@ public class AnotacioController extends BaseExpedientController {
 				model.addAttribute(reprocessarMapeigAnotacioDto);
 				return "reprocessarMapeigForm"; //Tornam al formulari, no tancam la modal
 			} else {
-			
+
 				dto.setAuxIds(ids);
 				try {
 					execucioMassivaService.crearExecucioMassiva(dto);
@@ -1404,17 +1404,17 @@ public class AnotacioController extends BaseExpedientController {
 									"anotacio.llistat.accio.massiva.info.reintentar.mapeig.error",
 									new Object[] {e.getMessage()}),
 							e);
-				}					
+				}
 				// Neteja la selecció
 				sessionManager.getSeleccioAnotacio().clear();
 			}
 		}
-		
+
 		return modalUrlTancar(false);
 	}
-	
+
 	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reintentar el processament dels annexos de les
-	 *  anotacions, és a dir moure els diferents annexos que encara estiguin a l'expedient d'Arxiu de Distribucio cap a la carpeta de l'anotació dins d'expedient 
+	 *  anotacions, és a dir moure els diferents annexos que encara estiguin a l'expedient d'Arxiu de Distribucio cap a la carpeta de l'anotació dins d'expedient
 	 *  d'Arxiu d'Helium
 	 */
 	@RequestMapping(value = "/reintentarProcessamentNomesAnnexos", method = RequestMethod.GET)
@@ -1446,7 +1446,7 @@ public class AnotacioController extends BaseExpedientController {
 								"anotacio.llistat.accio.massiva.info.reintentar.processament.nomes.annexos.error",
 								new Object[] {e.getMessage()}),
 						e);
-			}					
+			}
 			sessionManager.getSeleccioAnotacio().clear();
 		}
 		return "redirect:/anotacio";
@@ -1459,7 +1459,7 @@ public class AnotacioController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long id,
 			Model model) {
-		
+
 		// Envia els correus
 		try {
 			List<String>[] destinataris = anotacioService.emailAnotacio(id);

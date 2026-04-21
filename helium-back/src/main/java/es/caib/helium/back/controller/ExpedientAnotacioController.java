@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -34,11 +34,11 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.ReprocessarMapeigAnotacioDto;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.service.helper.AnotacioHelper;
+import es.caib.helium.logic.helper.AnotacioHelper;
 
 /**
  * Controlador per a la pestanya d'anotacions de registre en la gestió dels expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -57,7 +57,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		model.addAttribute("expedient",expedientService.findAmbId(expedientId));
-		model.addAttribute("expedientId", expedientId);	
+		model.addAttribute("expedientId", expedientId);
 		return "expedientAnotacioLlistat";
 	}
 
@@ -74,10 +74,10 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
-		
+
 		AnotacioFiltreDto filtreDto = new AnotacioFiltreDto();
 		filtreDto.setExpedientId(expedientId);
 		filtreDto.setEstat(AnotacioEstatEnumDto.PROCESSADA);
@@ -89,7 +89,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 				null,
 				anotacioService.findAmbFiltrePaginat(entornActual.getId(), expedientTipusDtoAccessibles, filtreDto, paginacioParams));
 	}
-	
+
 
 	/** Mètode per retornar les dades pel datatable d'anotacions dins de la gestió de l'expedient. Filtra
 	 * per expedientId i estat PROCESSADA.
@@ -105,9 +105,9 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			@PathVariable Long anotacioId,
 			@PathVariable boolean nomesAnnexos,
 			Model model) {
-		
+
 		SessionHelper.getSessionManager(request).getEntornActual();
-		
+
 		// cridar al servei d'anotacions per reprocessar mapeig
 		try {
 			AnotacioMapeigResultatDto resultatMapeig = new AnotacioMapeigResultatDto();
@@ -119,21 +119,21 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 					throw exception;
 				}
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
-								"expedient.anotacio.llistat.processar.traspas.ok"));      
+								request,
+								"expedient.anotacio.llistat.processar.traspas.ok"));
 			}
-				
+
 			// Si hi ha errors posa alertes, afegeix elements span i title per abreujar el missatge sense perdre informació.
 			if (resultatMapeig.isError()) {
 				this.missatgeErrorResultatMapeig(request, resultatMapeig);
 			} else {
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
-								"expedient.anotacio.llistat.processar.mapeig.ok"));        			
+								request,
+								"expedient.anotacio.llistat.processar.mapeig.ok"));
 			}
 		} catch(Exception e) {
 			String errMsg = null;
@@ -144,14 +144,14 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
 		}
- 
+
 		return "redirect:/expedient/" + expedientId;
 	}
-	
+
 	/** Mostra els missatges d'error dels mapejos en un missatge. */
 	private void missatgeErrorResultatMapeig(
-			HttpServletRequest request, 
-			AnotacioMapeigResultatDto resultatMapeig) 
+			HttpServletRequest request,
+			AnotacioMapeigResultatDto resultatMapeig)
 	{
 		StringBuilder errMsg = new StringBuilder();
 		errMsg.append(resultatMapeig.getMissatgeAlerta()).append("<ul>");
@@ -160,7 +160,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			for (String clau : resultatMapeig.getErrorsDades().keySet()) {
 				errMsg.append("<li>").append(clau).append(": ").append(resultatMapeig.getErrorsDades().get(clau)).append("</li>");
 			}
-			errMsg.append("<ul> </li>"); 
+			errMsg.append("<ul> </li>");
 		}
 		if (!resultatMapeig.getErrorsDocuments().isEmpty()) {
 			errMsg.append("<li>Documents : <ul>");
@@ -195,7 +195,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 		model.addAttribute(reprocessarMapeigAnotacioDto);
 		return "reprocessarMapeigForm";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/anotacio/{anotacioId}/{nomesAnnexos}/reprocessarMapeig", method = RequestMethod.POST)
 	public String reprocessarMapeigPost(
 			HttpServletRequest request,
@@ -204,9 +204,9 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			@PathVariable boolean nomesAnnexos,
 			@ModelAttribute("reprocessarMapeigAnotacioDto") ReprocessarMapeigAnotacioDto reprocessarMapeigAnotacioDto,
 			Model model) {
-		
+
 		try {
-			AnotacioMapeigResultatDto resultatMapeig = 
+			AnotacioMapeigResultatDto resultatMapeig =
 				anotacioHelper.reprocessarMapeigAnotacioExpedient(
 					expedientId,
 					anotacioId,
@@ -218,11 +218,11 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 				this.missatgeErrorResultatMapeig(request, resultatMapeig);
 			} else {
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"expedient.anotacio.llistat.processar.mapeig.ok"));
-				
+
 			}
 		}  catch(Exception e) {
 			String errMsg = getMessage(
@@ -231,10 +231,10 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 					new Object[] {e.getMessage()});
 			MissatgesHelper.error( request, errMsg, e);
 			logger.error(errMsg, e);
-		}		
+		}
 		return modalUrlTancar(false);
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ExpedientAnotacioController.class);
 
 }

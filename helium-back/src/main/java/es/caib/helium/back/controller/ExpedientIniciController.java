@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -47,11 +47,11 @@ import es.caib.helium.commons.dto.FormulariExternDto;
 import es.caib.helium.commons.exception.TramitacioHandlerException;
 import es.caib.helium.commons.exception.TramitacioValidacioException;
 import es.caib.helium.commons.exception.ValidacioException;
-import es.caib.helium.service.helper.AnotacioHelper;
+import es.caib.helium.logic.helper.AnotacioHelper;
 
 /**
  * Controlador per iniciar un expedient
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -62,7 +62,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 
 	@Autowired
 	private ExpedientInicioPasFormController expedientInicioPasFormController;
-	
+
 	@RequestMapping(value = "/iniciar", method = RequestMethod.GET)
 	public String iniciarGet(
 			HttpServletRequest request,
@@ -98,21 +98,21 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 	 * @param anotacioId
 	 * @param model
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/iniciar", method = RequestMethod.POST)
 	public String iniciarPost(
-			HttpServletRequest request, 
-			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId, 
-			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId, 
-			@RequestParam(value = "anotacioId", required = false) Long anotacioId, 
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
+			@RequestParam(value = "anotacioId", required = false) Long anotacioId,
 			Model model,
 			AnotacioDto anotacio) throws Exception {
-		
+
 		boolean hasStartTask = false;
 		request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID, "TIE_" + System.currentTimeMillis());
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-		
+
 		if(expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
 			DefinicioProcesDto definicioProces = null;
 			if (definicioProcesId != null) {
@@ -120,11 +120,11 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 			} else {
 				definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
 			}
-			
+
 			definicioProcesId = definicioProces.getId();
-			hasStartTask = definicioProces.isHasStartTask(); 
+			hasStartTask = definicioProces.isHasStartTask();
 		}
-		
+
 		// Si l'expedient requereix dades inicials redirigeix al pas per demanar aquestes dades
 		if (hasStartTask) {
 			//Si venim d'acceptar una anotació, mapejarem les dades d'aquesta, en cas q el tipus d'expedient tingui habilitat isDistribucioSistra
@@ -176,7 +176,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 			} catch (Exception ex) {
 				MissatgesHelper.error(
 	        			request,
-	        			getMessage(request, "error.iniciar.expedient") + ": " + 
+	        			getMessage(request, "error.iniciar.expedient") + ": " +
 	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
 	        			ex);
 				logger.error("No s'ha pogut iniciar l'expedient", ex);
@@ -193,7 +193,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 			@PathVariable Long definicioProcesId,
 			@PathVariable String tascaId,
 			Model model) {
-		
+
 		return tascaService.formulariExternObrirTascaInicial(
 				tascaId,
 				expedientTipusId,
@@ -208,7 +208,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 		tasca.setValidada(validat != null);
 		return tasca;
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(

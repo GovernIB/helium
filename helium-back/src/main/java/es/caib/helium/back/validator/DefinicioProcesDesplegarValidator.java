@@ -14,7 +14,7 @@ import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.service.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
 
 /**
  * Validador per a la comanda de desplegament d'un procés .bpmn de la definició de procés.
@@ -22,7 +22,7 @@ import es.caib.helium.service.helper.ExpedientTipusHelper;
 public class DefinicioProcesDesplegarValidator implements ConstraintValidator<DefinicioProcesDesplegar, DefinicioProcesDesplegarCommand>{
 
 	private String codiMissatge;
-	
+
 	@Autowired
 	ExpedientTipusService expedientTipusService;
 	@Autowired
@@ -31,7 +31,7 @@ public class DefinicioProcesDesplegarValidator implements ConstraintValidator<De
 	DissenyService dissenyService;
 	@Resource
 	ExpedientTipusHelper expedientTipusHelper;
-	
+
 	@Override
 	public void initialize(DefinicioProcesDesplegar anotacio) {
 		codiMissatge = anotacio.message();
@@ -40,7 +40,7 @@ public class DefinicioProcesDesplegarValidator implements ConstraintValidator<De
 	@Override
 	public boolean isValid(DefinicioProcesDesplegarCommand command, ConstraintValidatorContext context) {
 		boolean valid = true;
-		
+
 		try {
 			if (command.getFile().getBytes() == null || command.getFile().getBytes().length == 0) {
 				context.buildConstraintViolationWithTemplate(
@@ -48,7 +48,7 @@ public class DefinicioProcesDesplegarValidator implements ConstraintValidator<De
 				.addPropertyNode("file")
 				.addConstraintViolation();
 				valid = false;
-			} 
+			}
 			if(command.isActualitzarExpedientsActius()) {
 				if (command.getExpedientTipusId() != null) {
 					ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(command.getEntornId(), command.getExpedientTipusId());
@@ -70,7 +70,7 @@ public class DefinicioProcesDesplegarValidator implements ConstraintValidator<De
 		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();
-		
+
 		return valid;
 	}
 

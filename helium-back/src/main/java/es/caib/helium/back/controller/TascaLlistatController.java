@@ -52,12 +52,12 @@ import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.TascaService;
-import es.caib.helium.service.helper.EntornHelper;
-import es.caib.helium.service.utils.EntornActual;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Controlador per al llistat de tasques.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -97,7 +97,7 @@ public class TascaLlistatController extends BaseController {
 			} catch(Exception e) {
 				filtreCommand.setExpedientTipusId(null);
 			}
-		else 
+		else
 			filtreCommand.setNomesTasquesMeves(true);
 		return "tascaLlistat";
 	}
@@ -127,7 +127,7 @@ public class TascaLlistatController extends BaseController {
 	@ResponseStatus(value = HttpStatus.OK)
 	public String tramitarMassiva(
 			HttpServletRequest request,
-			@PathVariable String tascaId, 
+			@PathVariable String tascaId,
 			@Valid TascaConsultaCommand filtreCommand,
 			BindingResult bindingResult,
 			Model model) {
@@ -213,14 +213,14 @@ public class TascaLlistatController extends BaseController {
 		}
 		return result;
 	}
-	
+
 	@RequestMapping(value = "/expedientTipusAmbPermis/{entornId}/{expedientTipusId}", method = RequestMethod.GET)
 	@ResponseBody
 	public ExpedientTipusDto expedientTipusAmbPermis(
 			@PathVariable Long entornId,
 			@PathVariable Long expedientTipusId,
 			Model model) {
-		
+
 		return dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornId,expedientTipusId);
 	}
 
@@ -324,23 +324,23 @@ public class TascaLlistatController extends BaseController {
 	}
 
 	@RequestMapping(value = "/pendentsCompletar", method = RequestMethod.GET)
-	public String tasquesCompletar(HttpServletRequest request, 
-			Model model) {		
+	public String tasquesCompletar(HttpServletRequest request,
+			Model model) {
 		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
-		model.addAttribute("tasques", 
+		model.addAttribute("tasques",
 				(persona.isAdmin())? adminService.getTasquesCompletar() :
 				(entornHelper.esAdminEntorn(EntornActual.getEntornId()))? adminService.getTasquesCompletarAdminEntorn() : new ArrayList<TascaCompleteDto>());
 		return "pendentsCompletar";
 	}
-	
+
 	@ResponseBody
 	@RequestMapping(value = "/actualitzaEstatsSegonPla", method = RequestMethod.POST)
-    public Object actualitzaEstatsSegonPla(@RequestParam("tasquesSegonPlaIds[]") String[] tasquesSegonPlaIds){     
+    public Object actualitzaEstatsSegonPla(@RequestParam("tasquesSegonPlaIds[]") String[] tasquesSegonPlaIds){
 		@SuppressWarnings("unchecked")
 		Map<Long,Object>result = tascaService.obtenirEstatsPerIds((List<String>)Arrays.asList(tasquesSegonPlaIds));
         return result;
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
@@ -366,7 +366,7 @@ public class TascaLlistatController extends BaseController {
 			filtreCommand.setExpedientTipusId(expedientTipusActual.getId());
 		return filtreCommand;
 	}
-	
+
 	@RequestMapping(value = "/seleccioAgafar")
 	@ResponseBody
 	public Set<Long> seleccioAgafar(HttpServletRequest request) {
@@ -390,17 +390,17 @@ public class TascaLlistatController extends BaseController {
 			if (idsError.size() > 0)
 				for(ExpedientTascaDto tascaError : tascaService.findAmbIds(idsError))
 					MissatgesHelper.error(request, getMessage(
-														request, 
-														"tasca.llistat.agafar.seleccionats.error", 
+														request,
+														"tasca.llistat.agafar.seleccionats.error",
 														new Object[] {
 																tascaError.getTitol(),
 																tascaError.getExpedientIdentificador()} ));
 			// Neteja la selecció
 			sessionManager.getSeleccioConsultaTasca().clear();
-		}		
+		}
 		return idsAgafats;
 	}
-	
+
 	@RequestMapping(value = "/seleccioAlliberar")
 	@ResponseBody
 	public Set<Long> seleccioAlliberar(HttpServletRequest request) {
@@ -424,14 +424,14 @@ public class TascaLlistatController extends BaseController {
 			if (idsError.size() > 0)
 				for(ExpedientTascaDto tascaError : tascaService.findAmbIds(idsError))
 					MissatgesHelper.error(request, getMessage(
-														request, 
-														"tasca.llistat.alliberar.seleccionats.error", 
+														request,
+														"tasca.llistat.alliberar.seleccionats.error",
 														new Object[] {
 																tascaError.getTitol(),
 																tascaError.getExpedientIdentificador()} ));
 			// Neteja la selecció
 			sessionManager.getSeleccioConsultaTasca().clear();
-		}		
+		}
 		return idsAgafats;
 	}
 

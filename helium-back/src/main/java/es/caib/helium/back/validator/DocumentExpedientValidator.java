@@ -17,8 +17,8 @@ import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.logic.intf.service.DocumentService;
 import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.service.helper.DocumentHelperV3;
-import es.caib.helium.service.helper.ParametreHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.ParametreHelper;
 
 /**
  * Validador per a la comanda de creació o modificació de documents en la pestanya de documents de la tramitació de l'expedient
@@ -34,7 +34,7 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 	private DocumentHelperV3 documentHelper;
 	@Resource
 	private ParametreHelper parametreHelper;
-	
+
 	@Override
 	public void initialize(DocumentExpedient anotacio) {
 	}
@@ -45,7 +45,7 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 		boolean valid = true;
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(command.getExpedientId());
 		boolean ntiActiu = expedient.isNtiActiu();
-		
+
 		if (command.isValidarArxius() && !command.isGenerarPlantilla()) {
 			if (command.getArxiu() == null || command.getArxiu().isEmpty()) {
 				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
@@ -54,9 +54,9 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 				valid = false;
 			}
 		}
-		
+
 		Long MAX_FILE_SIZE = parametreHelper.getMidaMaximaFitxerInBytes();
-		// Si la mida del fitxer es major que MAX_FILE_SIZE es retrona un error de validació  
+		// Si la mida del fitxer es major que MAX_FILE_SIZE es retrona un error de validació
 		if (MAX_FILE_SIZE != null && command.getArxiu() != null && command.getArxiu().getSize() > MAX_FILE_SIZE) {
 			String max = parametreHelper.getMidaMaximaFitxer();
 			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("error.fixer.max.size", new String[] {max}))
@@ -64,41 +64,41 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 					.addConstraintViolation();
 			valid = false;
 		}
-		
+
 		if (ntiActiu) {
 
 			if(command.getNtiEstadoElaboracion() != null
 					&& Arrays.asList(new NtiEstadoElaboracionEnumDto[] {
 						NtiEstadoElaboracionEnumDto.COPIA_CF,
 						NtiEstadoElaboracionEnumDto.COPIA_DP,
-						NtiEstadoElaboracionEnumDto.COPIA_PR}).contains(command.getNtiEstadoElaboracion()) 
+						NtiEstadoElaboracionEnumDto.COPIA_PR}).contains(command.getNtiEstadoElaboracion())
 					&& (command.getNtiIdOrigen() == null || command.getNtiIdOrigen().isEmpty())) {
 				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("document.metadades.nti.iddoc.origen.validacio.copia"))
 				.addNode("ntiIdOrigen")
 				.addConstraintViolation();
-				valid = false;								
+				valid = false;
 			}
 		}
-		if (command.isValidarArxius() 
-				&& command.isAmbFirma() 
+		if (command.isValidarArxius()
+				&& command.isAmbFirma()
 				&& DocumentTipusFirmaEnumDto.SEPARAT.equals(command.getTipusFirma())
 				&& (command.getFirma() == null || command.getFirma().isEmpty())) {
 			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
 			.addNode("firma")
 			.addConstraintViolation();
-			valid = false;				
+			valid = false;
 		}
 		if (command.getDocId() == null
-				&&(DocumentExpedientCommand.ADJUNTAR_ARXIU_CODI.equalsIgnoreCase(command.getDocumentCodi()) 
+				&&(DocumentExpedientCommand.ADJUNTAR_ARXIU_CODI.equalsIgnoreCase(command.getDocumentCodi())
 						|| command.getDocumentCodi() == null)
 				&& (command.getNom() == null || "".equals(command.getNom().trim()))) {
 			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
 			.addNode("nom")
 			.addConstraintViolation();
-			valid = false;				
+			valid = false;
 		}
-		
-		if (command.isAmbFirma() 
+
+		if (command.isAmbFirma()
 				&& command.getArxiu() != null && !command.getArxiu().isEmpty()) {
 			// Valida la firma del document ja sigui inclosa o separada
 			try {
@@ -118,25 +118,25 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 					context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("error.document.firma.nula"))
 					.addNode("ambFirma")
 					.addConstraintViolation();
-					valid = false;				
+					valid = false;
 				} else if (!firmaEstat.isValid()) {
 					// Firma invàlida
 					context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("error.document.firma.invalida"))
 					.addNode("ambFirma")
 					.addConstraintViolation();
-					valid = false;				
+					valid = false;
 				}
 			} catch(Exception e) {
 				String errMsg = MessageHelper.getInstance().getMessage("error.document.validacio.firma.error", new Object[] {e.getMessage()});
 				context.buildConstraintViolationWithTemplate(errMsg)
 				.addNode("ambFirma")
 				.addConstraintViolation();
-				valid = false;				
+				valid = false;
 			}
 		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();
-		
+
 		return valid;
 	}
 }

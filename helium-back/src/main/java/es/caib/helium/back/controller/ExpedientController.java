@@ -1,5 +1,5 @@
 /** HERÈNCIA
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -62,11 +62,11 @@ import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientRegistreService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTerminiService;
-import es.caib.helium.service.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -94,8 +94,8 @@ public class ExpedientController extends BaseExpedientController {
 
 	@RequestMapping(value = "/{expedientId}", method = RequestMethod.GET)
 	public String info(
-			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
 			Model model) {
 		return mostrarInformacioExpedientPerPipella(
 				request,
@@ -103,18 +103,18 @@ public class ExpedientController extends BaseExpedientController {
 				model,
 				null);
 	}
-	
+
 	@RequestMapping(value = "/proces/{processInstanceId}", method = RequestMethod.GET)
 	public String infoProces(
-			HttpServletRequest request, 
-			@PathVariable String processInstanceId, 
+			HttpServletRequest request,
+			@PathVariable String processInstanceId,
 			Model model) {
 		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
 		if (expedientId == null) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"error.expedientService.noExisteix"));
 			return "redirect:/expedient";
 		}
@@ -140,16 +140,16 @@ public class ExpedientController extends BaseExpedientController {
 			MissatgesHelper.error(request, errMsg, e);
 			String referer = request.getHeader("Referer");
 		    return "redirect:"+ referer;
-		}			
+		}
 	}
-	
+
 	/** Mètode per finalitzar un expedient. Es crida al mètode de servei de finalitzar. Els expedients
 	 * integrats amb l'Arxiu passen pel mètode prefinalitzar que permet escollir quins documents signar.
 	 */
 	@RequestMapping(value = "/{expedientId}/finalitzar", method = RequestMethod.GET)
 	public String finalitzar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId, 
+			@PathVariable Long expedientId,
 			Model model) {
 		try {
 			expedientService.finalitzar(expedientId);
@@ -161,22 +161,22 @@ public class ExpedientController extends BaseExpedientController {
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "expedient.error.finalitzant.expedient") + ". " + ex.getMessage();
 			logger.error(errMsg, ex);
-			MissatgesHelper.error(request, 
+			MissatgesHelper.error(request,
 					errMsg.substring(
-							0, 
+							0,
 							Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024)),
 					ex);
 		}
 		return "redirect:/expedient/" + expedientId;
 	}
-	
-	/** Modal expedients integrats amb l'Arxiu que permet seleccionar quins documents pendents de firma firmar i guardar 
+
+	/** Modal expedients integrats amb l'Arxiu que permet seleccionar quins documents pendents de firma firmar i guardar
 	 * a l'Arxiu com a definitius abans de finalitzar.
 	 */
 	@RequestMapping(value = "/{expedientId}/prefinalitzar", method = RequestMethod.GET)
 	public String prefinalitzar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId, 
+			@PathVariable Long expedientId,
 			Model model) {
 		ExpedientFinalitzarDto expedientFinalitzarDto = new ExpedientFinalitzarDto();
 		try {
@@ -190,7 +190,7 @@ public class ExpedientController extends BaseExpedientController {
 		model.addAttribute(expedientFinalitzarDto);
 		return "expedient/prefinalitzar";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/prefinalitzar", method = RequestMethod.POST)
 	public  String prefinalitzarPost(
 			HttpServletRequest request,
@@ -201,11 +201,11 @@ public class ExpedientController extends BaseExpedientController {
 		try {
 			// 1- firma els seleccionats
 			if (expedientFinalitzarDto.getDocumentsFinalitzar()!=null &&
-				expedientFinalitzarDto.getExpedient().isArxiuActiu() && 
+				expedientFinalitzarDto.getExpedient().isArxiuActiu() &&
 				expedientFinalitzarDto.getExpedient().getArxiuUuid() != null) {
 					for (DocumentFinalitzarDto dfDto: expedientFinalitzarDto.getDocumentsFinalitzar()) {
 						if (dfDto.isSeleccionat()) {
-							String document = (dfDto.isAdjunt() ?  "l'adjunt \"" : "el document \"" ) + dfDto.getDocumentCodi() + "\"";  
+							String document = (dfDto.isAdjunt() ?  "l'adjunt \"" : "el document \"" ) + dfDto.getDocumentCodi() + "\"";
 							try {
 								expedientHelper.firmarDocumentServidorPerArxiuFiExpedient(dfDto.getDocumentStoreId());
 								MissatgesHelper.success(request, getMessage(request, "expedient.prefinalitzar.document.firmat", new Object[]{document} ));
@@ -213,7 +213,7 @@ public class ExpedientController extends BaseExpedientController {
 								String errMsg = ex.getMessage();
 								if (errMsg!=null) {
 									errMsg = errMsg.substring(
-											0, 
+											0,
 											Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024));
 								}
 								MissatgesHelper.error(
@@ -225,11 +225,11 @@ public class ExpedientController extends BaseExpedientController {
 						}
 					}
 			}
-			
+
 			// 2- Si s'han pogut firmar correctament i l'acció és de finalitzar llavors es procedeix a validar i finalitzar l'expedient
 			if (!error) {
-				if ("finalitzar".equals(expedientFinalitzarDto.getAccio()) 
-						&& expedientDocumentService.validarFinalitzaExpedient(expedientId)) 
+				if ("finalitzar".equals(expedientFinalitzarDto.getAccio())
+						&& expedientDocumentService.validarFinalitzaExpedient(expedientId))
 				{
 					expedientHelper.finalitzar(expedientId, false);
 					MissatgesHelper.success(request, getMessage(request, "expedient.prefinalitzar.finalitzat"));
@@ -240,37 +240,37 @@ public class ExpedientController extends BaseExpedientController {
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "expedient.error.prefinalitzant.expedient") + ". " + ex.getMessage();
 			logger.error(errMsg, ex);
-			MissatgesHelper.error(request, 
+			MissatgesHelper.error(request,
 					errMsg.substring(
-							0, 
+							0,
 							Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024)),
 					ex);
-			
+
 			error = true;
 		}
 		if (error) {
 			model.addAttribute(expedientFinalitzarDto);
-			return "redirect:" + request.getHeader("referer");			
+			return "redirect:" + request.getHeader("referer");
 		} else {
 			return modalUrlTancar(true);
 		}
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/alertes", method = RequestMethod.GET)
 	public String alertes(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		
+
 		List<AlertaDto> alertes = expedientService.findAlertes(expedientId);
 		Map<String, String> persones = getNomPersonaPerAlertes(alertes);
-		
-		model.addAttribute("expedientId", expedientId);		
+
+		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("alertes",alertes);
 		model.addAttribute("persones", persones);
 		return "expedient/alertes";
 	}
-	
+
 	private Map<String, String> getNomPersonaPerAlertes(List<AlertaDto> alertes) {
 		Map<String, String> resposta = new HashMap<String, String>();
 		for (AlertaDto alerta: alertes) {
@@ -282,32 +282,32 @@ public class ExpedientController extends BaseExpedientController {
 		}
 		return resposta;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{expedientId}/errors", method = RequestMethod.GET)
 	public String errors(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		
+
 		Object[] errors = expedientService.findErrorsExpedient(expedientId);
-		
+
 		List<ExpedientErrorDto> errors_bas = (List<ExpedientErrorDto>) errors[0];
 		List<ExpedientErrorDto> errors_int = (List<ExpedientErrorDto>) errors[1];
-		
-		model.addAttribute("expedientId", expedientId);		
+
+		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("errors_bas",errors_bas);
 		model.addAttribute("errors_int",errors_int);
 		return "expedient/errors";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/netejarErrorsExp", method = RequestMethod.GET)
 	@ResponseBody
 	public String netejarErrorsExp(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		
+
 		try {
 			expedientService.netejarErrorsExp(expedientId);
 			MissatgesHelper.success(request, getMessage(request, "boto.eliminar.errors.ok"));
@@ -323,7 +323,7 @@ public class ExpedientController extends BaseExpedientController {
 	@RequestMapping(value = "/{expedientId}/imatgeDefProces", method = RequestMethod.GET)
 	public String imatgeProces(
 			HttpServletRequest request,
-			@PathVariable(value = "expedientId") Long expedientId, 
+			@PathVariable(value = "expedientId") Long expedientId,
 			Model model) {
 		ArxiuDto imatge = expedientService.getImatgeDefinicioProces(
 				expedientId,
@@ -336,7 +336,7 @@ public class ExpedientController extends BaseExpedientController {
 				imatge.getContingut());
 		return "arxiuView";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/canviVersio", method = RequestMethod.GET)
 	public String changeDefProc(
 			HttpServletRequest request,
@@ -347,7 +347,7 @@ public class ExpedientController extends BaseExpedientController {
 			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
 			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId());
 			CanviVersioProcesCommand canviVersioProcesCommand = new CanviVersioProcesCommand();
-			canviVersioProcesCommand.setDefinicioProcesId(definicioProces.getId());		
+			canviVersioProcesCommand.setDefinicioProcesId(definicioProces.getId());
 
 			model.addAttribute("expedient", expedient);
 			model.addAttribute(canviVersioProcesCommand);
@@ -362,12 +362,12 @@ public class ExpedientController extends BaseExpedientController {
 		}
 		return "expedient/canviVersio";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/canviVersio", method = RequestMethod.POST)
 	public String changeDefProc(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@ModelAttribute CanviVersioProcesCommand command, 
+			@ModelAttribute CanviVersioProcesCommand command,
 			@RequestParam(value = "accio", required = true) String accio,
 			ModelMap model) {
 		try {
@@ -375,9 +375,9 @@ public class ExpedientController extends BaseExpedientController {
 			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
 			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId());
 			expedientService.procesDefinicioProcesCanviVersio(
-					expedientId, 
-					command.getDefinicioProcesId(), 
-					command.getSubprocesId(), 
+					expedientId,
+					command.getDefinicioProcesId(),
+					command.getSubprocesId(),
 					subDefinicioProces);
 			MissatgesHelper.success(request, getMessage(request, "info.expedient.canviversio"));
 		} catch (Exception ex) {
@@ -389,7 +389,7 @@ public class ExpedientController extends BaseExpedientController {
 		}
 		return modalUrlTancar();
 	}
-	
+
 //	@RequestMapping(value = "/{expedientId}/updateDefinicioProces/{versio}", method = RequestMethod.GET)
 //	@ResponseBody
 //	public String changeDefProc(
@@ -412,10 +412,10 @@ public class ExpedientController extends BaseExpedientController {
 //			else
 //				MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
 //		}
-//	        	
+//
 //		return JSONValue.toJSONString(nom);
 //	}
-	
+
 	@RequestMapping(value = "/{expedientId}/buidalog", method = RequestMethod.GET)
 	public String buidaLog(
 			HttpServletRequest request,
@@ -437,12 +437,12 @@ public class ExpedientController extends BaseExpedientController {
 		}
 		return "redirect:/expedient/" + expedientId;
 	}
-	
-	
+
+
 	@RequestMapping(value = "/{expedientId}/potDesfinalitzar", method = RequestMethod.GET)
 	@ResponseBody
 	public Map<String, Object> potDesfinalitzar(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long expedientId) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		try {
@@ -456,11 +456,11 @@ public class ExpedientController extends BaseExpedientController {
 		}
 		return response;
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/desfinalitzar", method = RequestMethod.GET)
 	public String desfinalitzar(
-			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
 			Model model) {
 		try {
 			expedientService.desfinalitzar(expedientId);
@@ -469,10 +469,10 @@ public class ExpedientController extends BaseExpedientController {
 			String errMsg = getMessage(request, "error.desfinalitzant.expedient", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
-		}		
+		}
 		return "redirect:/expedient/" + expedientId;
 	}
-	
+
 	/** Mètode Ajax per refrescar l'estat de l'expedient quan es tramiten tasques des de la gestió
 	 * de l'expedient.
 	 * @return Retorna un JSON amb {estat: "Estat", dataFi : "dd/MM/yyyy HH:mm"}
@@ -480,8 +480,8 @@ public class ExpedientController extends BaseExpedientController {
 	@RequestMapping(value = "/{expedientId}/consultaEstat", method = RequestMethod.GET)
 	@ResponseBody
 	public Map<String, Object> consultaEstat(
-			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
 			Model model) {
 
 		// Objecte amb les propietats de retorn
@@ -491,8 +491,8 @@ public class ExpedientController extends BaseExpedientController {
 		Date dataFi = expedient.getDataFi();
 		String estat;
 		if (dataFi == null) {
-			estat = expedient.getEstat() != null? 
-					expedient.getEstatNom() 
+			estat = expedient.getEstat() != null?
+					expedient.getEstatNom()
 					: getMessage(request, "comu.estat.iniciat");
 		} else {
 			estat = getMessage(request, "comu.estat.finalitzat");
@@ -509,7 +509,7 @@ public class ExpedientController extends BaseExpedientController {
 				sdf.format(expedient.getReindexarData())
 				: null);
 		data.put("reindexarError", expedient.isReindexarError());
-		
+
 		return data;
 	}
 
@@ -537,10 +537,10 @@ public class ExpedientController extends BaseExpedientController {
 			String errMsg = getMessage(request, "expedient.info.error.consulta.arxiu", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
-		}			
+		}
 		return "expedientMetadadesNtiInfo";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/sicronitzarArxiu", method = RequestMethod.GET)
 	@ResponseBody
 	public String sicronitzarArxiu(
@@ -558,9 +558,9 @@ public class ExpedientController extends BaseExpedientController {
 					ex);
 			return "ko";
 		}
-		
+
 	}
-	
+
 	/** Mètode per incoporar el document a l'Arxiu en el cas que l'expedient estigui integrat però el document no. Acció des
 	 * de la modal de metadades NTI del document.
 	 * @return Retorna cap a la pàgina de metadades nti del document.
@@ -574,13 +574,13 @@ public class ExpedientController extends BaseExpedientController {
 			expedientService.arreglarMetadadesNti(expedientId);
 			MissatgesHelper.success(request, getMessage(request, "expedient.metadades.nti.dades.error.arreglar.success"));
 		} catch(Exception e) {
-			String errMsg = getMessage(request, "expedient.metadades.nti.dades.error.arreglar.error", new Object[] {e.getMessage()}); 
+			String errMsg = getMessage(request, "expedient.metadades.nti.dades.error.arreglar.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
 		}
 		return "redirect:" + request.getHeader("Referer");
 	}
-	
+
 
 	@RequestMapping(value = "/{expedientId}/migrarArxiu", method = RequestMethod.GET)
 	public String migrarArxiu(
@@ -694,7 +694,7 @@ public class ExpedientController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.documents.notificats", new Object[] {documentsNoNotificats.size(), documentsNoNotificats}));
 			correcte = false;
 		}
-		// Comprova els documents obligatoris pel següent estat		
+		// Comprova els documents obligatoris pel següent estat
 		List<String> documentsObligatorisEntrada = new ArrayList<String>();
 		for (DocumentListDto document : expedientDocumentService.findDocumentsExpedient(expedient.getId(), nextEstatId, true, new PaginacioParamsDto())) {
 			if (document.isObligatoriEntrada() && document.getId() == null) {
@@ -715,7 +715,7 @@ public class ExpedientController extends BaseExpedientController {
 		// Comprova les terminis obligatoris de sortida de l'expedient actual. Els terminis obligatoris han d'haver finalitzat
 		List<String> terminisObligatoris = new ArrayList<String>();
 		Map<String, CampFormProperties> terminisFormProperties = expedientTerminiService.getTerminisFormProperties(
-				expedient.getTipus().getId(), 
+				expedient.getTipus().getId(),
 				expedient.getEstat() != null? expedient.getEstat().getCodi() : null);
 		for (TerminiDto termini: terminis) {
 			CampFormProperties terminiFormProperties = terminisFormProperties.get(termini.getCodi());
@@ -740,7 +740,7 @@ public class ExpedientController extends BaseExpedientController {
 		List<String> terminisObligatorisEntrada = new ArrayList<String>();
 		EstatDto estatSeguent = expedientTipusService.estatFindAmbId(expedient.getTipus().getId(), nextEstatId);
 		terminisFormProperties = expedientTerminiService.getTerminisFormProperties(
-				expedient.getTipus().getId(), 
+				expedient.getTipus().getId(),
 				estatSeguent.getCodi());
 		for (TerminiDto termini: terminis) {
 			CampFormProperties terminiFormProperties = terminisFormProperties.get(termini.getCodi());
@@ -763,27 +763,27 @@ public class ExpedientController extends BaseExpedientController {
 		}
 		return correcte;
 	}
-	
+
 	/** Comprova si la dada és buida o nula segons el tipus de dada */
 	private boolean dadaBuidaONula(DadaListDto dada) {
 		// Comprova el valor
-		if (dada == null || dada.getId() == null || dada.getValor() == null) 
+		if (dada == null || dada.getId() == null || dada.getValor() == null)
 			return true;
-		
+
 		// Valor registre buit
 		if (dada.isRegistre())
 			return dada.getValor().getValorBody() == null || isRegistreEmpty(dada.getValor().getValorBody());
-		
+
 		// Valor múltiple buit
 		if (dada.isMultiple())
-			return dada.getValor().getFiles() == 0 
-					|| dada.getValor().getValorMultiple() == null 
+			return dada.getValor().getFiles() == 0
+					|| dada.getValor().getValorMultiple() == null
 					|| dada.getValor().getValorMultiple().isEmpty();
-		
+
 		// Valor simple buit
 		return dada.getValor().getValorSimple() == null || dada.getValor().getValorSimple().isEmpty();
 	}
-	
+
 	/**
 	 * Comprova si el cos d'una variable de tipus Registre esta buit
 	 * @param body
@@ -795,21 +795,21 @@ public class ExpedientController extends BaseExpedientController {
 		for(List<String> row : body) {
 			if(row == null)
 				return true;
-			
+
 			for(String column : row) {
 				// Si te al menys un camp no buit es retorna com a "not empty"
 				if(!StringUtils.isEmpty(column))
 					return false;
 			}
 		}
-		
+
 		return true;
 	}
 
 	@RequestMapping(value="/{expedientTipusId}/documentDownload", method = RequestMethod.GET)
 	public String documentDownload(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
 			Model model) {
 		ArxiuDto arxiu = expedientTipusService.getManualAjuda(expedientTipusId);
 		if (arxiu != null) {
@@ -826,21 +826,21 @@ public class ExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@PathVariable Long expedientId) throws Exception {
-    	try { 
+    	try {
     		DocumentDto resultat = expedientDocumentService.generarIndexExpedient(expedientId);
     		this.writeFileToResponse(resultat.getArxiuNom(), resultat.getArxiuContingut(), response);
     	} catch(Exception e) {
     		MissatgesHelper.error(
     				request,
     				getMessage(
-    						request, 
+    						request,
     						"expedient.exportacio.eni.error",
     						new Object[]{e.getMessage()}),
 					e);
     		response.sendRedirect("/helium/expedient/" + expedientId);
-    	}        
+    	}
 	}
-	
+
 	//Genera un ZIP amb els documents definitius de l'expedient i la informació ENI (format XML) per cada document i de l'expedient mateix
 	//a més de l'index en PDF de l'expedient.
 	@RequestMapping(value = "/{expedientId}/exportarEniDocumentsAmbIndex", method = RequestMethod.GET)
@@ -849,21 +849,21 @@ public class ExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@PathVariable Long expedientId) throws Exception {
-    	try { 
+    	try {
     		DocumentDto resultat = expedientDocumentService.exportarEniDocumentsAmbIndex(expedientId);
     		this.writeFileToResponse(resultat.getArxiuNom(), resultat.getArxiuContingut(), response);
     	} catch(Exception e) {
     		MissatgesHelper.error(
     				request,
     				getMessage(
-    						request, 
+    						request,
     						"expedient.exportacio.eni.error",
     						new Object[]{e.getMessage()}),
 					e);
     		response.sendRedirect("/helium/expedient/" + expedientId);
-    	}        
+    	}
 	}
-	
+
 	//Genera el fitxer ENI (format XML) de l'expedient.
 	@RequestMapping(value = "/{expedientId}/exportarEniExpedient", method = RequestMethod.GET)
 	@ResponseBody
@@ -871,21 +871,21 @@ public class ExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@PathVariable Long expedientId) throws Exception {
-    	try { 
+    	try {
     		DocumentDto resultat = expedientDocumentService.exportarEniExpedient(expedientId);
     		this.writeFileToResponse(resultat.getArxiuNom(), resultat.getArxiuContingut(), response);
     	} catch(Exception e) {
     		MissatgesHelper.error(
     				request,
     				getMessage(
-    						request, 
+    						request,
     						"expedient.exportacio.eni.error",
     						new Object[]{e.getMessage()}),
 					e);
     		response.sendRedirect("/helium/expedient/" + expedientId);
-    	}        
+    	}
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -913,6 +913,6 @@ public class ExpedientController extends BaseExpedientController {
 				Object.class,
 				new ObjectTypeEditorHelper());
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ExpedientController.class);
 }

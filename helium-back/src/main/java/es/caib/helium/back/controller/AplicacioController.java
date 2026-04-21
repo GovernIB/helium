@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -25,14 +25,14 @@ import es.caib.helium.logic.intf.service.AdminService;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.EntornService;
 import es.caib.helium.logic.intf.service.PortafirmesFluxService;
-import es.caib.helium.service.helper.EntornHelper;
-import es.caib.helium.service.utils.EntornActual;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.utils.EntornActual;
 import lombok.Builder;
 import lombok.Data;
 
 /**
  * Controlador per a la pàgina inicial (index).
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -69,19 +69,19 @@ public class AplicacioController extends BaseController {
 	public String index(HttpServletRequest request) {
 		UsuariPreferenciesDto preferencies = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
 		if (preferencies != null) {
-			if (preferencies.getListado() == 2 && 
-					preferencies.getConsultaId() != null && 
+			if (preferencies.getListado() == 2 &&
+					preferencies.getConsultaId() != null &&
 					SessionHelper.getSessionManager(request).getEntornActual().getCodi().equals(preferencies.getDefaultEntornCodi())) {
 				// Informes
 				return "redirect:/informe?consultaId="+preferencies.getConsultaId();
 			} else if (preferencies.getListado() == 1) {
 				// Tareas
 				return "redirect:/tasca";
-			} else if (preferencies.getConsultaId() != null && 
+			} else if (preferencies.getConsultaId() != null &&
 						SessionHelper.getSessionManager(request).getEntornActual().getCodi().equals(preferencies.getDefaultEntornCodi())) {
 				// Consulta per defecte
 				return "redirect:/expedient/consulta/" + preferencies.getConsultaId();
-			} 
+			}
 		}
 		// Expedientes
 		return "redirect:/expedient";
@@ -100,18 +100,18 @@ public class AplicacioController extends BaseController {
 			Model model) {
 		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
 		model.addAttribute("metriques", adminService.getMetrics());
-		model.addAttribute("entorns", 
+		model.addAttribute("entorns",
 				(persona != null && persona.isAdmin())?entornService.findActiusAll():
 					(entornHelper.esAdminEntorn(EntornActual.getEntornId()))? entornService.findActiusAmbPermisAdmin():new ArrayList<EntornDto>());
 		return "metrics";
 	}
 
-	
-	
+
+
 	/** Suggest pels valors inicials per a la selecció múltiple de usuaris o càrrecs des de l'edició de fluxos simples
 	 * en el disseny de documents o enviament al portafirmes de documents des de la gestió de documents. Arriba un text amb els codis separats
 	 * per coma "," on els condis de persones venen tal qual i els càrrecs arriben com "CARREC[codi_carrec]".
-	 * 
+	 *
 	 * @param text
 	 * @param model
 	 * @return
@@ -128,7 +128,7 @@ public class AplicacioController extends BaseController {
 			es.caib.helium.commons.dto.PersonaDto persona;
 			for (int i = 0; i < codis.length; i++) {
 				try {
-					persona = aplicacioService.findPersonaCarrecAmbCodi(codis[i]);				
+					persona = aplicacioService.findPersonaCarrecAmbCodi(codis[i]);
 				} catch(Exception e) {
 					persona = new es.caib.helium.commons.dto.PersonaDto();
 					persona.setCodi(codis[i]);
@@ -144,16 +144,16 @@ public class AplicacioController extends BaseController {
 		}
 		return response;
 	}
-	
+
 	/** Consulta Ajax de la llista de càrrecs definida al Portafirmes. */
 	@RequestMapping(value = "/portasig/carrecs", method = RequestMethod.GET)
 	@ResponseBody
 	public List<PortafirmesCarrecDto> recuperarCarrecs(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			Model model) {
 		return portafirmesFluxService.recuperarCarrecs();
 	}
-	
+
 //	@RequestMapping(value = "/usuari/codi", method = RequestMethod.POST)
 //	public String canviCodiUsuari(
 //			HttpServletRequest request,
@@ -167,13 +167,13 @@ public class AplicacioController extends BaseController {
 //				// La línia serà ignorada si comença per #
 //				if(linia.contains("=") && !linia.trim().startsWith("#")) {
 //					String[] codis = linia.trim().split("=");
-//					
+//
 //					if(codis.length < 2)
 //						continue;
-//	
+//
 //					String codiActual = codis[0];
 //					String codiNou = codis[1];
-//					
+//
 //					CanviCodiUsuariDto canvi = new CanviCodiUsuariDto();
 //					canvi.setCodiActual(codiActual);
 //					canvi.setCodiNou(codiNou);
@@ -184,27 +184,27 @@ public class AplicacioController extends BaseController {
 //			model.addAttribute("errors", errors);
 //			if(errors.isEmpty()) {
 //				MissatgesHelper.success(
-//						request, 
+//						request,
 //						getMessage(
-//								request, 
-//								"usuari.codi.mapeig.success"));	
+//								request,
+//								"usuari.codi.mapeig.success"));
 //			} else {
 //				MissatgesHelper.warning(
-//						request, 
+//						request,
 //						getMessage(
-//								request, 
+//								request,
 //								"usuari.codi.mapeig.errors"));
 //			}
-//			
+//
 //		} catch(Exception e) {
 //			MissatgesHelper.error(
-//					request, 
+//					request,
 //					e.getMessage());
 //		}
 //
 //		return "usuariCodiForm";
 //	}
-	
+
 	@RequestMapping(value = "/usernames", method = RequestMethod.GET)
 	public String canviCodiUsuariView(
 			HttpServletRequest request,
@@ -235,7 +235,7 @@ public class AplicacioController extends BaseController {
 					.build();
 		}
 	}
-	
+
 	@Data
 	@Builder
 	public static class UsuariChangeValidation {
@@ -251,7 +251,7 @@ public class AplicacioController extends BaseController {
 		private Long registresModificats;
 		private Long duracio;
 	}
-	
+
 	public enum ResultatEstatEnum { OK, ERROR }
 
 
