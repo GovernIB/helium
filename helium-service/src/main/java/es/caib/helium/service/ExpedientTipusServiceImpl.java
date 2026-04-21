@@ -1869,18 +1869,19 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));		
 		}
 		WProcessDefinition jbpmProcessDefinition = null; //new WProcessDefinition(processDefinition);
-		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
-		@SuppressWarnings("unchecked")
-		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
-		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
-		for (String nom : bytesMap.keySet()) 
-			if (nom.endsWith(".class")) {
-				handlers.put(nom, bytesMap.get(nom));
-			}
-		// Actualitza els handlers de la darrera versió de la definició de procés
-		jbpmHelper.updateHandlers(
-				Long.parseLong(definicioProcesEstat.getJbpmId()), 
-				handlers);
+		//TODO HELIUM2 : resoldre l'actualització de handlers
+//		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+//		@SuppressWarnings("unchecked")
+//		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+//		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+//		for (String nom : bytesMap.keySet()) 
+//			if (nom.endsWith(".class")) {
+//				handlers.put(nom, bytesMap.get(nom));
+//			}
+//		// Actualitza els handlers de la darrera versió de la definició de procés
+//		jbpmHelper.updateHandlers(
+//				Long.parseLong(definicioProcesEstat.getJbpmId()), 
+//				handlers);
 	}
 
 	@Override

@@ -565,10 +565,9 @@ public class DefinicioProcesHelper {
 			ExpedientTipus expedientTipus) {
 
 		DefinicioProces definicio  = null;
-//		WProcessDefinition dpd = workflowEngineApi.desplegar(
-//				nomDeploy, 
-//				contingutDeploy);
-		WProcessDefinition dpd = null;
+		WProcessDefinition dpd = workflowEngineApi.desplegar(
+				nomDeploy, 
+				contingutDeploy);
 		if (dpd != null) {
 			// Crea la nova definició de procés
 			definicio = new DefinicioProces(
@@ -581,13 +580,15 @@ public class DefinicioProcesHelper {
 				expedientTipus.getDefinicionsProces().add(definicio);
 			definicio = definicioProcesRepository.saveAndFlush(definicio);
 			// Crea les tasques publicades
-			for (String nomTasca: workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(null, null/*dpd*/)) {
+			for (String nomTasca: workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(definicio.getJbpmKey(), definicio.getVersio())) {
 				Tasca tasca = new Tasca(
 						definicio,
 						nomTasca,
 						nomTasca,
 						TipusTasca.ESTAT);
 				String prefixRecursBo = "forms/" + nomTasca;
+				
+				//TODO HELIUM2 desplegar recursos a partir del contingut
 				for (String resourceName: workflowEngineApi.getResourceNames(dpd.getId())) {
 					if (resourceName.startsWith(prefixRecursBo)) {
 						tasca.setTipus(TipusTasca.FORM);
@@ -599,10 +600,10 @@ public class DefinicioProcesHelper {
 				definicio.getTasques().add(tasca);
 			}
 			definicioProcesRepository.save(definicio);
-		} /*else
+		} else
 			throw new DeploymentException(
 					messageHelper.getMessage("exportar.validacio.definicio.deploy.error"));
-*/
+		
 		return definicio;
 	}
 

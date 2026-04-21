@@ -1,17 +1,23 @@
 package es.caib.helium.service.flowable;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.Process;
+import org.flowable.bpmn.model.UserTask;
 import org.flowable.common.engine.api.io.InputStreamProvider;
 import org.flowable.common.engine.impl.util.io.BytesStreamSource;
 import org.flowable.engine.ProcessEngine;
-import org.flowable.validation.ValidationError;
+import org.flowable.engine.repository.Deployment;
+import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,9 +41,22 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	private ProcessEngine processEngine;
 	
 	@Override
-	public WDeployment desplegar(String nomArxiu, byte[] contingut) {
-		// TODO Auto-generated method stub
-		return null;
+	public WProcessDefinition desplegar(String nomArxiu, byte[] contingut) {
+		Deployment deployment = processEngine
+			.getRepositoryService()
+			.createDeployment()
+			.addInputStream(nomArxiu, new ByteArrayInputStream(contingut))
+			.deploy();
+		ProcessDefinition pd = processEngine
+		        .getRepositoryService()
+	                .createProcessDefinitionQuery()
+	                .deploymentId(deployment.getId())
+	                .singleResult();
+		WProcessDefinition ret = new WProcessDefinition();
+		ret.setId(pd.getId());
+		ret.setKey(pd.getKey());
+		ret.setVersion(pd.getVersion());
+		return ret;
 	}
 
 	@Override
@@ -55,7 +74,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public Set<String> getResourceNames(String deploymentId) {
 		// TODO Auto-generated method stub
-		return null;
+		return new HashSet<>();
 	}
 
 	@Override
@@ -89,9 +108,28 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<String> getTaskNamesFromDeployedProcessDefinition(WDeployment dpd, String processDefinitionId) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<String> getTaskNamesFromDeployedProcessDefinition(String processKey, Integer version) {
+		ProcessDefinition processDefinition =
+			processEngine
+				.getRepositoryService()
+					.createProcessDefinitionQuery()
+					.processDefinitionKey(processKey)
+					.processDefinitionVersion(version)
+					.singleResult();
+	    BpmnModel model = 
+	    		processEngine
+	    			.getRepositoryService()
+	    				.getBpmnModel(processDefinition.getId());
+		Process process = model.getMainProcess();
+
+		List<String> taskNames = new ArrayList<>();
+	    for (FlowElement element : process.getFlowElements()) {
+	        if (element instanceof UserTask) {
+	            UserTask userTask = (UserTask) element;
+	        	taskNames.add(userTask.getName());
+	        }
+	    }
+		return taskNames;
 	}
 
 	@Override
@@ -706,23 +744,15 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<String> validateProcess(byte[] contingut) {
-		List<String> errors = new ArrayList<>();
-		if (contingut == null || contingut.length == 0) {
-			errors.add("El contingut és nul.");
-		} else {
-			try {
-				InputStreamProvider in = new BytesStreamSource(contingut); 
-				BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(in, false, false);
-				List<ValidationError> validationErrors = processEngine.getRepositoryService().validateProcess(bpmnModel);
-				for (ValidationError validationError : validationErrors) {
-					errors.add(validationError.toString());
-				}
-			} catch(Exception e) {
-				errors.add("Error no controlat validant el contingut");
-			}
-		}
-		return errors;
+	public WProcessDefinition parseProcess(byte[] contingut) {
+		InputStreamProvider in = new BytesStreamSource(contingut); 
+		BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(in, false, false);
+		org.flowable.bpmn.model.Process process =
+				bpmnModel.getMainProcess();
+		WProcessDefinition processDefinition = new WProcessDefinition();
+		processDefinition.setKey(process.getId());
+		processDefinition.setName(process.getName());
+		return processDefinition;
 	}
 
 }

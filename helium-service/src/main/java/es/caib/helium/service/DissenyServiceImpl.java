@@ -238,7 +238,7 @@ public class DissenyServiceImpl implements DissenyService {
     private void getAllDefinicioProcesOrderByVersio (DefinicioProcesDto definicioProcesDto, ExpedientTipus expedientTipus) {
 		
 		WProcessDefinition jb = workflowEngineApi.getProcessDefinition(definicioProcesDto.getJbpmId());
-		definicioProcesDto.setEtiqueta(jb.getProcessDefinition().getName()+" v."+jb.getVersion());
+		definicioProcesDto.setEtiqueta(jb.getName()+" v."+jb.getVersion());
 		
 		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesHelper.findVersionsDefinicioProces(
 				definicioProcesDto.getEntorn().getId(),
@@ -1184,18 +1184,19 @@ public class DissenyServiceImpl implements DissenyService {
 							new Object[] {jbpmProcessDefinition.getKey()}));
 		}
 		
-		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
-		@SuppressWarnings("unchecked")
-		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
-		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
-		for (String nom : bytesMap.keySet()) 
-			if (nom.endsWith(".class")) {
-				handlers.put(nom, bytesMap.get(nom));
-			}
-		// Actualitza els handlers de la darrera versió de la definició de procés
-		workflowEngineApi.updateHandlers(
-				Long.parseLong(darrera.getJbpmId()), 
-				handlers);
+		//TODO HELIUM2: resoldre la publicació de handlers propis
+//		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+//		@SuppressWarnings("unchecked")
+//		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+//		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+//		for (String nom : bytesMap.keySet()) 
+//			if (nom.endsWith(".class")) {
+//				handlers.put(nom, bytesMap.get(nom));
+//			}
+//		// Actualitza els handlers de la darrera versió de la definició de procés
+//		workflowEngineApi.updateHandlers(
+//				Long.parseLong(darrera.getJbpmId()), 
+//				handlers);
 		
 		return conversioTipusHelper.convertir(darrera, DefinicioProcesDto.class);
 
@@ -1212,25 +1213,27 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		DefinicioProces definicioProcesOrigen = definicioProcesRepository.findById(idDefinicioProcesOrigen).orElse(null);
 		
-		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
-		WProcessDefinition jbpmProcessDefinition = workflowEngineApi.getProcessDefinition(definicioProcesOrigen.getJbpmId());
-		@SuppressWarnings("unchecked")
-		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
-		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
-		for (String nom : bytesMap.keySet()) 
-			if (nom.endsWith(".class")) {
-				handlers.put(nom, bytesMap.get(nom));
-			}
-
-		// Actualitza les definicions de procés destí
-		DefinicioProces definicioProcesDesti;
-		for (Long idDefinicioProcesDesti : idsDefinicioProcesDesti) {
-			definicioProcesDesti = definicioProcesRepository.findById(idDefinicioProcesDesti).orElse(null);
-			// Actualitza els handlers de la darrera versió de la definició de procés
-			workflowEngineApi.updateHandlers(
-					Long.parseLong(definicioProcesDesti.getJbpmId()), 
-					handlers);	
-		}
+		//TODO HELIUM2: resoldre l'actualització i propagació de handlers entre versions
+		
+//		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+//		WProcessDefinition jbpmProcessDefinition = workflowEngineApi.getProcessDefinition(definicioProcesOrigen.getJbpmId());
+//		@SuppressWarnings("unchecked")
+//		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+//		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+//		for (String nom : bytesMap.keySet()) 
+//			if (nom.endsWith(".class")) {
+//				handlers.put(nom, bytesMap.get(nom));
+//			}
+//
+//		// Actualitza les definicions de procés destí
+//		DefinicioProces definicioProcesDesti;
+//		for (Long idDefinicioProcesDesti : idsDefinicioProcesDesti) {
+//			definicioProcesDesti = definicioProcesRepository.findById(idDefinicioProcesDesti).orElse(null);
+//			// Actualitza els handlers de la darrera versió de la definició de procés
+//			workflowEngineApi.updateHandlers(
+//					Long.parseLong(definicioProcesDesti.getJbpmId()), 
+//					handlers);	
+//		}
 	}
 
     @Override
@@ -1292,23 +1295,27 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProcesExportacio exportacio = new DefinicioProcesExportacio();
 
 		// Comprova el nom de l'arxiu
-		if (! (fitxer.endsWith(".bpmn") || fitxer.endsWith(".bpmn2") || fitxer.endsWith(".xml"))){
+		if (! (fitxer.endsWith(".bpmn") || fitxer.endsWith(".bpmn2") || fitxer.endsWith(".xml")
+				|| fitxer.endsWith(".zip") || fitxer.endsWith(".par"))){
 			throw new RuntimeException(
 					messageHelper.getMessage("definicio.proces.actualitzar.error.arxiuNom", new Object[] {fitxer}));
 		}
 		// Obrir el contingut i comprovar que és correcte
-		List<String> errors = workflowEngineApi.validateProcess(contingut);
-		if (errors.size() > 0) {
-			throw new DeploymentException(
-					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));		
+		WProcessDefinition processDefinition = null;
+		if (fitxer.endsWith(".bpmn") || fitxer.endsWith(".bpmn2") || fitxer.endsWith(".xml")){
+			try {
+				processDefinition = workflowEngineApi.parseProcess(contingut);
+			} catch (Exception e) {
+				throw new DeploymentException(
+						messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
+			}
 		}
 		exportacio.setNomDeploy(fitxer);
 		exportacio.setContingutDeploy(contingut);
-//		//WProcessDefinition processDefinition = new WProcessDefinition(processDefinition);
-//		DefinicioProcesDto dto = new DefinicioProcesDto();
-//		dto.setJbpmKey(processDefinition.getKey());
-//		dto.setJbpmName(processDefinition.getName());
-//		exportacio.setDefinicioProcesDto(dto);
+		DefinicioProcesDto dto = new DefinicioProcesDto();
+		dto.setJbpmKey(processDefinition.getKey());
+		dto.setJbpmName(processDefinition.getName());
+		exportacio.setDefinicioProcesDto(dto);
 				
 		return exportacio;
 	}
