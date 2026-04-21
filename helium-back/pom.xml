@@ -9,9 +9,6 @@
 	</parent>
 	<artifactId>helium-back</artifactId>
 	<packaging>war</packaging>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -24,87 +21,24 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-client</artifactId>
-			<!--<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>-->
-		</dependency>
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-tx</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ma.glasnost.orika</groupId>
-			<artifactId>orika-core</artifactId>
-			<version>${orika.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-simple</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-core</artifactId>
-			<version>${keycloak.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>opensymphony</groupId>
-			<artifactId>sitemesh</artifactId>
-			<version>${sitemesh.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-jasper</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>es.caib.helium</groupId>
-			<artifactId>helium-service-intf</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>es.caib.helium</groupId>
-			<artifactId>helium-service</artifactId>
-			<version>${project.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>es.caib.helium</artifactId>
-					<groupId>helium-persistence</groupId>
-				</exclusion>
-			</exclusions>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springmodules</groupId>
-			<artifactId>springmodules-validation</artifactId>
-			<version>0.9</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/src/main/webapp/WEB-INF/lib/spring-modules-validation.jar</systemPath>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-acl</artifactId>
+			<version>${spring-security.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -138,9 +72,15 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-acl</artifactId>
-			<version>${spring-security.version}</version>
+			<groupId>dev.akkinoc.spring.boot</groupId>
+			<artifactId>orika-spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springmodules</groupId>
+			<artifactId>springmodules-validation</artifactId>
+			<version>0.9</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/main/webapp/WEB-INF/lib/spring-modules-validation.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
@@ -168,27 +108,85 @@
 					<groupId>org.bouncycastle</groupId>
 				</exclusion>
 				<exclusion>
-		            <groupId>xml-apis</groupId>
-		            <artifactId>xml-apis</artifactId>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>eclipse</groupId>
+					<artifactId>jdtcore</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency> 
-			<groupId>org.apache.poi</groupId> 
-			<artifactId>poi-ooxml</artifactId> 
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
 			<version>3.7</version>
 			<exclusions>
 				<exclusion>
 					<groupId>stax</groupId>
-					<artifactId>stax-api</artifactId> 	
-				</exclusion> 
-		        <exclusion>
-		            <groupId>xml-apis</groupId>
-		            <artifactId>xml-apis</artifactId>
-		        </exclusion>
+					<artifactId>stax-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
-		
+		<dependency>
+			<groupId>opensymphony</groupId>
+			<artifactId>sitemesh</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>displaytag</groupId>
+			<artifactId>displaytag</artifactId>
+			<version>1.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>itext</artifactId>
+					<groupId>com.lowagie</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jcl104-over-slf4j</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>displaytag</groupId>
+			<artifactId>displaytag-export-poi</artifactId>
+			<version>1.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>poi</artifactId>
+					<groupId>org.apache.poi</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-service-intf</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<!-- WEBJARS -->
 		<dependency>
 			<groupId>org.webjars.bower</groupId>
@@ -309,69 +307,109 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
-		<dependency>
-			<groupId>displaytag</groupId>
-			<artifactId>displaytag</artifactId>
-			<version>1.2</version>
-			<type>jar</type>
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>itext</artifactId>
-					<groupId>com.lowagie</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jcl104-over-slf4j</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>displaytag</groupId>
-			<artifactId>displaytag-export-poi</artifactId>
-			<version>1.2</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>poi</artifactId>
-					<groupId>org.apache.poi</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
 	</dependencies>
 	<profiles>
 		<profile>
-			<id>eclipse</id>
+			<id>ide</id>
 			<activation>
-				<property>
-					<name>m2e.version</name>
-				</property>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<dependencies>
-			<!--
+				<dependency>
+					<groupId>org.keycloak</groupId>
+					<artifactId>keycloak-core</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>javax.ejb</groupId>
+					<artifactId>javax.ejb-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.tomcat.embed</groupId>
+					<artifactId>tomcat-embed-jasper</artifactId>
+				</dependency>
 				<dependency>
 					<groupId>${project.groupId}</groupId>
 					<artifactId>helium-service</artifactId>
 					<version>${project.version}</version>
 				</dependency>
-				<dependency>
-					<groupId>${project.groupId}</groupId>
-					<artifactId>helium-plugin-impl</artifactId>
-					<version>${project.version}</version>
-				</dependency>
--->			</dependencies>
+			</dependencies>
 			<build>
+				<resources>
+					<resource>
+						<directory>src/main/webapp</directory>
+						<targetPath>META-INF/resources</targetPath>
+						<includes>
+							<include>**/*.*</include>
+						</includes>
+					</resource>
+				</resources>
 				<plugins>
 					<plugin>
 						<groupId>org.springframework.boot</groupId>
 						<artifactId>spring-boot-maven-plugin</artifactId>
 						<configuration>
-							<mainClass>es.caib.helium.HeliumBackApp</mainClass>
+							<mainClass>es.caib.helium.HeliumBackBootApp</mainClass>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<version>3.3.2</version>
+						<configuration>
+							<archive>
+								<manifestEntries>
+									<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+									<Implementation-Vendor>${implementation.vendor}</Implementation-Vendor>
+									<Implementation-Version>${project.version}</Implementation-Version>
+									<Implementation-SCM-Branch>${scmBranch}</Implementation-SCM-Branch>
+									<Implementation-SCM-Revision>${buildNumber}</Implementation-SCM-Revision>
+								</manifestEntries>
+							</archive>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>jboss</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.keycloak</groupId>
+					<artifactId>keycloak-core</artifactId>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>javax.ejb</groupId>
+					<artifactId>javax.ejb-api</artifactId>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.tomcat.embed</groupId>
+					<artifactId>tomcat-embed-jasper</artifactId>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<version>3.3.2</version>
+						<configuration>
+							<packagingExcludes>**/HeliumBackBootApp.class</packagingExcludes>
+							<attachClasses>true</attachClasses>
+							<archive>
+								<manifestEntries>
+									<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+									<Implementation-Vendor>${implementation.vendor}</Implementation-Vendor>
+									<Implementation-Version>${project.version}</Implementation-Version>
+									<Implementation-SCM-Branch>${scmBranch}</Implementation-SCM-Branch>
+									<Implementation-SCM-Revision>${buildNumber}</Implementation-SCM-Revision>
+								</manifestEntries>
+							</archive>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -379,71 +417,18 @@
 		</profile>
 	</profiles>
 	<build>
-		<!--<resources>
+		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
 			</resource>
 			<resource>
 				<directory>src/main/resources</directory>
 				<includes>
 					<include>banner.txt</include>
-					<include>*.properties</include>
 				</includes>
 				<filtering>true</filtering>
 			</resource>
-		</resources>-->
-		<plugins>
-			<plugin>
-				<groupId>pl.project13.maven</groupId>
-				<artifactId>git-commit-id-plugin</artifactId>
-				<version>4.9.10</version>
-				<executions>
-					<execution>
-						<id>get-the-git-infos</id>
-						<goals>
-							<goal>revision</goal>
-						</goals>
-						<phase>validate</phase>
-					</execution>
-				</executions>
-				<configuration>
-					<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-					<generateGitPropertiesFile>true</generateGitPropertiesFile>
-					<verbose>false</verbose>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<packagingExcludes>**/HeliumBackBootApp.class,WEB-INF/lib/*.jar</packagingExcludes>
-					<archive>
-						<manifestEntries>
-							<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
-							<Implementation-Vendor>${implementation.vendor}</Implementation-Vendor>
-							<Implementation-Version>${project.version}</Implementation-Version>
-							<Implementation-SCM-Branch>${git.branch}</Implementation-SCM-Branch>
-							<Implementation-SCM-Revision>${git.commit.id}</Implementation-SCM-Revision>
-						</manifestEntries>
-					</archive>
-					<attachClasses>true</attachClasses>
-					<!--
-					<webResources>
-						<resource>
-							<filtering>false</filtering>
-							<targetPath>META-INF/resources</targetPath>
-							<directory>src/main/resources</directory>
-						</resource>
-					</webResources>
-					-->
-				</configuration>
-			</plugin>
-			<!-- Plugin per solucionar error "Failed to execute goal org.apache.maven.plugins:maven-resources-plugin:3.2.0:resources"-->
-			<plugin>
-			    <groupId>org.apache.maven.plugins</groupId>
-			    <artifactId>maven-resources-plugin</artifactId>
-			    <version>3.1.0</version>
-			</plugin> 
-		</plugins>
-	</build>	
+		</resources>
+	</build>
 </project>
