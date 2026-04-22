@@ -182,7 +182,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	private MetricRegistry metricRegistry;
 	@Autowired
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
-	@Resource
+	@Autowired
 	private MailHelper mailHelper;
 	@Resource
 	private EntornHelper entornHelper;

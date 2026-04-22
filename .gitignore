@@ -15,6 +15,7 @@
 /notib.iml
 /docker-compose.yml
 /application.properties
+/helium-back/application.properties
 .env.development
 .classpath
 .project

@@ -18,14 +18,11 @@
 
 <%-- STRING -------------------------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'STRING'}">
-				<i>x</i>
 				<c:choose>
 					<c:when test='${dada.campMultiple or isMultiple}'>
-						<i>y</i>
 						<input type="text" id="${campCodi}" name="${campNom}" class="form-control camp-multiple" data-required="${dada.required}" value="${command[campNom][campIndex]}"/>
 					</c:when>
 					<c:otherwise>
-						<i>x</i>
 						<form:input path="${campCodi}" cssClass="form-control" id="${campCodi}" data-required="${dada.required}" />
 					</c:otherwise>
 				</c:choose>

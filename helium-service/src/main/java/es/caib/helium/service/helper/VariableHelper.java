@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.service.helper;
 
@@ -59,7 +59,7 @@ import es.caib.helium.service.helpers.MesuresTemporalsHelper;
 
 /**
  * Helper per a gestionar les variables dels expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
@@ -177,7 +177,7 @@ public class VariableHelper {
 					processInstanceId);
 			camps = definicioProces.getCamps();
 		}
-		
+
 		for (Camp camp: camps)
 			campsIndexatsPerCodi.put(camp.getCodi(), camp);
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "0");
@@ -209,7 +209,7 @@ public class VariableHelper {
 						}
 					} catch(Exception e) {
 						dto.setError(messageHelper.getMessage(
-								"variable.helper.error.recuperant.valor", 
+								"variable.helper.error.recuperant.valor",
 								new Object[] {camp.getTipus(), (camp.isMultiple() ? " múltiple" : "")}));
 					}
 				}
@@ -237,14 +237,14 @@ public class VariableHelper {
 			String variableCodi) {
 		return getDadaPerInstanciaProces(processInstanceId, variableCodi, false);
 	}
-	
+
 	public ExpedientDadaDto getDadaPerInstanciaProces(
 			String processInstanceId,
-			String variableCodi, 
+			String variableCodi,
 			boolean incloureVariablesBuides) {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
-		
+
 		Camp camp;
 		if (expedientTipus.isAmbInfoPropia()) {
 			camp = campRepository.findByExpedientTipusAndCodi(
@@ -258,11 +258,11 @@ public class VariableHelper {
 					definicioProces,
 					variableCodi);
 		}
-		
+
 		Object valor = expedientDadaHelper.getDada(
-				expedient, 
-				processInstanceId, 
-				null, 
+				expedient,
+				processInstanceId,
+				null,
 				variableCodi);
 
 		ExpedientDadaDto dto = null;
@@ -281,10 +281,10 @@ public class VariableHelper {
 				if (camp != null && (CampTipusEnum.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
 					List<Object> registreValors = (List)valor;
 					varAmbContingut = !registreValors.isEmpty();
-				}						
+				}
 			} catch(Exception e) {
 				dto.setError(messageHelper.getMessage(
-						"variable.helper.error.recuperant.valor", 
+						"variable.helper.error.recuperant.valor",
 						new Object[] {camp.getTipus(), (camp.isMultiple() ? " múltiple" : "")}));
 			}
 		}
@@ -300,7 +300,7 @@ public class VariableHelper {
 		}
 		return dto;
 	}
-	
+
 	public ExpedientDadaDto getDadaBuida(
 			long campId) {
 		Camp camp = campRepository.findById(campId).orElse(null);
@@ -315,14 +315,14 @@ public class VariableHelper {
 		return dto;
 	}
 
-	public List<TascaDadaDto> findDadesPerInstanciaTascaDto(Long expedientTipusId, ExpedientTascaDto tasca) {		
+	public List<TascaDadaDto> findDadesPerInstanciaTascaDto(Long expedientTipusId, ExpedientTascaDto tasca) {
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
 		Tasca tascaEntity = tascaRepository.findById(tasca.getTascaId()).orElse(null);
 		if (expedientTipusId == null)
-			expedientTipusId = tascaEntity.getDefinicioProces().getExpedientTipus() != null ? tascaEntity.getDefinicioProces().getExpedientTipus().getId() : null; 
+			expedientTipusId = tascaEntity.getDefinicioProces().getExpedientTipus() != null ? tascaEntity.getDefinicioProces().getExpedientTipus().getId() : null;
 		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(tasca.getTascaId(), expedientTipusId)) {
 			Camp camp = campTasca.getCamp();
-			
+
 			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(
 					camp,
 					camp.getCodi(),
@@ -420,10 +420,10 @@ public class VariableHelper {
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
-		
+
 		ExpedientTipus expedientTipus = expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId());
 		boolean ambHerencia = HerenciaHelper.ambHerencia(expedientTipus);
-		
+
 		CampTasca campTasca = campTascaRepository.findAmbTascaCodi(
 				tasca.getId(),
 				variableCodi,
@@ -485,14 +485,14 @@ public class VariableHelper {
 			return null;
 		String valorFontExterna = null;
 		if (CampTipusEnum.SELECCIO.equals(camp.getTipus()) || CampTipusEnum.SUGGEST.equals(camp.getTipus())) {
-			
+
 			ParellaCodiValorDto parella = getTextPerCampAmbValor(
 					camp,
 					valor,
 					valorsAddicionals,
 					taskInstanceId,
 					processInstanceId);
-			
+
 			valorFontExterna = parella != null ? (String)(parella.getValor()) : "";
 		}
 		return Camp.getComText(
@@ -521,7 +521,7 @@ public class VariableHelper {
 						registreIndex,
 						valorsAddicionals);
 				List<FilaResultat> resultatConsultaDomini;
-				Domini domini;		
+				Domini domini;
 				if (camp.getDominiIntern()) {
 					Entorn entorn;
 					if (camp.getDefinicioProces() != null)
@@ -529,7 +529,7 @@ public class VariableHelper {
 					else
 						entorn = camp.getExpedientTipus().getEntorn();
 					domini = getDominiIntern(entorn);
-				} else { 
+				} else {
 					domini = camp.getDomini();
 				}
 				resultatConsultaDomini = dominiHelper.consultar(
@@ -548,7 +548,7 @@ public class VariableHelper {
 							boolean matches = (ignoreCase) ? parellaCodi.getCodi().equalsIgnoreCase(columnaCodi) : parellaCodi.getCodi().equals(columnaCodi);
 							if (matches &&
 									(
-										valor == null || 
+										valor == null ||
 										parellaCodi.getValor().toString().equals(valor) ||
 										(tipus.equals(CampTipusEnum.SUGGEST) && parellaCodi.getValor().toString().toUpperCase().indexOf(valor.toString().toUpperCase()) != -1)
 									)
@@ -576,11 +576,11 @@ public class VariableHelper {
 					String codiBo = null;
 					if (enumValor.getCodi() != null)
 						codiBo = enumValor.getCodi().replaceAll("\\p{Cntrl}", "").trim();
-					
+
 					String valorBo = null;
 					if (valor != null)
 						valorBo = valor.toString().replaceAll("\\p{Cntrl}", "").trim();
-					
+
 					if (valorBo == null || valorBo.equalsIgnoreCase(codiBo)) {
 						resposta.add(new ParellaCodiValorDto(
 								enumValor.getCodi(),
@@ -680,7 +680,7 @@ public class VariableHelper {
 		tascaDadaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
 		tascaDadaDto.setCampOcult(expedientDadaDto.isCampOcult());
 		tascaDadaDto.setLlistar(expedientDadaDto.isLlistar());
-		
+
 		if(agrupacio != null) {
 			agrupacioDto = new CampAgrupacioDto(
 					agrupacio.getId(),
@@ -689,7 +689,7 @@ public class VariableHelper {
 					agrupacio.getDescripcio(),
 					agrupacio.getOrdre());
 		}
-		
+
 		tascaDadaDto.setAgrupacio(agrupacioDto);
 		if (camp != null) {
 			tascaDadaDto.setReadOnly(readOnly);
@@ -769,10 +769,10 @@ public class VariableHelper {
 							new String[paramCampCodis.size()]));
 		}
 		tascaDadaDto.setTerminiNomesDies (camp.isTerminiNomesDies());
-		
+
 		return tascaDadaDto;
 	}
-		
+
 	/*public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
 			ExpedientDadaDto expedientDadaDto) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
@@ -824,7 +824,7 @@ public class VariableHelper {
 		tascaDto.setObservacions(camp.getObservacions());
 		tascaDto.setJbpmAction(camp.getJbpmAction());
 		tascaDto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
-		
+
 		if (CampTipusEnum.SELECCIO.equals(camp.getTipus()) || CampTipusEnum.SUGGEST.equals(camp.getTipus())) {
 			try {
 				tascaDto.setVarValor(
@@ -847,7 +847,7 @@ public class VariableHelper {
 			}*/
 			tascaDto.setMultipleDades(multipleDades);
 		}
-		
+
 		List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
 		/*for (CampRegistre dto: camp.getRegistrePares()) {
 			registreDades.add(getTascaDadaDtoParaConsultaDisseny(dto.getRegistre()));
@@ -963,11 +963,13 @@ public class VariableHelper {
 //					} else {
 //						valorsMultiples = new Object[] {};
 //					}
-					if (varValor == null 
-							|| (varValor instanceof Object[] 
+					if (varValor == null
+							|| (varValor instanceof Object[]
 									&& ((Object[]) varValor).length > 0)) {
 						valorsMultiples = (Object[])varValor;
-					} else { 
+					} else if(varValor instanceof List) {
+						valorsMultiples = ((List) varValor).toArray();
+					} else {
 						valorsMultiples = new Object[] {varValor};
 					}
 					List<ExpedientDadaDto> multipleDades = new ArrayList<ExpedientDadaDto>();
@@ -1114,7 +1116,7 @@ public class VariableHelper {
 			String processInstanceId){
 		if (valor == null)
 			return null;
-		
+
 		//mirem si hi ha una variable amb la texte, utilitzant el prefix PREFIX_VAR_DESCRIPCIO
 		if (camp.isDominiCacheText()) {
 			Object descVariable = getDescripcioVariable(taskInstanceId, processInstanceId, camp.getCodi());
@@ -1125,13 +1127,13 @@ public class VariableHelper {
 			}
 		}
 		//////////
-		
+
 		if (valor instanceof DominiCodiDescripcio) {
 			return new ParellaCodiValorDto(
 					((DominiCodiDescripcio)valor).getCodi(),
 					((DominiCodiDescripcio)valor).getDescripcio());
 		}
-		
+
 		ParellaCodiValorDto resultat = null;
 		List<ParellaCodiValorDto> lista = getPossiblesValorsCamp(
 				camp,

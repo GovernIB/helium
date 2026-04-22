@@ -11,13 +11,17 @@
         <ul class="list-group registre">
             <li class="list-group-item d-flex justify-content-between border-0">
                 <c:forEach var="vheader" items="${valor.valorHeader}">
-                    <div class="d-flex flex-column text-dark font-weight-bold text-sm<c:if test='${vheader.value}'> obligatori</c:if>">${vheader.key}</div>
+                    <div class="d-flex flex-column text-dark font-weight-bold text-sm<c:if test='${vheader.value}'> obligatori</c:if>">
+						<c:out value="${vheader.key}" />
+					</div>
                 </c:forEach>
             </li>
             <c:forEach var="vbody" items="${valor.valorBody}">
                 <li class="list-group-item d-flex justify-content-between border-0">
-                    <c:forEach var="dada" items="${vbody}">
-                        <div class="d-flex flex-column text-sm">${dada}</div>
+                    <c:forEach var="vcolumn" items="${vbody}">
+                        <div class="d-flex flex-column text-sm">
+							<c:out value="${vcolumn}" />
+						</div>
                     </c:forEach>
                 </li>
             </c:forEach>
@@ -26,16 +30,18 @@
     <c:otherwise>
         <c:choose>
             <c:when test="${valor.multiple}">
-                <ul class="list-group multiple">
+				<ul class="list-group multiple">
                     <c:forEach var="dada" items="${valor.valorMultiple}">
                         <li class="list-group-item d-flex justify-content-between border-0">
-                            <div class="d-flex flex-column text-sm">${dada}</div>
+                            <div class="d-flex flex-column text-sm">
+								<c:out value="${dada}" />
+							</div>
                         </li>
                     </c:forEach>
                 </ul>
             </c:when>
             <c:otherwise>
-                ${valor.valorSimple}
+                <c:out value="${valor.valorSimple}" />
             </c:otherwise>
         </c:choose>
     </c:otherwise>
