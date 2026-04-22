@@ -85,13 +85,13 @@ import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.ExpedientTipusUnitatOrganitzativa;
 import es.caib.helium.persistence.entity.Parametre;
-import es.caib.helium.service.helper.EntornHelper;
-import es.caib.helium.service.helper.ExpedientHelper;
-import es.caib.helium.service.helper.UnitatOrganitzativaHelper;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
 
 /**
  * Controlador per al manteniment de tipus d'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "expedientTipusControllerV3")
@@ -125,7 +125,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
-		model.addAttribute("propagarEsborratExpedients",this.isPropagarEsbExp());	
+		model.addAttribute("propagarEsborratExpedients",this.isPropagarEsbExp());
 		return "expedientTipusLlistat";
 	}
 
@@ -143,7 +143,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						entornActual.getId(),
 						paginacioParams.getFiltre(),
 						paginacioParams));
-	}	
+	}
 
 	@RequestMapping(value = "/{expedientTipusId}", method = RequestMethod.GET)
 	public String pipelles(
@@ -156,7 +156,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				model,
 				null);
 	}
-	
+
 	/** Pipella d'informació. */
 	@RequestMapping(value = "/{expedientTipusId}/informacio")
 	public String informacio(
@@ -173,14 +173,14 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		omplirModelPestanyaInformacio(
 				request,
 				expedientTipusId,
-				model);		
+				model);
 		return "expedientTipusInformacio";
 	}
 	private void omplirModelPestanyaInformacio(
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
@@ -200,7 +200,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					responsable = new PersonaDto();
 					responsable.setCodi(responsableCodi);
 					responsable.setNom(responsableCodi);
-					model.addAttribute("errorResonsableNoTrobat", true); 
+					model.addAttribute("errorResonsableNoTrobat", true);
 				}
 				model.addAttribute(
 						"responsableDefecte",
@@ -211,16 +211,16 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId));
 		}
 	}
-	
+
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
 	public String nou(
 			HttpServletRequest request,
 			Model model) {
-		omplirModelExpedientTipusForm( request, null, model);		
+		omplirModelExpedientTipusForm( request, null, model);
 		model.addAttribute("expedientTipusCommand", new ExpedientTipusCommand());
 		return "expedientTipusForm";
 	}
-	
+
 	private void omplirModelExpedientTipusForm(
 			HttpServletRequest request,
 			Long expedientTipusId,
@@ -253,11 +253,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		omplirModelExpedientTipusForm( request, null, model);		
+    		omplirModelExpedientTipusForm( request, null, model);
         	return "expedientTipusForm";
         } else {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-    		// Transforma els llistats d'anys i valors 
+    		// Transforma els llistats d'anys i valors
     		List<Integer> sequenciesAny = new ArrayList<Integer>();
     		List<Long> sequenciesValor = new ArrayList<Long>();
     		for (int i = 0; i < command.getSequenciesAny().size(); i++ ){
@@ -283,8 +283,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			HttpServletRequest request,
 			@PathVariable Long id,
 			Model model) {
-		
-		omplirModelExpedientTipusForm( request, id, model);		
+
+		omplirModelExpedientTipusForm( request, id, model);
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto dto = expedientTipusService.findAmbIdPermisDissenyar(
 				entornActual.getId(),
@@ -310,7 +310,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		omplirModelExpedientTipusForm( request, id, model);		
+    		omplirModelExpedientTipusForm( request, id, model);
         	return "expedientTipusForm";
         } else {
         	boolean actualitzarContingutManual = false;
@@ -330,7 +330,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				actualitzarContingutManual = true;
 			}
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-    		// Transforma els llistats d'anys i valors 
+    		// Transforma els llistats d'anys i valors
     		List<Integer> sequenciesAny = new ArrayList<Integer>();
     		List<Long> sequenciesValor = new ArrayList<Long>();
     		for (int i = 0; i < command.getSequenciesAny().size(); i++ ){
@@ -358,18 +358,18 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		boolean esborrarExpedients =isPropagarEsbExp();	
+		boolean esborrarExpedients =isPropagarEsbExp();
 		boolean error = false;
 		// Comprova si hi ha expedients, si te permís d'esborrar, s'esborraràn
 		List<Expedient> expedients = expedientHelper.findByEntornIdAndTipusAndTitol(entornActual.getId(), id, null);
 		if(!expedients.isEmpty() && esborrarExpedients) {
 			for(Expedient exp: expedients) {
-				
+
 				ExpedientDto expDto = null;
-				
+
 				try {
 					expDto = expedientService.findAmbIdAmbPermis(exp.getId());
-				
+
 				}  catch(Exception e) {
 					MissatgesHelper.error(
 							request,
@@ -392,7 +392,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			}
 		}
 		// Comprova que no hi hagi tipus d'expedients que heretin
-		List<ExpedientTipusDto> heretats = expedientTipusService.findHeretats(id); 
+		List<ExpedientTipusDto> heretats = expedientTipusService.findHeretats(id);
 		if (heretats.size() > 0) {
 			MissatgesHelper.error(
 					request,
@@ -420,7 +420,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						n++;
 					} catch(Exception e) {
 						logger.error("Error esborrant l'expedient " + ex.getIdentificador() + ": " + e.getMessage());
-						
+
 						if(ex.getArxiuUuid()!=null) {
 							String missatgeError = "Error esborrant l'expedient " + ex.getNumero() + " amb UUID " + ex.getArxiuUuid()+ " de l'Arxiu: " + e.getClass() + " " + e.getCause();
 							logger.warn(missatgeError);
@@ -438,7 +438,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						request,
 						getMessage(
 								request,
-								"expedient.tipus.controller.expedients.eliminats", 
+								"expedient.tipus.controller.expedients.eliminats",
 								new Object[] {n, expedients.size()}));
 				if(errors>0) {
 					MissatgesHelper.error(
@@ -450,7 +450,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				}
 			}
 			else if (!expedients.isEmpty() && !esborrarExpedients){
-				
+
 					MissatgesHelper.error(
 							request,
 							getMessage(
@@ -466,10 +466,10 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					getMessage(
 							request,
 							"expedient.tipus.controller.eliminat"));
-		} 
+		}
 		return "redirect:/expedientTipus";
 	}
-	
+
 	/** Modal per exportar la informació del tipus d'expedient. */
 	@RequestMapping(value = "/{expedientTipusId}/exportar", method = RequestMethod.GET)
 	public String exportar(
@@ -499,8 +499,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		this.omplirModelFormulariExportacio(expedientTipusId, model, dto);
 
 		return "expedientTipusExportarForm";
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/exportar", method = RequestMethod.POST)
 	public String exportarPost(
 			HttpServletRequest request,
@@ -520,26 +520,26 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         	return "expedientTipusExportarForm";
         } else {
 			model.addAttribute("filename", dto.getCodi() + ".exp");
-			ExpedientTipusExportacio expedientTipusExportacio = 
+			ExpedientTipusExportacio expedientTipusExportacio =
 					expedientTipusService.exportar(
 							entornActual.getId(),
 							expedientTipusId,
 							ConversioTipus.convertir(
-									command, 
+									command,
 									ExpedientTipusExportacioCommandDto.class));
 			model.addAttribute("data", expedientTipusExportacio);
-			return "serialitzarView";        	
+			return "serialitzarView";
         }
-	}	
-	
+	}
+
 	private void omplirModelFormulariExportacio(
 			Long expedientTipusId,
-			Model model, 
+			Model model,
 			ExpedientTipusDto dto) {
 		model.addAttribute("estats", dto.getEstats());
 		model.addAttribute("variables", campService.findAllOrdenatsPerCodi(expedientTipusId, null));
 		model.addAttribute("agrupacions", campService.agrupacioFindAll(expedientTipusId, null, false));
-		
+
 		// Map<definicioCodi, List<ParellaCodiValorDto>> map amb les versions agrupades per codi jbpm
 		Map<String, List<Integer>> versionsMap = new HashMap<String, List<Integer>>();
 		// Map<definicioCodi, darrera versió> map amb les darreres versions per codi jbpm
@@ -547,7 +547,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		List<Integer> versions;
 		List<DefinicioProcesDto> definicions = new ArrayList<DefinicioProcesDto>();
 		String jbpmKey;
-		for (DefinicioProcesDto definicio : 
+		for (DefinicioProcesDto definicio :
 						expedientTipusService.definicioFindAll(expedientTipusId)) {
 			jbpmKey = definicio.getJbpmKey();
 			versions = versionsMap.get(jbpmKey);
@@ -563,7 +563,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		}
 		for (List<Integer> v : versionsMap.values())
 			Collections.sort(v);
-		model.addAttribute("definicions", definicions);		
+		model.addAttribute("definicions", definicions);
 		model.addAttribute("definicionsVersions", versionsMap);
 		model.addAttribute("darreresVersions", darreresVersionsMap);
 		model.addAttribute("enumeracions", expedientTipusService.enumeracioFindAll(expedientTipusId, false));
@@ -572,15 +572,15 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("accions", accioService.findAll(expedientTipusId, null));
 		model.addAttribute("dominis", expedientTipusService.dominiFindAll(expedientTipusId, false));
 		model.addAttribute("consultes", expedientTipusService.consultaFindAll(expedientTipusId));
-	}	
-	
+	}
+
 	/** Modal per importar la informació del fitxer d'un tipus d'expedient. */
 	@RequestMapping(value = "/importar", method = RequestMethod.GET)
 	public String importar(
 			HttpServletRequest request,
 			@RequestParam(required = false) Long expedientTipusId,
 			Model model) {
-		
+
 		ExpedientTipusExportarCommand command = new ExpedientTipusExportarCommand();
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -594,17 +594,17 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				command.setExpedientTipusPare(expedientTipusPare.getCodi());
 				command.setTasquesHerencia(true);
 			}
-		}		
+		}
 		model.addAttribute("expedientTipus", expedientTipus);
 		command.setId(expedientTipusId);
 		command.setIntegracioSistra(true);
 		command.setIntegracioForms(true);
-		model.addAttribute("command", command);		
+		model.addAttribute("command", command);
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
-		
+
 		return "expedientTipusImportarForm";
-	}	
-	
+	}
+
 	/** Carrega el formulari per ajax i mostra les opcions per importar les dades del fitxer importat. */
 	@RequestMapping(value = "/importar/upload", method = RequestMethod.POST)
 	public String importarUploadPost(
@@ -616,8 +616,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Model model) {
 
 		// Processament del fitxer fet en el validador ExpedientTipusUploadValidator
-		ExpedientTipusExportacio exportacio = command.getExportacio(); 	
-		
+		ExpedientTipusExportacio exportacio = command.getExportacio();
+
 		if (bindingResult.hasErrors()) {
 			// es limitarà a mostrar els errors de validació
 		}
@@ -628,19 +628,19 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
 				command.setTasquesHerencia(true);
 			}
-			
+
 			command.setNtiActiu(exportacio.isNtiActiu());
 			command.setNtiSerieDocumental(exportacio.getNtiSerieDocumental());
-			
+
 		 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, request, model);			
+			this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, request, model);
 		}
-		
+
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
 		model.addAttribute("command", command);
 
 		return "expedientTipusImportarOpcions";
-	}	
+	}
 
 	/** Acció d'enviament del fitxer i les opcions sobre les dades de l'expedient d'exportació.
 	 * La validació es fa en el <i>ExpedientTipusImportarValidator</i>.
@@ -651,7 +651,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	 * @param model
 	 * @see es.caib.helium.back.validator.ExpedientTipusImportarValidator
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@RequestMapping(value = "/importar", method = RequestMethod.POST)
 	public String importarPost(
@@ -662,30 +662,30 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			BindingResult bindingResult,
 			Model model) throws IOException {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		
+
 		// Processament del fitxer fet en el validador ExpedientTipusImportarValidator
-		ExpedientTipusExportacio importacio = command.getExportacio(); 	
-	 	
+		ExpedientTipusExportacio importacio = command.getExportacio();
+
 		if (bindingResult.hasErrors()) {
-    		model.addAttribute("command", command);	    		
+    		model.addAttribute("command", command);
     		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, request, model);
         	return "expedientTipusImportarOpcions";
         } else {
         	try {
-        		
+
         		ExpedientTipusExportacioCommandDto expCommandDto = ConversioTipus.convertir(
-						command, 
+						command,
 						ExpedientTipusExportacioCommandDto.class);
-        		
+
 	        	ExpedientTipusDto expedientTipus = expedientTipusService.importar(
 	        			entornActual.getId(),
 	        			command.getId(),
 	        			expCommandDto,
 						importacio);
-						
+
 				// Invoca al mètode per relacionar les darreres definicions de procés
 				definicioProcesService.relacionarDarreresVersions(expedientTipus.getId());
-				
+
 				if(command.isDesplegarDefinicions() && command.isActualitzarExistents()) {
 					if (command.getId() == null) {
 						command.setId(expedientTipus.getId());
@@ -698,16 +698,16 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				}
 
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"expedient.tipus.importar.form.success"));
 	    		// Indica que la importació ha finalitzat per no haver de processar més codi
 	    		model.addAttribute("importacioFinalitzada", true);
         		model.addAttribute("redireccioUrl",  request.getContextPath() + "/expedientTipus/" + expedientTipus.getId());
             	return "expedientTipusImportarOpcions";
         	} catch (Exception e) {
-        		MissatgesHelper.error(request, 
+        		MissatgesHelper.error(request,
         							getMessage(request,
         										"expedient.tipus.importar.form.error.importacio",
         										new Object[] {e.getLocalizedMessage()}),
@@ -717,8 +717,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
             	return "expedientTipusImportarOpcions";
         	}
         }
-	}	
-	
+	}
+
 	private void omplirModelFormulariImportacio(
 			Long entornId,
 			Long expedientTipusId,
@@ -731,22 +731,22 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					entornId,
 					expedientTipusId);
 			model.addAttribute("expedientTipus", dto);
-			
+
 			// avisa si el codi de la exportació és diferent del codi al qual s'importa
 			if (exportacio != null && ! dto.getCodi().equals(exportacio.getCodi())) {
 				model.addAttribute("exportacio", exportacio);
-				model.addAttribute("avisImportacioExpedientTipusDiferent", true); 
+				model.addAttribute("avisImportacioExpedientTipusDiferent", true);
 			}
 	 	}
 		// Comprova si posar un avís que ja existeix un codi de procediment
 		if (exportacio.isDistribucioActiu()) {
-			ExpedientTipusDto expedientTipusPerDistribucio = 
+			ExpedientTipusDto expedientTipusPerDistribucio =
 					expedientTipusService.findPerDistribucio(exportacio.getDistribucioCodiProcediment(), exportacio.getDistribucioCodiProcediment());
-			if (expedientTipusPerDistribucio != null 
+			if (expedientTipusPerDistribucio != null
 					&& !expedientTipusPerDistribucio.getId().equals(expedientTipusId) ) {
-				model.addAttribute("avisImportacioPerDistribucioTipusDiferent", 
-							this.getMessage(request, 
-									"expedient.tipus.importar.form.avis.distribucio.procediment.diferent", 
+				model.addAttribute("avisImportacioPerDistribucioTipusDiferent",
+							this.getMessage(request,
+									"expedient.tipus.importar.form.avis.distribucio.procediment.diferent",
 									new Object[] {
 											expedientTipusPerDistribucio.getCodi(),
 											expedientTipusPerDistribucio.getNom(),
@@ -757,21 +757,21 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 									}));
 			}
 		}
-		
+
 		if(exportacio.isArxiuActiu() && !expedientTipusService.arxiuCheckSerieDocumental(
 				exportacio.getNtiSerieDocumental(),
 				exportacio.getNtiOrgano(),
 				exportacio.getNtiClasificacion())) {
 			model.addAttribute("avisSerieDocumentalNoTrobada", true);
 		}
-	 	
+
 		// Per indicar a la pàgina si s'ha pogut fer una importació del fitxer.
 		model.addAttribute("fitxerImportat", exportacio != null);
-		
+
 		if (exportacio != null) {
 			// Comprova si existeix el responsable per defecte
 			String responsableCodi = exportacio.getResponsableDefecteCodi();
-			if (responsableCodi != null) {				
+			if (responsableCodi != null) {
 				// Responsable per defecte
 				if (responsableCodi != null) {
 					try {
@@ -779,38 +779,38 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 								responsableCodi);
 					} catch (NoTrobatException nte) {
 						model.addAttribute("exportacio", exportacio);
-						model.addAttribute("avisResonsableNoTrobat", true); 
+						model.addAttribute("avisResonsableNoTrobat", true);
 					}
 				}
 			}
-			
+
 			model.addAttribute("estats", exportacio.getEstats());
 			model.addAttribute("variables", exportacio.getCamps());
 			model.addAttribute("agrupacions", exportacio.getAgrupacions());
-			List<DefinicioProcesDto> definicions = new ArrayList<DefinicioProcesDto>(); 
+			List<DefinicioProcesDto> definicions = new ArrayList<DefinicioProcesDto>();
 			for (DefinicioProcesExportacio definicioExportat : exportacio.getDefinicions()) {
 				definicions.add(definicioExportat.getDefinicioProcesDto());
-				
+
 				this.comprovarDocumentsImportacio(request, model, entornId, expedientTipusId, definicioExportat.getDefinicioProcesDto().getJbpmKey(), definicioExportat.getDocuments());
 			}
-			model.addAttribute("definicions", definicions);		
+			model.addAttribute("definicions", definicions);
 
 			model.addAttribute("enumeracions", exportacio.getEnumeracions());
 			model.addAttribute("documents", exportacio.getDocuments());
 			model.addAttribute("terminis", exportacio.getTerminis());
 			model.addAttribute("accions", exportacio.getAccions());
 			model.addAttribute("dominis", exportacio.getDominis());
-			model.addAttribute("consultes", exportacio.getConsultes());			
+			model.addAttribute("consultes", exportacio.getConsultes());
 
 			this.comprovarDocumentsImportacio(request, model, entornId, expedientTipusId, null, exportacio.getDocuments());
 		}
 	}
-	
+
 	/** Comprova els documents a importar. Pot comprovar els documents tant del tipus d'expedient importat com
 	 * d'una definició de procés.
 	 */
 	private void comprovarDocumentsImportacio(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			Model model,
 			Long entornId,
 			Long expedientTipusId,
@@ -871,7 +871,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			model.addAttribute("avisosDocuments", avisosDocuments);
 		}
 	}
-	
+
 	@RequestMapping(value = "/{id}/permis{permisUO}", method = RequestMethod.GET)
 	public String permisGet(
 			HttpServletRequest request,
@@ -889,7 +889,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					codiNomUnitatOrganitzativa = unitatOrg.getCodi() + "-"+ unitatOrg.getNom();
 					expedientTipusDto.setUnitatOrganitzativaCodiNom(codiNomUnitatOrganitzativa);
 				}
-			}	
+			}
 			model.addAttribute(
 					"unitatOrganitzativa",
 					codiNomUnitatOrganitzativa);
@@ -902,7 +902,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				permisUO);
 		return "expedientTipusPermis";
 	}
-	
+
 	@RequestMapping(value = "/{id}/permis{permisUO}/datatable")
 	@ResponseBody
 	DatatablesResponse permisDatatable(
@@ -916,7 +916,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			permisos = expedientTipusService.permisFindAll(
 				entornActual.getId(),
 				id);
-		} else {	
+		} else {
 			permisos = expedientTipusService.permisFindAllByExpedientTipusProcedimentComu(id);
 		}
 		Collections.sort(permisos);
@@ -944,7 +944,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("permisUO", permisUO);
 		return "expedientTipusPermisForm";
 	}
-	
+
 	@RequestMapping(value = "/{id}/permis{permisUO}/new", method = RequestMethod.POST)
 	public String permisNewPost(
 			HttpServletRequest request,
@@ -962,7 +962,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				bindingResult,
 				model);
 	}
-		
+
 	@RequestMapping(value = "/{id}/permis{permisUO}/{permisId}", method = RequestMethod.GET)
 	public String permisUpdateGet(
 			HttpServletRequest request,
@@ -981,17 +981,17 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					id,
 					permisId,
 					unitatOrganitzativaCodi);
-		
+
 		model.addAttribute(
 				"expedientTipus",
-				expedientTipusDto);		
+				expedientTipusDto);
 		if (permisUO!=null && unitatOrganitzativaCodi!=null && !" ".equals(unitatOrganitzativaCodi)) {
 			UnitatOrganitzativaDto unitatOrganitzativaDto = unitatOrganitzativaService.findByCodi(unitatOrganitzativaCodi);
 			permis.setUnitatOrganitzativaCodiNom(unitatOrganitzativaDto.getCodi());
 //			permis.setAdministration(false);
 //			permis.setDesign(false);
 		}
-		
+
 		model.addAttribute(
 				ConversioTipus.convertir(
 						permis,
@@ -999,7 +999,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("permisUO", permisUO);
 		return "expedientTipusPermisForm";
 	}
-	
+
 	@RequestMapping(value = "/{id}/permis{permisUO}/{permisId}", method = RequestMethod.POST)
 	public String permisUpdatePost(
 			HttpServletRequest request,
@@ -1021,12 +1021,12 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         	try {
         		Long unitatOrganitzativaId = null;
         		UnitatOrganitzativaDto unitatOrganitzativaDto = null;
-        		if(command.getUnitatOrganitzativaCodiNom()!=null) {       			
+        		if(command.getUnitatOrganitzativaCodiNom()!=null) {
         			unitatOrganitzativaDto = unitatOrganitzativaService.findByCodi(command.getUnitatOrganitzativaCodiNom());
         			if (unitatOrganitzativaDto == null)
         				throw new NoTrobatException(UnitatOrganitzativaDto.class, command.getUnitatOrganitzativaCodiNom());
         			unitatOrganitzativaId = unitatOrganitzativaDto.getId();
-        		} 
+        		}
 	    		expedientTipusService.permisUpdate(
 	    					entornActual.getId(),
 	    					id,
@@ -1035,12 +1035,12 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		    						command,
 		    						PermisDto.class),
 		    				entornActual.isPermisAdministration());
-    			
+
 		        return getModalControllerReturnValueSuccess(
 							request,
 							"redirect:/expedientTipus/" + id + "/permis",
 							"expedient.tipus.controller.permis.actualitzat");
-    			
+
         	} catch (Exception e) {
             	model.addAttribute(
         				"expedientTipus",
@@ -1078,7 +1078,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			return getModalControllerReturnValueSuccess(
 						request,
 						"redirect:/expedientTipus/" + id + "/permis" + (permisUO != null ? permisUO : ""),
-						"expedient.tipus.controller.permis.esborrat");		
+						"expedient.tipus.controller.permis.esborrat");
 		} catch (Exception e) {
 			String msg = getMessage(request, "expedient.tipus.controller.permis.esborrar.error",
 					new Object[] {e.getMessage()});
@@ -1090,7 +1090,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		}
 		return "redirect:/expedientTipus/" + id + "/permis" + (permisUO != null ? permisUO : "");
 	}
-	
+
 	//eliminar versions de definicons de procés
 	@RequestMapping(value = "/{id}/netejarDp", method = RequestMethod.GET)
 	public String netejarDp(
@@ -1105,7 +1105,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						id));
 		return "llistatDpNoUs";
 	}
-	
+
 	@RequestMapping(value = "/{id}/netejarDp/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse netejarDpDatatable(
@@ -1124,7 +1124,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						paginacioParams),
 				"id");
 	}
-	
+
 	@RequestMapping(value = "/{id}/netejarSelectedDp", method = RequestMethod.GET)
 	public String netejarSelectedDp(
 			HttpServletRequest request,
@@ -1133,11 +1133,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		try {
 			SessionManager sessionManager = SessionHelper.getSessionManager(request);
 			Set<Long> seleccio = sessionManager.getSeleccioConsultaDpNoUtilitzades(id);
-			
+
 			if (seleccio != null && seleccio.size() > 0) {
 				Long longIds[] = new Long[seleccio.size()];
 				longIds = seleccio.toArray(longIds);
-			
+
 				Date dInici = new Date();
 				ExecucioMassivaDto emdto = new ExecucioMassivaDto();
 				emdto.setTipus(ExecucioMassivaTipusDto.ELIMINAR_VERSIO_DEFPROC);
@@ -1145,33 +1145,33 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				emdto.setDefProcIds(longIds);
 				emdto.setExpedientTipusId(id);
 				emdto.setEnviarCorreu(false);
-				
+
 				execucioMassivaService.crearExecucioMassiva(emdto);
-				
+
 				MissatgesHelper.success(
 						request,
 						"S'ha programat l'eliminació de les definicions de procés");
 			} else {
 				MissatgesHelper.warning(
-						request, 
+						request,
 						"No s'ha seleccionat cap definició de procés");
 	        	logger.error("No s'ha seleccionat cap definició de procés");
 			}
-			
+
 		} catch (Exception ex) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"error.proces.peticio"),
 					ex);
         	logger.error("No s'han pogut programar l'eliminació de les definicions de procés", ex);
 		}
-		
+
 		return "redirect:/expedientTipus/" + id + "/netejarDp";
 	}
-	
-	
+
+
 	//expedients afectats per una definició de procés que vol ser borrada
 	@RequestMapping(value = "/{id}/afectatsDp/{dpId}", method = RequestMethod.GET)
 	public String afectatsDp(
@@ -1190,7 +1190,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				dissenyService.getById(dpId));
 		return "llistatAfectatsDp";
 	}
-	
+
 	@RequestMapping(value = "/{id}/afectatsDp/{dpId}/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse netejarDpDatatable(
@@ -1211,7 +1211,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						paginacioParams),
 				"id");
 	}
-	
+
 	@RequestMapping(value = "/{id}/eliminarLogs/{dpId}", method = RequestMethod.GET)
 	public String eliminarLogs(
 			HttpServletRequest request,
@@ -1221,7 +1221,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		try {
 			SessionManager sessionManager = SessionHelper.getSessionManager(request);
 			List<Long> seleccio = sessionManager.getSeleccioConsultaAfectatsDp(dpId);
-			
+
 			if (seleccio != null && seleccio.size() > 0) {
 				Date dInici = new Date();
 				ExecucioMassivaDto emdto = new ExecucioMassivaDto();
@@ -1230,33 +1230,33 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				emdto.setExpedientIds(seleccio);
 				emdto.setExpedientTipusId(id);
 				emdto.setTipus(ExecucioMassivaTipusDto.BUIDARLOG);
-				
+
 				execucioMassivaService.crearExecucioMassiva(emdto);
-				
+
 				MissatgesHelper.success(
 						request,
 						"S'ha programat l'eliminació dels logs dels expedients seleccionats");
 			} else {
 				MissatgesHelper.warning(
-						request, 
+						request,
 						"No s'ha seleccionat cap expedient");
 	        	logger.error("No s'ha seleccionat cap expedient");
 			}
-			
+
 		} catch (Exception ex) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"error.proces.peticio"),
 					ex);
         	logger.error("No s'han pogut programar l'eliminació dels logs dels expedients seleccionats", ex);
 		}
-		
+
 		return "redirect:/expedientTipus/" + id + "/afectatsDp/" + dpId;
 	}
-	
-	
+
+
 	@RequestMapping(value = "/{id}/selection/{global}")
 	@ResponseBody
 	public Set<Long> seleccioDp(
@@ -1266,14 +1266,14 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@RequestParam(value = "ids[]", required = false) Long[] ids,
 			@RequestParam(value = "method", required = false) String method
 			) {
-		
+
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaDpNoUtilitzades(id);
 		if (seleccio == null) {
 			seleccio = new HashSet<Long>();
 			sessionManager.setSeleccioConsultaDpNoUtilitzades(id,seleccio);
 		}
-		
+
 		if ("selection".equalsIgnoreCase(global)) {
 			if ("add".equalsIgnoreCase(method) && ids != null) {
 				for (Long idu: ids) {
@@ -1287,7 +1287,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						seleccio.remove(idu);
 					}
 				}
-			}	
+			}
 		} else if ("clear".equalsIgnoreCase(global)) {
 			seleccio.clear();
 		} else if ("all".equalsIgnoreCase(global)) {
@@ -1299,7 +1299,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		sessionManager.setSeleccioConsultaDpNoUtilitzades(id, seleccio);
 		return seleccio;
 	}
-	
+
 	@RequestMapping(value = "/{id}/afectatsDp/{dpId}/{global}")
 	@ResponseBody
 	public List<Long> afectatsDp(
@@ -1310,14 +1310,14 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@RequestParam(value = "ids[]", required = false) Long[] ids,
 			@RequestParam(value = "method", required = false) String method
 			) {
-		
+
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		List<Long> seleccio = sessionManager.getSeleccioConsultaAfectatsDp(dpId);
 		if (seleccio == null) {
 			seleccio = new ArrayList<Long>();
 			sessionManager.setSeleccioConsultaAfectatsDp(dpId,seleccio);
 		}
-		
+
 		if ("selection".equalsIgnoreCase(global)) {
 			if ("add".equalsIgnoreCase(method) && ids != null) {
 				for (Long idu: ids) {
@@ -1331,7 +1331,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						seleccio.remove(idu);
 					}
 				}
-			}	
+			}
 		} else if ("clear".equalsIgnoreCase(global)) {
 			seleccio.clear();
 		} else if ("all".equalsIgnoreCase(global)) {
@@ -1339,15 +1339,15 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			DefinicioProcesDto definicioProces = dissenyService.getById(dpId);
 			seleccio.addAll(dissenyService.findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
-					entornActual.getId(), 
-					id, 
+					entornActual.getId(),
+					id,
 					Long.parseLong(definicioProces.getJbpmId())));
 		}
 
 		sessionManager.setSeleccioConsultaAfectatsDp(dpId,seleccio);
 		return seleccio;
 	}
-	
+
 	@RequestMapping(value = "{id}/borra_logsexps", method = RequestMethod.POST)
 	@ResponseBody
 	public String borra_logsExps(
@@ -1386,7 +1386,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		return response;
 	}
 
-	/** Acció del menú de la pestanya d'informació per iniciar una tasca en segon pla per actualitzar 
+	/** Acció del menú de la pestanya d'informació per iniciar una tasca en segon pla per actualitzar
 	 * les plantilles dels documents de les definicions de procés amb la informació dels documents de la darrera versió de la definició de procés.
 	 * Aquesta acció és per mantenir compatibilitat amb els tipus d'expedient amb la informació dins de les definicions
 	 * de procés.
@@ -1425,14 +1425,14 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 								"exptipus.info.propagar.plantilles.error",
 								new Object[] {e.getMessage()}),
 						e);
-			}			
+			}
 		}
 		return "redirect:/expedientTipus/"+expedientTipusId;
 	}
-	
-	/** Acció del menú de la pestanya d'informació per iniciar una tasca en segon pla per 
+
+	/** Acció del menú de la pestanya d'informació per iniciar una tasca en segon pla per
 	 * actualitzar les plantilles dels documents de les definicions de procés
-	 * amb la informació dels documents de la darrera versió de la definició de procés. 
+	 * amb la informació dels documents de la darrera versió de la definició de procés.
 	 * Aquesta acció és per mantenir compatibilitat amb els tipus d'expedient amb la informació dins de les definicions
 	 * de procés.
 	 */
@@ -1472,8 +1472,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			}
 		}
 		return "redirect:/expedientTipus/"+expedientTipusId;
-	}	
-	
+	}
+
 	/** Acció del menú d'accions del tipus d'expedient per propagar els handlers de les darreres versions a les versions anteriors.
 	 * Obre una modal per escollir a quines versions propagar els handlers de les diferents definicions de procés del tipus d'expedient.
 	 */
@@ -1483,21 +1483,21 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@PathVariable Long expedientTipusId,
 			@RequestParam(required = false) List<Long> definicionsSeleccionades,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 				entornActual.getId(),
 				expedientTipusId);
-		
+
 		// Llista per passar al model
 		List<DefinicioProcesExpedientDto> definicions = new ArrayList<DefinicioProcesExpedientDto>();
-		
+
 		// Recupera les darreres versions per la definició de procés no globals
 		List<DefinicioProcesDto> definicionsProces = definicioProcesService.findAll(entornActual.getId(), expedientTipusId, false);
 		// Per cada definició de procés cerca les seves versions
 		for (DefinicioProcesDto d : definicionsProces) {
 			DefinicioProcesExpedientDto definicio = dissenyService.getDefinicioProcesByEntorIdAndProcesId(
-					entornActual.getId(), 
+					entornActual.getId(),
 					d.getId());
 			// Treu el primer resultat que es correspon amb la darrera versió, no cal propagar-la
 			definicio.getListIdAmbEtiqueta().remove(0);
@@ -1517,8 +1517,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("definicionsSeleccionades", definicionsSeleccionades);
 
 		return "expedientTipusPropagarHandlersForm";
-	}	
-	
+	}
+
 	/** Acció del menú d'accions del tipus d'expedient per propagar els handlers de les darreres versions a les versions anteriors.
 	 * Obre una modal per escollir a quines versions propagar els handlers de les diferents definicions de procés del tipus d'expedient.
 	 */
@@ -1528,32 +1528,32 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@PathVariable Long expedientTipusId,
 			@RequestParam(required = false) List<Long> definicionsSeleccionades,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		expedientTipusService.findAmbIdPermisDissenyar(
 				entornActual.getId(),
 				expedientTipusId);
-		
+
 		if (definicionsSeleccionades == null || definicionsSeleccionades.size() == 0) {
 			MissatgesHelper.error(
 					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.tipus.propagar.handlers.cap.seleccionat.error"));
 			return this.propagarHandlers(
-					request, 
-					expedientTipusId, 
-					new ArrayList<Long>(), 
+					request,
+					expedientTipusId,
+					new ArrayList<Long>(),
 					model);
 		}
-		
+
 		// Recupera les darreres versions per la definició de procés no globals
 		List<DefinicioProcesDto> darreresVersions = definicioProcesService.findAll(entornActual.getId(), expedientTipusId, false);
 		// Per cada definició de procés propaga els handlers a la llista de definicions seleccionades
 		List<Long> versionsSeleccionades;
 		for (DefinicioProcesDto darreraVersio : darreresVersions) {
 			DefinicioProcesExpedientDto definicio = dissenyService.getDefinicioProcesByEntorIdAndProcesId(
-					entornActual.getId(), 
+					entornActual.getId(),
 					darreraVersio.getId());
 			versionsSeleccionades = new ArrayList<Long>();
 			// Construeix la llista
@@ -1564,11 +1564,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			if (versionsSeleccionades.size() > 0)
 				try {
 					dissenyService.propagarHandlers(
-							darreraVersio.getId(), 
+							darreraVersio.getId(),
 							versionsSeleccionades);
-					MissatgesHelper.success(request, 
-							getMessage( 
-									request, 
+					MissatgesHelper.success(request,
+							getMessage(
+									request,
 									"expedient.tipus.propagar.handlers.confirmacio",
 									new Object[] {
 											darreraVersio.getJbpmKey(),
@@ -1577,8 +1577,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 
 				} catch (Exception e) {
 					String msgErr = getMessage(
-							request, 
-							"expedient.tipus.propagar.handlers.error", 
+							request,
+							"expedient.tipus.propagar.handlers.error",
 							new Object[] {
 									darreraVersio.getJbpmKey(),
 									e.getMessage()
@@ -1591,22 +1591,22 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				}
 		}
 		return this.propagarHandlers(
-				request, 
-				expedientTipusId, 
+				request,
+				expedientTipusId,
 				definicionsSeleccionades,
 				model);
-	}	
-	
+	}
+
 	@RequestMapping(value="/{expedientTipusId}/documentDownload", method = RequestMethod.GET)
 	public String documentDownload(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		expedientTipusService.findAmbIdPermisDissenyarDelegat(
 					entornActual.getId(),
 					expedientTipusId);
-		
+
 		ArxiuDto arxiu = expedientTipusService.getManualAjuda(expedientTipusId);
 		if (arxiu != null) {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
@@ -1615,12 +1615,12 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		return "arxiuView";
 	}
 
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 	}
-	
+
 	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
 	private boolean isPropagarEsbExp() {
 		ParametreDto parametrePropagarEsbExp = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
@@ -1628,6 +1628,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			throw new NoTrobatException(Parametre.class,ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
 		return "1".equalsIgnoreCase(parametrePropagarEsbExp.getValor());
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ExpedientTipusController.class);
 }

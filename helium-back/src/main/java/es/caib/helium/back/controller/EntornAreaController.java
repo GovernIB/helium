@@ -25,18 +25,18 @@ import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.EntornAreaService;
 import es.caib.helium.logic.intf.service.EntornTipusAreaService;
-import es.caib.helium.service.helper.EntornHelper;
+import es.caib.helium.logic.helper.EntornHelper;
 
 /**
  * Controlador per a la gestió de les àrees
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 
 @Controller(value = "entornAreaControllerV3")
 @RequestMapping("/entorn-area")
 public class EntornAreaController extends BaseController {
-	
+
 	@Autowired
 	private EntornAreaService entornAreaService;
 	@Autowired
@@ -50,7 +50,7 @@ public class EntornAreaController extends BaseController {
 			Model model) {
 		return "entornArea";
 	}
-	
+
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
@@ -61,14 +61,14 @@ public class EntornAreaController extends BaseController {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
 			return DatatablesHelper.getEmptyDatatableResponse(request);
 		}
-		
+
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(request, null, entornAreaService.findPerDatatable(paginacioParams));
 	}
-	
+
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
 	public String newGet(HttpServletRequest request, Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
@@ -108,7 +108,7 @@ public class EntornAreaController extends BaseController {
 		}
 		EntornAreaDto dto = entornAreaService.findAmbId(entornActual.getId(), id);
 		dto.setTipusId(dto.getTipus().getId());
-		if (dto.getPare() != null) { 
+		if (dto.getPare() != null) {
 			dto.setPareId(dto.getPare().getId());
 		}
 		model.addAttribute("entornTipusArea", entornTipusAreaService.findTipusAreaByEntorn(entornActual.getId()));
@@ -118,7 +118,7 @@ public class EntornAreaController extends BaseController {
 		model.addAttribute("entornAreaCommand", command);
 		return "entornAreaForm";
 	}
-	
+
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
@@ -135,12 +135,12 @@ public class EntornAreaController extends BaseController {
         	model.addAttribute("entornTipusArea", entornTipusAreaService.findTipusAreaByEntorn(entornActual.getId()));
 			model.addAttribute("entornArees", entornAreaService.findAreesByEntorn(entornActual.getId()));
         	return "entornAreaForm";
-        } 
-        
+        }
+
     	entornAreaService.update(entornActual.getId(), ConversioTipus.convertir(command, EntornAreaDto.class));
 		return getModalControllerReturnValueSuccess(request, "redirect:/entorn-area", "area.controller.modificada");
 	}
-	
+
 	@RequestMapping(value = "{entornAreaId}/delete", method = RequestMethod.GET)
 	public String delete(HttpServletRequest request,
 			@PathVariable Long entornAreaId,
@@ -151,5 +151,5 @@ public class EntornAreaController extends BaseController {
 				"redirect:/entorn-area",
 				"area.controller.esborrada");
 	}
-	
+
 }

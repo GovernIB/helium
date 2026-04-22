@@ -64,7 +64,7 @@ public interface WorkflowEngineApi {
 	 * @param contingut
 	 * @return
 	 */
-	public WDeployment desplegar(
+	public WProcessDefinition desplegar(
             String nomArxiu,
             byte[] contingut);
 	
@@ -161,8 +161,8 @@ public interface WorkflowEngineApi {
 	 * @return
 	 */
 	public List<String> getTaskNamesFromDeployedProcessDefinition(
-            WDeployment dpd,
-            String processDefinitionId);
+            String processKey,
+            Integer version);
 	
 	/**
 	 * Obté el nom de la tasca inicial d'una definició de procés
@@ -820,11 +820,11 @@ public interface WorkflowEngineApi {
 
 	public void signalToken(long longValue, String transicioOK);
 
-	/** Mètode per validar el contingut com un procés vàlid.
+	/** Mètode per interpretar, validar i retornar la definició de procés a partir del contingut.
 	 * 
 	 * @param contingut
 	 * @return Retorna una llista d'errors identificats.
 	 */
-	public List<String> validateProcess(byte[] contingut);
+	public WProcessDefinition parseProcess(byte[] contingut);
 
 }

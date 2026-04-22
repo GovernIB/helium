@@ -25,11 +25,11 @@ import es.caib.helium.logic.intf.service.EntornService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.persistence.common.ThreadLocalInfo;
 import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.service.utils.EntornActual;
+import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Interceptor per guardar a la sessió les dades de l'entorn
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
@@ -37,7 +37,7 @@ public class EntornInterceptor implements HandlerInterceptor {
 
 	public static final String VARIABLE_REQUEST_CANVI_ENTORN = "entornCanviarAmbId";
 	public static final String VARIABLE_REQUEST_CANVI_EXPTIP = "expedientTipusCanviarAmbId";
-	
+
 	// ELIMINAR DE LA INTERFÍCIE 26
 	public static final String VARIABLE_REQUEST_ALERTES_NOLLEGIDES = "hiHaAlertesNollegides";
 
@@ -52,10 +52,10 @@ public class EntornInterceptor implements HandlerInterceptor {
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Object handler) throws Exception {
-		
+
 		if(request.getServletPath().startsWith("/entorn"))
 				return true;
-		
+
 		if (request.getUserPrincipal() != null && !isRequestResource(request)) {
 			EntornDto entornSessio = (EntornDto)SessionHelper.getAttribute(
 					request,
@@ -87,9 +87,9 @@ public class EntornInterceptor implements HandlerInterceptor {
 						if (prefs != null) {
 							Date now = new Date();
 							// si existeix entorn actual i el valor es va modificar fa menys de 8 hores
-							if(prefs.getCurrentEntornCodi() != null && 
+							if(prefs.getCurrentEntornCodi() != null &&
 							   prefs.getCurrentEntornData() != null &&
-							   TimeUnit.HOURS.convert(now.getTime() - prefs.getCurrentEntornData().getTime(), TimeUnit.MILLISECONDS) < 8  
+							   TimeUnit.HOURS.convert(now.getTime() - prefs.getCurrentEntornData().getTime(), TimeUnit.MILLISECONDS) < 8
 							   ) {
 								for (EntornDto entorn: entorns) {
 									if (entorn.getCodi() != null && entorn.getCodi().equals(prefs.getCurrentEntornCodi())) {
@@ -134,10 +134,10 @@ public class EntornInterceptor implements HandlerInterceptor {
 							entornActual = entorns.get(0);
 							setEntornActual(request, entornActual);
 						}
-						
+
 						// Actualitzam l'entorn actual a base de dades
 						if(entornActual != null)
-							aplicacioService.updateEntornActual(entornActual.getCodi());						
+							aplicacioService.updateEntornActual(entornActual.getCodi());
 					} else {
 						for (EntornDto entorn: entorns) {
 							if (entorn.getCodi().equals(entornSessio.getCodi())) {
@@ -153,8 +153,8 @@ public class EntornInterceptor implements HandlerInterceptor {
 			// Inicialitza la variable ThreadLocal de l'expedient que s'està iniciant
 			ThreadLocalInfo.setExpedient(null);
 			if (entornActual != null) {
-				
-				// Indica si hi ha alertes no llegides 
+
+				// Indica si hi ha alertes no llegides
 				// ELIMINAR DE LA INTERFÍCIE 26
 				if (!request.getRequestURI().contains("")) {
 //					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -162,7 +162,7 @@ public class EntornInterceptor implements HandlerInterceptor {
 					request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
 				}
 				/////////////////////////////////
-				
+
 				// Refresca el tipus d'expedient actual
 				@SuppressWarnings("unchecked")
 				List<ExpedientTipusDto> accessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
@@ -191,7 +191,7 @@ public class EntornInterceptor implements HandlerInterceptor {
 								request,
 								SessionHelper.VARIABLE_EXPTIP_ACTUAL);
 					}
-				}				
+				}
 				// Consultas por tipo
 				if (canviEntorn != null || canviExpedientTipus != null || SessionHelper.getAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES) == null) {
 					accessibles = expedientTipusService.findAmbEntornPermisConsultar(
@@ -249,8 +249,8 @@ public class EntornInterceptor implements HandlerInterceptor {
 				SessionHelper.VARIABLE_PERMIS_ENTORN_DESIGN,
 				entorn.isPermisDesign());
 		SessionHelper.setAttribute(
-				request, 
-				SessionHelper.VARIABLE_PERMIS_ENTORN_ADMIN, 
+				request,
+				SessionHelper.VARIABLE_PERMIS_ENTORN_ADMIN,
 				entorn.isPermisAdministration());
 		// Guarda l'entorn actual
 		EntornActual.setEntornId(entorn.getId());
@@ -262,11 +262,11 @@ public class EntornInterceptor implements HandlerInterceptor {
 				SessionHelper.VARIABLE_PERMIS_EXPTIP_DISSENY,
 				!expedientsTipusAmbPermisDisseny.isEmpty());
 		SessionHelper.setAttribute(
-				request, 
-				SessionHelper.VARIABLE_PERMIS_ANOTACIONS_PROCESSAR, 
+				request,
+				SessionHelper.VARIABLE_PERMIS_ANOTACIONS_PROCESSAR,
 				!expedientTipusService.findAmbEntornPermisAnotacio(entorn.getId()).isEmpty());
 		SessionHelper.setAttribute(
-				request, 
+				request,
 				SessionHelper.VARIABLE_PERMIS_SCRIPTS_EXECUTAR,
 				!expedientTipusService.findAmbEntornPermisExecucioScript(entorn.getId()).isEmpty());
 		SessionHelper.setAttribute(
@@ -280,24 +280,24 @@ public class EntornInterceptor implements HandlerInterceptor {
 		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_EXPTIP_ADMIN,
-				expedientTipusService.findAmbEntornPermisAdmin(entorn.getId()));		
+				expedientTipusService.findAmbEntornPermisAdmin(entorn.getId()));
 		SessionHelper.setAttribute(
-				request, 
-				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS, 
+				request,
+				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS,
 				expedientTipusService.findAmbEntornPermisAnotacio(entorn.getId()));
-		
+
 		// Actualitza si hi ha expedients per iniciar
 		List<ExpedientTipusDto> tipusCrear = expedientTipusService.findAmbEntornPermisCrear(
 				entorn.getId());
-		
+
 		List<ExpedientTipusDto> tipusAltaCsv = expedientTipusService.findAmbEntornPermisExecucioScript(
 				entorn.getId());
 		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_HIHA_TRAMITS_INICIABLES,
 				(tipusCrear.size() > 0 || tipusAltaCsv.size() > 0));
-		
-		
+
+
 		// Eliminam expedient actual
 		SessionHelper.removeAttribute(
 				request,
@@ -318,11 +318,11 @@ public class EntornInterceptor implements HandlerInterceptor {
 		String uri = request.getRequestURI();
 		String root = request.getContextPath();
 		if (
-				uri.contains(root + "/img/") || 
-				uri.contains(root + "/css/") || 
-				uri.contains(root + "/js/") || 
-				uri.contains(root + "/webjars/") || 
-				uri.contains("/datatable") || 
+				uri.contains(root + "/img/") ||
+				uri.contains(root + "/css/") ||
+				uri.contains(root + "/js/") ||
+				uri.contains(root + "/webjars/") ||
+				uri.contains("/datatable") ||
 				uri.contains("/selection"))
 			return true;
 		return false;

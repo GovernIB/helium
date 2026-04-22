@@ -25,7 +25,7 @@ import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.service.utils.CsvHelper;
+import es.caib.helium.logic.utils.CsvHelper;
 
 /**
  * Validador per a la comanda d'alta massiva d'expedients per CSV.
@@ -33,21 +33,21 @@ import es.caib.helium.service.utils.CsvHelper;
 public class ExpedientAltaMassivaValidator implements ConstraintValidator<ExpedientAltaMassiva, ExpedientAltaMassivaCommand>{
 
 	private String codiMissatge;
-	
+
 	@Autowired
 	ExpedientTipusService expedientTipusService;
 	@Autowired
 	ExecucioMassivaService execucioMassivaService;
 	@Autowired
 	DissenyService dissenyService;
-	
+
 	/** Màxim de 1500 expedients per alta programada. */
-	private int MAX_EXPEDIENTS = 1500; 
+	private int MAX_EXPEDIENTS = 1500;
 
 	/** Màxim de 20 expedients per alta sense paràmetre de programació, a partir de 20 s'ha de programar després de les 15h. */
 	private int MAX_EXPEDIENTS_SENSE_PROGRAMACIO = 20;
-	private int PROGRAMACIO_HORA_MINIMA_HH = 15; 
-	private int PROGRAMACIO_HORA_MINIMA_MM = 30; 
+	private int PROGRAMACIO_HORA_MINIMA_HH = 15;
+	private int PROGRAMACIO_HORA_MINIMA_MM = 30;
 
 	@Override
 	public void initialize(ExpedientAltaMassiva anotacio) {
@@ -57,7 +57,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 	@Override
 	public boolean isValid(ExpedientAltaMassivaCommand command, ConstraintValidatorContext context) {
 		boolean valid = true;
-		
+
 		String[][] contingutCsv = null;
 		try {
 			// Valida que no hi hagi ja una alta massiva en progrés
@@ -109,7 +109,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 									MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.minim.columnes"))
 							.addNode("file")
 							.addConstraintViolation();
-							valid = false;							
+							valid = false;
 						} else {
 							// Valida la primera fila
 							Set<String> camps = this.getCamps(command.getExpedientTipusId());
@@ -124,9 +124,9 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 										MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.columnes.invalides", new Object[] {StringUtils.join(columnesInvalides.toArray())}))
 								.addNode("file")
 								.addConstraintViolation();
-								valid = false;							
+								valid = false;
 							}
-							
+
 							// Valida que totes les files tinguin el mateix número de columnes.
 							for (int i= 0; i < contingutCsv.length; i++) {
 								if (contingutCsv[i].length != nColumnes) {
@@ -135,7 +135,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 											MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.numero.columnes"))
 									.addNode("file")
 									.addConstraintViolation();
-									valid = false;							
+									valid = false;
 									break;
 								}
 							}
@@ -147,7 +147,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 									MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.max.registres", new Object[] {MAX_EXPEDIENTS}))
 							.addNode("file")
 							.addConstraintViolation();
-							valid = false;							
+							valid = false;
 						}
 						if (contingutCsv.length > MAX_EXPEDIENTS_SENSE_PROGRAMACIO + 1) { // N expedients + 1a fila de variables
 							Calendar horaLimit = new GregorianCalendar();
@@ -156,8 +156,8 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 							horaLimit.set(Calendar.MINUTE, PROGRAMACIO_HORA_MINIMA_MM);
 							if (dataInici == null || dataInici.before(horaLimit.getTime()) ) {
 								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage( 
-												this.codiMissatge + ".arxiu.max.registres.no.programats", 
+										MessageHelper.getInstance().getMessage(
+												this.codiMissatge + ".arxiu.max.registres.no.programats",
 												new Object[] {MAX_EXPEDIENTS_SENSE_PROGRAMACIO, PROGRAMACIO_HORA_MINIMA_HH, PROGRAMACIO_HORA_MINIMA_MM}))
 								.addNode("dataInici")
 								.addConstraintViolation();
@@ -170,7 +170,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 								MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.buit"))
 						.addNode("file")
 						.addConstraintViolation();
-						valid = false;						
+						valid = false;
 					}
 				} catch(Exception e) {
 					context.buildConstraintViolationWithTemplate(
@@ -192,24 +192,24 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 		else
 			// Es posa el contingut parsejat per no haver de tornar a processar l'arxiu CSV
 			command.setContingutCsv(contingutCsv);
-		
+
 		return valid;
 	}
 
 	/** Mètode per obtenir el conjunt de codis de camps per un tipus d'expedient.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @return
 	 */
 	private Set<String> getCamps(Long expedientTipusId) {
 		Set<String> camps = new HashSet<String>();
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(expedientTipusId);
-		Long definicioProcesId = expedientTipus.isAmbInfoPropia() ? 
-				null 
+		Long definicioProcesId = expedientTipus.isAmbInfoPropia() ?
+				null
 				: dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId).getId();
 		for (CampDto camp : dissenyService.findCampsOrdenatsPerCodi(
-																expedientTipusId, 
-																definicioProcesId, 
+																expedientTipusId,
+																definicioProcesId,
 																expedientTipus.isAmbHerencia())) {
 			camps.add(camp.getCodi());
 		}

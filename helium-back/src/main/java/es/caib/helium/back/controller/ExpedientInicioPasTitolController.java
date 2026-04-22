@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -50,11 +50,11 @@ import es.caib.helium.commons.exception.TramitacioValidacioException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.service.security.ExtendedPermission;
+import es.caib.helium.logic.security.ExtendedPermission;
 
 /**
  * Controlador pel pas del titol de l'inici d'expedient
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -97,18 +97,18 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 
 	@RequestMapping(value = "/iniciarTitol/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.POST)
 	public String iniciarTitolPost(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
-			@RequestParam(value = "accio", required = false) String accio, 
-			@Validated(Inici.class) @ModelAttribute ExpedientInicioPasTitolCommand expedientInicioPasTitolCommand, 
-			BindingResult result, 
-			SessionStatus status, 
+			@RequestParam(value = "accio", required = false) String accio,
+			@Validated(Inici.class) @ModelAttribute ExpedientInicioPasTitolCommand expedientInicioPasTitolCommand,
+			BindingResult result,
+			SessionStatus status,
 			Model model) {
 		boolean success = false;
 		if ("iniciar".equals(accio)) {
 			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientInicioPasTitolCommand.getExpedientTipusId());
-			
+
 			Validator validator = null;
 			try {
 				validator = new ExpedientInicioPasTitolValidator(expedientTipus, expedientService, expedientTipusService);
@@ -135,17 +135,17 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 
 					super.iniciarExpedient(
 								request,
-								expedientTipus.getEntorn().getId(),//expedientInicioPasTitolCommand.getEntornId(), 
-								expedientInicioPasTitolCommand.getExpedientTipusId(), 
-								definicioProcesId, 
+								expedientTipus.getEntorn().getId(),//expedientInicioPasTitolCommand.getEntornId(),
+								expedientInicioPasTitolCommand.getExpedientTipusId(),
+								definicioProcesId,
 								expedientInicioPasTitolCommand.getUnitatOrganitzativaCodi(),
-								expedientInicioPasTitolCommand.getNumero(), 
-								expedientInicioPasTitolCommand.getTitol(), 
+								expedientInicioPasTitolCommand.getNumero(),
+								expedientInicioPasTitolCommand.getTitol(),
 								expedientInicioPasTitolCommand.getAny(),
 								valors,
 								anotacioAcceptarCommand);
 					success = true;
-					
+
 				} catch (Exception ex) {
 					if (ex instanceof ValidacioException) {
 						MissatgesHelper.error(
@@ -169,12 +169,12 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 					} else {
 						MissatgesHelper.error(
 			        			request,
-			        			getMessage(request, "error.iniciar.expedient") + ": " + 
+			        			getMessage(request, "error.iniciar.expedient") + ": " +
 			        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
 						ex);
 			        }
 					logger.error("No s'ha pogut iniciar l'expedient", ex);
-				}				
+				}
 			}
 			if (!success) {
 				model.addAttribute(expedientInicioPasTitolCommand);
@@ -188,7 +188,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 		}
 		if (success)
 			return modalUrlTancar(false);
-		else 
+		else
 			return "expedient/iniciarPasTitol";
 	}
 
@@ -231,7 +231,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 										ExtendedPermission.READ,
 										ExtendedPermission.ADMINISTRATION});
 						if(!tePermis)
-							errors.rejectValue("unitatOrganitzativaCodi", "error.expedient.permis.creacio.unitat.organitzativa");	
+							errors.rejectValue("unitatOrganitzativaCodi", "error.expedient.permis.creacio.unitat.organitzativa");
 					}
 				}
 				if (tipus.isTeNumero() && tipus.isDemanaNumero()) {
@@ -239,7 +239,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 						errors.rejectValue("numero", "not.blank");
 					else if (expedientService.existsExpedientAmbEntornTipusINumero(command.getEntornId(), command.getExpedientTipusId(), command.getNumero()))
 						errors.rejectValue("numero", "error.expedient.numerorepetit");
-				}				
+				}
 				if (tipus.isTeTitol() && tipus.isDemanaTitol()) {
 					if (command.getTitol() == null || command.getTitol().isEmpty())
 						errors.rejectValue("titol", "not.blank");

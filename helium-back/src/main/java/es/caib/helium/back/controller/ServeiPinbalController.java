@@ -24,7 +24,7 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.dto.ServeiPinbalDto;
 import es.caib.helium.logic.intf.service.ConsultaPinbalService;
-import es.caib.helium.service.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 
 @Controller
 @RequestMapping("/serveisPinbal")
@@ -32,7 +32,7 @@ public class ServeiPinbalController extends BaseController {
 
 	@Autowired
 	private ConsultaPinbalService consultaPinbalService;
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,
@@ -44,22 +44,22 @@ public class ServeiPinbalController extends BaseController {
 			return "redirect:/";
 		}
 	}
-	
+
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse datatable(HttpServletRequest request) {
-		
+
 		Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
 		mapeigOrdenacions.put("documentsRestringits_str", new String[] {"pinbalServeiDocPermesDni", "pinbalServeiDocPermesNif", "pinbalServeiDocPermesCif", "pinbalServeiDocPermesNie", "pinbalServeiDocPermesPas"});
-		
+
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request, null, mapeigOrdenacions);
-		PaginaDto<ServeiPinbalDto> resultat = consultaPinbalService.findServeisPinbalAmbFiltrePaginat(paginacioParams);		
+		PaginaDto<ServeiPinbalDto> resultat = consultaPinbalService.findServeisPinbalAmbFiltrePaginat(paginacioParams);
 		return DatatablesHelper.getDatatableResponse(request, resultat);
 	}
-	
+
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public String editarGet(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long id,
 			Model model) {
 		model.addAttribute("serveiPinbalDto", consultaPinbalService.findServeiPinbalById(id));
@@ -77,10 +77,10 @@ public class ServeiPinbalController extends BaseController {
 		model.addAttribute("tipusDocsList", llistaDocsPermesos);
 		return "serveiPinbalForm";
 	}
-	
+
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
 	public String editarPost(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			ServeiPinbalDto serveiPinbalDto,
 			Model model) {
 		try {

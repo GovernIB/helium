@@ -27,11 +27,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import es.caib.helium.commons.dto.MonitorTascaEstatEnum;
 import es.caib.helium.commons.dto.MonitorTascaInfo;
 import es.caib.helium.logic.intf.service.MonitorTasquesService;
-import es.caib.helium.service.helper.MonitorHelper;
+import es.caib.helium.logic.helper.MonitorHelper;
 
 /**
  * Controlador per la gestió d'perfils
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -39,7 +39,7 @@ import es.caib.helium.service.helper.MonitorHelper;
 public class MonitorSystemController extends BaseController {
 	@Autowired
 	private MonitorTasquesService monitorTasquesService;
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,
@@ -62,7 +62,7 @@ public class MonitorSystemController extends BaseController {
 		JSONArray estado = new JSONArray();
 		JSONArray espera = new JSONArray();
 		JSONArray blockedtime = new JSONArray();
-		
+
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
 		sistema.add(getMessage(request, "expedient.monitor.procesadores")+": " + Runtime.getRuntime().availableProcessors());
 		sistema.add(getMessage(request, "expedient.monitor.memoria_disponible")+": " + MonitorHelper.humanReadableByteCount(Runtime.getRuntime().freeMemory()));
@@ -72,21 +72,21 @@ public class MonitorSystemController extends BaseController {
 		sistema.add(getMessage(request, "expedient.monitor.os-arch") + ": " + MonitorHelper.getArch());
 		sistema.add(getMessage(request, "expedient.monitor.os-version") + ": " + MonitorHelper.getVersion());
 		sistema.add(getMessage(request, "expedient.monitor.carga_cpu") + ": " + MonitorHelper.getCPULoad());
-		
+
 		for (File root : File.listRoots()) {
 			sistema.add(getMessage(request, "expedient.monitor.space.total") + " " + root.getAbsolutePath()+": " + MonitorHelper.humanReadableByteCount(root.getTotalSpace()));
 			sistema.add(getMessage(request, "expedient.monitor.space.free") + " " + root.getAbsolutePath()+": " + MonitorHelper.humanReadableByteCount(root.getFreeSpace()));
 		}
-        
-		int numDeadlocked = 0; 
+
+		int numDeadlocked = 0;
 		if (bean.findMonitorDeadlockedThreads() != null) {
 			numDeadlocked = bean.findMonitorDeadlockedThreads().length;
 		}
 		sistema.add(getMessage(request, "expedient.monitor.deadlocked")+": " + numDeadlocked);
 		sistema.add(getMessage(request, "expedient.monitor.daemon_thread")+": " + bean.getDaemonThreadCount());
-		
+
 		bean.resetPeakThreadCount();
-		
+
 		if (bean.isThreadCpuTimeSupported()) {
 			long[] ids = bean.getAllThreadIds();
 			ThreadInfo[] info = bean.getThreadInfo(ids);
@@ -107,14 +107,14 @@ public class MonitorSystemController extends BaseController {
 				}
 			}
 		}
-		
+
 		mjson.put("sistema", sistema);
 		mjson.put("hilo", hilo);
 		mjson.put("cputime", cputime);
 		mjson.put("estado", estado);
 		mjson.put("espera", espera);
 		mjson.put("blockedtime", blockedtime);
-		
+
 		Map<String, JSONArray> tasques = this.getTasquesJson(request);
 		mjson.put("tasca", tasques.get("tasca"));
 		mjson.put("estat", tasques.get("estat"));
@@ -126,8 +126,8 @@ public class MonitorSystemController extends BaseController {
 		mjson.put("identificadors", tasques.get("identificadors"));
 		return mjson;
 	}
-		
-		
+
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/tasques", method = RequestMethod.GET)
 	@ResponseBody
@@ -141,31 +141,31 @@ public class MonitorSystemController extends BaseController {
 		JSONArray properaExecucio = new JSONArray();
 		JSONArray observacions = new JSONArray();
 		JSONArray identificadors = new JSONArray();
-		
+
 		List<MonitorTascaInfo> monitorTasques = monitorTasquesService.findAll();
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		for(MonitorTascaInfo monitorTasca : monitorTasques) {
 			identificadors.add(monitorTasca.getCodi());
-			
-			tasca.add(getMessage(request, "expedient.monitor.tasques.codi." + monitorTasca.getCodi()));		
+
+			tasca.add(getMessage(request, "expedient.monitor.tasques.codi." + monitorTasca.getCodi()));
 
 			estat.add(getMessage(request, "expedient.monitor.tasques.estat." + monitorTasca.getEstat()));
-			
+
 			String strDataInici = "-";
 			if (monitorTasca.getDataInici() != null) {
 				strDataInici = sdf.format(monitorTasca.getDataInici());
 			}
 			iniciExecucio.add(strDataInici);
-			
+
 			tempsExecucio.add(monitorTasca.getTempsExecucio());
 
 			String strProperaExecucio = "-";
-			if ( ! MonitorTascaEstatEnum.EN_EXECUCIO.equals(monitorTasca.getEstat()) 
+			if ( ! MonitorTascaEstatEnum.EN_EXECUCIO.equals(monitorTasca.getEstat())
 					&& monitorTasca.getProperaExecucio() != null) {
 				strProperaExecucio = sdf.format(monitorTasca.getProperaExecucio());
 			}
 			properaExecucio.add(strProperaExecucio);
-			
+
 			String strObservacions="-";
 			if(monitorTasca.getObservacions()!=null) {
 				strObservacions=monitorTasca.getObservacions();
@@ -179,7 +179,7 @@ public class MonitorSystemController extends BaseController {
 		tasques.put("properaExecucio", properaExecucio);
 		tasques.put("observacions", observacions);
 		tasques.put("identificadors", identificadors);
-		
-		return tasques; 
-	}	
+
+		return tasques;
+	}
 }

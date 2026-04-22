@@ -1,32 +1,17 @@
 package es.caib.helium.logic.intf.dto.engine;
 
-import java.util.Map;
+import lombok.Data;
 
-public interface WProcessDefinition {
+/** Classe per per representar la informació general d'una definició de procés definida dins d'un workflow engine.
+ * 
+ */
+@Data
+public class WProcessDefinition {
 
-    public String getDeploymentId();
-    public String getId();
-    public String getKey();
-    public String getName();
-    public int getVersion();
-    public String getCategory();
-
-    public WProcessDefinition getProcessDefinition();
-
-//    /** Tracta el contingut i retorna una definició de procés.
-//     *
-//     * @param zipInputStream
-//     * @return
-//     * @throws Exception
-//     */
-//    public WProcessDefinition parse(ZipInputStream zipInputStream ) throws Exception;
-//
-//    /** Retorna la llista d'arxius de la definició de procés. */
-    public Map<String, byte[]> getFiles();
-	public WFileDefinition getFileDefinition();
-	
-	public interface WFileDefinition {
-		Map<String, byte[]> getBytesMap();
-	}
-
+    private String deploymentId;
+    private String id;
+    private String key;
+    private String name;
+    private int version;
+    private String category;
 }

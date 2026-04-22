@@ -1,14 +1,15 @@
 package es.caib.helium.logic.intf.dto.engine;
 
 
-import java.util.List;
+import lombok.Data;
 
-public interface WDeployment {
+/** Objecte comú per representar la informació d'un desplegament en un workflow engine.
+ * 
+ */
+@Data
+public class WDeployment {
 
-    public String getId();
-    public String getName();
-    public String getCategory();
-
-    public List<? extends WProcessDefinition> getProcessDefinitions();
-
+	private String id;
+    private String key;
+    public String version;
 }

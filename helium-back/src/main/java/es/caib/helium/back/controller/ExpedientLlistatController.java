@@ -68,11 +68,11 @@ import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.exception.ExportException;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.service.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 
 /**
  * Controlador per al llistat d'expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -89,7 +89,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			HttpServletRequest request,
 			Model model) {
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
-		model.addAttribute("expedientConsulta", filtreCommand);		
+		model.addAttribute("expedientConsulta", filtreCommand);
 		if (filtreCommand.isConsultaRealitzada()) {
 			omplirModelGet(request, model);
 		}
@@ -118,12 +118,12 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 		return "redirect:expedient";
 	}
-	
+
 	private Set<Long> recuperarIdsAccionesMasivas(HttpServletRequest request) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		return sessionManager.getSeleccioConsultaGeneral();
 	}
-	
+
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesPagina<ExpedientDto> datatable(
@@ -133,7 +133,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
 		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
 		DatatablesPagina<ExpedientDto> result = null;
-		
+
 		Set<Long> idsSeleccionats = null;
 		if (filtreCommand.isNomesSeleccio()) {
 			idsSeleccionats = recuperarIdsAccionesMasivas(request);
@@ -141,8 +141,8 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		if (idsSeleccionats == null) {
 			idsSeleccionats = new HashSet<Long>();
 		}
-		
-		List<ExpedientTipusDto> expedientTipusDtoAccessibles = 
+
+		List<ExpedientTipusDto> expedientTipusDtoAccessibles =
 	            (List<ExpedientTipusDto>) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 
 		try {
@@ -172,9 +172,9 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	                idsSeleccionats,
 	                PaginacioHelper.getPaginacioDtoFromDatatable(request)
 	        );
-			
+
 	        result = PaginacioHelper.getPaginaPerDatatables(request, pagina);
-			
+
 		} catch (Exception e) {
 			if (entornActual == null)
 				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"), e);
@@ -188,7 +188,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 		return result;
 	}
-	
+
 	@RequestMapping(value = "/selection", method = RequestMethod.POST)
 	@ResponseBody
 	public Set<Long> seleccio(
@@ -242,7 +242,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 				filtreCommand.isNomesAlertes(),
 				filtreCommand.isNomesErrors(),
 				filtreCommand.isNomesErrorsArxiu(),
-				filtreCommand.getMostrarAnulats());		
+				filtreCommand.getMostrarAnulats());
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
 		if (seleccio == null) {
@@ -277,7 +277,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si.only"), MostrarAnulatsDto.NOMES_ANULATS));
 		return resposta;
 	}
-	
+
 	@RequestMapping(value = "/consultas/{expedientTipusId}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ConsultaDto> consultasTipus(
@@ -349,7 +349,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	}
 
 	private void exportXLS(HttpServletResponse response, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, ExpedientTipusDto expTipus, EntornDto entornActual) {
-		
+
 		XSSFWorkbook wb = new XSSFWorkbook();
 
 		DataFormat format = wb.createDataFormat();
@@ -367,9 +367,9 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		XSSFCellStyle cellDateStyle = wb.createCellStyle();
 		CreationHelper createHelper = wb.getCreationHelper();
 		cellDateStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/mm/yyyy"));
-		
+
 		if(!expTipus.isAmbInfoPropia()) {
-			
+
 
 			List<DefinicioProcesDto> definicionsProces = expedientTipusService.definicioFindDefinicionsProcDarreraVersio(expTipus, entornActual);
 			for(DefinicioProcesDto defProc : definicionsProces) {
@@ -402,15 +402,15 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			logger.error("No s'ha pogut generar l'excel del llistat d'expedients.");
 		}
 	}
-	
-	private void createBook(String sheetName, 
+
+	private void createBook(String sheetName,
 			XSSFSheet sheet,
-			XSSFWorkbook wb, 
-			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, 
-			XSSFCellStyle dStyle, 
+			XSSFWorkbook wb,
+			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto,
+			XSSFCellStyle dStyle,
 			XSSFCellStyle iStyle,
-			XSSFCellStyle bdStyle, 
-			XSSFCellStyle cellDateStyle) {		
+			XSSFCellStyle bdStyle,
+			XSSFCellStyle cellDateStyle) {
 		int numCols = 0;
 		int rowNum = 1;
 
@@ -418,7 +418,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			numCols = createHeader(sheet, expedientsConsultaDissenyDto, sheetName);
 		}
 		for (ExpedientConsultaDissenyDto  expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
-			int colNum = 0;			
+			int colNum = 0;
 			try {
 				XSSFRow xlsRow = sheet.createRow(rowNum++);
 				ExpedientDto exp = expedientConsultaDissenyDto.getExpedient();
@@ -438,7 +438,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 				cell.setCellStyle(dStyle);
 
 				Iterator<Map.Entry<String, DadaIndexadaDto>> it = dades.entrySet().iterator();
-				while (it.hasNext()) {		
+				while (it.hasNext()) {
 					Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
 					DadaIndexadaDto val = e.getValue();
 					String dadaKey = e.getKey();
@@ -454,13 +454,13 @@ public class ExpedientLlistatController extends BaseExpedientController {
 				}
 				for (int c=0; c<numCols; c++) {
 					sheet.autoSizeColumn(c);
-				}	
+				}
 			} catch (Exception e) {
 				logger.error("Export Excel: No s'ha pogut crear la línia: " + rowNum + " - amb ID: " + expedientConsultaDissenyDto.getExpedient().getId(), e);
 			}
 		}
 	}
-	
+
 	private int createHeader(XSSFSheet sheet, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, String sheetName) {
 
 		XSSFFont bold = sheet.getWorkbook().createFont();
@@ -507,13 +507,13 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 		return numCols;
 	}
-	
-	private void addValues(DadaIndexadaDto val, 
-			XSSFCell cell, 
-			XSSFRow xlsRow, 
-			int colNum, 
-			XSSFCellStyle iStyle, 
-			XSSFCellStyle bdStyle, 
+
+	private void addValues(DadaIndexadaDto val,
+			XSSFCell cell,
+			XSSFRow xlsRow,
+			int colNum,
+			XSSFCellStyle iStyle,
+			XSSFCellStyle bdStyle,
 			XSSFCellStyle cellDateStyle,
 			XSSFCellStyle dStyle,
 			Map.Entry<String, DadaIndexadaDto> e) {
@@ -556,16 +556,16 @@ public class ExpedientLlistatController extends BaseExpedientController {
 					cell.setCellStyle(cellDateStyle);
 				} else {
 					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_STRING);
-					cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));		
+					cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));
 				}
 			} catch (Exception ex) {
 				//En un possible error de conversió, ho posam per defecte com a String
 				cell = xlsRow.createCell(colNum++);
-				cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));	
+				cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));
 			}
 		} else {
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue("");	
+			cell.setCellValue("");
 		}
 	}
 

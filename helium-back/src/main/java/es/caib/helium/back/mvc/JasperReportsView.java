@@ -21,7 +21,7 @@ import com.codahale.metrics.Timer;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.logic.intf.service.AdminService;
-import es.caib.helium.service.helper.EntornHelper;
+import es.caib.helium.logic.helper.EntornHelper;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -41,12 +41,12 @@ import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 
 /**
  * Vista per a generar un report amb Jasper Reports
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class JasperReportsView implements View {
 
-	
+
 	public static final String HEADER_PRAGMA = "Pragma";
 	public static final String HEADER_EXPIRES = "Expires";
 	public static final String HEADER_CACHE_CONTROL = "Cache-Control";
@@ -71,7 +71,7 @@ public class JasperReportsView implements View {
 	public JasperReportsView(AdminService adminService) {
 		this.adminService = adminService;
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void render(
 			Map model,
@@ -80,7 +80,7 @@ public class JasperReportsView implements View {
 		response.setHeader(HEADER_PRAGMA, "");
 		response.setHeader(HEADER_EXPIRES, "");
 		response.setHeader(HEADER_CACHE_CONTROL, "");
-		
+
 		// #1130 Per un error en les consultes d'INIPAR es posa una mètrica per saber el temps
 		// d'execució de les consultes.
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
@@ -106,24 +106,24 @@ public class JasperReportsView implements View {
 						"informe." + (String)model.get(MODEL_ATTRIBUTE_CONSULTA)+ ".count",
 						entorn.getCodi()));
 		countEntorn.inc();
-		
-		try {			
+
+		try {
 			JRBeanCollectionDataSource datasource = null;
 			if (model.get(MODEL_ATTRIBUTE_REPORTDATA) != null)
 				datasource = new JRBeanCollectionDataSource((List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
 			if (datasource != null) {
 				adminService.mesuraTemporalIniciar("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA), "report", null, null, "REPORT");
 				JasperReport report = null;
-				
+
 				report = JasperCompileManager.compileReport(new ByteArrayInputStream((byte[])model.get(MODEL_ATTRIBUTE_REPORTCONTENT)));
-				
+
 				Map<String, Object> params = new HashMap<String, Object>();
 
 				// Per particionar l'informe de sortida en el cas que sigui molt gran
 				JRFileVirtualizer virtualizer = new JRFileVirtualizer (100, System.getProperty("java.io.tmpdir"));
 				virtualizer.setReadOnly(true);
 				params.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
-				
+
 				JasperReport subreport = null;
 				HashMap<String, byte[]> subreports = (HashMap<String, byte[]>)model.get(MODEL_ATTRIBUTE_SUBREPORTS);
 				if (subreports!=null)
@@ -137,7 +137,7 @@ public class JasperReportsView implements View {
 						params.put(nom, subreport);
 						params.put("ds_" + nom, new JRBeanCollectionDataSource((List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA)));
 					}
-				}			
+				}
 
 				Map<String, Object> paramsModel = (Map<String, Object>)model.get(
 						MODEL_ATTRIBUTE_PARAMS);
@@ -148,11 +148,11 @@ public class JasperReportsView implements View {
 						report,
 						params,
 						datasource);
-				
+
 				Object exp = (String)request.getAttribute("formatJR");
 
 				if("PDF".equals(exp)){
-					//exportar PDF		
+					//exportar PDF
 					response.setHeader("Content-Disposition","attachment; filename=\"informe.pdf\"");
 					response.setContentType("application/pdf");
 					response.getOutputStream().write(
@@ -195,32 +195,32 @@ public class JasperReportsView implements View {
 					loCsvExp.exportReport();
 				}
 				else if("HTML".equals(exp)){
-					//exportar HTML		
+					//exportar HTML
 					response.setHeader("Content-Disposition","attachment; filename=\"informe.html\"");
 					response.setContentType("text/html");
 					File htmlFile = new File("filename=\"informe.html\"");
-					final JRHtmlExporter loHtmlExp = new JRHtmlExporter();  
-					loHtmlExp.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);  
-					loHtmlExp.setParameter(JRExporterParameter.OUTPUT_STREAM, response.getOutputStream());  
+					final JRHtmlExporter loHtmlExp = new JRHtmlExporter();
+					loHtmlExp.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
+					loHtmlExp.setParameter(JRExporterParameter.OUTPUT_STREAM, response.getOutputStream());
 					loHtmlExp.setParameter(JRExporterParameter.CHARACTER_ENCODING, "UTF-8");
 					loHtmlExp.setParameter(JRExporterParameter.OUTPUT_FILE, htmlFile);
-					loHtmlExp.exportReport();  
+					loHtmlExp.exportReport();
 				}
 				else if("XML".equals(exp)){
-					//exportar XML		
+					//exportar XML
 					response.setHeader("Content-Disposition","attachment; filename=\"informe.xml\"");
 					response.setContentType("text/xml");
 					JRXmlExporter xmlExporter = new JRXmlExporter();
 					File xmlFile = new File("filename=\"informe.xml\"");
 					xmlExporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
-					xmlExporter.setParameter(JRExporterParameter.OUTPUT_STREAM, response.getOutputStream());  
+					xmlExporter.setParameter(JRExporterParameter.OUTPUT_STREAM, response.getOutputStream());
 					xmlExporter.setParameter(JRExporterParameter.CHARACTER_ENCODING, "UTF-8");
 					xmlExporter.setParameter(JRExporterParameter.OUTPUT_FILE, xmlFile);
 					xmlExporter.exportReport();
 
 				}
 				else if("XLS".equals(exp)){
-					//exportar XLS		
+					//exportar XLS
 					response.setHeader("Content-Disposition","attachment; filename=\"informe.xls\"");
 					response.setContentType("application/excel");
 					JRXlsExporter loXlsExp = new JRXlsExporter();
@@ -231,13 +231,13 @@ public class JasperReportsView implements View {
 					loXlsExp.setParameter(JRXlsExporterParameter.IS_DETECT_CELL_TYPE, Boolean.TRUE);
 					loXlsExp.exportReport();
 				} else {
-					//exportar PDF		
+					//exportar PDF
 					response.setHeader("Content-Disposition","attachment; filename=\"informe.pdf\"");
 					response.setContentType("application/pdf");
 					response.getOutputStream().write(
 							JasperExportManager.exportReportToPdf(jasperPrint));
-				}				
-				adminService.mesuraTemporalCalcular("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA), "report", null, null, "REPORT");			
+				}
+				adminService.mesuraTemporalCalcular("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA), "report", null, null, "REPORT");
 			}
 		} finally {
 			contextTotal.stop();

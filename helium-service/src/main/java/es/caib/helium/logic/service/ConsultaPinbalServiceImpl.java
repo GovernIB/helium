@@ -1,0 +1,249 @@
+package es.caib.helium.logic.service;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.domain.Page;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.dto.PaginaDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.commons.dto.PeticioPinbalDto;
+import es.caib.helium.commons.dto.PeticioPinbalFiltreDto;
+import es.caib.helium.commons.dto.ServeiPinbalDto;
+import es.caib.helium.commons.exception.PermisDenegatException;
+import es.caib.helium.logic.intf.service.ConsultaPinbalService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.persistence.entity.Persona;
+import es.caib.helium.persistence.entity.PeticioPinbal;
+import es.caib.helium.persistence.entity.ServeiPinbalEntity;
+import es.caib.helium.persistence.repository.PersonaRepository;
+import es.caib.helium.persistence.repository.PeticioPinbalRepository;
+import es.caib.helium.persistence.repository.ServeiPinbalRepository;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
+
+@Service
+public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
+
+	@Resource private PeticioPinbalRepository peticioPinbalRepository;
+	@Resource private ServeiPinbalRepository serveiPinbalRepository;
+	@Resource private ConversioTipusHelper conversioTipusHelper;
+	@Resource private ExpedientTipusService expedientTipusService;
+	@Resource private PaginacioHelper paginacioHelper;
+	@Resource private UsuariActualHelper usuariActualHelper;
+	@Resource private ExpedientHelper expedientHelper;
+	@Resource private DocumentHelperV3 documentHelperV3;
+	@Resource private PersonaRepository personaRepository;
+
+	@Override
+	@Transactional(readOnly=true)
+	public PaginaDto<PeticioPinbalDto> findAmbFiltrePaginat(PaginacioParamsDto paginacioParams, PeticioPinbalFiltreDto filtreDto) {
+
+		Long entornActualId = null;
+		List<Long> tipusPermesos = null;
+		//Si el filtre ve del expedient, no filtrar per permisos de administració del entorn
+		if (!filtreDto.isFromExpedient()) {
+
+			/**
+			 * Si ets admin, no es filtra per entorn seleccionat ni per tipus permesos
+			 * Pero si has seleccionat un expedient tipus al filtre, si que es té en compte
+			 */
+
+			if (!usuariActualHelper.isAdministrador()) {
+				//Si no ets admin, es filtra per l'entorn del filtre, que es de la sessió.
+				entornActualId = filtreDto.getEntornId();
+				//També es filtra per els tipus de expedient amb permis admin
+				tipusPermesos = new ArrayList<Long>();
+				if (entornActualId!=null) {
+					List<ExpedientTipusDto> tipusPermisAdmin = expedientTipusService.findAmbEntornPermisAdmin(entornActualId);
+					if (tipusPermisAdmin!=null) {
+						for (ExpedientTipusDto etDto: tipusPermisAdmin) {
+							tipusPermesos.add(etDto.getId());
+						}
+					}
+				}
+			}
+		}
+
+		paginacioParams.canviaCamp("expedient.identificador", "expedient.numero");
+
+		Date dataInicial = null;
+		if (filtreDto.getDataPeticioIni() != null) {
+			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
+			Calendar c = new GregorianCalendar();
+			c.setTime(filtreDto.getDataPeticioIni());
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			dataInicial = c.getTime();
+		}
+
+		Date dataFinal = null;
+		if (filtreDto.getDataPeticioFi() != null) {
+			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
+			Calendar c = new GregorianCalendar();
+			c.setTime(filtreDto.getDataPeticioFi());
+			c.set(Calendar.HOUR_OF_DAY, 23);
+			c.set(Calendar.MINUTE, 59);
+			c.set(Calendar.SECOND, 59);
+			c.set(Calendar.MILLISECOND, 999);
+			dataFinal = c.getTime();
+		}
+
+		PaginaDto<PeticioPinbalDto> pagina = paginacioHelper.toPaginaDto(peticioPinbalRepository.findByFiltrePaginat(
+				entornActualId == null,
+				entornActualId,
+				(tipusPermesos==null || tipusPermesos.size()==0),
+				tipusPermesos,
+				filtreDto.getTipusId() == null,
+				filtreDto.getTipusId(),
+				filtreDto.getExpedientId() == null,
+				filtreDto.getExpedientId(),
+				filtreDto.getNumeroExpedient() == null,
+				filtreDto.getNumeroExpedient(),
+				filtreDto.getProcediment() == null,
+				filtreDto.getProcediment(),
+				filtreDto.getServeiCodi() == null,
+				filtreDto.getServeiCodi(),
+				filtreDto.getUsuari() == null,
+				filtreDto.getUsuari(),
+				filtreDto.getEstat() == null,
+				filtreDto.getEstat(),
+				dataInicial == null,
+				dataInicial,
+				dataFinal == null,
+				dataFinal,
+				(paginacioParams.getFiltre() == null || "".equals(paginacioParams.getFiltre())),
+				paginacioParams.getFiltre(),
+				paginacioHelper.toSpringDataPageable(paginacioParams)), PeticioPinbalDto.class);
+
+		//HttpMessageNotWritableException: Could not write JSON: Infinite recursion (StackOverflowError) si el docStore forma part de un zip.
+		for (PeticioPinbalDto peticioPinbal : pagina.getContingut() ) {
+			if(peticioPinbal.getErrorMsg()!=null) {
+				String errMsgSenseCaractersHtml = peticioPinbal.getErrorMsg().replace("<", "");
+				peticioPinbal.setErrorMsg(errMsgSenseCaractersHtml.replace(">", ""));
+			}
+			if(peticioPinbal.getUsuari()!=null) {
+//				Authentication authentication =  new UsernamePasswordAuthenticationToken(peticioPinbal.getUsuari(), null);
+//				SecurityContextHolder.getContext().setAuthentication(authentication);
+				Persona persona = personaRepository.findByCodi(peticioPinbal.getUsuari());
+				if(persona!=null)
+					peticioPinbal.setUsuari(persona.getNomSencer());
+			}
+			if (peticioPinbal.getDocument()!=null) {
+				peticioPinbal.getDocument().setZips(null);
+				peticioPinbal.getDocument().setCodiDocument(null);
+			}
+		}
+
+		return pagina;
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public PeticioPinbalDto findById(Long peticioPinbalId) throws PermisDenegatException {
+		PeticioPinbal pi = peticioPinbalRepository.findById(peticioPinbalId).orElse(null);
+		expedientHelper.getExpedientComprovantPermisos(pi.getExpedient().getId(), true, false, false, false);
+		return conversioTipusHelper.convertir(pi, PeticioPinbalDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public PeticioPinbalDto findByExpedientAndDocumentStore(Long expedientId, Long documentStoreId) {
+		List<PeticioPinbal> pins = peticioPinbalRepository.findByExpedientIdAndDocumentIdOrderByDataPeticioDesc(expedientId, documentStoreId);
+		if (pins!=null && pins.size()>0) {
+			return conversioTipusHelper.convertir(pins.get(0), PeticioPinbalDto.class);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public List<PeticioPinbalDto> findConsultesPinbalPerExpedient(Long expedientId) {
+		return conversioTipusHelper.convertirList(peticioPinbalRepository.findByExpedientId(expedientId), PeticioPinbalDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public PaginaDto<ServeiPinbalDto> findServeisPinbalAmbFiltrePaginat(PaginacioParamsDto paginacioParams) {
+		Page<ServeiPinbalEntity> spe = serveiPinbalRepository.findByFiltrePaginat(
+				paginacioParams.getFiltre()==null,
+				paginacioParams.getFiltre(),
+				paginacioHelper.toSpringDataPageable(paginacioParams));
+		PaginaDto<ServeiPinbalDto> resultat = paginacioHelper.toPaginaDto(spe, ServeiPinbalDto.class);
+		if (resultat.getContingut()!=null) {
+			for (ServeiPinbalDto sp: resultat.getContingut()) {
+				tipusDocumentsPermesosToList(sp);
+			}
+		}
+		return resultat;
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public ServeiPinbalDto findServeiPinbalById(Long id) {
+		ServeiPinbalDto resultat = conversioTipusHelper.convertir(serveiPinbalRepository.findById(id), ServeiPinbalDto.class);
+		tipusDocumentsPermesosToList(resultat);
+		return resultat;
+	}
+
+	private void tipusDocumentsPermesosToList(ServeiPinbalDto resultat) {
+		//Convertir els documents permesos en llista de restringits
+		List<String> docsRestreingits = new ArrayList<String>();
+		if (!resultat.isPinbalServeiDocPermesDni()) { docsRestreingits.add("DNI"); }
+		if (!resultat.isPinbalServeiDocPermesNif()) { docsRestreingits.add("NIF"); }
+		if (!resultat.isPinbalServeiDocPermesNie()) { docsRestreingits.add("NIE"); }
+		if (!resultat.isPinbalServeiDocPermesCif()) { docsRestreingits.add("CIF"); }
+		if (!resultat.isPinbalServeiDocPermesPas()) { docsRestreingits.add("Passaport"); }
+		resultat.setDocumentsRestringits(docsRestreingits);
+	}
+
+	@Override
+	@Transactional
+	public ServeiPinbalDto updateServeiPinbal(ServeiPinbalDto serveiPinbalDto) {
+		ServeiPinbalEntity spe = serveiPinbalRepository.findById(serveiPinbalDto.getId()).orElse(null);
+		spe.setNom(serveiPinbalDto.getNom());
+		if (serveiPinbalDto.getDocumentsRestringits()!=null && serveiPinbalDto.getDocumentsRestringits().contains("CIF")) {
+			spe.setPinbalServeiDocPermesCif(false);
+		} else {
+			spe.setPinbalServeiDocPermesCif(true);
+		}
+		if (serveiPinbalDto.getDocumentsRestringits()!=null && serveiPinbalDto.getDocumentsRestringits().contains("DNI")) {
+			spe.setPinbalServeiDocPermesDni(false);
+		} else {
+			spe.setPinbalServeiDocPermesDni(true);
+		}
+		if (serveiPinbalDto.getDocumentsRestringits()!=null && serveiPinbalDto.getDocumentsRestringits().contains("NIE")) {
+			spe.setPinbalServeiDocPermesNie(false);
+		} else {
+			spe.setPinbalServeiDocPermesNie(true);
+		}
+		if (serveiPinbalDto.getDocumentsRestringits()!=null && serveiPinbalDto.getDocumentsRestringits().contains("NIF")) {
+			spe.setPinbalServeiDocPermesNif(false);
+		} else {
+			spe.setPinbalServeiDocPermesNif(true);
+		}
+		if (serveiPinbalDto.getDocumentsRestringits()!=null && serveiPinbalDto.getDocumentsRestringits().contains("Passaport")) {
+			spe.setPinbalServeiDocPermesPas(false);
+		} else {
+			spe.setPinbalServeiDocPermesPas(true);
+		}
+		spe.setUpdatedDate(Calendar.getInstance().getTime());
+		spe.setUpdatedUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
+		return conversioTipusHelper.convertir(serveiPinbalRepository.save(spe), ServeiPinbalDto.class);
+	}
+}

@@ -32,13 +32,13 @@ import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import es.caib.helium.commons.dto.ExecucioMassivaListDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
-import es.caib.helium.service.utils.CsvHelper;
-import es.caib.helium.service.utils.EntornActual;
+import es.caib.helium.logic.utils.CsvHelper;
+import es.caib.helium.logic.utils.EntornActual;
 
-/** Controlador pel formulari d'alta massiva d'expedients a partir d'una fulla CSV. 
+/** Controlador pel formulari d'alta massiva d'expedients a partir d'una fulla CSV.
  * Programa una execució massiva per cada fila de la fulla CSV per crear un
  * expedient de forma massiva.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -59,7 +59,7 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 
 	/** Pàgina per mostrar la informació de la darrera alta d'expedient massiva segons el tipus
 	 * d'expedient seleccionat i per mostrar el formulari d'alta massiva si no hi ha cap en execució actualmen.
-	 * 
+	 *
 	 * @param request
 	 * @param model
 	 * @return
@@ -70,12 +70,12 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 			Model model) {
 		ExpedientAltaMassivaCommand expedientAltaMassivaCommand = new ExpedientAltaMassivaCommand();
 		model.addAttribute("command", expedientAltaMassivaCommand);
-						
+
 		return "expedientAltaMassiva";
 	}
-	
-	/** 
-	 * 
+
+	/**
+	 *
 	 * @param request
 	 * @param model
 	 * @return
@@ -83,7 +83,7 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 	@RequestMapping(method = RequestMethod.POST)
 	public String formulariPost(
 			HttpServletRequest request,
-			@Validated(AltaMassiva.class) 
+			@Validated(AltaMassiva.class)
 			@ModelAttribute("command")
 			ExpedientAltaMassivaCommand command,
 			BindingResult binding,
@@ -126,11 +126,11 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 				logger.error(errMsg, e);
 				MissatgesHelper.error(request, errMsg, e);
 			}
-		}		
+		}
 		return "expedientAltaMassiva";
 	}
-	
-	/** Mètode ajax per consultar les dades JSON de la darrera execució d'alta massiva per saber en quin estat 
+
+	/** Mètode ajax per consultar les dades JSON de la darrera execució d'alta massiva per saber en quin estat
 	 * es troba.
 
 	 * @param request
@@ -147,12 +147,12 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 		// Dades darrera alta massiva per CSV
 		ExecucioMassivaListDto execucioMassiva = execucioMassivaService.getDarreraAltaMassiva(expedientTipusId);
 		ret.put("execucioMassiva", execucioMassiva);
-		
+
 		return ret;
 	}
-	
+
 	/** Mètode per descarregar l'arxiu CSV amb el resultat de l'execució massiva.
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @param execucioMassivaId
@@ -172,14 +172,14 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
     		byte[] contingutCsv = csvHelper.toCsv(informacioCsv);
     		this.writeFileToResponse("resultat_alta_massiva_" + new SimpleDateFormat("yyyy.MM.dd_HHmmss").format(execucioMassiva.getDataInici()) + ".csv", contingutCsv, response);
     		MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
-							"expedient.alta.massiva.resultats.success"));        			
+							request,
+							"expedient.alta.massiva.resultats.success"));
 
     	} catch(Exception e) {
     		String errMsg = getMessage(
-					request, 
+					request,
 					"expedient.alta.massiva.resultats.error",
 					new Object[]{e.getClass() + " " + e.getMessage()});
     		logger.error(errMsg, e);
@@ -188,11 +188,11 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
     				errMsg,
 					e);
     		throw(e);
-    	}        
+    	}
 	}
-	
+
 	/** Mètode per descarregar l'arxiu CSV d'exemple
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @param execucioMassivaId
@@ -204,30 +204,30 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 			HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
-    	try {      		
+    	try {
         	InputStream is = this.getClass().getResourceAsStream("/arxius/exemple_alta_massiva.csv");
         	byte[] arxiuExempleContingut = IOUtils.toByteArray(is);
 
     	    this.writeFileToResponse(
-    				"exemple_alta_massiva.csv", 
-    				arxiuExempleContingut, 
+    				"exemple_alta_massiva.csv",
+    				arxiuExempleContingut,
     				response);
-    	    
+
     	    MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.alta.massiva.exemple.success"));
     	} catch(Exception e) {
     		MissatgesHelper.error(
     				request,
     				getMessage(
-    						request, 
+    						request,
     						"expedient.alta.massiva.exemple.error",
     						new Object[]{e.getLocalizedMessage()}),
 					e);
-    	}        
+    	}
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ExpedientAltaMassivaController.class);
 }

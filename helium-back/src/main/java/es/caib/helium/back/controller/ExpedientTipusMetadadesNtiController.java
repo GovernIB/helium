@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -27,13 +27,13 @@ import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.service.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.plugins.arxiu.caib.ArxiuCaibException;
 
 /**
  * Controlador per a la pestanya de d'integració amb metadades
  * nti del manteniment dels tipus d'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -42,7 +42,7 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 
 	@Autowired
 	private ExpedientHelper expedientHelper;
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/metadadesNti")
 	public String nti(
 			HttpServletRequest request,
@@ -68,8 +68,8 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 		}
 		return "expedientTipusMetadadesNti";
 	}
-	
-	/** Mètode per comprovar l'estat de la UO i afegir informació per a que es pinti al model. 
+
+	/** Mètode per comprovar l'estat de la UO i afegir informació per a que es pinti al model.
 	 * @param request */
 	private void afegirDadesUnitatOrganitzativa(HttpServletRequest request, Model model, String codiUo) {
 		// Cercar UO, afegir info al model.
@@ -113,7 +113,7 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 						entornActual.getId(),
 						expedientTipusId);
 				String missatgeError = null;
-							
+
 				if (!command.isProcedimentComu() && (command.getOrgano() == null || "".equals(command.getOrgano().trim()))) {
 					bindingResult.rejectValue("organo", "NotEmpty");
 				}
@@ -141,13 +141,13 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 				}
 				if (bindingResult.hasErrors()) {
 			        MissatgesHelper.error(
-							request, 
+							request,
 							getMessage(
-									request, 
+									request,
 									missatgeError!=null ? missatgeError : "expedient.tipus.metadades.nti.validacio"));
 					response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 				} else {
-					
+
 					boolean checkSerieDocumental = false;
 					try {
 						checkSerieDocumental = expedientTipusService.arxiuCheckSerieDocumental(
@@ -157,23 +157,23 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 					} catch(ArxiuCaibException ex) {
 						checkSerieDocumental = true;
 						MissatgesHelper.warning(
-								request, 
+								request,
 								ex.getMessage());
 					}
-					
+
 					if(command.isArxiuActiu() && !checkSerieDocumental) {
 						MissatgesHelper.warning(
-								request, 
+								request,
 								getMessage(
-									request, 
+									request,
 									"expedient.tipus.metadades.nti.serie.documental.noTrobada"));
 					}
-	
+
 					expedientTipusService.updateMetadadesNti(
 							entornActual.getId(),
 							expedientTipusId,
 							command.isActiu(),
-							command.getOrgano(), 
+							command.getOrgano(),
 							command.getClasificacion(),
 							command.getSerieDocumental(),
 							command.isArxiuActiu(),
@@ -181,7 +181,7 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 					MissatgesHelper.success(
 							request,
 							getMessage(
-									request, 
+									request,
 									"expedient.tipus.metadades.nti.controller.guardat"));
 				}
 			} else {
@@ -189,44 +189,44 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 					String missatgeError = "error.exist.exp.tipexp.marcar.procediment.no.comu";
 					bindingResult.rejectValue("procedimentComu", missatgeError);
 					MissatgesHelper.error(
-							request, 
+							request,
 							getMessage(
-									request, 
+									request,
 									missatgeError!=null ? missatgeError : "expedient.tipus.metadades.nti.validacio"));
 					response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 				} else {
-	
+
 					expedientTipusService.arxiuCheckSerieDocumental(
 							command.getSerieDocumental(),
 							command.getOrgano(),
 							command.getClasificacion());
-					
+
 					expedientTipusService.updateMetadadesNti(
 							entornActual.getId(),
 							expedientTipusId,
 							command.isActiu(),
-							command.getOrgano(), 
+							command.getOrgano(),
 							command.getClasificacion(),
 							command.getSerieDocumental(),
 							command.isArxiuActiu(),
 							command.isProcedimentComu());
 					MissatgesHelper.success(
-							request, 
+							request,
 							getMessage(
-									request, 
+									request,
 									"expedient.tipus.metadades.nti.controller.guardat"));
 				}
 			}
 		} catch(Exception ex) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					ex.getMessage());
 		}
 		return response;
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/comprovarOrgan/{codiUo}", method = RequestMethod.GET)
-	
+
 	public String comprovarOrgan(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
@@ -236,5 +236,5 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 		this.afegirDadesUnitatOrganitzativa(request, model, codiUo);
 
     	return "unitatOrganitzativaComprovar";
-	}	
+	}
 }

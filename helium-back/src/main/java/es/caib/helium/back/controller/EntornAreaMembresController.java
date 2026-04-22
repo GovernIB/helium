@@ -27,11 +27,11 @@ import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.integracio.plugins.persones.PersonesPlugin;
 import es.caib.helium.logic.intf.service.EntornAreaMembreService;
 import es.caib.helium.logic.intf.service.EntornCarrecService;
-import es.caib.helium.service.helper.EntornHelper;
+import es.caib.helium.logic.helper.EntornHelper;
 
 /**
  * Controlador per a la gestió de les àrees
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "entornAreaMembresControllerV3")
@@ -60,14 +60,14 @@ public class EntornAreaMembresController extends BaseController {
 		model.addAttribute(command);
 		return "entornAreaMembre";
 	}
-	
+
 	@RequestMapping(value = "{entornAreaId}/membres/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
 			@PathVariable Long entornAreaId,
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
@@ -77,7 +77,7 @@ public class EntornAreaMembresController extends BaseController {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(request, null, entornAreaMembreService.findPerDatatable(entornAreaId, paginacioParams));
 	}
-	
+
 	@RequestMapping(value = "{entornAreaId}/membres/new", method = RequestMethod.GET)
 	public String newGet(HttpServletRequest request, @PathVariable Long entornAreaId, Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -92,7 +92,7 @@ public class EntornAreaMembresController extends BaseController {
 		model.addAttribute(command);
 		return "entornAreaMembre";
 	}
-	
+
 	@RequestMapping(value = "{entornAreaId}/membres/new", method = RequestMethod.POST)
 	public String newPost(HttpServletRequest request, @PathVariable Long entornAreaId,
 			@Validated(Creacio.class) EntornAreaMembreCommand command,
@@ -103,7 +103,7 @@ public class EntornAreaMembresController extends BaseController {
 			return "modalBlank";
 		}
 		prepararModel(request, entornAreaId, model, entornActual);
-		
+
 		model.addAttribute("entornCarrecs", entornCarrecService.findCarrecsByEntornAndArea(entornActual.getId(), entornAreaId));
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("mostraCreate", true);
@@ -114,12 +114,12 @@ public class EntornAreaMembresController extends BaseController {
 		areaMembre.setAreaId(entornAreaId);
 		areaMembre.setCodi(command.getCodi());
 		entornAreaMembreService.create(entornActual.getId(), command.getCarrecId(), areaMembre);
-		
+
 		return "entornAreaMembre";
 	}
-	
+
 	private String prepararModel(HttpServletRequest request,Long entornAreaId, Model model, EntornDto entornActual) {
-		
+
 		try {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
 			if (pluginClass != null) {
@@ -130,14 +130,14 @@ public class EntornAreaMembresController extends BaseController {
 			e.printStackTrace();
 			return "modalBlank";
 		}
-		
+
 		model.addAttribute("entornCarrecs", entornCarrecService.findCarrecsByEntornAndArea(entornActual.getId(), entornAreaId));
 		return "";
 	}
-	
+
 	@RequestMapping(value = "/{entornAreaId}/membres/{id}/delete", method = RequestMethod.GET)
 	public String delete(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long entornAreaId,
 			@PathVariable Long id,
 			Model model) {
@@ -153,12 +153,12 @@ public class EntornAreaMembresController extends BaseController {
 			model.addAttribute("areaId", entornAreaId);
 			EntornAreaMembreCommand command = new EntornAreaMembreCommand();
 			model.addAttribute(command);
-			
+
 //			MissatgesHelper.success(
 //					request,
 //					getMessage(
 //							request,
-//							"expedient.tipus.enumeracio.valors.controller.eliminat"));			
+//							"expedient.tipus.enumeracio.valors.controller.eliminat"));
 		} catch(Exception e) {
 			MissatgesHelper.error(
 					request,
@@ -168,10 +168,10 @@ public class EntornAreaMembresController extends BaseController {
 					e);
 			logger.error("S'ha produit un error al intentar el membre amb id '" + id + "' de l'àrea amb id '" + entornAreaId, e);
 		}
-		
+
 		return "/entornAreaMembre";
 	}
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EntornAreaMembresController.class);
-	
+
 }

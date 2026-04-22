@@ -25,11 +25,11 @@ import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.EntornAreaService;
 import es.caib.helium.logic.intf.service.EntornCarrecService;
-import es.caib.helium.service.helper.EntornHelper;
+import es.caib.helium.logic.helper.EntornHelper;
 
 /**
  * Controlador per a la gestió de càrrecs
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 
@@ -107,7 +107,7 @@ public class EntornCarrecController extends BaseController {
 		model.addAttribute("entornCarrecCommand", command);
 		return "entornCarrecForm";
 	}
-	
+
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
@@ -123,8 +123,8 @@ public class EntornCarrecController extends BaseController {
         if (bindingResult.hasErrors()) {
     		model.addAttribute("entornArees", entornAreaService.findAreesByEntorn(entornActual.getId()));
         	return "entornCarrecForm";
-        } 
-        
+        }
+
     	entornCarrecService.update(entornActual.getId(), ConversioTipus.convertir(command, CarrecDto.class));
 		return getModalControllerReturnValueSuccess(request, "redirect:/entorn-carrec", "carrec.controller.modificat");
 	}

@@ -24,11 +24,11 @@ import es.caib.helium.back.helper.AjaxHelper.AjaxResponse;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.commons.dto.ExecucioMassivaDto;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
-import es.caib.helium.service.utils.CsvHelper;
+import es.caib.helium.logic.utils.CsvHelper;
 
 /**
  * Controlador per la execucions massives
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -37,9 +37,9 @@ public class ExecucionsMassivesController extends BaseExpedientController {
 
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
-	
+
 	/** Mètode per descarregar l'arxiu CSV amb el resultat de l'execució massiva.
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @param execucioMassivaId
@@ -47,8 +47,8 @@ public class ExecucionsMassivesController extends BaseExpedientController {
 	 */
 	@RequestMapping(value = "getCsvResultat/{execucioMassivaId}", method = RequestMethod.GET)
 	@ResponseBody
-	public void getCsvResultat(HttpServletRequest request, 
-			HttpServletResponse response, 
+	public void getCsvResultat(HttpServletRequest request,
+			HttpServletResponse response,
 			@PathVariable Long execucioMassivaId)
 			throws Exception {
 		try {
@@ -58,14 +58,14 @@ public class ExecucionsMassivesController extends BaseExpedientController {
     		byte[] contingutCsv = csvHelper.toCsv(informacioCsv);
     		this.writeFileToResponse("Resultats_" + execucioMassivaId  + "_" + new SimpleDateFormat("yyyy.MM.dd_HHmmss").format(execucioMassiva.getDataInici()) + ".csv", contingutCsv, response);
     		MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
-							"expedient.alta.massiva.csvoriginal.success"));        			
+							request,
+							"expedient.alta.massiva.csvoriginal.success"));
 
     	} catch(Exception e) {
     		String errMsg = getMessage(
-					request, 
+					request,
 					"expedient.alta.massiva.csvoriginal.error",
 					new Object[]{e.getClass() + " " + e.getMessage()});
     		logger.error(errMsg, e);
@@ -74,11 +74,11 @@ public class ExecucionsMassivesController extends BaseExpedientController {
     				errMsg,
     				e);
     		throw(e);
-    	}        
+    	}
 	}
-	
+
 	/** Mètode per descarregar l'arxiu CSV original
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @param execucioMassivaId
@@ -91,27 +91,27 @@ public class ExecucionsMassivesController extends BaseExpedientController {
 			HttpServletResponse response,
 			@PathVariable Long execucioMassivaId) throws Exception {
 
-    	try { 
+    	try {
     		ExecucioMassivaDto execucioMassiva = execucioMassivaService.findAmbId(execucioMassivaId);
     		byte[] contentCsv = execucioMassivaService.getCsvOriginalContent(execucioMassivaId);
     		this.writeFileToResponse("CSV_original_" + execucioMassivaId + "_" + new SimpleDateFormat("yyyy.MM.dd_HHmmss").format(execucioMassiva.getDataInici()) + ".csv", contentCsv, response);
-    	    
+
     	    MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.alta.massiva.exemple.success"));
     	} catch(Exception e) {
     		MissatgesHelper.error(
     				request,
     				getMessage(
-    						request, 
+    						request,
     						"expedient.alta.massiva.exemple.error",
     						new Object[]{e.getLocalizedMessage()}),
 					e);
-    	}        
+    	}
 	}
-	
+
 
 	@RequestMapping(value = "/{nivell}", method = RequestMethod.GET)
 	public String get(HttpServletRequest request, @PathVariable String nivell, Model model) {
@@ -132,7 +132,7 @@ public class ExecucionsMassivesController extends BaseExpedientController {
 
 	/**
 	 * Obtenir les dades de l'execució massiva i els seus expedients.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "getExecucioMassivaDetall", method = RequestMethod.GET, produces = {
@@ -148,7 +148,7 @@ public class ExecucionsMassivesController extends BaseExpedientController {
 	/**
 	 * Mètode per cancel·lar les execucions massives de tots els expedients d'una
 	 * execució massiva.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "cancelExecucioMassiva", method = RequestMethod.POST)
@@ -175,46 +175,46 @@ public class ExecucionsMassivesController extends BaseExpedientController {
 	@ResponseBody
 	public AjaxResponse rependreExecucioMassiva(@RequestParam(value = "id") Long id, HttpServletRequest request,
 			HttpServletResponse response, ModelMap model, HttpSession session) throws Exception {
-			
+
 			AjaxResponse ajaxResponse = new AjaxResponse();
 			try {
 				execucioMassivaService.rependreExecucioMassiva(id);
 				ajaxResponse.setMissatge("L'execució massiva amb id " + id + " s'ha reprès correctament ");
-				
+
 			} catch (Exception ex) {
 				String errMsg = "No s'ha pogut rependre la execució massiva d'expedients amb id " + id + ": " + ex.getMessage();
 				logger.error(errMsg, ex);
 				ajaxResponse.setError(true);
 				ajaxResponse.setMissatge(errMsg);
 			}
-			
+
 			return ajaxResponse;
 	}
-	
+
 	@RequestMapping(value = "reintentarExecucioMassiva", method = RequestMethod.POST)
 	@ResponseBody
 	public AjaxResponse reintentarExecucioMassiva(@RequestParam(value = "id") Long id, HttpServletRequest request,
 			HttpServletResponse response, ModelMap model, HttpSession session) throws Exception {
-			
+
 			AjaxResponse ajaxResponse = new AjaxResponse();
 			try {
 				execucioMassivaService.reintentarExecucioMassiva(id);
 				ajaxResponse.setMissatge("L'execució massiva amb id " + id + " s'ha reintentat correctament ");
-				
+
 			} catch (Exception ex) {
 				String errMsg = "Error reintentant l'acció massiva amb id " + id + ": " + ex.getMessage();
 				logger.error(errMsg, ex);
 				ajaxResponse.setError(true);
 				ajaxResponse.setMissatge(errMsg);
 			}
-			
+
 			return ajaxResponse;
 	}
 
 
 	/**
 	 * Refresca las barras de progreso de detalle de las acciones masivas
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "cancelExpedientMassiveAct", method = RequestMethod.POST)

@@ -54,7 +54,7 @@ import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.dto.PortafirmesEstatEnum;
 import es.caib.helium.commons.dto.PortasignaturesDto;
 import es.caib.helium.logic.intf.service.PortasignaturesService;
-import es.caib.helium.service.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 
 /**
  * Controlador per visualitzar la llista de peticions enviades des d'Helium al PortaFib.
@@ -62,46 +62,46 @@ import es.caib.helium.service.helper.UsuariActualHelper;
 @Controller
 @RequestMapping("/enviamentsPortafib")
 public class EnviamentsPortafibController extends BaseExpedientController {
-	
+
 	@Autowired private PortasignaturesService portasignaturesService;
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(HttpServletRequest request, Model model) {
-		
+
 		ConsultesPortafibFiltreCommand filtreCommand = getFiltreCommand(request);
 		List<ExpedientTipusDto> expedientTipusDtoAccessibles = null;
-		
+
 		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();
 		if (expedientTipusActual != null) {
 			filtreCommand.setTipusId(expedientTipusActual.getId());
 		}
-		
+
 		//Si ets admin, no filtra per entorn actual.
 		//ELs tipus de expedient del filtre son tots els accessibles
 		if (UsuariActualHelper.isAdministrador(SecurityContextHolder.getContext().getAuthentication())) {
-			
+
 			expedientTipusDtoAccessibles = SessionHelper.getSessionManager(request).getExpedientTipusAccessibles();
-			
+
 		} else {
-		
+
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			if (entornActual != null) {
 				filtreCommand.setEntornId(entornActual.getId());
 				expedientTipusDtoAccessibles = expedientTipusService.findAmbEntornPermisConsultar(entornActual.getId());
 			}
-	
+
 			if (expedientTipusDtoAccessibles==null || expedientTipusDtoAccessibles.size()==0) {
 				MissatgesHelper.error(request, "No teniu permís d'administració sobre cap tipus d'expedient dins l'entorn actual.");
 				return "redirect:/";
 			}
 		}
-		
+
 		model.addAttribute(filtreCommand);
 		modelExpedientsTipus(expedientTipusDtoAccessibles, model);
 		modelEstats(model);
 		return "consultesPortafibLlistat";
 	}
-	
+
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse datatable(HttpServletRequest request) {
@@ -114,7 +114,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 				ConversioTipus.convertir(filtreCommand, ConsultesPortafibFiltreDto.class));
 		return DatatablesHelper.getDatatableResponse(request, null, resultat);
 	}
-	
+
 	@RequestMapping(method = RequestMethod.POST)
 	public String post(
 			HttpServletRequest request,
@@ -128,7 +128,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 		}
 		return "redirect:enviamentsPortafib";
 	}
-	
+
 	@RequestMapping(value = "/{peticioPortafibId}/info", method = RequestMethod.GET)
 	public String info(
 			HttpServletRequest request,
@@ -137,7 +137,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 		model.addAttribute("dto", portasignaturesService.findById(peticioPortafibId));
 		return "consultesPortafibInfo";
 	}
-	
+
 	private ConsultesPortafibFiltreCommand getFiltreCommand(HttpServletRequest request) {
 		ConsultesPortafibFiltreCommand filtreCommand = (ConsultesPortafibFiltreCommand) SessionHelper.getAttribute(request, SESSION_ATTRIBUTE_FILTRE);
 		if (filtreCommand == null) {
@@ -146,7 +146,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 		}
 		return filtreCommand;
 	}
-	
+
 	private final int MAX_FILES = 1000;
 	@RequestMapping(value = "/descarregardades", method = RequestMethod.GET)
 	@ResponseBody
@@ -159,7 +159,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 			ConsultesPortafibFiltreCommand filtreCommand = getFiltreCommand(request);
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			filtreCommand.setEntornId(entornActual.getId());
-			
+
 			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
 			paginacioParams.setPaginaNum(0);
 			paginacioParams.setPaginaTamany(MAX_FILES);
@@ -170,7 +170,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 					ConversioTipus.convertir(filtreCommand, ConsultesPortafibFiltreDto.class));
 			if (resultat.getElementsTotal() > MAX_FILES) {
 				MissatgesHelper.warning(request, "S'han obtingut " + resultat.getTotal() + " resultats, només es descarregaran les " + MAX_FILES + " primeres files.");
-				
+
 			}
 			List<PortasignaturesDto> enviaments = resultat.getContingut();
 			exportXLS(response, enviaments);
@@ -186,7 +186,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 			throw(e);
 		}
 	}
-	
+
 	private void exportXLS(HttpServletResponse response, List<PortasignaturesDto> enviaments) {
 
 		Workbook workbook = null;
@@ -203,7 +203,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 
 	        CellStyle headerStyle = workbook.createCellStyle();
 	        headerStyle.setFont(headerFont);
-	        
+
 	        // Estil per a dates
 	        CellStyle dateStyle = workbook.createCellStyle();
 	        short dateFormat = workbook.createDataFormat().getFormat("dd/MM/yyyy HH:mm:ss");
@@ -221,35 +221,35 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 	        cell = headerRow.createCell(1);
 	        cell.setCellValue("Expedient Tipus");
 	        cell.setCellStyle(headerStyle);
-	        
+
 	        cell = headerRow.createCell(2);
 	        cell.setCellValue("Número Expedient");
 	        cell.setCellStyle(headerStyle);
-	        
+
 	        cell = headerRow.createCell(3);
 	        cell.setCellValue("Data d'Enviament");
 	        cell.setCellStyle(headerStyle);
-	        
+
 	        cell = headerRow.createCell(4);
 	        cell.setCellValue("Estat");
 	        cell.setCellStyle(headerStyle);
-	        
+
 	        cell = headerRow.createCell(5);
 	        cell.setCellValue("Document");
 	        cell.setCellStyle(headerStyle);
-	        
-	        
+
+
 
 	        // Files de dades
 	        for (PortasignaturesDto dto : enviaments) {
 	            Row row = sheet.createRow(rowIndex++);
 	            // Assegurem no passar null a setCellValue amb es helper valor
 	            row.createCell(0).setCellValue(valor(dto.getDocumentId()));
-	            
+
 	            row.createCell(1).setCellValue(valor(dto.getTipusExpedientCodi()));
-	            
+
 	            row.createCell(2).setCellValue(valor(dto.getExpedientIdentificador()));
-	            
+
 		        // Cel·la de data
 	            Cell dateCell = row.createCell(3);
 	            Date dataEnv = dto.getDataEnviat();
@@ -259,10 +259,10 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 	            } else {
 	                dateCell.setCellValue(""); // per si ve null
 	            }
-	            
+
 	            row.createCell(4).setCellValue(valor(dto.getEstat()));
-	            
-	            
+
+
 	            Cell linkCell = row.createCell(5);
 	            String documentNom = valor(dto.getDocumentNom());
 	            String documentUrl = valor(dto.getSignaturaUrlVerificacio());
@@ -312,7 +312,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 	        if (out != null) {
 	            try { out.close(); } catch (Exception ignore) {}
 	        }
-	        
+
 	        // En POI 3.7 Workbook no te close(); alliberem la referència i deixem que el GC faci el seu treball
 	        workbook = null;
 	    }
@@ -328,15 +328,15 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 		// if (o instanceof Date) return new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format((Date) o);
 		return o.toString();
 	}
-	
+
 	private void modelExpedientsTipus(List<ExpedientTipusDto> expedientTipusDtoAccessibles, Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 			for(ExpedientTipusDto expedientTipus : expedientTipusDtoAccessibles)
-				opcions.add(new ParellaCodiValorDto(expedientTipus.getId().toString(), expedientTipus.getNom()));		
-		
+				opcions.add(new ParellaCodiValorDto(expedientTipus.getId().toString(), expedientTipus.getNom()));
+
 		model.addAttribute("expedientsTipus", opcions);
 	}
-	
+
 	private void modelEstats(Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 		for(PortafirmesEstatEnum estat : PortafirmesEstatEnum.values())
@@ -347,15 +347,15 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 
 		model.addAttribute("estats", opcions);
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
-	}	
-	
+	}
+
 	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(EnviamentsPortafibController.class);
 	private static final String SESSION_ATTRIBUTE_FILTRE = "EnviamentsPortafibController.session.filtre";

@@ -23,11 +23,11 @@ import es.caib.helium.commons.dto.ExpedientTipusFiltreDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.service.helper.PluginHelper;
+import es.caib.helium.logic.helper.PluginHelper;
 
 /**
  * Controlador per al menú Administrador de cercador de tipologies de tipus d'expedient
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "expedientTipusAdminControllerV3")
@@ -41,12 +41,12 @@ public class ExpedientTipusAdminController extends BaseController {
 	private static final String SESSION_ATTRIBUTE_FILTRE = "ExpedientTipusAdminController.session.filtre";
 
 	/** Resposta GET i POST de la pàgina i formulari de tipologies.
-	 * 
+	 *
 	 * @param request
 	 * @param model
 	 * @return Retorna com si fos una crida post de consulta.
 	 */
-	
+
 	/** Accés al llistat de tipologies des del desplegable Administració - Cercador de Tipologies */
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
@@ -65,10 +65,10 @@ public class ExpedientTipusAdminController extends BaseController {
 					return "cercadorTipologies";
 
 		}
-		
+
 		return "cercadorTipologies";
 	}
-	
+
 	/** Mètode quan s'envia el formulari del filtre. Actualitza el filtre en sessió. */
 	@RequestMapping(method = RequestMethod.POST)
 	public String post(
@@ -84,16 +84,16 @@ public class ExpedientTipusAdminController extends BaseController {
 		return "redirect:cercadorTipologies";
 	}
 
-	
+
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
 			Model model) {
-		
+
 		ExpedientTipusAdminCommand filtreCommand = getFiltreCommand(request);
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
-		
+
 		Long entornId = null;
 		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
 		if (!persona.isAdmin()) {
@@ -112,7 +112,7 @@ public class ExpedientTipusAdminController extends BaseController {
 
 
 	/** Mètode per obtenir o inicialitzar el filtre del formulari de cerca.
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -125,5 +125,5 @@ public class ExpedientTipusAdminController extends BaseController {
 		}
 		return filtreCommand;
 	}
-	
+
 }

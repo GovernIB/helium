@@ -20,11 +20,11 @@ import es.caib.helium.commons.dto.AccioDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.service.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExceptionHelper;
 
 /**
  * Controlador per a la pàgina d'accions de l'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -33,13 +33,13 @@ public class ExpedientAccioController extends BaseExpedientController {
 
 	@Resource
 	ExceptionHelper exceptionHelper;
-	
+
 	@RequestMapping(value = "/{expedientId}/accio", method = RequestMethod.GET)
 	public String accions(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);		
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
@@ -48,7 +48,7 @@ public class ExpedientAccioController extends BaseExpedientController {
 					instanciaProces.getId());
 			accions.put(instanciaProces, accionsTrobades);
 		}
-		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());		
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("accions", accions);
 		return "expedientAccio";
@@ -70,15 +70,15 @@ public class ExpedientAccioController extends BaseExpedientController {
 						instanciaProces.getId()));
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient", expedient);
-		model.addAttribute("accions", accions);	
+		model.addAttribute("accions", accions);
 		return "procesAccions";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/accio/{accioId}/executar", method = RequestMethod.GET)
 	public String executar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId, 
-			@PathVariable Long accioId, 
+			@PathVariable Long expedientId,
+			@PathVariable Long accioId,
 			@PathVariable String procesId,
 			Model model) {
 		try {

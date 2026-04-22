@@ -41,8 +41,8 @@ import es.caib.helium.commons.dto.PeticioPinbalEstatEnum;
 import es.caib.helium.commons.dto.PeticioPinbalFiltreDto;
 import es.caib.helium.commons.dto.ScspRespostaPinbal;
 import es.caib.helium.logic.intf.service.ConsultaPinbalService;
-import es.caib.helium.service.helper.ConsultaPinbalHelper;
-import es.caib.helium.service.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.ConsultaPinbalHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 
 @Controller
 @RequestMapping("/consultesPinbal")
@@ -51,32 +51,32 @@ public class ConsultesPinbalController extends BaseExpedientController {
 	@Autowired private ConsultaPinbalService consultesPinbalService;
 	@Resource  private ConsultaPinbalHelper consultaPinbalHelper;
 	private static final String SESSION_ATTRIBUTE_FILTRE = "ConsultesPinbalController.session.filtre";
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(HttpServletRequest request, Model model) {
-		
+
 		ConsultesPinbalFiltreCommand filtreCommand = getFiltreCommand(request);
 		List<ExpedientTipusDto> expedientTipusDtoAccessibles = null;
-		
+
 		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();
 		if (expedientTipusActual != null) {
 			filtreCommand.setTipusId(expedientTipusActual.getId());
 		}
-		
+
 		//Si ets admin, no filtra per entorn actual.
 		//ELs tipus de expedient del filtre son tots els accessibles
 		if (UsuariActualHelper.isAdministrador(SecurityContextHolder.getContext().getAuthentication())) {
-			
+
 			expedientTipusDtoAccessibles = SessionHelper.getSessionManager(request).getExpedientTipusAccessibles();
-			
+
 		} else {
-		
+
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			if (entornActual != null) {
 				filtreCommand.setEntornId(entornActual.getId());
 				expedientTipusDtoAccessibles = expedientTipusService.findAmbEntornPermisAdmin(entornActual.getId());
 			}
-	
+
 			if (expedientTipusDtoAccessibles==null || expedientTipusDtoAccessibles.size()==0) {
 				MissatgesHelper.error(request, "No teniu permís d'administració sobre cap tipus d'expedient dins l'entorn actual.");
 				return "redirect:/";
@@ -88,7 +88,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 		modelEstats(model);
 		return "consultesPinbalLlistat";
 	}
-	
+
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse datatable(HttpServletRequest request) {
@@ -101,7 +101,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 				ConversioTipus.convertir(filtreCommand, PeticioPinbalFiltreDto.class));
 		return DatatablesHelper.getDatatableResponse(request, null, resultat);
 	}
-	
+
 	@RequestMapping(value = "/{peticioPinbalId}/actualitzarEstat", method = RequestMethod.GET)
 	@ResponseBody
 	public ScspRespostaPinbal actualitzarEstat(
@@ -109,7 +109,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 			@PathVariable Long peticioPinbalId) {
 		return consultaPinbalHelper.tractamentPeticioAsincronaPendentPinbal(peticioPinbalId);
 	}
-	
+
 	@RequestMapping(value = "/{peticioPinbalId}/info", method = RequestMethod.GET)
 	public String info(
 			HttpServletRequest request,
@@ -118,7 +118,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 		model.addAttribute("peticioPinbalDto", consultesPinbalService.findById(peticioPinbalId));
 		return "consultesPinbalInfo";
 	}
-	
+
 	@RequestMapping(value = "/infoByDocument/{expedientId}/{documentStoreId}", method = RequestMethod.GET)
 	public String infoByDocument(
 			HttpServletRequest request,
@@ -127,7 +127,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 			Model model) {
 		return info(request, consultesPinbalService.findByExpedientAndDocumentStore(expedientId, documentStoreId).getId(), model);
 	}
-	
+
 	private ConsultesPinbalFiltreCommand getFiltreCommand(HttpServletRequest request) {
 		ConsultesPinbalFiltreCommand filtreCommand = (ConsultesPinbalFiltreCommand) SessionHelper.getAttribute(request, SESSION_ATTRIBUTE_FILTRE);
 		if (filtreCommand == null) {
@@ -136,7 +136,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 		}
 		return filtreCommand;
 	}
-	
+
 	@RequestMapping(method = RequestMethod.POST)
 	public String post(
 			HttpServletRequest request,
@@ -150,25 +150,25 @@ public class ConsultesPinbalController extends BaseExpedientController {
 		}
 		return "redirect:consultesPinbal";
 	}
-	
+
 	private void modelExpedientsTipus(List<ExpedientTipusDto> expedientTipusDtoAccessibles, Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 			for(ExpedientTipusDto expedientTipus : expedientTipusDtoAccessibles)
-				opcions.add(new ParellaCodiValorDto(expedientTipus.getId().toString(), expedientTipus.getNom()));		
-		
+				opcions.add(new ParellaCodiValorDto(expedientTipus.getId().toString(), expedientTipus.getNom()));
+
 		model.addAttribute("expedientsTipus", opcions);
 	}
-	
+
 	private void modelEstats(Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 		for(PeticioPinbalEstatEnum estat : PeticioPinbalEstatEnum.values())
 			opcions.add(new ParellaCodiValorDto(
 					estat.name(),
-					MessageHelper.getInstance().getMessage("enum.pinbal.estat." + estat.name())));		
+					MessageHelper.getInstance().getMessage("enum.pinbal.estat." + estat.name())));
 
 		model.addAttribute("estats", opcions);
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));

@@ -24,11 +24,11 @@ import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.EntornTipusAreaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.EntornTipusAreaService;
-import es.caib.helium.service.helper.EntornHelper;
+import es.caib.helium.logic.helper.EntornHelper;
 
 /**
  * Controlador per a la gestió de tipus d'àrea
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 
@@ -49,7 +49,7 @@ public class EntornTipusAreaController extends BaseController {
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(HttpServletRequest request, Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
@@ -62,7 +62,7 @@ public class EntornTipusAreaController extends BaseController {
 
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
 	public String newGet(HttpServletRequest request, Model model) {
-		
+
 		model.addAttribute(new EntornTipusAreaCommand());
 		return "entornTipusAreaForm";
 	}
@@ -70,7 +70,7 @@ public class EntornTipusAreaController extends BaseController {
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
 	public String newPost(HttpServletRequest request, @Validated(Creacio.class) EntornTipusAreaCommand command,
 			BindingResult bindingResult, Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
@@ -98,7 +98,7 @@ public class EntornTipusAreaController extends BaseController {
 		model.addAttribute("entornTipusAreaCommand", command);
 		return "entornTipusAreaForm";
 	}
-	
+
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
@@ -106,7 +106,7 @@ public class EntornTipusAreaController extends BaseController {
 			@Validated(Modificacio.class) EntornTipusAreaCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
@@ -114,8 +114,8 @@ public class EntornTipusAreaController extends BaseController {
 		}
         if (bindingResult.hasErrors()) {
         	return "entornTipusAreaForm";
-        } 
-    		
+        }
+
     	entornTipusAreaService.update(
     			entornActual.getId(),
     			ConversioTipus.convertir(
@@ -129,7 +129,7 @@ public class EntornTipusAreaController extends BaseController {
 
 	@RequestMapping(value = "{entornTipusAreaId}/delete", method = RequestMethod.GET)
 	public String delete(HttpServletRequest request, @PathVariable Long entornTipusAreaId, Model model) {
-		
+
 		entornTipusAreaService.delete(entornTipusAreaId);
 		return this.getAjaxControllerReturnValueSuccess(request, "redirect:/entorn-tipus-area",
 				"tipusArea.controller.esborrada");
