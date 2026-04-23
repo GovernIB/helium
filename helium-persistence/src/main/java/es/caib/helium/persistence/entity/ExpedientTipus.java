@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -34,7 +34,6 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 import org.hibernate.annotations.Type;
@@ -43,7 +42,7 @@ import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
 
 /**
  * Objecte de domini que representa un tipus d'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
@@ -73,10 +72,10 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private boolean enviarCorreuAnotacions;
 
 	/** Indica si el tipus d'expedient està basat en un flux o en estats
-	 * 
+	 *
 	 */
 	private ExpedientTipusTipusEnumDto tipus;
-	
+
 	/** Indica si el tipus d'expedient té lligada la informació de les variables, agrupacions i documents
 	 * directament o a través de la definició de procesos tal i com s'ha fet fins ara.
 	 */
@@ -85,15 +84,15 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private boolean heretable;
 	/** Propietat de qui hereta les dades el tipus d'expedient. */
 	private ExpedientTipus expedientTipusPare;
-	
+
 	private String diesNoLaborables;
-	
+
 	// Integració NOTIB
 	private Boolean notibActiu;
 	/** codi DIR3 de l'organimse emissor. */
 	private String notibEmisor;
 	private String notibCodiProcediment;
-		
+
 	// Integració SISTRA
 	//  - Notificacions
 	private boolean notificacionsActivades;
@@ -118,7 +117,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private String formextUrl;
 	private String formextUsuari;
 	private String formextContrasenya;
-	
+
 	// Integració DISTRIBUCIO
 	private boolean distribucioActiu;
 	private String distribucioCodiProcediment;
@@ -153,7 +152,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private List<ExecucioMassiva> execucionsMassives  = new ArrayList<ExecucioMassiva>();
 	private List<Repro> repros  = new ArrayList<Repro>();
 
-	//MetadadesNti  
+	//MetadadesNti
 	private boolean ntiActiu;
 	private String ntiOrgano;
 	private String ntiClasificacion;
@@ -384,7 +383,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setDiesNoLaborables(String diesNoLaborables) {
 		this.diesNoLaborables = diesNoLaborables;
 	}
-	
+
 	@Column(name="notificacions_activades")
 	public boolean isNotificacionsActivades() {
 		return notificacionsActivades;
@@ -392,7 +391,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotificacionsActivades(boolean notificacionsActivades) {
 		this.notificacionsActivades = notificacionsActivades;
 	}
-	
+
 	@Column(name="notificacio_organcodi", length = 100)
 	public String getNotificacioOrganCodi() {
 		return notificacioOrganCodi;
@@ -400,7 +399,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotificacioOrganCodi(String notificacioOrganCodi) {
 		this.notificacioOrganCodi = notificacioOrganCodi;
 	}
-	
+
 	@Column(name="notificacio_oficinacodi", length = 100)
 	public String getNotificacioOficinaCodi() {
 		return notificacioOficinaCodi;
@@ -408,7 +407,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotificacioOficinaCodi(String notificacioOficinaCodi) {
 		this.notificacioOficinaCodi = notificacioOficinaCodi;
 	}
-	
+
 	@Column(name="notificacio_unitatadmin", length = 100)
 	public String getNotificacioUnitatAdministrativa() {
 		return notificacioUnitatAdministrativa;
@@ -416,7 +415,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotificacioUnitatAdministrativa(String notificacioUnitatAdministrativa) {
 		this.notificacioUnitatAdministrativa = notificacioUnitatAdministrativa;
 	}
-	
+
 	@Column(name="notificacio_codproc", length = 100)
 	public String getNotificacioCodiProcediment() {
 		return notificacioCodiProcediment;
@@ -424,7 +423,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotificacioCodiProcediment(String notificacioCodiProcediment) {
 		this.notificacioCodiProcediment = notificacioCodiProcediment;
 	}
-	
+
 	@Column(name="notificacio_avistitol", length = 256)
 	public String getNotificacioAvisTitol() {
 		return notificacioAvisTitol;
@@ -432,7 +431,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotificacioAvisTitol(String notificacioAvisTitol) {
 		this.notificacioAvisTitol = notificacioAvisTitol;
 	}
-	
+
 	@Column(name="notificacio_avistext", length = 1024)
 	public String getNotificacioAvisText() {
 		return notificacioAvisText;
@@ -440,7 +439,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotificacioAvisText(String notificacioAvisText) {
 		this.notificacioAvisText = notificacioAvisText;
 	}
-	
+
 	@Column(name="notificacio_avistextsms", length = 200)
 	public String getNotificacioAvisTextSms() {
 		return notificacioAvisTextSms;
@@ -448,7 +447,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotificacioAvisTextSms(String notificacioAvisTextSms) {
 		this.notificacioAvisTextSms = notificacioAvisTextSms;
 	}
-	
+
 	@Column(name="notificacio_oficititol", length = 256)
 	public String getNotificacioOficiTitol() {
 		return notificacioOficiTitol;
@@ -456,7 +455,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotificacioOficiTitol(String notificacioOficiTitol) {
 		this.notificacioOficiTitol = notificacioOficiTitol;
 	}
-	
+
 	@Column(name="notificacio_oficitext", length = 1024)
 	public String getNotificacioOficiText() {
 		return notificacioOficiText;
@@ -464,7 +463,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotificacioOficiText(String notificacioOficiText) {
 		this.notificacioOficiText = notificacioOficiText;
 	}
-	
+
 	@Column(name="sistra_codtra", length=64, unique=true)
 	public String getSistraTramitCodi() {
 		return sistraTramitCodi;
@@ -498,16 +497,16 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	}
 
 	/// Integració amb el NOTIB
-	
+
 	@Column(name="notib_actiu")
 	public Boolean getNotibActiu() {
 		return notibActiu;
 	}
-	
+
 	public void setNotibActiu(Boolean notibActiu) {
 		this.notibActiu = notibActiu;
 	}
-	
+
 	/** Codi DIR3 de l'organisme emissor. */
 	@Column(name="notib_emisor", length=256)
 	public String getNotibEmisor() {
@@ -516,16 +515,16 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNotibEmisor(String notibEmisor) {
 		this.notibEmisor = notibEmisor;
 	}
-		
+
 	@Column(name="notib_codi_procediment", length=9)
 	public String getNotibCodiProcediment() {
 		return notibCodiProcediment;
 	}
-	
+
 	public void setNotibCodiProcediment(String notibCodiProcediment) {
 		this.notibCodiProcediment = notibCodiProcediment;
 	}
-		
+
 	@Column(name="formext_url", length=255)
 	public String getFormextUrl() {
 		return formextUrl;
@@ -549,7 +548,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setDistribucioProcesAuto(boolean distribucioProcesAuto) {
 		this.distribucioProcesAuto = distribucioProcesAuto;
 	}
-	
+
 	@Column(name="distr_sistra")
 	public boolean isDistribucioSistra() {
 		return distribucioSistra;
@@ -557,7 +556,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setDistribucioSistra(boolean distribucioSistra) {
 		this.distribucioSistra = distribucioSistra;
 	}
-	
+
 	@Column(name="distr_codi_procediment", length=200)
 	public String getDistribucioCodiProcediment() {
 		return distribucioCodiProcediment;
@@ -581,7 +580,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setDistribucioCodiAssumpte(String distribucioCodiAssumpte) {
 		this.distribucioCodiAssumpte = distribucioCodiAssumpte;
 	}
-	
+
 	@Column(name="formext_usuari", length=255)
 	public String getFormextUsuari() {
 		return formextUsuari;
@@ -747,7 +746,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 			this.sequencia = this.sequencia + increment;
 		}
 	}
-	
+
 	public void updateSequenciaDefault(Integer any, long increment) {
 		if (any == null) any = Calendar.getInstance().get(Calendar.YEAR);
 		if (this.isReiniciarCadaAny()) {
@@ -761,7 +760,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 			this.sequenciaDef = this.sequenciaDef + increment;
 		}
 	}
-	
+
 	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	public Set<Camp> getCamps() {
 		return this.camps;
@@ -773,35 +772,35 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	@OrderBy("ordre asc")
 	public List<CampAgrupacio> getAgrupacions() {
 		return this.agrupacions;
-	}	
+	}
 	public void setAgrupacions(List<CampAgrupacio> agrupacions) {
 		this.agrupacions = agrupacions;
 	}
-	
+
 	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	public List<Document> getDocuments() {
 		return this.documents;
-	}	
+	}
 	public void setDocuments(List<Document> documents) {
 		this.documents = documents;
 	}
-	
+
 	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	public List<Termini> getTerminis() {
 		return this.terminis;
-	}	
+	}
 	public void setTerminis(List<Termini> terminis) {
 		this.terminis = terminis;
 	}
-	
+
 	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	public List<Accio> getAccions() {
 		return this.accions;
-	}	
+	}
 	public void setAccions(List<Accio> accions) {
 		this.accions = accions;
 	}
-	
+
 	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	public List<ExecucioMassiva> getExecucionsMassives() {
 		return execucionsMassives;
@@ -816,7 +815,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNtiActiu(boolean ntiActiu) {
 		this.ntiActiu = ntiActiu;
 	}
-	
+
 	@Column(name="pinbal_actiu")
 	public boolean isPinbalActiu() {
 		return pinbalActiu;
@@ -831,12 +830,12 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setPinbalNifCif(String pinbalNifCif) {
 		this.pinbalNifCif = pinbalNifCif;
 	}
-	
+
 	@Column(name="sistra_actiu")
 	public boolean isSistraActiu() {
 		return sistraActiu;
 	}
-	
+
 	public void setSistraActiu(boolean sistraActiu) {
 		this.sistraActiu = sistraActiu;
 	}
@@ -871,7 +870,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setArxiuActiu(boolean arxiuActiu) {
 		this.arxiuActiu = arxiuActiu;
 	}
-	
+
 	@Column(name="procediment_comu")
 	public boolean isProcedimentComu() {
 		return procedimentComu;
@@ -886,7 +885,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setRepros(List<Repro> repros) {
 		this.repros = repros;
 	}
-	
+
 	@Column(name="manual_ajuda_nom", length=256)
 	public String getManualAjudaNom() {
 		return manualAjudaNom;
@@ -894,7 +893,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setManualAjudaNom(String manualAjudaNom) {
 		this.manualAjudaNom = manualAjudaNom;
 	}
-	
+
 	@Lob
 	@Type(type="org.hibernate.type.BinaryType")
 	@Basic(fetch=FetchType.LAZY)
@@ -905,7 +904,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setManualAjudaContent(byte[] manualAjudaContent) {
 		this.manualAjudaContent = manualAjudaContent;
 	}
-	
+
 	@Column(name="enviar_correu_anotacions")
 	public boolean isEnviarCorreuAnotacions() {
 		return enviarCorreuAnotacions;

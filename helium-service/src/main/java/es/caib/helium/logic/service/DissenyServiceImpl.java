@@ -16,12 +16,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.logic.helper.*;
+import es.caib.helium.persistence.entity.*;
 import org.flowable.common.engine.impl.util.IoUtil;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
@@ -65,19 +68,7 @@ import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.entity.Area;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.CampTasca;
-import es.caib.helium.persistence.entity.Consulta;
-import es.caib.helium.persistence.entity.ConsultaCamp;
 import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.Domini;
-import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.ServeiPinbalEntity;
-import es.caib.helium.persistence.entity.Tasca;
 import es.caib.helium.persistence.repository.AccioRepository;
 import es.caib.helium.persistence.repository.AreaRepository;
 import es.caib.helium.persistence.repository.CampRepository;
@@ -94,16 +85,6 @@ import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.ServeiPinbalRepository;
 import es.caib.helium.persistence.repository.TascaRepository;
 import es.caib.helium.persistence.repository.TerminiIniciatRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DefinicioProcesHelper;
-import es.caib.helium.logic.helper.DominiHelper;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientLoggerHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.security.ExtendedPermission;
 import javassist.ClassPool;
@@ -172,6 +153,8 @@ public class DissenyServiceImpl implements DissenyService {
 	private ConsultaCampRepository consultaCampRepository;
 	@Resource
 	private ServeiPinbalRepository serveiPinbalRepository;
+	@Resource
+	private RecursHelper recursHelper;
 
 
 
@@ -1239,29 +1222,29 @@ public class DissenyServiceImpl implements DissenyService {
     @Override
 	@Transactional
     public List<String> updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
-
-    	List<String> nomsHandlers = new ArrayList<String>();
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId).orElse(null);
-		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, expedientTipus.getJbpmProcessDefinitionKey());
-		if (definicioProces == null) {
-			throw new DeploymentException(messageHelper.getMessage("definicio.proces.actualitzar.handlers.error.definicio"));
-		}
-
 		try {
-			ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
-			Map<String, byte[]> recursos = processJarHandlersFile(zipInputStream);
-			// Actualitza els handlers de la darrera versió de la definició de procés
-			if (!recursos.isEmpty()) {
-				workflowEngineApi.updateHandlers(Long.parseLong(definicioProces.getJbpmId()), recursos);
-				for(String recurs : recursos.keySet()) {
-					nomsHandlers.add(expedientHelper.resourceToHandler(recurs));
-				}
-			}
-		} catch (Exception e) {
+			List<Recurs> recursosCreats = recursHelper.deploy(expedientTipusId, null, contingut);
+			return recursosCreats.stream().
+				map(r -> {
+					String prefix;
+					if (r.isHandler()) {
+						prefix = "(H) ";
+					} else if (r.isClasse()) {
+						prefix = "(C) ";
+					} else {
+						prefix = "(R) ";
+					}
+					return prefix + r.getNom();
+				}).
+				collect(Collectors.toList());
+		} catch (IOException ex) {
+			logger.error(
+				"Error desplegant els recursos del tipus d'expedient (expedientTipusId={}, nomArxiu={})",
+				expedientTipusId,
+				nomArxiu,
+				ex);
 			throw new DeploymentException(messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
 		}
-		return nomsHandlers;
-
     }
 
     /** Tracta les entrades del .zip i assegura que el nom del recurs sigui del tipus classes/package/nom.class.*/
