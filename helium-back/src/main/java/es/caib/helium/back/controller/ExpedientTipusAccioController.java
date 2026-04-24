@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -49,7 +49,7 @@ import es.caib.helium.commons.dto.handlers.HandlerDto;
 
 /**
  * Controlador per a la pipella d'accions del tipus d'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -79,7 +79,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		}
 		return "expedientTipusAccio";
 	}
-	
+
 	@RequestMapping(value="/{expedientTipusId}/accio/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
@@ -95,8 +95,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 						null,
 						paginacioParams.getFiltre(),
 						paginacioParams));
-	}	
-			
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/accio/new", method = RequestMethod.GET)
 	public String nova(
 			HttpServletRequest request,
@@ -113,7 +113,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 
 		return "expedientTipusAccioForm";
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/accio/new", method = RequestMethod.POST)
 	public String novaPost(
 			HttpServletRequest request,
@@ -133,13 +133,13 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
         	accioService.create(
     				expedientTipusId,
     				null,
-        			ExpedientTipusAccioCommand.asAccioDto(command));    		
+        			ExpedientTipusAccioCommand.asAccioDto(command));
     		MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.tipus.accio.controller.creat"));
-			return modalUrlTancar(false);			
+			return modalUrlTancar(false);
         }
 	}
 
@@ -151,6 +151,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			@PathVariable Long id,
 			Model model) {
 		AccioDto dto = accioService.findAmbId(expedientTipusId, id);
+		String handlerDadesJson = dto.getHandlerDades();
+		dto.setHandlerDades(null);
 		ExpedientTipusAccioCommand command = ConversioTipus.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);
@@ -163,30 +165,30 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 				command.setHandlerPredefinit(dto.getHandlerClasse());
 				break;
 			default:
-				break;		
+				break;
 		}
 
-		if (dto.getHandlerDades() != null) {
+		if (handlerDadesJson != null) {
 			try {
 				command.setHandlerDades(
 						(Map<String, String>) new ObjectMapper()
 							.readValue(
-									dto.getHandlerDades(), 
+									handlerDadesJson,
 									new TypeReference<Map<String, String>>(){}));
 			} catch (Exception e) {
 				MissatgesHelper.error(
-						request, 
+						request,
 						"Error recuperant les dades JSON del handler: " + e.getMessage(),
 						e);
 			}
 		}
-		
+
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusAccioCommand", command);
 		this.omplirModelFormulariAccio(
 				request,
 				expedientTipusId,
-				command, 
+				command,
 				model);
 		model.addAttribute("heretat", dto.isHeretat());
 
@@ -206,21 +208,21 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     				expedientTipusId,
 					command, model);
     		model.addAttribute("heretat", accioService.findAmbId(
-    				expedientTipusId, 
+    				expedientTipusId,
     				id).isHeretat());
         	return "expedientTipusAccioForm";
         } else {
         	accioService.update(
         			ExpedientTipusAccioCommand.asAccioDto(command));
     		MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.tipus.accio.controller.modificat"));
 			return modalUrlTancar(false);
         }
 	}
-	
+
 	private void omplirModelFormulariAccio(
 			HttpServletRequest request,
 			Long expedientTipusId,
@@ -266,25 +268,25 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 					this.getAccions(expedientTipusId, command.getDefprocJbpmKey(), command.getJbpmAction()));
 		}
 		// Handlers propis
-		model.addAttribute("handlersPropis", 
+		model.addAttribute("handlersPropis",
 				this.getHandlersPropis(expedientTipusId, definicioProcesCodi, command.getHandlerPropi()));
-		
+
 		// Grups de handlers predefinits
 		List<ParellaCodiValorDto> handlersPredefinititsGrups = new ArrayList<ParellaCodiValorDto>();
 		for (HandlerAgrupacioEnum agrupacio : HandlerAgrupacioEnum.values()) {
 			handlersPredefinititsGrups.add(new ParellaCodiValorDto(agrupacio.toString(), getMessage(request, "handler.agrupacio.enum." + agrupacio)));
 		}
-		model.addAttribute("handlersPredefinititsGrups", 
+		model.addAttribute("handlersPredefinititsGrups",
 				handlersPredefinititsGrups);
 
-		model.addAttribute("handlersPredefinitsJson", 
+		model.addAttribute("handlersPredefinitsJson",
 				this.getHandlersPredefinitsJson());
 
-		model.addAttribute("dadesHandlerJson", 
+		model.addAttribute("dadesHandlerJson",
 				command.getHandlerDadesJson());
 
 		// Variables del tipus d'expedient
-		model.addAttribute("variables", 
+		model.addAttribute("variables",
 				dissenyService.findCampsOrdenatsPerCodi(
 						expedientTipusId,
 						null,
@@ -292,7 +294,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 						));
 	}
 
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/accio/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean delete(
@@ -300,10 +302,10 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
-		
+
 		try {
 			accioService.delete(id);
-			
+
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -390,20 +392,21 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 	public List<ParellaCodiValorDto> getParametresHandler(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@RequestParam(value="handler", required=true) String handler,
+			@RequestParam(value="handler") String handler,
 			Model model) {
-		List<ParellaCodiValorDto> parametres = new ArrayList<ParellaCodiValorDto>();
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		List<ParellaCodiValorDto> parametres = new ArrayList<>();
+		/*EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 				entornActual.getId(),
 				expedientTipusId);
 		DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, expedientTipus.getJbpmProcessDefinitionKey());
-		parametres = dissenyService.findHandlerParams(definicioProces.getId(), handler);
+		parametres = dissenyService.findHandlerParams(definicioProces.getId(), handler);*/
+		parametres = dissenyService.findHandlerRecursParams(expedientTipusId, handler);
 		// Select d'accions
 		return parametres;
 	}
 
-	
+
 	/** Mètode per obtenir les possibles versions per al select de definicions de procés via ajax. */
 	@RequestMapping(value = "/{expedientTipusId}/definicio/{definicioCodi}/accions/select", method = RequestMethod.GET)
 	@ResponseBody
@@ -434,7 +437,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 
 	/** Consulta la llista d'accions per la darrera versió de la definició de procés per codi del
 	 * tipus d'expedient.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @param definicioCodi
 	 * @param jbpmAction
@@ -452,7 +455,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		for (String accio : accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
 		}
-		if (jbpmAction != null 
+		if (jbpmAction != null
 				&& !jbpmAction.isEmpty()
 				&&	!accions.contains(jbpmAction)) {
 			ret.add(0, new ParellaCodiValorDto(
@@ -461,10 +464,10 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		}
 		return ret;
 	}
-	
+
 	/** Consulta la llista d'accions per la darrera versió de la definició de procés per codi del
 	 * tipus d'expedient.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @param definicioCodi
 	 * @param handlerPropi
@@ -472,17 +475,15 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 	 */
 	private List<ParellaCodiValorDto> getHandlersPropis(Long expedientTipusId, String definicioCodi, String handlerPropi) {
 
-		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
-		List<String> accions = new ArrayList<String>();
-		if(expedientTipusId != null && definicioCodi != null) {
-			// Darrera versió de la definició de procés
-			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, definicioCodi);
-			accions = dissenyService.findHandlersJbpmOrdenats(definicioProces.getId());
+		List<ParellaCodiValorDto> ret = new ArrayList<>();
+		List<String> accions = new ArrayList<>();
+		if (expedientTipusId != null) {
+			accions = dissenyService.findHandlersRecursos(expedientTipusId);
 		}
-		for (String accio : accions) {
+		for (String accio: accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
 		}
-		if (handlerPropi != null 
+		if (handlerPropi != null
 				&& !handlerPropi.isEmpty()
 				&&	!accions.contains(handlerPropi)) {
 			ret.add(0, new ParellaCodiValorDto(
@@ -491,17 +492,17 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		}
 		return ret;
 	}
-	
-	/** Consulta els handlers predefinits 
-	 * 
+
+	/** Consulta els handlers predefinits
+	 *
 	 * @return
 	 */
 	private String getHandlersPredefinitsJson() {
-		String handlersJson = "[]";		
+		String handlersJson = "[]";
 		try {
 			List<HandlerDto> handlers = dissenyService.getHandlersPredefinits();
 			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-			handlersJson = ow.writeValueAsString(handlers);		
+			handlersJson = ow.writeValueAsString(handlers);
 		} catch(Exception e) {
 			logger.error("Error llegint els handlers predefinits: " + e.getMessage(), e);
 		}

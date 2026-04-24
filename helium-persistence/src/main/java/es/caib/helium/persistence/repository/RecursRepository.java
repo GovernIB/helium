@@ -4,6 +4,7 @@ import es.caib.helium.persistence.entity.Recurs;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -26,5 +27,7 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 		Long definicioProcesId,
 		String nom,
 		Boolean isClass);
+
+	List<Recurs> findByExpedientTipusIdAndHandler(Long expedientTipusId, boolean handler);
 
 }

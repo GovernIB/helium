@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.command;
 
@@ -22,14 +22,14 @@ import es.caib.helium.commons.dto.AccioDto;
 import es.caib.helium.commons.dto.AccioTipusEnumDto;
 
 /**
- * Command per editar la informació de les accions dels tipus d'expedient 
- * 
+ * Command per editar la informació de les accions dels tipus d'expedient
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @ExpedientTipusAccio(groups = {Creacio.class, Modificacio.class})
 public class ExpedientTipusAccioCommand {
-	
-	
+
+
 	private Long expedientTipusId;
 	private Long definicioProcesId;
 	private Long id;
@@ -51,22 +51,22 @@ public class ExpedientTipusAccioCommand {
 	private String defprocJbpmKey;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String jbpmAction;
-	
+
 	// Tipus handler propi
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String handlerPropi;
-	
+
 	// Tipus handler predefinit Helium
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String handlerPredefinit;
-	
+
 	// Dades del handler propi o predefinit
 	private Map<String, String> handlerDades = new HashMap<String, String>();
-	
+
 	// Tipus script
 	@Size(max = 1024, groups = {Creacio.class, Modificacio.class})
 	private String script;
-	
+
 	private boolean publica;
 	private boolean oculta;
 	@Size(max = 512, groups = {Creacio.class, Modificacio.class})
@@ -179,7 +179,7 @@ public class ExpedientTipusAccioCommand {
 
 	public static AccioDto asAccioDto(ExpedientTipusAccioCommand command) {
 		AccioDto dto = new AccioDto();
-		
+
 		dto.setId(command.getId());
 		dto.setCodi(command.getCodi());
 		dto.setNom(command.getNom());
@@ -195,7 +195,7 @@ public class ExpedientTipusAccioCommand {
 				dto.setHandlerClasse(command.getHandlerPredefinit());
 				break;
 			default:
-				break;		
+				break;
 		}
 		try {
 			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -209,13 +209,13 @@ public class ExpedientTipusAccioCommand {
 		dto.setScript(command.getScript());
 		dto.setPublica(command.isPublica());
 		dto.setOculta(command.isOculta());
-		dto.setRols(command.getRols());	
-		
+		dto.setRols(command.getRols());
+
 		return dto;
 	}
-	
+
 	public String getHandlerDadesJson() {
-	
+
 		String json = "[]";
 
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();

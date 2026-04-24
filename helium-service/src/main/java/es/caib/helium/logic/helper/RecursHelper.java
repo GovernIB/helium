@@ -8,11 +8,16 @@ import es.caib.helium.persistence.entity.Recurs;
 import es.caib.helium.persistence.repository.DefinicioProcesRepository;
 import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.RecursRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -136,7 +141,7 @@ public class RecursHelper {
 	 * @throws ReflectiveOperationException
 	 *            si es produeix algun altre error creant la instància.
 	 */
-	public <T> T loadAndCreateInstance(
+	public <T> T loadClassAndCreateInstance(
 		Long expedientTipusId,
 		Long definicioProcesId,
 		String className,
@@ -167,6 +172,40 @@ public class RecursHelper {
 				return null;
 			}
 		}
+	}
+
+	/**
+	 * Obté els paràmetres (a partir dels mètodes get) de la classe del handler.
+	 *
+	 * @param expedientTipusId
+	 *            l'id del tipus d'expedient.
+	 * @param definicioProcesId
+	 *            l'id de la definició de procés (pot ser null i es cercarà un recurs lligat al tipus d'expedient).
+	 * @param className
+	 *            el nom de la classe.
+	 * @return la llista de paràmetres.
+	 * @throws ClassNotFoundException
+	 *            si no es troba la classe amb el nom especificat.
+	 * @throws IntrospectionException
+	 *            si es produeix algun error obtenint els paràmetres.
+	 */
+	public List<HandlerParameter> getHandlerParameters(
+		Long expedientTipusId,
+		Long definicioProcesId,
+		String className) throws ClassNotFoundException, IntrospectionException {
+		List<HandlerParameter> params = new ArrayList<>();
+		Class<? extends HeliumActionHandler> handlerClass = loadClass(
+			expedientTipusId,
+			definicioProcesId,
+			className,
+			HeliumActionHandler.class);
+		BeanInfo info = Introspector.getBeanInfo(handlerClass);
+		for (PropertyDescriptor pd: info.getPropertyDescriptors()) {
+			if (pd.getWriteMethod() != null) {
+				params.add(new HandlerParameter(pd.getName(), pd.getPropertyType()));
+			}
+		}
+		return params;
 	}
 
 	/*
@@ -207,6 +246,13 @@ public class RecursHelper {
 		Long expedientTipusId,
 		Long definicioProcesId) {
 		return new RecursRepositoryClassLoader(expedientTipusId, definicioProcesId, recursRepository);
+	}
+
+	@Getter
+	@RequiredArgsConstructor
+	public static class HandlerParameter {
+		private final String name;
+		private final Class<?> type;
 	}
 
 }

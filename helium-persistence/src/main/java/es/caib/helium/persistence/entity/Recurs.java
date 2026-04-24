@@ -57,6 +57,14 @@ public class Recurs implements Serializable, GenericEntity<Long> {
 		foreignKey = @ForeignKey(name = BaseConfig.DB_PREFIX + "recurs_defproc_fk"))
 	private DefinicioProces definicioProces;
 
+	public String getNomClasse() {
+		if (nom != null) {
+			return nom.replace('/', '.').replace(".class", "");
+		} else {
+			return null;
+		}
+	}
+
 	@Builder
 	public Recurs(
 		String nom,

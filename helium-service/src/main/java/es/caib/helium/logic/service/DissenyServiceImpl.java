@@ -3,19 +3,12 @@
  */
 package es.caib.helium.logic.service;
 
+import java.beans.IntrospectionException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -25,6 +18,7 @@ import javax.annotation.Resource;
 
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.repository.*;
 import org.flowable.common.engine.impl.util.IoUtil;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
@@ -69,22 +63,6 @@ import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
-import es.caib.helium.persistence.repository.AccioRepository;
-import es.caib.helium.persistence.repository.AreaRepository;
-import es.caib.helium.persistence.repository.CampRepository;
-import es.caib.helium.persistence.repository.CampTascaRepository;
-import es.caib.helium.persistence.repository.ConsultaCampRepository;
-import es.caib.helium.persistence.repository.ConsultaRepository;
-import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.persistence.repository.DocumentRepository;
-import es.caib.helium.persistence.repository.DominiRepository;
-import es.caib.helium.persistence.repository.EntornRepository;
-import es.caib.helium.persistence.repository.EnumeracioRepository;
-import es.caib.helium.persistence.repository.EstatRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusRepository;
-import es.caib.helium.persistence.repository.ServeiPinbalRepository;
-import es.caib.helium.persistence.repository.TascaRepository;
-import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.security.ExtendedPermission;
 import javassist.ClassPool;
@@ -155,6 +133,8 @@ public class DissenyServiceImpl implements DissenyService {
 	private ServeiPinbalRepository serveiPinbalRepository;
 	@Resource
 	private RecursHelper recursHelper;
+	@Resource
+	private RecursRepository recursRepository;
 
 
 
@@ -217,6 +197,29 @@ public class DissenyServiceImpl implements DissenyService {
 		return parametres;
     }
 
+	@Override
+	public List<String> findHandlersRecursos(Long expedientTipusId) {
+		List<Recurs> handlers = recursRepository.findByExpedientTipusIdAndHandler(expedientTipusId, true);
+		return handlers.stream().map(Recurs::getNomClasse).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<ParellaCodiValorDto> findHandlerRecursParams(Long expedientTipusId, String nomClasse) {
+		try {
+			return recursHelper.getHandlerParameters(
+				expedientTipusId,
+				null,
+				nomClasse).stream().
+				map(p -> new ParellaCodiValorDto(p.getName(), p.getType().getName())).
+				collect(Collectors.toList());
+		} catch (ClassNotFoundException | IntrospectionException ex) {
+			logger.warn("Couldn't get handler parameters (expedientTipusId={}, className={})",
+				expedientTipusId,
+				nomClasse,
+				ex);
+			return new ArrayList<>();
+		}
+	}
 
     private void getAllDefinicioProcesOrderByVersio (DefinicioProcesDto definicioProcesDto, ExpedientTipus expedientTipus) {
 

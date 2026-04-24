@@ -18,9 +18,11 @@ import javax.persistence.EntityNotFoundException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -156,7 +158,7 @@ public class RecursHelperTest {
 	}
 
 	// --------------------------------------------------
-	// loadAndCreateInstance
+	// loadClassAndCreateInstance
 	// --------------------------------------------------
 
 	@Test
@@ -169,7 +171,7 @@ public class RecursHelperTest {
 			className.replace('.', '/') + ".class",
 			true)).
 			thenReturn(Optional.of(bytes));
-		Object instance = recursHelper.loadAndCreateInstance(expedientTipusId, definicioProcesId, className, Object.class);
+		Object instance = recursHelper.loadClassAndCreateInstance(expedientTipusId, definicioProcesId, className, Object.class);
 		assertNotNull(instance);
 		assertEquals(className, instance.getClass().getName());
 	}
@@ -197,6 +199,28 @@ public class RecursHelperTest {
 		assertNull(result);
 	}
 
+	// --------------------------------------------------
+	// getHandlerParameters
+	// --------------------------------------------------
+
+	@Test
+	void shouldGetHandlerParameters() throws Exception {
+		String className = "com.sample.action.SimpleHandler";
+		String resourceName = className.replace('.', '/') + ".class";
+		byte[] bytes = getResourceBytesFromJarFile(resourceName);
+		when(recursRepository.findContingutByExpedientTipusIdAndDefinicioProcesIdAndNameAndClasse(
+			expedientTipusId,
+			definicioProcesId,
+			className.replace('.', '/') + ".class",
+			true)).
+			thenReturn(Optional.of(bytes));
+		List<RecursHelper.HandlerParameter> params = recursHelper.getHandlerParameters(
+			expedientTipusId, definicioProcesId, className);
+		assertEquals(2, params.size());
+		assertEquals("codiVariable", params.get(0).getName());
+		assertEquals("valorText", params.get(1).getName());
+	}
+
 	private byte[] createFakeJar(String... entries) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (JarOutputStream jos = new JarOutputStream(baos)) {
@@ -210,11 +234,37 @@ public class RecursHelperTest {
 	}
 
 	private byte[] loadRecursosJarFile() throws IOException {
-		return getClass().getResourceAsStream("/recursos.jar").readAllBytes();
+		try (InputStream is = getClass().getResourceAsStream("/recursos.jar")) {
+			assertNotNull(is);
+			return is.readAllBytes();
+		}
+	}
+
+	private byte[] getResourceBytesFromJarFile(String name) throws IOException, ClassNotFoundException {
+		byte[] content = null;
+		try (InputStream is = new ByteArrayInputStream(loadRecursosJarFile()); JarInputStream jis = new JarInputStream(is)) {
+			JarEntry entry;
+			while ((entry = jis.getNextJarEntry()) != null) {
+				if (name.equals(entry.getName())) {
+					content = readJarEntryBytes(jis);
+				}
+			}
+		}
+		return content;
+	}
+
+	private byte[] readJarEntryBytes(JarInputStream jis) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] buffer = new byte[4096];
+		int read;
+		while ((read = jis.read(buffer)) != -1) {
+			baos.write(buffer, 0, read);
+		}
+		return baos.toByteArray();
 	}
 
 	private static class DummyClassGenerator {
-		public static byte[] generateSimpleClassBytes(String className) throws Exception {
+		public static byte[] generateSimpleClassBytes(String className) {
 			return new ByteBuddy()
 				.subclass(Object.class)
 				.name(className)
