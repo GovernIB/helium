@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,8 +26,6 @@ import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.plugins.arxiu.caib.ArxiuCaibException;
 
 /**
  * Controlador per a la pestanya de d'integració amb metadades
@@ -40,8 +37,8 @@ import es.caib.plugins.arxiu.caib.ArxiuCaibException;
 @RequestMapping("/expedientTipus")
 public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusController {
 
-	@Autowired
-	private ExpedientHelper expedientHelper;
+//	@Autowired
+//	private ExpedientHelper expedientHelper;
 
 	@RequestMapping(value = "/{expedientTipusId}/metadadesNti")
 	public String nti(
@@ -118,7 +115,7 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 					bindingResult.rejectValue("organo", "NotEmpty");
 				}
 				if (expedientTipus.isProcedimentComu() && !command.isProcedimentComu() && command.getOrgano() != null) {
-					Long expedientsExistents = expedientHelper.countByEntornIdAndTipus(expedientTipusId);
+					Long expedientsExistents = expedientService.countByTipus(expedientTipusId);
 					if(expedientsExistents>0) {
 						bindingResult.rejectValue("procedimentComu", "error.exist.exp.tipexp.no.procediment.comu");
 						missatgeError = "error.exist.exp.tipexp.no.procediment.comu";
@@ -131,7 +128,7 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 					bindingResult.rejectValue("serieDocumental", "NotEmpty");
 				}
 				if(!expedientTipus.isProcedimentComu() && command.isProcedimentComu()) {
-					Long expedientsExistents = expedientHelper.countByEntornIdAndTipus(expedientTipusId);
+					Long expedientsExistents = expedientService.countByTipus(expedientTipusId);
 					if(expedientsExistents>0) {;
 						bindingResult.rejectValue("procedimentComu", "error.exist.exp.tipexp.no.procediment.comu");
 						missatgeError = "error.exist.exp.tipexp.no.procediment.comu";
@@ -154,11 +151,21 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 								command.getSerieDocumental(),
 								command.getOrgano(),
 								command.getClasificacion());
-					} catch(ArxiuCaibException ex) {
-						checkSerieDocumental = true;
-						MissatgesHelper.warning(
-								request,
-								ex.getMessage());
+					} catch(Exception ex) {
+						if (ex.getClass().getName().contains("ArxiuCaibException")) {
+							checkSerieDocumental = true;
+							MissatgesHelper.warning(
+									request,
+									ex.getMessage());
+						} else {							
+							MissatgesHelper.error(
+									request,
+									getMessage(
+											request,
+											"expedient.tipus.metadades.nti.serie.documental.error",
+											new Object[] {ex.getMessage()}),
+									ex);
+						}
 					}
 
 					if(command.isArxiuActiu() && !checkSerieDocumental) {

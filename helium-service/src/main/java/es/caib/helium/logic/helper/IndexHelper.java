@@ -140,7 +140,7 @@ public class IndexHelper {
 					mapValorsDomini,
 					isExpedientFinalitzat,
 					false);
-			expedientRepository.setReindexarErrorData(expedient.getId(), !success, null);
+			//expedientRepository.setReindexarErrorData(expedient.getId(), !success, null);
 		} catch (Exception ex) {
 			throw new IndexacioException("Crear Indexació", ex);
 		} finally {
@@ -168,7 +168,7 @@ public class IndexHelper {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		if (expedient.getTipus().isReindexacioAsincrona() && !isExecucioMassiva) {
 			if (expedient.getReindexarData() == null) {
-				expedientRepository.setReindexarErrorData(expedient.getId(), expedient.isReindexarError(),  new Date());
+				//expedientRepository.setReindexarErrorData(expedient.getId(), expedient.isReindexarError(),  new Date());
 			}
 			// Encua la reindexació
 			ExpedientReindexacio reindexacio = new ExpedientReindexacio();
@@ -292,7 +292,7 @@ public class IndexHelper {
 				contextIndexarTipExp.stop();
 			}
 		}
-		expedientRepository.setReindexarErrorData(expedient.getId(), !actualitzat, null);
+		//expedientRepository.setReindexarErrorData(expedient.getId(), !actualitzat, null);
 	}
 
 	public void expedientIndexLuceneDelete(String processInstanceId) {
@@ -449,7 +449,7 @@ public class IndexHelper {
 //			contextMongoEntorn.stop();
 //			contextMongoTipExp.stop();
 		}
-		expedientRepository.setReindexarErrorData(expedient.getId(), !actualitzat, null);
+		//expedientRepository.setReindexarErrorData(expedient.getId(), !actualitzat, null);
 		return actualitzat;
 	}
 

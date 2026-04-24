@@ -3,8 +3,6 @@ package es.caib.helium.logic.intf.service;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.security.acls.model.Permission;
-
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.ConsultaCampDto;
 import es.caib.helium.commons.dto.ConsultaCampDto.TipusConsultaCamp;
@@ -1739,7 +1737,7 @@ public interface ExpedientTipusService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public boolean tePermisosSobreUnitatOrganitzativaOrParents(Long expedientTipusId, String unitatOrganitzativaCodi, Permission[] permissions) throws NoTrobatException, PermisDenegatException;
+	public boolean tePermisLecturaSobreUnitatOrganitzativaOrParents(Long expedientTipusId, String unitatOrganitzativaCodi) throws NoTrobatException, PermisDenegatException;
 
 
 	/** Mètode per obtenir el contingut del manual d'ajuda del tipus d'expedient.

@@ -23,7 +23,6 @@ import es.caib.helium.commons.dto.ExpedientTipusFiltreDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.helper.PluginHelper;
 
 /**
  * Controlador per al menú Administrador de cercador de tipologies de tipus d'expedient
@@ -36,8 +35,6 @@ public class ExpedientTipusAdminController extends BaseController {
 
 	@Resource
 	private ExpedientTipusService expedientTipusService;
-	@Resource
-	private PluginHelper pluginHelper;
 	private static final String SESSION_ATTRIBUTE_FILTRE = "ExpedientTipusAdminController.session.filtre";
 
 	/** Resposta GET i POST de la pàgina i formulari de tipologies.

@@ -28,5 +28,5 @@
 //		return Timestamp.class;
 //	   }
 //}
-package es.caib.helium.logic.utils;
+package es.caib.helium.commons.utils;
 

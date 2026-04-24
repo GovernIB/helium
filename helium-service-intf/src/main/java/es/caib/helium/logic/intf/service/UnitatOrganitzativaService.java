@@ -110,4 +110,7 @@ public interface UnitatOrganitzativaService {
 	public List<NivellAdministracioDto> nivellAdministracioFindAll();
 
 	UnitatOrganitzativaDto findByCodiExterna(String unitatOrganitzativaCodi);
+
+	/** Consutla amb el plugin per codi de UO i crea la unitat a la taula. */
+	public UnitatOrganitzativaDto consultaCrea(String codiUo);
 }

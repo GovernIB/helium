@@ -150,4 +150,23 @@ public class AnotacioServiceBean implements AnotacioService {
 	public List<String>[] emailAnotacio(long anotacioId) {
 		return delegate.emailAnotacio(anotacioId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(
+			Long expedientId, Long anotacioId,
+			boolean reprocessarMapeigVariables, 
+			boolean reprocessarMapeigDocuments, 
+			boolean reprocessarMapeigAdjunts,
+			boolean reprocessarMapeigInteressats) {
+		return delegate.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId, reprocessarMapeigVariables,
+				reprocessarMapeigDocuments, reprocessarMapeigAdjunts, reprocessarMapeigInteressats);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AnotacioMapeigResultatDto processarMapeigAnotacioExpedient(Long expedientTipusId, Long anotacioId) {
+		return delegate.processarMapeigAnotacioExpedient(expedientTipusId, anotacioId);
+	}
+
 }

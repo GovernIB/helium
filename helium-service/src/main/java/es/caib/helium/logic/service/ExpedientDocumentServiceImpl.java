@@ -84,9 +84,22 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
+import es.caib.helium.commons.utils.PdfUtils;
+import es.caib.helium.commons.utils.StringUtilsHelium;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientLoggerHelper;
+import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.TascaHelper;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.logic.regles.ReglaHelper;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.common.jbpm.JbpmVars;
 import es.caib.helium.persistence.entity.Anotacio;
 import es.caib.helium.persistence.entity.AnotacioAnnex;
@@ -114,19 +127,6 @@ import es.caib.helium.persistence.repository.NotificacioRepository;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;
 import es.caib.helium.persistence.repository.PortasignaturesRepository;
 import es.caib.helium.persistence.repository.RegistreRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientLoggerHelper;
-import es.caib.helium.logic.helper.ExpedientRegistreHelper;
-import es.caib.helium.logic.helper.NotificacioHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.regles.ReglaHelper;
-import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.logic.utils.PdfUtils;
-import es.caib.helium.logic.utils.StringUtilsHelium;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentMetadades;
 import es.caib.plugins.arxiu.api.Firma;
@@ -2685,6 +2685,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		synchronized(currentlyMigratingDocuments) {
 			return currentlyMigratingDocuments.contains(id);
 		}
+	}
+
+	@Override
+	@Transactional
+	public void firmaServidor(String processInstanceId, Long documentStoreId, String motiu, byte[] arxiuContingut) {
+		documentHelperV3.firmaServidor(processInstanceId, documentStoreId, motiu, arxiuContingut);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);

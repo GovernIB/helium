@@ -171,6 +171,8 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 	@Override
 	@Transactional(readOnly=true)
 	public DocumentNotificacioDto findAmbId(Long id) {
-		return conversioTipusHelper.convertir(documentNotificacioRepository.findById(id), DocumentNotificacioDto.class);
+		DocumentNotificacioDto documentNotificacioDTo = conversioTipusHelper.convertir(documentNotificacioRepository.findById(id), DocumentNotificacioDto.class); 
+		notificacioHelper.completarDocumentNotificacioDto(documentNotificacioDTo);
+		return documentNotificacioDTo;
 	}
 }

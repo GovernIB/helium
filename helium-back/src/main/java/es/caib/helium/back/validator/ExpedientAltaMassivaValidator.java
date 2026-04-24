@@ -22,10 +22,10 @@ import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.ExecucioMassivaListDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.utils.CsvHelper;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.utils.CsvHelper;
 
 /**
  * Validador per a la comanda d'alta massiva d'expedients per CSV.

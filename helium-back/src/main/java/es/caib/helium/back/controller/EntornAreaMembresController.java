@@ -23,11 +23,10 @@ import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.AreaMembreDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.utils.GlobalProperties;
-import es.caib.helium.integracio.plugins.persones.PersonesPlugin;
+import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.EntornAreaMembreService;
 import es.caib.helium.logic.intf.service.EntornCarrecService;
-import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.intf.service.EntornService;
 
 /**
  * Controlador per a la gestió de les àrees
@@ -38,18 +37,19 @@ import es.caib.helium.logic.helper.EntornHelper;
 @RequestMapping("/entorn-area")
 public class EntornAreaMembresController extends BaseController {
 
-	private PersonesPlugin personesPlugin;
+	@Autowired
+	private AplicacioService aplicacioService;
 	@Autowired
 	private EntornCarrecService entornCarrecService;
 	@Autowired
 	private EntornAreaMembreService entornAreaMembreService;
 	@Autowired
-	private EntornHelper entornHelper;
+	private EntornService entornService;
 
 	@RequestMapping(value = "{entornAreaId}/membres/llista", method = RequestMethod.GET)
 	public String llista(HttpServletRequest request, @PathVariable Long entornAreaId, Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
+		if (entornActual == null || entornActual.getId() == null || entornService.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
 			return "modalBlank";
 		}
@@ -81,7 +81,7 @@ public class EntornAreaMembresController extends BaseController {
 	@RequestMapping(value = "{entornAreaId}/membres/new", method = RequestMethod.GET)
 	public String newGet(HttpServletRequest request, @PathVariable Long entornAreaId, Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
+		if (entornActual == null || entornActual.getId() == null || entornService.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
 			return "modalBlank";
 		}
@@ -98,7 +98,7 @@ public class EntornAreaMembresController extends BaseController {
 			@Validated(Creacio.class) EntornAreaMembreCommand command,
 			BindingResult bindingResult, Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
+		if (entornActual == null || entornActual.getId() == null || entornService.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
 			return "modalBlank";
 		}
@@ -120,17 +120,7 @@ public class EntornAreaMembresController extends BaseController {
 
 	private String prepararModel(HttpServletRequest request,Long entornAreaId, Model model, EntornDto entornActual) {
 
-		try {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
-			if (pluginClass != null) {
-				personesPlugin = (PersonesPlugin)(Class.forName(pluginClass).newInstance());
-				model.addAttribute("persones", personesPlugin.findAll());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "modalBlank";
-		}
-
+		model.addAttribute("persones", aplicacioService.findPersonesAll());
 		model.addAttribute("entornCarrecs", entornCarrecService.findCarrecsByEntornAndArea(entornActual.getId(), entornAreaId));
 		return "";
 	}
@@ -144,7 +134,7 @@ public class EntornAreaMembresController extends BaseController {
 		try {
 			entornAreaMembreService.delete(entornAreaId, id);
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
+			if (entornActual == null || entornActual.getId() == null || entornService.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
 				return "modalBlank";
 			}

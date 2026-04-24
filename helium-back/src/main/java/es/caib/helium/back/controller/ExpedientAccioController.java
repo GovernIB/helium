@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.commons.dto.AccioDto;
+import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.logic.helper.ExceptionHelper;
+import es.caib.helium.commons.helper.ExceptionHelper;
 
 /**
  * Controlador per a la pàgina d'accions de l'expedient.

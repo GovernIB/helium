@@ -23,8 +23,8 @@ import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.EntornTipusAreaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.service.EntornService;
 import es.caib.helium.logic.intf.service.EntornTipusAreaService;
-import es.caib.helium.logic.helper.EntornHelper;
 
 /**
  * Controlador per a la gestió de tipus d'àrea
@@ -37,9 +37,9 @@ import es.caib.helium.logic.helper.EntornHelper;
 public class EntornTipusAreaController extends BaseController {
 
 	@Autowired
-	private EntornTipusAreaService entornTipusAreaService;
+	private EntornService entornService;
 	@Autowired
-	private EntornHelper entornHelper;
+	private EntornTipusAreaService entornTipusAreaService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(HttpServletRequest request, Model model) {
@@ -72,7 +72,7 @@ public class EntornTipusAreaController extends BaseController {
 			BindingResult bindingResult, Model model) {
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
+		if (entornActual == null || entornActual.getId() == null || entornService.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
 			return "modalBlank";
 		}
@@ -88,7 +88,7 @@ public class EntornTipusAreaController extends BaseController {
 	public String modificar(HttpServletRequest request, @PathVariable Long id, Model model) {
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
+		if (entornActual == null || entornActual.getId() == null || entornService.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
 			return "modalBlank";
 		}
@@ -108,7 +108,7 @@ public class EntornTipusAreaController extends BaseController {
 			Model model) {
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entornActual == null || entornActual.getId() == null || entornHelper.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
+		if (entornActual == null || entornActual.getId() == null || entornService.getEntornComprovantPermisos(entornActual.getId(), true) == null) {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
 			return "modalBlank";
 		}

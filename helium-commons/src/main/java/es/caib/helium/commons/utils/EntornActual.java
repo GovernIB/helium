@@ -1,7 +1,7 @@
 /**
  *
  */
-package es.caib.helium.logic.utils;
+package es.caib.helium.commons.utils;
 
 /**
  * Emmagatzema l'entorn actual en un objecte de tipus ThreadLocal

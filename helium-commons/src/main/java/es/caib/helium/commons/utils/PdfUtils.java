@@ -1,4 +1,4 @@
-package es.caib.helium.logic.utils;
+package es.caib.helium.commons.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -25,8 +25,6 @@ import com.lowagie.text.pdf.PdfStamper;
 
 import es.caib.helium.commons.exception.SistemaExternConversioDocumentException;
 import es.caib.helium.commons.exception.ValidacioException;
-import es.caib.helium.commons.utils.GlobalProperties;
-import es.caib.helium.commons.utils.OpenOfficeUtils;
 
 /**
  * Classe per converir documents a PDF.

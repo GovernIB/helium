@@ -291,6 +291,14 @@ public class EntornServiceImpl implements EntornService {
 		throw new NoTrobatException(PermisDto.class, permisId);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public EntornDto getEntornComprovantPermisos(Long entornId, boolean comprovarPermisAcces) {
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(entornId, comprovarPermisAcces);
+		return conversioTipusHelper.convertir(
+				entorn,
+				EntornDto.class);
+	}
 
 
 	private Entorn comprovarEntorn(

@@ -44,6 +44,7 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.back.helper.UsuariActualHelper;
 import es.caib.helium.commons.dto.ConsultesPortafibFiltreDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
@@ -54,7 +55,6 @@ import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.dto.PortafirmesEstatEnum;
 import es.caib.helium.commons.dto.PortasignaturesDto;
 import es.caib.helium.logic.intf.service.PortasignaturesService;
-import es.caib.helium.logic.helper.UsuariActualHelper;
 
 /**
  * Controlador per visualitzar la llista de peticions enviades des d'Helium al PortaFib.

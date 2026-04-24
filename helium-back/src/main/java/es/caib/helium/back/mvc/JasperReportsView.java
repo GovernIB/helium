@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,7 +20,6 @@ import com.codahale.metrics.Timer;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.logic.intf.service.AdminService;
-import es.caib.helium.logic.helper.EntornHelper;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -62,8 +60,6 @@ public class JasperReportsView implements View {
 
 	private AdminService adminService;
 
-	@Resource
-	private EntornHelper entornHelper;
 	@Autowired
 	private MetricRegistry metricRegistry;
 

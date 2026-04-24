@@ -64,6 +64,7 @@ import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
+import es.caib.helium.back.helper.UsuariActualHelper;
 import es.caib.helium.back.mvc.ArxiuView;
 import es.caib.helium.commons.dto.AnotacioAccioEnumDto;
 import es.caib.helium.commons.dto.AnotacioDto;
@@ -76,6 +77,7 @@ import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.ExecucioMassivaDto;
 import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import es.caib.helium.commons.dto.ExpedientDocumentDto;
+import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
@@ -84,13 +86,10 @@ import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.dto.ReprocessarMapeigAnotacioDto;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
-import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Controlador per visualitzar la llista de peticions d'anotacions que han arribat a Helium
@@ -331,7 +330,7 @@ public class AnotacioController extends BaseExpedientController {
 											anotacio.getExpedient().getId()
 											: null;
 		AnotacioAcceptarCommand anotacioAcceptarCommand = new AnotacioAcceptarCommand();
-		anotacioAcceptarCommand.setEntornId(EntornActual.getEntornId());
+		anotacioAcceptarCommand.setEntornId(SessionHelper.getSessionManager(request).getEntornActual().getId());
 		anotacioAcceptarCommand.setId(anotacioId);
 		anotacioAcceptarCommand.setExpedientTipusId(expedientTipusId);
 		anotacioAcceptarCommand.setExpedientId(expedientId);
@@ -341,7 +340,7 @@ public class AnotacioController extends BaseExpedientController {
 			anotacioAcceptarCommand.setAccio(AnotacioAccioEnumDto.INCORPORAR);
 		else if (expedientTipusId != null) {
 			anotacioAcceptarCommand.setAccio(AnotacioAccioEnumDto.CREAR);
-			anotacioAcceptarCommand.setNumero(expedientService.getNumeroExpedientActual(EntornActual.getEntornId(), expedientTipusId, anotacioAcceptarCommand.getAny()));
+			anotacioAcceptarCommand.setNumero(expedientService.getNumeroExpedientActual(SessionHelper.getSessionManager(request).getEntornActual().getId(), expedientTipusId, anotacioAcceptarCommand.getAny()));
 			if(anotacio.getExpedientTipus()!=null && anotacio.getExpedientTipus().isProcedimentComu()) {
 				anotacioAcceptarCommand.setUnitatOrganitzativaCodi(anotacio.getDestiCodi());
 			}

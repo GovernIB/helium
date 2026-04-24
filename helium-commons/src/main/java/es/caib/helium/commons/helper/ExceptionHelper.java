@@ -1,7 +1,7 @@
 /**
  *
  */
-package es.caib.helium.logic.helper;
+package es.caib.helium.commons.helper;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

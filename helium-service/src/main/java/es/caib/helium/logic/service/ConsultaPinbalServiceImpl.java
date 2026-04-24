@@ -18,8 +18,15 @@ import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PeticioPinbalDto;
 import es.caib.helium.commons.dto.PeticioPinbalFiltreDto;
+import es.caib.helium.commons.dto.ScspRespostaPinbal;
 import es.caib.helium.commons.dto.ServeiPinbalDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
+import es.caib.helium.logic.helper.ConsultaPinbalHelper;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.intf.service.ConsultaPinbalService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.persistence.entity.Persona;
@@ -28,11 +35,6 @@ import es.caib.helium.persistence.entity.ServeiPinbalEntity;
 import es.caib.helium.persistence.repository.PersonaRepository;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;
 import es.caib.helium.persistence.repository.ServeiPinbalRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
 
 @Service
 public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
@@ -46,6 +48,7 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 	@Resource private ExpedientHelper expedientHelper;
 	@Resource private DocumentHelperV3 documentHelperV3;
 	@Resource private PersonaRepository personaRepository;
+	@Resource  private ConsultaPinbalHelper consultaPinbalHelper;
 
 	@Override
 	@Transactional(readOnly=true)
@@ -245,5 +248,10 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 		spe.setUpdatedDate(Calendar.getInstance().getTime());
 		spe.setUpdatedUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
 		return conversioTipusHelper.convertir(serveiPinbalRepository.save(spe), ServeiPinbalDto.class);
+	}
+
+	@Override
+	public ScspRespostaPinbal tractamentPeticioAsincronaPendentPinbal(Long peticioPinbalId) {
+		return consultaPinbalHelper.tractamentPeticioAsincronaPendentPinbal(peticioPinbalId);
 	}
 }

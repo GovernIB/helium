@@ -107,9 +107,30 @@ public class AplicacioServiceBean implements AplicacioService {
 		return delegate.excepcioFindAll();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public void updateEntornActual(String entorn) throws NoTrobatException {
 		delegate.updateEntornActual(entorn);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
+	public List<PersonaDto> findPersonesAll() {
+		return delegate.findPersonesAll();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
+	public void clearExpedient() {
+		delegate.clearExpedient();
 	}
 }

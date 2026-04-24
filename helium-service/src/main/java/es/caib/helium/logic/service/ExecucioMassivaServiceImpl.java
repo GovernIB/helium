@@ -66,6 +66,9 @@ import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.exception.ExecucioMassivaException;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.ValidacioException;
+import es.caib.helium.commons.helper.ExceptionHelper;
+import es.caib.helium.commons.utils.CsvHelper;
+import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
@@ -114,7 +117,6 @@ import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.DistribucioHelper;
 import es.caib.helium.logic.helper.DocumentHelperV3;
 import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
@@ -126,8 +128,6 @@ import es.caib.helium.logic.helper.TascaHelper;
 import es.caib.helium.logic.helper.TerminiHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.utils.CsvHelper;
-import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.

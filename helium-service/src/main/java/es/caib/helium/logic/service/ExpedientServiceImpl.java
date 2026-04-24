@@ -101,7 +101,31 @@ import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.TramitacioValidacioException;
+import es.caib.helium.commons.helper.ExceptionHelper;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.logic.helper.AlertaHelper;
+import es.caib.helium.logic.helper.ConsultaHelper;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DistribucioHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientDadaHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientLoggerHelper;
+import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PermisosHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.TascaHelper;
+import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.VariableHelper;
+import es.caib.helium.logic.helpers.LuceneHelper;
+import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.AnotacioService;
@@ -110,6 +134,7 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 import es.caib.helium.logic.intf.service.ParametreService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.common.jbpm.JbpmVars;
 import es.caib.helium.persistence.entity.Accio;
 import es.caib.helium.persistence.entity.Alerta;
@@ -169,31 +194,6 @@ import es.caib.helium.persistence.repository.RegistreRepository;
 import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import es.caib.helium.persistence.repository.TerminiRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-import es.caib.helium.logic.helper.AlertaHelper;
-import es.caib.helium.logic.helper.ConsultaHelper;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DistribucioHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExceptionHelper;
-import es.caib.helium.logic.helper.ExpedientDadaHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientLoggerHelper;
-import es.caib.helium.logic.helper.ExpedientRegistreHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.helper.NotificacioHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.helper.VariableHelper;
-import es.caib.helium.logic.helpers.LuceneHelper;
-import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
@@ -1355,7 +1355,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					auth);
 		boolean tasquesSobreUO = false;
 		if(expedient.getTipus().isProcedimentComu()) {
-				tasquesSobreUO = expedientTipusService.tePermisosSobreUnitatOrganitzativaOrParents(
+				tasquesSobreUO = expedientTipusHelper.tePermisosSobreUnitatOrganitzativaOrParents(
 					expedient.getTipus().getId(),
 					expedient.getUnitatOrganitzativa().getCodi(),
 					permisos);
@@ -1560,7 +1560,18 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		expedientHelper.finalitzar(id, true);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void finalitzar(Long id, boolean firmaDocumentsServidor) {
+		logger.debug("Finalitzar l'expedient (id=" + id + ", firmaDocumentsServidor=" + firmaDocumentsServidor + ")");
+		//Tancam expedient al arxiu, firmant els documents sense firma amb firma servidor
+		expedientHelper.finalitzar(id, firmaDocumentsServidor);
+	}
 
+	
 	@Transactional
 	private void migrarArxiu(Long id, boolean esborrarExpSiError) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -3822,6 +3833,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		return conversioTipusHelper.convertir(estat, EstatDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void firmarDocumentServidorPerArxiuFiExpedient(Long documentStoreId) {
+		expedientHelper.firmarDocumentServidorPerArxiuFiExpedient(documentStoreId);
+	}
+
+	
 	/** Mètode per implementar la interfície {@link ArxiuPluginListener} de Distribució per rebre events de quan es crida l'Arxiu i afegir
 	 * els logs al monitor d'integracions.
 	 * @param metode
@@ -3858,6 +3879,24 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Long countByTipus(Long expedientTipusId) {
+		return expedientHelper.countByEntornIdAndTipus(expedientTipusId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> findIdsPerTipus(Long expedientTipusId) {
+		return expedientHelper.findIdsPerTipus(expedientTipusId);
+	}
+	
 	private static void addCurrentlyMigrating(Long expedientId) {
 		synchronized(currentlyMigratingExpedients) {
 			if(!currentlyMigratingExpedients.contains(expedientId))
@@ -3876,6 +3915,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			return currentlyMigratingExpedients.contains(expedientId);
 		}
 	}
+
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

@@ -54,6 +54,7 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.PaginacioHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
+import es.caib.helium.back.helper.UsuariActualHelper;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.DadaIndexadaDto;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
@@ -68,7 +69,6 @@ import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.exception.ExportException;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.helper.UsuariActualHelper;
 
 /**
  * Controlador per al llistat d'expedients.

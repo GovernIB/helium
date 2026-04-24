@@ -40,4 +40,8 @@ public interface ParametreService {
 
 	public PaginaDto<ParametreDto> findPaginat(PaginacioParamsDto paginacioParams);
 
+	public Long getMidaMaximaFitxerInBytes();
+
+	public String getMidaMaximaFitxer();
+
 }

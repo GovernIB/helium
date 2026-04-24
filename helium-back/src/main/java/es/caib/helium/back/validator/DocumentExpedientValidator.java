@@ -13,12 +13,11 @@ import es.caib.helium.back.command.DocumentExpedientCommand;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.dto.ArxiuFirmaValidacioDetallDto;
 import es.caib.helium.commons.dto.DocumentTipusFirmaEnumDto;
-import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.commons.dto.ExpedientDto;
+import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.logic.intf.service.DocumentService;
 import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.ParametreHelper;
+import es.caib.helium.logic.intf.service.ParametreService;
 
 /**
  * Validador per a la comanda de creació o modificació de documents en la pestanya de documents de la tramitació de l'expedient
@@ -30,10 +29,8 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 	private ExpedientService expedientService;
 	@Autowired
 	private DocumentService documentService;
-	@Resource(name="documentHelperV3")
-	private DocumentHelperV3 documentHelper;
 	@Resource
-	private ParametreHelper parametreHelper;
+	private ParametreService parametreService;
 
 	@Override
 	public void initialize(DocumentExpedient anotacio) {
@@ -55,10 +52,10 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 			}
 		}
 
-		Long MAX_FILE_SIZE = parametreHelper.getMidaMaximaFitxerInBytes();
+		Long MAX_FILE_SIZE = parametreService.getMidaMaximaFitxerInBytes();
 		// Si la mida del fitxer es major que MAX_FILE_SIZE es retrona un error de validació
 		if (MAX_FILE_SIZE != null && command.getArxiu() != null && command.getArxiu().getSize() > MAX_FILE_SIZE) {
-			String max = parametreHelper.getMidaMaximaFitxer();
+			String max = parametreService.getMidaMaximaFitxer();
 			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("error.fixer.max.size", new String[] {max}))
 					.addNode("arxiu")
 					.addConstraintViolation();

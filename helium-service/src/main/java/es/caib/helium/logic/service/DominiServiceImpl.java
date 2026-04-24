@@ -21,6 +21,7 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.ValidacioException;
+import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.DominiService;
 import es.caib.helium.persistence.entity.Domini;
@@ -37,7 +38,6 @@ import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Implementació del servei per a gestionar dominis.

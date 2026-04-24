@@ -43,6 +43,7 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.back.helper.UsuariActualHelper;
 import es.caib.helium.commons.dto.DocumentNotificacioDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.EnviamentTipusEnumDto;
@@ -56,8 +57,6 @@ import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
 import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.NotificacioService;
-import es.caib.helium.logic.helper.NotificacioHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
 /**
  * Controlador per visualitzar la llista notificacions enviades a NOTIB.
  */
@@ -65,8 +64,6 @@ import es.caib.helium.logic.helper.UsuariActualHelper;
 @RequestMapping("/notificacionsNotib")
 public class NotificacionsController extends BaseExpedientController {
 
-	@Autowired
-	private NotificacioHelper notificacioHelper;
 	@Autowired
 	private NotificacioService notificacioService;
 	@Autowired
@@ -154,7 +151,6 @@ public class NotificacionsController extends BaseExpedientController {
 			@PathVariable Long enviamentNotibId,
 			Model model) {
 		DocumentNotificacioDto dto = notificacioService.findAmbId(enviamentNotibId);
-		notificacioHelper.completarDocumentNotificacioDto(dto);
 		model.addAttribute("dto", dto);
 		return "notificacioNotibInfo";
 	}
@@ -165,9 +161,6 @@ public class NotificacionsController extends BaseExpedientController {
 			@PathVariable Long enviamentNotibId,
 			Model model) {
 		DocumentNotificacioDto dto = notificacioService.findAmbId(enviamentNotibId);
-		//Si volem obtenir els documents dins zip hem de mirar les notificacions de l'expedient
-//		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(dto.getExpedient().getId());
-//		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedient.getId());
 		if (dto != null) {
 			try {
 				// Processa el canvi d'estat

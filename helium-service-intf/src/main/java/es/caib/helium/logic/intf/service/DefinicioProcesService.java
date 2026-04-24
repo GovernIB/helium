@@ -608,5 +608,13 @@ public interface DefinicioProcesService {
 	 */
 	public DefinicioProcesDto findAmbProcessInstanceId(String processInstanceId);
 
+	/** Consulta la definició de procés a partir del codi i la versió
+	 * 
+	 * @param defprocJbpmKey
+	 * @param defprocVersio
+	 * @return
+	 */
+	public DefinicioProcesDto findByJbpmKeyAndVersio(String defprocJbpmKey, int defprocVersio);
+
 
 }

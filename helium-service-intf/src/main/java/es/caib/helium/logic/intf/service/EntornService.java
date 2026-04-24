@@ -159,4 +159,12 @@ public interface EntornService {
 	 */
 	public List<EntornDto> findActiusAmbPermisAdmin();
 
+	/** Consulta l'entorn consultant permís d'accés.
+	 * 
+	 * @param entornId
+	 * @param comprovarPermisAcces
+	 * @return
+	 */
+	public EntornDto getEntornComprovantPermisos(Long entornId, boolean comprovarPermisAcces);
+
 }

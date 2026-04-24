@@ -39,10 +39,21 @@ import es.caib.helium.commons.dto.Sexe;
 import es.caib.helium.commons.dto.TitularDto.ScspTipoDocumentacion;
 import es.caib.helium.commons.dto.regles.QueEnum;
 import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.commons.utils.StringUtilsHelium;
 import es.caib.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
 import es.caib.helium.integracio.plugins.pinbal.Funcionari;
 import es.caib.helium.integracio.plugins.pinbal.Titular;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.intf.service.DocumentService;
+import es.caib.helium.logic.regles.ReglaHelper;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.entity.Document;
 import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.DocumentTasca;
@@ -61,17 +72,6 @@ import es.caib.helium.persistence.repository.InteressatRepository;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;
 import es.caib.helium.persistence.repository.ServeiPinbalRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.NotificacioHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.regles.ReglaHelper;
-import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.logic.utils.StringUtilsHelium;
 
 /**
  * Implementació del servei per a gestionar documents dels tipus d'expedients o definicions de procés.
@@ -938,4 +938,10 @@ public class DocumentServiceImpl implements DocumentService {
 		peticio.setTransicioKO(dadesConsultaPinbal.getTransicioKO());
 		peticioPinbalRepository.save(peticio);
 	}
+	
+	@Override
+	public byte[] removeSignaturesPdf(byte[] arxiuContingut) {
+		return documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(arxiuContingut);
+	}
+
 }

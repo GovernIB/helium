@@ -90,12 +90,14 @@ import es.caib.helium.commons.dto.ZonaperEventDto;
 import es.caib.helium.commons.dto.ZonaperExpedientDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
+import es.caib.helium.commons.helper.ExceptionHelper;
 import es.caib.helium.commons.registre.RegistreAnnex;
 import es.caib.helium.commons.registre.RegistreAnotacio;
 import es.caib.helium.commons.registre.RegistreInteressat;
 import es.caib.helium.commons.registre.RegistreInteressatDocumentTipusEnum;
 import es.caib.helium.commons.registre.RegistreInteressatTipusEnum;
 import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.PdfUtils;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPlugin;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPluginException;
 import es.caib.helium.integracio.plugins.dadesext.DadesExternesPlugin;
@@ -170,7 +172,6 @@ import es.caib.helium.persistence.entity.Portasignatures.Transicio;
 import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.PortasignaturesRepository;
-import es.caib.helium.logic.utils.PdfUtils;
 import es.caib.plugins.arxiu.api.ConsultaFiltre;
 import es.caib.plugins.arxiu.api.ConsultaOperacio;
 import es.caib.plugins.arxiu.api.ConsultaResultat;
@@ -374,6 +375,45 @@ public class PluginHelper {
 					"No s'han pogut consultar persones amb el text (text=" + text + ")",
 					ex);
 		}
+	}
+	
+	public List<PersonaDto> personaFindAll() {
+		long t0 = System.currentTimeMillis();
+		try {
+			List<DadesPersona> persones = getPersonesPlugin().findAll();
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PERSONA,
+					"Consulta de tots els usuaris",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0);
+			if (persones == null)
+				return new ArrayList<PersonaDto>();
+			return conversioTipusHelper.convertirList(persones, PersonaDto.class);
+		} catch (PersonesPluginException ex) {
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PERSONA,
+					"Consulta de tots els usuaris ",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					"El plugin ha retornat una excepció",
+					ex);
+			logger.error(
+					"No s'han pogut consultar totes les persones",
+					ex);
+			throw new SistemaExternException(
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					MonitorIntegracioHelper.INTCODI_PERSONA,
+					"No s'han pogut consultar totes les persones",
+					ex);
+		}	
 	}
 
 	/** Consulta les darreres peticions dels documents del procés i retorna només les que

@@ -73,14 +73,6 @@ public class UnitatOrganitzativaHelper {
 
 	}
 
-	public List<ExpedientTipusUnitatOrganitzativa> findRelacionsExpTipusUnitOrgList(Long expedientTipusId, Long unitatOrgId) {
-		if(expedientTipusId!=null && unitatOrgId==null)
-			return expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
-		else if(expedientTipusId==null && unitatOrgId!=null)
-			return expedientTipusUnitatOrganitzativaRepository.findByUnitatOrganitzativaId(unitatOrgId);
-		return null;
-	}
-
 	public ExpedientTipusUnitatOrganitzativa findRelacioExpTipusUnitOrg(Long expedientTipusId, Long unitatOrgId) {
 		if(expedientTipusId!=null && unitatOrgId!=null) {
 			return expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaId(expedientTipusId, unitatOrgId);

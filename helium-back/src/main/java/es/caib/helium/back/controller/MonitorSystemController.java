@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import es.caib.helium.commons.dto.MonitorTascaEstatEnum;
 import es.caib.helium.commons.dto.MonitorTascaInfo;
+import es.caib.helium.commons.helper.MonitorHelper;
 import es.caib.helium.logic.intf.service.MonitorTasquesService;
-import es.caib.helium.logic.helper.MonitorHelper;
 
 /**
  * Controlador per la gestió d'perfils

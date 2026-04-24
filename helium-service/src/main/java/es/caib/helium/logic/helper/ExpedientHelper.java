@@ -306,7 +306,7 @@ public class ExpedientHelper {
 				auth)) {
 
 			if (expedient.getUnitatOrganitzativa() == null ||
-				!expedientTipusService.tePermisosSobreUnitatOrganitzativaOrParents(expedientTipus.getId(), expedient.getUnitatOrganitzativa().getCodi(), permisos)) {
+				!expedientTipusHelper.tePermisosSobreUnitatOrganitzativaOrParents(expedientTipus.getId(), expedient.getUnitatOrganitzativa().getCodi(), permisos)) {
 
 				throw new PermisDenegatException(
 						expedientTipus.getId(),
@@ -2478,6 +2478,16 @@ public class ExpedientHelper {
 	public Long countByEntornIdAndTipus(Long expedientTipusId) {
 		return expedientRepository.countExpedientByTipusExpedient(expedientTipusId);
 	}
+	
+	/** Compta els expedients que existeixen per un expedientTipusId
+	 * Id
+	 * @param expedientTipusId
+	 * @return
+	 */
+	public List<Long> findIdsPerTipus(Long expedientTipusId) {
+		return expedientRepository.findIdsPerTipus(expedientTipusId);
+	}
+
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientHelper.class);
 }

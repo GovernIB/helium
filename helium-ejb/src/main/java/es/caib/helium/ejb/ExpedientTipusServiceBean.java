@@ -10,7 +10,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
 
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.ConsultaCampDto;
@@ -979,9 +978,9 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean tePermisosSobreUnitatOrganitzativaOrParents(Long expedientId, String unitatOrganitzativaCodi, Permission[] permisos)
+	public boolean tePermisLecturaSobreUnitatOrganitzativaOrParents(Long expedientId, String unitatOrganitzativaCodi)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.tePermisosSobreUnitatOrganitzativaOrParents(expedientId, unitatOrganitzativaCodi, permisos);
+		return delegate.tePermisLecturaSobreUnitatOrganitzativaOrParents(expedientId, unitatOrganitzativaCodi);
 	}
 
 	@Override

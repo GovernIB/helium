@@ -2,7 +2,6 @@ package es.caib.helium.back.validator;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -14,7 +13,6 @@ import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
 
 /**
  * Validador per a la comanda de desplegament d'un procés .bpmn de la definició de procés.
@@ -29,8 +27,6 @@ public class DefinicioProcesDesplegarValidator implements ConstraintValidator<De
 	DefinicioProcesService definicioProcesService;
 	@Autowired
 	DissenyService dissenyService;
-	@Resource
-	ExpedientTipusHelper expedientTipusHelper;
 
 	@Override
 	public void initialize(DefinicioProcesDesplegar anotacio) {

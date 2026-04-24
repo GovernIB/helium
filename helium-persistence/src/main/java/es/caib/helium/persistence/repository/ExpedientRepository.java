@@ -33,16 +33,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 	Expedient findByEntornIdAndTipusIdAndNumero(
 			Long entornId,
 			Long tipusId,
-			String numero);
-	
-	
-	@Query(	"select e.id " +
-			 "from Expedient e " +
-			 "where " +
-			 "   e.reindexarData is not null " +
-			 "   order by e.reindexarData asc ")
-	List<Long> findAmbDataReindexacio();
-	
+			String numero);	
 	
 	@Query(	"select e " +
 			"from Expedient e " +
@@ -376,85 +367,6 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 	 */
 	List<Expedient> findByIniciadorCodi(String iniciadorCodi);
 
-
-	/** Compta els expedients amb error de reindexació per a un tipus d'expedient concret.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 */
-	@Query("select count(e) " +
-			"from Expedient e " +
-			"where e.tipus.id = :expedientTipusId " +
-			" 		and e.anulat = false " +
-			"		and e.reindexarData is not null")
-	public Long countPendentReindexacio(@Param("expedientTipusId") Long expedientTipusId);
-	
-	/** Compta el númer d'expedients amb error de reindexació per a un tipus d'expedient concret.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 */
-	@Query("select count(e) " +
-			"from Expedient e " +
-			"where e.tipus.id = :expedientTipusId " +
-			" 		and e.anulat = false " +
-			"		and e.reindexarError = true ")
-	public Long countErrorsReindexacio(@Param("expedientTipusId") Long expedientTipusId);
-
-	/** Consulta els identificadors dels expedients amb error de reindexació per a un tipus d'expedient concret.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 */
-	@Query("select e.id " +
-			"from Expedient e " +
-			"where e.tipus.id = :expedientTipusId " +
-			" 		and e.anulat = false " +
-			"		and e.reindexarError = true ")
-	public List<Long> findIdsErrorsReindexacio(@Param("expedientTipusId") Long expedientTipusId);
-	
-	
-	/** Consulta els identificadors dels expedients pendents de reindexació per a un tipus d'expedient concret.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 */
-	@Query("select e.id " +
-			"from Expedient e " +
-			"where e.tipus.id = :expedientTipusId " +
-			" 		and e.anulat = false " +
-			"		and e.reindexarData is not null")
-	public List<Long> findIdsPendentsReindexacio(@Param("expedientTipusId") Long expedientTipusId);
-	
-	/** Consulta els identificadors dels expedients pendents de reindexació 
-	 * sense tipus d'expedient en concret.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 */
-	@Query("select e.id " +
-			"from Expedient e " +
-			"where e.anulat = false " +
-			"		and e.reindexarData is not null")
-	public List<Long> findIdsPendentsReindexacio();
-
-	/** Consulta els identificadors dels expedients amb error de reindexació o pendents per a un tipus d'expedient concret.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 */
-	@Query("select e.id " +
-			"from Expedient e " +
-			"where e.tipus.id = :expedientTipusId " +
-			" 		and e.anulat = false " +
-			"		and (e.reindexarError = true or e.reindexarData is not null) ")
-	public List<Long> findIdsReindexacio(@Param("expedientTipusId") long expedientTipusId);
-
-	/** Mètode per modificar només l'error de reindexació i posar la data de reindexació a null per evitar modificar la resta de l'expedient. */
-	@Modifying
-	@Query("update Expedient e set e.reindexarError = :error, e.reindexarData = :data where e.id = :id")
-	public int setReindexarErrorData(@Param("id") Long id, @Param("error") boolean error, @Param("data") Date data);
-
 	/** Mètode per comptar el número d'expedients assignats amb aquest estat. */
 	@Query("select count(e) from Expedient e where e.estat = :estat")
 	public long countByEstat(@Param("estat") Estat estat);
@@ -482,4 +394,14 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"	  e.syncReintents < :maxReintents) ")
 	public List<Long> findPendentsArxiu(@Param("maxReintents") Long maxReintents);
 
+
+	/** Consulta els identificadors dels expedients per un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 */
+	@Query("select e.id " +
+			"from Expedient e " +
+			"where e.tipus.id = :expedientTipusId ")
+	public List<Long> findIdsPerTipus(@Param("expedientTipusId") Long expedientTipusId);
 }

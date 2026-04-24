@@ -27,11 +27,11 @@ import es.caib.helium.commons.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.commons.dto.IntegracioDto;
 import es.caib.helium.commons.dto.IntegracioParametreDto;
 import es.caib.helium.commons.dto.PeticioPinbalEstatEnum;
+import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.PeticioPinbal;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;
-import es.caib.helium.logic.utils.EntornActual;
 
 
 /**

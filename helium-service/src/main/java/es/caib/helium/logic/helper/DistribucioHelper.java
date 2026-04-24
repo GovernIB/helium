@@ -77,6 +77,8 @@ import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
 import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.commons.helper.ExceptionHelper;
+import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.DissenyService;
@@ -103,7 +105,6 @@ import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.MapeigSistraRepository;
-import es.caib.helium.logic.utils.EntornActual;
 import es.caib.plugins.arxiu.api.Document;
 
 /**

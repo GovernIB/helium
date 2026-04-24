@@ -68,4 +68,16 @@ public class ParametreServiceBean implements ParametreService {
 		return delegate.findByCodi(codi);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Long getMidaMaximaFitxerInBytes() {
+		return delegate.getMidaMaximaFitxerInBytes();
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public String getMidaMaximaFitxer() {
+		return delegate.getMidaMaximaFitxer();
+	}
+
 }

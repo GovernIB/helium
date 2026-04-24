@@ -690,7 +690,13 @@ public class ExpedientServiceBean implements ExpedientService {
 	public void finalitzar(Long id) throws NoTrobatException, PermisDenegatException {
 		delegate.finalitzar(id);
 	}
-	
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void finalitzar(Long id, boolean firmaDocumentsServidor) throws NoTrobatException, PermisDenegatException {
+		delegate.finalitzar(id, firmaDocumentsServidor);
+	}
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void sincronitzarArxiu(Long id, boolean esborrarExpSiError) throws NoTrobatException, PermisDenegatException {
@@ -761,5 +767,23 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void syncDocumentsArxiu(Long id, boolean esborrarExpSiError) {
 		delegate.syncDocumentsArxiu(id, esborrarExpSiError);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void firmarDocumentServidorPerArxiuFiExpedient(Long documentStoreId) {
+		delegate.firmarDocumentServidorPerArxiuFiExpedient(documentStoreId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Long countByTipus(Long expedientTipusId) {
+		return delegate.countByTipus(expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<Long> findIdsPerTipus(Long expedientTipusId) {
+		return delegate.findIdsPerTipus(expedientTipusId);
 	}
 }

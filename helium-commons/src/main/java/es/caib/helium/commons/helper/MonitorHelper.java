@@ -1,4 +1,4 @@
-package es.caib.helium.logic.helper;
+package es.caib.helium.commons.helper;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;

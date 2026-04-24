@@ -1,5 +1,6 @@
 package es.caib.helium.logic.service;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -18,14 +19,14 @@ import es.caib.helium.commons.dto.ProvinciaDto;
 import es.caib.helium.commons.dto.TipusViaDto;
 import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
 import es.caib.helium.commons.dto.UnitatOrganitzativaFiltreDto;
-import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
-import es.caib.helium.persistence.entity.UnitatOrganitzativa;
-import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.helper.ParametreHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
+import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
+import es.caib.helium.persistence.entity.UnitatOrganitzativa;
+import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 
 /**
  * ImplementaciÃ³ del servei de gestiÃ³ d'avisos.
@@ -404,5 +405,18 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 		return pluginHelper.nivellAdministracioFindAll();
 	}
 
+	/** Consutla amb el plugin per codi de UO i crea la unitat a la taula. */
+	@Override
+	@Transactional
+	public UnitatOrganitzativaDto consultaCrea(String codiUo) {
+		UnitatOrganitzativaDto unitatDto =pluginHelper.findUnidad(
+				 codiUo,
+				new Timestamp(System.currentTimeMillis()),
+				new Timestamp(System.currentTimeMillis()));
+		unitatDto = this.create(unitatDto);
+		return unitatDto;
+	}
+
+	
 	private static final Logger logger = LoggerFactory.getLogger(CarrecServiceImpl.class);
 }

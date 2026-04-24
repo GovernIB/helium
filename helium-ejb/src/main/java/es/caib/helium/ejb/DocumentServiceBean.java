@@ -100,4 +100,10 @@ public class DocumentServiceBean implements DocumentService {
 		return delegate.validateFirmaDocument(documentContingut, contentType, tipusFirma, firmaContingut);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public byte[] removeSignaturesPdf(byte[] arxiuContingut) {
+		return delegate.removeSignaturesPdf(arxiuContingut);
+	}
+
 }

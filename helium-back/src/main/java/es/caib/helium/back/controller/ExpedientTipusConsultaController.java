@@ -54,12 +54,9 @@ import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.logic.intf.service.CampService;
+import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.DissenyService;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.repository.CampRepository;
-import es.caib.helium.persistence.repository.DefinicioProcesRepository;
 
 /**
  * Controlador per a les diferents consultes dels tipus d'expedient.
@@ -73,9 +70,9 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 	@Autowired
 	private DissenyService dissenyService;
 	@Autowired
-	private CampRepository campRepository;
+	private CampService campService;
 	@Autowired
-	private DefinicioProcesRepository definicioProcesRepository;
+	private DefinicioProcesService definicioProcesService;
 	
 	
 	
@@ -317,6 +314,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		return this.variables(request, expedientTipusId, consultaId, model, TipusConsultaCamp.INFORME, null);
 	}
 	
+	/** Mètode per construir i descarregar un exemple de JasperReports a partir del camps definits a la consulta. */
 	@RequestMapping(value = "/{expedientTipusId}/consulta/reportDownload")
 	public String downloadAction(
 			HttpServletRequest request,
@@ -327,15 +325,16 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			List<ConsultaCampDto> consultaCamps = dissenyService.findCampsInformePerCampsConsulta(
 					consulta,
 					false);
-			List<Camp> camps = new ArrayList<Camp>();
+			
+			List<CampDto> camps = new ArrayList<CampDto>();
 					
-			ExpedientTipus expedientTipus = new ExpedientTipus(); 
+			ExpedientTipusDto expedientTipus = new ExpedientTipusDto(); 
 			expedientTipus.setId(consulta.getExpedientTipus().getId());
 			
 			for(ConsultaCampDto consultaCamp: consultaCamps) {
 				if(consultaCamp.getDefprocJbpmKey() != null) {
-					DefinicioProces dp = definicioProcesRepository.findByJbpmKeyAndVersio(consultaCamp.getDefprocJbpmKey(), consultaCamp.getDefprocVersio());
-					Camp camp = campRepository.findByDefinicioProcesAndCodi(dp, consultaCamp.getCampCodi());
+					DefinicioProcesDto dp  = definicioProcesService.findByJbpmKeyAndVersio(consultaCamp.getDefprocJbpmKey(), consultaCamp.getDefprocVersio());
+					CampDto camp = campService.findAmbCodi(null, dp.getId(), consultaCamp.getCampCodi(), true);
 					if(camp != null) {
 						camp.setExpedientTipus(expedientTipus);
 						camps.add(camp);	
@@ -343,7 +342,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 						logger.info("No s'ha trobat el camp amb el codi = [" + consultaCamp.getCampCodi() + "] i la definició de procés amb l'id = [" + dp.getId() + "]");
 					}
 				}else {
-					Camp camp = campRepository.findByExpedientTipusAndCodi(expedientTipus.getId(), consultaCamp.getCampCodi(), expedientTipus.getExpedientTipusPare() != null);
+					CampDto camp = campService.findAmbCodi(expedientTipus.getId(), null, consultaCamp.getCampCodi(), expedientTipus.getExpedientTipusPareId() != null);
 					if(camp != null) {
 						camp.setExpedientTipus(expedientTipus);
 						camps.add(camp);	
@@ -353,18 +352,6 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 				}
 			}
 					
-			
-//			List<Camp> camps = ConversioTipusHelper.convertirList(dissenyService.findCampsPerCampsConsulta(consulta, false), Camp.class);
-			/*List<ConsultaCamp> campsConsulta = dissenyService.findCampsConsulta(consultaId, tipus);
-			List<String> fieldNames = new ArrayList<String>();
-			for (ConsultaCamp camp: campsConsulta) {
-				String definicioProces = camp.getDefprocJbpmKey();
-				String codiVariable = camp.getCampCodi();
-				if (definicioProces!=null && codiVariable!=null)
-					fieldNames.add(definicioProces + "/"+ codiVariable);
-				else if (codiVariable!=null)
-					fieldNames.add(codiVariable);
-			}*/
 			String jasperReport = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 							"<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" " + 
 								"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + 
@@ -376,7 +363,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 								"\n<property name=\"ireport.zoom\" value=\"1.0\"/>" +
 								"\n<property name=\"ireport.x\" value=\"0\"/>" +
 								"\n<property name=\"ireport.y\" value=\"0\"/>";
-			for (Camp camp: camps) {
+			for (CampDto camp: camps) {
 				jasperReport = jasperReport + "\n<field name=\"" + camp.getCodiPerInforme() +"\" class=\"net.conselldemallorca.helium.report.FieldValue\"/>";	
 			}
 			jasperReport = jasperReport + 
@@ -399,7 +386,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			int widthField = 0;
 			if (camps.size()>0) widthField = 800/camps.size();
 			int xPosition = 0;
-			for (Camp camp: camps) {
+			for (CampDto camp: camps) {
 				jasperReport = jasperReport + 
 						"\n<staticText>" + 
 							"\n<reportElement x=\""+xPosition+"\" y=\"2\" width=\""+widthField+"\" height=\"20\"/>" +
@@ -416,7 +403,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 						"\n<band height=\"24\" splitType=\"Stretch\">";
 			
 			xPosition = 0;
-			for (Camp camp: camps) {
+			for (CampDto camp: camps) {
 				jasperReport = jasperReport + 		
 					"\n<textField>" +
 						"\n<reportElement x=\""+xPosition+"\" y=\"4\" width=\""+widthField+"\" height=\"20\"/>" +

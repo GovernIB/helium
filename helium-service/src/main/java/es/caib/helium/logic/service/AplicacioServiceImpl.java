@@ -20,13 +20,14 @@ import es.caib.helium.commons.dto.PortafirmesCarrecDto;
 import es.caib.helium.commons.dto.UsuariPreferenciesDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.logic.intf.service.AplicacioService;
-import es.caib.helium.persistence.entity.UsuariPreferencies;
-import es.caib.helium.persistence.repository.UsuariPreferenciesRepository;
+import es.caib.helium.commons.helper.ExceptionHelper;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.persistence.common.ThreadLocalInfo;
+import es.caib.helium.persistence.entity.UsuariPreferencies;
+import es.caib.helium.persistence.repository.UsuariPreferenciesRepository;
 
 /**
  * Implementació dels mètodes de AplicacioService.
@@ -131,8 +132,6 @@ public class AplicacioServiceImpl implements AplicacioService {
 		return exceptionHelper.findAll();
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(AplicacioServiceImpl.class);
-
 	@Override
 	@Transactional
 	public void updateEntornActual(String entorn) throws NoTrobatException {
@@ -148,4 +147,16 @@ public class AplicacioServiceImpl implements AplicacioService {
 		pref.setCurrentEntornData(new Date());
 		usuariPreferenciesRepository.save(pref);
 	}
+
+	@Override
+	public List<PersonaDto> findPersonesAll() {
+		return pluginHelper.personaFindAll();
+	}
+
+	@Override
+	public void clearExpedient() {
+		ThreadLocalInfo.setExpedient(null);
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(AplicacioServiceImpl.class);
 }

@@ -40,20 +40,18 @@ import es.caib.helium.back.helper.PaginacioHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
 import es.caib.helium.commons.dto.EntornDto;
+import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.ParellaCodiValorDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.TascaCompleteDto;
-import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.logic.intf.service.AdminService;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.TascaService;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Controlador per al llistat de tasques.
@@ -74,8 +72,6 @@ public class TascaLlistatController extends BaseController {
 	private ExpedientService expedientService;
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
-	@Autowired
-	private EntornHelper entornHelper;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -329,7 +325,7 @@ public class TascaLlistatController extends BaseController {
 		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
 		model.addAttribute("tasques",
 				(persona.isAdmin())? adminService.getTasquesCompletar() :
-				(entornHelper.esAdminEntorn(EntornActual.getEntornId()))? adminService.getTasquesCompletarAdminEntorn() : new ArrayList<TascaCompleteDto>());
+				(SessionHelper.getSessionManager(request).getEntornActual().isPermisAdministration() ? adminService.getTasquesCompletarAdminEntorn() : new ArrayList<TascaCompleteDto>()));
 		return "pendentsCompletar";
 	}
 

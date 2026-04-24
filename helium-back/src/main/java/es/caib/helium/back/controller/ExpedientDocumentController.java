@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -111,8 +110,11 @@ import es.caib.helium.commons.dto.ServeiTipusEnumDto;
 import es.caib.helium.commons.dto.StatusEnumDto;
 import es.caib.helium.commons.dto.TokenDto;
 import es.caib.helium.commons.dto.document.DocumentDetallDto;
+import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
+import es.caib.helium.commons.utils.PdfUtils;
+import es.caib.helium.commons.utils.StringUtilsHelium;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.DadesExternesService;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
@@ -123,11 +125,6 @@ import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTokenService;
 import es.caib.helium.logic.intf.service.PortafirmesFluxService;
 import es.caib.helium.logic.intf.service.PortasignaturesService;
-import es.caib.helium.persistence.entity.DocumentStore;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.utils.PdfUtils;
-import es.caib.helium.logic.utils.StringUtilsHelium;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -142,19 +139,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private ExpedientDocumentService expedientDocumentService;
 	@Autowired
 	private DadesExternesService dadesExternesService;
-	// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
-//	@Autowired
-//	private PluginService pluginService;
 	@Autowired
 	private NtiHelper ntiHelper;
 	@Autowired
 	private ExpedientInteressatService expedientInteressatService;
 	@Autowired
 	private AplicacioService aplicacioService;
-	@Resource(name="documentHelperV3")
-	private DocumentHelperV3 documentHelper;
-	@Resource
-	private ExpedientHelper expedientHelper;
 	@Autowired
 	private PortafirmesFluxService portafirmesFluxService;
 	@Autowired
@@ -783,7 +773,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					// Si el fitxer te firmes invalides s'han de eliminar
 					if(command.isClearFirmes() && arxiuContentType.equals("application/pdf")
 							&& false) {
-						arxiuContingut = documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(arxiuContingut, arxiuContentType);
+						arxiuContingut = documentService.removeSignaturesPdf(arxiuContingut);
 					}
 
 					DocumentStoreDto documentStoreDto = expedientDocumentService.create(
@@ -998,7 +988,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					// Si el fitxer te firmes invalides s'han de eliminar
 					if(command.isClearFirmes() && arxiuContentType.equals("application/pdf")
 							&& false) {
-						arxiuContingut = documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(arxiuContingut, arxiuContentType);
+						arxiuContingut = documentService.removeSignaturesPdf(arxiuContingut);
 					}
 
 					DocumentStoreDto documentStoreDto = expedientDocumentService.update(
@@ -1121,7 +1111,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			boolean convertiblePdf = PdfUtils.isArxiuConvertiblePdf(document.getArxiuNom());
 			boolean isPDF = "pdf".equals(document.getArxiuExtensio());
 			if(convertiblePdf && !isPDF) {
-				expedientHelper.firmarDocumentServidorPerArxiuFiExpedient(documentStoreId);
+				expedientService.firmarDocumentServidorPerArxiuFiExpedient(documentStoreId);
 				MissatgesHelper.success(request, "El document s'ha pogut converti i firmar correctament");
 			}
 		} catch(Exception e) {
@@ -1247,7 +1237,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 								expedientId,
 								processInstanceId,
 								documentStoreId);
-						documentHelper.firmaServidor(processInstanceId, documentStoreId, "notificació de zip", arxiu.getContingut());
+						
+						expedientDocumentService.firmaServidor(processInstanceId, documentStoreId, "notificació de zip", arxiu.getContingut());
 					}
 				}
 			} catch (Exception e) {
@@ -2647,11 +2638,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 	private void portasigEnviar(DocumentExpedientEnviarPortasignaturesCommand command, Long documentStoreId, Long expedientId, String processInstanceId) {
 
-		DocumentStore documentStore = documentHelper.findById(documentStoreId);
 		DocumentDto documentDto = expedientDocumentService.findDocumentAmbId(documentStoreId);
 		ExpedientDto expedientDto = expedientService.findAmbIdAmbPermis(expedientId);
 		// Valida que no sigui ja un document firmat
-		if (documentStore.isSignat())
+		if (documentDto.isSignat())
 			throw new ValidacioException("No es pot enviar a firmar al Portasignatures un document que ja està signat");
 
 		List<Long> annexosId = command.getAnnexos();
@@ -2659,16 +2649,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		if (annexosId != null) {
 			annexos = new ArrayList<DocumentDto>();
 			for (Long docId: annexosId) {
-				DocumentDto docDto = documentHelper.toDocumentDto(
-						docId,
-						false,
-						false,
-						true,
-						false,
-						false, // Per notificar
-						false);
-				if (docDto != null){
-					annexos.add(docDto);
+				DocumentDto docDto = null;
+				try {
+					docDto = expedientDocumentService.findDocumentAmbId(docId);
+					if (docDto != null){
+						annexos.add(docDto);
+					}
+				} catch(NoTrobatException nte) {
+					// No trobat
 				}
 			}
 		}

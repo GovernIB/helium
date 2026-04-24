@@ -8,6 +8,15 @@
   <artifactId>helium-commons</artifactId>
   <dependencies>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${commons-lang.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
@@ -143,11 +152,11 @@
 			<artifactId>jersey-client</artifactId>
 			<version>1.19.4</version>
 		</dependency>
-		<!--<dependency>
-			<groupId>org.fundaciobit.pluginsib.validatecertificate</groupId>
-			<artifactId>pluginsib-validatecertificate-api</artifactId>
-			<version>2.0.0</version>
-		</dependency>-->
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-acl</artifactId>
@@ -157,6 +166,17 @@
 			<groupId>es.caib.comanda</groupId>
 			<artifactId>comanda-lib</artifactId>
 			<version>0.1.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>es.caib.distribucio</groupId>
+			<artifactId>distribucio-rest-client</artifactId>
+			<version>0.9.50</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jersey-client</artifactId>
+					<groupId>com.sun.jersey</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
   </dependencies>
 </project>

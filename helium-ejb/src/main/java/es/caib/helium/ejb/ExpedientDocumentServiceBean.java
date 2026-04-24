@@ -519,4 +519,9 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 		delegate.migrateDocument(expedientId, documentStoreId);
 	}
 	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void firmaServidor(String processInstanceId, Long documentStoreId, String motiu, byte[] arxiuContingut) {
+		delegate.firmaServidor(processInstanceId, documentStoreId, motiu, arxiuContingut);
+	}
 }

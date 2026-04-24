@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import es.caib.helium.back.command.ExpedientAltaMassivaCommand;
 import es.caib.helium.back.command.ExpedientAltaMassivaCommand.AltaMassiva;
 import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.ExecucioMassivaDto;
 import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import es.caib.helium.commons.dto.ExecucioMassivaListDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.utils.CsvHelper;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
-import es.caib.helium.logic.utils.CsvHelper;
-import es.caib.helium.logic.utils.EntornActual;
 
 /** Controlador pel formulari d'alta massiva d'expedients a partir d'una fulla CSV.
  * Programa una execució massiva per cada fila de la fulla CSV per crear un
@@ -49,11 +49,12 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
 
-	/** Informa el model dels expedients tipus permesos. */
+	/** Informa el model dels expedients tipus permesos. 
+	 * @param request */
 	@ModelAttribute("expedientTipusPermesos")
-	public List<ExpedientTipusDto> modelExpedientTipusPermesos() {
+	public List<ExpedientTipusDto> modelExpedientTipusPermesos(HttpServletRequest request) {
 		// Buscar tipus d'expedient amb permís d'administració o execució d'scripts
-		List<ExpedientTipusDto> expedientTipusPermesos = expedientTipusService.findAmbEntornPermisExecucioScript(EntornActual.getEntornId());
+		List<ExpedientTipusDto> expedientTipusPermesos = expedientTipusService.findAmbEntornPermisExecucioScript(SessionHelper.getSessionManager(request).getEntornActual().getId());
 		return expedientTipusPermesos;
 	}
 
@@ -70,6 +71,7 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 			Model model) {
 		ExpedientAltaMassivaCommand expedientAltaMassivaCommand = new ExpedientAltaMassivaCommand();
 		model.addAttribute("command", expedientAltaMassivaCommand);
+		model.addAttribute("expedientTipusPermesos", modelExpedientTipusPermesos(request));
 
 		return "expedientAltaMassiva";
 	}
@@ -89,11 +91,13 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 			BindingResult binding,
 			Model model) {
 		model.addAttribute("command", command);
+		List<ExpedientTipusDto> expedientTipusPermesos = modelExpedientTipusPermesos(request);
+		model.addAttribute("expedientTipusPermesos", expedientTipusPermesos);
 		if (! binding.hasErrors()) {
 			try {
 				// Consulta primer que tingui permís sobre el tipus d'expedient
 				ExpedientTipusDto expedientTipus = null;
-				for (ExpedientTipusDto et : this.modelExpedientTipusPermesos()) {
+				for (ExpedientTipusDto et : expedientTipusPermesos) {
 					if (et.getId().equals(command.getExpedientTipusId())) {
 						expedientTipus = et;
 						break;

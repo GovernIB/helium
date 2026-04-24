@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -68,6 +67,7 @@ import es.caib.helium.commons.dto.DocumentTipusFirmaEnumDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.ExecucioMassivaDto;
 import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.FirmaResultatDto;
 import es.caib.helium.commons.dto.FirmaTascaDto;
@@ -85,17 +85,15 @@ import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.TramitacioHandlerException;
 import es.caib.helium.commons.exception.TramitacioValidacioException;
 import es.caib.helium.commons.exception.ValidacioException;
-import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.DocumentService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ParametreService;
 import es.caib.helium.logic.intf.service.ReproService;
 import es.caib.helium.logic.intf.service.TascaService;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.ParametreHelper;
 
 /**
  * Controlador per a la tramitació de taques.
@@ -125,12 +123,10 @@ public class TascaTramitacioController extends BaseTascaController {
 	private DefinicioProcesService definicioProcesService;
 	@Autowired
 	private ReproService reproService;
-	@Resource(name="documentHelperV3")
-	private DocumentHelperV3 documentHelper;
 	@Autowired
 	private ExpedientDocumentController expedientDocumentController;
 	@Autowired
-	private ParametreHelper parametreHelper;
+	private ParametreService parametreService;
 
 
 	@ModelAttribute("command")
@@ -717,10 +713,10 @@ public class TascaTramitacioController extends BaseTascaController {
 			// Validacions
 			boolean error = false;
 
-			Long MAX_FILE_SIZE = parametreHelper.getMidaMaximaFitxerInBytes();
+			Long MAX_FILE_SIZE = parametreService.getMidaMaximaFitxerInBytes();
 			// Si la mida del fitxer es major que MAX_FILE_SIZE es retrona un error de validació
 			if (MAX_FILE_SIZE != null && arxiu.getSize() > MAX_FILE_SIZE) {
-				String max = parametreHelper.getMidaMaximaFitxer();
+				String max = parametreService.getMidaMaximaFitxer();
 				MissatgesHelper.error(request, getMessage(request, "error.fixer.max.size", new String[] {max}));
 				error = true;
 			}
@@ -773,7 +769,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				// Si el fitxer te firmes invalides s'han de eliminar
 				if(clearFirmes&& arxiuContentType.equals("application/pdf")
 						&& false) {
-					contingutArxiu = documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(contingutArxiu, arxiuContentType);
+					contingutArxiu = documentService.removeSignaturesPdf(contingutArxiu);
 				}
 
 				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId, expedient.getTipus().getId());

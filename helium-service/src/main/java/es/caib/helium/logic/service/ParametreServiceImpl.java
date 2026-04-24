@@ -13,11 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.ParametreDto;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.ParametreHelper;
 import es.caib.helium.logic.intf.service.ParametreService;
 import es.caib.helium.persistence.entity.Parametre;
 import es.caib.helium.persistence.repository.ParametreRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
 
 
 /**
@@ -28,6 +29,8 @@ import es.caib.helium.logic.helper.PaginacioHelper;
 @Service
 public class ParametreServiceImpl implements ParametreService {
 
+	@Resource
+	private ParametreHelper parametreHelper;
 	@Resource
 	private ParametreRepository parametreRepository;
 	@Resource
@@ -142,7 +145,18 @@ public class ParametreServiceImpl implements ParametreService {
 		return dto;
 	}
 
+	@Override
+	@Transactional
+	public Long getMidaMaximaFitxerInBytes() {
+		return parametreHelper.getMidaMaximaFitxerInBytes();
+	}
+
+
+	@Override
+	@Transactional
+	public String getMidaMaximaFitxer() {
+		return parametreHelper.getMidaMaximaFitxer();
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ParametreServiceImpl.class);
-
 }

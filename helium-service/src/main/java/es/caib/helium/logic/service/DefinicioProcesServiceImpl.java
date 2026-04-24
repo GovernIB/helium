@@ -34,6 +34,13 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacioCommandDto;
+import es.caib.helium.commons.utils.EntornActual;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DefinicioProcesHelper;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
@@ -62,13 +69,6 @@ import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.FirmaTascaRepository;
 import es.caib.helium.persistence.repository.TascaRepository;
 import es.caib.helium.persistence.repository.TerminiRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DefinicioProcesHelper;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Implementació del servei per a gestionar definicions de procés.
@@ -1555,6 +1555,15 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		WProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
 		DefinicioProces dp = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
+		return conversioTipusHelper.convertir(dp, DefinicioProcesDto.class);
+	}
+	@Override
+	@Transactional(readOnly = true)
+	public DefinicioProcesDto findByJbpmKeyAndVersio(String defprocKey, int versio) {
+		logger.debug(
+				"Consultant la definició de procés a partir del codi i versió (" +
+				"defprocKey = " + defprocKey + ", versio = " + versio + ")");
+		DefinicioProces dp = definicioProcesRepository.findByJbpmKeyAndVersio(defprocKey, versio);
 		return conversioTipusHelper.convertir(dp, DefinicioProcesDto.class);
 	}
 

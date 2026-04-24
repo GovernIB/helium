@@ -315,4 +315,11 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public DefinicioProcesDto findAmbProcessInstanceId(String processInstanceId) {
 		return delegate.findAmbProcessInstanceId(processInstanceId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto findByJbpmKeyAndVersio(String defprocJbpmKey, int defprocVersio) {
+		return delegate.findByJbpmKeyAndVersio(defprocJbpmKey, defprocVersio);
+	}
+
 }

@@ -43,7 +43,6 @@ import es.caib.helium.logic.intf.service.DominiService;
 import es.caib.helium.logic.intf.service.EnumeracioService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.ValidacioService;
-import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Controlador per a la pestanya de tasques del disseny de les definicions de
@@ -274,7 +273,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@PathVariable Long id,
 			Model model) {
 
-		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(EntornActual.getEntornId(), definicioProcesId);
+		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(SessionHelper.getSessionManager(request).getEntornActual().getId(), definicioProcesId);
 		Long expedientTipusId = definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null;
 		if (validaEsborratCamp(request, expedientTipusId, id)) {
 			try {

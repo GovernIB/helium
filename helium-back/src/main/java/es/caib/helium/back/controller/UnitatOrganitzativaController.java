@@ -1,7 +1,6 @@
 package es.caib.helium.back.controller;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,7 +49,6 @@ import es.caib.helium.commons.dto.UnitatOrganitzativaFiltreDto;
 import es.caib.helium.logic.intf.service.DadesExternesService;
 import es.caib.helium.logic.intf.service.ParametreService;
 import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
-import es.caib.helium.logic.helper.PluginHelper;
 
 /**
  * Controlador per al manteniment de avisos.
@@ -67,8 +65,6 @@ public class UnitatOrganitzativaController extends BaseController {
 	private DadesExternesService dadesExternesService;
 	@Autowired
 	private ParametreService parametreService;
-	@Autowired
-	private PluginHelper pluginHelper;
 
 	private static final String SESSION_ATTRIBUTE_FILTRE = "UnitatOrganitzativaController.session.filtre";
 
@@ -279,12 +275,9 @@ public class UnitatOrganitzativaController extends BaseController {
 			ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 			UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
 			boolean isFirstSincronization = unitatDto==null;
-			if(unitatDto==null) {
-				 unitatDto =pluginHelper.findUnidad(
-						 parametreArrel.getValor(),
-						new Timestamp(System.currentTimeMillis()),
-						new Timestamp(System.currentTimeMillis()));
-				unitatOrganitzativaService.create(unitatDto);
+			if(unitatDto == null) {
+				// Cerca per UO i crea la primera unitat.
+				unitatDto = unitatOrganitzativaService.consultaCrea(parametreArrel.getValor());
 			}
 
 			if(isFirstSincronization){

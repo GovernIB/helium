@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean;
 
 import es.caib.helium.commons.config.BaseConfig;
-import es.caib.helium.logic.intf.service.ExempleService;
+import es.caib.helium.logic.intf.service.EntornService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -25,10 +25,11 @@ public class EjbClientConfig {
 	static final String EJB_JNDI_SUFFIX = "Ejb";
 
 	@Bean
-    @ConditionalOnWarDeployment
-	public LocalStatelessSessionProxyFactoryBean exempleService() {
-		return getLocalEjbFactoyBean(ExempleService.class);
+	@ConditionalOnWarDeployment
+	public LocalStatelessSessionProxyFactoryBean entornService() {
+		return getLocalEjbFactoyBean(EntornService.class);
 	}
+
 
 	private LocalStatelessSessionProxyFactoryBean getLocalEjbFactoyBean(Class<?> serviceClass) {
 		String jndiName = jndiServiceName(serviceClass, false);

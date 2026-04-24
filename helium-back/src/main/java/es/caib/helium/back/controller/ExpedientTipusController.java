@@ -58,6 +58,7 @@ import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.ExecucioMassivaDto;
 import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
@@ -73,7 +74,6 @@ import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.commons.exportacio.DocumentExportacio;
 import es.caib.helium.commons.exportacio.ExpedientTipusExportacio;
 import es.caib.helium.commons.exportacio.ExpedientTipusExportacioCommandDto;
-import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.DissenyService;
@@ -82,12 +82,6 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.ParametreService;
 import es.caib.helium.logic.intf.service.PortafirmesFluxService;
 import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
-import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.ExpedientTipusUnitatOrganitzativa;
-import es.caib.helium.persistence.entity.Parametre;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
 
 /**
  * Controlador per al manteniment de tipus d'expedient.
@@ -108,12 +102,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	private DissenyService dissenyService;
 	@Autowired
 	private DefinicioProcesService definicioProcesService;
-	@Autowired
-	private EntornHelper entornHelper;
-	@Autowired
-	private ExpedientHelper expedientHelper;
-	@Autowired
-	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	@Autowired
 	private UnitatOrganitzativaService unitatOrganitzativaService;
 	@Autowired
@@ -243,7 +231,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						break;
 					}
 			model.addAttribute("expedientTipusPares", expedientsTipusPares);
-			model.addAttribute("potDissenyar", entornHelper.potDissenyarEntorn(entornActual.getId()));
+			model.addAttribute("potDissenyar", entornActual.isPermisDesign());
 		}
 	}
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
@@ -361,15 +349,14 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		boolean esborrarExpedients =isPropagarEsbExp();
 		boolean error = false;
 		// Comprova si hi ha expedients, si te permís d'esborrar, s'esborraràn
-		List<Expedient> expedients = expedientHelper.findByEntornIdAndTipusAndTitol(entornActual.getId(), id, null);
-		if(!expedients.isEmpty() && esborrarExpedients) {
-			for(Expedient exp: expedients) {
+		List<Long> expedientsIds = expedientService.findIdsPerTipus(id);
+		Map<Long, ExpedientDto> expedients = new HashMap<>();
+		if(!expedientsIds.isEmpty() && esborrarExpedients) {
+			for(Long expedientId: expedientsIds) {
 
 				ExpedientDto expDto = null;
-
 				try {
-					expDto = expedientService.findAmbIdAmbPermis(exp.getId());
-
+					expDto = expedientService.findAmbIdAmbPermis(expedientId);
 				}  catch(Exception e) {
 					MissatgesHelper.error(
 							request,
@@ -380,14 +367,18 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					error=true;
 					break;
 				}
-				if(expDto!=null && !expDto.isPermisDelete()) {
-					MissatgesHelper.error(
-							request,
-							getMessage(
-									request,
-									"expedient.tipus.controller.eliminar.expedients.noTePermisEsborrar"));
-					error=true;
-					break;
+				if(expDto != null) {
+					if (expDto.isPermisDelete()) {
+						expedients.put(expedientId, expDto);
+					} else {
+						MissatgesHelper.error(
+								request,
+								getMessage(
+										request,
+										"expedient.tipus.controller.eliminar.expedients.noTePermisEsborrar"));
+						error=true;
+						break;
+					}
 				}
 			}
 		}
@@ -411,17 +402,17 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			error = true;
 		}
 		if (!error) {
-			if(!expedients.isEmpty() && esborrarExpedients) {
+			if(!expedientsIds.isEmpty() && esborrarExpedients) {
 				int n = 0;
 				int errors = 0;
-				for(Expedient ex: expedients) {
+				for(Long expedientId: expedientsIds) {
 					try {
-						expedientService.delete(ex.getId());
+						expedientService.delete(expedientId);
 						n++;
 					} catch(Exception e) {
-						logger.error("Error esborrant l'expedient " + ex.getIdentificador() + ": " + e.getMessage());
-
-						if(ex.getArxiuUuid()!=null) {
+						ExpedientDto ex = expedients.get(expedientId);
+						logger.error("Error esborrant l'expedient amb identificador " + ex.getIdentificador() + ": " + e.getMessage());
+						if(ex.getArxiuUuid() != null) {
 							String missatgeError = "Error esborrant l'expedient " + ex.getNumero() + " amb UUID " + ex.getArxiuUuid()+ " de l'Arxiu: " + e.getClass() + " " + e.getCause();
 							logger.warn(missatgeError);
 							MissatgesHelper.error(
@@ -439,17 +430,17 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						getMessage(
 								request,
 								"expedient.tipus.controller.expedients.eliminats",
-								new Object[] {n, expedients.size()}));
+								new Object[] {n, expedientsIds.size()}));
 				if(errors>0) {
 					MissatgesHelper.error(
 							request,
 							getMessage(
 									request,
 									"expedient.tipus.controller.expedients.eliminats.errors",
-									new Object[] {errors, expedients.size()}));
+									new Object[] {errors, expedientsIds.size()}));
 				}
 			}
-			else if (!expedients.isEmpty() && !esborrarExpedients){
+			else if (!expedientsIds.isEmpty() && !esborrarExpedients){
 
 					MissatgesHelper.error(
 							request,
@@ -880,20 +871,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(entornActual.getId(),id);
-		String codiNomUnitatOrganitzativa = null;
-		if(permisUO != null) {
-			List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgList = unitatOrganitzativaHelper.findRelacionsExpTipusUnitOrgList(id, null);
-			if(expTipusUnitOrgList!=null) {
-				for(ExpedientTipusUnitatOrganitzativa expTipusUnitOrg: expTipusUnitOrgList) {
-					UnitatOrganitzativaDto unitatOrg = unitatOrganitzativaService.findById(expTipusUnitOrg.getUnitatOrganitzativa().getId());
-					codiNomUnitatOrganitzativa = unitatOrg.getCodi() + "-"+ unitatOrg.getNom();
-					expedientTipusDto.setUnitatOrganitzativaCodiNom(codiNomUnitatOrganitzativa);
-				}
-			}
-			model.addAttribute(
-					"unitatOrganitzativa",
-					codiNomUnitatOrganitzativa);
-		}
 		model.addAttribute(
 				"expedientTipus",
 				expedientTipusDto);
@@ -1625,7 +1602,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	private boolean isPropagarEsbExp() {
 		ParametreDto parametrePropagarEsbExp = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
 		if(parametrePropagarEsbExp==null)
-			throw new NoTrobatException(Parametre.class,ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
+			throw new NoTrobatException(ParametreDto.class,ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
 		return "1".equalsIgnoreCase(parametrePropagarEsbExp.getValor());
 	}
 

@@ -159,4 +159,13 @@ public class EntornServiceBean implements EntornService {
 		return delegate.findActiusAmbPermisAdmin();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EntornDto getEntornComprovantPermisos(Long entornId, boolean comprovarPermisAcces) {
+		return delegate.getEntornComprovantPermisos(entornId, comprovarPermisAcces);
+	}
+
 }

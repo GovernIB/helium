@@ -34,7 +34,6 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,13 +66,16 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternConversioDocumentException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
+import es.caib.helium.commons.helper.ExceptionHelper;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.commons.utils.OpenOfficeUtils;
+import es.caib.helium.commons.utils.PdfUtils;
 import es.caib.helium.integracio.plugins.firma.FirmaResposta;
 import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.logic.utils.DocumentTokenUtils;
 import es.caib.helium.persistence.common.jbpm.JbpmVars;
 import es.caib.helium.persistence.entity.AnotacioAnnex;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -101,9 +103,6 @@ import es.caib.helium.persistence.repository.PeticioPinbalRepository;
 import es.caib.helium.persistence.repository.PortasignaturesRepository;
 import es.caib.helium.persistence.repository.RegistreRepository;
 import es.caib.helium.persistence.repository.TascaRepository;
-import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.utils.DocumentTokenUtils;
-import es.caib.helium.logic.utils.PdfUtils;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.Firma;
@@ -152,8 +151,6 @@ public class DocumentHelperV3 {
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private PdfHelper pdfHelper;
-	@Autowired
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private FirmaTascaRepository firmaTascaRepository;
 	@Resource
@@ -3533,46 +3530,40 @@ public class DocumentHelperV3 {
 	}
 
 	public byte[] removeSignaturesPdfUsingPdfWriterCopyPdf(
-			byte[] contingut,
-			String contentType) {
-		if (contentType.equals("application/pdf")) {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			byte[] contingut) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-			try {
-				PdfReader reader = new PdfReader(contingut);
-				ByteArrayInputStream bais = null;
+		try {
+			PdfReader reader = new PdfReader(contingut);
+			ByteArrayInputStream bais = null;
 
-				com.lowagie.text.Document document = new com.lowagie.text.Document();
+			com.lowagie.text.Document document = new com.lowagie.text.Document();
 
-				bais = new ByteArrayInputStream(contingut);
-				baos = new ByteArrayOutputStream();
+			bais = new ByteArrayInputStream(contingut);
+			baos = new ByteArrayOutputStream();
 
-				com.lowagie.text.pdf.PdfReader inputPDF = new com.lowagie.text.pdf.PdfReader(bais);
+			com.lowagie.text.pdf.PdfReader inputPDF = new com.lowagie.text.pdf.PdfReader(bais);
 
-				// create a writer for the outputstream
-				com.lowagie.text.pdf.PdfWriter writer = com.lowagie.text.pdf.PdfWriter.getInstance(document, baos);
+			// create a writer for the outputstream
+			com.lowagie.text.pdf.PdfWriter writer = com.lowagie.text.pdf.PdfWriter.getInstance(document, baos);
 
-				document.open();
-				com.lowagie.text.pdf.PdfContentByte cb = writer.getDirectContent();
+			document.open();
+			com.lowagie.text.pdf.PdfContentByte cb = writer.getDirectContent();
 
-				com.lowagie.text.pdf.PdfImportedPage page;
+			com.lowagie.text.pdf.PdfImportedPage page;
 
-				for (int pageC = 1; pageC <= reader.getNumberOfPages(); pageC++) {
-					document.newPage();
-					page = writer.getImportedPage(inputPDF, pageC);
-					cb.addTemplate(page, 0, 0);
-				}
-
-				document.close();
-				reader.close();
-
-				return baos.toByteArray();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			for (int pageC = 1; pageC <= reader.getNumberOfPages(); pageC++) {
+				document.newPage();
+				page = writer.getImportedPage(inputPDF, pageC);
+				cb.addTemplate(page, 0, 0);
 			}
 
-		} else {
-			throw new RuntimeException("L'eliminació de la firma invàlida només està suportada pels fitxers pdf");
+			document.close();
+			reader.close();
+
+			return baos.toByteArray();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 

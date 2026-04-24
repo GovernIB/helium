@@ -1,4 +1,4 @@
-package es.caib.helium.logic.utils;
+package es.caib.helium.commons.utils;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

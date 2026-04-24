@@ -62,6 +62,7 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
+import es.caib.helium.commons.helper.ExceptionHelper;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -90,7 +91,6 @@ import es.caib.helium.logic.helper.DistribucioHelper;
 import es.caib.helium.logic.helper.DocumentHelperV3;
 import es.caib.helium.logic.helper.EmailHelper;
 import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.logic.helper.ExpedientDadaHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientLoggerHelper;
@@ -1390,6 +1390,28 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		}
 		return (List<String>[]) new List[]  {correctes, errors};
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId,
+			boolean reprocessarMapeigVariables, boolean reprocessarMapeigDocuments, boolean reprocessarMapeigAdjunts,
+			boolean reprocessarMapeigInteressats) {
+		return anotacioHelper.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId, reprocessarMapeigVariables,
+				reprocessarMapeigDocuments, reprocessarMapeigAdjunts, reprocessarMapeigInteressats);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public AnotacioMapeigResultatDto processarMapeigAnotacioExpedient(Long expedientTipusId, Long anotacioId) {
+		return anotacioHelper.processarMapeigAnotacioExpedient(expedientTipusId, anotacioId);
+	}
+
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);
 }

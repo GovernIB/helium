@@ -6,6 +6,7 @@ import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PeticioPinbalDto;
 import es.caib.helium.commons.dto.PeticioPinbalFiltreDto;
+import es.caib.helium.commons.dto.ScspRespostaPinbal;
 import es.caib.helium.commons.dto.ServeiPinbalDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
 
@@ -24,4 +25,6 @@ public interface ConsultaPinbalService {
 	ServeiPinbalDto findServeiPinbalById(Long id);
 	
 	ServeiPinbalDto updateServeiPinbal(ServeiPinbalDto serveiPinbalDto);
+
+	ScspRespostaPinbal tractamentPeticioAsincronaPendentPinbal(Long peticioPinbalId);
 }

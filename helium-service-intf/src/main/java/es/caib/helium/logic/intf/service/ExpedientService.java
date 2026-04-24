@@ -13,7 +13,6 @@ import es.caib.helium.commons.dto.AlertaDto;
 import es.caib.helium.commons.dto.ArxiuDetallDto;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.DadaIndexadaDto;
 import es.caib.helium.commons.dto.DadesDocumentDto;
 import es.caib.helium.commons.dto.DadesNotificacioDto;
 import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
@@ -22,6 +21,8 @@ import es.caib.helium.commons.dto.EstatDto;
 import es.caib.helium.commons.dto.ExpedientConsultaDissenyDto;
 import es.caib.helium.commons.dto.ExpedientDocumentDto;
 import es.caib.helium.commons.dto.ExpedientDto;
+import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
+import es.caib.helium.commons.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
@@ -32,8 +33,6 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.RespostaValidacioSignaturaDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
-import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
-import es.caib.helium.commons.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
@@ -550,7 +549,7 @@ public interface ExpedientService {
 	/**
 	 * Finalitza un expedient.
 	 * 
-	 * @param id
+	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
@@ -558,7 +557,23 @@ public interface ExpedientService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void finalitzar(
-			Long id) throws NoTrobatException, PermisDenegatException;
+			Long expedientId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Finalitza un expedient indicant si firmar o no els document sense firma abans de tancar l'expedient.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient.
+	 * @param firmaDocumentsServidor
+	 *            Indica si firmar en servidor els documents sense firma.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void finalitzar(
+			Long expedientId,
+			boolean firmaDocumentsServidor) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Migra l'expedient a l'arxiu
@@ -1072,5 +1087,21 @@ public interface ExpedientService {
 	public void syncArxiu(Long id, boolean esborrarExpSiError);
 
 	public void syncDocumentsArxiu(Long id, boolean esborrarExpSiError);
-	
+
+	public void firmarDocumentServidorPerArxiuFiExpedient(Long documentStoreId);
+
+	/** Compta el número d'expedients pel tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 */
+	public Long countByTipus(Long expedientTipusId);	
+
+	/** Consulta els ids dels expedients per un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 */
+	public List<Long> findIdsPerTipus(Long expedientTipusId);	
+
 }

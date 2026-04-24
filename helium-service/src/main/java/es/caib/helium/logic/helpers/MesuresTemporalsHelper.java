@@ -21,8 +21,8 @@ import org.springframework.stereotype.Component;
 import es.caib.helium.commons.dto.IntervalEventDto;
 import es.caib.helium.commons.dto.MesuraTemporalDto;
 import es.caib.helium.commons.dto.TascaCompleteDto;
+import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Helper per a mesurar intervals de temps i fer-ne estadístiques.

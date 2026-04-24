@@ -11,6 +11,7 @@ import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PeticioPinbalDto;
 import es.caib.helium.commons.dto.PeticioPinbalFiltreDto;
+import es.caib.helium.commons.dto.ScspRespostaPinbal;
 import es.caib.helium.commons.dto.ServeiPinbalDto;
 import es.caib.helium.logic.intf.service.ConsultaPinbalService;
 
@@ -60,5 +61,11 @@ public class ConsultaPinbalServiceBean implements ConsultaPinbalService {
 	@RolesAllowed({"HEL_ADMIN"})
 	public ServeiPinbalDto updateServeiPinbal(ServeiPinbalDto serveiPinbalDto) {
 		return delegate.updateServeiPinbal(serveiPinbalDto);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ScspRespostaPinbal tractamentPeticioAsincronaPendentPinbal(Long peticioPinbalId) {
+		return delegate.tractamentPeticioAsincronaPendentPinbal(peticioPinbalId);
 	}
 }

@@ -102,11 +102,25 @@ import es.caib.helium.commons.exportacio.TascaExportacio;
 import es.caib.helium.commons.exportacio.TerminiExportacio;
 import es.caib.helium.commons.exportacio.ValidacioExportacio;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DefinicioProcesHelper;
+import es.caib.helium.logic.helper.DominiHelper;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PermisosHelper;
+import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.entity.Accio;
 import es.caib.helium.persistence.entity.Anotacio;
 import es.caib.helium.persistence.entity.Camp;
@@ -170,20 +184,6 @@ import es.caib.helium.persistence.repository.ReassignacioRepository;
 import es.caib.helium.persistence.repository.SequenciaAnyRepository;
 import es.caib.helium.persistence.repository.TerminiRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DefinicioProcesHelper;
-import es.caib.helium.logic.helper.DominiHelper;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
-import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.security.ExtendedPermission;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -2499,43 +2499,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public boolean tePermisosSobreUnitatOrganitzativaOrParents(Long expedientTipusId, String unitatOrganitzativaCodi, Permission[] permissions) {
-		ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
-				expedientTipusId,
-				unitatOrganitzativaCodi);
-		List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgUnitatsSuperiors = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
-		List<PermisDto> permisos = new ArrayList<PermisDto>();
-		//mirem les unitats superiors fins a l'arrel i si l'user té permís sobre aquestes
-		UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
-		String arrel = uo.getCodiUnitatArrel();
-		List<UnitatOrganitzativaDto> unitatsSuperiors = unitatOrganitzativaHelper.findPath(arrel,uo.getCodiUnitatSuperior());
-		if(unitatsSuperiors!=null && !unitatsSuperiors.isEmpty()) {
-			for (UnitatOrganitzativaDto uoSuperior : unitatsSuperiors) {
-				ExpedientTipusUnitatOrganitzativa expTipusUnitOrgSup = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
-						expedientTipusId,
-						uoSuperior.getCodi());
-				if(expTipusUnitOrgSup!=null)
-					expTipusUnitOrgUnitatsSuperiors.add(expTipusUnitOrgSup);
-			}
-		}
-		if(!expTipusUnitOrgUnitatsSuperiors.isEmpty()) {
-			for(ExpedientTipusUnitatOrganitzativa etuo: expTipusUnitOrgUnitatsSuperiors) {
-				permisos.addAll(permisosHelper.findPermisos(
-						etuo.getId(),
-						ExpedientTipusUnitatOrganitzativa.class));
-			}
-		}
-		if(expTipusUnitOrg!=null)
-			permisos.addAll(permisosHelper.findPermisos(
-					expTipusUnitOrg.getId(),
-					ExpedientTipusUnitatOrganitzativa.class));
-		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();
-		for(PermisDto permis: permisos) {
-			if (expedientTipusHelper.comprovarPermisosAndRoleOrUser(permis, authOriginal, permissions)) {
-				return true;
-			}
-		}
-		return false;
+	public boolean tePermisLecturaSobreUnitatOrganitzativaOrParents(Long expedientTipusId, String unitatOrganitzativaCodi) {
+		return expedientTipusHelper.tePermisosSobreUnitatOrganitzativaOrParents(
+				expedientTipusId, 
+				unitatOrganitzativaCodi, 
+				new Permission[] {
+						ExtendedPermission.READ,
+						ExtendedPermission.ADMINISTRATION});
 	}
 
 	/** Mètode per afegir el rol d'administrador al context en el cas que l'usuari sigui administrador de

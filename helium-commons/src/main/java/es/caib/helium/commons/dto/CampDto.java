@@ -9,6 +9,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import es.caib.helium.commons.constants.ExpedientCamps;
+
 /**
  * Objecte de domini que representa un camp de la definició de procés.
  * 
@@ -68,6 +70,7 @@ public class CampDto extends HeretableDto implements Serializable {
 
 	/** Per mostrar el número de membres de les variables de tipus registre la taula de variables. */
 	private int campRegistreCount = 0;
+	
 	
 	public Long getId() {
 		return id;
@@ -341,4 +344,24 @@ public class CampDto extends HeretableDto implements Serializable {
 	public void setTerminiNomesDies(boolean terminiNomesDies) {
 		this.terminiNomesDies = terminiNomesDies;
 	}
+	
+	public String getCodiPerInforme() {
+		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+			return codi.replace('$', '%');
+		else {
+			if(definicioProces != null) {
+				try {
+					return (definicioProces.getJbpmKey()!=null ? definicioProces.getJbpmKey() + "/"  : "" ) + 
+							codi;
+				} catch (Exception ex) {
+					return null;
+				}
+			}else {
+				return (expedientTipus.getJbpmProcessDefinitionKey() !=null ? 
+						expedientTipus.getJbpmProcessDefinitionKey()  + "/" : "") +
+						codi;
+			}
+		}
+	}
+
 }

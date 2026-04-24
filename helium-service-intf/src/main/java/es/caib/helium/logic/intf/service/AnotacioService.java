@@ -176,4 +176,29 @@ public interface AnotacioService {
 	 * @return Retorna la llista de persones avisades per les quals s'ha programat l'avís.
 	 */
 	public List<String>[] emailAnotacio(long anotacioId);
+
+	/** Mètode per invocar el reprocessamnet del mapeig d'anotaicons.
+	 * 
+	 * @param expedientId
+	 * @param anotacioId
+	 * @param reprocessarMapeigVariables
+	 * @param reprocessarMapeigDocuments
+	 * @param reprocessarMapeigAdjunts
+	 * @param reprocessarMapeigInteressats
+	 * @return
+	 */
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(
+			Long expedientId, 
+			Long anotacioId,
+			boolean reprocessarMapeigVariables, 
+			boolean reprocessarMapeigDocuments, 
+			boolean reprocessarMapeigAdjunts,
+			boolean reprocessarMapeigInteressats);
+
+	/** Recupera el mapeig de Sistra i l'aplica a la pantalla d'inici d'expedient.
+	 * @return	Retorna un objecte de tipus <code>AnotacioMapeigResultatDto</code> amb el resultat del mapeig
+	 * de variables, documents i adjunts per poder advertir a l'usuari o afegir una alerta dels mapejos que han fallat.
+	 * @throws Exception
+	 */
+	public AnotacioMapeigResultatDto processarMapeigAnotacioExpedient(Long expedientTipusId, Long anotacioId);
 }

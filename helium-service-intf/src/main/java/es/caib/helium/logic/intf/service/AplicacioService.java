@@ -69,4 +69,15 @@ public interface AplicacioService {
 	 * @throws NoTrobatException
 	 */
 	public void updateEntornActual(String entorn) throws NoTrobatException;
+
+	/** Consulta totes les persones amb el plugin.
+	 * 
+	 * @return
+	 */
+	public List<PersonaDto> findPersonesAll();
+
+	/** Fa la crida per esborrar la informació del l'expedient el el thread local info.
+	 * 
+	 */
+	public void clearExpedient();
 }

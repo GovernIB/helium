@@ -25,8 +25,6 @@ import es.caib.helium.logic.intf.service.AdminService;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.EntornService;
 import es.caib.helium.logic.intf.service.PortafirmesFluxService;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.utils.EntornActual;
 import lombok.Builder;
 import lombok.Data;
 
@@ -46,9 +44,6 @@ public class AplicacioController extends BaseController {
 	private AplicacioService aplicacioService;
 	@Autowired
 	private PortafirmesFluxService portafirmesFluxService;
-	@Autowired
-	private EntornHelper entornHelper;
-
 
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public String get(HttpServletRequest request) {
@@ -102,7 +97,7 @@ public class AplicacioController extends BaseController {
 		model.addAttribute("metriques", adminService.getMetrics());
 		model.addAttribute("entorns",
 				(persona != null && persona.isAdmin())?entornService.findActiusAll():
-					(entornHelper.esAdminEntorn(EntornActual.getEntornId()))? entornService.findActiusAmbPermisAdmin():new ArrayList<EntornDto>());
+					(SessionHelper.getSessionManager(request).getEntornActual().isPermisAdministration() ? entornService.findActiusAmbPermisAdmin():new ArrayList<EntornDto>()));
 		return "metrics";
 	}
 

@@ -12,7 +12,7 @@ import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.CarrecDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.utils.GlobalProperties;
-import es.caib.helium.integracio.plugins.persones.PersonesPlugin;
+import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.EntornAreaMembreService;
 import es.caib.helium.logic.intf.service.EntornCarrecService;
 
@@ -20,7 +20,8 @@ public class EntornAreaMembreValidator
 		implements ConstraintValidator<EntornAreaMembre, EntornAreaMembreCommand> {
 
 	private EntornAreaMembre anotacio;
-	private PersonesPlugin personesPlugin;
+	@Autowired
+	private AplicacioService aplicacioService;
 	@Autowired
 	private EntornCarrecService entornCarrecService;
 	@Autowired
@@ -61,8 +62,7 @@ public class EntornAreaMembreValidator
 				return false;
 			}
 
-			personesPlugin = (PersonesPlugin) (Class.forName(pluginClass).newInstance());
-			if (personesPlugin.findAmbCodi(command.getCodi()) == null) {
+			if (aplicacioService.findPersonaAmbCodi(command.getCodi()) == null) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(anotacio.codiPersonaInexistent())).addNode("codi")
 						.addConstraintViolation();

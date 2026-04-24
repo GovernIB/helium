@@ -47,7 +47,7 @@ import es.caib.helium.commons.dto.FormulariExternDto;
 import es.caib.helium.commons.exception.TramitacioHandlerException;
 import es.caib.helium.commons.exception.TramitacioValidacioException;
 import es.caib.helium.commons.exception.ValidacioException;
-import es.caib.helium.logic.helper.AnotacioHelper;
+import es.caib.helium.logic.intf.service.AnotacioService;
 
 /**
  * Controlador per iniciar un expedient
@@ -58,7 +58,7 @@ import es.caib.helium.logic.helper.AnotacioHelper;
 @RequestMapping("/expedient")
 public class ExpedientIniciController extends BaseExpedientIniciController {
 	@Resource
-	private AnotacioHelper anotacioHelper;
+	private AnotacioService anotacioService;
 
 	@Autowired
 	private ExpedientInicioPasFormController expedientInicioPasFormController;
@@ -129,7 +129,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 		if (hasStartTask) {
 			//Si venim d'acceptar una anotació, mapejarem les dades d'aquesta, en cas q el tipus d'expedient tingui habilitat isDistribucioSistra
 			if(anotacio!=null && anotacio.getId()!=null && expedientTipus.isDistribucioSistra()) {
-				AnotacioMapeigResultatDto resultatMapeig = anotacioHelper.processarMapeigAnotacioExpedient(expedientTipus.getId(), anotacio.getId());
+				AnotacioMapeigResultatDto resultatMapeig = anotacioService.processarMapeigAnotacioExpedient(expedientTipus.getId(), anotacio.getId());
 				return expedientInicioPasFormController.iniciarFormGet(
 								request,
 								expedientTipus.getId(),

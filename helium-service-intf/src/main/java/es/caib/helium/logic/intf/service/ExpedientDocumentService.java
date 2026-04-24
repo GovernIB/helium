@@ -643,5 +643,14 @@ public interface ExpedientDocumentService {
 	 * @param documentStoreId
 	 */
 	public void migrateDocument(Long expedientId, Long documentStoreId);
+
+	/** Mètode per firmar en servidor un document.
+	 * 
+	 * @param processInstanceId
+	 * @param documentStoreId
+	 * @param motiu
+	 * @param arxiuContingut
+	 */
+	public void firmaServidor(String processInstanceId, Long documentStoreId, String motiu, byte[] arxiuContingut);
 	
 }

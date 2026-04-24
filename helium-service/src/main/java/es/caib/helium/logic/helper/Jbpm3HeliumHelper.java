@@ -94,7 +94,9 @@ import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.registre.RegistreAnotacio;
+import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.StringUtilsHelium;
 import es.caib.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
 import es.caib.helium.integracio.plugins.pinbal.Funcionari;
 import es.caib.helium.integracio.plugins.pinbal.Titular;
@@ -165,8 +167,6 @@ import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.logic.utils.EntornActual;
-import es.caib.helium.logic.utils.StringUtilsHelium;
 
 
 /**

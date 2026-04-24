@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -34,7 +33,6 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.ReprocessarMapeigAnotacioDto;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.helper.AnotacioHelper;
 
 /**
  * Controlador per a la pestanya d'anotacions de registre en la gestió dels expedients.
@@ -44,8 +42,6 @@ import es.caib.helium.logic.helper.AnotacioHelper;
 @Controller
 @RequestMapping("/expedient")
 public class ExpedientAnotacioController extends BaseExpedientController {
-	@Resource
-	private AnotacioHelper anotacioHelper;
 	@Autowired
 	private AnotacioService anotacioService;
 	@Autowired
@@ -207,7 +203,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 
 		try {
 			AnotacioMapeigResultatDto resultatMapeig =
-				anotacioHelper.reprocessarMapeigAnotacioExpedient(
+				anotacioService.reprocessarMapeigAnotacioExpedient(
 					expedientId,
 					anotacioId,
 					reprocessarMapeigAnotacioDto.isReprocessarMapeigVariables(),

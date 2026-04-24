@@ -388,26 +388,6 @@ public class Camp implements Serializable, GenericEntity<Long> {
 			return codi + "/" + etiqueta;
 	}
 
-	@Transient
-	public String getCodiPerInforme() {
-		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
-			return codi.replace('$', '%');
-		else {
-			if(definicioProces != null) {
-				try {
-					return (definicioProces.getJbpmKey()!=null ? definicioProces.getJbpmKey() + "/"  : "" ) + 
-							codi;
-				} catch (Exception ex) {
-					return null;
-				}
-			}else {
-				return (expedientTipus.getJbpmProcessDefinitionKey() !=null ? 
-						expedientTipus.getJbpmProcessDefinitionKey()  + "/" : "") +
-						codi;
-			}
-		}
-	}
-
 	@SuppressWarnings("rawtypes")
 	@Transient
 	public Class getJavaClass() {

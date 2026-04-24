@@ -180,4 +180,11 @@ public class UnitatOrganitzativaServiceBean implements UnitatOrganitzativaServic
 		return delegate.findByCodiExterna(unitatOrganitzativaCodi);
 	}
 
+	/** Consutla amb el plugin per codi de UO i crea la unitat a la taula. */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public UnitatOrganitzativaDto consultaCrea(String codiUo) {
+		return delegate.consultaCrea(codiUo);
+	}
+
 }

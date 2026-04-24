@@ -20,12 +20,10 @@ import es.caib.helium.back.helper.SessionHelper.SessionManager;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.UsuariPreferenciesDto;
+import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.EntornService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.persistence.common.ThreadLocalInfo;
-import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.logic.utils.EntornActual;
 
 /**
  * Interceptor per guardar a la sessió les dades de l'entorn
@@ -38,7 +36,6 @@ public class EntornInterceptor implements HandlerInterceptor {
 	public static final String VARIABLE_REQUEST_CANVI_ENTORN = "entornCanviarAmbId";
 	public static final String VARIABLE_REQUEST_CANVI_EXPTIP = "expedientTipusCanviarAmbId";
 
-	// ELIMINAR DE LA INTERFÍCIE 26
 	public static final String VARIABLE_REQUEST_ALERTES_NOLLEGIDES = "hiHaAlertesNollegides";
 
 	@Autowired
@@ -151,7 +148,7 @@ public class EntornInterceptor implements HandlerInterceptor {
 				}
 			}
 			// Inicialitza la variable ThreadLocal de l'expedient que s'està iniciant
-			ThreadLocalInfo.setExpedient(null);
+			aplicacioService.clearExpedient();
 			if (entornActual != null) {
 
 				// Indica si hi ha alertes no llegides
@@ -219,7 +216,7 @@ public class EntornInterceptor implements HandlerInterceptor {
 			Object handler,
 			Exception ex) {
 		EntornActual.setEntornId(null);
-		ThreadLocalInfo.setExpedient(null);
+		aplicacioService.clearExpedient();
 	}
 
 
@@ -232,7 +229,7 @@ public class EntornInterceptor implements HandlerInterceptor {
 				request,
 				SessionHelper.VARIABLE_ENTORN_ACTUAL_V3,
 				entorn);
-		Entorn ent = new Entorn();
+		EntornDto ent = new EntornDto();
 		ent.setId(entorn.getId());
 		ent.setCodi(entorn.getCodi());
 		ent.setNom(entorn.getNom());

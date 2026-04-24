@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import es.caib.helium.back.helper.AjaxHelper.AjaxResponse;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.commons.dto.ExecucioMassivaDto;
+import es.caib.helium.commons.utils.CsvHelper;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
-import es.caib.helium.logic.utils.CsvHelper;
 
 /**
  * Controlador per la execucions massives

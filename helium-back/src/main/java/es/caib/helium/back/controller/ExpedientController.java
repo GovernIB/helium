@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,6 +47,7 @@ import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.DocumentFinalitzarDto;
 import es.caib.helium.commons.dto.DocumentListDto;
 import es.caib.helium.commons.dto.EstatDto;
+import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientErrorDto;
 import es.caib.helium.commons.dto.ExpedientFinalitzarDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
@@ -55,14 +55,12 @@ import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.TerminiDto;
 import es.caib.helium.commons.dto.TerminiIniciatDto;
 import es.caib.helium.commons.dto.regles.CampFormProperties;
-import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientRegistreService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTerminiService;
-import es.caib.helium.logic.helper.ExpedientHelper;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -81,8 +79,6 @@ public class ExpedientController extends BaseExpedientController {
 	private ExpedientDocumentService expedientDocumentService;
 	@Autowired
 	private ExpedientDadaService expedientDadaService;
-	@Resource
-	private ExpedientHelper expedientHelper;
 	@Autowired
 	private AplicacioService aplicacioService;
 	@Autowired
@@ -207,7 +203,7 @@ public class ExpedientController extends BaseExpedientController {
 						if (dfDto.isSeleccionat()) {
 							String document = (dfDto.isAdjunt() ?  "l'adjunt \"" : "el document \"" ) + dfDto.getDocumentCodi() + "\"";
 							try {
-								expedientHelper.firmarDocumentServidorPerArxiuFiExpedient(dfDto.getDocumentStoreId());
+								expedientService.firmarDocumentServidorPerArxiuFiExpedient(dfDto.getDocumentStoreId());
 								MissatgesHelper.success(request, getMessage(request, "expedient.prefinalitzar.document.firmat", new Object[]{document} ));
 							} catch (Exception ex) {
 								String errMsg = ex.getMessage();
@@ -231,7 +227,7 @@ public class ExpedientController extends BaseExpedientController {
 				if ("finalitzar".equals(expedientFinalitzarDto.getAccio())
 						&& expedientDocumentService.validarFinalitzaExpedient(expedientId))
 				{
-					expedientHelper.finalitzar(expedientId, false);
+					expedientService.finalitzar(expedientId, false);
 					MissatgesHelper.success(request, getMessage(request, "expedient.prefinalitzar.finalitzat"));
 				} else {
 					MissatgesHelper.success(request, getMessage(request, "expedient.prefinalitzar.documents.firmats"));

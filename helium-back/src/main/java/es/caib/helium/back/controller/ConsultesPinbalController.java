@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -31,6 +30,7 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.back.helper.UsuariActualHelper;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.PaginaDto;
@@ -41,15 +41,13 @@ import es.caib.helium.commons.dto.PeticioPinbalEstatEnum;
 import es.caib.helium.commons.dto.PeticioPinbalFiltreDto;
 import es.caib.helium.commons.dto.ScspRespostaPinbal;
 import es.caib.helium.logic.intf.service.ConsultaPinbalService;
-import es.caib.helium.logic.helper.ConsultaPinbalHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
 
 @Controller
 @RequestMapping("/consultesPinbal")
 public class ConsultesPinbalController extends BaseExpedientController {
 
 	@Autowired private ConsultaPinbalService consultesPinbalService;
-	@Resource  private ConsultaPinbalHelper consultaPinbalHelper;
+
 	private static final String SESSION_ATTRIBUTE_FILTRE = "ConsultesPinbalController.session.filtre";
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -107,7 +105,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 	public ScspRespostaPinbal actualitzarEstat(
 			HttpServletRequest request,
 			@PathVariable Long peticioPinbalId) {
-		return consultaPinbalHelper.tractamentPeticioAsincronaPendentPinbal(peticioPinbalId);
+		return consultaPinbalService.tractamentPeticioAsincronaPendentPinbal(peticioPinbalId);
 	}
 
 	@RequestMapping(value = "/{peticioPinbalId}/info", method = RequestMethod.GET)

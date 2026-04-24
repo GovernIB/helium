@@ -4,7 +4,6 @@ import java.util.List;
 
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.ArxiuFirmaValidacioDetallDto;
-import es.caib.helium.commons.dto.AvisNivellEnumDto;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.DocumentTipusFirmaEnumDto;
 import es.caib.helium.commons.dto.ExpedientDocumentPinbalDto;
@@ -90,6 +89,11 @@ public interface DocumentService {
 	 */
 	public ArxiuFirmaValidacioDetallDto validateFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
 			byte[] firmaContingut) throws Exception;
+
+	/** Treu les signatures del contingut del PDF
+	 * 
+	 */
+	public byte[] removeSignaturesPdf(byte[] arxiuContingut);
 
 
 }
