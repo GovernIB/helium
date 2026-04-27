@@ -102,6 +102,7 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.TramitacioValidacioException;
 import es.caib.helium.commons.helper.ExceptionHelper;
+import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.helper.AlertaHelper;
 import es.caib.helium.logic.helper.ConsultaHelper;
@@ -2155,7 +2156,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				"processInstanceId" + processInstanceId + ", " +
 				"accioCamp=" + accioCamp + ")");
 
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		Expedient expedient;
+		if (expedientId != null) {
+			expedient = expedientHelper.findAmbEntornIId(EntornActual.getEntornId(), expedientId);
+		} else {
+			expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		}
 
 		mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accioCamp, "expedient", expedient.getTipus().getNom());
 		expedientLoggerHelper.afegirLogExpedientPerProces(
@@ -3455,15 +3461,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<String> findAmbDefinicioProcesId(
+	public long countAmbDefinicioProcesId(
 			Long definicioProcesId) {
-		logger.debug("Consultant instancies de procés amb process definition id(" +
+		logger.debug("Compta el número de instàncies de processos amb process definition id(" +
 			"definicioProcesId = " + definicioProcesId + ")");
+		long count = 0;
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
-		List<String> processInstancesIds = new ArrayList<String>();
-		for (WProcessInstance processInstance : jbpmHelper.findProcessInstancesWithProcessDefinitionId(definicioProces.getJbpmId()))
-			processInstancesIds.add(processInstance.getId().toString());
-		return processInstancesIds;
+		if (definicioProces != null) {
+			count = jbpmHelper.countProcessInstancesWithProcessDefinitionId(definicioProces.getJbpmId());
+		}
+		return count;
 	}
 
 	/**

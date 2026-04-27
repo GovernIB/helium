@@ -27,7 +27,6 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 /**
  * Objecte de domini que representa una definició de procés.
@@ -54,9 +53,10 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	private Set<Accio> accions = new HashSet<Accio>();
 
 	public DefinicioProces() {}
-	public DefinicioProces(String jbpmId, String jbpmKey, int versio, Entorn entorn) {
+	public DefinicioProces(String jbpmId, String jbpmKey, String etiqueta, int versio, Entorn entorn) {
 		this.jbpmId = jbpmId;
 		this.jbpmKey = jbpmKey;
+		this.etiqueta = etiqueta;
 		this.versio = versio;
 		this.entorn = entorn;
 	}

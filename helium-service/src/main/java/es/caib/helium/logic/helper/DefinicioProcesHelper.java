@@ -573,6 +573,7 @@ public class DefinicioProcesHelper {
 			definicio = new DefinicioProces(
 					dpd.getId(),
 					dpd.getKey(),
+					dpd.getName(),
 					dpd.getVersion(),
 					entorn);
 			definicio.setExpedientTipus(expedientTipus);

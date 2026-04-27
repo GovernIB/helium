@@ -204,12 +204,12 @@ public interface WorkflowEngineApi {
 	////////////////////////////////////////////////////////////////////////////////
 	
 	/**
-	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu codi
+	 * Compta el número de processos per una definició de procés.
 	 * 
 	 * @param processDefinitionId
 	 * @return
 	 */
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId);
+	public long countProcessInstancesWithProcessDefinitionId(String processDefinitionId);
 	
 //	/**
 //	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom

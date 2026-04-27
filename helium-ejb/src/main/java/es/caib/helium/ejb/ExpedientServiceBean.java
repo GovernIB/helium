@@ -657,8 +657,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<String> findAmbDefinicioProcesId(Long definicioProcesId) {
-		return delegate.findAmbDefinicioProcesId(definicioProcesId);
+	public long countAmbDefinicioProcesId(Long definicioProcesId) {
+		return delegate.countAmbDefinicioProcesId(definicioProcesId);
 	}
 
 	@Override

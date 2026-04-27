@@ -2,6 +2,7 @@ package es.caib.helium.logic.flowable;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -10,8 +11,10 @@ import java.util.Set;
 
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.bpmn.model.CallActivity;
 import org.flowable.bpmn.model.FlowElement;
 import org.flowable.bpmn.model.Process;
+import org.flowable.bpmn.model.SubProcess;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.common.engine.api.io.InputStreamProvider;
 import org.flowable.common.engine.impl.util.io.BytesStreamSource;
@@ -52,10 +55,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	                .createProcessDefinitionQuery()
 	                .deploymentId(deployment.getId())
 	                .singleResult();
-		WProcessDefinition ret = new WProcessDefinition();
-		ret.setId(pd.getId());
-		ret.setKey(pd.getKey());
-		ret.setVersion(pd.getVersion());
+		WProcessDefinition ret = toWProcessDefinition(pd);
 		return ret;
 	}
 
@@ -67,8 +67,12 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public void esborrarDesplegament(String deploymentId) {
-		// TODO Auto-generated method stub
-
+		ProcessDefinition wpd = processEngine
+									.getRepositoryService()
+									.getProcessDefinition(deploymentId);
+		processEngine
+			.getRepositoryService()
+			.deleteDeployment(wpd.getDeploymentId());
 	}
 
 	@Override
@@ -97,14 +101,62 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WProcessDefinition getProcessDefinition(String processDefinitionId) {
-		// TODO Auto-generated method stub
-		return null;
+		ProcessDefinition pd =
+				processEngine
+				.getRepositoryService()
+		            .createProcessDefinitionQuery()
+		            .processDefinitionId(processDefinitionId)
+		            .singleResult();
+		WProcessDefinition wpd = toWProcessDefinition(pd);
+		return wpd;
 	}
 
 	@Override
 	public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId) {
-		// TODO Auto-generated method stub
-		return null;
+		List<WProcessDefinition> subprocessos = new ArrayList<>();
+		BpmnModel model = processEngine
+							.getRepositoryService()
+								.getBpmnModel(processDefinitionId);
+		Process process = model.getMainProcess();
+		this.cercarSubprocessos(process.getFlowElements(), subprocessos);
+		return subprocessos;
+	}
+	
+	/** Funció recursiva per cercar subprocessos.
+	 */
+	private void cercarSubprocessos(Collection<FlowElement> elements, List<WProcessDefinition> subprocessos) {
+		
+		for (FlowElement element : elements) {
+		    if (element instanceof CallActivity) {
+		        CallActivity call = (CallActivity) element;
+		        ProcessDefinition pd = processEngine
+		        						.getRepositoryService()
+						        	        .createProcessDefinitionQuery()
+						        	        .processDefinitionKey(call.getCalledElement())
+						        	        .latestVersion()
+						        	        .singleResult();
+		        subprocessos.add(toWProcessDefinition(pd));
+		    } else if (element instanceof SubProcess) {
+		    	cercarSubprocessos(((SubProcess) element).getFlowElements(), subprocessos);
+            }
+		}
+	}
+
+	/** Converteix l'objecte ProcessDefintion a WProcessDefinition.
+	 * 
+	 * @param pd
+	 * @return
+	 */
+	private WProcessDefinition toWProcessDefinition(ProcessDefinition pd) {
+		WProcessDefinition wpd = null;
+		if (pd != null) {
+			wpd = new WProcessDefinition();
+			wpd.setId(pd.getId());
+			wpd.setKey(pd.getKey());
+			wpd.setName(pd.getName());
+			wpd.setVersion(pd.getVersion());
+		}
+		return wpd;
 	}
 
 	@Override
@@ -151,9 +203,13 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId) {
-		// TODO Auto-generated method stub
-		return null;
+	public long countProcessInstancesWithProcessDefinitionId(String processDefinitionId) {
+		long count =processEngine
+					.getRuntimeService()
+						.createProcessInstanceQuery()
+						.processDefinitionId(processDefinitionId)
+						.count();
+		return count;
 	}
 
 	@Override

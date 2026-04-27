@@ -46,7 +46,7 @@
 						<dt><spring:message code="definicio.proces.detall.camp.versio"/></dt>
 						<dd>${definicioProces.versio}</dd>
 						<c:if test="${not empty definicioProces.etiqueta}">
-							<dt><spring:message code="definicio.proces.detall.camp.versio"></spring:message></dt>
+							<dt><spring:message code="definicio.proces.detall.camp.etiqueta"></spring:message></dt>
 							<dd>${definicioProces.etiqueta}</dd>
 						</c:if>										
 						<c:if test="${not empty definicioProces.expedientTipus}">

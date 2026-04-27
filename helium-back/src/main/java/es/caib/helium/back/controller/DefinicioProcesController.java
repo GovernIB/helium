@@ -168,7 +168,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 
 		// Esborra la definició de procés
 		boolean success = false;
-		int processosCount = expedientService.findAmbDefinicioProcesId(definicioProces.getId()).size();
+		long processosCount = expedientService.countAmbDefinicioProcesId(definicioProces.getId());
 		if (processosCount == 0) 
 		{			
 			// Invoca al servei per despublicar la definició de procés

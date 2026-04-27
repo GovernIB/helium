@@ -9,7 +9,10 @@ import es.caib.helium.back.command.CampCommand;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
 import es.caib.helium.logic.intf.service.CampService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
 
 /**
  * Validador per al manteniment de variables del tipus d'expedient:
@@ -23,6 +26,8 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 	private String codiMissatge;
 	@Autowired
 	private CampService campService;
+	@Autowired
+	private ExpedientTipusService expedientTipusService;
 
 	@Override
 	public void initialize(Camp anotacio) {
@@ -32,13 +37,20 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 	@Override
 	public boolean isValid(CampCommand camp, ConstraintValidatorContext context) {
 		boolean valid = true;
+		boolean perEstats = false;
+		if (camp.getExpedientTipusId() != null) {
+			ExpedientTipusDto expedientTipusDto = 
+					expedientTipusService.findAmbId(camp.getExpedientTipusId());
+			perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipusDto.getTipus());
+		}
+		
 		// Comprova si ja hi ha una variable del tipus d'expedient amb el mateix codi
 		if (camp.getCodi() != null) {
 			CampDto repetit = campService.findAmbCodi(
 						camp.getExpedientTipusId(),
 						camp.getDefinicioProcesId(),
 						camp.getCodi(), 
-						false  );				
+						false  );
 			if(repetit != null && (camp.getId() == null || !camp.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))
@@ -49,12 +61,14 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 		}
 		if (camp.getTipus() != null) {
 				if (camp.getTipus().equals(CampTipusEnum.ACCIO)) {
-					if (camp.getDefinicioProcesId() == null &&  (camp.getDefprocJbpmKey() == null || "".equals(camp.getDefprocJbpmKey().trim()))) {
-						context.buildConstraintViolationWithTemplate(
-								MessageHelper.getInstance().getMessage("NotEmpty", null))
-								.addNode("defprocJbpmKey")
-								.addConstraintViolation();	
-						valid = false;								
+					if (! perEstats) {
+						if (camp.getDefinicioProcesId() == null &&  (camp.getDefprocJbpmKey() == null || "".equals(camp.getDefprocJbpmKey().trim()))) {
+							context.buildConstraintViolationWithTemplate(
+									MessageHelper.getInstance().getMessage("NotEmpty", null))
+									.addNode("defprocJbpmKey")
+									.addConstraintViolation();	
+							valid = false;								
+						}
 					}
 					if(camp.getJbpmAction() == null || "".equals(camp.getJbpmAction().trim())) {
 						context.buildConstraintViolationWithTemplate(

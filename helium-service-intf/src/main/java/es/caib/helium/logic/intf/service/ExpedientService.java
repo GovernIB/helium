@@ -1004,7 +1004,7 @@ public interface ExpedientService {
 	 * @param definicioProcesId
 	 * @return
 	 */
-	public List<String> findAmbDefinicioProcesId(Long definicioProcesId);
+	public long countAmbDefinicioProcesId(Long definicioProcesId);
 
 	public void notificacioReprocessar(Long notificacioId) throws NoTrobatException;
 

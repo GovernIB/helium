@@ -1040,10 +1040,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 			String varCodi,
 			String accioCamp) {
 		try {
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+			//InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 			expedientService.executarCampAccio(
 					expedientId,
-					instanciaProces.getId(),
+					procesId,
 					accioCamp);
 			MissatgesHelper.success(request, getMessage(request, "info.accio.executat"));
 		} catch (PermisDenegatException ex) {
