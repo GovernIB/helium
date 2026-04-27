@@ -2422,14 +2422,14 @@ public class ExpedientHelper {
 			String recurs = this.handlerToResource(classe);
 			DefinicioProces dp = findDefinicioProcesByProcessInstanceId(processInstanceId);
 			byte[] handlerContingut = workflowEngineApi.getResourceBytes(
-					dp.getJbpmId(),
-					recurs);
+				dp.getJbpmId(),
+				recurs);
 			ClassPool cp = ClassPool.getDefault();
 			CtClass ctClass = cp.makeClass(new ByteArrayInputStream(handlerContingut));
 			handlerClass = ctClass.getName();
 			ctClass.detach();
 		} catch(Exception e) {
-			throw new RuntimeException("No s'ha pogut recuperar el recurs del handler " + classe + ": " + e.getMessage());
+			throw new RuntimeException("No s'ha pogut recuperar el recurs del handler " + classe, e);
 		}
 		return handlerClass;
 	}
@@ -2478,7 +2478,7 @@ public class ExpedientHelper {
 	public Long countByEntornIdAndTipus(Long expedientTipusId) {
 		return expedientRepository.countExpedientByTipusExpedient(expedientTipusId);
 	}
-	
+
 	/** Compta els expedients que existeixen per un expedientTipusId
 	 * Id
 	 * @param expedientTipusId

@@ -101,7 +101,7 @@ public class RecursHelperTest {
 
 	@Test
 	public void shouldLoadRealJarSuccessfully() throws IOException {
-		String handlerClass = "com.sample.action.SimpleHandler";
+		String handlerClass = "com.sample.handler.ProvaHandler";
 		String handlerResource = handlerClass.replace(".", "/") + ".class";
 		when(expedientTipusRepository.findById(any())).
 			thenReturn(Optional.of(new ExpedientTipus()));
@@ -205,7 +205,7 @@ public class RecursHelperTest {
 
 	@Test
 	void shouldGetHandlerParameters() throws Exception {
-		String className = "com.sample.action.SimpleHandler";
+		String className = "com.sample.handler.ProvaHandler";
 		String resourceName = className.replace('.', '/') + ".class";
 		byte[] bytes = getResourceBytesFromJarFile(resourceName);
 		when(recursRepository.findContingutByExpedientTipusIdAndDefinicioProcesIdAndNameAndClasse(
@@ -216,9 +216,8 @@ public class RecursHelperTest {
 			thenReturn(Optional.of(bytes));
 		List<RecursHelper.HandlerParameter> params = recursHelper.getHandlerParameters(
 			expedientTipusId, definicioProcesId, className);
-		assertEquals(2, params.size());
-		assertEquals("codiVariable", params.get(0).getName());
-		assertEquals("valorText", params.get(1).getName());
+		assertEquals(1, params.size());
+		assertEquals("variable1", params.get(0).getName());
 	}
 
 	private byte[] createFakeJar(String... entries) throws IOException {

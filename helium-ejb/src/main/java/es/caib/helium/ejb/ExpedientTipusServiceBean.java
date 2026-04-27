@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -9,28 +9,12 @@ import java.util.Map;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
+import es.caib.helium.commons.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.ConsultaCampDto;
 import es.caib.helium.commons.dto.ConsultaCampDto.TipusConsultaCamp;
-import es.caib.helium.commons.dto.ConsultaDto;
-import es.caib.helium.commons.dto.DefinicioProcesDto;
-import es.caib.helium.commons.dto.DominiDto;
-import es.caib.helium.commons.dto.EntornDto;
-import es.caib.helium.commons.dto.EnumeracioDto;
-import es.caib.helium.commons.dto.EstatDto;
 import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
-import es.caib.helium.commons.dto.ExpedientTipusDto;
-import es.caib.helium.commons.dto.ExpedientTipusEstadisticaDto;
-import es.caib.helium.commons.dto.ExpedientTipusFiltreDto;
-import es.caib.helium.commons.dto.MapeigSistraDto;
 import es.caib.helium.commons.dto.MapeigSistraDto.TipusMapeig;
-import es.caib.helium.commons.dto.PaginaDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.dto.PermisDto;
-import es.caib.helium.commons.dto.PersonaDto;
-import es.caib.helium.commons.dto.ReassignacioDto;
 import es.caib.helium.commons.dto.regles.EstatAccioDto;
 import es.caib.helium.commons.dto.regles.EstatReglaDto;
 import es.caib.helium.commons.exception.ExportException;
@@ -44,7 +28,7 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
 
 /**
  * Servei per a gestionar els tipus d'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
@@ -59,7 +43,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public ExpedientTipusDto create(
 			Long entornId,
 			ExpedientTipusDto expedientTipus,
-			List<Integer> sequenciesAny, 
+			List<Integer> sequenciesAny,
 			List<Long> sequenciesValor) {
 		return delegate.create(
 				entornId,
@@ -73,8 +57,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public ExpedientTipusDto update(
 			Long entornId,
 			ExpedientTipusDto expedientTipus,
-			List<Integer> sequenciesAny, 
-			List<Long> sequenciesValor, 
+			List<Integer> sequenciesAny,
+			List<Long> sequenciesValor,
 			boolean actualitzarContingutManual) {
 		return delegate.update(
 				entornId,
@@ -87,20 +71,20 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto updateIntegracioForms(
-			Long entornId, 
-			Long expedientTipusId, 
-			String url, 
+			Long entornId,
+			Long expedientTipusId,
+			String url,
 			String usuari,
 			String contrasenya) {
 		return delegate.updateIntegracioForms(
-				entornId, 
-				expedientTipusId, 
-				url, 
-				usuari, 
+				entornId,
+				expedientTipusId,
+				url,
+				usuari,
 				contrasenya);
 	}
 
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(
@@ -108,11 +92,11 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long expedientTipusId) {
 		delegate.delete(entornId, expedientTipusId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusExportacio exportar(
-			Long entornId, 
+			Long entornId,
 			Long expedientTipusId,
 			ExpedientTipusExportacioCommandDto command) {
 		return delegate.exportar(entornId, expedientTipusId, command);
@@ -121,13 +105,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto importar(
-			Long entornId, 
-			Long expedientTipusId, 
+			Long entornId,
+			Long expedientTipusId,
 			ExpedientTipusExportacioCommandDto command,
 			ExpedientTipusExportacio importacio) {
 		return delegate.importar(entornId, expedientTipusId, command, importacio);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public int refrescaProcessExpedients(
@@ -136,7 +120,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			ExpedientTipusExportacio importacio) {
 		return delegate.refrescaProcessExpedients(entornId, command, importacio);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
@@ -166,14 +150,14 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long entornId) throws NoTrobatException {
 		return findAmbEntornPermisDissenyar(entornId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisAnotacio(
 			Long entornId) throws NoTrobatException {
 		return findAmbEntornPermisAnotacio(entornId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisExecucioScript(
@@ -190,7 +174,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				entornId,
 				expedientTipusId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findAmbIdPermisDissenyarDelegat(
@@ -211,25 +195,25 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntorn(
-			Long entornId, 
+			Long entornId,
 			boolean comprovarPermisos) throws NoTrobatException {
 		return delegate.findAmbEntorn(entornId, comprovarPermisos);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findAmbCodiPerValidarRepeticio(
-			Long entornId, 
+			Long entornId,
 			String codi) {
 		return delegate.findAmbCodiPerValidarRepeticio(
 				entornId,
 				codi);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findAmbCodi(
-			Long entornId, 
+			Long entornId,
 			String codi) {
 		return delegate.findAmbCodiPerValidarRepeticio(
 				entornId,
@@ -239,7 +223,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<ExpedientTipusDto> findPerDatatable(
-			Long entornId, 
+			Long entornId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findPerDatatable(
@@ -268,10 +252,10 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long unitatOrganitzativaId,
 			PermisDto permis,
 			boolean entornAdmin) throws NoTrobatException, PermisDenegatException {
-		delegate.permisUpdate(entornId, 
-				expedientTipusId, 
-				unitatOrganitzativaId, 
-				permis, 
+		delegate.permisUpdate(entornId,
+				expedientTipusId,
+				unitatOrganitzativaId,
+				permis,
 				entornAdmin);
 	}
 
@@ -326,13 +310,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public List<ConsultaDto> consultaFindAll(Long expedientTipusId) {
 		return delegate.consultaFindAll(expedientTipusId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void definicioProcesDelete(Long id) throws NoTrobatException, PermisDenegatException {
-		delegate.definicioProcesDelete(id);		
+		delegate.definicioProcesDelete(id);
 	}
-		
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DefinicioProcesDto> definicioFindAll(Long expedientTipusId)
@@ -344,8 +328,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean definicioProcesSetInicial(Long expedientTipusId, Long id) {
 		return delegate.definicioProcesSetInicial(expedientTipusId, id);
-	}	
-	
+	}
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<String> definicioProcesFindJbjmKey(Long entornId, Long expedientTipusId, boolean herencia, boolean incloureGlobals) {
@@ -357,19 +341,19 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public void definicioProcesIncorporar(Long expedientTipusId, Long id, boolean sobreescriure, boolean tasques) throws ExportException {
 		delegate.definicioProcesIncorporar(expedientTipusId, id, sobreescriure, tasques);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EstatDto estatSortidaAfegir(Long estatId, Long sortidaId) {
 		return delegate.estatSortidaAfegir(estatId, sortidaId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void estatSortidaDelete(Long estatId, Long sortidaId) {
 		delegate.estatSortidaDelete(estatId, sortidaId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<EstatDto> estatSortidaFindAll(Long estatId) {
@@ -388,7 +372,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			throws NoTrobatException, PermisDenegatException {
 		return delegate.estatFindAll(expedientTipusId, ambHerencia);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EstatDto estatFindAmbId(Long expedientTipusId, Long estatId) {
@@ -400,7 +384,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public EstatDto estatFindAmbCodi(Long expedientTipusId, String codi) {
 		return delegate.estatFindAmbCodi(expedientTipusId, codi);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EstatDto estatCreate(Long expedientTipusId, EstatDto estat) {
@@ -424,7 +408,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void estatDelete(Long estatId) throws NoTrobatException, PermisDenegatException {
 		delegate.estatDelete(estatId);
-		
+
 	}
 
 	@Override
@@ -463,7 +447,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.estatGetRetrocedir(expedientId);
 	}
 
-	
+
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<PermisDto> estatPermisFindAll(Long estatId) {
@@ -558,9 +542,9 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void estatAccionsDeleteAll(Long estatId) throws NoTrobatException, PermisDenegatException {
 		delegate.estatAccionsDeleteAll(estatId);
-	}	
+	}
 
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EstatAccioDto estatAccioEntradaAfegir(Long estatId, Long accioId)
@@ -585,7 +569,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
 		return delegate.estatAccioSortidaFindPerDatatable(estatId, filtre, paginacioParams);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EstatAccioDto estatAccioSortidaAfegir(Long estatId, Long accioId)
@@ -605,7 +589,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.estatAccioSortidaMoure(estatAccioId, posicio);
 	}
 
-	
+
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ReassignacioDto reassignacioCreate(Long expedientTipusId, ReassignacioDto reassignacio) throws PermisDenegatException {
@@ -621,7 +605,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void reassignacioDelete(Long reassignacioReassignacioId) throws NoTrobatException, PermisDenegatException {
-		delegate.reassignacioDelete(reassignacioReassignacioId);		
+		delegate.reassignacioDelete(reassignacioReassignacioId);
 	}
 
 	@Override
@@ -633,13 +617,24 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<ReassignacioDto> reassignacioFindPerDatatable(
-			Long expedientTipusId,			
+			Long expedientTipusId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
 		return delegate.reassignacioFindPerDatatable(
 				expedientTipusId,
-				filtre, 
+				filtre,
 				paginacioParams);
+	}
+
+	@Override
+	public PaginaDto<RecursDto> recursFindPerDatatable(
+		Long expedientTipusId,
+		String filtre,
+		PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.recursFindPerDatatable(
+			expedientTipusId,
+			filtre,
+			paginacioParams);
 	}
 
 	@Override
@@ -679,7 +674,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			String jbpmKey, int versio) {
 		return delegate.consultaFindRelacionadesAmbDefinicioProces(entornId, expedientTipusId, jbpmKey, versio);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ConsultaDto consultaFindAmbCodiPerValidarRepeticio(Long tipusExpedientId, String codi)
@@ -718,7 +713,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public boolean consultaCampMourePosicio(Long id, int posicio) {
 		return delegate.consultaCampMourePosicio(id, posicio);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ConsultaCampDto> consultaCampFindCampAmbConsultaIdAndTipus(Long consultaId, TipusConsultaCamp tipus) {
@@ -808,30 +803,30 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long entornId,
 			Long expedientTipusId,
 			String tramitCodi,
-			boolean notificacionsActivades, 
-			String notificacioOrganCodi, 
+			boolean notificacionsActivades,
+			String notificacioOrganCodi,
 			String notificacioOficinaCodi,
-			String notificacioUnitatAdministrativa, 
-			String notificacioCodiProcediment, 
+			String notificacioUnitatAdministrativa,
+			String notificacioCodiProcediment,
 			String notificacioAvisTitol,
 			String notificacioAvisText,
-			String notificacioAvisTextSms, 
+			String notificacioAvisTextSms,
 			String notificacioOficiTitol,
 			String notificacioOficiText) {
 		return delegate.updateIntegracioTramits(
 				sistraActiu,
-				entornId, 
-				expedientTipusId, 
-				tramitCodi, 
-				notificacionsActivades, 
-				notificacioOrganCodi, 
-				notificacioOficinaCodi, 
-				notificacioUnitatAdministrativa, 
-				notificacioCodiProcediment, 
-				notificacioAvisTitol, 
-				notificacioAvisText, 
-				notificacioAvisTextSms, 
-				notificacioOficiTitol, 
+				entornId,
+				expedientTipusId,
+				tramitCodi,
+				notificacionsActivades,
+				notificacioOrganCodi,
+				notificacioOficinaCodi,
+				notificacioUnitatAdministrativa,
+				notificacioCodiProcediment,
+				notificacioAvisTitol,
+				notificacioAvisText,
+				notificacioAvisTextSms,
+				notificacioOficiTitol,
 				notificacioOficiText);
 	}
 
@@ -862,7 +857,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				arxiuActiu,
 				procedimentComu);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto updateIntegracioPinbal(
@@ -876,28 +871,28 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				pinbalActiu,
 				pinbalNifCif);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto updateIntegracioNotib(
-			Long expedientTipusId, 
-			String notibEmisor, 
+			Long expedientTipusId,
+			String notibEmisor,
 			String notibCodiProcediment,
 			boolean notibActiu) {
 
 		return delegate.updateIntegracioNotib(
-				expedientTipusId, 
-				notibEmisor, 
-				notibCodiProcediment, 
+				expedientTipusId,
+				notibEmisor,
+				notibCodiProcediment,
 				notibActiu);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto updateIntegracioDistribucio(
-			Long entornId, 
-			Long expedientTipusId, 
-			boolean actiu, 
+			Long entornId,
+			Long expedientTipusId,
+			boolean actiu,
 			String codiProcediment,
 			String codiAssumpte,
 			boolean procesAuto,
@@ -906,7 +901,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			boolean enviarCorreuAnotacions) {
 		return delegate.updateIntegracioDistribucio(entornId, expedientTipusId, actiu, codiProcediment, codiAssumpte, procesAuto, sistra, presencial, enviarCorreuAnotacions);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -928,25 +923,25 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
-			Integer anyInicial, 
+			Integer anyInicial,
 			Integer anyFinal,
-			Long entornId, 
-			Long expedientTipusId, 
-			Boolean anulats, 
-			String numero, 
-			String titol, 
+			Long entornId,
+			Long expedientTipusId,
+			Boolean anulats,
+			String numero,
+			String titol,
 			EstatTipusDto estatTipus,
 			Long estatId,
 			Boolean aturat,
 			Boolean comprovarPermisos) {
 		return delegate.findEstadisticaByFiltre(
-				anyInicial, 
-				anyFinal, 
-				entornId, 
+				anyInicial,
+				anyFinal,
+				entornId,
 				expedientTipusId,
-				anulats, 
-				numero, 
-				titol, 
+				anulats,
+				numero,
+				titol,
 				estatTipus,
 				estatId,
 				aturat,
@@ -955,19 +950,19 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	public PaginaDto<ExpedientTipusDto> findTipologiesByFiltrePaginat(
-			Long entornId, 
+			Long entornId,
 			ExpedientTipusFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findTipologiesByFiltrePaginat(entornId, filtreDto, paginacioParams);
-		
+
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto getManualAjuda(Long expedientTipusId) {
 		return delegate.getManualAjuda(expedientTipusId);
 	}
-	
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -1009,5 +1004,5 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			String organ,
 			String clasificacio) throws SistemaExternException {
 		return delegate.arxiuCheckSerieDocumental(serieDocumental, organ, clasificacio);
-	}	
+	}
 }

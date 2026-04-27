@@ -1,5 +1,6 @@
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.bpmn.handler.HeliumActionHandler;
 import es.caib.helium.logic.classloader.RecursListClassLoader;
 import es.caib.helium.logic.classloader.RecursRepositoryClassLoader;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -10,7 +11,6 @@ import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.RecursRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;

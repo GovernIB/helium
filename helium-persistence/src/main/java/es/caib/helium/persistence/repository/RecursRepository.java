@@ -1,8 +1,11 @@
 package es.caib.helium.persistence.repository;
 
 import es.caib.helium.persistence.entity.Recurs;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,5 +32,17 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 		Boolean isClass);
 
 	List<Recurs> findByExpedientTipusIdAndHandler(Long expedientTipusId, boolean handler);
+
+	@Query(
+		"FROM Recurs r " +
+		"WHERE " +
+		"    r.expedientTipus.id = :expedientTipusId " +
+		"AND r.definicioProces IS NULL " +
+		"AND (:esNullFiltre = true OR LOWER(r.nom) LIKE LOWER('%'||:filtre||'%')) ")
+	Page<Recurs> findByFiltrePaginat(
+		@Param("expedientTipusId") Long expedientTipusId,
+		@Param("esNullFiltre") boolean esNullFiltre,
+		@Param("filtre") String filtre,
+		Pageable pageable);
 
 }

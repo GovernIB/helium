@@ -36,6 +36,11 @@
 			<artifactId>helium-plugin-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-bpmn</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<!-- Flowable -->
 		<dependency>

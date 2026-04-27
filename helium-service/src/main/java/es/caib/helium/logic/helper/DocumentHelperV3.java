@@ -22,6 +22,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.dto.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -44,24 +45,6 @@ import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
 
 import es.caib.distribucio.core.api.service.ws.backoffice.NtiEstadoElaboracion;
-import es.caib.helium.commons.dto.AnotacioAnnexEstatEnumDto;
-import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.ArxiuFirmaDto;
-import es.caib.helium.commons.dto.ArxiuFirmaPerfilEnumDto;
-import es.caib.helium.commons.dto.ArxiuFirmaValidacioDetallDto;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.DocumentStoreDto;
-import es.caib.helium.commons.dto.ExpedientDocumentDto;
-import es.caib.helium.commons.dto.InstanciaProcesDto;
-import es.caib.helium.commons.dto.NtiDocumentoFormato;
-import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
-import es.caib.helium.commons.dto.NtiOrigenEnumDto;
-import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
-import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
-import es.caib.helium.commons.dto.PortafirmesEstatEnum;
-import es.caib.helium.commons.dto.PortasignaturesDto;
-import es.caib.helium.commons.dto.RespostaValidacioSignaturaDto;
-import es.caib.helium.commons.dto.TascaDocumentDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternConversioDocumentException;
 import es.caib.helium.commons.exception.SistemaExternException;
@@ -496,7 +479,7 @@ public class DocumentHelperV3 {
 	public List<Document> findDocumentsExpedient(Expedient expedient, String processInstanceId) {
 
 		DefinicioProces definicioProces = null;
-		if (processInstanceId!=null) {
+		if (ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus()) && processInstanceId!=null) {
 			definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
 		}
 

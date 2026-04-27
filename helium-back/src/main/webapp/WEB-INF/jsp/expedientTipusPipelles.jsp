@@ -8,14 +8,14 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
-<c:set var="potDissenyarExpedientTipusAdmin" value="${potAdministrarEntorn 
+<c:set var="potDissenyarExpedientTipusAdmin" value="${potAdministrarEntorn
 														or potDissenyarEntorn
-														or expedientTipus.permisAdministration 
+														or expedientTipus.permisAdministration
 														or expedientTipus.permisDesignAdmin}"/>
-<c:set var="potDissenyarExpedientTipusDelegat" value="${potAdministrarEntorn 
-														or potDissenyarEntorn 
-														or expedientTipus.permisAdministration 
-														or expedientTipus.permisDesignAdmin 
+<c:set var="potDissenyarExpedientTipusDelegat" value="${potAdministrarEntorn
+														or potDissenyarEntorn
+														or expedientTipus.permisAdministration
+														or expedientTipus.permisDesignAdmin
 														or expedientTipus.permisDesignDeleg}"/>
 
 <html>
@@ -100,7 +100,7 @@
 	var hidWidth;
 	var scrollBarWidths = 40;
 
-	$(document).ready(function() {		
+	$(document).ready(function() {
 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 			var targetHref = $(e.target).attr('href');
 			var loaded = $(targetHref).data('loaded')
@@ -112,7 +112,7 @@
 			<c:when test="${not empty pipellaActiva}">$('#expedientTipus-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
 			<c:otherwise>$('#expedientTipus-pipelles li:first a').click();</c:otherwise>
 		</c:choose>
-		
+
 		$(window).on('resize', function(e) {
 			reAdjust();
 		});
@@ -140,15 +140,15 @@
 
 			});
 		});
-		
+
 		reAdjust();
 	});
-	
+
 	function carregaTab(targetHref) {
 		//mostrem cada cop l'icona de càrrega
-		$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>'); 
+		$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>');
 		///////////////
-		
+
 		$(targetHref).load(
 			$(targetHref).data('href'),
 			function (responseText, textStatus, jqXHR) {
@@ -159,8 +159,8 @@
 				}
 			}
 		);
-	}	
-	
+	}
+
 	var widthOfList = function() {
 		var itemsWidth = 0;
 		$('.pipelles li').each(function() {
@@ -178,7 +178,7 @@
 	var getLeftPosi = function() {
 		if ($('.pipelles').size() > 0)
 			return $('.pipelles').position().left;
-		else 
+		else
 			return 0;
 	};
 
@@ -199,7 +199,7 @@
 		}
 	}
 </script>
-	
+
 </head>
 <body>
 	<div class="row">
@@ -223,7 +223,7 @@
 					</c:if>
 					<c:if test="${potDissenyarExpedientTipusAdmin}">
 						<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.terminis"/></a></li>
-						<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.accions"/></a></li>						
+						<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.accions"/></a></li>
 						<li id="pipella-estats"><a href="#contingut-estats" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.estats"/></a></li>
 					</c:if>
 					<c:if test="${potDissenyarExpedientTipusDelegat}">
@@ -240,7 +240,8 @@
 						<li id="pipella-integracio-forms"><a href="#contingut-integracio-forms" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.forms"/></a></li>
 						<li id="pipella-integracio-notib"><a href="#contingut-integracio-notib" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.notib"/></a></li>
 						<li id="pipella-integracio-pinbal"><a href="#contingut-integracio-pinbal" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.pinbal"/></a></li>
-						<li id="pipella-redireccions"><a href="#contingut-redireccions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.redireccions"/></a></li>						
+						<li id="pipella-redireccions"><a href="#contingut-redireccions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.redireccions"/></a></li>
+						<li id="pipella-recursos"><a href="#contingut-recursos" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.recursos"/></a></li>
 					</c:if>
 				</ul>
 			</div>
@@ -299,6 +300,9 @@
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-redireccions" class="tab-pane" data-href="<c:url value="/nodeco/expedientTipus/${expedientTipus.id}/redireccions"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>
+				<div id="contingut-recursos" class="tab-pane" data-href="<c:url value="/nodeco/expedientTipus/${expedientTipus.id}/recursos"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 			</div>

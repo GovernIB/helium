@@ -1,7 +1,7 @@
 /**
  *
  */
-package net.conselldemallorca.helium.jbpm3.handlers.exception;
+package es.caib.helium.bpmn.exception;
 
 /**
  * Excepció per a validacions amb classes delegades
