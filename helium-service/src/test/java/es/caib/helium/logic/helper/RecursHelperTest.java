@@ -1,5 +1,7 @@
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.bpmn.handler.HeliumActionHandler;
+import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.Recurs;
@@ -19,7 +21,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -218,6 +223,39 @@ public class RecursHelperTest {
 			expedientTipusId, definicioProcesId, className);
 		assertEquals(1, params.size());
 		assertEquals("variable1", params.get(0).getName());
+	}
+
+	// --------------------------------------------------
+	// createHandlerInstance
+	// --------------------------------------------------
+
+	@Test
+	void shouldCreateHandlerInstanceAndSetValues() throws Exception {
+		String className = "com.sample.handler.ProvaHandler";
+		String resourceName = className.replace('.', '/') + ".class";
+		byte[] bytes = getResourceBytesFromJarFile(resourceName);
+		when(recursRepository.findContingutByExpedientTipusIdAndDefinicioProcesIdAndNameAndClasse(
+			expedientTipusId,
+			definicioProcesId,
+			resourceName,
+			true)).
+			thenReturn(Optional.of(bytes));
+		ExpedientTipus tipus = new ExpedientTipus();
+		tipus.setId(expedientTipusId);
+		Expedient expedient = new Expedient();
+		expedient.setTipus(tipus);
+		Map<String, String> values = new HashMap<>();
+		values.put("variable1", "valor-prova");
+		HeliumActionHandler handler = recursHelper.createHandlerInstance(
+			expedient,
+			definicioProcesId,
+			className,
+			values);
+		assertNotNull(handler);
+		assertEquals(className, handler.getClass().getName());
+		Field variable1Field = handler.getClass().getDeclaredField("variable1");
+		variable1Field.setAccessible(true);
+		assertEquals("valor-prova", variable1Field.get(handler));
 	}
 
 	private byte[] createFakeJar(String... entries) throws IOException {

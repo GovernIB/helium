@@ -1,5 +1,7 @@
 package es.caib.helium.bpmn.api;
 
-public abstract class HeliumApi {
+public interface HeliumApi {
+
+	void expedientComentariModificar(String comentari);
 
 }

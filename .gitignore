@@ -16,6 +16,7 @@
 /docker-compose.yml
 /application.properties
 /helium-back/application.properties
+.codex
 .env.development
 .classpath
 .project

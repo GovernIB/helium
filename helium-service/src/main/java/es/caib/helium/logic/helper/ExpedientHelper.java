@@ -14,6 +14,9 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.bpmn.handler.HeliumActionHandler;
+import es.caib.helium.logic.bpmn.HeliumActionHandlerPredefinitFactory;
+import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -181,7 +184,10 @@ public class ExpedientHelper {
 	private AlertaHelper alertaHelper;
 	@Resource
 	private RecursHelper recursHelper;
-
+	@Autowired
+	private HeliumApiFactory heliumApiFactory;
+	@Autowired
+	private HeliumActionHandlerPredefinitFactory heliumActionHandlerPredefinitFactory;
 
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
 
@@ -2410,23 +2416,30 @@ public class ExpedientHelper {
 		} else {
 			if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
 				try {
-					recursHelper.execActionHandler(
-						expedient.getTipus().getId(),
+					HeliumActionHandler handler = recursHelper.createHandlerInstance(
+						expedient,
 						null,
 						accio.getHandlerClasse(),
 						dades);
-				} catch (ClassNotFoundException ex) {
-					throw new RuntimeException(
-						"No s'ha trobat la classe " + accio.getJbpmAction() + " per l'acció (" +
-							"codi=" + accio.getCodi() + ", " +
-							"nom=" + accio.getNom() + ")", ex);
+					handler.execute(heliumApiFactory.createInstance(expedient.getId()));
 				} catch (ReflectiveOperationException ex) {
 					throw new RuntimeException(
-						"No s'ha pogut crear la instància de la classe " + accio.getJbpmAction() + " per l'acció (" +
+						"No s'ha pogut crear la instància del handler propi " + accio.getHandlerClasse() + " per l'acció (" +
 							"codi=" + accio.getCodi() + ", " +
 							"nom=" + accio.getNom() + ")", ex);
 				}
-			//} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
+			} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
+				try {
+					HeliumActionHandler handler = heliumActionHandlerPredefinitFactory.createInstance(
+						accio.getHandlerClasse(),
+						dades);
+					handler.execute(heliumApiFactory.createInstance(expedient.getId()));
+				} catch (ReflectiveOperationException ex) {
+					throw new RuntimeException(
+						"No s'ha pogut crear la instància del handler predefinit " + accio.getHandlerClasse() + " per l'acció (" +
+							"codi=" + accio.getCodi() + ", " +
+							"nom=" + accio.getNom() + ")", ex);
+				}
 			} else {
 				throw new RuntimeException("Les accions de tipus " + accio.getTipus() + " no estan suportades en els " +
 					"expedients amb tramitació per estats");
