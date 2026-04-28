@@ -101,7 +101,6 @@ import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRe
 import es.caib.helium.persistence.repository.RegistreRepository;
 import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-//import es.caib.helium.service.helpers.LuceneHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
@@ -110,7 +109,6 @@ import es.caib.plugins.arxiu.api.ExpedientEstat;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import javassist.ClassPool;
 import javassist.CtClass;
-//import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 
 /**
  * Helper per a gestionar els expedients.
@@ -182,7 +180,7 @@ public class ExpedientHelper {
 	@Resource
 	private AlertaHelper alertaHelper;
 	@Resource
-	private AnotacioHelper anotacioHelper;
+	private RecursHelper recursHelper;
 
 
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
@@ -2376,48 +2374,80 @@ public class ExpedientHelper {
 		Map<String, String> dades = new HashMap<String, String>();
 		if ((AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) || AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
 			try {
-				dades = (Map<String, String>) new ObjectMapper()
-						.readValue(
-								accio.getHandlerDades(),
-								new TypeReference<Map<String, String>>(){});
-			} catch(Exception e) {
-				throw new RuntimeException("Error obtenint les dades predefinides pel handler " + accio.getHandlerClasse() + ": " + e.getMessage());
+				dades = new ObjectMapper().readValue(
+					accio.getHandlerDades(),
+					new TypeReference<>(){});
+			} catch(Exception ex) {
+				throw new RuntimeException(
+					"Error obtenint les dades predefinides pel handler " + accio.getHandlerClasse(),
+					ex);
 			}
 		}
-		if (AccioTipusEnumDto.ACCIO.equals(accio.getTipus())) {
-			workflowEngineApi.executeActionInstanciaProces(
+		if (ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
+			if (AccioTipusEnumDto.ACCIO.equals(accio.getTipus())) {
+				workflowEngineApi.executeActionInstanciaProces(
 					processInstanceId,
 					accio.getJbpmAction(),
 					herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
-		} else if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
-			workflowEngineApi.executeHandler(
+			} else if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
+				workflowEngineApi.executeHandler(
 					processInstanceId,
 					this.getHandlerClassPerRecurs(
-							processInstanceId,
-							accio.getHandlerClasse()),
+						processInstanceId,
+						accio.getHandlerClasse()),
 					dades);
-		} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
-			workflowEngineApi.executeHandlerPredefinit(
+			} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
+				workflowEngineApi.executeHandlerPredefinit(
 					processInstanceId,
 					accio.getHandlerClasse(),
 					dades);
-		} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
-			workflowEngineApi.evaluateScript(
+			} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
+				workflowEngineApi.evaluateScript(
 					processInstanceId,
 					accio.getScript(),
-					new HashSet<String>());
+					new HashSet<>());
+			}
+		} else {
+			if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
+				try {
+					recursHelper.execActionHandler(
+						expedient.getTipus().getId(),
+						null,
+						accio.getHandlerClasse(),
+						dades);
+				} catch (ClassNotFoundException ex) {
+					throw new RuntimeException(
+						"No s'ha trobat la classe " + accio.getJbpmAction() + " per l'acció (" +
+							"codi=" + accio.getCodi() + ", " +
+							"nom=" + accio.getNom() + ")", ex);
+				} catch (ReflectiveOperationException ex) {
+					throw new RuntimeException(
+						"No s'ha pogut crear la instància de la classe " + accio.getJbpmAction() + " per l'acció (" +
+							"codi=" + accio.getCodi() + ", " +
+							"nom=" + accio.getNom() + ")", ex);
+				}
+			//} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
+			} else {
+				throw new RuntimeException("Les accions de tipus " + accio.getTipus() + " no estan suportades en els " +
+					"expedients amb tramitació per estats");
+			}
 		}
 	}
 
-	/** Cerca el nom de la classe continguda en el recurs desplegat en el context de la definició
+	/**
+	 * Cerca la classe del handler en els recursos del tipus d'expedient. Si no troba la classe en el tipus d'expeident
+	 * la cerca en els recursos de la definició de procés.
 	 *
-	 * @param recurs
+	 * @param processInstanceId
+	 *            l'id de la instància de procés.
+	 * @param classe
+	 *            el nom de la classe.
 	 * @return Nom de la classe
 	 */
 	private String getHandlerClassPerRecurs(
 			String processInstanceId,
 			String classe) {
-		String handlerClass = null;
+		String handlerClass;
 		try {
 			String recurs = this.handlerToResource(classe);
 			DefinicioProces dp = findDefinicioProcesByProcessInstanceId(processInstanceId);

@@ -1,5 +1,6 @@
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.handler.HeliumActionHandler;
 import es.caib.helium.logic.classloader.RecursListClassLoader;
 import es.caib.helium.logic.classloader.RecursRepositoryClassLoader;
@@ -11,6 +12,9 @@ import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.RecursRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
@@ -22,10 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -206,6 +207,36 @@ public class RecursHelper {
 			}
 		}
 		return params;
+	}
+
+	/**
+	 * Executa la classe del handler a partir del recurs.
+	 *
+	 * @param expedientTipusId
+	 *            l'id del tipus d'expedient.
+	 * @param definicioProcesId
+	 *            l'id de la definició de procés (pot ser null i es cercarà un recurs lligat al tipus d'expedient).
+	 * @param className
+	 *            el nom de la classe del handler.
+	 * @param values
+	 *            els valors dels paràmetres del handler.
+	 * @throws ClassNotFoundException
+	 *            si no es troba el handler amb el nom especificat.
+	 * @throws ReflectiveOperationException
+	 *            si es produeix algun altre error creant la instància del handler.
+	 */
+	public void execActionHandler(
+		Long expedientTipusId,
+		Long definicioProcesId,
+		String className,
+		Map<String, String> values) throws ClassNotFoundException, ReflectiveOperationException {
+		HeliumActionHandler actionHandler = loadClassAndCreateInstance(
+			expedientTipusId,
+			definicioProcesId,
+			className,
+			HeliumActionHandler.class);
+		new BeanWrapperImpl(actionHandler).setPropertyValues(values);
+		actionHandler.execute(new HeliumApi() { });
 	}
 
 	/*
