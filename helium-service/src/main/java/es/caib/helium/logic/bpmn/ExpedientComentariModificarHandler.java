@@ -13,10 +13,12 @@ import lombok.Setter;
 public class ExpedientComentariModificarHandler implements es.caib.helium.bpmn.handler.ExpedientComentariModificarHandler {
 
 	private String comentari;
+	private String varComentari;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
-		heliumApi.expedientComentariModificar(comentari);
+		heliumApi.expedientComentariModificar(
+			heliumApi.getVariableDefaultValue(varComentari, comentari));
 	}
 
 }

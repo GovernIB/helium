@@ -1,7 +1,10 @@
 package es.caib.helium.logic.bpmn;
 
 import es.caib.helium.bpmn.api.HeliumApi;
-import es.caib.helium.persistence.repository.ExpedientRepository;
+import es.caib.helium.logic.helper.ExpedientDadaHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.persistence.entity.Expedient;
+import es.caib.helium.persistence.repository.EstatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +17,19 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class HeliumApiFactory {
 
-	private final ExpedientRepository expedientRepository;
+	private final EstatRepository estatRepository;
+	private final PluginHelper pluginHelper;
+	private final ExpedientDadaHelper expedientDadaHelper;
 
-	public HeliumApi createInstance(Long expedientId) {
-		return new HeliumApiImpl(expedientId, expedientRepository);
+	public HeliumApi createInstance(
+		Expedient expedient,
+		String processId) {
+		return new HeliumApiImpl(
+			expedient,
+			processId,
+			estatRepository,
+			pluginHelper,
+			expedientDadaHelper);
 	}
 
 }

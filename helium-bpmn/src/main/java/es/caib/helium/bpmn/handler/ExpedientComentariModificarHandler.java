@@ -8,5 +8,6 @@ package es.caib.helium.bpmn.handler;
 public interface ExpedientComentariModificarHandler extends HeliumActionHandler {
 
 	void setComentari(String comentari);
+	void setVarComentari(String varComentari);
 
 }
