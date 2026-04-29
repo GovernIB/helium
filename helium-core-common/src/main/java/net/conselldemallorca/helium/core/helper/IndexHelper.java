@@ -559,7 +559,11 @@ public class IndexHelper {
 								columnesRegistre[i] = camp.getRegistreMembres().get(i).getMembre().getCodi();
 							}
 							List<Registre> registres = new ArrayList<Registre>();
-							if (camp.isMultiple()) {
+							if (camp.isMultiple()
+									// A més de la definició s'ha de mirar que el valor també sigui múltiple #2050
+									&& valor instanceof Object[]
+									&& ((Object[])valor).length > 0
+									&& ((Object[])valor)[0] instanceof Object[]) {
 								Object[] filesValor = (Object[])valor;
 								for (int i = 0; i < filesValor.length; i++) {
 									registres.add(
