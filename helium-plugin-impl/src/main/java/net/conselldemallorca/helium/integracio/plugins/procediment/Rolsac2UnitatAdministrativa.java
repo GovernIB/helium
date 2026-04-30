@@ -1,10 +1,13 @@
 package net.conselldemallorca.helium.integracio.plugins.procediment;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Rolsac2UnitatAdministrativa {
 	private String estado;
 	private Integer tipo;

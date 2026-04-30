@@ -2,6 +2,8 @@ package net.conselldemallorca.helium.integracio.plugins.procediment;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +12,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Rolsac2ServiciosResponse {
 	private String status;
 	private Integer tiempo;
