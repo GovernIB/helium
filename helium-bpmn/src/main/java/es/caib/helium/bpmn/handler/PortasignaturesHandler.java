@@ -15,7 +15,7 @@ public interface PortasignaturesHandler extends HeliumActionHandler {
 
 	void setVarPas1Responsables(String varPas1Responsables);
 
-	void setPas1MinSignataris(String pas1MinSignataris);
+	void setPas1MinSignataris(Integer pas1MinSignataris);
 
 	void setVarPas1MinSignataris(String varPas1MinSignataris);
 
@@ -23,7 +23,7 @@ public interface PortasignaturesHandler extends HeliumActionHandler {
 
 	void setVarPas2Responsables(String varPas2Responsables);
 
-	void setPas2MinSignataris(String pas2MinSignataris);
+	void setPas2MinSignataris(Integer pas2MinSignataris);
 
 	void setVarPas2MinSignataris(String varPas2MinSignataris);
 
@@ -31,7 +31,7 @@ public interface PortasignaturesHandler extends HeliumActionHandler {
 
 	void setVarPas3Responsables(String varPas3Responsables);
 
-	void setPas3MinSignataris(String pas3MinSignataris);
+	void setPas3MinSignataris(Integer pas3MinSignataris);
 
 	void setVarPas3MinSignataris(String varPas3MinSignataris);
 

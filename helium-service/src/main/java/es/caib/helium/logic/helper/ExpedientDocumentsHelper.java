@@ -15,7 +15,6 @@ import es.caib.helium.persistence.repository.ExpedientDocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
@@ -134,23 +133,36 @@ public class ExpedientDocumentsHelper {
 		);
 	}
 
-	@Transactional
-	public DocumentStoreDto findDocument(
+	public DocumentStore findDocumentStore(
 		String codi,
 		Long expedientId,
 		String processId,
 		String taskId) {
-		return conversioTipusHelper.convertir(
-			expedientDocumentsRepository.findByCodi(
-				codi,
-				expedientId,
-				expedientId == null,
-				processId,
-				processId == null,
-				taskId,
-				taskId == null),
-			DocumentStoreDto.class
-		);
+		return expedientDocumentsRepository.findByCodi(
+			codi,
+			expedientId,
+			expedientId == null,
+			processId,
+			processId == null,
+			taskId,
+			taskId == null);
+	}
+
+	public Document findDocument(
+		String codi,
+		Long expedientId,
+		String processId,
+		String taskId) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+			expedientId,
+			true,
+			false,
+			false,
+			false);
+		return documentRepository.findByExpedientTipusAndCodi(
+			expedient.getTipus().getId(),
+			codi,
+			expedient.getTipus().getExpedientTipusPare() != null);
 	}
 
 	@Transactional
