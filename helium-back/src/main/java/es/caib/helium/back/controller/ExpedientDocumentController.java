@@ -125,6 +125,8 @@ import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTokenService;
 import es.caib.helium.logic.intf.service.PortafirmesFluxService;
 import es.caib.helium.logic.intf.service.PortasignaturesService;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -1237,7 +1239,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 								expedientId,
 								processInstanceId,
 								documentStoreId);
-						
+
 						expedientDocumentService.firmaServidor(processInstanceId, documentStoreId, "notificació de zip", arxiu.getContingut());
 					}
 				}
@@ -1318,13 +1320,13 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar")
-	public String descarregar(
+	public View descarregar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
-		String ret;
+		View ret;
 		ArxiuDto arxiu = null;
 		Exception exception = null;
 		// Prova de descarregar el document
@@ -1359,47 +1361,47 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error("Error obtenint el document", exception);
 			MissatgesHelper.error(request, exception.getMessage(), exception);
 			model.addAttribute("pipellaActiva", "documents");
-			ret = "redirect:/expedient/" + expedientId;
+			ret = new RedirectView("/expedient/" + expedientId);
 		} else {
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
-			ret = "arxiuView";
+			ret = arxiuView;
 		}
 		return ret;
 	}
 
 	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/descarregar/original")
-	public String descarregarOriginal(
+	public View descarregarOriginal(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long documentStoreId,
 			Model model) {
-		String ret;
+		View ret;
 		try {
 			ArxiuDto arxiu = expedientDocumentService.arxiuFindOriginal(expedientId, documentStoreId);
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
-			ret = "arxiuView";
+			ret = arxiuView;
 		} catch (SistemaExternException exception) {
 			logger.error("Error obtenint el document", exception);
 			MissatgesHelper.error(request, exception.getMessage(), exception);
 			model.addAttribute("pipellaActiva", "documents");
-			ret = "redirect:/expedient/" + expedientId;
+			ret = new RedirectView("/expedient/" + expedientId);
 		}
 		return ret;
 	}
 
 	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/descarregar/imprimible")
-	public String descarregarImprimible(
+	public View descarregarImprimible(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long documentStoreId,
 			Model model) {
-		String ret;
+		View ret;
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			String processInstanceId = expedient.getProcessInstanceId();
@@ -1411,19 +1413,19 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
-			ret = "arxiuView";
+			ret = arxiuView;
 		} catch (SistemaExternException exception) {
 			logger.error("Error obtenint el document", exception);
 			MissatgesHelper.error(request, exception.getMessage(), exception);
 			model.addAttribute("pipellaActiva", "documents");
-			ret = "redirect:/expedient/" + expedientId;
+			ret = new RedirectView("/expedient/" + expedientId);
 		}
 		return ret;
 	}
 
 
 	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/descarregar")
-	public String docDescarregar(
+	public View docDescarregar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long documentStoreId,
@@ -1455,7 +1457,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar/versio/{versioId}/{expedientTancat}")
-	public String descarregarVersio(
+	public View descarregarVersio(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
@@ -1477,9 +1479,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error("Error descarregant fitxer", e);
 			MissatgesHelper.error(request, e.getPublicMessage(), e);
 			model.addAttribute("pipellaActiva", "documents");
-			return "redirect:/expedient/" + expedientId;
+			return new RedirectView("/expedient/" + expedientId);
 		}
-		return "arxiuView";
+		return arxiuView;
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/metadadesNti", method = RequestMethod.GET)
@@ -1595,7 +1597,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 	/** Mètode per descarregar una firma dettached des de la modal de dades de l'arxiu d'un document. */
 	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/firma/{firmaIndex}/descarregar", method = RequestMethod.GET)
-	public String descarregarDocFirma(
+	public View descarregarDocFirma(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long documentStoreId,
@@ -1604,7 +1606,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return descarregarFirma(request, expedientId, null, documentStoreId, firmaIndex, model);
 	}
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/firma/{firmaIndex}/descarregar", method = RequestMethod.GET)
-	public String descarregarFirma(
+	public View descarregarFirma(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
@@ -1624,9 +1626,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error("Error descarregant l'arxiu de firma", e);
 			MissatgesHelper.error(request, e.getPublicMessage(), e);
 			model.addAttribute("pipellaActiva", "documents");
-			return "redirect:/expedient/" + expedientId;
+			return new RedirectView("/expedient/" + expedientId);
 		}
-		return "arxiuView";
+		return arxiuView;
 
 	}
 
@@ -1659,7 +1661,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	/** Aquest mètode genera el document a partir de la plantilla i el descarrega.
 	 */
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentCodi}/generar", method = RequestMethod.GET)
-	public String generar(
+	public View generar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
@@ -1680,12 +1682,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					processInstanceId,
 					documentCodi);
 			if (document != null) {
-				return "redirect:/modal/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + document.getId() + "/update";
+				return new RedirectView("/modal/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + document.getId() + "/update");
 			} else {
-				return "redirect:/modal/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/new";
+				return new RedirectView("/modal/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/new");
 			}
 		}
-		return "arxiuView";
+		return arxiuView;
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/signatura/verificar", method = RequestMethod.GET)
@@ -1855,7 +1857,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 
 	@RequestMapping(value = "/document/arxiuMostrar")
-	public String arxiuMostrar(
+	public View arxiuMostrar(
 		HttpServletRequest request,
 		@RequestParam(value = "token", required = true) String token,
 		ModelMap model) {
@@ -1867,11 +1869,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 		}
-		return "arxiuView";
+		return arxiuView;
 	}
 
 	@RequestMapping(value = "/document/arxiuPerSignar")
-	public String arxiuPerSignar(
+	public View arxiuPerSignar(
 		HttpServletRequest request,
 		@RequestParam(value = "token", required = true) String token,
 		ModelMap model) throws Exception {
@@ -1890,14 +1892,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 		}
-		return "arxiuView";
+		return arxiuView;
 	}
 
 	/** Recupera el contingut de tots els documents i crea un comprimit per a la descàrrega.
 	 *
 	 */
 	@RequestMapping(value = "/{expedientId}/document/descarregarZip", method = RequestMethod.GET)
-	public String descarregarZipDocumentacio(
+	public View descarregarZipDocumentacio(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model)  {
@@ -1910,11 +1912,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} catch(Exception e) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.document.descarregar.zip.error", new Object[]{ e.getMessage() } ), e);
 		}
-		return "arxiuView";
+		return arxiuView;
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/descarregar", method = RequestMethod.GET)
-	public String descarregarDocumentacio(
+	public View descarregarDocumentacio(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model)  {
@@ -1929,7 +1931,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} catch(Exception e) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.document.descarregar.zip.error", new Object[]{ e.getMessage() } ), e);
 		}
-		return "arxiuView";
+		return arxiuView;
 	}
 
 	@InitBinder

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -18,12 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
@@ -51,10 +46,11 @@ import es.caib.helium.commons.dto.PortafirmesIniciFluxRespostaDto;
 import es.caib.helium.commons.dto.PortafirmesSimpleTipusEnumDto;
 import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
 import es.caib.helium.logic.intf.service.PortafirmesFluxService;
+import org.springframework.web.servlet.View;
 
 /**
  * Controlador per a la pipella de variables del tipus d'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -90,12 +86,12 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	DatatablesResponse datatable(HttpServletRequest request, @PathVariable Long expedientTipusId, Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(
-				request, 
-				null, 
+				request,
+				null,
 				documentService.findPerDatatable(
 						expedientTipusId,
 						null,
-						paginacioParams.getFiltre(), 
+						paginacioParams.getFiltre(),
 						paginacioParams));
 	}
 
@@ -113,12 +109,14 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 
 	@RequestMapping(value = "/{expedientTipusId}/document/new", method = RequestMethod.POST)
 	public String nouPost(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@RequestPart(value = "arxiuContingut_multipartFile", required = false) final CommonsMultipartFile arxiuContingut,
-			@RequestPart @Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
+			//@RequestPart(value = "arxiuContingut_multipartFile", required = false) final CommonsMultipartFile arxiuContingut,
+			//@RequestPart @Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
+			@ModelAttribute("expedientTipusDocumentCommand") @Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
+			MultipartFile arxiuContingut = command.getArxiuContingut_multipartFile();
 			if (bindingResult.hasErrors()) {
 				omplirModelComu(request, expedientTipusId, model);
 				return "expedientTipusDocumentForm";
@@ -131,11 +129,11 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 						null,
 						dto);
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"expedient.tipus.document.controller.creat"));
-				return modalUrlTancar(false);				
+				return modalUrlTancar(false);
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document", ex);
@@ -145,8 +143,8 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 
 	@RequestMapping(value = "/{expedientTipusId}/document/{id}/update", method = RequestMethod.GET)
 	public String modificar(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
 		DocumentDto dto = documentService.findAmbId(expedientTipusId, id);
@@ -161,11 +159,11 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		return "expedientTipusDocumentForm";
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/document/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			@RequestParam(value = "arxiuContingut_multipartFile", required = false) final MultipartFile arxiuContingut,
 			@RequestParam(value = "arxiuContingut_deleted", required = false) final boolean eliminarContingut,
@@ -190,9 +188,9 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 						ExpedientTipusDocumentCommand.asDocumentDto(command),
 						actualitzarContingut);
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"expedient.tipus.document.controller.modificat"));
 				return modalUrlTancar(false);
 			}
@@ -206,8 +204,8 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	@RequestMapping(value = "/{expedientTipusId}/document/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean delete(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
 		try {
@@ -233,11 +231,11 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			return false;
 		}
 	}
-	
+
 	@RequestMapping(value="/{expedientTipusId}/document/{id}/download", method = RequestMethod.GET)
-	public String documentDesacarregar(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId, 
+	public View documentDesacarregar(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -249,7 +247,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 		}
-		return "arxiuView";
+		return arxiuView;
 	}
 
 	private void omplirModelComu(
@@ -257,7 +255,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			Long expedientTipusId,
 			Model model) {
 		List<CampDto> camps = campService.findTipusData(expedientTipusId, null);
-						
+
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		for (CampDto camp: camps) {
 			resposta.add(new ParellaCodiValorDto(camp.getId().toString(), (camp.getCodi() + "/" + camp.getEtiqueta())));
@@ -285,15 +283,15 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	@RequestMapping(value = "/{expedientTipusId}/document/flux/plantilles", method = RequestMethod.GET)
 	@ResponseBody
 	public List<PortafirmesFluxRespostaDto> portasigPlantillesDisponibles(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId, 
-			Model model) {		
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
 		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(expedientTipusId, null, null);
 		return resposta;
 	}
 
 	/** Mètode Ajax per iniciar l'edició d'un flux de firma i retornar la URL a carregar per a poder-lo editar des d'Helium.
-	 * 
+	 *
 	 * @param request
 	 * @param plantillaId
 	 * @param expedientTipusId
@@ -306,7 +304,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	public PortafirmesIniciFluxRespostaDto portasigIniciarTransaccio(
 			HttpServletRequest request,
 			@RequestParam(value = "plantillaId", required = false) String plantillaId,
-			@PathVariable Long expedientTipusId, 
+			@PathVariable Long expedientTipusId,
 			Model model) throws UnsupportedEncodingException {
 		String urlReturn;
 		PortafirmesIniciFluxRespostaDto transaccioResponse = null;
@@ -331,31 +329,31 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	}
 
 
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/document/flux/esborrar/{plantillaId}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean portasigEsborrarPlantilla(
 			HttpServletRequest request,
 			@PathVariable String plantillaId,
 			Model model) {
-		
+
 		return portafirmesFluxService.esborrarPlantilla(plantillaId);
 	}
-	
-	
+
+
 	@RequestMapping(value = "/{expedientTipusId}/document/tancarTransaccio/{idTransaccio}", method = RequestMethod.GET)
 	@ResponseBody
 	public void portasigTancarTransaccio(
-			HttpServletRequest request, 
-			@PathVariable String idTransaccio, 
+			HttpServletRequest request,
+			@PathVariable String idTransaccio,
 			Model model) {
 		portafirmesFluxService.tancarTransaccio(idTransaccio);
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/document/flux/returnurl/{transactionId}", method = RequestMethod.GET)
 	public String portasigTransaccioEstat(
-			HttpServletRequest request, 
-			@PathVariable String transactionId, 
+			HttpServletRequest request,
+			@PathVariable String transactionId,
 			Model model) {
 		PortafirmesFluxRespostaDto resposta = portafirmesFluxService.recuperarFluxFirma(transactionId);
 

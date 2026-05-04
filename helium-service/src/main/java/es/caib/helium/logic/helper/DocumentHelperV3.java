@@ -45,6 +45,24 @@ import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
 
 import es.caib.distribucio.core.api.service.ws.backoffice.NtiEstadoElaboracion;
+import es.caib.helium.commons.dto.AnotacioAnnexEstatEnumDto;
+import es.caib.helium.commons.dto.ArxiuDto;
+import es.caib.helium.commons.dto.ArxiuFirmaDto;
+import es.caib.helium.commons.dto.ArxiuFirmaPerfilEnumDto;
+import es.caib.helium.commons.dto.ArxiuFirmaValidacioDetallDto;
+import es.caib.helium.commons.dto.DocumentDto;
+import es.caib.helium.commons.dto.DocumentStoreDto;
+import es.caib.helium.commons.dto.ExpedientDocumentDto;
+import es.caib.helium.commons.dto.InstanciaProcesDto;
+import es.caib.helium.commons.dto.NtiDocumentoFormato;
+import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.commons.dto.NtiOrigenEnumDto;
+import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
+import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
+import es.caib.helium.commons.dto.PortafirmesEstatEnum;
+import es.caib.helium.commons.dto.PortasignaturesDto;
+import es.caib.helium.commons.dto.RespostaValidacioSignaturaDto;
+import es.caib.helium.commons.dto.TascaDocumentDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternConversioDocumentException;
 import es.caib.helium.commons.exception.SistemaExternException;
@@ -591,7 +609,7 @@ public class DocumentHelperV3 {
 		if (documentStore != null) {
 			if (documentStore.isAdjunt()) {
 				return crearDtoPerAdjuntExpedient(
-						getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
+						getAdjuntIdDeVariableJbpm(documentStore.getCodi()),
 						documentStoreId,
 						arxiuActiu);
 			} else {
@@ -979,7 +997,7 @@ public class DocumentHelperV3 {
 		DocumentStore documentStore = new DocumentStore(
 				pluginHelper.gestioDocumentalIsPluginActiu() ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
 				processInstanceId,
-				getVarPerDocumentCodi(documentCodiPerCreacio, isAdjunt),
+				documentCodiPerCreacio,
 				new Date(),
 				documentData,
 				arxiuNom);
@@ -1051,12 +1069,12 @@ public class DocumentHelperV3 {
 		if (taskInstanceId != null) {
 			workflowEngineApi.setTaskInstanceVariable(
 					taskInstanceId,
-					documentStore.getJbpmVariable(),
+					documentStore.getCodi(),
 					documentStore.getId());
 		} else {
 			workflowEngineApi.setProcessInstanceVariable(
 					processInstanceId,
-					documentStore.getJbpmVariable(),
+					documentStore.getCodi(),
 					documentStore.getId());
 		}
 
@@ -1231,12 +1249,12 @@ public class DocumentHelperV3 {
 		if (taskInstanceId != null) {
 			workflowEngineApi.setTaskInstanceVariable(
 					taskInstanceId,
-					documentStore.getJbpmVariable(),
+					documentStore.getCodi(),
 					documentStore.getId());
 		} else {
 			workflowEngineApi.setProcessInstanceVariable(
 					processInstanceId,
-					documentStore.getJbpmVariable(),
+					documentStore.getCodi(),
 					documentStore.getId());
 		}
 
@@ -1372,11 +1390,11 @@ public class DocumentHelperV3 {
 		if (taskInstanceId != null) {
 			varValor = workflowEngineApi.getTaskInstanceVariable(
 					taskInstanceId,
-					getVarPerDocumentCodi(documentCodi, false));
+					documentCodi);
 		} else if (processInstanceId != null) {
 			varValor = workflowEngineApi.getProcessInstanceVariable(
 					processInstanceId,
-					getVarPerDocumentCodi(documentCodi, false));
+					documentCodi);
 		}
 		if (varValor != null && varValor instanceof Long) {
 			esborrarDocument(
@@ -1465,9 +1483,9 @@ public class DocumentHelperV3 {
 			if (taskInstanceId != null) {
 				workflowEngineApi.deleteTaskInstanceVariable(
 						taskInstanceId,
-						documentStore.getJbpmVariable());
+						documentStore.getCodi());
 				String documentCodi = getDocumentCodiPerVariableJbpm(
-						documentStore.getJbpmVariable());
+						documentStore.getCodi());
 				workflowEngineApi.deleteTaskInstanceVariable(
 						taskInstanceId,
 						JbpmVars.PREFIX_SIGNATURA + documentCodi);
@@ -1475,7 +1493,7 @@ public class DocumentHelperV3 {
 			if (processInstanceId != null) {
 				workflowEngineApi.deleteProcessInstanceVariable(
 						processInstanceId,
-						documentStore.getJbpmVariable());
+						documentStore.getCodi());
 			}
 		}
 	}
@@ -1583,12 +1601,6 @@ public class DocumentHelperV3 {
 					documentCodi);
 	}
 
-	public String getVarPerDocumentCodi(String documentCodi, boolean isAdjunt) {
-		if (isAdjunt)
-			return JbpmVars.PREFIX_ADJUNT + documentCodi;
-		else
-			return JbpmVars.PREFIX_DOCUMENT + documentCodi;
-	}
 	public static String getDocumentCodiPerVariableJbpm(String var) {
 		if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 			return var.substring(JbpmVars.PREFIX_DOCUMENT.length());
@@ -1701,13 +1713,13 @@ public class DocumentHelperV3 {
 				}
 				String codiDocument;
 				if (documentStore.isAdjunt()) {
-					dto.setAdjuntId(documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_ADJUNT.length()));
+					dto.setAdjuntId(documentStore.getCodi().substring(JbpmVars.PREFIX_ADJUNT.length()));
 					dto.setCodi(dto.getAdjuntId());
 					dto.setDocumentCodi(dto.getAdjuntId());
 					dto.setDocumentNom(documentStore.getAdjuntTitol());
 					dto.setArxiuContingut(documentStore.getArxiuContingut());
 				} else {
-					codiDocument = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
+					codiDocument = documentStore.getCodi().substring(JbpmVars.PREFIX_DOCUMENT.length());
 //					JbpmProcessDefinition jpd = workflowEngineApi.findProcessDefinitionWithProcessInstanceId(documentStore.getProcessInstanceId());
 //					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 //							jpd.getKey(),
@@ -2337,8 +2349,6 @@ public class DocumentHelperV3 {
 				documentDescripcio);
 	}
 
-
-
 	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
 			Document document,
 			Long documentStoreId,
@@ -2467,9 +2477,7 @@ public class DocumentHelperV3 {
 			boolean required,
 			boolean readonly) {
 		TascaDocumentDto dto = new TascaDocumentDto();
-		String varCodi = getVarPerDocumentCodi(
-				document.getCodi(),
-				document.isAdjuntarAuto());
+		String varCodi = document.getCodi();
 		dto.setId(document.getId());
 		dto.setVarCodi(varCodi);
 		dto.setDocumentCodi(document.getCodi());
@@ -2562,7 +2570,7 @@ public class DocumentHelperV3 {
 			}
 		} else {
 			ed = crearDtoPerAdjuntExpedient(
-					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
+					getAdjuntIdDeVariableJbpm(documentStore.getCodi()),
 					documentStore,
 					arxiuActiu);
 		}
@@ -2756,12 +2764,12 @@ public class DocumentHelperV3 {
 		if (taskInstanceId != null) {
 			value = workflowEngineApi.getTaskInstanceVariable(
 					taskInstanceId,
-					getVarPerDocumentCodi(documentCodi, false));
+					documentCodi);
 		}
 		if (value == null && processInstanceId != null) {
 			value = workflowEngineApi.getProcessInstanceVariable(
 					processInstanceId,
-					getVarPerDocumentCodi(documentCodi, false));
+					documentCodi);
 		}
 		return (Long)value;
 	}
@@ -3297,9 +3305,9 @@ public class DocumentHelperV3 {
 		dsDto.setNtiIdDocOrigen(ds.getNtiIdDocumentoOrigen()!=null ? ds.getNtiIdDocumentoOrigen().toString() : null);
 		dsDto.setNtiIdentificador(ds.getNtiIdentificador());
 		dsDto.setNtiNomFormat(ds.getNtiNombreFormato()!=null ? ds.getNtiNombreFormato().toString() : null);
-		dsDto.setNtiOrgan(ds.getNtiOrgano()!=null ? ds.getNtiOrgano().toString() : null);
-		dsDto.setNtiOrigen(ds.getNtiOrigen()!=null ? ds.getNtiOrigen().toString() : null);
-		dsDto.setNtiTipoFirma(ds.getNtiTipoFirma()!=null ? ds.getNtiTipoFirma().toString() : null);
+		dsDto.setNtiOrgan(ds.getNtiOrgano());
+		dsDto.setNtiOrigen(ds.getNtiOrigen());
+		dsDto.setNtiTipoFirma(ds.getNtiTipoFirma());
 		dsDto.setNtiTipusDocumental(ds.getNtiTipoDocumental()!=null ? ds.getNtiTipoDocumental().toString() : null);
 		dsDto.setNtiValorCsv(ds.getNtiCsv());
 		dsDto.setNtiVersion(ds.getNtiVersion());

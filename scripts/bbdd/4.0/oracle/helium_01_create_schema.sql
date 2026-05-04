@@ -1330,6 +1330,16 @@ CREATE TABLE HEL_RECURS (
   DEFINICIO_PROCES_ID  NUMBER(19)
 );
 
+CREATE TABLE HEL_EXPEDIENT_DOCUMENT (
+	ID					NUMBER(19) NOT NULL,
+	DOCUMENT_STORE_ID	NUMBER(19)	NOT NULL,
+	TIPUS 				VARCHAR2(20 CHAR) NOT NULL,
+	EXPEDIENT_ID		NUMBER(19)	NOT NULL,
+	CODI 				VARCHAR2(64 CHAR) NOT NULL,
+	TASK_ID				VARCHAR2(64 CHAR),
+	PROCESS_INSTANCE_ID	VARCHAR2(64 CHAR)
+);
+
 --------------------------------------------------------
 -- Triggers de la lista de control d'accès
 --------------------------------------------------------

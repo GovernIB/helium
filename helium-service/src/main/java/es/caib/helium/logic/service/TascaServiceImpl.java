@@ -1045,7 +1045,7 @@ public class TascaServiceImpl implements TascaService {
 		if (documentStore!=null) {
 			jbpmHelper.setTaskInstanceVariable(
 					taskInstanceId,
-					documentStore.getJbpmVariable(),
+					documentStore.getCodi(),
 					documentStore.getId());
 		}
 		// Registra l'acció

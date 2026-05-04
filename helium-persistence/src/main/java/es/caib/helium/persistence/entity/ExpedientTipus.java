@@ -326,13 +326,13 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public boolean isAmbRetroaccio() {
 		return ambRetroaccio;
 	}
-	public void setAmbRetroaccio(boolean ambRetroaccio) {
-		this.ambRetroaccio = ambRetroaccio;
-	}
-
 	@Column(name="tipus")
 	public ExpedientTipusTipusEnumDto getTipus() {
 		return tipus;
+	}
+
+	public void setAmbRetroaccio(boolean ambRetroaccio) {
+		this.ambRetroaccio = ambRetroaccio;
 	}
 	public void setTipus(ExpedientTipusTipusEnumDto tipus) {
 		this.tipus = tipus;

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -28,7 +28,7 @@ import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 
 /**
  * Controlador base per al llistat d'expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class BaseExpedientController extends BaseController {
@@ -79,7 +79,7 @@ public class BaseExpedientController extends BaseController {
 						instanciaProces.getId());
 				numAccions += accionsTrobades.size();
 			}
-			
+
 			WProcessInstance jbpmProcessInstance = jbpmHelper.getProcessInstance(expedient.getProcessInstanceId());
 			model.addAttribute("processInstance", jbpmProcessInstance != null? jbpmProcessInstance.getProcessInstance() : null);
 		model.addAttribute("subprocessos", subprocessos);

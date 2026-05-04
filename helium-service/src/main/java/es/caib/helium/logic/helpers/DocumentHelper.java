@@ -3,19 +3,6 @@
  */
 package es.caib.helium.logic.helpers;
 
-import java.io.ByteArrayOutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-//import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.PortafirmesEstatEnum;
@@ -23,27 +10,27 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.PdfUtils;
 import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import es.caib.helium.logic.helper.*;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
-import es.caib.helium.persistence.common.jbpm.JbpmVars;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentStore;
-import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
-import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.Portasignatures;
-import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.persistence.repository.DocumentRepository;
-import es.caib.helium.persistence.repository.DocumentStoreRepository;
-import es.caib.helium.persistence.repository.ExpedientRepository;
-import es.caib.helium.persistence.repository.PortasignaturesRepository;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.utils.DocumentTokenUtils;
+import es.caib.helium.persistence.common.jbpm.JbpmVars;
+import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
+import es.caib.helium.persistence.repository.*;
 import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+//import org.jbpm.graph.exe.ProcessInstanceExpedient;
 //import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 //import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 
@@ -78,6 +65,8 @@ public class DocumentHelper {
 	private ExpedientHelper expedientHelper;
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelperV3;
+	@Resource
+	private ExpedientDocumentsHelper expedientDocumentsHelper;
 
 	private DocumentTokenUtils documentTokenUtils;
 	private PdfUtils pdfUtils;
@@ -101,7 +90,7 @@ public class DocumentHelper {
 			documentStore = new DocumentStore(
 				     (pluginHelper.gestioDocumentalIsPluginActiu()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
 				     processInstanceId,
-				     getVarPerDocumentCodi(documentCodi, isAdjunt),
+				     documentCodi,
 				     new Date(),
 				     documentData,
 				     arxiuNom);
@@ -126,6 +115,8 @@ public class DocumentHelper {
 						documentStore.getReferenciaFont(),
 						expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 		}
+
+
 		// Crea el document a dins la gestió documental
 //		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu()) {
 //			ProcessInstanceExpedient expedient = jbpmDao.expedientFindByProcessInstanceId(processInstanceId);
@@ -608,10 +599,10 @@ public class DocumentHelper {
 				}
 				String codiDocument;
 				if (document.isAdjunt()) {
-					dto.setAdjuntId(document.getJbpmVariable().substring(JbpmVars.PREFIX_ADJUNT.length()));
+					dto.setAdjuntId(document.getCodi().substring(JbpmVars.PREFIX_ADJUNT.length()));
 					dto.setDocumentId(document.getId());
 				} else {
-					codiDocument = document.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
+					codiDocument = document.getCodi().substring(JbpmVars.PREFIX_DOCUMENT.length());
 //					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
 //					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
 					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
@@ -825,13 +816,6 @@ public class DocumentHelper {
 		} catch (Exception ex) {
 			throw new RuntimeException("Format de token incorrecte", ex);
 		}
-	}
-
-	public String getVarPerDocumentCodi(String documentCodi, boolean isAdjunt) {
-		if (isAdjunt)
-			return JbpmVars.PREFIX_ADJUNT + documentCodi;
-		else
-			return JbpmVars.PREFIX_DOCUMENT + documentCodi;
 	}
 
 	private DocumentTokenUtils getDocumentTokenUtils() {

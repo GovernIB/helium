@@ -31,10 +31,10 @@
         <c:choose>
             <c:when test="${valor.multiple}">
 				<ul class="list-group multiple">
-                    <c:forEach var="dada" items="${valor.valorMultiple}">
+                    <c:forEach var="vcolumn" items="${valor.valorMultiple}">
                         <li class="list-group-item d-flex justify-content-between border-0">
                             <div class="d-flex flex-column text-sm">
-								<c:out value="${dada}" />
+								<c:out value="${vcolumn}" />
 							</div>
                         </li>
                     </c:forEach>

@@ -10,7 +10,7 @@ import org.springframework.web.servlet.view.AbstractView;
 
 /**
  * Vista per guardar un objecte serialitzat a dins un arxiu
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class SerialitzarView extends AbstractView {

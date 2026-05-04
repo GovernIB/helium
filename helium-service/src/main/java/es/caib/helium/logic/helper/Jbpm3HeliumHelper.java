@@ -1453,7 +1453,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public String getCodiVariablePerDocumentCodi(String documentCodi) {
 		logger.debug("Obtenint el codi de variable jBPM pel document (" +
 				"documentCodi=" + documentCodi + ")");
-		return documentHelper.getVarPerDocumentCodi(documentCodi, false);
+		return documentCodi;
 	}
 
 	@Override

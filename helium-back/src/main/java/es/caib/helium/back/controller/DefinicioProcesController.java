@@ -1,14 +1,24 @@
 package es.caib.helium.back.controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
+import es.caib.helium.back.command.DefinicioProcesDesplegarCommand;
+import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.ACCIO_PROCES;
+import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.Desplegament;
+import es.caib.helium.back.command.DefinicioProcesExportarCommand;
+import es.caib.helium.back.command.DefinicioProcesExportarCommand.Exportacio;
+import es.caib.helium.back.command.DefinicioProcesExportarCommand.Importacio;
+import es.caib.helium.back.command.DefinicioProcesExportarCommand.Upload;
+import es.caib.helium.back.helper.*;
+import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
+import es.caib.helium.back.mvc.ArxiuView;
+import es.caib.helium.commons.dto.*;
+import es.caib.helium.commons.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
+import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
+import es.caib.helium.commons.exportacio.DefinicioProcesExportacioCommandDto;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,44 +28,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.View;
 
-import es.caib.helium.back.command.DefinicioProcesDesplegarCommand;
-import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.ACCIO_PROCES;
-import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.Desplegament;
-import es.caib.helium.back.command.DefinicioProcesExportarCommand;
-import es.caib.helium.back.command.DefinicioProcesExportarCommand.Exportacio;
-import es.caib.helium.back.command.DefinicioProcesExportarCommand.Importacio;
-import es.caib.helium.back.command.DefinicioProcesExportarCommand.Upload;
-import es.caib.helium.back.helper.ConversioTipus;
-import es.caib.helium.back.helper.DatatablesHelper;
-import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.back.helper.NodecoHelper;
-import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.back.mvc.ArxiuView;
-import es.caib.helium.commons.dto.ConsultaDto;
-import es.caib.helium.commons.dto.DefinicioProcesDto;
-import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
-import es.caib.helium.commons.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
-import es.caib.helium.commons.dto.EntornDto;
-import es.caib.helium.commons.dto.ExecucioMassivaDto;
-import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import es.caib.helium.commons.dto.ExpedientTipusDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.dto.ParellaCodiValorDto;
-import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
-import es.caib.helium.commons.exportacio.DefinicioProcesExportacioCommandDto;
-import es.caib.helium.logic.intf.service.ExecucioMassivaService;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Controlador per al manteniment de les definicions de procés. Controla les pipelles del
@@ -65,14 +44,14 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
 @Controller(value = "definicioProcesControllerV3")
 @RequestMapping("/definicioProces")
 public class DefinicioProcesController extends BaseDefinicioProcesController {
-	
+
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
 	@Autowired
 	private ExpedientService expedientService;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
-	
+
 	/** Accés al llistat de definicions de procés de l'entorn des del menú de disseny. */
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
@@ -84,7 +63,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			return "redirect:";
 		}
 	}
-	
+
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
@@ -101,8 +80,8 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 						true, // incloure globals
 						paginacioParams.getFiltre(),
 						paginacioParams));
-	}	
-	
+	}
+
 	/** Mètode per esborrar una versió específica des del disseny de la definició de procés. */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/delete", method = RequestMethod.GET)
 	public String delete(
@@ -118,36 +97,36 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				throw new NoTrobatException(DefinicioProcesDto.class, definicioProcesId);
 
 			Long expedientTipusId = definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null;
-			
+
 			this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
-			
+
 			// Cerca la darrera definició de procés per codi jbpm i expedient Tipus
 			definicioProces = definicioProcesService.findByEntornTipusIdAndJbpmKey(
 					entornActual.getId(),
 					expedientTipusId,
 					jbmpKey);
-			
+
 			// Si no es troba la definició de procés anterior torna al llistat
 			if (definicioProces == null) {
-				return "redirect:/definicioProces";		
+				return "redirect:/definicioProces";
 			}
 			definicioProcesAnteriorId = definicioProces.getId();
 		} catch (Exception e) {
 			logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage(), e);
 			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}), e);
 		}
-		// Retorna a la pàgina de pipelles		
+		// Retorna a la pàgina de pipelles
 		return "redirect:/definicioProces/"+jbmpKey + (definicioProcesAnteriorId != null ? "/" + definicioProcesAnteriorId : "");
 	}
-	
-	/** Mètode privat compartit per esborrar una definició de procés. 
-	 * @throws Exception 
+
+	/** Mètode privat compartit per esborrar una definició de procés.
+	 * @throws Exception
 	 */
 	private boolean deleteDefinicioProces(
 			Long entornId,
 			HttpServletRequest request,
 			DefinicioProcesDto definicioProces) throws Exception {
-		
+
 		// Comprova si hi ha consultes amb variables que apuntaven a la versió recentment esborrada i en cas afirmatiu avisa
 		if (definicioProces.getExpedientTipus() != null && definicioProces.getExpedientTipus().getConsultes() != null) {
 			List<ConsultaDto> consultes = expedientTipusService.consultaFindRelacionadesAmbDefinicioProces(
@@ -156,12 +135,12 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					definicioProces.getJbpmKey(),
 					definicioProces.getVersio());
 			Set<Long> consultesAvisades = new HashSet<Long>();
-			for(ConsultaDto consulta : consultes ) 	
+			for(ConsultaDto consulta : consultes )
 				if (!consultesAvisades.contains(consulta.getId())) {
 					consultesAvisades.add(consulta.getId());
 					MissatgesHelper.warning(
 							request,
-							getMessage(request, "definicio.proces.delete.avis.consultes", 
+							getMessage(request, "definicio.proces.delete.avis.consultes",
 									new Object[] {consulta.getCodi(), consulta.getNom()}));
 				}
 		}
@@ -169,19 +148,19 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		// Esborra la definició de procés
 		boolean success = false;
 		long processosCount = expedientService.countAmbDefinicioProcesId(definicioProces.getId());
-		if (processosCount == 0) 
-		{			
+		if (processosCount == 0)
+		{
 			// Invoca al servei per despublicar la definició de procés
 			definicioProcesService.delete(
 					entornId,
 					definicioProces.getId());
-			MissatgesHelper.success(request, getMessage(request, "definicio.proces.delete.success", 
+			MissatgesHelper.success(request, getMessage(request, "definicio.proces.delete.success",
 					new Object[] {
 							definicioProces.getJbpmKey(),
 							definicioProces.getVersio()}));
 			success = true;
 		} else {
-			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error.processos", 
+			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error.processos",
 						new Object[] {
 								definicioProces.getJbpmKey(),
 								definicioProces.getVersio(),
@@ -197,11 +176,11 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			@PathVariable String jbmpKey,
 			Model model) {
 		MissatgesHelper.warning(
-				request, 
+				request,
 				getMessage(
-						request, 
+						request,
 						"definicio.proces.pipelles.no.identificador"));
-		return "redirect:/definicioProces";			
+		return "redirect:/definicioProces";
 	}
 
 	/** Vista de les pipelles per a la definició de procés mostrant una específica. */
@@ -210,7 +189,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			HttpServletRequest request,
 			@PathVariable String jbmpKey,
 			@PathVariable Long definicioProcesId,
-			Model model) {		
+			Model model) {
 		return mostrarInformacioDefinicioProcesPerPipelles(
 				request,
 				jbmpKey,
@@ -242,13 +221,13 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			definicioProces = definicioProcesService.findById(definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
 			if (definicioProces != null) {
-				model.addAttribute("subDefinicionsProces", 
-						definicioProcesService.findSubDefinicionsProces(definicioProcesId));				
+				model.addAttribute("subDefinicionsProces",
+						definicioProcesService.findSubDefinicionsProces(definicioProcesId));
 			}
-		}		
+		}
 		return "definicioProcesDetall";
 	}
-	
+
 	/** Pipella dels recursos. */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/recurs")
 	public String recurs(
@@ -276,17 +255,18 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				Set<String> recursos = dissenyService.getRecursosNom(definicioProcesId);
 				model.addAttribute("recursos", recursos);
 			}
-		}		
+		}
 		return "definicioProcesRecurs";
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/recurs/descarregar")
-	public String recursDescarregar(
+	public View recursDescarregar(
 			HttpServletRequest request,
+			HttpServletResponse response,
 			@PathVariable String jbmpKey,
 			@PathVariable Long definicioProcesId,
 			@RequestParam String nom,
-			Model model) {
+			Model model) throws IOException {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		DefinicioProcesDto definicioProces = null;
 		if (entornActual != null) {
@@ -294,17 +274,17 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			if (definicioProces != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME,nom);
 				model.addAttribute(
-						ArxiuView.MODEL_ATTRIBUTE_DATA, 
+						ArxiuView.MODEL_ATTRIBUTE_DATA,
 						dissenyService.getRecursContingut(
-								definicioProcesId, 
+								definicioProcesId,
 								nom));
 			}
-		}		
-		return "arxiuView";
-	}	
+		}
+		return arxiuView;
+	}
 
 	/** Mètode per crear un .zip i descarregar el .par per una versió de la definició de procés.
-	 * 
+	 *
 	 * @param request
 	 * @param jbmpKey
 	 * @param definicioProcesId
@@ -312,7 +292,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/recurs/par")
-	public String recursDescarregarPar(
+	public View recursDescarregarPar(
 			HttpServletRequest request,
 			@PathVariable String jbmpKey,
 			@PathVariable Long definicioProcesId,
@@ -324,12 +304,12 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			if (definicioProces != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, definicioProces.getJbpmKey() + "_v." + definicioProces.getVersio() + ".par");
 				model.addAttribute(
-						ArxiuView.MODEL_ATTRIBUTE_DATA, 
+						ArxiuView.MODEL_ATTRIBUTE_DATA,
 						dissenyService.getParContingut(definicioProcesId));
 			}
-		}		
-		return "arxiuView";
-	}	
+		}
+		return arxiuView;
+	}
 
 	/** Modal per exportar la informació del tipus d'expedient. */
 	@RequestMapping(value = "/{jbmpKey}/exportar", method = RequestMethod.GET)
@@ -338,16 +318,16 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			@PathVariable String jbmpKey,
 			@RequestParam(required = false) Long definicioProcesId,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		DefinicioProcesDto definicioProces = null;
-		if (definicioProcesId == null) {			
+		if (definicioProcesId == null) {
 			MissatgesHelper.warning(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"definicio.proces.pipelles.no.identificador"));
-			return "redirect:/definicioProces";			
+			return "redirect:/definicioProces";
 
 		}
 		definicioProces = definicioProcesService.findById(definicioProcesId);
@@ -355,16 +335,16 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		command.setId(definicioProcesId);
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
 		model.addAttribute("command", command);
-		
+
 		this.omplirModelFormulariExportacio(
 				entornActual.getId(),
-				definicioProcesId, 
-				model, 
+				definicioProcesId,
+				model,
 				definicioProces);
 
 		return "definicioProcesExportarForm";
-	}	
-	
+	}
+
 	/** Crida Ajax per recarregar les opcions d'exportació quan canvia la versió de la definició de procés
 	 * escollida. */
 	@RequestMapping(value = "/{jbmpKey}/exportar/{definicioProcesId}/opcions", method = RequestMethod.GET)
@@ -373,23 +353,23 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			@PathVariable String jbmpKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
 		DefinicioProcesExportarCommand command = new DefinicioProcesExportarCommand();
 		command.setId(definicioProcesId);
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
 		model.addAttribute("command", command);
-		
+
 		this.omplirModelFormulariExportacio(
 				entornActual.getId(),
-				definicioProcesId, 
-				model, 
+				definicioProcesId,
+				model,
 				definicioProces);
 
 		return "definicioProcesExportarOpcions";
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{jbpmKey}/exportar", method = RequestMethod.POST)
 	public String exportarPost(
 			HttpServletRequest request,
@@ -404,19 +384,19 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			model.addAttribute("command", command);
 			this.omplirModelFormulariExportacio(
 					entornActual.getId(),
-					command.getId(), 
-					model, 
-					dto);        	
+					command.getId(),
+					model,
+					dto);
 			return "definicioProcesExportarForm";
         } else {
         	try {
         		model.addAttribute("filename", dto.getJbpmKey() +"_v" + dto.getVersio() + ".exp");
-        		DefinicioProcesExportacio definicioProcesExportacio = 
+        		DefinicioProcesExportacio definicioProcesExportacio =
         				definicioProcesService.exportar(
         						entornActual.getId(),
         						command.getId(),
         						ConversioTipus.convertir(
-        								command, 
+        								command,
         								DefinicioProcesExportacioCommandDto.class));
         		model.addAttribute("data", definicioProcesExportacio);
         		return "serialitzarView";
@@ -435,12 +415,12 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         	}
         }
 	}
-	
+
 	private void omplirModelFormulariExportacio(
 			Long entornId,
 			Long definicioProcesId,
-			Model model, 
-			DefinicioProcesDto definicioProces) {		
+			Model model,
+			DefinicioProcesDto definicioProces) {
 
 		model.addAttribute("definicioProces", definicioProces);
 		// Select de les versions
@@ -460,9 +440,9 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		model.addAttribute("terminis", definicioProcesService.terminiFindAll(definicioProcesId));
 		model.addAttribute("agrupacions", campService.agrupacioFindAll(null, definicioProcesId, false));
 		model.addAttribute("accions", accioService.findAll(null, definicioProcesId));
-	}	
-	
-	
+	}
+
+
 	/** Modal per importar la informació de la definició de procés des d'un arxiu d'exportació.
 	 * Si el paràmetre definicioProcesId està informat llavors el que s'està realitzant és una importació
 	 * de les dades d'un fitxer exportat sobre una definició de procés existent.
@@ -475,7 +455,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			@RequestParam(required = false) Long expedientTipusId,
 			@RequestParam(required = false) Long definicioProcesId,
 			Model model) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		DefinicioProcesExportarCommand command = new DefinicioProcesExportarCommand();
 		model.addAttribute("command", command);
@@ -489,9 +469,9 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				model.addAttribute("expedientTipus", expedientTipus);
 				command.setExpedientTipusId(expedientTipusId);
 			}
-			if (definicioProcesId != null) { 
+			if (definicioProcesId != null) {
 				DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
-				if (definicioProces != null 
+				if (definicioProces != null
 						&& definicioProces.getEntorn().getId().equals(entornActual.getId())){
 					model.addAttribute("definicioProces", definicioProces);
 					command.setId(definicioProcesId);
@@ -500,7 +480,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		}
 		return "definicioProcesImportarForm";
 	}
-	
+
 	/** Carrega el formulari per ajax i mostra les opcions per importar les dades del fitxer importat. */
 	@RequestMapping(value = "/importar/upload", method = RequestMethod.POST)
 	public String importarUploadPost(
@@ -512,19 +492,19 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			Model model) {
 
 		// Processament del fitxer fet en el validador ExpedientTipusUploadValidator
-		DefinicioProcesExportacio exportacio = command.getExportacio(); 			
+		DefinicioProcesExportacio exportacio = command.getExportacio();
 		if (bindingResult.hasErrors()) {
 			// es limitarà a mostrar els errors de validació
 		}
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
-		model.addAttribute("command", command);	
+		model.addAttribute("command", command);
 		command.setVersio(exportacio != null ? exportacio.getDefinicioProcesDto().getVersio() : null);
 	 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, model);
 
 		return "definicioProcesImportarOpcions";
-	}		
-	
+	}
+
 	/** Acció d'enviament del fitxer i les opcions sobre les dades de la definició de procés.
 	 * La validació es fa en el <i>DefinicioProcesImportarValidator</i>.
 	 * @param request
@@ -533,7 +513,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	 * @param model
 	 * @see es.caib.helium.back.validator.DefinicioProcesImportarValidator
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@RequestMapping(value = "/importar", method = RequestMethod.POST)
 	public String importarPost(
@@ -544,41 +524,41 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			BindingResult bindingResult,
 			Model model) throws IOException {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		
+
 		// Processament del fitxer fet en el validador ExpedientTipusImportarValidator
-		DefinicioProcesExportacio importacio = command.getExportacio(); 	
-	 	
+		DefinicioProcesExportacio importacio = command.getExportacio();
+
 		if (bindingResult.hasErrors()) {
-    		model.addAttribute("command", command);	    		
+    		model.addAttribute("command", command);
     		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, model);
         	return "definicioProcesImportarOpcions";
         } else {
         	DefinicioProcesDto definicioProces = definicioProcesService.importar(
         			entornActual.getId(),
         			command.getExpedientTipusId(),
-        			command.getId(), 
+        			command.getId(),
         			ConversioTipus.convertir(
-							command, 
+							command,
 							DefinicioProcesExportacioCommandDto.class),
         			importacio);
-        	
+
     		MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"definicio.proces.importar.form.success"));
     		// Indica que la importació ha finalitzat per no haver de processar més codi
     		model.addAttribute("importacioFinalitzada", true);
-        	if (command.getId() != null) 
+        	if (command.getId() != null)
 	    		return modalUrlTancar();
-        	else {        		
+        	else {
         		// retorna la redirecció
         		model.addAttribute("redireccioUrl",  request.getContextPath() + "/definicioProces/" + definicioProces.getJbpmKey());
             	return "definicioProcesImportarOpcions";
         	}
         }
-	}	
-	
+	}
+
 	private void omplirModelFormulariImportacio(
 			Long entornId,
 			Long definicioProcesId,
@@ -593,7 +573,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					&& dto != null
 					&& ! dto.getJbpmKey().equals(exportacio.getDefinicioProcesDto().getJbpmKey())) {
 				model.addAttribute("exportacio", exportacio);
-				model.addAttribute("avisImportacioDefinicioProcesDiferent", true); 
+				model.addAttribute("avisImportacioDefinicioProcesDiferent", true);
 			}
 	 	}
 		// Per indicar a la pàgina si s'ha pogut fer una importació del fitxer.
@@ -606,8 +586,8 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			model.addAttribute("agrupacions", exportacio.getAgrupacions());
 			model.addAttribute("accions", exportacio.getAccions());
 		}
-	}	
-	
+	}
+
 	/** Modal per desplegar una definició de procés des d'un arxiu d'exportació .par de JBPM.
 	 * Si el paràmetre definicioProcesId està informat llavors el que s'està realitzant és un desplegament
 	 * sobre una definició de procés existent i es permetrà sobre escriure els handlers.
@@ -620,15 +600,15 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			@RequestParam(required = false) Long expedientTipusId,
 			@RequestParam(required = false) Long definicioProcesId,
 			Model model) {
-		
+
 		DefinicioProcesDesplegarCommand command = new DefinicioProcesDesplegarCommand();
 		command.setAccio(ACCIO_PROCES.PROCES_DESPLEGAR);
 		command.setExpedientTipusId(expedientTipusId);
 		command.setId(definicioProcesId);
 		this.omplirModelFormulariDesplegament(command, model, request);
 		return "definicioProcesDesplegarForm";
-	}	
-	
+	}
+
 	/** Acció d'enviament del fitxer i les opcions sobre les dades de la definició de procés.
 	 * La validació es fa en el <i>DefinicioProcesImportarValidator</i>.
 	 * @param request
@@ -637,7 +617,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	 * @param model
 	 * @see es.caib.helium.back.validator.DefinicioProcesImportarValidator
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@RequestMapping(value = "/desplegar", method = RequestMethod.POST)
 	public String desplegarPost(
@@ -656,22 +636,22 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         	try {
         		if (ACCIO_PROCES.PROCES_DESPLEGAR.equals(command.getAccio())) {
         			// Recupera la informació del contingut del fitxer
-        			DefinicioProcesExportacio exportacio = 
+        			DefinicioProcesExportacio exportacio =
         					dissenyService.getDefinicioProcesExportacioFromContingut(
             					command.getFile().getOriginalFilename(),
         						command.getFile().getBytes()
         					);
         			// Guarda la darrera per copiar dades
-        			DefinicioProcesDto darreraDefinicioProces = 
+        			DefinicioProcesDto darreraDefinicioProces =
         					definicioProcesService.findByEntornTipusIdAndJbpmKey(
-        							entornActual.getId(), 
+        							entornActual.getId(),
         							command.getExpedientTipusId(),
         							exportacio.getDefinicioProcesDto().getJbpmKey());
         			// Realitza la importació com a una nova versió
         			exportacio.getDefinicioProcesDto().setEtiqueta(command.getEtiqueta());
         			DefinicioProcesDto definicioProces = definicioProcesService.importar(
-            				command.getEntornId(), 
-            				command.getExpedientTipusId(), 
+            				command.getEntornId(),
+            				command.getExpedientTipusId(),
             				command.getId(),
             				null, 	// DefinicioProcesExportacioCommandDto
             				exportacio);
@@ -683,7 +663,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
     	        	// Invoca al mètode per relacionar les darreres definicions de procés
         			if (definicioProces.getExpedientTipus() != null)
         				definicioProcesService.relacionarDarreresVersions(definicioProces.getExpedientTipus().getId());
-    	        	
+
             		MissatgesHelper.success(request, getMessage( request, "definicio.proces.desplegar.form.success"));
             		if (command.isActualitzarExpedientsActius()) {
             				// Programació de la tasca d'actualització d'expedients actius
@@ -722,9 +702,9 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         					command.getFile().getOriginalFilename(),
     						command.getFile().getBytes());
         				if (definicioProces.getExpedientTipus() != null)
-	                		MissatgesHelper.success(request, 
-	                				getMessage( 
-	                						request, 
+	                		MissatgesHelper.success(request,
+	                				getMessage(
+	                						request,
 	                						"definicio.proces.actualitzar.confirmacio.expedientTipus",
 	                						new Object[] {
 	                								definicioProces.getJbpmKey(),
@@ -732,9 +712,9 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	                								definicioProces.getExpedientTipus().getCodi(),
 	                								definicioProces.getExpedientTipus().getNom() }));
         				else
-	                		MissatgesHelper.success(request, 
-	                				getMessage( 
-	                						request, 
+	                		MissatgesHelper.success(request,
+	                				getMessage(
+	                						request,
 	                						"definicio.proces.actualitzar.confirmacio.global",
 	                						new Object[] {
 	                								definicioProces.getJbpmKey(),
@@ -754,9 +734,9 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
             	}
         	} catch (Exception e) {
         		logger.error("Error: (" + e.getClass() + ") " + e.getLocalizedMessage() );
-        		MissatgesHelper.error(request, 
+        		MissatgesHelper.error(request,
         				getMessage(
-        						request, 
+        						request,
         						"definicio.proces.desplegar.form.error",
         						new Object[] {e.getLocalizedMessage()}),
     					e);
@@ -766,10 +746,10 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         		this.omplirModelFormulariDesplegament(command, model, request);
             	return "definicioProcesDesplegarForm";
         	} else {
-        		return modalUrlTancar(false);        		
+        		return modalUrlTancar(false);
         	}
         }
-	}		
+	}
 	private void omplirModelFormulariDesplegament(
 			DefinicioProcesDesplegarCommand command,
 			Model model,
@@ -778,7 +758,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		// Per indicar a la pàgina si s'ha pogut fer una importació del fitxer.
 		model.addAttribute("command", command);
-		
+
 		if (entornActual != null) {
 			model.addAttribute("entorn", entornActual);
 			command.setEntornId(entornActual.getId());
@@ -788,32 +768,32 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 							command.getExpedientTipusId());
 				model.addAttribute("expedientTipus", expedientTipus);
 			}
-			if (command.getId() != null) { 
+			if (command.getId() != null) {
 				DefinicioProcesDto definicioProces = definicioProcesService.findById(command.getId());
-				if (definicioProces != null 
+				if (definicioProces != null
 						&& definicioProces.getEntorn().getId().equals(entornActual.getId()))
 					model.addAttribute("definicioProces", definicioProces);
 			}
 			// Select dels tipus d'expedient de l'entorn
 			model.addAttribute("expedientsTipus", expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId()));
 		}
-		
+
 		// Select de les accions jbpm
 		List<ParellaCodiValorDto> accions = new ArrayList<ParellaCodiValorDto>();
 		accions.add(new ParellaCodiValorDto(
-				DefinicioProcesDesplegarCommand.ACCIO_PROCES.PROCES_DESPLEGAR.toString(), 
+				DefinicioProcesDesplegarCommand.ACCIO_PROCES.PROCES_DESPLEGAR.toString(),
 				getMessage(request, "definicio.proces.desplegar.form.accio.desplegar")));
 		accions.add(new ParellaCodiValorDto(
-				DefinicioProcesDesplegarCommand.ACCIO_PROCES.PROCES_ACTUALITZAR.toString(), 
+				DefinicioProcesDesplegarCommand.ACCIO_PROCES.PROCES_ACTUALITZAR.toString(),
 				getMessage(request, "definicio.proces.desplegar.form.accio.actualitzar")));
 		model.addAttribute("accionsProces", accions);
-		
+
 	}
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(DefinicioProcesController.class);
 }

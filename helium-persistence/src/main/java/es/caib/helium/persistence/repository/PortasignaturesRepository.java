@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -21,7 +21,7 @@ import es.caib.helium.persistence.entity.Portasignatures;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a un document enviat al portasignatures que està
  * emmagatzemat a dins la base de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface PortasignaturesRepository extends JpaRepository<Portasignatures, Long> {
@@ -49,7 +49,7 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 
 	/** Per trobar per id del portasignatures. */
 	Portasignatures findByDocumentId(Integer documentId);
-		
+
 	@Query("select p " +
 			"from Portasignatures p " +
 			"where processInstanceId = :processInstanceId "  +
@@ -59,9 +59,9 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 	List<Portasignatures> findByExpedientAndEstat(
 			Expedient expedient,
 			PortafirmesEstatEnum estat);
-	
+
 	Optional<Portasignatures> findById(Long portasignaturesId);
-	
+
 	@Query(	"select pf from Portasignatures pf, DocumentStore docs where pf.documentStoreId = docs.id " +
 			"and  "+
 			" (:esNullEntornId = true or pf.expedient.entorn.id = :entornId) " +
@@ -71,7 +71,7 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			" and (:esNullNumExp = true or lower(pf.expedient.numero) like lower('%'||:numExp||'%') or lower(pf.expedient.titol) like lower('%'||:numExp||'%')) " +
 			" and (:esNullEstat = true or pf.estat = :estat) " +
 			" and (:esNullTransicio = true or pf.transition = :transicio) " +
-			" and (:esNullDocument = true or lower(replace(docs.jbpmVariable, 'H3l1um#document.', '')) like lower('%'||:document||'%') or lower(docs.arxiuNom) like lower('%'||:document||'%')) " +
+			" and (:esNullDocument = true or lower(docs.codi) like lower('%'||:document||'%') or lower(docs.arxiuNom) like lower('%'||:document||'%')) " +
 			" and (:esNullDataIni = true or pf.dataEnviat >= :dataIni) " +
 			" and (:esNullDataFi = true  or pf.dataEnviat <= :dataFi)" +
 			" and (:esNullDocumentId = true or pf.documentId = :documentId) ")
@@ -99,5 +99,5 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			@Param("esNullDocumentId") boolean esNullDocumentId,
 			@Param("documentId") Integer documentId,
 			Pageable pageable);
-	
+
 }

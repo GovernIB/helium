@@ -740,7 +740,7 @@ public class PlantillaHelper {
 								List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(processInstanceId);
 								DocumentDto resposta = null;
 								for (int i = 0; i < documents.size(); i++) {
-									if (documents.get(i).getJbpmVariable().equals(JbpmVars.PREFIX_DOCUMENT + codi))
+									if (documents.get(i).getCodi().equals(JbpmVars.PREFIX_DOCUMENT + codi))
 										resposta = documentHelper.toDocumentDto(
 												documents.get(i).getId(),
 												false,

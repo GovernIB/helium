@@ -1393,19 +1393,19 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				pluginHelper.custodiaEsborrarSignatures(
 						documentStore.getReferenciaCustodia(),
 						expedient);
-			String jbpmVariable = documentStore.getJbpmVariable();
+			String codi = documentStore.getCodi();
 			documentStore.setReferenciaCustodia(null);
 			documentStore.setSignat(false);
 			expedientRegistreHelper.crearRegistreEsborrarSignatura(
 					expedient.getId(),
 					expedient.getProcessInstanceId(),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
-					getVarNameFromDocumentStore(documentStore));
+					documentStore.getCodi());
 			List<WTaskInstance> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
 			for (WTaskInstance task: tasks) {
 				jbpmHelper.deleteTaskInstanceVariable(
 						task.getId(),
-						jbpmVariable);
+						codi);
 			}
 		}
 	}
@@ -1572,7 +1572,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		expedientHelper.finalitzar(id, firmaDocumentsServidor);
 	}
 
-	
+
 	@Transactional
 	private void migrarArxiu(Long id, boolean esborrarExpSiError) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -1791,7 +1791,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			entity.setReferenciaCustodia(documentStore.getReferenciaCustodia());
 			entity.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
 			entity.setNtiCsv(documentStore.getNtiCsv());
-			entity.setNtiTipoFirma(documentStore.getNtiTipoFirma() == null? null : NtiTipoFirmaEnumDto.valueOf(documentStore.getNtiTipoFirma()));
+			entity.setNtiTipoFirma(documentStore.getNtiTipoFirma());
 			entity.setNtiIdentificador(documentStore.getNtiIdentificador());
 			entity.setArxiuContingut(documentStore.getArxiuContingut());
 			entity.setDocumentValid(documentStore.isDocumentValid());
@@ -3250,16 +3250,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		return false;
 	}
 
-	private String getVarNameFromDocumentStore(DocumentStore documentStore) {
-		String jbpmVariable = documentStore.getJbpmVariable();
-		if (documentStore.isAdjunt())
-			return jbpmVariable.substring(
-					JbpmVars.PREFIX_ADJUNT.length());
-		else
-			return jbpmVariable.substring(
-					JbpmVars.PREFIX_DOCUMENT.length());
-	}
-
 	private int findVersioDefProcesActualitzar(List<DefinicioProcesExpedientDto> definicionsProces, Long[] definicionsProcesId, String key) {
 		int versio = -1;
 		int i = 0;
@@ -3849,7 +3839,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		expedientHelper.firmarDocumentServidorPerArxiuFiExpedient(documentStoreId);
 	}
 
-	
+
 	/** Mètode per implementar la interfície {@link ArxiuPluginListener} de Distribució per rebre events de quan es crida l'Arxiu i afegir
 	 * els logs al monitor d'integracions.
 	 * @param metode
@@ -3903,7 +3893,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	public List<Long> findIdsPerTipus(Long expedientTipusId) {
 		return expedientHelper.findIdsPerTipus(expedientTipusId);
 	}
-	
+
 	private static void addCurrentlyMigrating(Long expedientId) {
 		synchronized(currentlyMigratingExpedients) {
 			if(!currentlyMigratingExpedients.contains(expedientId))

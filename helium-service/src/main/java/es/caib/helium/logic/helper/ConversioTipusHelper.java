@@ -554,7 +554,7 @@ public class ConversioTipusHelper {
 
 		mapperFactory.classMap(DocumentFinalitzarDto.class, DocumentStore.class)
 		.field("documentStoreId", "id")
-		.field("documentCodi", "jbpmVariable")
+		.field("documentCodi", "codi")
 		.byDefault()
 		.register();
 

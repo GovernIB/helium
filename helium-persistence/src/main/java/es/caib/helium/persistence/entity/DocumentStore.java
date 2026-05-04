@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -36,13 +36,13 @@ import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
 /**
  * Objecte de domini que representa una entrada al magatzem de documents
  * de la BBDD
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
 @Table(name="hel_document_store")
 public class DocumentStore implements Serializable, GenericEntity<Long> {
-	
+
 	public enum DocumentFont {
 		INTERNA,
 		ALFRESCO
@@ -51,7 +51,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	private Long id;
 	private DocumentFont font;
 	private String processInstanceId;
-	private String jbpmVariable;
+	private String codi;
 	private Date dataCreacio;
 	private Date dataModificacio;
 	private Date dataDocument;
@@ -80,7 +80,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	private String ntiCsv;
 	private String ntiDefinicionGenCsv;
 	private String arxiuUuid;
-	
+
 	/** Indica si en la consulta Distribucio el marca com a válid o invàlid */
 	private Boolean documentValid;
 	/** Camp on distribucio informa dels possibles errors que pugui tenir el document. */
@@ -93,22 +93,22 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 
 	/** Llista de documents continguts en el zip guardats a laa taula hel_document_contingut. S'usa en les notificacions de zips. */
 	private List<DocumentStore> continguts = new ArrayList<DocumentStore>();
-	
+
 	/** Llista de documents zip que contenen aquest document guardats a la taula hel_document_contingut. S'usa en les notificacions de zips. */
 	private List<DocumentStore> zips = new ArrayList<DocumentStore>();
 
-	
+
 	public DocumentStore() {}
 	public DocumentStore(
 			DocumentFont font,
 			String processInstanceId,
-			String jbpmVariable,
+			String codi,
 			Date dataCreacio,
 			Date dataDocument,
 			String arxiuNom) {
 		this.font = font;
 		this.processInstanceId = processInstanceId;
-		this.jbpmVariable = jbpmVariable;
+		this.codi = codi;
 		this.dataCreacio = dataCreacio;
 		this.dataModificacio = dataCreacio;
 		this.dataDocument = dataDocument;
@@ -143,11 +143,11 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="jbpm_variable", length=255, nullable=false)
-	public String getJbpmVariable() {
-		return jbpmVariable;
+	public String getCodi() {
+		return codi;
 	}
-	public void setJbpmVariable(String jbpmVariable) {
-		this.jbpmVariable = jbpmVariable;
+	public void setCodi(String codi) {
+		this.codi = codi;
 	}
 
 	@Column(name="data_creacio", nullable=false)
@@ -383,7 +383,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 
 	@Transient
 	public String getCodiDocument() {
-		return null;
+		return codi;
 //		if (getJbpmVariable() == null || !getJbpmVariable().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 //			return null;
 //		}
@@ -405,7 +405,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public void setDocumentValid(Boolean documentValid) {
 		this.documentValid = documentValid;
 	}
-	
+
 	@Column(name = "document_error", length = 1000)
 	public String getDocumentError() {
 		return documentError;
@@ -413,7 +413,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public void setDocumentError(String documentError) {
 		this.documentError = documentError;
 	}
-	
+
 	@Column(name = "annex_id")
 	public Long getAnnexId() {
 		return annexId;
@@ -421,7 +421,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public void setAnnexId(Long annexId) {
 		this.annexId = annexId;
 	}
-	
+
 	@Column(name="SYNC_REINTENT_DATA", nullable=true)
 	public Date getSyncReintentData() {
 		return syncReintentData;
@@ -436,7 +436,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public void setSyncReintents(Long syncReintents) {
 		this.syncReintents = syncReintents;
 	}
-	
+
 	@JoinTable(name = "hel_document_contingut", joinColumns = {
 	@JoinColumn(name = "id", referencedColumnName = "id", nullable = false) }, inverseJoinColumns = {
 	@JoinColumn(name = "document_contingut", referencedColumnName = "id", nullable = false) })
@@ -447,7 +447,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public void setContinguts(List<DocumentStore> continguts) {
 		this.continguts = continguts;
 	}
-	
+
 	@ManyToMany(mappedBy = "continguts")
 	public List<DocumentStore> getZips() {
 		return zips;
@@ -481,7 +481,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 
 	@Override
 	public String toString() {
-		return "DocumentStore [id=" + id + ", jbpmVariable=" + jbpmVariable + ", arxiuNom=" + arxiuNom + ", signat="
+		return "DocumentStore [id=" + id + ", codi=" + codi + ", arxiuNom=" + arxiuNom + ", signat="
 				+ signat + ", adjunt=" + adjunt + ", arxiuUuid=" + arxiuUuid + ", font=" + font + "]";
 	}
 

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -9,8 +9,11 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import es.caib.helium.back.mvc.ArxiuView;
+import es.caib.helium.back.mvc.SerialitzarView;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
@@ -26,14 +29,19 @@ import es.caib.helium.back.helper.ModalHelper;
 
 /**
  * Controlador base que implementa funcionalitats comunes.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class BaseController implements MessageSourceAware {
-	
+
 	@Value("${server.servlet.context-path}")
 	public static String ESQUEMA_PREFIX;
 	MessageSource messageSource;
+
+	@Autowired
+	protected ArxiuView arxiuView;
+	@Autowired
+	protected SerialitzarView serialitzarView;
 
 	protected String modalUrlTancar(boolean refrescar) {
 		if (refrescar)
@@ -45,11 +53,11 @@ public class BaseController implements MessageSourceAware {
 	protected String modalUrlTancar() {
 		return "utils/modalTancarIRefrescar";
 	}
-	
+
 	protected String ajaxUrlOk() {
 		return "redirect:/nodeco/util/ajaxOk";
 	}
-	
+
 	protected String getPageURI(HttpServletRequest request) {
 		String uri = request.getRequestURI();
 		return uri.substring(uri.indexOf(ESQUEMA_PREFIX) + ESQUEMA_PREFIX.length());
@@ -72,9 +80,9 @@ public class BaseController implements MessageSourceAware {
 			Object[] messageArgs) {
 		if (messageKey != null) {
 			MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							messageKey,
 							messageArgs));
 		}
@@ -101,9 +109,9 @@ public class BaseController implements MessageSourceAware {
 			Object[] messageArgs) {
 		if (messageKey != null) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							messageKey,
 							messageArgs));
 		}
@@ -131,9 +139,9 @@ public class BaseController implements MessageSourceAware {
 			Object[] messageArgs) {
 		if (messageKey != null) {
 			MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							messageKey,
 							messageArgs));
 		}
@@ -161,9 +169,9 @@ public class BaseController implements MessageSourceAware {
 			Object[] messageArgs) {
 		if (messageKey != null) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							messageKey,
 							messageArgs));
 		}
@@ -205,7 +213,7 @@ public class BaseController implements MessageSourceAware {
 
 	protected String redirectByModal(HttpServletRequest request, String url){
 		if (ModalHelper.isModal(request)){
-			url = "/modal" + url; 
+			url = "/modal" + url;
 		}
 		return "redirect:" + url;
 	}
@@ -213,9 +221,9 @@ public class BaseController implements MessageSourceAware {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
-	
+
 	private class HTMLCharacterEscapes extends CharacterEscapes {
-		
+
 		private final int[] asciiEscapes;
 
 		public HTMLCharacterEscapes() {
@@ -236,7 +244,7 @@ public class BaseController implements MessageSourceAware {
 		public SerializableString getEscapeSequence(int ch) {
 			return null;
 		}
-		
+
 		private static final long serialVersionUID = 7857770126102468040L;
 	}
 
@@ -248,12 +256,12 @@ public class BaseController implements MessageSourceAware {
 		mapper.getFactory().setCharacterEscapes(new HTMLCharacterEscapes());
 		String result = null;
 		try {
-			result = mapper.writeValueAsString(object);			
+			result = mapper.writeValueAsString(object);
 		} catch (Exception e) {
 			logger.error(e);
 		}
 		return result;
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(BaseController.class);
 }

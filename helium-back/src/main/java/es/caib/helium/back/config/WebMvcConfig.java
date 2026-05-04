@@ -1,31 +1,34 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opensymphony.module.sitemesh.filter.PageFilter;
+import es.caib.helium.back.interceptor.*;
+import es.caib.helium.back.mvc.ArxiuView;
+import es.caib.helium.back.mvc.SerialitzarView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.opensymphony.module.sitemesh.filter.PageFilter;
-
-import es.caib.helium.back.interceptor.AjaxInterceptor;
-import es.caib.helium.back.interceptor.AplicacioInterceptor;
-import es.caib.helium.back.interceptor.EntornInterceptor;
-import es.caib.helium.back.interceptor.ModalInterceptor;
-import es.caib.helium.back.interceptor.NodecoInterceptor;
-import es.caib.helium.back.interceptor.PersonaInterceptor;
+import java.util.List;
 
 /**
  * Configuració dels interceptors de peticions.
- * 
+ *
  * @author Limit Tecnologies
  */
 @Configuration
@@ -88,10 +91,24 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(ajaxInterceptor).excludePathPatterns(excludedPathPatterns);
 	}
-	
+
+	@Bean
+	public MappingJackson2HttpMessageConverter jsonConverter() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+		converter.setObjectMapper(mapper);
+		return converter;
+	}
+
+	@Override
+	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+		converters.add(jsonConverter());
+	}
+
 	/** Configura el firewall per permetre caràcters codificats com el % ja que aquests s'usen en la codificació
 	 * dels identificadors en els enllaços públics de descàrrega de documents.
-	 * 
+	 *
 	 * @return
 	 */
 	@Bean
@@ -104,4 +121,23 @@ public class WebMvcConfig implements WebMvcConfigurer {
         firewall.setAllowUrlEncodedPeriod(true);
         return firewall;
     }
+
+	@Bean
+	public CommonsMultipartResolver multipartResolver() {
+		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
+		multipartResolver.setMaxUploadSize(1000000);
+		return multipartResolver;
+	}
+
+	@Bean
+	public SerialitzarView serialitzarView() {
+		return new SerialitzarView();
+	}
+
+	@Bean
+	public ArxiuView arxiuView() {
+		return new ArxiuView();
+	}
+
+
 }

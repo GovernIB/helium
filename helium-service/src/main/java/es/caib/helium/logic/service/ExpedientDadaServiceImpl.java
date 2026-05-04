@@ -572,8 +572,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 
 		} else if (dadaExp.isCampMultiple()) {
 			valorMultiple = new ArrayList<String>();
-			for (ExpedientDadaDto dadaMultiple: dadaExp.getMultipleDades()) {
-				valorMultiple.add(dadaMultiple.getText());
+			if(dadaExp.getVarValor() != null) {
+				for(Object col : ((List) dadaExp.getVarValor()))
+					valorMultiple.add(col.toString());
 			}
 		} else {
 			valorSimple = dadaExp.getText();

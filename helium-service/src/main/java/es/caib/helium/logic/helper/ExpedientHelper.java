@@ -1251,8 +1251,8 @@ public class ExpedientHelper {
 			Expedient expedient,
 			String processInstanceId) {
 //		ProcessInstanceExpedient piexp = workflowEngineApi.expedientFindByProcessInstanceId(
-//				processInstanceId);
 //		if (piexp.getId() != expedient.getId().longValue()) {
+//				processInstanceId);
 //			throw new NoTrobatException(
 //					JbpmProcessInstance.class,
 //					new Long(processInstanceId));
@@ -1304,8 +1304,8 @@ public class ExpedientHelper {
 
 	public DefinicioProces findDefinicioProcesByProcessInstanceId(
 			String processInstanceId) {
-//		String processDefinitionId = workflowEngineApi.getProcessInstance(processInstanceId).getProcessDefinitionId();
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(null);
+		String processDefinitionId = workflowEngineApi.getProcessInstance(processInstanceId).getProcessDefinitionId();
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(processDefinitionId);
 		if (definicioProces == null) {
 			throw new NoTrobatException(
 					DefinicioProces.class,

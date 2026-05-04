@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.command;
 
@@ -18,16 +18,17 @@ import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
 import es.caib.helium.commons.dto.PinbalServeiEnumDto;
 import es.caib.helium.commons.dto.PortafirmesSimpleTipusEnumDto;
 import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Command per editar la informació de les variables dels tipus d'expedient
- * i de les definicions de procés. 
- * 
+ * i de les definicions de procés.
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @ExpedientTipusDocument(groups = {Creacio.class, Modificacio.class})
 public class ExpedientTipusDocumentCommand {
-	
+
 	private Long expedientTipusId;
 	private Long definicioProcesId;
 	private Long id;
@@ -54,8 +55,8 @@ public class ExpedientTipusDocumentCommand {
 	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	private boolean generarNomesTasca;
-	
-	private PortafirmesTipusEnumDto portafirmesFluxTipus;	
+
+	private PortafirmesTipusEnumDto portafirmesFluxTipus;
 	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
 	private String portafirmesResponsables;
 	private String portafirmesFluxId;
@@ -67,7 +68,16 @@ public class ExpedientTipusDocumentCommand {
 	private String pinbalFinalitat;
 	private PinbalServeiEnumDto pinbalServei;
 	private boolean pinbalCifOrgan = false;
-	
+
+	private MultipartFile arxiuContingut_multipartFile;
+
+	public MultipartFile getArxiuContingut_multipartFile() {
+		return this.arxiuContingut_multipartFile;
+	}
+	public void setArxiuContingut_multipartFile(MultipartFile arxiuContingut_multipartFile) {
+		this.arxiuContingut_multipartFile = arxiuContingut_multipartFile;
+	}
+
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
 	}
@@ -194,7 +204,7 @@ public class ExpedientTipusDocumentCommand {
 	public void setGenerarNomesTasca(boolean generarNomesTasca) {
 		this.generarNomesTasca = generarNomesTasca;
 	}
-	
+
 	public boolean isPortafirmesActiu() {
 		return portafirmesActiu;
 	}
@@ -257,7 +267,7 @@ public class ExpedientTipusDocumentCommand {
 	public void setPinbalCifOrgan(boolean pinbalCifOrgan) {
 		this.pinbalCifOrgan = pinbalCifOrgan;
 	}
-	
+
 	public static DocumentDto asDocumentDto(ExpedientTipusDocumentCommand command) {
 		DocumentDto dto = new DocumentDto();
 		dto.setId(command.getId());

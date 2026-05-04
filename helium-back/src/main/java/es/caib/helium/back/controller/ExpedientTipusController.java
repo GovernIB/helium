@@ -1,17 +1,28 @@
 package es.caib.helium.back.controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
+import es.caib.helium.back.command.ExpedientTipusCommand;
+import es.caib.helium.back.command.ExpedientTipusCommand.Creacio;
+import es.caib.helium.back.command.ExpedientTipusCommand.Modificacio;
+import es.caib.helium.back.command.ExpedientTipusExportarCommand;
+import es.caib.helium.back.command.ExpedientTipusExportarCommand.Exportacio;
+import es.caib.helium.back.command.ExpedientTipusExportarCommand.Importacio;
+import es.caib.helium.back.command.ExpedientTipusExportarCommand.Upload;
+import es.caib.helium.back.command.PermisCommand;
+import es.caib.helium.back.command.PermisCommand.Tipus;
+import es.caib.helium.back.helper.*;
+import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
+import es.caib.helium.back.helper.SessionHelper.SessionManager;
+import es.caib.helium.back.mvc.ArxiuView;
+import es.caib.helium.back.mvc.SerialitzarView;
+import es.caib.helium.commons.dto.*;
+import es.caib.helium.commons.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
+import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
+import es.caib.helium.commons.exportacio.DocumentExportacio;
+import es.caib.helium.commons.exportacio.ExpedientTipusExportacio;
+import es.caib.helium.commons.exportacio.ExpedientTipusExportacioCommandDto;
+import es.caib.helium.logic.intf.service.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,65 +34,14 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.InternalResourceView;
 
-import es.caib.helium.back.command.ExpedientTipusCommand;
-import es.caib.helium.back.command.ExpedientTipusCommand.Creacio;
-import es.caib.helium.back.command.ExpedientTipusCommand.Modificacio;
-import es.caib.helium.back.command.ExpedientTipusExportarCommand;
-import es.caib.helium.back.command.ExpedientTipusExportarCommand.Exportacio;
-import es.caib.helium.back.command.ExpedientTipusExportarCommand.Importacio;
-import es.caib.helium.back.command.ExpedientTipusExportarCommand.Upload;
-import es.caib.helium.back.command.PermisCommand;
-import es.caib.helium.back.command.PermisCommand.Tipus;
-import es.caib.helium.back.helper.ConversioTipus;
-import es.caib.helium.back.helper.DatatablesHelper;
-import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.back.helper.NodecoHelper;
-import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.back.helper.SessionHelper.SessionManager;
-import es.caib.helium.back.mvc.ArxiuView;
-import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.ConsultaDto;
-import es.caib.helium.commons.dto.DefinicioProcesDto;
-import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
-import es.caib.helium.commons.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.EntornDto;
-import es.caib.helium.commons.dto.ExecucioMassivaDto;
-import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.commons.dto.ExpedientTipusDto;
-import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.dto.ParametreDto;
-import es.caib.helium.commons.dto.ParellaCodiValorDto;
-import es.caib.helium.commons.dto.PermisDto;
-import es.caib.helium.commons.dto.PersonaDto;
-import es.caib.helium.commons.dto.PortafirmesFluxRespostaDto;
-import es.caib.helium.commons.dto.SequenciaAnyDto;
-import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
-import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
-import es.caib.helium.commons.exportacio.DocumentExportacio;
-import es.caib.helium.commons.exportacio.ExpedientTipusExportacio;
-import es.caib.helium.commons.exportacio.ExpedientTipusExportacioCommandDto;
-import es.caib.helium.logic.intf.service.AplicacioService;
-import es.caib.helium.logic.intf.service.DefinicioProcesService;
-import es.caib.helium.logic.intf.service.DissenyService;
-import es.caib.helium.logic.intf.service.ExecucioMassivaService;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.service.ParametreService;
-import es.caib.helium.logic.intf.service.PortafirmesFluxService;
-import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Controlador per al manteniment de tipus d'expedient.
@@ -493,7 +453,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/exportar", method = RequestMethod.POST)
-	public String exportarPost(
+	public View exportarPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@ModelAttribute("command")
@@ -508,7 +468,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			model.addAttribute("expedientTipus", dto);
 			model.addAttribute("command", command);
 			this.omplirModelFormulariExportacio(expedientTipusId, model, dto);
-        	return "expedientTipusExportarForm";
+        	return new InternalResourceView("expedientTipusExportarForm");
         } else {
 			model.addAttribute("filename", dto.getCodi() + ".exp");
 			ExpedientTipusExportacio expedientTipusExportacio =
@@ -519,7 +479,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 									command,
 									ExpedientTipusExportacioCommandDto.class));
 			model.addAttribute("data", expedientTipusExportacio);
-			return "serialitzarView";
+			return serialitzarView;
         }
 	}
 

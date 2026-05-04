@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.config;
 
@@ -29,10 +29,11 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 /**
  * Configuració de Spring Security per a executar l'aplicació amb Spring Boot.
- * 
+ *
  * @author Limit Tecnologies
  */
 @Slf4j
@@ -41,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 public class SpringBootWebSecurityConfig extends BaseWebSecurityConfig {
-	
+
 	@Bean
 	public SecurityFilterChain oauth2LoginSecurityFilterChain(HttpSecurity http) throws Exception {
 		http.authorizeRequests().
@@ -60,7 +61,7 @@ public class SpringBootWebSecurityConfig extends BaseWebSecurityConfig {
 		http.cors();
 		return http.build();
 	}
-	
+
 	private OAuth2UserService<OidcUserRequest,OidcUser> oidcUserService() {
 		final OidcUserService delegate = new OidcUserService();
 		return (userRequest) -> {

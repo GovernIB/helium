@@ -47,7 +47,7 @@
                         </c:if>
                         <div class="form-group">
                             <div class="col-xs-9 pad-left-col-xs-3">
-                                <c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
+                                <c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> <c:out value="${dada.observacions}" /></p></c:if>
                                 <button id="button_add_var_mult_${campCodi}" type="button" class="btn btn-default pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
                                 <div class="clear"></div>
                                 <c:if test="${not empty campErrorsMultiple}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dada.varCodi}"/></p></c:if>

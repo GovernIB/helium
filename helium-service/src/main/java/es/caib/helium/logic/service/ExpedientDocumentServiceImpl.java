@@ -19,6 +19,8 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.dades.DocumentTipusEnum;
+import es.caib.helium.logic.helper.*;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,15 +88,6 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.utils.PdfUtils;
 import es.caib.helium.commons.utils.StringUtilsHelium;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientLoggerHelper;
-import es.caib.helium.logic.helper.ExpedientRegistreHelper;
-import es.caib.helium.logic.helper.NotificacioHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.TascaHelper;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -191,6 +184,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private NotificacioHelper notificacioHelper;
 	@Resource
 	private ReglaHelper reglaHelper;
+	@Resource
+	private ExpedientDocumentsHelper expedientDocumentsHelper;
 
 	@PostConstruct
 	public void postContruct() {
@@ -299,6 +294,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				documentCodi,
 				arxiuNom);
+	try {
+		expedientDocumentsHelper.create(
+			documentStoreCreat,
+			expedient,
+			processInstanceId,
+			null);
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
 		return conversioTipusHelper.convertir(documentStoreCreat, DocumentStoreDto.class);
 	}
 
@@ -640,6 +644,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId,
 				documentStoreId,
 				expedient.isArxiuActiu());
+		expedientDocumentsHelper.delete(documentStoreId);
 		if (processInstanceId == null) {
 			documentHelper.esborrarDocument(
 					null,
@@ -1035,55 +1040,31 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Transactional(readOnly = true)
     public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Long nextEstatId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
 		logger.debug("Consulta els documents de l'expedient' (expedientId=" + expedientId + ")");
+
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,
 				false,
 				false,
 				false);
+		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
 
-		if (tots) {
-			// Comprovam que l'usuari té permisos d'administrador sobre l'expedient
-			try {
-				expedientHelper.getExpedientComprovantPermisos(
-						expedientId,
-						false,
-						false,
-						false,
-						true);
-			} catch (PermisDenegatException pde) {
-				// Si no es tenen permisos d'administrador no es mostraran totes les dades
-				tots = false;
-			}
-		}
-
-		String processInstanceId = expedient.getProcessInstanceId();
-
-		Map<String, Document> documentsMap = new HashMap<String, Document>();
-		// Consulta els documents del pare en cas d'herència
-		if (expedient.getTipus().getExpedientTipusPare() != null) {
-		    // Documents heretats del pare
-		    List<Document> documentsPare = documentRepository.findByExpedientTipusId(expedient.getTipus().getExpedientTipusPare().getId());
-		    for (Document docPare : documentsPare) {
-		        documentsMap.put(docPare.getCodi(), docPare);
-		    }
-		}
-
-		List<Document> documentsPropis = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
-		for (Document docPropi : documentsPropis) {
-		    documentsMap.put(docPropi.getCodi(), docPropi);
-		}
-
-		List<Document> documentsTipusExpedient = new ArrayList<Document>(documentsMap.values());
-		List<ExpedientDocumentDto> documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
 
 		Estat estat = expedient.getEstat();
 		if(nextEstatId != null) {
 			estat = estatRepository.findById(nextEstatId).orElse(null);
 		}
 
-		Map<String, CampFormProperties> documentsFormProperties = reglaHelper.getDocumentFormProperties(expedient.getTipus(), estat);
+		String processInstanceId = expedient.getProcessInstanceId();
 
+		List<ExpedientDocumentDto> documentsExpedient;
+		if(expedient.getTipus().getTipus().equals(ExpedientTipusTipusEnumDto.ESTAT)) {
+			documentsExpedient = expedientDocumentsHelper.findDocumentsByExpedient(expedientId);
+		} else {
+			documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
+		}
+
+		Map<String, CampFormProperties> documentsFormProperties = reglaHelper.getDocumentFormProperties(expedient.getTipus(), estat);
 		List<DocumentListDto> documents = new ArrayList<DocumentListDto>();
 		List<String> documentCodis = new ArrayList<String>();
 
@@ -1264,13 +1245,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				false);
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				processInstanceId);
-		return documentHelper.findOnePerInstanciaProces(
-				processInstanceId,
-				documentStoreId,
-				expedient.isArxiuActiu());
+
+		return expedientDocumentsHelper.findDocumentByDocumentStoreId(expedientId, documentStoreId);
 	}
 
 	/**
@@ -1791,11 +1767,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				false);
+
+
 		// Document
+		ExpedientDocumentDto document = expedientDocumentsHelper.findDocumentByDocumentStoreId(expedientId, documentStoreId);
+		/*
 		ExpedientDocumentDto document = findOneAmbInstanciaProces(
 				expedientId,
 				expedient.getProcessInstanceId(),
 				documentStoreId);
+		 */
 
 		// Detalls del document
 		DocumentDetallDto.DocumentDetallDtoBuilder documentDetallBuilder = DocumentDetallDto.builder()
@@ -2402,13 +2383,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			if (variables != null) {
 				variables.remove(JbpmVars.VAR_TASCA_VALIDADA);
 				variables.remove(JbpmVars.VAR_TASCA_DELEGACIO);
+				/*
 				List<String> codisEsborrar = new ArrayList<String>();
 				for (String codi: variables.keySet()) {
 					if (!codi.startsWith(JbpmVars.PREFIX_DOCUMENT) && !codi.startsWith(JbpmVars.PREFIX_ADJUNT)) {
 						codisEsborrar.add(codi);
 					}
 				}
-				for (String codi: codisEsborrar)
+				*/
+				for (String codi: variables.keySet())
 					variables.remove(codi);
 			}
 			for (String var: variables.keySet()) {

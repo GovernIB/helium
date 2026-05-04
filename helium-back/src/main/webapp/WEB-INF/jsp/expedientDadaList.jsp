@@ -589,7 +589,7 @@
 						{{for valor.valorBody}}
 							<li class="list-group-item d-flex justify-content-between border-0">
 								{{for #data}}
-									<div class="d-flex flex-column text-sm">{{:#data}}</div>
+									<div class="d-flex flex-column text-sm">{{>#data}}</div>
 								{{/for}}
 							</li>
 						{{/for}}
@@ -599,12 +599,12 @@
 						<ul class="list-group multiple">
 							{{for valor.valorMultiple}}
 								<li class="list-group-item d-flex justify-content-between border-0">
-									<div class="d-flex flex-column text-sm">{{:#data}}</div>
+									<div class="d-flex flex-column text-sm">{{>#data}}</div>
 								</li>
 							{{/for}}
 						</ul>
 					{{else}}
-						{{:valor.valorSimple}}
+						{^{>valor.valorSimple}}
 					{{/if}}
 				{{/if}}
 				</span>

@@ -11,8 +11,8 @@
 <c:set var="isRegistre" value="${true}"/>
 <c:set var="campErrorsReg"><form:errors path="${dadaActual.varCodi}"/></c:set>
 <div class="form-group registre<c:if test="${not empty campErrorsReg}"> has-error</c:if>">
-	<label for="${dadaActual.varCodi}" class="control-label<c:if test="${dada.required}"> obligatori</c:if>" style="width: ${ampleLabel}; float: left; padding-right: 11px;">${dadaActual.campEtiqueta}</label>
-	<div class="controls registre like-cols" style="width: ${ampleInput};">	
+	<label for="${dadaActual.varCodi}" class="control-label<c:if test="${dada.required}"> obligatori</c:if>" style="width: ${ampleLabel}; float: left; padding-right: 11px;"><c:out value="${dadaActual.campEtiqueta}"/></label>
+	<div class="controls registre like-cols" style="width: ${ampleInput};">
 		<c:set var="nomReg" value="command.${dadaActual.varCodi}" />
 		<%-- Primer registre, que utilitzam per a definir la capçalera de la taula --%>
 		<c:choose>
@@ -23,7 +23,7 @@
 				<c:set var="registreCap" value="${dadaActual.registreDades}"/>
 			</c:otherwise>
 		</c:choose>
-	
+
 		<%-- CAPÇALERA TAULA ------------------------------------------------------------------------------------------%>
 		<div class="registre_taula">
 		<table id="table_mult_${dadaActual.varCodi}_${varStatusMain.index}" class="table table-bordered table-condensed" data-registre-id="${dadaActual.campId}">
@@ -31,17 +31,17 @@
 			<tr>
 				<c:forEach var="membre" items="${registreCap}" varStatus="varStatusCab">
 					<th <c:if test="${membre.required}"> data-required="true"</c:if>>
-						<label class="col-xs-3 <c:if test='${membre.required}'>control-label obligatori</c:if>">${membre.campEtiqueta}</label>
+						<label class="col-xs-3 <c:if test='${membre.required}'>control-label obligatori</c:if>"><c:out value="${membre.campEtiqueta}" /></label>
 						<c:if test="${not empty membre.observacions}">
-							<p class="help-block"><span class="label label-info">Nota</span> ${membre.observacions}</p>
+							<p class="help-block"><span class="label label-info">Nota</span> <c:out value="${membre.observacions}" /></p>
 						</c:if>
 					</th>
 				</c:forEach>
 				<c:if test="${!dadaActual.readOnly && !tasca.validada}">
 					<th class="colEliminarFila"></th>
 				</c:if>
-			</tr>				
-			</thead>	
+			</tr>
+			</thead>
 			<%-- TAULA MÚLTIPLE -------------------------------------------------------------------------------------------%>
 			<c:if test="${dadaActual.campMultiple}">
 				<%-- Comprovam si la taula és buida --> Només té una fila amb tots els camps buids --%>
@@ -52,9 +52,11 @@
 						<c:if test="${not empty command[dadaActual.varCodi][0][membre.varCodi]}"><c:set var="buida" value="${false}"/></c:if>
 					</c:forEach>
 				</c:if>
-				
+
 				<c:set var="mida" value="${fn:length(command[dadaActual.varCodi])}"/>
-				<c:set var="mida" value="${mida == 0? 1 : mida}"/>
+				<c:if test="${mida == 0}">
+					<c:set var="mida" value="${1}"/>
+				</c:if>
 				<tbody>
 				<c:forEach var="i" begin="1" end="${mida}">
 					<tr class="multiple">
@@ -72,10 +74,10 @@
 						</c:forEach>
 						<c:if test="${!dadaActual.readOnly && !tasca.validada}">
 							<td class="opciones">
-								<button 
-									class="btn fa fa-times eliminarFila" 
-									type="button" 
-									value="<spring:message code='comuns.esborrar' />" 
+								<button
+									class="btn fa fa-times eliminarFila"
+									type="button"
+									value="<spring:message code='comuns.esborrar' />"
 									title="<spring:message code='comuns.esborrar' />">
 								</button>
 							</td>
@@ -84,7 +86,7 @@
 				</c:forEach>
 				</tbody>
 			</c:if>
-			
+
 			<%-- TAULA SIMPLE -------------------------------------------------------------------------------------------%>
 			<c:if test="${!dadaActual.campMultiple && not empty dadaActual.registreDades}">
 				<%-- Comprovam si el registre és buid --%>
@@ -94,7 +96,7 @@
 				</c:forEach>
 				<tr>
 					<c:forEach var="membre" items="${registreCap}">
-						<td>								
+						<td>
 							<c:set var="inline" value="${true}"/>
 							<c:set var="dada" value="${membre}"/>
 							<c:set var="campCodi" value="${dadaActual.varCodi}.${membre.varCodi}"/>
@@ -107,16 +109,16 @@
 						</td>
 					</c:if>
 				</tr>
-			</c:if>				
+			</c:if>
 		<%-- PEU DE TAULA ------------------------------------------------------------------------------------%>
-		</table>	
-		</div>					
-		<c:if test="${not empty dadaActual.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dadaActual.observacions}</p></c:if>
+		</table>
+		</div>
+		<c:if test="${not empty dadaActual.observacions}"><p class="help-block"><span class="label label-info">Nota</span> <c:out value="${dadaActual.observacions}"/></p></c:if>
 		<c:if test="${not empty campErrorsReg}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dadaActual.varCodi}"/></p></c:if>
 		<c:if test="${!dadaActual.readOnly && !tasca.validada}">
 			<div <c:if test="${not empty dadaActual.registreDades}"> class="hide"</c:if>>
 				<button id="button_add_table_mult_${dadaActual.varCodi}_${varStatusMain.index}"
-					type="button" 
+					type="button"
 					class="btn btn-default pull-left btn_afegir"
 					onclick="return addField('table_mult_${dadaActual.varCodi}_${varStatusMain.index}', '${dadaActual.campId}')">
 						<spring:message code='comuns.afegir' />
