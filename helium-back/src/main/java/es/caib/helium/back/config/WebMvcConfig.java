@@ -95,7 +95,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Bean
 	public MappingJackson2HttpMessageConverter jsonConverter() {
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		//mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
 		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
 		converter.setObjectMapper(mapper);
 		return converter;

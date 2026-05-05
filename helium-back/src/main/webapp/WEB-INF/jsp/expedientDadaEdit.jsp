@@ -28,7 +28,7 @@
                             <c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
                             <c:set var="campNom" value="${dada.varCodi}"/>
                             <c:set var="campIndex" value="${varStatusCab.index}"/>
-                            <div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
+                            <div class='col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>' style="margin-bottom: 0.5em;">
                                 <c:set var="isMultiple" value="${true}"/>
                                 <%@ include file="campsTasca.jsp" %>
                                 <c:set var="isMultiple" value="${false}"/>

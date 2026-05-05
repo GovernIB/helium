@@ -66,7 +66,7 @@ public class DocumentHelper {
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelperV3;
 	@Resource
-	private ExpedientDocumentsHelper expedientDocumentsHelper;
+	private ExpedientDocumentHelper expedientDocumentHelper;
 
 	private DocumentTokenUtils documentTokenUtils;
 	private PdfUtils pdfUtils;

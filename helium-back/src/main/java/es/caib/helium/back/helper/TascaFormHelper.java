@@ -372,13 +372,31 @@ public class TascaFormHelper {
 					// 4. En cas contrari assignarem els valor obtinguts a l'objecte Registre
 					} else {
 						if (camp.isCampMultiple()) {
-							valorRegistre = ((List)valor).toArray();
+							//valorRegistre = ((List)valor).toArray();
+							valorRegistre = Array.newInstance(registre.getClass(), ((List)valor).size());
 
-							Method metodeSet = registre.getClass().getMethod(
-									"set" + camp.getVarCodi().substring(0, 1).toUpperCase() + camp.getVarCodi().substring(1),
-									camp.getJavaClass());
 
-							metodeSet.invoke(command, valorRegistre);
+							List<Method> setters = new ArrayList<Method>();
+							for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
+								Method metodeSet = registre.getClass().getMethod(
+									"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1),
+									campRegistre.getJavaClass());
+								setters.add(metodeSet);
+							}
+
+							int filaIndex = 0;
+							for(Object fila : (List)valor) {
+								Object nRegistre = registre.getClass().newInstance();
+								int i = 0;
+								for(Object col : (List)fila) {
+									Method setter = setters.get(i++);
+									setter.invoke(nRegistre, col);
+								}
+								((Object[]) valorRegistre)[filaIndex++] = nRegistre;
+							}
+
+
+							// ---
 //							metodeSet.invoke(linia, valent);
 //							List<Object> linies = (List)valor;
 //							int i = 0; // Elements del registre

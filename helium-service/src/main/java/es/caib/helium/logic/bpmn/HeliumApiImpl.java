@@ -33,7 +33,7 @@ public class HeliumApiImpl implements HeliumApi {
 	private final EstatRepository estatRepository;
 	private final ExpedientHelper expedientHelper;
 	private final ExpedientDadaHelper expedientDadaHelper;
-	private final ExpedientDocumentsHelper expedientDocumentHelper;
+	private final ExpedientDocumentHelper expedientDocumentHelper;
 	private final DocumentHelperV3 documentHelperV3;
 	private final PluginHelper pluginHelper;
 	private final AlertaHelper alertaHelper;

@@ -544,29 +544,32 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			List<ExpedientDadaDto> dadesRegistrePerTaula = dadaExp.getDadesRegistrePerTaula();
 			if (dadesRegistrePerTaula != null) {
 				files = dadesRegistrePerTaula.size();
+				valorBody = new ArrayList<List<String>>();
 				for (ExpedientDadaDto fila : dadesRegistrePerTaula) {
+					List<String> valorFila = new ArrayList<String>();
 					if(dadaExp.isCampMultiple()) {
-						valorBody = new ArrayList<List<String>>();
 						if(fila.getVarValor() != null) {
 							for(Object row : (List<Object>)fila.getVarValor()) {
-								List<String> valorFila = new ArrayList<String>();
-								if(row instanceof List) {
-									for(Object v : (List)row)
-										valorFila.add(v != null? v.toString() : null);
-								}
-								valorBody.add(valorFila);
+								String valor = null;
+								if(row != null)
+									valorFila.add(row.toString());
+//								List<String> valorFila = new ArrayList<String>();
+//								if(row instanceof List) {
+//									for(Object v : (List)row)
+//										valorFila.add(v != null? v.toString() : null);
+//								}
 							}
 						}
 					} else {
-						valorBody = new ArrayList<List<String>>();
-						List<String> valorFila = new ArrayList<String>();
+						// valorBody = new ArrayList<List<String>>();
+						//List<String> valorFila = new ArrayList<String>();
 						if(fila.getVarValor() != null) {
 							for(Object v : (List<Object>)fila.getVarValor()) {
 								valorFila.add(v != null? v.toString() : null);
 							}
 						}
-						valorBody.add(valorFila);
 					}
+					valorBody.add(valorFila);
 				}
 			}
 

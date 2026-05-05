@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,7 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import es.caib.helium.commons.dades.DocumentTipusEnum;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.helper.*;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -185,7 +184,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Resource
 	private ReglaHelper reglaHelper;
 	@Resource
-	private ExpedientDocumentsHelper expedientDocumentsHelper;
+	private ExpedientDocumentHelper expedientDocumentHelper;
 
 	@PostConstruct
 	public void postContruct() {
@@ -266,43 +265,50 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			validationMessage = firmaValidacio.getMessage();
 		}
 
-		DocumentStore documentStoreCreat = documentHelper.crearDocument(
-				null,
-				processInstanceId,
-				documentCodi,
-				data,
-				isAdjunt,
-				isAdjunt ? adjuntTitol : null,
-				arxiuNom,
-				arxiuContingut,
-				null, // arxiuUuid
-				arxiuContentType,
-				ambFirma,
-				firmaSeparada,
-				firmaContingut,
-				ntiOrigen,
-				ntiEstadoElaboracion,
-				ntiTipoDocumental,
-				ntiIdOrigen,
-				isValid,
-				validationMessage,
-				null,
-				annexosPerNotificar);
+//		DocumentStore documentStoreCreat = documentHelper.crearDocument(
+//				null,
+//				processInstanceId,
+//				documentCodi,
+//				data,
+//				isAdjunt,
+//				isAdjunt ? adjuntTitol : null,
+//				arxiuNom,
+//				arxiuContingut,
+//				null, // arxiuUuid
+//				arxiuContentType,
+//				ambFirma,
+//				firmaSeparada,
+//				firmaContingut,
+//				ntiOrigen,
+//				ntiEstadoElaboracion,
+//				ntiTipoDocumental,
+//				ntiIdOrigen,
+//				isValid,
+//				validationMessage,
+//				null,
+//				annexosPerNotificar);
+
+		DocumentStore documentStoreCreat = expedientDocumentHelper.setDocument(
+			expedientId,
+			processInstanceId,
+			documentCodi,
+			data,
+			adjuntTitol,
+			arxiuNom,
+			arxiuContingut,
+			arxiuContentType,
+			ambFirma,
+			firmaSeparada,
+			firmaContingut,
+			annexosPerNotificar);
+
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
 				expedient.getId(),
 				processInstanceId,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				documentCodi,
 				arxiuNom);
-	try {
-		expedientDocumentsHelper.create(
-			documentStoreCreat,
-			expedient,
-			processInstanceId,
-			null);
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
+
 		return conversioTipusHelper.convertir(documentStoreCreat, DocumentStoreDto.class);
 	}
 
@@ -644,7 +650,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId,
 				documentStoreId,
 				expedient.isArxiuActiu());
-		expedientDocumentsHelper.delete(documentStoreId);
+		expedientDocumentHelper.delete(documentStoreId);
 		if (processInstanceId == null) {
 			documentHelper.esborrarDocument(
 					null,
@@ -1059,7 +1065,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 		List<ExpedientDocumentDto> documentsExpedient;
 		if(expedient.getTipus().getTipus().equals(ExpedientTipusTipusEnumDto.ESTAT)) {
-			documentsExpedient = expedientDocumentsHelper.findDocumentsByExpedient(expedientId);
+			documentsExpedient = findExpedientDocumentsByExpedient(expedientId);
 		} else {
 			documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
 		}
@@ -1246,7 +1252,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false);
 
-		return expedientDocumentsHelper.findDocumentByDocumentStoreId(expedientId, documentStoreId);
+		return findExpedientDocumentByDocumentStoreId(expedientId, documentStoreId);
 	}
 
 	/**
@@ -1770,7 +1776,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 
 		// Document
-		ExpedientDocumentDto document = expedientDocumentsHelper.findDocumentByDocumentStoreId(expedientId, documentStoreId);
+		ExpedientDocumentDto document = findExpedientDocumentByDocumentStoreId(expedientId, documentStoreId);
 		/*
 		ExpedientDocumentDto document = findOneAmbInstanciaProces(
 				expedientId,
@@ -2612,6 +2618,178 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.build();
 	}
 
+	private List<ExpedientDocumentDto> findExpedientDocumentsByExpedient(Long expedientId) {
+		List<ExpedientDocumentDto> resultat = new ArrayList<ExpedientDocumentDto>();
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+			expedientId,
+			true,
+			false,
+			false,
+			false);
+		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
+		List<DocumentStore> documentStoreList = expedientDocumentHelper.findByExpedient(expedientId);
+
+		for(DocumentStore ds : documentStoreList) {
+			for(Document d : documentsTipusExpedient) {
+				if(d.getCodi().equals(ds.getCodi())) {
+					resultat.add(crearDtoPerDocumentExpedient(d, ds, expedient.isArxiuActiu()));
+					break;
+				}
+			}
+		}
+		return resultat;
+	}
+
+	public ExpedientDocumentDto findExpedientDocumentByDocumentStoreId(Long expedientId, Long documentStoreId) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+			expedientId,
+			true,
+			false,
+			false,
+			false);
+		DocumentStore ds = documentStoreRepository.getReferenceById(documentStoreId);
+		Document document = documentRepository.findByExpedientTipusAndCodi(
+			expedient.getTipus().getId(),
+			ds.getCodi(),
+			expedient.getTipus().getExpedientTipusPare() != null);
+		return crearDtoPerDocumentExpedient(document, ds, expedient.isArxiuActiu());
+	}
+
+	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
+		Document document,
+		DocumentStore documentStore,
+		boolean arxiuActiu) {
+		ExpedientDocumentDto dto = new ExpedientDocumentDto();
+		dto.setId(documentStore.getId());
+		dto.setDataCreacio(documentStore.getDataCreacio());
+		dto.setDataModificacio(documentStore.getDataModificacio());
+		dto.setDataDocument(documentStore.getDataDocument());
+		dto.setArxiuNom(calcularArxiuNom(documentStore, false));
+		dto.setProcessInstanceId(documentStore.getProcessInstanceId());
+		dto.setDocumentId(document.getId());
+		dto.setDocumentCodi(document.getCodi());
+		dto.setDocumentNom(document.getNom());
+		dto.setPortafirmesActiu(document.isPortafirmesActiu());
+		dto.setPlantilla(document.isPlantilla());
+		dto.setSignat(documentStore.isSignat());
+		if (documentStore.isSignat()) {
+			this.setSignautraUrlVerificacio(dto, documentStore, arxiuActiu);
+		} else {
+			dto.setCustodiaCodi(document.getCustodiaCodi());
+		}
+		dto.setRegistrat(documentStore.isRegistrat());
+		if (documentStore.isRegistrat()) {
+			dto.setRegistreEntrada(documentStore.isRegistreEntrada());
+			dto.setRegistreNumero(documentStore.getRegistreNumero());
+			dto.setRegistreData(documentStore.getRegistreData());
+			dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
+			dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
+		}
+		dto.setNtiVersion(documentStore.getNtiVersion());
+		dto.setNtiIdentificador(documentStore.getNtiIdentificador());
+		dto.setNtiOrgano(documentStore.getNtiOrgano());
+		dto.setNtiOrigen(documentStore.getNtiOrigen());
+		dto.setNtiEstadoElaboracion(documentStore.getNtiEstadoElaboracion());
+		dto.setNtiNombreFormato(documentStore.getNtiNombreFormato());
+		dto.setNtiTipoDocumental(documentStore.getNtiTipoDocumental());
+		dto.setNtiIdOrigen(documentStore.getNtiIdDocumentoOrigen());
+		dto.setNtiTipoFirma(documentStore.getNtiTipoFirma());
+		dto.setNtiCsv(documentStore.getNtiCsv());
+		dto.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
+		dto.setArxiuUuid(documentStore.getArxiuUuid());
+		dto.setDocumentValid(documentStore.isDocumentValid());
+		dto.setDocumentError(documentStore.getDocumentError());
+		dto.setAnotacioAnnexId(documentStore.getAnnexId());
+		dto.setReferenciaCustodia(documentStore.getReferenciaCustodia());
+
+		return dto;
+	}
+
+	/** Mètode per obtenir la URL per verificar la signatura. Si el documentStore té uuid s'asumeix que és a l'Arxiu i si no
+	 * a Custòdia. En cas d'error informa de l'error en el DTO i enregistra l'error als logs.
+	 *
+	 * @param dto
+	 * @param documentStore
+	 */
+	private void setSignautraUrlVerificacio(ExpedientDocumentDto dto, DocumentStore documentStore, boolean arxiuActiu) {
+		if (!arxiuActiu) {
+			// Custòdia
+			try {
+				dto.setSignaturaUrlVerificacio(
+					pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+						documentStore.getReferenciaCustodia()));
+			} catch(Exception e) {
+				long time = new Date().getTime();
+				String errMsg = time + " Error obtenint la url de verificació: " + e.toString();
+				if (dto.getError() != null) {
+					errMsg = dto.getError() + ". " + errMsg;
+				}
+				dto.setError(errMsg);
+				dto.setSignaturaUrlVerificacio("error_" + time);
+			}
+		} else {
+			String arxiuVerificacioBaseUrl = GlobalProperties.getInstance().getProperty("app.arxiu.verificacio.baseurl");
+			// Arxiu
+			dto.setSignaturaUrlVerificacio(arxiuVerificacioBaseUrl + documentStore.getNtiCsv());
+		}
+	}
+
+	private String calcularArxiuNom(
+		DocumentStore documentStore,
+		boolean perSignar) {
+		String nomOriginal = calcularArxiuNomOriginal(documentStore);
+		String extensioDesti = calcularArxiuExtensioDesti(
+			nomOriginal,
+			documentStore,
+			perSignar);
+		return getNomArxiuAmbExtensio(
+			documentStore.getArxiuNom(),
+			extensioDesti);
+	}
+
+	private String calcularArxiuNomOriginal(
+		DocumentStore documentStore) {
+		String nomOriginal;
+		if (documentStore.isSignat() && isSignaturaFileAttached() && PdfUtils.isArxiuConvertiblePdf(documentStore.getArxiuNom())) {
+			nomOriginal = getNomArxiuAmbExtensio(
+				documentStore.getArxiuNom(),
+				getExtensioArxiuSignat());
+		} else {
+			nomOriginal = documentStore.getArxiuNom();
+		}
+		return nomOriginal;
+	}
+	private String calcularArxiuExtensioDesti(
+		String nomOriginal,
+		DocumentStore documentStore,
+		boolean perSignar) {
+		String extensioActual = null;
+		int indexPunt = nomOriginal.lastIndexOf(".");
+		if (indexPunt != -1)
+			extensioActual = nomOriginal.substring(indexPunt + 1);
+		String extensioDesti = extensioActual;
+		if (perSignar && isActiuConversioSignatura()) {
+			extensioDesti = getExtensioArxiuSignat();
+		} else if (documentStore.isRegistrat()) {
+			extensioDesti = getExtensioArxiuRegistrat();
+		}
+		return extensioDesti;
+	}
+	private String getNomArxiuAmbExtensio(
+		String arxiuNomOriginal,
+		String extensio) {
+		if (!isActiuConversioSignatura())
+			return arxiuNomOriginal;
+		if (extensio == null)
+			extensio = "";
+		int indexPunt = arxiuNomOriginal.lastIndexOf(".");
+		if (indexPunt != -1) {
+			return arxiuNomOriginal.substring(0, indexPunt) + "." + extensio;
+		} else {
+			return arxiuNomOriginal + "." + extensio;
+		}
+	}
+
 	@Override
 	public String firmaSimpleWebStart(PersonaDto persona, ArxiuDto arxiu, String signId, String motiu, String lloc, String urlRetorn) {
 
@@ -2674,6 +2852,23 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Transactional
 	public void firmaServidor(String processInstanceId, Long documentStoreId, String motiu, byte[] arxiuContingut) {
 		documentHelperV3.firmaServidor(processInstanceId, documentStoreId, motiu, arxiuContingut);
+	}
+
+	private String getExtensioArxiuSignat() {
+		return (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+	}
+	private String getExtensioArxiuRegistrat() {
+		return (String)GlobalProperties.getInstance().get("app.conversio.registre.extension");
+	}
+	private boolean isSignaturaFileAttached() {
+		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
+	}
+	private boolean isActiuConversioSignatura() {
+		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioSignatura = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
+		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);

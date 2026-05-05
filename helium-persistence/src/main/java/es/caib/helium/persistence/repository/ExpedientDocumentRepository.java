@@ -18,12 +18,16 @@ import java.util.List;
  */
 public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocument, Long> {
 
+	public ExpedientDocument findByDocumentStore(DocumentStore documentStore);
+	public ExpedientDocument findByCodiAndExpedientId(String codi, Long  expedientId);
+	public void deleteByDocumentStoreId(Long documentStoreId);
+
 	/** Obté els documents d'un expedient per una tasca concreta. */
 	@Query("SELECT ed.documentStore from ExpedientDocument ed" +
 		" WHERE " +
 		" 	ed.expedient.id = :expedientId AND " +
 		" 	ed.taskId = :taskId")
-	public List<DocumentStore> findByExpedientIdAndTaskId(
+	public List<DocumentStore> findDocumentStoreByExpedientIdAndTaskId(
 		@Param("expedientId") Long expedientId,
 		@Param("taskId") String  taskId);
 
@@ -32,7 +36,7 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 		" WHERE " +
 		" 	ed.expedient.id = :expedientId AND " +
 		" 	ed.processInstanceId = :processId")
-	public List<DocumentStore> findByExpedientIdAndProcessId(
+	public List<DocumentStore> findDocumentStoreByExpedientIdAndProcessId(
 		@Param("expedientId") Long expedientId,
 		@Param("processId") String processId);
 
@@ -40,7 +44,7 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 	@Query("SELECT ed.documentStore from ExpedientDocument ed" +
 			" WHERE " +
 			" ed.expedient.id = :expedientId")
-	public List<DocumentStore> findByExpedientId(@Param("expedientId") Long expedientId);
+	public List<DocumentStore> findDocumentStoreByExpedientId(@Param("expedientId") Long expedientId);
 
 	/** Obté els documents d'un expedient sense procés ni tasca. */
 	@Query("SELECT ed.documentStore from ExpedientDocument ed " +
@@ -49,7 +53,7 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 		" AND (:processIdIsNull = true OR ed.processInstanceId = :processId) " +
 		" AND (:taskIdIsNull = true OR ed.taskId = :taskId) " +
 		" AND ed.codi = :codi ")
-	public DocumentStore findByCodi(
+	public DocumentStore findDocumentStoreByCodi(
 		@Param("codi") String codi,
 		@Param("expedientId") Long expedientId,
 		@Param("expedientIdIsNull") Boolean expedientIdIsNull,
@@ -58,7 +62,12 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 		@Param("taskId") String taskId,
 		@Param("taskIdIsNull") Boolean taskIdIsNull);
 
-	public ExpedientDocument findByDocumentStore(DocumentStore documentStore);
+	@Query("SELECT ed.documentStore from ExpedientDocument ed " +
+			" WHERE " +
+			" ed.expedient.id = :expedientId " +
+			" AND ed.codi = :codi ")
+	public DocumentStore findDocumentStoreByExpedientIdAndCodi(
+		@Param("expedientId") Long expedientId,
+		@Param("codi") String codi);
 
-	public void deleteByDocumentStoreId(Long documentStoreId);
 }

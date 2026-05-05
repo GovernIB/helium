@@ -967,6 +967,8 @@ public class VariableHelper {
 							|| (varValor instanceof Object[]
 									&& ((Object[]) varValor).length > 0)) {
 						valorsMultiples = (Object[])varValor;
+					} else if(varValor instanceof List) {
+						valorsMultiples = ((List<?>) varValor).toArray();
 					} else {
 						valorsMultiples = new Object[] {varValor};
 					}
