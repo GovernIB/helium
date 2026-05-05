@@ -303,6 +303,18 @@ public class DocumentHelperV3 {
 			} else {
 				resposta.setContingut(arxiuContingut);
 				resposta.setTipusMime(getContentType(documentStore.getArxiuNom()));
+				// Construeix el nom de l'arxiu a partir del nom original i de l'extensió del document recuperat de l'Arxiu
+				String nom = arxiuNom + (arxiuExtensio != null && !arxiuExtensio.isEmpty() ? "." + arxiuExtensio : "") ;
+				if( arxiuExtensio == null || arxiuExtensio.trim().isEmpty()) {
+					MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+					try {
+						MimeType mimeType = allTypes.forName(resposta.getTipusMime());
+						nom += mimeType.getExtension();
+					} catch (MimeTypeException e) {
+						logger.warn("No s'ha pogut determinar la extensió del fitxer " + nom);
+					}
+				}
+				resposta.setNom(nom);
 			}
 			
 			// Si els documents estan firmats amb PADES sempre tindran extensió PDF
