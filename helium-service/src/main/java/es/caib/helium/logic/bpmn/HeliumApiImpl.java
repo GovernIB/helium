@@ -2,6 +2,7 @@ package es.caib.helium.logic.bpmn;
 
 import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.model.DocumentInfo;
 import es.caib.helium.commons.dto.*;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.persistence.entity.Document;
@@ -30,6 +31,7 @@ public class HeliumApiImpl implements HeliumApi {
 
 	private final Expedient expedient;
 	private final String processId;
+	private final String taskId;
 	private final EstatRepository estatRepository;
 	private final ExpedientHelper expedientHelper;
 	private final ExpedientDadaHelper expedientDadaHelper;
@@ -94,6 +96,78 @@ public class HeliumApiImpl implements HeliumApi {
 	}
 
 	@Override
+	public DocumentInfo getDocumentInfo(String documentCodi) {
+		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
+			documentCodi,
+			expedient.getId(),
+			processId,
+			null);
+		if (documentStore != null) {
+			Document documentDisseny = expedientDocumentHelper.findDocument(
+				documentCodi,
+				expedient.getId(),
+				processId,
+				null);
+			DocumentDto docV3 = documentHelperV3.toDocumentDto(
+				documentStore.getId(),
+				false,
+				false,
+				true,
+				true,
+				false,
+				false);
+			DocumentInfo resposta = new DocumentInfo();
+			resposta.setId(documentStore.getId());
+			resposta.setCodiDocument(documentCodi);
+			if (documentStore.isAdjunt()) {
+				resposta.setTitol(documentStore.getAdjuntTitol());
+			} else {
+				resposta.setTitol(documentDisseny.getNom());
+			}
+			resposta.setDataCreacio(documentStore.getDataCreacio());
+			resposta.setDataDocument(documentStore.getDataDocument());
+			resposta.setSignat(documentStore.isSignat());
+			if (documentStore.isSignat()) {
+				resposta.setCsv(docV3.getArxiuCsv());
+				resposta.setUrlVerificacioSignatures(docV3.getSignaturaUrlVerificacio());
+			}
+			resposta.setRegistrat(documentStore.isRegistrat());
+			if (documentStore.isRegistrat()) {
+				resposta.setRegistreNumero(documentStore.getRegistreNumero());
+				resposta.setRegistreData(documentStore.getRegistreData());
+				resposta.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
+				resposta.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
+				resposta.setRegistreEntrada(documentStore.isRegistreEntrada());
+			}
+			return resposta;
+		} else {
+			throw new HeliumHandlerException("Document no trobat: " + documentCodi);
+		}
+	}
+
+	@Override
+	public void setDocument(
+		String documentCodi,
+		String arxiuNom,
+		byte[] arxiuContingut,
+		Date dataDocument,
+		boolean ambFirma) {
+		expedientDocumentHelper.setDocument(
+			expedient.getId(),
+			processId,
+			documentCodi,
+			dataDocument,
+			null,
+			arxiuNom,
+			arxiuContingut,
+			null,
+			ambFirma,
+			false,
+			null,
+			null);
+	}
+
+	@Override
 	public void alertaCrear(String usuariCodi, String text) {
 		alertaHelper.crearAlerta(
 			expedient.getEntorn(),
@@ -101,6 +175,20 @@ public class HeliumApiImpl implements HeliumApi {
 			new Date(),
 			usuariCodi,
 			text);
+	}
+
+	@Override
+	public void documentConsultar(
+		String documentCodi,
+		String varCsv,
+		String varUrl) {
+		DocumentInfo documentInfo = getDocumentInfo(documentCodi);
+		if (varCsv != null && !varCsv.isEmpty()) {
+			setVariable(varCsv, documentInfo.getCsv());
+		}
+		if (varUrl != null && !varUrl.isEmpty()) {
+			setVariable(varUrl, documentInfo.getUrlVerificacioSignatures());
+		}
 	}
 
 	@Override
@@ -121,7 +209,6 @@ public class HeliumApiImpl implements HeliumApi {
 			setVariable(varRegistreNumero, expedient.getRegistreNumero());
 		}
 		if (varTitol != null && !varTitol.isEmpty()) {
-			setVariable(varRegistreNumero, expedient.getRegistreNumero());
 			setVariable(varTitol, expedient.getTitol());
 		}
 		if (varNumero != null && !varNumero.isEmpty()) {

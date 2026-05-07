@@ -12,24 +12,23 @@ import org.springframework.stereotype.Component;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Component
-@RequiredArgsConstructor
 public class HeliumApiFactory {
 
-	private final EstatRepository estatRepository;
-	private final ExpedientHelper expedientHelper;
-	private final ExpedientDadaHelper expedientDadaHelper;
-	private final ExpedientDocumentHelper expedientDocumentHelper;
-	private final DocumentHelperV3 documentHelperV3;
-	private final PluginHelper pluginHelper;
-	private final AlertaHelper alertaHelper;
-
-	public HeliumApi createInstance(
+	public static HeliumApi createInstance(
 		Expedient expedient,
-		String processId) {
+		String processId,
+		String taskId,
+		EstatRepository estatRepository,
+		ExpedientHelper expedientHelper,
+		ExpedientDadaHelper expedientDadaHelper,
+		ExpedientDocumentHelper expedientDocumentHelper,
+		DocumentHelperV3 documentHelperV3,
+		PluginHelper pluginHelper,
+		AlertaHelper alertaHelper) {
 		return new HeliumApiImpl(
 			expedient,
 			processId,
+			taskId,
 			estatRepository,
 			expedientHelper,
 			expedientDadaHelper,

@@ -1,5 +1,7 @@
 package es.caib.helium.bpmn.api;
 
+import es.caib.helium.bpmn.model.DocumentInfo;
+
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +15,21 @@ public interface HeliumApi {
 
 	Boolean getVariableDefaultValueAsBoolean(String codi, Object defaultValue);
 
+	DocumentInfo getDocumentInfo(String documentCodi);
+
+	void setDocument(
+		String documentCodi,
+		String arxiuNom,
+		byte[] arxiuContingut,
+		Date dataDocument,
+		boolean ambFirma);
+
 	void alertaCrear(String usuariCodi, String text);
+
+	void documentConsultar(
+		String documentCodi,
+		String varCsv,
+		String varUrl);
 
 	void expedientAturar(String motiu);
 

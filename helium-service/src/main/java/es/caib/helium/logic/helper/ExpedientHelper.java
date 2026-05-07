@@ -166,6 +166,8 @@ public class ExpedientHelper {
 	private PluginHelper pluginHelper;
 	@Autowired
 	private ExpedientDadaHelper expedientDadaHelper;
+	@Autowired
+	private ExpedientDocumentHelper expedientDocumentHelper;
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
@@ -2421,7 +2423,17 @@ public class ExpedientHelper {
 						null,
 						accio.getHandlerClasse(),
 						dades);
-					handler.execute(heliumApiFactory.createInstance(expedient, null));
+					handler.execute(HeliumApiFactory.createInstance(
+						expedient,
+						null,
+						null,
+						estatRepository,
+						this,
+						expedientDadaHelper,
+						expedientDocumentHelper,
+						documentHelper,
+						pluginHelper,
+						alertaHelper));
 				} catch (ReflectiveOperationException ex) {
 					throw new RuntimeException(
 						"No s'ha pogut crear la instància del handler propi " + accio.getHandlerClasse() + " per l'acció (" +
@@ -2433,7 +2445,17 @@ public class ExpedientHelper {
 					HeliumActionHandler handler = heliumActionHandlerPredefinitFactory.createInstance(
 						accio.getHandlerClasse(),
 						dades);
-					handler.execute(heliumApiFactory.createInstance(expedient, null));
+					handler.execute(heliumApiFactory.createInstance(
+						expedient,
+						null,
+						null,
+						estatRepository,
+						this,
+						expedientDadaHelper,
+						expedientDocumentHelper,
+						documentHelper,
+						pluginHelper,
+						alertaHelper));
 				} catch (ReflectiveOperationException ex) {
 					throw new RuntimeException(
 						"No s'ha pogut crear la instància del handler predefinit " + accio.getHandlerClasse() + " per l'acció (" +
