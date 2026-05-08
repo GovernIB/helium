@@ -7,12 +7,10 @@ import java.util.List;
 
 public interface HeliumApi {
 
-	Object getVariable(String codi);
+	<T> T getVariable(String codi);
 	void setVariable(String codi, Object valor);
 	<T> T getVariableDefaultValue(String codi, T defaultValue);
-
 	Date getVariableDefaultValueAsDate(String codi, Object defaultValue);
-
 	Boolean getVariableDefaultValueAsBoolean(String codi, Object defaultValue);
 
 	DocumentInfo getDocumentInfo(String documentCodi);

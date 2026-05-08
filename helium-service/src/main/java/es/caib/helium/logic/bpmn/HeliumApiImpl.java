@@ -41,12 +41,8 @@ public class HeliumApiImpl implements HeliumApi {
 	private final AlertaHelper alertaHelper;
 
 	@Override
-	public Object getVariable(String codi) {
-		return expedientDadaHelper.getDada(
-			expedient,
-			processId,
-			null,
-			codi);
+	public <T> T getVariable(String codi) {
+		return getVariableValue(codi, null);
 	}
 
 	@Override
@@ -61,7 +57,7 @@ public class HeliumApiImpl implements HeliumApi {
 
 	@Override
 	public <T> T getVariableDefaultValue(String codi, T defaultValue) {
-		return (T)getVariableValue(codi, defaultValue);
+		return getVariableValue(codi, defaultValue);
 	}
 
 	public Date getVariableDefaultValueAsDate(String codi, Object defaultValue) {
@@ -412,15 +408,15 @@ public class HeliumApiImpl implements HeliumApi {
 		return bloc;
 	}
 
-	private Object getVariableValue(String codi, Object defaultValue) {
-		Object value;
+	private <T> T getVariableValue(String codi, T defaultValue) {
+		T value;
 		if (codi != null) {
 			Object v = expedientDadaHelper.getDada(
 				expedient,
 				processId,
 				null,
 				codi);
-			value = v != null ? v : defaultValue;
+			value = v != null ? (T)v : defaultValue;
 		} else {
 			value = defaultValue;
 		}
