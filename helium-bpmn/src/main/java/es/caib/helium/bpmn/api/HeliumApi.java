@@ -20,7 +20,9 @@ public interface HeliumApi {
 		String arxiuNom,
 		byte[] arxiuContingut,
 		Date dataDocument,
-		boolean ambFirma);
+		boolean ambFirma,
+		boolean firmaSeparada,
+		byte[] firmaContingut);
 
 	void alertaCrear(String usuariCodi, String text);
 

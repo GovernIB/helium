@@ -1,5 +1,7 @@
 package es.caib.helium.persistence.repository;
 
+import es.caib.helium.persistence.entity.DefinicioProces;
+import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.Recurs;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,11 @@ import java.util.Optional;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface RecursRepository extends JpaRepository<Recurs, Long> {
+
+	Optional<Recurs> findByExpedientTipusAndDefinicioProcesAndNom(
+		ExpedientTipus expedientTipus,
+		DefinicioProces definicioProces,
+		String nom);
 
 	@Query(
 		"SELECT r.contingut " +

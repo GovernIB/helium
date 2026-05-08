@@ -187,8 +187,6 @@ public class ExpedientHelper {
 	@Resource
 	private RecursHelper recursHelper;
 	@Autowired
-	private HeliumApiFactory heliumApiFactory;
-	@Autowired
 	private HeliumActionHandlerPredefinitFactory heliumActionHandlerPredefinitFactory;
 
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
@@ -2445,7 +2443,7 @@ public class ExpedientHelper {
 					HeliumActionHandler handler = heliumActionHandlerPredefinitFactory.createInstance(
 						accio.getHandlerClasse(),
 						dades);
-					handler.execute(heliumApiFactory.createInstance(
+					handler.execute(HeliumApiFactory.createInstance(
 						expedient,
 						null,
 						null,

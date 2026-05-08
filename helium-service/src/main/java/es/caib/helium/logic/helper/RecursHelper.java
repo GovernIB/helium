@@ -1,7 +1,6 @@
 package es.caib.helium.logic.helper;
 
 import es.caib.helium.bpmn.handler.HeliumActionHandler;
-import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import es.caib.helium.logic.classloader.RecursListClassLoader;
 import es.caib.helium.logic.classloader.RecursRepositoryClassLoader;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -11,6 +10,7 @@ import es.caib.helium.persistence.entity.Recurs;
 import es.caib.helium.persistence.repository.DefinicioProcesRepository;
 import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.RecursRepository;
+import liquibase.pro.packaged.T;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanWrapperImpl;
@@ -73,15 +73,27 @@ public class RecursHelper {
 					if (!entry.isDirectory()) {
 						boolean isClass = (entry.getName().endsWith(".class"));
 						byte[] contingut = readJarEntryBytes(jis);
-						Recurs saved = recursRepository.save(
-							Recurs.builder().
-								nom(entry.getName()).
-								classe(isClass).
-								dataCreacio(new Date()).
-								contingut(contingut).
-								expedientTipus(expedientTipus.get()).
-								definicioProces(definicioProces.orElse(null)).
-								build());
+						Recurs saved;
+						Optional<Recurs> existent = recursRepository.findByExpedientTipusAndDefinicioProcesAndNom(
+							expedientTipus.get(),
+							definicioProces.orElse(null),
+							entry.getName());
+						if (existent.isPresent()) {
+							saved = existent.get();
+							saved.setClasse(isClass);
+							saved.setDataCreacio(new Date());
+							saved.setContingut(contingut);
+						} else {
+							saved = recursRepository.save(
+								Recurs.builder().
+									nom(entry.getName()).
+									classe(isClass).
+									dataCreacio(new Date()).
+									contingut(contingut).
+									expedientTipus(expedientTipus.get()).
+									definicioProces(definicioProces.orElse(null)).
+									build());
+						}
 						recursosCreats.add(saved);
 					}
 				}

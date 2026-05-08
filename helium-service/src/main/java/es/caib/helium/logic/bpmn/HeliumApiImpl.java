@@ -147,7 +147,9 @@ public class HeliumApiImpl implements HeliumApi {
 		String arxiuNom,
 		byte[] arxiuContingut,
 		Date dataDocument,
-		boolean ambFirma) {
+		boolean ambFirma,
+		boolean firmaSeparada,
+		byte[] firmaContingut) {
 		expedientDocumentHelper.setDocument(
 			expedient.getId(),
 			processId,
@@ -158,8 +160,8 @@ public class HeliumApiImpl implements HeliumApi {
 			arxiuContingut,
 			null,
 			ambFirma,
-			false,
-			null,
+			firmaSeparada,
+			firmaContingut,
 			null);
 	}
 
