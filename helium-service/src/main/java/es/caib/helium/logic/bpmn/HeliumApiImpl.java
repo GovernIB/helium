@@ -94,16 +94,16 @@ public class HeliumApiImpl implements HeliumApi {
 	@Override
 	public DocumentInfo getDocumentInfo(String documentCodi) {
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
-			documentCodi,
 			expedient.getId(),
 			processId,
-			null);
+			null,
+			documentCodi);
 		if (documentStore != null) {
 			Document documentDisseny = expedientDocumentHelper.findDocument(
-				documentCodi,
 				expedient.getId(),
 				processId,
-				null);
+				null,
+				documentCodi);
 			DocumentDto docV3 = documentHelperV3.toDocumentDto(
 				documentStore.getId(),
 				false,
@@ -151,10 +151,10 @@ public class HeliumApiImpl implements HeliumApi {
 		boolean firmaSeparada,
 		byte[] firmaContingut) {
 		expedientDocumentHelper.setDocument(
-			documentCodi,
 			expedient.getId(),
 			processId,
 			null,
+			documentCodi,
 			dataDocument,
 			null,
 			arxiuNom,
@@ -370,15 +370,15 @@ public class HeliumApiImpl implements HeliumApi {
 	private DocumentDto toPortafirmesDocumentDto(String documentCodi) {
 		DocumentDto document = new DocumentDto();
 		Document documentDisseny = expedientDocumentHelper.findDocument(
-			documentCodi,
 			expedient.getId(),
 			processId,
-			null);
+			null,
+			documentCodi);
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
-			documentCodi,
 			expedient.getId(),
 			processId,
-			null);
+			null,
+			documentCodi);
 		DocumentDto docV3 = documentHelperV3.toDocumentDto(
 			documentStore.getId(),
 			false,

@@ -46,10 +46,10 @@ public class ExpedientDocumentHelper {
 	}
 
 	public DocumentStore findDocumentStore(
-		String codi,
 		Long expedientId,
 		String processId,
-		String taskId) {
+		String taskId,
+		String codi) {
 		return expedientDocumentRepository.findDocumentStoreByCodi(
 			codi,
 			expedientId,
@@ -61,10 +61,10 @@ public class ExpedientDocumentHelper {
 	}
 
 	public Document findDocument(
-		String codi,
 		Long expedientId,
 		String processId,
-		String taskId) {
+		String taskId,
+		String codi) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 			expedientId,
 			true,
@@ -86,10 +86,10 @@ public class ExpedientDocumentHelper {
 	}
 
 	public DocumentStore setDocument(
-		String documentCodi,
 		Long expedientId,
 		String processInstanceId,
 		String taskInstanceId,
+		String documentCodi,
 		Date data,
 		String adjuntTitol,
 		String arxiuNom,
@@ -234,10 +234,10 @@ public class ExpedientDocumentHelper {
 	}
 
 	public void deleteDocument(
-		String documentCodi,
 		Long expedientId,
 		String processInstanceId,
-		String taskInstanceId) {
+		String taskInstanceId,
+		String documentCodi) {
 
 		ExpedientDocument expedientDocument = expedientDocumentRepository.findByCodi(
 			documentCodi,

@@ -289,10 +289,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 //				annexosPerNotificar);
 
 		DocumentStore documentStoreCreat = expedientDocumentHelper.setDocument(
-			documentCodi,
 			expedientId,
 			processInstanceId,
 			null,
+			documentCodi,
 			data,
 			adjuntTitol,
 			arxiuNom,
@@ -652,10 +652,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				documentStoreId,
 				expedient.isArxiuActiu());
 		expedientDocumentHelper.deleteDocument(
-			document.getDocumentCodi(),
 			expedientId,
 			processInstanceId,
-			null
+			null,
+			document.getDocumentCodi()
 		);
 //		expedientDocumentHelper.delete(documentStoreId);
 //		if (processInstanceId == null) {
