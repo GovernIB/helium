@@ -5,17 +5,13 @@ import es.caib.helium.commons.dto.*;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentStore;
-import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.ExpedientDocument;
-import es.caib.helium.persistence.repository.DocumentRepository;
-import es.caib.helium.persistence.repository.DocumentStoreRepository;
-import es.caib.helium.persistence.repository.ExpedientDocumentRepository;
+import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.repository.*;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
@@ -24,11 +20,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Component
 public class ExpedientDocumentHelper {
 
 	@Autowired
-	private ExpedientDocumentRepository expedientDocumentsRepository;
+	private DocumentNotificacioRepository documentNotificacioRepository;
+	@Autowired
+	private ExpedientDocumentRepository expedientDocumentRepository;
+	@Autowired
+	private PortasignaturesRepository portasignaturesRepository;
+	@Autowired
+	private PeticioPinbalRepository peticioPinbalRepository;
 	@Autowired
 	private DocumentStoreRepository documentStoreRepository;
 	@Autowired
@@ -38,99 +41,8 @@ public class ExpedientDocumentHelper {
 	@Autowired
 	private PluginHelper pluginHelper;
 
-	/*
-	public ExpedientDocument findDocumentByDocumentStoreId(Long expedientId, Long documentStoreId) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-			expedientId,
-			true,
-			false,
-			false,
-			false);
-		DocumentStore ds = documentStoreRepository.getReferenceById(documentStoreId);
-		Document document =documentRepository.findByExpedientTipusAndCodi(
-			expedient.getTipus().getId(),
-			ds.getCodi(),
-			expedient.getTipus().getExpedientTipusPare() != null);
-		return crearDtoPerDocumentExpedient(document, ds, expedient.isArxiuActiu());
-	}
-
-	public List<ExpedientDocument> findDocumentsByExpedient(Long expedientId) {
-		List<ExpedientDocument> resultat = new ArrayList<ExpedientDocument>();
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-			expedientId,
-			true,
-			false,
-			false,
-			false);
-		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
-		List<DocumentStore> documentStoreList = expedientDocumentsRepository.findByExpedientId(expedientId);
-
-		for(DocumentStore ds : documentStoreList) {
-			for(Document d : documentsTipusExpedient) {
-				if(d.getCodi().equals(ds.getCodi())) {
-					resultat.add(crearDtoPerDocumentExpedient(d, ds, expedient.isArxiuActiu()));
-					break;
-				}
-			}
-		}
-		return resultat;
-	}
-
-
-	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
-		Document document,
-		DocumentStore documentStore,
-		boolean arxiuActiu) {
-		ExpedientDocumentDto dto = new ExpedientDocumentDto();
-		dto.setId(documentStore.getId());
-		dto.setDataCreacio(documentStore.getDataCreacio());
-		dto.setDataModificacio(documentStore.getDataModificacio());
-		dto.setDataDocument(documentStore.getDataDocument());
-		dto.setArxiuNom(calcularArxiuNom(documentStore, false));
-		dto.setProcessInstanceId(documentStore.getProcessInstanceId());
-		dto.setDocumentId(document.getId());
-		dto.setDocumentCodi(document.getCodi());
-		dto.setDocumentNom(document.getNom());
-		dto.setPortafirmesActiu(document.isPortafirmesActiu());
-		dto.setPlantilla(document.isPlantilla());
-		dto.setSignat(documentStore.isSignat());
-		if (documentStore.isSignat()) {
-			this.setSignautraUrlVerificacio(dto, documentStore, arxiuActiu);
-		} else {
-			dto.setCustodiaCodi(document.getCustodiaCodi());
-		}
-		dto.setRegistrat(documentStore.isRegistrat());
-		if (documentStore.isRegistrat()) {
-			dto.setRegistreEntrada(documentStore.isRegistreEntrada());
-			dto.setRegistreNumero(documentStore.getRegistreNumero());
-			dto.setRegistreData(documentStore.getRegistreData());
-			dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
-			dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
-		}
-		dto.setNtiVersion(documentStore.getNtiVersion());
-		dto.setNtiIdentificador(documentStore.getNtiIdentificador());
-		dto.setNtiOrgano(documentStore.getNtiOrgano());
-		dto.setNtiOrigen(documentStore.getNtiOrigen());
-		dto.setNtiEstadoElaboracion(documentStore.getNtiEstadoElaboracion());
-		dto.setNtiNombreFormato(documentStore.getNtiNombreFormato());
-		dto.setNtiTipoDocumental(documentStore.getNtiTipoDocumental());
-		dto.setNtiIdOrigen(documentStore.getNtiIdDocumentoOrigen());
-		dto.setNtiTipoFirma(documentStore.getNtiTipoFirma());
-		dto.setNtiCsv(documentStore.getNtiCsv());
-		dto.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
-		dto.setArxiuUuid(documentStore.getArxiuUuid());
-		dto.setDocumentValid(documentStore.isDocumentValid());
-		dto.setDocumentError(documentStore.getDocumentError());
-		dto.setAnotacioAnnexId(documentStore.getAnnexId());
-		dto.setReferenciaCustodia(documentStore.getReferenciaCustodia());
-
-		return dto;
-	}
-
-	*/
-
 	public List<DocumentStore> findByExpedient(Long expedientId) {
-		return expedientDocumentsRepository.findDocumentStoreByExpedientId(expedientId);
+		return expedientDocumentRepository.findDocumentStoreByExpedientId(expedientId);
 	}
 
 	public DocumentStore findDocumentStore(
@@ -138,7 +50,7 @@ public class ExpedientDocumentHelper {
 		Long expedientId,
 		String processId,
 		String taskId) {
-		return expedientDocumentsRepository.findDocumentStoreByCodi(
+		return expedientDocumentRepository.findDocumentStoreByCodi(
 			codi,
 			expedientId,
 			expedientId == null,
@@ -166,16 +78,47 @@ public class ExpedientDocumentHelper {
 	}
 
 	public List<DocumentStore> findByExpedientAndTask(Long expedientId, String taskId) {
-		return expedientDocumentsRepository.findDocumentStoreByExpedientIdAndTaskId(expedientId, taskId);
+		return expedientDocumentRepository.findDocumentStoreByExpedientIdAndTaskId(expedientId, taskId);
 	}
 
 	public List<DocumentStore> findByExpedientAndProcess(Long expedientId, String processId) {
-		return expedientDocumentsRepository.findDocumentStoreByExpedientIdAndProcessId(expedientId, processId);
+		return expedientDocumentRepository.findDocumentStoreByExpedientIdAndProcessId(expedientId, processId);
 	}
 
 	public DocumentStore setDocument(
 		Long expedientId,
 		String processInstanceId,
+		String documentCodi,
+		Date data,
+		String adjuntTitol,
+		String arxiuNom,
+		byte[] arxiuContingut,
+		String arxiuContentType,
+		boolean ambFirma,
+		boolean firmaSeparada,
+		byte[] firmaContingut,
+		List<ExpedientDocumentDto> annexosPerNotificar
+	) {
+		return setDocument(
+			expedientId,
+			processInstanceId,
+			null,
+			documentCodi,
+			data,
+			adjuntTitol,
+			arxiuNom,
+			arxiuContingut,
+			arxiuContentType,
+			ambFirma,
+			firmaSeparada,
+			firmaContingut,
+			annexosPerNotificar);
+	}
+
+	public DocumentStore setDocument(
+		Long expedientId,
+		String processInstanceId,
+		String taskInstanceId,
 		String documentCodi,
 		Date data,
 		String adjuntTitol,
@@ -197,7 +140,7 @@ public class ExpedientDocumentHelper {
 			documentCodi,
 			expedient.getTipus().getExpedientTipusPare() != null);
 
-		DocumentStore documentStore = expedientDocumentsRepository.findDocumentStoreByExpedientIdAndCodi(expedientId, documentCodi);
+		DocumentStore documentStore = expedientDocumentRepository.findDocumentStoreByExpedientIdAndCodi(expedientId, documentCodi);
 
 		if(documentStore == null) {
 			String documentCodiPerCreacio = documentCodi;
@@ -315,9 +258,99 @@ public class ExpedientDocumentHelper {
 			documentCodi,
 			expedient,
 			processInstanceId,
-			null);
+			taskInstanceId);
 
 		return documentStore;
+	}
+
+	public void deleteDocument(
+		String documentCodi,
+		Long expedientId,
+		String processInstanceId,
+		String taskInstanceId) {
+
+		ExpedientDocument expedientDocument = expedientDocumentRepository.findByCodi(
+			documentCodi,
+			expedientId,
+			expedientId == null,
+			processInstanceId,
+			processInstanceId == null,
+			taskInstanceId,
+			taskInstanceId == null);
+
+		if (expedientDocument != null) {
+			boolean esborrarDocument = true;
+			DocumentStore documentStore = expedientDocument.getDocumentStore();
+			Long documentStoreId = documentStore.getId();
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+			if (enviaments != null && !enviaments.isEmpty()) {
+				// si té enviaments no s'esborra el document per a que es pugui consultar des de la notificació.
+				esborrarDocument = false;
+			}
+			List<Long> documentsNotificats = this.getDocumentsNotificats(expedient);
+			if (documentsNotificats.contains(documentStoreId)) {
+				// si el document s'ha notificat no s'esborra el document per a que es pugui continuar consultant.
+				esborrarDocument = false;
+			}
+			List<PeticioPinbal> peticioPinbals = peticioPinbalRepository.findByDocumentId(documentStoreId);
+			if (peticioPinbals != null && !peticioPinbals.isEmpty()) {
+				// si és de una petició pinbal no s'esborra el document per a que es pugui consultar des de la notificació.
+				esborrarDocument = false;
+			}
+
+			if (expedient.isArxiuActiu() && documentStore.getArxiuUuid()!=null && !"".equals(documentStore.getArxiuUuid())) {
+				if (documentStore.isSignat()) {
+					log.info("Es procedeix a esborrar d'HELIUM el document firmat a l'Arxiu (expedient= " + expedient.getNumero() + ", tipus=" + expedient.getTipus().getCodi() +
+						", entorn=" + expedient.getTipus().getEntorn().getCodi() + ", document= " + documentStoreId
+						+ (documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : documentStore.getCodiDocument() ) + ")");
+				} else {
+					if (esborrarDocument ) {
+						// No esborra el document de l'Arxiu si té un annex associat
+						if (documentStore.getAnnexId() == null) {
+							// Consulta si existeix abans cridar a esborrar per a que no falli
+							boolean arxiuExisteixDocument = false;
+							try {
+								arxiuExisteixDocument = null != pluginHelper.arxiuDocumentInfo(documentStore.getArxiuUuid(), null, false, documentStore.isSignat());
+							} catch (Exception ex) {
+								// Si no existeix falla la consulta.
+								log.error("No s'ha pogut borrar el document "+documentStore.getArxiuUuid()+" del arxiu perque no existeix.");
+							}
+							if ( arxiuExisteixDocument) {
+								// Esborra el document de l'Arxiu
+								pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+							}
+						}
+					}
+				}
+			} else {
+				if (esborrarDocument && documentStore.getFont().equals(DocumentStore.DocumentFont.ALFRESCO)) {
+					pluginHelper.gestioDocumentalDeleteDocument(
+						documentStore.getReferenciaFont(),
+						expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
+				}
+				if (processInstanceId != null) {
+					List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
+						processInstanceId,
+						PortafirmesEstatEnum.getPendents());
+					for (Portasignatures psigna: psignaPendents) {
+						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
+							psigna.setEstat(PortafirmesEstatEnum.ESBORRAT);
+							portasignaturesRepository.save(psigna);
+						}
+					}
+				}
+			}
+			expedientDocumentRepository.delete(expedientDocument);
+			if (esborrarDocument) {
+				documentStoreRepository.delete(documentStore);
+			}
+		}
+
+	}
+
+	public void delete(Long documentStoreId) {
+		expedientDocumentRepository.deleteByDocumentStoreId(documentStoreId);
 	}
 
 	private ExpedientDocument create(
@@ -326,7 +359,7 @@ public class ExpedientDocumentHelper {
 		Expedient expedient,
 		String processInstanceId,
 		String taskId) {
-		ExpedientDocument entity = expedientDocumentsRepository.findByCodiAndExpedientId(codi, expedient.getId());
+		ExpedientDocument entity = expedientDocumentRepository.findByCodiAndExpedientId(codi, expedient.getId());
 		if(entity != null)
 			return entity;
 
@@ -339,7 +372,25 @@ public class ExpedientDocumentHelper {
 								.taskId(taskId)
 								.tipus(DocumentTipusEnum.DOCUMENT)
 								.build();
-		return expedientDocumentsRepository.save(entity);
+		return expedientDocumentRepository.save(entity);
+	}
+
+	/** Mètode per consultar els documents notificats tant directament com dins dels .zip que poden contenir altres documents.
+	 *
+	 * @param expedient
+	 * @return
+	 */
+	private List<Long> getDocumentsNotificats(Expedient expedient) {
+		List<Long> documentsNotificats = documentNotificacioRepository.getDocumentsNotificatsIdsPerExpedient(expedient);
+		// Afegeix els documents continguts en els possibles .zips notificats
+		if (!documentsNotificats.isEmpty()) {
+			for (DocumentStore dsContingut : documentStoreRepository.findDocumentsContingutsIds(documentsNotificats)) {
+				if (!documentsNotificats.contains(dsContingut.getId())) {
+					documentsNotificats.add(dsContingut.getId());
+				}
+			};
+		}
+		return documentsNotificats;
 	}
 
 	private void comprovarFirmesReconegudes(List<ArxiuFirmaDto> arxiuFirmes) {
@@ -540,10 +591,6 @@ public class ExpedientDocumentHelper {
 	private String getPropertyArxiuVerificacioBaseUrl() {
 		return GlobalProperties.getInstance().getProperty(
 			"app.arxiu.verificacio.baseurl");
-	}
-
-	public void delete(Long documentStoreId) {
-		expedientDocumentsRepository.deleteByDocumentStoreId(documentStoreId);
 	}
 
 }

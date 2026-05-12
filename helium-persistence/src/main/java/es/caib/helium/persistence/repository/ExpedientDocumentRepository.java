@@ -20,6 +20,22 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 
 	public ExpedientDocument findByDocumentStore(DocumentStore documentStore);
 	public ExpedientDocument findByCodiAndExpedientId(String codi, Long  expedientId);
+	/** Obté els documents d'un expedient sense procés ni tasca. */
+	@Query(" FROM ExpedientDocument ed " +
+			" WHERE " +
+			" (:expedientIdIsNull = true OR ed.expedient.id = :expedientId) " +
+			" AND (:processIdIsNull = true OR ed.processInstanceId = :processId) " +
+			" AND (:taskIdIsNull = true OR ed.taskId = :taskId) " +
+			" AND ed.codi = :codi ")
+	public ExpedientDocument findByCodi(
+		@Param("codi") String codi,
+		@Param("expedientId") Long expedientId,
+		@Param("expedientIdIsNull") Boolean expedientIdIsNull,
+		@Param("processId") String processId,
+		@Param("processIdIsNull") Boolean processIdIsNull,
+		@Param("taskId") String taskId,
+		@Param("taskIdIsNull") Boolean taskIdIsNull);
+
 	public void deleteByDocumentStoreId(Long documentStoreId);
 
 	/** Obté els documents d'un expedient per una tasca concreta. */
