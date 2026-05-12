@@ -1,7 +1,7 @@
 package es.caib.helium.disseny.handler;
 
 /**
- * Handler per a crear nous interessats a l'expedient.
+ * Handler per a crear un nou interessat a l'expedient.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */

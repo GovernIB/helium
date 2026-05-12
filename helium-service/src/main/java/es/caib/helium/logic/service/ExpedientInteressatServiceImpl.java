@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.logic.helper.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,6 @@ import es.caib.helium.persistence.entity.Interessat;
 import es.caib.helium.persistence.entity.UnitatOrganitzativa;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.InteressatRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -43,67 +40,20 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	@Resource private PluginHelper pluginHelper;
 	@Resource private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	@Resource private MessageHelper messageHelper;
+	@Resource private ExpedientInteressatHelper expedientInteressatHelper;
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	@Transactional
 	public InteressatDto create(InteressatDto interessat) {
-
 		logger.debug("Creant nou interessat (interessat=" + interessat + ")");
-
 		Expedient expedient = expedientRepository.findById(interessat.getExpedientId()).orElse(null);
-
-		Interessat interessatEntity = new Interessat(
-			interessat.getId(),
-			interessat.getCodi(),//!=null?interessat.getCodi():interessat.getDocumentIdent(),
-			interessat.getNom(),
-			interessat.getDocumentIdent(),
-			interessat.getDir3Codi(),
-			interessat.getLlinatge1(),
-			interessat.getLlinatge2(),
-			interessat.getTipus(),
-			interessat.getEmail(),
-			interessat.getTelefon(),
-			expedient,
-			interessat.getEntregaPostal(),
-			interessat.getEntregaTipus(),
-			interessat.getLinia1(),
-			interessat.getLinia2(),
-			interessat.getCodiPostal(),
-			interessat.getEntregaDeh(),
-			interessat.getEntregaDehObligat(),
-			interessat.getTipusDocIdent(),
-			interessat.getDireccio(),
-			interessat.getObservacions(),
-			interessat.getEs_representant(),
-			interessat.getRaoSocial(),
-			interessat.getPais(),
-			interessat.getProvincia(),
-			interessat.getMunicipi(),
-			interessat.getCanalNotif(),
-			interessat.getCodiDire()
-			);
-		if(expedient.getInteressats()!=null)
-			expedient.getInteressats().add(interessatEntity);
-		else {
-			List<Interessat> interessatsList = new ArrayList<Interessat>();
-			interessatsList.add(interessatEntity);
-			expedient.setInteressats(interessatsList);
-		}
-		boolean propArxiu = true;
-		if (expedient.isArxiuActiu()) {
-			try {
-				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
-			} catch (SistemaExternException seex) {
-				expedient.addErrorArxiu("Error de sincronització amb arxiu al crear el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
-				propArxiu = false;
-			}
-		}
-		interessatEntity.setTipusDocIdent(interessatEntity.getTipusDocIdent());
-		interessatEntity = interessatRepository.save(interessatEntity);
+		Interessat interessatEntity = expedientInteressatHelper.create(expedient, interessat);
+		boolean propagat = expedientInteressatHelper.arxiuPropagar(expedient, interessatEntity.getDocumentIdent());
 		InteressatDto resultat = conversioTipusHelper.convertir(interessatEntity, InteressatDto.class);
-		resultat.setPropagatArxiu(propArxiu);
+		resultat.setPropagatArxiu(propagat);
 		return resultat;
 	}
 
@@ -115,53 +65,11 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	public InteressatDto update(
 			InteressatDto interessat) {
 		logger.debug("Modificant interessat (interessat=" + interessat + ")");
-		Interessat interessatEntity = interessatRepository.findById(interessat.getId()).orElse(null);
-		interessatEntity.setCodi(interessat.getCodi());
-		interessatEntity.setRaoSocial(interessat.getRaoSocial());
-		interessatEntity.setNom(interessat.getNom());
-		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
-		interessatEntity.setDir3Codi(interessat.getDir3Codi());
-		interessatEntity.setCodiDire(interessat.getCodiDire());
-		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
-		interessatEntity.setLlinatge1(interessat.getLlinatge1());
-		interessatEntity.setLlinatge2(interessat.getLlinatge2());
-		interessatEntity.setTipus(interessat.getTipus());
-		interessatEntity.setEmail(interessat.getEmail());
-		interessatEntity.setTelefon(interessat.getTelefon());
-		interessatEntity.setEntregaPostal(interessat.getEntregaPostal());
-		interessatEntity.setEntregaTipus(interessat.getEntregaTipus());
-		interessatEntity.setLinia1(interessat.getLinia1());
-		interessatEntity.setLinia2(interessat.getLinia2());
-		interessatEntity.setCodiPostal(interessat.getCodiPostal());
-		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
-		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
-		interessatEntity.setObservacions(interessat.getObservacions());
-		// interessatEntity.setTipusDocIdent(translateTipusDocIdentToSave(interessat.getTipusdocident()));
-		interessatEntity.setTipusDocIdent(interessat.getTipusDocIdent());
-		interessatEntity.setCodiDire(interessat.getCodiDire());
-		interessatEntity.setDireccio(interessat.getDireccio());
-		interessatEntity.setRaoSocial(interessat.getRaoSocial());
-		interessatEntity.setEs_representant(interessat.getEs_representant());
-		interessatEntity.setPais(interessat.getPais());
-		interessatEntity.setProvincia(interessat.getProvincia());
-		interessatEntity.setMunicipi(interessat.getMunicipi());
-		interessatEntity.setCanalNotif(interessat.getCanalNotif());
-		if(interessat.getRepresentant_id()!=null) {
-				interessatEntity.setRepresentant(interessatRepository.findById(interessat.getRepresentant_id()).orElse(null));
-		}
-		Expedient expedient = interessatEntity.getExpedient();//expedientRepository.findById(interessat.getExpedientId());
-
+		Interessat interessatEntity = expedientInteressatHelper.update(interessat);
+		Expedient expedient = interessatEntity.getExpedient();
+		boolean propagat = expedientInteressatHelper.arxiuPropagar(expedient, interessatEntity.getDocumentIdent());
 		InteressatDto resultat = conversioTipusHelper.convertir(interessatEntity, InteressatDto.class);
-
-		if (expedient.isArxiuActiu()) {
-			try {
-				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
-			} catch (SistemaExternException seex) {
-				expedient.addErrorArxiu("Error de sincronització amb arxiu al modificar el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
-				resultat.setPropagatArxiu(false);
-			}
-		}
-
+		resultat.setPropagatArxiu(propagat);
 		return resultat;
 	}
 
@@ -187,9 +95,9 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		Interessat interessat = comprovarInteressat(interessatId);
 		Expedient expedient = expedientRepository.findById(interessat.getExpedient().getId()).orElse(null);
 		List<Interessat> interessats = expedient.getInteressats();
-		if (interessat.getRepresentant()!=null) {//si té respresentant primer el desassignem i després esborrem l'interessat
+		if (interessat.getRepresentant() != null) {//si té respresentant primer el desassignem i després esborrem l'interessat
 			Interessat representant = comprovarInteressat(interessat.getRepresentant().getId());
-			if(representant.getRepresentats()!=null && !representant.getRepresentats().isEmpty()) {
+			if (representant.getRepresentats() != null && !representant.getRepresentats().isEmpty()) {
 				interessat.setRepresentant(null);
 				if(representant.getRepresentats().size()==1) {
 					//Si aquest interessat té un representant que no representa a ningú més també l'esborrem (el representant)

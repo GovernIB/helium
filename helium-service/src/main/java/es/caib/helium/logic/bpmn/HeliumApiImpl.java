@@ -39,6 +39,7 @@ public class HeliumApiImpl implements HeliumApi {
 	private final DocumentHelperV3 documentHelperV3;
 	private final PluginHelper pluginHelper;
 	private final AlertaHelper alertaHelper;
+	private final ExpedientInteressatHelper expedientInteressatHelper;
 
 	@Override
 	public <T> T getVariable(String codi) {
@@ -369,6 +370,57 @@ public class HeliumApiImpl implements HeliumApi {
 			expedient.getGeoReferencia(),
 			expedient.getGrupCodi(),
 			false);
+	}
+
+	@Override
+	public void interessatCrear(
+		String codi,
+		String nom,
+		String tipusDocIdent,
+		String documentIdent,
+		String dir3Codi,
+		String llinatge1,
+		String llinatge2,
+		String tipus,
+		String email,
+		String telefon,
+		Boolean entregaPostal,
+		String entregaTipus,
+		String linia1,
+		String linia2,
+		Boolean entregaDeh,
+		Boolean entregaDehObligat,
+		String direccio,
+		String pais,
+		String provincia,
+		String municipi,
+		String canalNotif) {
+		InteressatDto interessat = new InteressatDto();
+		interessat.setCodi(codi);
+		interessat.setNom(nom);
+		interessat.setTipusDocIdent(
+			tipusDocIdent != null ? InteressatDocumentTipusEnumDto.valueOf(tipusDocIdent) : null);
+		interessat.setDocumentIdent(documentIdent);
+		interessat.setDir3Codi(dir3Codi);
+		interessat.setLlinatge1(llinatge1);
+		interessat.setLlinatge2(llinatge2);
+		interessat.setTipus(
+			tipus != null ? InteressatTipusEnumDto.valueOf(tipus) : null);
+		interessat.setEmail(email);
+		interessat.setTelefon(telefon);
+		interessat.setEntregaPostal(entregaPostal);
+		interessat.setEntregaTipus(
+			entregaTipus != null ? DadesEnviamentDto.EntregaPostalTipus.valueOf(entregaTipus) : null);
+		interessat.setLinia1(linia1);
+		interessat.setLinia2(linia2);
+		interessat.setEntregaDeh(entregaDeh);
+		interessat.setEntregaDehObligat(entregaDehObligat);
+		interessat.setDireccio(direccio);
+		interessat.setPais(pais);
+		interessat.setProvincia(provincia);
+		interessat.setMunicipi(municipi);
+		interessat.setCanalNotif(canalNotif);
+		expedientInteressatHelper.create(expedient, interessat);
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package es.caib.helium.disseny.handler;
 
 /**
- * Handler per a consultar la informació d'un document i desar-la a dins variables.
+ * Handler per a adjuntar un document a l'expedient.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */

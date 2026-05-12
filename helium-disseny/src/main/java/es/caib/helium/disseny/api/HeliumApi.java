@@ -64,6 +64,29 @@ public interface HeliumApi {
 
 	void expedientTitolModificar(String titol);
 
+	void interessatCrear(
+		String codi,
+		String nom,
+		String tipusDocIdent,
+		String documentIdent,
+		String dir3Codi,
+		String llinatge1,
+		String llinatge2,
+		String tipus,
+		String email,
+		String telefon,
+		Boolean entregaPostal,
+		String entregaTipus,
+		String linia1,
+		String linia2,
+		Boolean entregaDeh,
+		Boolean entregaDehObligat,
+		String direccio,
+		String pais,
+		String provincia,
+		String municipi,
+		String canalNotif);
+
 	Integer portasignaturesEnviar(
 		String documentCodi,
 		String personaCodi,

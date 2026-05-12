@@ -5,7 +5,7 @@ import es.caib.helium.disseny.exception.HeliumHandlerException;
 import lombok.Setter;
 
 /**
- * Implementació del handler per a consultar la informació d'un document i desar-la a dins variables.
+ * Implementació del handler per a adjuntar un document a l'expedient.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
