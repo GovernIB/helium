@@ -86,40 +86,10 @@ public class ExpedientDocumentHelper {
 	}
 
 	public DocumentStore setDocument(
-		Long expedientId,
-		String processInstanceId,
 		String documentCodi,
-		Date data,
-		String adjuntTitol,
-		String arxiuNom,
-		byte[] arxiuContingut,
-		String arxiuContentType,
-		boolean ambFirma,
-		boolean firmaSeparada,
-		byte[] firmaContingut,
-		List<ExpedientDocumentDto> annexosPerNotificar
-	) {
-		return setDocument(
-			expedientId,
-			processInstanceId,
-			null,
-			documentCodi,
-			data,
-			adjuntTitol,
-			arxiuNom,
-			arxiuContingut,
-			arxiuContentType,
-			ambFirma,
-			firmaSeparada,
-			firmaContingut,
-			annexosPerNotificar);
-	}
-
-	public DocumentStore setDocument(
 		Long expedientId,
 		String processInstanceId,
 		String taskInstanceId,
-		String documentCodi,
 		Date data,
 		String adjuntTitol,
 		String arxiuNom,

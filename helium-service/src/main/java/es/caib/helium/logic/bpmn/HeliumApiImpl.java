@@ -151,9 +151,10 @@ public class HeliumApiImpl implements HeliumApi {
 		boolean firmaSeparada,
 		byte[] firmaContingut) {
 		expedientDocumentHelper.setDocument(
+			documentCodi,
 			expedient.getId(),
 			processId,
-			documentCodi,
+			null,
 			dataDocument,
 			null,
 			arxiuNom,

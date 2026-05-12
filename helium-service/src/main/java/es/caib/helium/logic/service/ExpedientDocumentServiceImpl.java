@@ -289,9 +289,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 //				annexosPerNotificar);
 
 		DocumentStore documentStoreCreat = expedientDocumentHelper.setDocument(
+			documentCodi,
 			expedientId,
 			processInstanceId,
-			documentCodi,
+			null,
 			data,
 			adjuntTitol,
 			arxiuNom,
