@@ -1,8 +1,8 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.bpmn.api.HeliumApi;
-import es.caib.helium.bpmn.exception.HeliumHandlerException;
-import es.caib.helium.bpmn.model.DocumentInfo;
+import es.caib.helium.disseny.api.HeliumApi;
+import es.caib.helium.disseny.exception.HeliumHandlerException;
+import es.caib.helium.disseny.model.DocumentInfo;
 import es.caib.helium.commons.dto.*;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.persistence.entity.Document;
@@ -96,13 +96,13 @@ public class HeliumApiImpl implements HeliumApi {
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
 			expedient.getId(),
 			processId,
-			null,
+			taskId,
 			documentCodi);
 		if (documentStore != null) {
 			Document documentDisseny = expedientDocumentHelper.findDocument(
 				expedient.getId(),
 				processId,
-				null,
+				taskId,
 				documentCodi);
 			DocumentDto docV3 = documentHelperV3.toDocumentDto(
 				documentStore.getId(),
@@ -137,7 +137,7 @@ public class HeliumApiImpl implements HeliumApi {
 			}
 			return resposta;
 		} else {
-			throw new HeliumHandlerException("Document no trobat: " + documentCodi);
+			throw new HeliumHandlerException("Document store no trobat pel codi: " + documentCodi);
 		}
 	}
 
@@ -153,7 +153,7 @@ public class HeliumApiImpl implements HeliumApi {
 		expedientDocumentHelper.setDocument(
 			expedient.getId(),
 			processId,
-			null,
+			taskId,
 			documentCodi,
 			dataDocument,
 			null,
@@ -164,6 +164,15 @@ public class HeliumApiImpl implements HeliumApi {
 			firmaSeparada,
 			firmaContingut,
 			null);
+	}
+
+	@Override
+	public void deleteDocument(String documentCodi) {
+		expedientDocumentHelper.deleteDocument(
+			expedient.getId(),
+			processId,
+			taskId,
+			documentCodi);
 	}
 
 	@Override
@@ -187,6 +196,47 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 		if (varUrl != null && !varUrl.isEmpty()) {
 			setVariable(varUrl, documentInfo.getUrlVerificacioSignatures());
+		}
+	}
+
+	@Override
+	public void documentAdjuntar(
+		String documentOrigen,
+		String titol,
+		Date data,
+		boolean concatenarTitol,
+		boolean esborrarDocument) {
+		if (documentOrigen == null) {
+			throw new HeliumHandlerException("No s'ha especificat el document orígen");
+		}
+		if (titol == null) {
+			throw new HeliumHandlerException("No s'ha especificat el títol del document");
+		}
+		if (data == null) {
+			throw new HeliumHandlerException("No s'ha especificat la data del document");
+		}
+		DocumentInfo documentInfo = getDocumentInfo(documentOrigen);
+		String adjuntTitol = concatenarTitol ? documentInfo.getTitol() + " " + titol : titol;
+		expedientDocumentHelper.setDocument(
+			expedient.getId(),
+			processId,
+			taskId,
+			documentOrigen,
+			data,
+			adjuntTitol,
+			documentInfo.getArxiuNom(),
+			documentInfo.getArxiuContingut(),
+			null,
+			false,
+			false,
+			null,
+			null);
+		if (esborrarDocument) {
+			expedientDocumentHelper.deleteDocument(
+				expedient.getId(),
+				processId,
+				taskId,
+				documentOrigen);
 		}
 	}
 
@@ -372,12 +422,12 @@ public class HeliumApiImpl implements HeliumApi {
 		Document documentDisseny = expedientDocumentHelper.findDocument(
 			expedient.getId(),
 			processId,
-			null,
+			taskId,
 			documentCodi);
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
 			expedient.getId(),
 			processId,
-			null,
+			taskId,
 			documentCodi);
 		DocumentDto docV3 = documentHelperV3.toDocumentDto(
 			documentStore.getId(),

@@ -1,7 +1,7 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.bpmn.api.HeliumApi;
-import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.disseny.api.HeliumApi;
+import es.caib.helium.disseny.exception.HeliumHandlerException;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.List;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class PortasignaturesHandler implements es.caib.helium.bpmn.handler.PortasignaturesHandler {
+public class PortasignaturesHandler implements es.caib.helium.disseny.handler.PortasignaturesHandler {
 
 	private String varResponsableCodi;
 	private String responsableCodi;

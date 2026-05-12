@@ -67,7 +67,7 @@
 		<module>helium-ejb</module>
 		<module>helium-back</module>
 		<module>helium-ear</module>
-		<module>helium-bpmn</module>
+		<module>helium-disseny</module>
 		<!-- mòduls a migrar
 		<module>helium-core-api</module>
 		<module>helium-disseny</module>

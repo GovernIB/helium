@@ -1,6 +1,6 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.bpmn.handler.HeliumActionHandler;
+import es.caib.helium.disseny.handler.HeliumActionHandler;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;

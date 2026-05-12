@@ -1,7 +1,7 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.bpmn.api.HeliumApi;
-import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.disseny.api.HeliumApi;
+import es.caib.helium.disseny.exception.HeliumHandlerException;
 import lombok.Setter;
 
 /**
@@ -10,7 +10,7 @@ import lombok.Setter;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class ExpedientTitolModificarHandler implements es.caib.helium.bpmn.handler.ExpedientTitolModificarHandler {
+public class ExpedientTitolModificarHandler implements es.caib.helium.disseny.handler.ExpedientTitolModificarHandler {
 
 	private String titol;
 	private String varTitol;
