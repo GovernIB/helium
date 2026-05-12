@@ -1,7 +1,6 @@
 package net.conselldemallorca.helium.ws.backoffice.distribucio;
 
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.rest.client.integracio.domini.Estat;
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
@@ -48,14 +46,9 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 	private DistribucioHelper distribucioHelper;
 	@Autowired
 	private AnotacioRepository anotacioRepository;
-	@Autowired
-	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private PluginHelper pluginHelper;
-	
-	// Per donar format a les dates
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-	
+		
 	/** Mètode invocat per Distribució per comunicar anotacions de registre al backoffice Helium. */
 	@Override
 	public synchronized void comunicarAnotacionsPendents(List<AnotacioRegistreId> ids) {
@@ -72,12 +65,13 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 		es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs;
 		List<Anotacio> anotacions;
 		Anotacio anotacio;
-		List<Long> idsAnotacionsReprocessar =  new ArrayList<Long>();
 		// Si la petició ja existeix determina què fer en cas de cada estat
 		es.caib.distribucio.rest.client.integracio.domini.Estat estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
 		List<ComunicarEstat> comunicarEstats = new ArrayList<ComunicarEstat>();
 		for (AnotacioRegistreId id : ids) {
-			idWs = conversioTipusHelper.convertir(id, es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId.class);
+			idWs = new es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId();
+			idWs.setClauAcces(id.getClauAcces());
+			idWs.setIdentificador(id.getIndetificador());
 			try {
 				anotacio = null;
 				logger.info("Processant la peticio d'anotació amb id " + id.getIndetificador());
@@ -179,7 +173,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 	private void comunicarEstats(List<ComunicarEstat> comunicarEstats) {
 		for(ComunicarEstat comunicarEstat: comunicarEstats) {
 			try {
-				logger.info("Comunicant l'estat " + comunicarEstat.getEstat() + " de l'anotació " + comunicarEstat.getIdWs().getIndetificador() + " a DISTRIBUCIO.");
+				logger.info("Comunicant l'estat " + comunicarEstat.getEstat() + " de l'anotació " + comunicarEstat.getIdWs().getIdentificador() + " a DISTRIBUCIO.");
 				if(comunicarEstat.getEstat()!=null)
 					// Comunica l'estat actual
 					distribucioHelper.canviEstat(

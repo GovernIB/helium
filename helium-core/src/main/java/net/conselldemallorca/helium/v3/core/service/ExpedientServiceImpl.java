@@ -3862,7 +3862,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					try {
 						es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
 						idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-						idWs.setIndetificador(anotacio.getDistribucioId());
+						idWs.setIdentificador(anotacio.getDistribucioId());
 						anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
 						
 					} catch(Exception e) {
