@@ -14,7 +14,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.bpmn.handler.HeliumActionHandler;
+import es.caib.helium.disseny.handler.HeliumActionHandler;
 import es.caib.helium.logic.bpmn.HeliumActionHandlerPredefinitFactory;
 import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import org.apache.commons.lang.StringUtils;

@@ -1,6 +1,6 @@
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.bpmn.handler.HeliumActionHandler;
+import es.caib.helium.disseny.handler.HeliumActionHandler;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.ExpedientTipus;
