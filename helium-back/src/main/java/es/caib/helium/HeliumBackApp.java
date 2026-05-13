@@ -28,14 +28,14 @@ import es.caib.helium.commons.config.BaseConfig;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Classe principal del backoffice de distribucio per a executar amb el WAR.
- * 
+ * Classe principal del backoffice de helium per a executar amb el WAR.
+ *
  * @author Límit Tecnologies
  */
 @Slf4j
 @ConditionalOnWarDeployment
 @SpringBootApplication(exclude = {
-		DataSourceAutoConfiguration.class, 
+		DataSourceAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class,
 		JpaRepositoriesAutoConfiguration.class,
 		HibernateJpaAutoConfiguration.class,
@@ -52,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 						type = FilterType.REGEX,
 						pattern = {
 								"es\\.caib\\." + BaseConfig.APP_NAME + "\\.logic\\..*",
-								"es\\.caib\\." + BaseConfig.APP_NAME + "\\.persist\\..*",
+								"es\\.caib\\." + BaseConfig.APP_NAME + "\\.persistence\\..*",
 								"es\\.caib\\." + BaseConfig.APP_NAME + "\\.ejb\\..*" })
 		})
 @PropertySource(

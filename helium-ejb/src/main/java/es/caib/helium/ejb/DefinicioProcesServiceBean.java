@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -27,15 +27,14 @@ import es.caib.helium.logic.intf.service.DefinicioProcesService;
 
 /**
  * EJB que implementa la interfície del servei DefinicioProcesService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class DefinicioProcesBean implements DefinicioProcesService {
+public class DefinicioProcesServiceBean implements DefinicioProcesService {
 
 	@Autowired
-	DefinicioProcesService delegate;
+	private DefinicioProcesService delegate;
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -54,28 +53,28 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public List<DefinicioProcesDto> findAll(Long entornId, Long expedientTipusId, boolean incloureGlobals) {
 		return delegate.findAll(entornId, expedientTipusId, incloureGlobals);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findById(Long definicioProcesId) {
 		return delegate.findById(definicioProcesId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<DefinicioProcesDto> findPerDatatable(
-			Long entornId, 			
-			Long expedientTipusId, 
+			Long entornId,
+			Long expedientTipusId,
 			boolean incloureGlobals,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findPerDatatable(entornId, expedientTipusId, incloureGlobals, filtre, paginacioParams);
-	}	
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesExportacio exportar(
-			Long entornId, 
+			Long entornId,
 			Long definicioProcesId,
 			DefinicioProcesExportacioCommandDto command) {
 		return delegate.exportar(entornId, definicioProcesId, command);
@@ -84,10 +83,10 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto importar(
-			Long entornId, 
+			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId,
-			DefinicioProcesExportacioCommandDto command, 
+			DefinicioProcesExportacioCommandDto command,
 			DefinicioProcesExportacio importacio) {
 		return delegate.importar(entornId, expedientTipusId, definicioProcesId, command, importacio);
 	}
@@ -116,13 +115,13 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public List<TascaDto> tascaFindAll(Long definicioProcesId) {
 		return delegate.tascaFindAll(definicioProcesId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto tascaFindDefinicioProcesDeTasca(Long tascaId) {
 		return delegate.tascaFindDefinicioProcesDeTasca(tascaId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public TascaDto tascaUpdate(TascaDto tasca) throws NoTrobatException, PermisDenegatException {
@@ -159,7 +158,7 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public List<CampTascaDto> tascaCampFindAll(Long expedientTipusId, Long tascaId) {
 		return delegate.tascaCampFindAll(expedientTipusId, tascaId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean tascaCampMourePosicio(Long id, Long expedientTipusId, int posicio) {
@@ -216,7 +215,7 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public DocumentTascaDto tascaDocumentFindById(Long expedientTipusId, Long documentTascaId) {
 		return delegate.tascaDocumentFindById(expedientTipusId, documentTascaId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaTascaDto tascaFirmaCreate(Long tascaId, FirmaTascaDto tascaFirma)
@@ -255,13 +254,13 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public boolean tascaFirmaMourePosicio(Long id, Long expedientTipusId, int posicio) {
 		return delegate.tascaFirmaMourePosicio(id, expedientTipusId, posicio);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(Long tascaId, Long documentId, Long expedientTipusId) {
 		return delegate.tascaFirmaFindAmbTascaDocument(tascaId, documentId, expedientTipusId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaTascaDto tascaFirmaFindById(Long expedientTipusId, Long campTascaId) {
@@ -273,7 +272,7 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public List<TerminiDto> terminiFindAll(Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
 		return delegate.terminiFindAll(definicioProcesId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findAmbIdPermisDissenyar(Long entornId, Long definicioProcesId) throws NoTrobatException {
@@ -315,7 +314,7 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public DefinicioProcesDto findAmbProcessInstanceId(String processInstanceId) {
 		return delegate.findAmbProcessInstanceId(processInstanceId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findByJbpmKeyAndVersio(String defprocJbpmKey, int defprocVersio) {

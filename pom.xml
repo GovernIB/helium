@@ -25,6 +25,8 @@
 		<regweb.version>3.2.5</regweb.version>
 		<dir3caib.version>1.0.7</dir3caib.version>
 		<portafib.version>1.1</portafib.version>
+		<openapi.version>1.7.0</openapi.version>
+		<comanda.version>1.0.0</comanda.version>
 		<java.compiler.version>11</java.compiler.version>
 		<maven.compiler.target>${java.compiler.version}</maven.compiler.target>
 		<maven.compiler.source>${java.compiler.version}</maven.compiler.source>
@@ -59,6 +61,9 @@
 	</dependencyManagement>
 	<modules>
 		<module>helium-commons</module>
+		<module>helium-back</module>
+		<module>helium-api-interna</module>
+		<module>helium-ear</module>
 		<module>helium-persistence</module>
 		<module>helium-plugin</module>
 		<module>helium-plugin-impl</module>
@@ -82,7 +87,6 @@
 		<module>helium-applet</module>
 		<module>helium-hibernate-entitymanager</module>
 		<module>helium-ws-client</module>
-		<module>helium-api-interna</module>
 		-->
 	</modules>
 	<build>

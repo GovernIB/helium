@@ -22,11 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cglib.beans.BeanGenerator;
 import org.springframework.validation.Validator;
-import org.springmodules.validation.bean.BeanValidator;
-import org.springmodules.validation.bean.conf.DefaultBeanValidationConfiguration;
-import org.springmodules.validation.bean.conf.loader.SimpleBeanValidationConfigurationLoader;
-import org.springmodules.validation.bean.rule.ExpressionValidationRule;
-import org.springmodules.validation.util.cel.valang.ValangConditionExpressionParser;
+
 
 import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dto.CampTipusEnum;
@@ -157,39 +153,6 @@ public class TascaFormHelper {
     		} catch (Exception ignored) {}
     	}
     	return resposta;
-	}
-
-	public static Validator getBeanValidatorForCommand(List<TascaDadaDto> tascaDadas) {
-		SimpleBeanValidationConfigurationLoader validationConfigurationLoader = new SimpleBeanValidationConfigurationLoader();
-		DefaultBeanValidationConfiguration beanValidationConfiguration = new DefaultBeanValidationConfiguration();
-		for (TascaDadaDto camp: tascaDadas) {
-			for (ValidacioDto validacio: camp.getValidacions()) {
-				ExpressionValidationRule validationRule = new ExpressionValidationRule(
-						new ValangConditionExpressionParser(),
-						validacio.getExpressio());
-				String codiError = "error.camp." + camp.getVarCodi();
-				validationRule.setErrorCode(codiError);
-				validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
-				beanValidationConfiguration.addPropertyRule(
-						camp.getVarCodi(),
-						validationRule);
-			}
-			if (	camp.getCampTipus().equals(CampTipusEnum.STRING)) {// ||
-					//camp.getTipus().equals(CampTipusDto.TEXTAREA)) {
-				ExpressionValidationRule validationRule = new ExpressionValidationRule(
-						new ValangConditionExpressionParser(),
-						camp.getVarCodi() + " is null or length(" + camp.getVarCodi() + ") < 2049");
-				validationRule.setErrorCode("max.length");
-				validationRule.setDefaultErrorMessage("El contingut d'aquest camp excedeix la llargada màxima");
-				beanValidationConfiguration.addPropertyRule(
-						camp.getVarCodi(),
-						validationRule);
-			}
-		}
-		validationConfigurationLoader.setClassValidation(
-				Object.class,
-				beanValidationConfiguration);
-		return new BeanValidator(validationConfigurationLoader);
 	}
 
 	public static void guardarCommandTemporal(

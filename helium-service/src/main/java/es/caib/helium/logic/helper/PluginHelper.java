@@ -33,14 +33,6 @@ import org.fundaciobit.pluginsib.validatesignature.api.TimeStampInfo;
 import org.fundaciobit.pluginsib.validatesignature.api.ValidateSignatureRequest;
 import org.fundaciobit.pluginsib.validatesignature.api.ValidateSignatureResponse;
 import org.fundaciobit.pluginsib.validatesignature.api.ValidationStatus;
-//import org.fundaciobit.plugins.certificate.InformacioCertificat;
-//import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
-//import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
-//import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
-//import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
-//import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
-//import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
-//import org.fundaciobit.plugins.validatesignature.api.ValidationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -90,7 +82,6 @@ import es.caib.helium.commons.dto.ZonaperEventDto;
 import es.caib.helium.commons.dto.ZonaperExpedientDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.commons.helper.ExceptionHelper;
 import es.caib.helium.commons.registre.RegistreAnnex;
 import es.caib.helium.commons.registre.RegistreAnotacio;
 import es.caib.helium.commons.registre.RegistreInteressat;
@@ -376,7 +367,7 @@ public class PluginHelper {
 					ex);
 		}
 	}
-	
+
 	public List<PersonaDto> personaFindAll() {
 		long t0 = System.currentTimeMillis();
 		try {
@@ -413,7 +404,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_PERSONA,
 					"No s'han pogut consultar totes les persones",
 					ex);
-		}	
+		}
 	}
 
 	/** Consulta les darreres peticions dels documents del procés i retorna només les que

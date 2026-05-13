@@ -62,7 +62,7 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.commons.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -1402,7 +1402,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		return anotacioHelper.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId, reprocessarMapeigVariables,
 				reprocessarMapeigDocuments, reprocessarMapeigAdjunts, reprocessarMapeigInteressats);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

@@ -20,7 +20,7 @@ import es.caib.helium.commons.dto.AccioDto;
 import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.commons.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExceptionHelper;
 
 /**
  * Controlador per a la pàgina d'accions de l'expedient.

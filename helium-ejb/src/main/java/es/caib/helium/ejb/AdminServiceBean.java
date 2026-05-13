@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -27,7 +27,7 @@ import es.caib.helium.logic.intf.service.AdminService;
 
 /**
  * EJB per a AdminService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
@@ -92,7 +92,7 @@ public class AdminServiceBean implements AdminService {
 			Long dominiId) {
 		return delegate.monitorDominiFindAccionsByDomini(dominiId);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -258,7 +258,7 @@ public class AdminServiceBean implements AdminService {
 	public List<TascaCompleteDto> getTasquesCompletarAdminEntorn() {
 		return delegate.getTasquesCompletarAdminEntorn();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

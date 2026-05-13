@@ -20,7 +20,7 @@ import es.caib.helium.commons.dto.PortafirmesCarrecDto;
 import es.caib.helium.commons.dto.UsuariPreferenciesDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.commons.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;

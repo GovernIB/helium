@@ -1,13 +1,12 @@
 package es.caib.helium.logic.intf.service;
 
+import es.caib.comanda.model.server.monitoring.FitxerContingut;
+import es.caib.comanda.model.server.monitoring.FitxerInfo;
+
 import java.util.List;
 
-import es.caib.comanda.model.v1.log.FitxerContingut;
-import es.caib.comanda.model.v1.log.FitxerInfo;
-import es.caib.comanda.service.v1.avis.ApiException;
-
 public interface LogService {
-	public FitxerContingut getFitxerByNom(String nomFitxer) throws ApiException;
-	public FitxerContingut llegitUltimesLinies(String nomFitxer,Long nLinies) throws ApiException;
-	public List<FitxerInfo> llistarFitxers() throws ApiException;
+	public FitxerContingut getFitxerByNom(String nomFitxer);
+	public List<String> llegirDarreresLinies(String nomFitxer,Long nLinies);
+	public List<FitxerInfo> llistarFitxers();
 }

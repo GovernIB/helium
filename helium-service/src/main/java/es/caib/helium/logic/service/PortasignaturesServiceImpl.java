@@ -6,40 +6,50 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import javax.annotation.Resource;
-
+import es.caib.helium.commons.dto.*;
+import es.caib.helium.logic.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.*;
+import es.caib.helium.logic.helpers.DocumentHelper;
+import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
+import es.caib.helium.logic.intf.dto.engine.WToken;
+import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.persistence.common.ThreadLocalInfo;
+import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.repository.AlertaRepository;
+import es.caib.helium.persistence.repository.DocumentStoreRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.caib.helium.commons.dto.ConsultesPortafibFiltreDto;
-import es.caib.helium.commons.dto.ExpedientDocumentDto;
-import es.caib.helium.commons.dto.ExpedientTipusDto;
-import es.caib.helium.commons.dto.PaginaDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.dto.PortafirmesEstatEnum;
-import es.caib.helium.commons.dto.PortasignaturesDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.PortasignaturesService;
-import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.Portasignatures;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.PortasignaturesRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
 
+@Slf4j
 @Service
 public class PortasignaturesServiceImpl implements PortasignaturesService {
 
-	@Resource private PortasignaturesRepository portasignaturesRepository;
-	@Resource private ConversioTipusHelper conversioTipusHelper;
-	@Resource private PaginacioHelper paginacioHelper;
-	@Resource private ExpedientRepository expedientRepository;
-	@Resource private UsuariActualHelper usuariActualHelper;
-	@Resource private DocumentHelperV3 documentHelperV3;
-	@Resource private ExpedientTipusService expedientTipusService;
+	@Autowired private PortasignaturesRepository portasignaturesRepository;
+	@Autowired private DocumentStoreRepository documentStoreRepository;
+	@Autowired private ConversioTipusHelper conversioTipusHelper;
+	@Autowired private PaginacioHelper paginacioHelper;
+	@Autowired private ExpedientRepository expedientRepository;
+	@Autowired private UsuariActualHelper usuariActualHelper;
+	//@Autowired private DocumentHelperV3 documentHelperV3;
+	@Autowired private DocumentHelper documentHelper;
+	@Autowired private ExpedientDocumentHelper expedientDocumentHelper;
+	@Autowired private ExceptionHelper exceptionHelper;
+	@Autowired private ExpedientTipusService expedientTipusService;
+	@Autowired private PluginHelper pluginHelper;
+	@Autowired private WorkflowEngineApi workflowEngineApi;
+	@Autowired private ExpedientLoggerHelper expedientLogHelper;
+	@Autowired private ExpedientHelper expedientHelper;
+	@Autowired private AlertaRepository alertaRepository;
+
+	private List<Integer> idsDocumentsProcessant = new ArrayList<Integer>();
 
 	@Override
 	@Transactional(readOnly=true)
@@ -122,7 +132,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 
 		// No es pot afegir un array buit a una query HQL
 		// https://github.com/GovernIB/helium/issues/2000
-		boolean sensePermisos = (tipusPermesos==null || tipusPermesos.size()==0);
+		boolean sensePermisos = (tipusPermesos==null || tipusPermesos.isEmpty());
 		if(sensePermisos) {
 			tipusPermesos = new ArrayList<Long>();
 			tipusPermesos.add(0L);
@@ -156,22 +166,16 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						PortasignaturesDto.class);
 
 		for (PortasignaturesDto pf : pagina.getContingut() ) {
-
 			if (filtreDto.getEstat()!=null) {
 				pf.setEstat(filtreDto.getEstat().toString());
 			}
-			Expedient expedient = expedientRepository.findById(pf.getExpedientId()).orElse(null);
-			ExpedientDocumentDto document = documentHelperV3.findDocumentPerDocumentStoreId(
-					pf.getProcessInstanceId(),
-					pf.getDocumentStoreId(),
-					expedient.isArxiuActiu());
+			DocumentStore document = documentStoreRepository.findById(pf.getDocumentStoreId()).orElse(null);
 			String nom = pf.getDocumentNom();
 			if (document != null) {
 				nom = document.getArxiuNom();
-				pf.setSignaturaUrlVerificacio(document.getSignaturaUrlVerificacio());
+				pf.setDocumentUUID(document.getArxiuUuid());
 			}
 			pf.setDocumentNom(nom);
-			pf.setDocumentUUID(document.getArxiuUuid());
 		}
 
 		 return pagina;
@@ -182,25 +186,59 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	public PortasignaturesDto findById(Long portafirmesId) throws PermisDenegatException {
 		Portasignatures ps = portasignaturesRepository.findById(portafirmesId).orElse(null);
 		PortasignaturesDto resultat = conversioTipusHelper.convertir(ps, PortasignaturesDto.class);
-		Expedient expedient = expedientRepository.findById(resultat.getExpedientId()).orElse(null);
-
-		ExpedientDocumentDto document = documentHelperV3.findDocumentPerDocumentStoreId(
-				resultat.getProcessInstanceId(),
-				resultat.getDocumentStoreId(),
-				expedient.isArxiuActiu());
+		DocumentStore document = documentStoreRepository.findById(resultat.getDocumentStoreId()).orElse(null);
 		String nom = resultat.getDocumentNom();
 		if (document != null) {
-			nom = document.getDocumentNom();
+			nom = document.getArxiuNom();
+			resultat.setDocumentUUID(document.getArxiuUuid());
 		}
 		resultat.setDocumentNom(nom);
-		resultat.setDocumentUUID(document.getArxiuUuid());
 
 		return resultat;
 	}
 
 	@Override
+	@Transactional
 	public boolean processarDocumentCallbackPortasignatures(Integer id, boolean rebujat, String motiuRebuig) {
-		// TODO Auto-generated method stub
+		try {
+			Portasignatures portasignatures = portasignaturesRepository.findByDocumentId(id);
+			if (portasignatures != null) {
+				if (PortafirmesEstatEnum.PENDENT.equals(portasignatures.getEstat())) {
+					portasignatures.setDataSignatRebutjat(new Date());
+					if (!rebujat) {
+						portasignatures.setEstat(PortafirmesEstatEnum.SIGNAT);
+						portasignatures.setTransition(Portasignatures.Transicio.SIGNAT);
+					} else {
+						portasignatures.setEstat(PortafirmesEstatEnum.REBUTJAT);
+						portasignatures.setTransition(Portasignatures.Transicio.REBUTJAT);
+						portasignatures.setMotiuRebuig(motiuRebuig);
+					}
+					portasignaturesRepository.save(portasignatures);
+
+					if (!idsDocumentsProcessant.contains(portasignatures.getDocumentId())) {
+						idsDocumentsProcessant.add(portasignatures.getDocumentId());
+						try {
+							processarDocumentPendentPortasignatures(id, portasignatures);
+						} finally {
+							idsDocumentsProcessant.remove(portasignatures.getDocumentId());
+						}
+					}
+
+					return true;
+				} else if (PortafirmesEstatEnum.ESBORRAT.equals(portasignatures.getEstat())) {
+					return true;
+				} else if (PortafirmesEstatEnum.PROCESSAT.equals(portasignatures.getEstat())) {
+					return true;
+				} else {
+					log.error("El document rebut al callback (id=" + id + ") no està pendent del callback, el seu estat és " + portasignatures.getEstat());
+				}
+			} else {
+				log.error("El document rebut al callback (id=" + id + ") no s'ha trobat entre els documents enviats al portasignatures");
+			}
+		} catch (Exception ex) {
+			log.error("El document rebut al callback (id=" + id + ") ha produit una excepció al ser processat: " + ex.getMessage());
+			log.debug("El document rebut al callback (id=" + id + ") ha produit una excepció al ser processat", ex);
+		}
 		return false;
 	}
 
@@ -208,5 +246,150 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	public boolean processarDocumentPendentPortasignatures(Integer id) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	private boolean processarDocumentPendentPortasignatures(
+		Integer id,
+		Portasignatures portasignatures) {
+		boolean resposta = false;
+		if (portasignatures != null) {
+			if (portasignatures.getDataProcessamentPrimer() == null)
+				portasignatures.setDataProcessamentPrimer(new Date());
+			portasignatures.setDataProcessamentDarrer(new Date());
+			DocumentStore documentStore = documentStoreRepository.getReferenceById(portasignatures.getDocumentStoreId());
+			Long tokenId = portasignatures.getTokenId();
+			WToken token;
+			String processInstanceId;
+			if (tokenId != null) {
+				token = workflowEngineApi.getTokenById(tokenId.toString());
+				processInstanceId = token.getProcessInstanceId();
+			} else {
+				token = null;
+				processInstanceId = documentStore.getProcessInstanceId();
+			}
+
+			if (documentStore != null) {
+				if (PortafirmesEstatEnum.SIGNAT.equals(portasignatures.getEstat()) ||
+					(PortafirmesEstatEnum.ERROR.equals(portasignatures.getEstat()) && Portasignatures.Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
+					// Processa els documents signats
+					try {
+						ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
+						expedientLogHelper.afegirLogExpedientPerProces(
+							processInstanceId,
+							ExpedientLog.ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES,
+							Boolean.toString(true));
+						if (portasignatures.getDataSignalIntent() == null)
+							portasignatures.setDataSignalIntent(new Date());
+						portasignatures.setDataSignalOk(new Date());
+						portasignatures.setEstat(PortafirmesEstatEnum.PROCESSAT);
+
+						// Guarda el document
+						if (portasignatures.getDataCustodiaIntent() == null) {
+							portasignatures.setDataCustodiaIntent(new Date());
+						}
+						portasignatures.setDataCustodiaOk(new Date());
+						Expedient expedient = portasignatures.getExpedient();
+						if (token != null
+							&& ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
+							// Avança el flux
+							workflowEngineApi.signalToken(
+								tokenId,
+								portasignatures.getTransicioOK());
+
+							//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
+							// ha anat bé, és possible que s'avanci cap al node "fi"
+							expedientHelper.verificarFinalitzacioExpedient(
+								expedient);
+						}
+						resposta = true;
+					} catch (Exception pex) {
+						errorProcesPsigna(
+							portasignatures,
+							exceptionHelper.getMissageFinalCadenaExcepcions(pex));
+						log.error("Error al processar el document firmat pel callback (id=" + portasignatures.getDocumentId() + "): " + exceptionHelper.getMissageFinalCadenaExcepcions(pex), pex);
+					}
+					portasignaturesRepository.save(portasignatures);
+				} else if (PortafirmesEstatEnum.REBUTJAT.equals(portasignatures.getEstat()) ||
+					(PortafirmesEstatEnum.ERROR.equals(portasignatures.getEstat()) && Portasignatures.Transicio.REBUTJAT.equals(portasignatures.getTransition()))) {
+					// Processa els documents rebutjats
+					try {
+						expedientLogHelper.afegirLogExpedientPerProces(
+							processInstanceId,
+							ExpedientLog.ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES,
+							Boolean.toString(false));
+						if (token != null) {
+
+							WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(
+								token.getProcessInstanceId());
+							Expedient expedient = expedientRepository.findByProcessInstanceId(rootProcessInstance.getId());
+
+							if (ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
+								workflowEngineApi.signalToken(
+									tokenId,
+									portasignatures.getTransicioKO());
+
+								//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
+								// ha anat malament també és possible que s'avanci cap al node "fi"
+								expedientHelper.verificarFinalitzacioExpedient(
+									expedient);
+							}
+						}
+						portasignatures.setEstat(PortafirmesEstatEnum.PROCESSAT);
+						portasignatures.setErrorCallbackProcessant(null);
+						resposta = true;
+					} catch (Exception ex) {
+						errorProcesPsigna(
+							portasignatures,
+							exceptionHelper.getMissageFinalCadenaExcepcions(ex));
+						log.error("Error al processar el document rebutjat pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
+					}
+					portasignaturesRepository.save(portasignatures);
+				} else {
+					String error = "El document de portasignatures (id=" + portasignatures.getDocumentId() + ") no està pendent de processar, està en estat " + portasignatures.getEstat().toString();
+					errorProcesPsigna(
+						portasignatures,
+						error);
+					log.error(error);
+				}
+			} else {
+				String error = "El document rebut al callback (id=" + portasignatures.getDocumentId() + ") fa referència a un documentStore inexistent (id=" + portasignatures.getDocumentStoreId() + ")";
+				errorProcesPsigna(
+					portasignatures,
+					error);
+				log.error(error);
+			}
+			List<Portasignatures> ambErrors = portasignaturesRepository.findByExpedientAndEstat(portasignatures.getExpedient(), PortafirmesEstatEnum.ERROR);
+			portasignatures.getExpedient().setErrorsIntegracions(!ambErrors.isEmpty());
+		} else {
+			log.error("El document de portasignatures (id=" + id + ") no s'ha trobat");
+		}
+		return resposta;
+	}
+
+	private void errorProcesPsigna(
+		Portasignatures portasignatures,
+		String errorCallback) {
+		portasignatures.setErrorCallbackProcessant(errorCallback);
+		portasignatures.setEstat(PortafirmesEstatEnum.ERROR);
+		String expedientResponsable = portasignatures.getExpedient().getResponsableCodi();
+		if (expedientResponsable != null) {
+			Alerta alerta = new Alerta(
+				new Date(),
+				expedientResponsable,
+				"",
+				portasignatures.getExpedient().getEntorn());
+			alerta.setExpedient(portasignatures.getExpedient());
+			DocumentDto document = documentHelper.getDocumentSenseContingut(portasignatures.getDocumentStoreId());
+			String causa = null;
+			if (document != null)
+				causa = "Error al processar resposta del portasignatures per al document \"" + document.getDocumentNom() + "\": " + errorCallback;
+			else
+				causa = "Error al processar resposta del portasignatures amb id " + portasignatures.getDocumentId();
+			if (causa.length() > 255)
+				alerta.setCausa(causa.substring(0, 248) + "[...]");
+			else
+				alerta.setCausa(causa);
+			alertaRepository.save(alerta);
+		}
 	}
 }

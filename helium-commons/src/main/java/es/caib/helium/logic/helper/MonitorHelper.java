@@ -1,6 +1,7 @@
-package es.caib.helium.commons.helper;
+package es.caib.helium.logic.helper;
 
 import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
 
@@ -22,8 +23,13 @@ public class MonitorHelper {
 	private static RuntimeMXBean rmBean;
 
 
-	private static com.sun.management.OperatingSystemMXBean sunOSMBean;
-	public static com.sun.management.OperatingSystemMXBean getSunOSMBean() {
+//	private static com.sun.management.OperatingSystemMXBean sunOSMBean;
+	private static OperatingSystemMXBean sunOSMBean;
+//	public static com.sun.management.OperatingSystemMXBean getSunOSMBean() {
+//		return sunOSMBean;
+//	}
+
+	public static OperatingSystemMXBean getSunOSMBean() {
 		return sunOSMBean;
 	}
 
@@ -74,15 +80,16 @@ public class MonitorHelper {
 		try {
 			rmBean = ManagementFactory.getRuntimeMXBean();
 			// reperisco l'MBean relativo al sunOS
-			sunOSMBean = ManagementFactory.newPlatformMXBeanProxy(ManagementFactory.getPlatformMBeanServer(), ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, com.sun.management.OperatingSystemMXBean.class);
+//			sunOSMBean = ManagementFactory.newPlatformMXBeanProxy(ManagementFactory.getPlatformMBeanServer(), ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, com.sun.management.OperatingSystemMXBean.class);
 
+			sunOSMBean = ManagementFactory.newPlatformMXBeanProxy(ManagementFactory.getPlatformMBeanServer(), ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, OperatingSystemMXBean.class);
 			result = new Result();
 			result.nCPUs = sunOSMBean.getAvailableProcessors();
 			result.upTime = rmBean.getUptime();
 			result.processCpuTime = 0;
-			if (sunOSMBean != null) {
-				result.processCpuTime = sunOSMBean.getProcessCpuTime();
-			}
+//			if (sunOSMBean != null) {
+//				result.processCpuTime = sunOSMBean.getProcessCpuTime();
+//			}
 		} catch (Exception e) {
 			System.err.println(MonitorHelper.class.getSimpleName() + " exception: " + e.getMessage());
 		}
@@ -117,7 +124,8 @@ public class MonitorHelper {
 		String resultat;
 		try {
 			result.upTime = rmBean.getUptime();
-			result.processCpuTime = sunOSMBean.getProcessCpuTime();
+//			result.processCpuTime = sunOSMBean.getProcessCpuTime();
+			result.processCpuTime = 0L;
 
 			if (result.upTime > 0L && result.processCpuTime >= 0L)
 				updateCPUInfo();

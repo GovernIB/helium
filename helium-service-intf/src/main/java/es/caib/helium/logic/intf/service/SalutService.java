@@ -1,11 +1,8 @@
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
+import es.caib.comanda.model.server.monitoring.*;
 
-import es.caib.comanda.model.v1.salut.ContextInfo;
-import es.caib.comanda.model.v1.salut.IntegracioInfo;
-import es.caib.comanda.model.v1.salut.SalutInfo;
-import es.caib.comanda.model.v1.salut.SubsistemaInfo;
+import java.util.List;
 
 public interface SalutService {
 	public List<IntegracioInfo> getIntegracions();

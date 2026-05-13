@@ -77,7 +77,6 @@ import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
 import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
-import es.caib.helium.commons.helper.ExceptionHelper;
 import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;

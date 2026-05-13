@@ -90,12 +90,12 @@
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-transports-http</artifactId>
 			<version>${cxf.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>spring-web</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
-			</exclusions>
+<!--			<exclusions>-->
+<!--				<exclusion>-->
+<!--					<artifactId>spring-web</artifactId>-->
+<!--					<groupId>org.springframework</groupId>-->
+<!--				</exclusion>-->
+<!--			</exclusions>-->
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -125,12 +125,12 @@
 			<artifactId>cas-client-core</artifactId>
 			<version>3.1.11</version>
 		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.4</version>
-			<scope>provided</scope>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>javax.servlet</groupId>-->
+<!--			<artifactId>servlet-api</artifactId>-->
+<!--			<version>2.5</version>-->
+<!--			<scope>provided</scope>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>javax.jws</groupId>
 			<artifactId>javax.jws-api</artifactId>
@@ -161,11 +161,6 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-acl</artifactId>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>es.caib.comanda</groupId>
-			<artifactId>comanda-lib</artifactId>
-			<version>0.1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>

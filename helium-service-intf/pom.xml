@@ -11,7 +11,7 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
-		</dependency>	  
+		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-commons</artifactId>
@@ -49,27 +49,18 @@
     		<scope>compile</scope>
 		</dependency>
 
-		<dependency>
-            <groupId>es.caib.comanda</groupId>
-            <artifactId>comanda-lib</artifactId>
-            <version>0.1.0.1</version>
-             <exclusions>
-                <exclusion>
-                    <groupId>org.jboss.resteasy</groupId>
-                    <artifactId>resteasy-client</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jboss.resteasy</groupId>
-                    <artifactId>resteasy-multipart-provider</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jboss.resteasy</groupId>
-                    <artifactId>resteasy-jackson2-provider</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        
-        <!-- Flowable --> 
+	  <dependency>
+		  <groupId>es.caib.comanda</groupId>
+		  <artifactId>comanda-api-client-management</artifactId>
+		  <version>${comanda.version}</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>es.caib.comanda</groupId>
+		  <artifactId>comanda-api-utils</artifactId>
+		  <version>${comanda.version}</version>
+	  </dependency>
+
+        <!-- Flowable -->
 		<dependency>
 			<groupId>org.flowable</groupId>
 			<artifactId>flowable-spring-boot-starter-process</artifactId>

@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.helium.commons.dto.PeticioPinbalEstatEnum;
 import es.caib.helium.commons.dto.ScspRespostaPinbal;
-import es.caib.helium.commons.helper.ExceptionHelper;
 import es.caib.helium.logic.intf.dto.engine.WNode.WNodeType;
 import es.caib.helium.logic.intf.dto.engine.WToken;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;

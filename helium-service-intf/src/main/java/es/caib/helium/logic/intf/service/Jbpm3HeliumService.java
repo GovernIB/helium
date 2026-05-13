@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.logic.intf.service;
 
@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.codahale.metrics.MetricRegistry;
 
-import es.caib.comanda.model.v1.tasca.TascaEstat;
+import es.caib.comanda.model.management.TascaEstat;
 import es.caib.helium.commons.dto.AreaDto;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.CampTascaDto;
@@ -59,42 +59,42 @@ import es.caib.helium.commons.registre.RegistreAnotacio;
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
  * de Helium.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface Jbpm3HeliumService {
 
 	/**
 	 * Onte el codi d'usuari actual (autenticat).
-	 * 
+	 *
 	 * @return el codi de l'usuari.
 	 */
 	public String getUsuariCodiActual();
 
 	/**
 	 * Obté l'entorn actual.
-	 * 
+	 *
 	 * @return l'entorn actual.
 	 */
 	public EntornDto getEntornActual();
 
 	/**
 	 * Obté l'expedient que s'està iniciant.
-	 * 
-	 * @return l'expedient que s'està iniciant o null no n'hi ha. 
+	 *
+	 * @return l'expedient que s'està iniciant o null no n'hi ha.
 	 */
 	public ExpedientDto getExpedientIniciant();
 
 	/**
-	 * Rellena el campo de descripción de la tabla de JBPM_TASKINSTANCE 
-	 * 
+	 * Rellena el campo de descripción de la tabla de JBPM_TASKINSTANCE
+	 *
 	 * @param id
 	 */
 	public void createDadesTasca(Long id);
-	
+
 	/**
 	 * Obté l'expedient donat l'entorn, el tipus d'expedient i el seu número.
-	 * 
+	 *
 	 * @param entornId
 	 * @param expedientTipusCodi
 	 * @param numero
@@ -106,10 +106,10 @@ public interface Jbpm3HeliumService {
 			Long entornId,
 			String expedientTipusCodi,
 			String numero) throws NoTrobatException;
-	
+
 	/**
 	 * Obté l'expedient arrel donada una instància de procés jBPM.
-	 * 
+	 *
 	 * @param executionContext
 	 * @param expedientTipusCodi
 	 * @param numero
@@ -118,10 +118,10 @@ public interface Jbpm3HeliumService {
 	 */
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(
 			String processInstanceId) throws NoTrobatException;
-	
+
 	/**
 	 * Obté l'entorn donada una instància de procés jBPM.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @return
 	 * @throws ProcessInstanceNotFoundException
@@ -131,7 +131,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté la definició de procés donada la seva clau jBPM i la versió.
-	 * 
+	 *
 	 * @param jbpmKey la clau jBPM.
 	 * @param version la versió.
 	 * @return La definició de procés o null si no s'ha trobat.
@@ -139,22 +139,22 @@ public interface Jbpm3HeliumService {
 	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIVersio(
 			String jbpmKey,
 			int version);
-	
+
 	/**
 	 * Obté la definició de procés donada la seva clau jBPM i el processInstanceId.
-	 * 
+	 *
 	 * @param jbpmKey la clau jBPM.
 	 * @param version la versió.
 	 * @return La definició de procés o null si no s'ha trobat.
 	 */
 	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIProcessInstanceId(
 			String jbpmKey,
-			String processInstanceId);	
+			String processInstanceId);
 
 	/**
 	 * Obté la darrera versió d'una definició de procés donat el
 	 * seu entorn i la clau jBPM.
-	 * 
+	 *
 	 * @param entornId
 	 * @param expedientTipusId
 	 * @param jbpmKey
@@ -168,7 +168,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté la definició de procés donada una instància de procés.
-	 * 
+	 *
 	 * @param processInstanceId Id de la instància de procés.
 	 * @return la definició de procés.
 	 * @throws ProcessInstanceNotFoundException
@@ -178,7 +178,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté la informació d'una persona donat el seu codi.
-	 * 
+	 *
 	 * @param codi El codi de la persona.
 	 * @return La informació de la persona o null si no existeix.
 	 */
@@ -186,7 +186,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté l'àrea donat un entorn i el codi.
-	 * 
+	 *
 	 * @param entornId
 	 * @param codi
 	 * @return
@@ -198,7 +198,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté el càrrec donat un entorn, el codi d'àrea i el codi de càrrec.
-	 * 
+	 *
 	 * @param entornId
 	 * @param areaCodi
 	 * @param carrecCodi
@@ -213,13 +213,13 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté el llistat de tots els festius.
-	 * 
+	 *
 	 * @return
 	 */
 	public List<FestiuDto> findFestiusAll();
 
 	/**
-	 * 
+	 *
 	 * @param usuariCodi
 	 * @return
 	 */
@@ -227,7 +227,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Crea una alerta.
-	 * 
+	 *
 	 * @param entornId
 	 * @param expedientId
 	 * @param data
@@ -245,14 +245,14 @@ public interface Jbpm3HeliumService {
 	/**
 	 * Esborra totes les alertes relacionades amb una determinada
 	 * instància de tasca.
-	 * 
+	 *
 	 * @param taskInstanceId
 	 */
 	public void alertaEsborrarAmbTaskInstanceId(long taskInstanceId);
 
 	/**
 	 * Modifica l'estat de l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param estatCodi
 	 * @throws ProcessInstanceNotFoundException
@@ -265,7 +265,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Modifica el comentari de l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param comentari
 	 * @throws ProcessInstanceNotFoundException
@@ -277,7 +277,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Modifica la georeferència de l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param posx
 	 * @param posy
@@ -293,7 +293,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Modifica el grup de l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param grupCodi
 	 * @throws ProcessInstanceNotFoundException
@@ -305,7 +305,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Modifica el número de l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param numero
 	 * @throws ProcessInstanceNotFoundException
@@ -317,7 +317,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Modifica el responsable de l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param responsableCodi
 	 * @throws ProcessInstanceNotFoundException
@@ -330,7 +330,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Modifica el titol de l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param titol
 	 * @throws ProcessInstanceNotFoundException
@@ -342,7 +342,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Atura la tramitació de l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param motiu
 	 * @throws ProcessInstanceNotFoundException
@@ -354,7 +354,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Repren la tramitació d'un expedient aturat.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @throws ProcessInstanceNotFoundException
 	 * @throws ExpedientNotFoundException
@@ -364,7 +364,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Reindexa l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @throws ProcessInstanceNotFoundException
 	 * @throws ExpedientNotFoundException
@@ -372,10 +372,10 @@ public interface Jbpm3HeliumService {
 	 */
 	public boolean expedientReindexar(
 			String processInstanceId) throws NoTrobatException;
-	
+
 	/**
 	 * Buida els logs l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @throws ProcessInstanceNotFoundException
 	 * @throws ExpedientNotFoundException
@@ -385,7 +385,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Genera un document a partir d'una plantilla.
-	 * 
+	 *
 	 * @param taskInstanceId
 	 * @param processInstanceId
 	 * @param documentCodi
@@ -403,7 +403,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Firma el document amb el plugin de firma de servidor.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param documentCodi
 	 * @param motiu
@@ -421,7 +421,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté el termini donada una instància de procés i el codi del termini.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param terminiCodi
 	 * @return
@@ -433,7 +433,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté el termini iniciat donada una instància de procés i el codi del termini.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param terminiCodi
 	 * @return
@@ -446,7 +446,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Configura una tasca o un timer amb un termini iniciat.
-	 * 
+	 *
 	 * @param terminiIniciatId
 	 * @param taskInstanceId
 	 * @param timerId
@@ -459,7 +459,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Calcula la data d'inici d'un termini donada la data de fi.
-	 * 
+	 *
 	 * @param fi
 	 * @param anys
 	 * @param mesos
@@ -477,7 +477,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Calcula la data de fi d'un termini donada la data d'inici.
-	 * 
+	 *
 	 * @param inici
 	 * @param anys
 	 * @param mesos
@@ -495,7 +495,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Inicia un termini donat un interval.
-	 * 
+	 *
 	 * @param terminiCodi
 	 * @param processInstanceId
 	 * @param inici
@@ -516,7 +516,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Inicia un termini amb l'interval que tengui configurat.
-	 * 
+	 *
 	 * @param terminiCodi
 	 * @param processInstanceId
 	 * @param data
@@ -531,7 +531,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Cancela un termini iniciat.
-	 * 
+	 *
 	 * @param terminiIniciatId
 	 * @param data
 	 * @throws TerminiIniciatNotFoundException
@@ -542,7 +542,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Posa un termini iniciat en pausa.
-	 * 
+	 *
 	 * @param terminiIniciatId
 	 * @param data
 	 * @throws TerminiIniciatNotFoundException
@@ -553,7 +553,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Continua un termini pausat.
-	 * 
+	 *
 	 * @param terminiIniciatId
 	 * @param data
 	 * @throws TerminiIniciatNotFoundException
@@ -564,7 +564,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Consulta un domini i retorna el resultat.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param dominiCodi
 	 * @param dominiId
@@ -582,7 +582,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Consulta un domini i retorna el resultat.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param dominiCodi
 	 * @param dominiId
@@ -592,13 +592,13 @@ public interface Jbpm3HeliumService {
 	 * @throws DominiConsultaException
 	 */
 	public List<DominiRespostaFilaDto> dominiInternConsultar(
-			String processInstanceId, 
+			String processInstanceId,
 			String id,
 			Map<String, Object> parametres) throws Exception;
-	
+
 	/**
 	 * Retorna tots els valors d'una enumeració.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param enumeracioCodi
 	 * @return
@@ -611,7 +611,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Fixa el valor pel camp de l'enumeració corresponent al codi.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param enumeracioCodi
 	 * @param codi
@@ -630,7 +630,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Retorna els camps del formulari d'una tasca.
-	 * 
+	 *
 	 * @param taskInstanceId
 	 * @return
 	 * @throws TaskInstanceNotFoundException
@@ -642,7 +642,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Retorna els documents d'una tasca.
-	 * 
+	 *
 	 * @param taskInstanceId
 	 * @return
 	 * @throws TaskInstanceNotFoundException
@@ -654,7 +654,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Retorna el codi de variable jBPM per un codi de document.
-	 * 
+	 *
 	 * @param documentCodi
 	 * @return
 	 */
@@ -662,7 +662,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté informació d'un document d'un expedient d'Helium.
-	 * 
+	 *
 	 * @param documentCodi
 	 * @return
 	 */
@@ -670,7 +670,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté informació d'un document d'un expedient d'Helium.
-	 * 
+	 *
 	 * @param documentCodi
 	 * @return
 	 */
@@ -683,7 +683,7 @@ public interface Jbpm3HeliumService {
 			boolean perNotificar,
 			boolean ambSegellSignatura);
 
-	
+
 	/**
 	 * Obté l'arxiu d'un document d'un expedient d'Helium.
 	 * Obté la versió imprimible de l'arxiu.
@@ -691,7 +691,7 @@ public interface Jbpm3HeliumService {
 	 * @return
 	 */
 	public ArxiuDto getArxiuPerMostrar(Long documentStoreId);
-	
+
 	/**
 	 * Obté la versió original d'un document d'un expedient d'Helium.
 	 * @param expedientId
@@ -701,7 +701,7 @@ public interface Jbpm3HeliumService {
 	public ArxiuDto getArxiuVersioOriginal(Long expedientId, Long documentStoreId);
 
 	/**
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param documentCodi
 	 * @param data
@@ -715,9 +715,9 @@ public interface Jbpm3HeliumService {
 			Date data,
 			String arxiuNom,
 			byte[] arxiuContingut);
-	
+
 	/**
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param documentCodi
 	 * @param data
@@ -735,7 +735,7 @@ public interface Jbpm3HeliumService {
 			boolean firmat);
 
 	/**
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param adjuntId
 	 * @param adjuntTitol
@@ -753,7 +753,7 @@ public interface Jbpm3HeliumService {
 			byte[] arxiuContingut);
 
 	/**
-	 * 
+	 *
 	 * @param taskInstanceId
 	 * @param processInstanceId
 	 * @param documentCodi
@@ -764,7 +764,7 @@ public interface Jbpm3HeliumService {
 			String documentCodi);
 
 	/**
-	 * 
+	 *
 	 * @param documentStoreId
 	 * @param registreNumero
 	 * @param registreData
@@ -781,7 +781,7 @@ public interface Jbpm3HeliumService {
 			boolean registreEntrada);
 
 	/**
-	 * 
+	 *
 	 * @param fromAddress
 	 * @param recipients
 	 * @param ccRecipients
@@ -800,19 +800,19 @@ public interface Jbpm3HeliumService {
 			List<ArxiuDto> attachments) throws SistemaExternException;
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isRegistreActiu();
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isRegistreRegWeb3Actiu();
 
 	/**
-	 * 
+	 *
 	 * @param anotacio
 	 * @return
 	 * @throws PluginException
@@ -822,7 +822,7 @@ public interface Jbpm3HeliumService {
 			Long expedientId) throws SistemaExternException, NoTrobatException;
 
 	/**
-	 * 
+	 *
 	 * @param anotacio
 	 * @return
 	 * @throws PluginException
@@ -830,9 +830,9 @@ public interface Jbpm3HeliumService {
 	public RegistreIdDto registreAnotacioSortida(
 			RegistreAnotacioDto anotacio,
 			Long expedientId) throws SistemaExternException, NoTrobatException;
-	
+
 	/**
-	 * 
+	 *
 	 * @param anotacio
 	 * @return
 	 * @throws PluginException
@@ -842,7 +842,7 @@ public interface Jbpm3HeliumService {
 			Long expedientId) throws SistemaExternException, NoTrobatException;
 
 	/**
-	 * 
+	 *
 	 * @param registreNumero
 	 * @return
 	 * @throws PluginException
@@ -852,7 +852,7 @@ public interface Jbpm3HeliumService {
 			Long expedientId) throws SistemaExternException, NoTrobatException;
 
 	/**
-	 * 
+	 *
 	 * @param oficinaCodi
 	 * @return
 	 * @throws PluginException
@@ -860,9 +860,9 @@ public interface Jbpm3HeliumService {
 	public String registreObtenirOficinaNom(
 			String oficinaCodi,
 			Long expedientId) throws SistemaExternException, NoTrobatException;
-	
+
 	/**
-	 * 
+	 *
 	 * @param numRegistre
 	 * @param usuariCodi
 	 * @param entitatCodi
@@ -876,7 +876,7 @@ public interface Jbpm3HeliumService {
 			Long expedientId) throws SistemaExternException, NoTrobatException;
 
 	/**
-	 * 
+	 *
 	 * @param notificacio
 	 * @return
 	 * @throws PluginException
@@ -893,18 +893,18 @@ public interface Jbpm3HeliumService {
 	public boolean notificacioEsborrar(
 			String numero,
 			String clave,
-			Long codigo);	
+			Long codigo);
 
 	public RespostaJustificantRecepcioDto notificacioElectronicaJustificant(
 			String registreNumero) throws Exception;
 
 	public RespostaJustificantDetallRecepcioDto notificacioElectronicaJustificantDetall(
 			String registreNumero) throws Exception;
-	
+
 	public RespostaNotificacio altaNotificacio(
 			DadesNotificacioDto notificacio) throws SistemaExternException, NoTrobatException;
 
-	
+
 	/** PINBAL **/
 	public Object consultaPinbal(
 			DadesConsultaPinbalDto dadesConsultaPinbal,
@@ -917,23 +917,23 @@ public interface Jbpm3HeliumService {
 			Long expedientId,
 			String processInstanceId,
 			Long tokenId) throws SistemaExternException, NoTrobatException;
-	
+
 	public Object verificacioDadesIdentitatPinbalSVDDGPCIWS02(
 			DadesConsultaPinbalDto dadesConsultaPinbal,
 			Long expedientId,
 			String processInstanceId,
 			Long tokenId) throws SistemaExternException, NoTrobatException;
-	
+
 	public Object dadesTributariesPinbalSVDCCAACPASWS01(
 			DadesConsultaPinbalDto dadesConsultaPinbal,
 			Long expedientId,
 			String processInstanceId,
 			Long tokenId) throws SistemaExternException, NoTrobatException;
-	
-	
-	
+
+
+
 	/** Envia un document al portasignatures.
-	 * 
+	 *
 	 * @param documentId
 	 * @param annexosId
 	 * @param persona
@@ -951,7 +951,7 @@ public interface Jbpm3HeliumService {
 	 * @param transicioOK
 	 * @param transicioKO
 	 * @param portafirmesFluxId
-	 * 
+	 *
 	 * @return Retorna l'identificador del document donat pel portasignatures.
 	 */
 	public Integer portasignaturesEnviar(
@@ -972,17 +972,17 @@ public interface Jbpm3HeliumService {
 			String transicioOK,
 			String transicioKO,
 			String portafirmesFluxId) throws SistemaExternException;
-	
+
 	/**
-	 * 
+	 *
 	 * @param documentId
 	 */
 	public void portasignaturesEliminar(
 			Integer documentId) throws SistemaExternException;
 
 	/**
-	 * 
-	 * @param expedient 
+	 *
+	 * @param expedient
 	 * @param processInstanceId
 	 * @param dadesExpedient
 	 * @throws SistemaExternException
@@ -992,7 +992,7 @@ public interface Jbpm3HeliumService {
 			ZonaperExpedientDto dadesExpedient) throws SistemaExternException;
 
 	/**
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param dadesEvent
 	 * @throws SistemaExternException
@@ -1003,7 +1003,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Retorna l'estat donat l'entorn, el tipus d'expedient i el codi.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @param estatCodi
 	 * @return
@@ -1018,7 +1018,7 @@ public interface Jbpm3HeliumService {
 	/**
 	 * Retorna el document de disseny donada una definició de procés
 	 * i el codi del document.
-	 * 
+	 *
 	 * @param definicioProcesId
 	 * @param documentCodi
 	 * @return
@@ -1031,7 +1031,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Relaciona dos expedients donats els seus ids.
-	 * 
+	 *
 	 * @param expedientIdOrigen
 	 * @param expedientIdDesti
 	 * @throws ExpedientNotFoundException
@@ -1042,7 +1042,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Redirigeix un token del procés.
-	 * 
+	 *
 	 * @param tokenId
 	 * @param nodeName
 	 * @param cancelarTasques
@@ -1054,7 +1054,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté l'arxiu directament de la gestió documental.
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */
@@ -1063,7 +1063,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté informació del tràmit del SISTRA.
-	 * 
+	 *
 	 * @param numero
 	 * @param clau
 	 * @return
@@ -1074,7 +1074,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Obté el text d'una variable de l'expedient.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param varCodi
 	 * @return
@@ -1082,11 +1082,11 @@ public interface Jbpm3HeliumService {
 	public ExpedientDadaDto getDadaPerProcessInstance(
 			String processInstanceId,
 			String varCodi);
-	
+
 
 	/**
 	 * Obté el text d'una variable de la tasca.
-	 * 
+	 *
 	 * @param taskInstanceId
 	 * @param varCodi
 	 * @return
@@ -1098,7 +1098,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Consulta els expedients amb el mateix tipus i número.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @param numero
 	 * @return
@@ -1107,10 +1107,10 @@ public interface Jbpm3HeliumService {
 			Long entornId,
 			Long expedientTipusId,
 			String numero);
-	
+
 	/**
 	 * Retorna el resultat d'una consulta d'expedients.
-	 * 
+	 *
 	 * @param entornId
 	 * @param titol
 	 * @param numero
@@ -1137,43 +1137,43 @@ public interface Jbpm3HeliumService {
 			boolean nomesFinalitzats) throws NoTrobatException;
 
 	/** Consulta els expedients filtrats a partir de les dades reindexades
-	 * @param filtreValors 
-	 * @param expedientTipusCodi 
-	 * @param entornId 
-	 * 
+	 * @param filtreValors
+	 * @param expedientTipusCodi
+	 * @param entornId
+	 *
 	 * @return Retorna el llistat d'expedients que compleixen amb el criteri.
-	 * 
+	 *
 	 * @throws EntornNotFoundException
 	 * @throws ExpedientTipusNotFoundException
 	 * @throws EstatNotFoundException
 	 */
 	public List<ExpedientDto> findExpedientsConsultaDadesIndexades(
-			Long entornId, 
-			String expedientTipusCodi, 
+			Long entornId,
+			String expedientTipusCodi,
 			Map<String, Object> filtreValors);
 
 	/**
 	 * Inicialitza les definicions de procés per a que estiguin disponibles per als handlers
 	 */
 	public void initializeDefinicionsProces();
-	
+
 	/**
 	 * Inicialitza una mesura de temps
 	 */
 	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall);
-	
+
 	/**
 	 * Realitza un càlcul de mesura de temps
 	 */
 	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall);
-	
+
 	/**
 	 * Informa si mesura de temps està activa
 	 */
 	public boolean mesuraIsActiu();
 
 	/**
-	 * 
+	 *
 	 * @param propertyName
 	 * @return
 	 */
@@ -1181,7 +1181,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Actualitza els camps d'error de l'expedient
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param errorDesc
 	 * @param errorFull
@@ -1190,7 +1190,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Activa o desactiva un token
-	 * 
+	 *
 	 * @param tokenId
 	 * @param activar
 	 * @return
@@ -1199,15 +1199,15 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Desfinalitzar un expedient
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @throws Exception
 	 */
 	public void desfinalitzarExpedient(String processInstanceId) throws Exception;
-	
+
 	/**
 	 * Finalitzar un expedient
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @throws Exception
 	 */
@@ -1215,46 +1215,46 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Retorna una referència al registre de mètriques
-	 * 
+	 *
 	 */
 	public MetricRegistry getMetricRegistry();
-	
+
 	/**
 	 * Error completar tasca en segon pla
-	 * 
+	 *
 	 */
 	public void setErrorTascaSegonPla(String taskId, Exception ex);
-	
+
 	/**
 	 * Obtenir id de tasca a partir de Token
-	 * 
+	 *
 	 */
 	public String getTaskInstanceIdByTokenId(String tokenId);
-	
+
 	/**
 	 * Afegir missatge d'execució a la informació de la tasca en segón pla
-	 * 
+	 *
 	 */
 	public void addMissatgeExecucioTascaSegonPla(String taskId, String[] message);
 
 	/**
 	 * Obtenir la llista de rols a partir del codi d'un usuari
-	 * 
+	 *
 	 * @param codi
 	 * @return llista de rols. En cas que el plugin de persones no estigui actiu retorna una llista buida
 	 */
 	public List<String> getRolsByCodi(String codi);
-	
+
 	/**
 	 * La tasca esta en segon pla
-	 * 
+	 *
 	 * @param codi taska
 	 * @return booleà si la tasca està en segón pla o no
 	 */
 	public boolean isTascaEnSegonPla(String taskId);
 
 	/** Retorna la llista de definicions de processos que siguin sub proces de l'indicat.
-	 * 
+	 *
 	 * @param definicioProcesId
 	 * @return
 	 */
@@ -1262,7 +1262,7 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * Afegeix una instància de procés per a verificar la seva finalització.
-	 * 
+	 *
 	 * @param processInstanceId
 	 */
 	public void afegirInstanciaProcesPerVerificarFinalitzacio(
@@ -1273,10 +1273,10 @@ public interface Jbpm3HeliumService {
 	void interessatModificar(InteressatDto interessat);
 
 	void interessatEliminar(InteressatDto interessat);
-	
+
 	/**
 	 * Retorna un tipus d'expedient donat un entorn i un codi d'expedient
-	 * 
+	 *
 	 * @param entornId
 	 *            L'atribut id del entorn.
 	 * @param expedientTipusId
@@ -1291,9 +1291,9 @@ public interface Jbpm3HeliumService {
 	public ExpedientTipusDto findExpedientTipusAmbEntorniCodi(
 			Long entornId,
 			String expedientTipusCodi) throws NoTrobatException, PermisDenegatException;
-	
+
 	/** Crea un .zip amb els documents a Notificar
-	 * 
+	 *
 	 * @param expedientId
 	 * @param documentsPerAfegir
 	 * @return Retorna el contingut del zip.
@@ -1301,11 +1301,11 @@ public interface Jbpm3HeliumService {
 	byte[] getZipPerNotificar(Long expedientId, List<ExpedientDocumentDto> documentsPerAfegir);
 
 	public DocumentDto findDocumentAmbId(Long documentStoreId) throws NoTrobatException;
-	
+
 	/**
 	 * Retorna un document d'una instància de procés de
 	 * l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @param processInstanceId
@@ -1324,9 +1324,9 @@ public interface Jbpm3HeliumService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
-	
+
 	/** Mètode per crear o actualitzar un document a un procés
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param documentCodi
 	 * @param titol
@@ -1334,21 +1334,21 @@ public interface Jbpm3HeliumService {
 	 * @param arxiu
 	 * @param contingut
 	 * @param annexosPerNotificar
-	 * @return 
+	 * @return
 	 */
 	public Long guardarDocumentProces(
-			String processInstanceId, 
-			String documentCodi, 
+			String processInstanceId,
+			String documentCodi,
 			String titol,
-			Date data, 
+			Date data,
 			String arxiu,
 			byte[] contingut,
 			List<ExpedientDocumentDto> annexosPerNotificar);
-	
+
 	/**
 	 * Retorna un document d'una instància de procés de
 	 * l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @param processInstanceId
@@ -1366,10 +1366,10 @@ public interface Jbpm3HeliumService {
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi) throws NoTrobatException, PermisDenegatException;
-	
+
 	/**
 	 * Crea un nou document a dins la instància de procés.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
@@ -1412,16 +1412,16 @@ public interface Jbpm3HeliumService {
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdOrigen) throws NoTrobatException;
-	
+
 	/**
 	 * Crea un nou document a dins la instància de procés.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
 	 *             atribut id de la instància de procés.
 	 * @param documentCodi
-	 *             codi de document dins el disseny de l'expedient. Si aquest paràmetre no està informat llavors es tractarà 
+	 *             codi de document dins el disseny de l'expedient. Si aquest paràmetre no està informat llavors es tractarà
 	 *             el document com un adjunt i s'aprofitarà el títol pel nou document i es tractarà com a tal.
 	 * @param data
 	 *             data del document.
@@ -1462,10 +1462,10 @@ public interface Jbpm3HeliumService {
 			String ntiIdOrigen,
 			List<ExpedientDocumentDto> annexosPerNotificar) throws NoTrobatException;
 
-	
+
 	/**
 	 * Retorna l'arxiu del document.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
@@ -1486,7 +1486,7 @@ public interface Jbpm3HeliumService {
 	/**
 	 * Rep una llista d'usuaris i retorna la llista d'usuaris filtrant els que tenen permís sobre l'expedient
 	 * per permís de lectura directe o per permís de lectura sobre la UO del tipus d'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param usuaris
@@ -1496,10 +1496,10 @@ public interface Jbpm3HeliumService {
 	public String[] filtrarUsuarisAmbPermisComu(
 			Long expedientId,
 			String usuaris[]);
-	
+
 	/**
 	 * Refresca o crea la tasca a comanda
 	 */
 	public void refreshComandaTasca(String taskId, TascaEstat estat);
-	
+
 }

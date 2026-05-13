@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -18,7 +18,7 @@ import es.caib.helium.logic.intf.service.EntornService;
 
 /**
  * EJB per a EntornService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless

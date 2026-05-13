@@ -66,7 +66,7 @@ import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.exception.ExecucioMassivaException;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.ValidacioException;
-import es.caib.helium.commons.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.commons.utils.CsvHelper;
 import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.GlobalProperties;

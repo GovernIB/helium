@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.helper;
 
@@ -23,11 +23,6 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
-import org.springmodules.validation.bean.BeanValidator;
-import org.springmodules.validation.bean.conf.DefaultBeanValidationConfiguration;
-import org.springmodules.validation.bean.conf.loader.SimpleBeanValidationConfigurationLoader;
-import org.springmodules.validation.bean.rule.ExpressionValidationRule;
-import org.springmodules.validation.util.cel.valang.ValangConditionExpressionParser;
 
 import es.caib.helium.commons.dto.CampTipusEnum;
 import es.caib.helium.commons.dto.TascaDadaDto;
@@ -37,7 +32,7 @@ import es.caib.helium.logic.intf.service.TascaService;
 
 /**
  * Validador per als formularis de tasca
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class TascaFormValidatorHelper implements Validator {
@@ -181,7 +176,7 @@ public class TascaFormValidatorHelper implements Validator {
 				do {
 					errorPropietatNoPresent = false;
 					try {
-						commandPerValidadorExpressions = getCommandPerValidadorExpressions(commandPerValidadorExpressions, propietatAddicional); 
+						commandPerValidadorExpressions = getCommandPerValidadorExpressions(commandPerValidadorExpressions, propietatAddicional);
 						getValidatorPerExpressions(tascaDades, command).validate(
 								commandPerValidadorExpressions,
 								errors);
@@ -213,8 +208,8 @@ public class TascaFormValidatorHelper implements Validator {
 			return null;
 		}
 	}
-	
-	/** Comprova si el valor del camp del registre és un valor buit, */ 
+
+	/** Comprova si el valor del camp del registre és un valor buit, */
 	private boolean isCampRegistreEmpty(Object oValor) {
 		boolean empty = false;
 		if (oValor == null) {
@@ -229,7 +224,7 @@ public class TascaFormValidatorHelper implements Validator {
 		}
 		return empty;
 	}
-	
+
 	/** Valid el registre i retorna true si el registre és inválid. És invàlid si el registre és obligatori i té algun camp obligatori buit. */
 	private boolean registreInvalid(TascaDadaDto camp, Object registre, Errors errors) throws Exception {
 		boolean invalid = false;
@@ -243,7 +238,7 @@ public class TascaFormValidatorHelper implements Validator {
 					for (TascaDadaDto campRegistre : registreDades) {
 						if (campRegistre.isRequired()) {
 							if (isCampRegistreEmpty(PropertyUtils.getProperty(reg, campRegistre.getVarCodi()))) {
-								errors.rejectValue(camp.getVarCodi() + "[" + i + "]." + campRegistre.getVarCodi(), "not.blank");								
+								errors.rejectValue(camp.getVarCodi() + "[" + i + "]." + campRegistre.getVarCodi(), "not.blank");
 								invalid = true;
 							}
 						}
@@ -257,12 +252,12 @@ public class TascaFormValidatorHelper implements Validator {
 						if (campRegistre.isRequired()) {
 							if (isCampRegistreEmpty(PropertyUtils.getProperty(registre, campRegistre.getVarCodi()))) {
 								invalid = true;
-								errors.rejectValue(camp.getVarCodi() + "." + campRegistre.getVarCodi(), "not.blank");								
+								errors.rejectValue(camp.getVarCodi() + "." + campRegistre.getVarCodi(), "not.blank");
 							}
 						}
 					}
 				}
-			}				
+			}
 		}
 		return invalid;
 	}
@@ -289,7 +284,7 @@ public class TascaFormValidatorHelper implements Validator {
 			} else if (camp.getCampTipus().equals(CampTipusEnum.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
 				try {
 					PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-					String valor = camp.getText(); 
+					String valor = camp.getText();
 					if (valor != null) {
 						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 						sdf.setLenient(false);
@@ -316,154 +311,7 @@ public class TascaFormValidatorHelper implements Validator {
 	private Validator getValidatorPerExpressions(
 			List<TascaDadaDto> tascaDadas,
 			Object command) {
-		SimpleBeanValidationConfigurationLoader validationConfigurationLoader = new SimpleBeanValidationConfigurationLoader();
-		DefaultBeanValidationConfiguration beanValidationConfiguration = new DefaultBeanValidationConfiguration();
-		for (TascaDadaDto camp: tascaDadas) {
-			this.getValidadorPerCamp(
-					camp, 
-					null,	// Registre del camp
-					null,	// índex dada múltiple
-					command, 
-					beanValidationConfiguration);
-		}
-		validationConfigurationLoader.setClassValidation(
-				Object.class,
-				beanValidationConfiguration);
-		return new BeanValidator(validationConfigurationLoader);
-	}
-
-	/** Afegeix en el beanValidationCofiguration una configuració pel camp en el cas que tingui validacions. Si 
-	 * el camp és un registre llavors invoca la funció amb cada camp del registre passant el registre com a paràmetre
-	 * per adequar els codis de les variables.
-	 * @param camp
-	 * @param registre
-	 * @param command
-	 * @param beanValidationConfiguration
-	 */
-	private void getValidadorPerCamp(
-			TascaDadaDto camp,
-			TascaDadaDto registre,
-			Integer indexMultiple,
-			Object command, 
-			DefaultBeanValidationConfiguration beanValidationConfiguration) {
-		
-		if (camp.getCampTipus() == CampTipusEnum.REGISTRE) {
-			if (camp.getRegistreDades() != null) {
-				for (TascaDadaDto registreDada : camp.getRegistreDades()) {
-					// Crida aquest mètode sobre els camps del registre passant el registre com a paràmetre
-					this.getValidadorPerCamp(
-							registreDada, //
-							camp, // registre
-							indexMultiple,
-							command, 
-							beanValidationConfiguration);
-				}				
-			} else if (camp.isCampMultiple()) {
-				Integer index = 0;
-				for (TascaDadaDto registreDada : camp.getMultipleDades()) {
-					if (registreDada.getVarValor() != null)
-						// Crida la validació per cada dada múltiple
-						this.getValidadorPerCamp(
-								registreDada, //
-								camp, // registre
-								index++,
-								command, 
-								beanValidationConfiguration);
-				}
-			}				
-		}
-
-		// Comprovoa les validacions del camp
-		if (camp.getValidacions() != null) {
-			// Si és un camp d'un registre llavors el codi de la variable estarà compost [registre codi].[variable codi]
-			String codiVariable =
-					(registre != null? registre.getVarCodi() : "")
-					+ (indexMultiple != null? "["+indexMultiple+"]" : "")
-					+ (registre != null? "." : "") 
-					+ camp.getVarCodi();
-			
-			for (ValidacioDto validacio: camp.getValidacions()) {
-				// Si és una validació dins d'un registre llavors corregeix la ruta "var_nom is BLANK" -> "registre_nom.var_nom is BLANK"
-				if (registre != null && validacio.getExpressio().contains(camp.getVarCodi())) {
-					validacio.setExpressio(validacio.getExpressio().replace(camp.getVarCodi(), codiVariable));
-				}
-				if (camp.isCampMultiple()) {
-					try {
-						Object valors = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-						if (valors != null) {
-							String expressio = validacio.getExpressio();
-							if (expressio.indexOf("sum(" + codiVariable + ")") != -1) {
-								if (camp.getCampTipus().equals(CampTipusEnum.INTEGER)) {
-									Long suma = 0L;
-									for (Long valor: (Long[])valors) {
-										suma += (valor == null ? 0L : valor); 
-									}
-									expressio = expressio.replace("sum(" + codiVariable + ")", suma.toString());
-								} else if (camp.getCampTipus().equals(CampTipusEnum.FLOAT)) {
-									Double suma = 0.0;
-									for (Double valor: (Double[])valors) {
-										suma += (valor == null ? 0.0 : valor); 
-									}
-									expressio = expressio.replace("sum(" + codiVariable + ")", suma.toString());
-								} else if (camp.getCampTipus().equals(CampTipusEnum.PRICE)) {
-									BigDecimal suma = new BigDecimal(0);
-									for (BigDecimal valor: (BigDecimal[])valors) {
-										if (valor == null) valor = new BigDecimal(0);
-										suma = suma.add(valor);
-									}
-									expressio = expressio.replace("sum(" + codiVariable + ")", suma.toString());
-								}
-								afegirExpressioValidacio(
-										codiVariable,
-										expressio,
-										camp.getCampEtiqueta() + ": " + validacio.getMissatge(),
-										"error.camp." + codiVariable,
-										beanValidationConfiguration);
-							} else {
-								for (int i = 0; i < Array.getLength(valors); i++) {
-									String expressioFill = expressio.replaceAll(camp.getVarCodi() + "[^\\[]" , camp.getVarCodi() + "[" + i + "]");
-									afegirExpressioValidacio(
-											codiVariable + "[" + i + "]",
-											expressioFill,
-											camp.getCampEtiqueta() + ": " + validacio.getMissatge(),
-											"error.camp." + codiVariable,
-											beanValidationConfiguration);
-								}
-							}
-						}
-					} catch (Exception ex) {
-						logger.error("No s'ha pogut generar la validació de l'expressió definida per a la variable '" + codiVariable + "' amb campId " + camp.getCampId());
-					}
-				} else {
-					afegirExpressioValidacio(
-							codiVariable,
-							validacio.getExpressio(),
-							validacio.getMissatge(),
-							"error.camp." + codiVariable,
-							beanValidationConfiguration);
-				}
-			}
-		}
-	}
-	
-	private void afegirExpressioValidacio(
-			String varCodi,
-			String validacioExpressio,
-			String validacioMissatge,
-			String errorCodi,
-			DefaultBeanValidationConfiguration beanValidationConfiguration) {
-		ExpressionValidationRule validationRule = new ExpressionValidationRule(
-				new ValangConditionExpressionParser(),
-				validacioExpressio);
-		logger.debug("Afegint expressió VALANG al validador (" +
-				"camp=" + varCodi + ", " +
-				"expressió=" + validacioExpressio + ", " +
-				"missatge=" + validacioMissatge + ")");
-		validationRule.setDefaultErrorMessage(validacioMissatge);
-		validationRule.setErrorCode(errorCodi);
-		beanValidationConfiguration.addPropertyRule(
-				varCodi,
-				validationRule);
+		throw new RuntimeException("Not implemented yet");
 	}
 
 	private Object getCommandPerValidadorExpressions(
@@ -501,7 +349,7 @@ public class TascaFormValidatorHelper implements Validator {
 		}
 		return command;
 	}
-	
+
 	public void setTascaDades(List<TascaDadaDto> tascaDades) {
 		this.tascaDades = tascaDades;
 	}

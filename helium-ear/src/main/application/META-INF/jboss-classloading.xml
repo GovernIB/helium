@@ -1,7 +1,15 @@
-<classloading xmlns="urn:jboss:classloading:1.0"
-		domain="helium.ear"
-		import-all="true"
-		export-all="NON_EMPTY"
-		j2seClassLoadingCompliance="false"
-		parent-first="false">
-</classloading>
+<?xml version='1.0' encoding='UTF-8'?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<deployment>
+		<dependencies>
+			<module name="org.keycloak.keycloak-core" export="TRUE"/>
+			<module name="jdk.management" export="TRUE"/>
+			<module name="org.apache.cxf"/>
+			<module name="org.apache.cxf.impl"/>
+			<module name="org.apache.ws.security"/>
+			<module name="org.bouncycastle"/>
+		</dependencies>
+	</deployment>
+	<ear-subdeployments-isolated>false</ear-subdeployments-isolated>
+</jboss-deployment-structure>

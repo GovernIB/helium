@@ -43,13 +43,13 @@ public class EntornServiceImpl implements EntornService {
 
 	@Autowired
 	private UsuariActualHelper usuariActualHelper;
-	@Resource
+	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
+	@Autowired
 	private PaginacioHelper paginacioHelper;
-	@Resource(name = "permisosHelperV3")
+	@Autowired
 	private PermisosHelper permisosHelper;
-	@Resource
+	@Autowired
 	private EntornHelper entornHelper;
 
 

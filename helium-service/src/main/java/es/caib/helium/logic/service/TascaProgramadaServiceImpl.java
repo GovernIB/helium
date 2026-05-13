@@ -44,7 +44,7 @@ import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
 import es.caib.helium.commons.dto.procediment.ProgresActualitzacioDto;
 import es.caib.helium.commons.exception.ExecucioMassivaException;
 import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.commons.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;

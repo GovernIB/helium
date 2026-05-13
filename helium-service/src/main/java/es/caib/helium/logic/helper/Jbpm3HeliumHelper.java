@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream;
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
+import es.caib.comanda.model.management.TascaEstat;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -33,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.codahale.metrics.MetricRegistry;
 
-import es.caib.comanda.model.v1.tasca.TascaEstat;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
 import es.caib.helium.commons.dto.AreaDto;

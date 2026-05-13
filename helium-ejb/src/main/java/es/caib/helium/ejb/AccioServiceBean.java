@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -21,7 +21,7 @@ import es.caib.helium.logic.intf.service.AccioService;
 
 /**
  * Servei per a gestionar els tipus d'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
@@ -30,12 +30,12 @@ public class AccioServiceBean implements AccioService {
 
 	@Autowired
 	AccioService delegate;
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AccioDto create(
 			Long expedientTipusId,
-			Long definicioProcesId, 
+			Long definicioProcesId,
 			AccioDto accio) throws PermisDenegatException {
 		return delegate.create(expedientTipusId, definicioProcesId, accio);
 	}
@@ -49,7 +49,7 @@ public class AccioServiceBean implements AccioService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(Long accioAccioId) throws NoTrobatException, PermisDenegatException {
-		delegate.delete(accioAccioId);		
+		delegate.delete(accioAccioId);
 	}
 
 	@Override
@@ -79,13 +79,13 @@ public class AccioServiceBean implements AccioService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<AccioDto> findPerDatatable(
 			Long expedientTipusId,
-			Long definicioProcesId,			
+			Long definicioProcesId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
 		return delegate.findPerDatatable(
 				expedientTipusId,
 				expedientTipusId,
-				filtre, 
+				filtre,
 				paginacioParams);
 	}
 }

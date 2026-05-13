@@ -6,8 +6,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,7 +14,6 @@ import javax.persistence.TableGenerator;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import es.caib.comanda.model.v1.estadistica.DiaSetmanaEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,12 +51,8 @@ public class ExplotacioTemps implements Serializable, GenericEntity<Long> {
 	@Column(name = "DIA", nullable = false)
 	private Integer dia;
 
-	@Column(name = "DIA_SETMANA", length = 2)
-	@Enumerated(EnumType.STRING)
-	private DiaSetmanaEnum diaSetmana;
-
 	private static final long serialVersionUID = 9173465155192120109L;
-	
+
 	public ExplotacioTemps() {
 		emplenarCamps(new Date());
 	}
@@ -73,7 +66,6 @@ public class ExplotacioTemps implements Serializable, GenericEntity<Long> {
 		c.setTime(data);
 		this.data = DateUtils.truncate(data, Calendar.DATE);
 		this.dia = c.get(Calendar.DAY_OF_MONTH);
-		this.diaSetmana = DiaSetmanaEnum.valueOf(c.get(Calendar.DAY_OF_WEEK));
 		this.setmana = c.get(Calendar.WEEK_OF_YEAR);
 		this.mes = c.get(Calendar.MONTH) + 1;
 		this.trimestre = this.mes / 3;

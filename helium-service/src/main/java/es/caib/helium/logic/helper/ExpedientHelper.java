@@ -22,6 +22,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -188,6 +189,9 @@ public class ExpedientHelper {
 	private RecursHelper recursHelper;
 	@Resource
 	private ExpedientInteressatHelper expedientInteressatHelper;
+	@Autowired
+	@Lazy
+	private HeliumApiFactory heliumApiFactory;
 	@Autowired
 	private HeliumActionHandlerPredefinitFactory heliumActionHandlerPredefinitFactory;
 

@@ -10,6 +10,9 @@ import java.util.concurrent.ExecutionException;
 
 import javax.ws.rs.core.MediaType;
 
+import es.caib.comanda.model.management.Prioritat;
+import es.caib.comanda.model.management.Tasca;
+import es.caib.comanda.model.management.TascaEstat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -19,9 +22,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
-import es.caib.comanda.model.v1.tasca.Prioritat;
-import es.caib.comanda.model.v1.tasca.Tasca;
-import es.caib.comanda.model.v1.tasca.TascaEstat;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.util.DatesUtils;
@@ -89,7 +89,7 @@ public class ComandaHelper {
 				grups.add(rol);
 		}
 
-		Tasca tasca = Tasca.builder()
+		Tasca tasca = new Tasca()
 							.appCodi("HEL")
 							.entornCodi(ENTORN)
 							.identificador(String.valueOf(taskId))
@@ -107,8 +107,7 @@ public class ComandaHelper {
 							.grup(null)
 							.responsable(task.getActorId())
 							.usuarisAmbPermis(usuaris)
-							.grupsAmbPermis(grups)
-							.build();
+							.grupsAmbPermis(grups);
 
 		ClientResponse response = getClient()
 									.resource(API_URL + "/v1/tasques")
@@ -167,9 +166,4 @@ public class ComandaHelper {
 		return client;
 	}
 
-	private String formatDate(Date date) {
-		if(date == null)
-			return null;
-		return sdf.format(date);
-	}
 }

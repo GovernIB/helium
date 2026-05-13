@@ -2,7 +2,6 @@ package es.caib.helium.commons.dto;
 
 import java.util.Date;
 
-import es.caib.comanda.model.v1.estadistica.DiaSetmanaEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +14,4 @@ public class ExplotacioTempsDto {
 	private Integer trimestre;
 	private Integer setmana;
 	private Integer dia;
-	private DiaSetmanaEnum diaSetmana;
-
 }
