@@ -1,6 +1,6 @@
 [
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientComentariModificarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientComentariModificarHandler",
         "nom" : "Modificar el comentari de l'expedient",
         "descripcio" : "Aquest handler ens permet modificar el comentari de l'expedient.",
         "parametres" : [ {
@@ -15,7 +15,7 @@
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientEstatModificarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientEstatModificarHandler",
         "nom" : "Modificar l'estat de l'expedient",
         "descripcio" : "Aquest handler ens permet modificar l'estat de l'expedient.",
         "parametres" : [
@@ -31,7 +31,7 @@
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientNumeroModificarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientNumeroModificarHandler",
         "nom" : "Modificar el número de l'expedient",
         "descripcio" : "Aquest handler ens permet modificar el número d'expedient.",
         "parametres" : [
@@ -47,7 +47,7 @@
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientResponsableModificarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientResponsableModificarHandler",
         "nom" : "Modificar el responsable de l'expedient",
         "descripcio" : "Aquest handler ens permet modificar la persona responsable de l'expedient.",
         "parametres" : [
@@ -63,7 +63,7 @@
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientTitolModificarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientTitolModificarHandler",
         "nom" : "Modificar el títol de l'expedient",
         "descripcio" : "Aquest handler ens permet modificar el títol de l'expedient.",
         "parametres" : [
@@ -79,7 +79,7 @@
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientGeorefModificarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientGeorefModificarHandler",
         "nom" : "Georeferenciació d'un expedient",
         "descripcio" : "Aquest handler permet modificar les dades necessàries per a la georeferenciació d'un expedient, la qual es pot dur a terme per referència cadastral o coordenades XY.",
         "parametres" : [
@@ -114,7 +114,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientGrupModificarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientGrupModificarHandler",
         "nom" : "Canviar el grup d'usuaris d'un expedient",
         "descripcio" : "Aquest handler permet modificar el grup d'usuaris d'un expedient.",
         "parametres" : [
@@ -130,7 +130,7 @@
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientAturarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientAturarHandler",
         "nom" : "Aturar un expedient",
         "descripcio" : "Aquest handler ens permet aturar temporalment la tramitació d'un expedient.",
         "parametres" : [
@@ -146,21 +146,21 @@
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientReprendreHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientReprendreHandler",
         "nom" : "Reprendre un expedient aturat",
         "descripcio" : "Handler que possibilita reprendre la tramitació d'un expedient aturat.",
         "parametres" : [],
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientFinalitzarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientFinalitzarHandler",
         "nom" : "Finalitzar un expedient",
         "descripcio" : "Handler que permet finalitzar l'expedient des de qualsevol node.",
         "parametres" : [],
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientDesfinalitzarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientDesfinalitzarHandler",
         "nom" : "Desfer Finalització d'un expedient",
         "descripcio" : "Aquest handler ens permet desfinalitzar i reprendre un expedient depengent del valor que s'especifiqui als paràmetres.",
         "parametres" : [
@@ -176,7 +176,7 @@
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ProcesTitolModificarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ProcesTitolModificarHandler",
         "nom" : "Configuració del títol del subprocés",
         "descripcio" : "Aquest handler ens permet configurar el títol amb el que es mostrarà el subprocés a dins el desplegable del subprocessos.",
         "parametres" : [
@@ -192,14 +192,14 @@
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientBuidaLogHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientBuidaLogHandler",
         "nom" : "Buidar els logs",
         "descripcio" : "Aquest handler ens permet buidar els logs de l'expedient.",
         "parametres" : [],
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ExpedientConsultarHandler",
+        "classe" : "es.caib.helium.disseny.handler.ExpedientConsultarHandler",
         "nom" : "Consultar informació d'un Expedient i deixar la informació en variables",
         "descripcio" : "Handler que permet consultar la informació d'un expedient.",
         "parametres" : [
@@ -239,7 +239,7 @@
         "agrupacio" : "EXPEDIENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.DocumentEsborrarHandler",
+        "classe" : "es.caib.helium.disseny.handler.DocumentEsborrarHandler",
         "nom" : "Esborrar document",
         "descripcio" : "Handler que permet esborrar un document d'un procés.",
         "parametres" : [
@@ -255,7 +255,7 @@
         "agrupacio" : "DOCUMENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.DocumentEscriureProcesPareHandler",
+        "classe" : "es.caib.helium.disseny.handler.DocumentEscriureProcesPareHandler",
         "nom" : "Copiar un document a un procés pare",
         "descripcio" : "Aquest handler permet lligar un document d'un procés fill al procés pare d'on aquest prové.",
         "parametres" : [
@@ -271,7 +271,7 @@
         "agrupacio" : "DOCUMENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.DocumentLlegirProcesPareHandler",
+        "classe" : "es.caib.helium.disseny.handler.DocumentLlegirProcesPareHandler",
         "nom" : "Copiar un document des d'un procés pare",
         "descripcio" : "Aquest handler permet lligar un document d'un procés pare al procés actual.",
         "parametres" : [
@@ -287,7 +287,7 @@
         "agrupacio" : "DOCUMENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.DocumentExpedientCopiarDestiHandler",
+        "classe" : "es.caib.helium.disseny.handler.DocumentExpedientCopiarDestiHandler",
         "nom" : "Copiar un document des de l'expedient actual",
         "descripcio" : "Handler que permet copiar un document des de l'expedient actual a un altre expedient.",
         "parametres" : [
@@ -327,7 +327,7 @@
         "agrupacio" : "DOCUMENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.DocumentExpedientCopiarOrigenHandler",
+        "classe" : "es.caib.helium.disseny.handler.DocumentExpedientCopiarOrigenHandler",
         "nom" : "Copiar un document a l'expedient actual",
         "descripcio" : "Handler que permet copiar un document des d'un expedient origen a l'expedient actual.",
         "parametres" : [
@@ -366,7 +366,7 @@
             }],  "agrupacio" : "DOCUMENTS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.DocumentGenerarHandler",
+        "classe" : "es.caib.helium.disseny.handler.DocumentGenerarHandler",
         "nom" : "Generar un document",
         "descripcio" : "Handler per generar un document de forma automàtica a partir d'una plantilla.",
         "parametres" : [
@@ -391,7 +391,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.PortasignaturesHandler",
+        "classe" : "es.caib.helium.disseny.handler.PortasignaturesHandler",
         "nom" : "Enviament d'un document al portasignatures",
         "descripcio" : "Aquest handler ens permet enviar un document a signar al portasignatures. El document pot passar per tres passes de signatura, i on en cada passa es pot signar per una o més persones.",
         "parametres" : [
@@ -496,7 +496,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.DocumentAdjuntarHandler",
+        "classe" : "es.caib.helium.disseny.handler.DocumentAdjuntarHandler",
         "nom" : "Adjuntar un document",
         "descripcio" : "Handler per adjuntar un document al procés.",
         "parametres" : [
@@ -546,7 +546,7 @@
 
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.DocumentConsultarHandler",
+        "classe" : "es.caib.helium.disseny.handler.DocumentConsultarHandler",
         "nom" : "Consultar el CSV o URL de verificació de firmes d'un document firmat",
         "descripcio" : "Handler per consultar el codi CSV i/o la URL de verificació de firmes d'un document firmat.",
         "parametres" : [
@@ -580,7 +580,7 @@
 
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.AlertaCrearHandler",
+        "classe" : "es.caib.helium.disseny.handler.AlertaCrearHandler",
         "nom" : "Crear alerta",
         "descripcio" : "Aquest handler ens permet enviar una alerta a un usuari.",
         "parametres" : [ {
@@ -604,7 +604,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.TerminiIniciarHandler",
+        "classe" : "es.caib.helium.disseny.handler.TerminiIniciarHandler",
         "nom" : "Iniciar un termini",
         "descripcio" : "Aquest handler ens permet iniciar un termini. Aquest termini pot ser un termini de la definició de procés o correspondre a una variable de tipus termini. La data d'inici es pot calcular segons la definició del termini o bé passar-se com paràmetre. També es pot calcular la data d'inici passant una data final a partir de la qual s'hagi de calcular.",
         "parametres" : [
@@ -652,7 +652,7 @@
         "agrupacio" : "TERMINIS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.TerminiPausarHandler",
+        "classe" : "es.caib.helium.disseny.handler.TerminiPausarHandler",
         "nom" : "Aturar un termini",
         "descripcio" : "Aquest handler ens permet aturar temporalment un termini iniciat.",
         "parametres" : [
@@ -676,7 +676,7 @@
         "agrupacio" : "TERMINIS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.TerminiContinuarHandler",
+        "classe" : "es.caib.helium.disseny.handler.TerminiContinuarHandler",
         "nom" : "Continuar un termini aturat",
         "descripcio" : "Aquest handler ens permet continuar un termini aturat.",
         "parametres" : [
@@ -700,7 +700,7 @@
         "agrupacio" : "TERMINIS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.TerminiCancelarHandler",
+        "classe" : "es.caib.helium.disseny.handler.TerminiCancelarHandler",
         "nom" : "Cancel·lar un termini iniciat",
         "descripcio" : "Aquest handler ens permet cancel·lar un termini iniciat.",
         "parametres" : [
@@ -724,7 +724,7 @@
         "agrupacio" : "TERMINIS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.TerminiCalcularDataIniciHandler",
+        "classe" : "es.caib.helium.disseny.handler.TerminiCalcularDataIniciHandler",
         "nom" : "Calcular data inici d'un termini",
         "descripcio" : "Handler que calcula la data d'inici d'un temini. Aquest termini pot ser un termini de la definició de procés o correspondre a una variable de tipus termini.",
         "parametres" : [
@@ -772,7 +772,7 @@
         "agrupacio" : "TERMINIS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.TerminiCalcularDataFiHandler",
+        "classe" : "es.caib.helium.disseny.handler.TerminiCalcularDataFiHandler",
         "nom" : "Calcular data fi d'un termini",
         "descripcio" : "Handler que calcula la data fi d'un temini. Aquest termini pot ser un termini de la definició de procés o correspondre a una variable de tipus termini.",
         "parametres" : [
@@ -821,7 +821,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.TerminiVariableGuardarHandler",
+        "classe" : "es.caib.helium.disseny.handler.TerminiVariableGuardarHandler",
         "nom" : "Configurar termini",
         "descripcio" : "Handler que permet configurar una variable de tipus termini. La seva durada es pot definir en anys, mesos i dies.",
         "parametres" : [
@@ -861,7 +861,7 @@
         "agrupacio" : "TERMINIS"
     },
     {
-        "classe" : "es.caib.helium.bpmn.handler.ConfigurarAmbTerminiHandler",
+        "classe" : "es.caib.helium.disseny.handler.ConfigurarAmbTerminiHandler",
         "nom" : "Configuració segons un termini iniciat",
         "descripcio" : "Aquest handler ens permet configurar la data límit d'una instància de tasca o un timer amb la data de fi d'un termini iniciat.",
         "parametres" : [
@@ -878,7 +878,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.RegistreSortidaRegWeb3Handler",
+        "classe" : "es.caib.helium.disseny.handler.RegistreSortidaRegWeb3Handler",
         "nom" : "Registrar sortida de document",
         "descripcio" : "Aquest handler ens permet registrar la sortida d’un document.",
         "parametres" : [
@@ -1314,7 +1314,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.InteressatCrearHandler",
+        "classe" : "es.caib.helium.disseny.handler.InteressatCrearHandler",
         "nom" : "Crear interessar",
         "descripcio" : "Aquest handler crea interessat.",
         "parametres" : [
@@ -1499,7 +1499,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.InteressatModificarHandler",
+        "classe" : "es.caib.helium.disseny.handler.InteressatModificarHandler",
         "nom" : "Modificar interessar",
         "descripcio" : "Aquest handler modifica interessat.",
         "parametres" : [
@@ -1684,7 +1684,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.InteressatEliminarHandler",
+        "classe" : "es.caib.helium.disseny.handler.InteressatEliminarHandler",
         "nom" : "Esborrar interessar",
         "descripcio" : "Aquest handler esborra l'interessat",
         "parametres" : [
@@ -1701,7 +1701,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.NotificacioAltaHandler",
+        "classe" : "es.caib.helium.disseny.handler.NotificacioAltaHandler",
         "nom" : "Donar d’alta notificacions al servei de notificacions Notib",
         "descripcio" : "L'alta de peticions de notificacions al servei de notificacions NOTIB es fa mitjançant un handler d'alta de notificacions.",
         "parametres" : [
@@ -2150,7 +2150,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.PinbalConsultaGenericaHandler",
+        "classe" : "es.caib.helium.disseny.handler.PinbalConsultaGenericaHandler",
         "nom" : "Consulta genèrica a PINBAL",
         "descripcio" : "Handler per invocar de forma genèrica una consulta a PINBAL i obtenir el justificant i guardar-lo en un document. Per poder fer la consulta s'ha d'indicar el codi de l'interessat o les dades del titular, les dades genèriques i del procediment i indicar en quin document guardar el justificant.",
         "parametres" : [
@@ -2271,7 +2271,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.PinbalSvddgpciws02Handler",
+        "classe" : "es.caib.helium.disseny.handler.PinbalSvddgpciws02Handler",
         "nom" : "Consulta dades d'intentitat a PINBAL",
         "descripcio" : "Handler de consulta al servei SVDDGPCIWS02 de consulta de dades d'indentitat a partir del número de document",
         "parametres" : [
@@ -2384,7 +2384,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.PinbalSvddgpviws02Handler",
+        "classe" : "es.caib.helium.disseny.handler.PinbalSvddgpviws02Handler",
         "nom" : "Consulta de verificació de dades d'intentitat a PINBAL",
         "descripcio" : "Handler de consulta al servei SVDDGPVIWS02 de verificació de dades d'identitat. Conté dades específiques de data, número, província o país",
         "parametres" : [
@@ -2489,7 +2489,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.bpmn.handler.PinbalSvdccaacpasws01Handler",
+        "classe" : "es.caib.helium.disseny.handler.PinbalSvdccaacpasws01Handler",
         "nom" : "Consulta a PINBAL d'estar al corrent d'oblicacions tributàries",
         "descripcio" : "Handler de consulta al servei SVDCCAACPASWS01 de consulta d'estar al corrent d'obligacions tributàries per la sol·licitud de subvencions i ajudes de la CCAA. Les dades específiques que permetria informar són el codi de la comunitat autònoma o el codi de la província.",
         "parametres" : [
