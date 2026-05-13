@@ -25,7 +25,7 @@ public class HeliumActionHandlerPredefinitFactory {
 		Class<?> rawClass = Class.forName(handlerClassName);
 		if (!HeliumActionHandler.class.isAssignableFrom(rawClass)) {
 			throw new IllegalArgumentException(
-				"La classe " + handlerClassName + " no implementa HeliumActionHandler");
+				"La classe " + handlerClassName + " no implementa " + HeliumActionHandler.class);
 		}
 		return createInstance(rawClass.asSubclass(HeliumActionHandler.class), params);
 	}

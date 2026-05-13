@@ -59,12 +59,14 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
 @RequestMapping("/expedient")
 public class ExpedientInicioPasTitolController extends BaseExpedientIniciController {
 
-
-	@RequestMapping(value = "/iniciarTitol/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.GET)
+	@RequestMapping(value = {
+		"/iniciarTitol/{expedientTipusId}",
+		"/iniciarTitol/{expedientTipusId}/{definicioProcesId}"
+	}, method = RequestMethod.GET)
 	public String iniciarTitolGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@PathVariable Long definicioProcesId,
+			@PathVariable(required = false) Long definicioProcesId,
 			Model model) {
 		definicioProcesToModel(expedientTipusId, definicioProcesId, model);
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
@@ -93,11 +95,14 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 		return "expedient/iniciarPasTitol";
 	}
 
-	@RequestMapping(value = "/iniciarTitol/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.POST)
+	@RequestMapping(value = {
+		"/iniciarTitol/{expedientTipusId}/{definicioProcesId}",
+		"/iniciarTitol/{expedientTipusId}"
+	}, method = RequestMethod.POST)
 	public String iniciarTitolPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@PathVariable Long definicioProcesId,
+			@PathVariable(required = false) Long definicioProcesId,
 			@RequestParam(value = "accio", required = false) String accio,
 			@Validated(Inici.class) @ModelAttribute ExpedientInicioPasTitolCommand expedientInicioPasTitolCommand,
 			BindingResult result,

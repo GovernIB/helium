@@ -110,6 +110,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 			AnotacioDto anotacio) throws Exception {
 
 		boolean hasStartTask = false;
+		String redirectUrlSuffix = definicioProcesId != null ? "/" + definicioProcesId : "";
 		request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID, "TIE_" + System.currentTimeMillis());
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 
@@ -139,9 +140,9 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 								resultatMapeig,
 								true);
 			}
-			return redirectByModal(request, "/expedient/iniciarForm/" + expedientTipusId + "/" + definicioProcesId);
+			return redirectByModal(request, "/expedient/iniciarForm/" + expedientTipusId + redirectUrlSuffix);
 		} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
-			return redirectByModal(request, "/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProcesId);
+			return redirectByModal(request, "/expedient/iniciarTitol/" + expedientTipusId + redirectUrlSuffix);
 		} else {
 			// Si no requereix cap pas addicional inicia l'expedient directament
 			try {

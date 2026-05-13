@@ -25,12 +25,12 @@
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium3Tasca.js"/>"></script>
-	
+
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	
+
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
@@ -57,13 +57,21 @@
 					    }
 					});
 				}
-			});	
-		});	
+			});
+		});
 		// ]]>
 	</script>
 </head>
 <body>
-	<form:form method="post" action="../../iniciarTitol/${expedientTipus.id}/${definicioProces.id}" id="command" name="command" cssClass="form-horizontal form-tasca" modelAttribute="expedientInicioPasTitolCommand" onsubmit="return confirmar(event)">
+
+	<c:if test="${empty definicioProces}">
+	<c:set var="defProcSuffix"></c:set>
+	</c:if>
+	<c:if test="${not empty definicioProces}">
+    	<c:set var="defProcSuffix">${definicioProces.id}</c:set>
+	</c:if>
+
+	<form:form method="post" action="../iniciarTitol/${expedientTipus.id}/${defProcSuffix}" id="command" name="command" cssClass="form-horizontal form-tasca" modelAttribute="expedientInicioPasTitolCommand" onsubmit="return confirmar(event)">
 		<form:hidden path="responsableCodi"/>
 		<form:hidden path="entornId"/>
 		<form:hidden path="expedientTipusId"/>
@@ -77,23 +85,23 @@
 		</c:if>
 		<c:if test="${expedientTipus.procedimentComu}">
 			<div class="control-group fila_reducida">
-				<hel:inputSuggest 
-						name="unitatOrganitzativaCodi" 
-						urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
-						urlConsultaLlistat="/unitatOrganitzativa/suggest" 
-						textKey="expedient.tipus.permis.form.camp.unitat.organitzativa" 
+				<hel:inputSuggest
+						name="unitatOrganitzativaCodi"
+						urlConsultaInicial="/unitatOrganitzativa/suggestInici"
+						urlConsultaLlistat="/unitatOrganitzativa/suggest"
+						textKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
 						placeholderKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
 						required="true"
-						labelSize="4"/>	
+						labelSize="4"/>
 			</div>
-		</c:if>		
+		</c:if>
 		<c:if test="${expedientTipus.teNumero and expedientTipus.demanaNumero}">
 			<div class="controls fila_reducida">
 				<hel:inputText required="true" text="" name="numero" textKey="expedient.consulta.numero" placeholderKey="expedient.consulta.numero" inline="false"/>
 			</div>
 		</c:if>
 		<c:if test="${expedientTipus.teTitol and expedientTipus.demanaTitol}">
-			<div class="control-group fila_reducida">			
+			<div class="control-group fila_reducida">
 				<hel:inputTextarea required="true" name="titol" textKey="expedient.consulta.titol" placeholderKey="expedient.consulta.titol"/>
 			</div>
 		</c:if>
@@ -104,7 +112,7 @@
 			<div style="min-height: 120px;"></div>
 		</c:if>
 		<div id="modal-botons">
-			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code='comuns.cancelar' /></button>		
+			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code='comuns.cancelar' /></button>
 			<button type="submit" id="iniciar" name="accio" class="btn btn-primary" value="iniciar">
 				<spring:message code='comuns.iniciar' />
 			</button>
