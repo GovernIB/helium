@@ -241,7 +241,7 @@ public class AnotacioHelper {
 			es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
 			try {
 				idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-				idWs.setIndetificador(anotacio.getDistribucioId());
+				idWs.setIdentificador(anotacio.getDistribucioId());
 				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
 				
 			} catch(Exception e) {
@@ -311,7 +311,7 @@ public class AnotacioHelper {
 			// Notifica el nou estat a Distribucio
 			AnotacioRegistreId anotacioRegistreId = new AnotacioRegistreId();
 			anotacioRegistreId.setClauAcces(anotacio.getDistribucioClauAcces());
-			anotacioRegistreId.setIndetificador(anotacio.getDistribucioId());
+			anotacioRegistreId.setIdentificador(anotacio.getDistribucioId());
 			distribucioHelper.canviEstat(
 					anotacioRegistreId,
 					Estat.PROCESSADA,

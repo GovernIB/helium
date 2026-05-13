@@ -856,7 +856,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		// Es comunica l'estat a Distribucio
 		try {
 			AnotacioRegistreId idWs = new AnotacioRegistreId();
-			idWs.setIndetificador(anotacio.getIdentificador());
+			idWs.setIdentificador(anotacio.getIdentificador());
 			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
 
 			distribucioHelper.canviEstat(

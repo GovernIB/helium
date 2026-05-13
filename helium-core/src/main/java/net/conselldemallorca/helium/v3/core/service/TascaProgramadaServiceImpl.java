@@ -444,7 +444,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 			try {
 				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
 			} catch(Exception e) {
-				consultaError  = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ". Intent " + consultaIntents + " de " + maxReintents + ": " + e.getMessage();
+				consultaError  = "Error consultant l'anotació " + idWs.getIdentificador() + " i clau " + idWs.getClauAcces() + ". Intent " + consultaIntents + " de " + maxReintents + ": " + e.getMessage();
 				logger.error(consultaError, e);
 							
 				if (consultaIntents >= maxReintents) {
@@ -453,15 +453,15 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 						distribucioHelper.canviEstat(
 									idWs, 
 									es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
-									"Error consultant l'anotació amb id " + idWs.getIndetificador() + " després de " + consultaIntents + " intents: " + e.getMessage());
+									"Error consultant l'anotació amb id " + idWs.getIdentificador() + " després de " + consultaIntents + " intents: " + e.getMessage());
 					} catch(Exception ed) {
-						logger.error("Error comunicant l'error de consulta a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+						logger.error("Error comunicant l'error de consulta a Distribucio de la petició amb id : " + idWs.getIdentificador() + ": " + ed.getMessage(), ed);
 					}
 				}
 			}			
 			distribucioHelper.updateConsulta(anotacioId, consultaIntents, consultaError, consultaData);
 			// Actualitza la informació de l'anotació amb les dades consultades i la posa en estat pendent.
-			logger.debug("Anotació " + idWs.getIndetificador() + " consultada correctament. Actualitzant la informació i estat a PENDENT.");
+			logger.debug("Anotació " + idWs.getIdentificador() + " consultada correctament. Actualitzant la informació i estat a PENDENT.");
 				
 			if (anotacioRegistreEntrada != null ) {
 				try {
@@ -481,7 +481,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 							distribucioHelper.canviEstat(
 									idWs, 
 									es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT,
-									"Anotació " + idWs.getIndetificador() + " rebuda correctament." );
+									"Anotació " + idWs.getIdentificador() + " rebuda correctament." );
 							//Si l'estat és Pendent manual, encuem l'email
 							if(AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat()) &&
 									anotacio.getExpedientTipus()!=null &&
@@ -494,12 +494,12 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 							}
 					}
 					} catch(Exception ed) {
-						logger.error("Error comunicant l'estat d'anotació rebuda a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+						logger.error("Error comunicant l'estat d'anotació rebuda a Distribucio de la petició amb id : " + idWs.getIdentificador() + ": " + ed.getMessage(), ed);
 					}
-					logger.debug("Anotació " + idWs.getIndetificador() + " consultada correctament amb estat " + anotacio.getEstat());
+					logger.debug("Anotació " + idWs.getIdentificador() + " consultada correctament amb estat " + anotacio.getEstat());
 				} catch (Throwable e) {
 					String message = exceptionHelper.getRouteCauses(e);
-					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + message;
+					String errorProcessament = "Error processant l'anotació " + idWs.getIdentificador() + ":" + message;
 					logger.error(errorProcessament, e);
 					distribucioHelper.updateErrorProcessament(anotacioId, errorProcessament);
 	
@@ -508,9 +508,9 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 						distribucioHelper.canviEstat(
 								idWs, 
 								es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
-								"Error processant l'anotació amb id " + idWs.getIndetificador() + ": " + e.getMessage());
+								"Error processant l'anotació amb id " + idWs.getIdentificador() + ": " + e.getMessage());
 					} catch(Exception ed) {
-						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIdentificador() + ": " + ed.getMessage(), ed);
 					}
 				}
 			}					
@@ -540,7 +540,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 			ExecutorService executor = Executors.newFixedThreadPool(maxThreadsParallel);
 			for (Anotacio anotacioPendent : anotacionsPendentsConsultar) {
 				idWs = new AnotacioRegistreId();
-				idWs.setIndetificador(anotacioPendent.getIdentificador());
+				idWs.setIdentificador(anotacioPendent.getIdentificador());
 				idWs.setClauAcces(anotacioPendent.getDistribucioClauAcces());
 				int consultaIntents = anotacioPendent.getConsultaIntents() + 1;
 				Runnable thread =
@@ -585,10 +585,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	        long startTime = new Date().getTime();
 			for (Anotacio anotacioPendent : anotacionsPendentsProcessar) {
 				idWs = new AnotacioRegistreId();
-				idWs.setIndetificador(anotacioPendent.getIdentificador());
+				idWs.setIdentificador(anotacioPendent.getIdentificador());
 				idWs.setClauAcces(anotacioPendent.getDistribucioClauAcces());
 				// Processa i comunica l'estat de processada 
-				logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
+				logger.debug("Processant l'anotació " + idWs.getIdentificador() + ".");
 				BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 				try {
 					distribucioHelper.processarAnotacio(idWs, anotacioPendent.getId(), backofficeUtils);
