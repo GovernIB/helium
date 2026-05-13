@@ -16,7 +16,6 @@ import es.caib.helium.commons.dto.InteressatTipusEnumDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.ExpedientInteressatService;
 import es.caib.helium.persistence.entity.Expedient;
@@ -73,17 +72,6 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		return resultat;
 	}
 
-	public Interessat comprovarInteressat(
-			Long interessatId) {
-		Interessat interessat = interessatRepository.findById(interessatId).orElse(null);
-		if (interessat == null) {
-			throw new NoTrobatException(
-					Interessat.class,
-					interessatId);
-		}
-		return interessat;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -92,37 +80,12 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	public InteressatDto delete(
 			Long interessatId) {
 		logger.debug("Esborrant interessat (interessatId=" + interessatId + ")");
-		Interessat interessat = comprovarInteressat(interessatId);
+		Interessat interessat = expedientInteressatHelper.comprovarInteressat(interessatId);
 		Expedient expedient = expedientRepository.findById(interessat.getExpedient().getId()).orElse(null);
-		List<Interessat> interessats = expedient.getInteressats();
-		if (interessat.getRepresentant() != null) {//si té respresentant primer el desassignem i després esborrem l'interessat
-			Interessat representant = comprovarInteressat(interessat.getRepresentant().getId());
-			if (representant.getRepresentats() != null && !representant.getRepresentats().isEmpty()) {
-				interessat.setRepresentant(null);
-				if(representant.getRepresentats().size()==1) {
-					//Si aquest interessat té un representant que no representa a ningú més també l'esborrem (el representant)
-					representant.getRepresentats().remove(interessat);
-					interessatRepository.delete(representant);
-					interessats.remove(representant);
-				} else {
-					representant.getRepresentats().remove(interessat);
-					interessatRepository.save(representant);
-				}
-				interessatRepository.save(interessat);
-			}
-		}
-		interessats.remove(interessat);
-		expedient.setInteressats(interessats);
+		Interessat interessatEntity = expedientInteressatHelper.delete(expedient, interessatId);
+		boolean propagat = expedientInteressatHelper.arxiuPropagar(expedient, interessatEntity.getDocumentIdent());
 		InteressatDto resultat = conversioTipusHelper.convertir(interessat, InteressatDto.class);
-		if (expedient.isArxiuActiu()) {
-			try {
-				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
-			} catch (SistemaExternException seex) {
-				expedient.addErrorArxiu("Error de sincronització amb arxiu al eliminar el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
-				resultat.setPropagatArxiu(false);
-			}
-		}
-		interessatRepository.delete(interessat);
+		resultat.setPropagatArxiu(propagat);
 		return resultat;
 	}
 
@@ -349,8 +312,8 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	@Override
 	public void deleteOrUnassignRepresentant(Long representantId, Long interessatId) {
 		logger.debug("Esborrant/desassignant representant (representantId=" + representantId + ") de l'interessat (interessatId=" + interessatId + ")");
-		Interessat interessat = comprovarInteressat(interessatId);
-		Interessat representant = comprovarInteressat(representantId);
+		Interessat interessat = expedientInteressatHelper.comprovarInteressat(interessatId);
+		Interessat representant = expedientInteressatHelper.comprovarInteressat(representantId);
 		Expedient expedient = expedientRepository.findById(interessat.getExpedient().getId()).orElse(null);
 		List<Interessat> interessats = expedient.getInteressats();
 		List<Interessat> representats = interessatRepository.findByRepresentant(representant);

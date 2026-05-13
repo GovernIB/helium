@@ -5,10 +5,7 @@ import es.caib.helium.disseny.exception.HeliumHandlerException;
 import es.caib.helium.disseny.model.DocumentInfo;
 import es.caib.helium.commons.dto.*;
 import es.caib.helium.logic.helper.*;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentStore;
-import es.caib.helium.persistence.entity.Estat;
-import es.caib.helium.persistence.entity.Expedient;
+import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.repository.EstatRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -421,6 +418,78 @@ public class HeliumApiImpl implements HeliumApi {
 		interessat.setMunicipi(municipi);
 		interessat.setCanalNotif(canalNotif);
 		expedientInteressatHelper.create(expedient, interessat);
+	}
+
+	@Override
+	public void interessatModificar(
+		String id,
+		String codi,
+		String nom,
+		String tipusDocIdent,
+		String documentIdent,
+		String dir3Codi,
+		String llinatge1,
+		String llinatge2,
+		String tipus,
+		String email,
+		String telefon,
+		Boolean entregaPostal,
+		String entregaTipus,
+		String linia1,
+		String linia2,
+		Boolean entregaDeh,
+		Boolean entregaDehObligat,
+		String direccio,
+		String pais,
+		String provincia,
+		String municipi,
+		String canalNotif) {
+		Interessat interessat = expedientInteressatHelper.findByExpedientAndCodi(expedient, codi);
+		if (interessat != null) {
+			if (interessat.getId().toString().equals(id)) {
+				InteressatDto interessatUpdate = new InteressatDto();
+				interessatUpdate.setId(Long.parseLong(id));
+				interessatUpdate.setCodi(codi);
+				interessatUpdate.setNom(nom);
+				interessatUpdate.setTipusDocIdent(
+					tipusDocIdent != null ? InteressatDocumentTipusEnumDto.valueOf(tipusDocIdent) : null);
+				interessatUpdate.setDocumentIdent(documentIdent);
+				interessatUpdate.setDir3Codi(dir3Codi);
+				interessatUpdate.setLlinatge1(llinatge1);
+				interessatUpdate.setLlinatge2(llinatge2);
+				interessatUpdate.setTipus(
+					tipus != null ? InteressatTipusEnumDto.valueOf(tipus) : null);
+				interessatUpdate.setEmail(email);
+				interessatUpdate.setTelefon(telefon);
+				interessatUpdate.setEntregaPostal(entregaPostal);
+				interessatUpdate.setEntregaTipus(
+					entregaTipus != null ? DadesEnviamentDto.EntregaPostalTipus.valueOf(entregaTipus) : null);
+				interessatUpdate.setLinia1(linia1);
+				interessatUpdate.setLinia2(linia2);
+				interessatUpdate.setEntregaDeh(entregaDeh);
+				interessatUpdate.setEntregaDehObligat(entregaDehObligat);
+				interessatUpdate.setDireccio(direccio);
+				interessatUpdate.setPais(pais);
+				interessatUpdate.setProvincia(provincia);
+				interessatUpdate.setMunicipi(municipi);
+				interessatUpdate.setCanalNotif(canalNotif);
+				expedientInteressatHelper.update(interessatUpdate);
+			} else {
+				throw new HeliumHandlerException("L'interessat amb el codi " + codi + " no te l'id especificat (" + id + ")");
+			}
+		} else {
+			throw new HeliumHandlerException("No s'ha trobat cap interessat amb el codi " + codi);
+		}
+	}
+
+	@Override
+	public void interessatEliminar(String codi) {
+		Interessat interessat = expedientInteressatHelper.findByExpedientAndCodi(expedient, codi);
+		if (interessat != null) {
+			expedientInteressatHelper.delete(expedient, interessat.getId());
+		} else {
+			throw new HeliumHandlerException("No s'ha trobat cap interessat amb el codi " + codi);
+		}
 	}
 
 	@Override

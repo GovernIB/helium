@@ -4,6 +4,7 @@
 package es.caib.helium.logic.helper;
 
 import es.caib.helium.commons.dto.InteressatDto;
+import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.Interessat;
@@ -104,6 +105,48 @@ public class ExpedientInteressatHelper {
 			interessatEntity.setRepresentant(interessatRepository.findById(interessat.getRepresentant_id()).orElse(null));
 		}
 		return interessatEntity;
+	}
+
+	public Interessat delete(
+		Expedient expedient,
+		Long interessatId) {
+		Interessat interessat = comprovarInteressat(interessatId);
+		List<Interessat> interessats = expedient.getInteressats();
+		if (interessat.getRepresentant() != null) {
+			// Si té respresentant primer el desassignam i després esborram l'interessat
+			Interessat representant = comprovarInteressat(interessat.getRepresentant().getId());
+			if (representant.getRepresentats() != null && !representant.getRepresentats().isEmpty()) {
+				interessat.setRepresentant(null);
+				if (representant.getRepresentats().size() == 1) {
+					// Si aquest interessat té un representant que no representa a ningú més també l'esborrem (el representant)
+					representant.getRepresentats().remove(interessat);
+					interessatRepository.delete(representant);
+					interessats.remove(representant);
+				} else {
+					representant.getRepresentats().remove(interessat);
+					interessatRepository.save(representant);
+				}
+				interessatRepository.save(interessat);
+			}
+		}
+		interessats.remove(interessat);
+		expedient.setInteressats(interessats);
+		return interessat;
+	}
+
+	public Interessat comprovarInteressat(
+		Long interessatId) {
+		Interessat interessat = interessatRepository.findById(interessatId).orElse(null);
+		if (interessat == null) {
+			throw new NoTrobatException(
+				Interessat.class,
+				interessatId);
+		}
+		return interessat;
+	}
+
+	public Interessat findByExpedientAndCodi(Expedient expedient, String codi) {
+		return interessatRepository.findByCodiAndExpedient(codi, expedient);
 	}
 
 	public boolean arxiuPropagar(Expedient expedient, String interessatDocumentIdent) {
