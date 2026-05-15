@@ -1,6 +1,3 @@
-/**
- *
- */
 package es.caib.helium.ejb;
 
 import java.util.List;
@@ -8,7 +5,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.AccioDto;
 import es.caib.helium.commons.dto.PaginaDto;
@@ -17,19 +15,20 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.AccioService;
 
-
-
 /**
  * Servei per a gestionar els tipus d'expedient.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class AccioServiceBean implements AccioService {
+public class AccioServiceBean extends AbstractServiceEjb<AccioService> implements AccioService {
 
-	@Autowired
-	AccioService delegate;
+	@Delegate
+	AccioService delegateService;
+
+	protected void setDelegateService(AccioService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -37,25 +36,25 @@ public class AccioServiceBean implements AccioService {
 			Long expedientTipusId,
 			Long definicioProcesId,
 			AccioDto accio) throws PermisDenegatException {
-		return delegate.create(expedientTipusId, definicioProcesId, accio);
+		return delegateService.create(expedientTipusId, definicioProcesId, accio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AccioDto update(AccioDto accio) throws NoTrobatException, PermisDenegatException {
-		return delegate.update(accio);
+		return delegateService.update(accio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(Long accioAccioId) throws NoTrobatException, PermisDenegatException {
-		delegate.delete(accioAccioId);
+		delegateService.delete(accioAccioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AccioDto findAmbId(Long expedientTipusId, Long id) throws NoTrobatException {
-		return delegate.findAmbId(expedientTipusId, id);
+		return delegateService.findAmbId(expedientTipusId, id);
 	}
 
 	@Override
@@ -63,7 +62,7 @@ public class AccioServiceBean implements AccioService {
 	public List<AccioDto> findAll(
 			Long expedientTipusId,
 			Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
-		return delegate.findAll(expedientTipusId, definicioProcesId);
+		return delegateService.findAll(expedientTipusId, definicioProcesId);
 	}
 
 	@Override
@@ -72,7 +71,7 @@ public class AccioServiceBean implements AccioService {
 			Long tipusExpedientId,
 			Long definicioProcesId,
 			String codi) throws NoTrobatException {
-		return delegate.findAmbCodi(tipusExpedientId, definicioProcesId, codi);
+		return delegateService.findAmbCodi(tipusExpedientId, definicioProcesId, codi);
 	}
 
 	@Override
@@ -82,10 +81,11 @@ public class AccioServiceBean implements AccioService {
 			Long definicioProcesId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.findPerDatatable(
+		return delegateService.findPerDatatable(
 				expedientTipusId,
 				expedientTipusId,
 				filtre,
 				paginacioParams);
 	}
+
 }

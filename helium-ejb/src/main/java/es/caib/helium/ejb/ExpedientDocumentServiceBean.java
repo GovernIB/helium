@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -10,7 +10,8 @@ import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.ArxiuDetallDto;
 import es.caib.helium.commons.dto.ArxiuDto;
@@ -43,15 +44,18 @@ import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientDocumentService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
+public class ExpedientDocumentServiceBean extends AbstractServiceEjb<ExpedientDocumentService> implements ExpedientDocumentService {
 
-	@Autowired
-	ExpedientDocumentService delegate;
+	@Delegate
+	ExpedientDocumentService delegateService;
+
+	protected void setDelegateService(ExpedientDocumentService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -72,7 +76,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdOrigen,
 			List<ExpedientDocumentDto> annexosPerNotificar) {
-		return delegate.create(
+		return delegateService.create(
 				expedientId,
 				processInstanceId,
 				documentCodi,
@@ -109,7 +113,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdOrigen) {
-		return delegate.update(
+		return delegateService.update(
 				expedientId,
 				processInstanceId,
 				documentStoreId,
@@ -131,7 +135,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Long guardarDocumentProces(String processInstanceId, String documentCodi, Date data, String arxiu,
 			byte[] contingut, List<ExpedientDocumentDto> annexosPerNotificar) {
-		return delegate.guardarDocumentProces(processInstanceId, documentCodi, data, arxiu, contingut, annexosPerNotificar);
+		return delegateService.guardarDocumentProces(processInstanceId, documentCodi, data, arxiu, contingut, annexosPerNotificar);
 	}
 
 	@Override
@@ -140,7 +144,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId) {
-		delegate.delete(
+		delegateService.delete(
 				expedientId,
 				processInstanceId,
 				documentStoreId);
@@ -151,7 +155,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public List<ExpedientDocumentDto> findAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId) {
-		return delegate.findAmbInstanciaProces(
+		return delegateService.findAmbInstanciaProces(
 				expedientId,
 				processInstanceId);
 	}
@@ -159,7 +163,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Long nextEstatId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
-        return delegate.findDocumentsExpedient(expedientId, nextEstatId, tots, paginacioParams);
+        return delegateService.findDocumentsExpedient(expedientId, nextEstatId, tots, paginacioParams);
     }
 
     @Override
@@ -168,7 +172,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId) {
-		return delegate.findOneAmbInstanciaProces(
+		return delegateService.findOneAmbInstanciaProces(
 				expedientId,
 				processInstanceId,
 				documentStoreId);
@@ -180,7 +184,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi) throws NoTrobatException, PermisDenegatException {
-		return delegate.findOneAmbInstanciaProces(
+		return delegateService.findOneAmbInstanciaProces(
 				expedientId,
 				processInstanceId,
 				documentCodi);
@@ -192,67 +196,66 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId) {
-		return delegate.arxiuFindAmbDocument(
+		return delegateService.arxiuFindAmbDocument(
 				expedientId,
 				processInstanceId,
 				documentStoreId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public ArxiuDto arxiuPdfFindAmbDocument(Long expedientId, String processInstanceId, Long documentStoreId) {
-        return delegate.arxiuPdfFindAmbDocument(expedientId, processInstanceId, documentStoreId);
+        return delegateService.arxiuPdfFindAmbDocument(expedientId, processInstanceId, documentStoreId);
     }
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto arxiuFindAmbDocumentVersio(
-			Long expedientId, 
-			String processInstanceId, 
+			Long expedientId,
+			String processInstanceId,
 			Long documentStoreId,
 			String versio) throws NoTrobatException, PermisDenegatException {
-		return delegate.arxiuFindAmbDocumentVersio(
+		return delegateService.arxiuFindAmbDocumentVersio(
 				expedientId,
 				processInstanceId,
 				documentStoreId,
 				versio);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto arxiuFindAmbDocumentStoreId(Long documentId) throws NoTrobatException {
-		return delegate.arxiuFindAmbDocumentStoreId(documentId);
+		return delegateService.arxiuFindAmbDocumentStoreId(documentId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto arxiuFindOriginal(
-			Long expedientId, 
+			Long expedientId,
 			Long documentStoreId) throws NoTrobatException {
-		return delegate.arxiuFindOriginal(expedientId, documentStoreId);
+		return delegateService.arxiuFindOriginal(expedientId, documentStoreId);
 	}
-
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<PortasignaturesDto> portasignaturesFindPendents(
 			Long expedientId,
 			String processInstanceId) {
-		return delegate.portasignaturesFindPendents(
+		return delegateService.portasignaturesFindPendents(
 				expedientId,
 				processInstanceId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PortasignaturesDto getPortasignaturesByDocumentStoreId(
-			String processInstanceId, 
+			String processInstanceId,
 			Long documentStoreId) {
-		return delegate.getPortasignaturesByDocumentStoreId(
+		return delegateService.getPortasignaturesByDocumentStoreId(
 				processInstanceId,
 				documentStoreId);
 	}
-	
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -260,7 +263,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi) {
-		return delegate.generarAmbPlantilla(
+		return delegateService.generarAmbPlantilla(
 				expedientId,
 				processInstanceId,
 				documentCodi);
@@ -273,7 +276,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			String processInstanceId,
 			String documentCodi,
 			String arxiuNom) {
-		return delegate.isExtensioPermesa(
+		return delegateService.isExtensioPermesa(
 				expedientId,
 				processInstanceId,
 				documentCodi,
@@ -285,7 +288,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public ArxiuDto generarAmbPlantillaPerTasca(
 			String tascaId,
 			String documentCodi) {
-		return delegate.generarAmbPlantillaPerTasca(
+		return delegateService.generarAmbPlantillaPerTasca(
 				tascaId,
 				documentCodi);
 	}
@@ -296,7 +299,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			String tascaId,
 			Long documentId,
 			String arxiuNom) {
-		return delegate.isExtensioPermesaPerTasca(
+		return delegateService.isExtensioPermesaPerTasca(
 				tascaId,
 				documentId,
 				arxiuNom);
@@ -305,47 +308,46 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId) {
-		return delegate.verificarSignatura(documentStoreId);
+		return delegateService.verificarSignatura(documentStoreId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId) {
-		return delegate.getPortasignaturesByDocumentId(documentId);
+		return delegateService.getPortasignaturesByDocumentId(documentId);
 	}
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<PortasignaturesDto> getPortasignaturesByProcessInstanceAndDocumentStoreId(String processInstanceId, Long documentStoreId) {
-        return delegate.getPortasignaturesByProcessInstanceAndDocumentStoreId(processInstanceId, documentStoreId);
+        return delegateService.getPortasignaturesByProcessInstanceAndDocumentStoreId(processInstanceId, documentStoreId);
     }
-
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto findArxiuAmbTokenPerMostrar(
 			String token) throws NoTrobatException {
-		return delegate.findArxiuAmbTokenPerMostrar(token);
+		return delegateService.findArxiuAmbTokenPerMostrar(token);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto findArxiuAmbTokenPerSignar(
 			String token) throws NoTrobatException {
-		return delegate.findArxiuAmbTokenPerSignar(token);
+		return delegateService.findArxiuAmbTokenPerSignar(token);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto findDocumentAmbId(
 			Long documentStoreId) throws NoTrobatException {
-		return delegate.findDocumentAmbId(documentStoreId);
+		return delegateService.findDocumentAmbId(documentStoreId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public DocumentDetallDto getDocumentDetalls(Long expedientId, Long documentStoreId) {
-        return delegate.getDocumentDetalls(expedientId, documentStoreId);
+        return delegateService.getDocumentDetalls(expedientId, documentStoreId);
     }
 
     @Override
@@ -354,38 +356,38 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId) {
-		return delegate.getArxiuDetall(
+		return delegateService.getArxiuDetall(
 				expedientId,
 				processInstanceId,
 				documentStoreId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void notificacioActualitzarEstat(
-			String identificador, 
+			String identificador,
 			String referenciaEnviament) {
-		delegate.notificacioActualitzarEstat(identificador, referenciaEnviament);
+		delegateService.notificacioActualitzarEstat(identificador, referenciaEnviament);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DadesNotificacioDto notificarDocument(
-			Long expedientId, 
-			Long documentStoreId, 
+			Long expedientId,
+			Long documentStoreId,
 			List<DocumentStoreDto> documentsDinsZip,
 			DadesNotificacioDto dadesNotificacioDto,
 			Long interessatsId,
 			Long representantId) {
-		return delegate.notificarDocument(expedientId, documentStoreId, documentsDinsZip, dadesNotificacioDto, interessatsId, representantId);		
+		return delegateService.notificarDocument(expedientId, documentStoreId, documentsDinsZip, dadesNotificacioDto, interessatsId, representantId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
-			String filtre, 
+			String filtre,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findNotificacionsPerDatatable(
+		return delegateService.findNotificacionsPerDatatable(
 				filtre,
 				paginacioParams);
 	}
@@ -393,29 +395,29 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuFirmaDto getArxiuFirma(Long expedientId, Long documentStoreId, int firmaIndex) {
-		return delegate.getArxiuFirma(expedientId, documentStoreId, firmaIndex);
+		return delegateService.getArxiuFirma(expedientId, documentStoreId, firmaIndex);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void migrarArxiu(Long expedientId, Long documentStoreId) throws NoTrobatException, PermisDenegatException {
-		delegate.migrarArxiu(expedientId, documentStoreId);
+		delegateService.migrarArxiu(expedientId, documentStoreId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void trySincronitzarArxiu(
 			Long expedientId,
 			Long documentStoreId) {
-		delegate.trySincronitzarArxiu(expedientId, documentStoreId);
+		delegateService.trySincronitzarArxiu(expedientId, documentStoreId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public Set<Long> findIdsDocumentsByExpedient(Long expedientId) {
-        return delegate.findIdsDocumentsByExpedient(expedientId);
+        return delegateService.findIdsDocumentsByExpedient(expedientId);
     }
-    	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void processarFirmaClient(
@@ -424,34 +426,34 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long documentStoreId,
 			String arxiuNom,
 			byte[] contingutFirmat) throws PermisDenegatException {
-		delegate.processarFirmaClient(expedientId, processInstanceId, documentStoreId, arxiuNom, contingutFirmat);
+		delegateService.processarFirmaClient(expedientId, processInstanceId, documentStoreId, arxiuNom, contingutFirmat);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void enviarPortasignatures(
-			DocumentDto document, 
-			List<DocumentDto> annexos, 
-			ExpedientDto expedient, 
-			String importancia, 
-			Date dataLimit, 
+			DocumentDto document,
+			List<DocumentDto> annexos,
+			ExpedientDto expedient,
+			String importancia,
+			Date dataLimit,
 			Long tokenId,
-			Long processInstanceId, 
-			String transicioOK, 
-			String transicioKO, 
+			Long processInstanceId,
+			String transicioOK,
+			String transicioKO,
 			PortafirmesSimpleTipusEnumDto portafirmesTipus,
-			String[] responsables, 
+			String[] responsables,
 			String portafirmesFluxId,
 			PortafirmesTipusEnumDto fluxTipus) throws SistemaExternException {
-		delegate.enviarPortasignatures(
-				document, 
-				annexos, 
-				expedient, 
-				importancia, 
-				dataLimit, 
-				tokenId, 
-				processInstanceId, 
-				transicioOK, 
+		delegateService.enviarPortasignatures(
+				document,
+				annexos,
+				expedient,
+				importancia,
+				dataLimit,
+				tokenId,
+				processInstanceId,
+				transicioOK,
 				transicioKO,
 				portafirmesTipus,
 				responsables,
@@ -462,66 +464,67 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void portafirmesCancelar(Integer documentId) throws SistemaExternException {
-		delegate.portafirmesCancelar(documentId);		
+		delegateService.portafirmesCancelar(documentId);
 	}
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<DocumentInfoDto> getDocumentsNoUtilitzatsPerEstats(Long expedientId) {
-        return delegate.getDocumentsNoUtilitzatsPerEstats(expedientId);
+        return delegateService.getDocumentsNoUtilitzatsPerEstats(expedientId);
     }
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public String firmaSimpleWebStart(PersonaDto persona, ArxiuDto arxiu, String signId, String motiu, String lloc, String urlRetorn) {
-		return delegate.firmaSimpleWebStart(persona, arxiu, signId, motiu, lloc, urlRetorn);
+		return delegateService.firmaSimpleWebStart(persona, arxiu, signId, motiu, lloc, urlRetorn);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaResultatDto firmaSimpleWebEnd(String transactionID) {
-		return delegate.firmaSimpleWebEnd(transactionID);
+		return delegateService.firmaSimpleWebEnd(transactionID);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientFinalitzarDto findDocumentsFinalitzar(Long expedientId) throws Exception {
-		return delegate.findDocumentsFinalitzar(expedientId);
+		return delegateService.findDocumentsFinalitzar(expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean validarFinalitzaExpedient(Long expedientId) throws Exception {
-		return delegate.validarFinalitzaExpedient(expedientId);
+		return delegateService.validarFinalitzaExpedient(expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto generarIndexExpedient(Long expedientId) throws Exception {
-		return delegate.generarIndexExpedient(expedientId);
+		return delegateService.generarIndexExpedient(expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto exportarEniDocumentsAmbIndex(Long expedientId) throws Exception {
-		return delegate.exportarEniDocumentsAmbIndex(expedientId);
+		return delegateService.exportarEniDocumentsAmbIndex(expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto exportarEniExpedient(Long expedientId) throws Exception {
-		return delegate.exportarEniExpedient(expedientId);
+		return delegateService.exportarEniExpedient(expedientId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void migrateDocument(Long expedientId, Long documentStoreId) {
-		delegate.migrateDocument(expedientId, documentStoreId);
+		delegateService.migrateDocument(expedientId, documentStoreId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void firmaServidor(String processInstanceId, Long documentStoreId, String motiu, byte[] arxiuContingut) {
-		delegate.firmaServidor(processInstanceId, documentStoreId, motiu, arxiuContingut);
+		delegateService.firmaServidor(processInstanceId, documentStoreId, motiu, arxiuContingut);
 	}
+
 }

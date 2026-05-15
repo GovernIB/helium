@@ -4,7 +4,8 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.InteressatDto;
 import es.caib.helium.commons.dto.PaginaDto;
@@ -12,14 +13,17 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.ExpedientInteressatService;
 
 /**
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class ExpedientInteressatServiceBean implements ExpedientInteressatService {
+public class ExpedientInteressatServiceBean extends AbstractServiceEjb<ExpedientInteressatService> implements ExpedientInteressatService {
 
-	@Autowired ExpedientInteressatService delegate;
+	@Delegate ExpedientInteressatService delegateService;
+
+	protected void setDelegateService(ExpedientInteressatService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -27,9 +31,9 @@ public class ExpedientInteressatServiceBean implements ExpedientInteressatServic
 	@Override
 	public PaginaDto<InteressatDto> findPerDatatable(
 			Long expedientId,
-			String filtre, 
+			String filtre,
 			PaginacioParamsDto paginacioParams){
-		return delegate.findPerDatatable(
+		return delegateService.findPerDatatable(
 				expedientId,
 				filtre,
 				paginacioParams);
@@ -37,58 +41,59 @@ public class ExpedientInteressatServiceBean implements ExpedientInteressatServic
 
 	@Override
 	public InteressatDto create(InteressatDto interessat) {
-		return delegate.create(
+		return delegateService.create(
 				interessat);
 	}
 
 	@Override
 	public InteressatDto update(InteressatDto interessat) {
-		return delegate.update(interessat);
+		return delegateService.update(interessat);
 	}
 
 	@Override
 	public InteressatDto findOne(Long interessatId) {
-		return delegate.findOne(interessatId);
+		return delegateService.findOne(interessatId);
 	}
 
 	@Override
 	public InteressatDto delete(Long interessatId) {
-		return delegate.delete(interessatId);
+		return delegateService.delete(interessatId);
 	}
 
 	@Override
 	public List<InteressatDto> findByExpedient(Long expedientId) {
-		return delegate.findByExpedient(expedientId);
+		return delegateService.findByExpedient(expedientId);
 	}
 
 	@Override
 	public InteressatDto findAmbCodiAndExpedientId(String codi, Long expedientId) {
-		return delegate.findAmbCodiAndExpedientId(codi, expedientId);
+		return delegateService.findAmbCodiAndExpedientId(codi, expedientId);
 	}
 
 	@Override
 	public List<String> checkMidaCampsNotificacio(List<Long> idsInteressats) {
-		return delegate.checkMidaCampsNotificacio(idsInteressats);
+		return delegateService.checkMidaCampsNotificacio(idsInteressats);
 	}
 
 	@Override
 	public InteressatDto findByCodi(String codi) {
-		return delegate.findByCodi(codi);
+		return delegateService.findByCodi(codi);
 	}
 
 	@Override
 	public InteressatDto createRepresentant(Long interessatId, InteressatDto representant) {
-		return delegate.createRepresentant(interessatId, representant);
+		return delegateService.createRepresentant(interessatId, representant);
 	}
 
 	@Override
 	public List<InteressatDto> findRepresentantsExpedient(Long expedientId) {
-		return delegate.findRepresentantsExpedient(expedientId);
+		return delegateService.findRepresentantsExpedient(expedientId);
 	}
 
 	@Override
 	public void deleteOrUnassignRepresentant(Long representantId, Long interessatId) {
-		delegate.deleteOrUnassignRepresentant(representantId, interessatId);
-		
+		delegateService.deleteOrUnassignRepresentant(representantId, interessatId);
+
 	}
+
 }

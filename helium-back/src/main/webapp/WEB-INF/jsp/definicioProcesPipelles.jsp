@@ -7,13 +7,13 @@
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
-<c:set var="potDissenyarDefinicioProcesAdmin" value="${potAdministrarEntorn 
-														or potDissenyarEntorn 
-														or definicioProces.expedientTipus.permisAdministration 
+<c:set var="potDissenyarDefinicioProcesAdmin" value="${potAdministrarEntorn
+														or potDissenyarEntorn
+														or definicioProces.expedientTipus.permisAdministration
 														or definicioProces.expedientTipus.permisDesignAdmin}"/>
-<c:set var="potDissenyarDefinicioProcesDeleg" value="${potAdministrarEntorn 
-														or potDissenyarEntorn 
-														or definicioProces.expedientTipus.permisAdministration 
+<c:set var="potDissenyarDefinicioProcesDeleg" value="${potAdministrarEntorn
+														or potDissenyarEntorn
+														or definicioProces.expedientTipus.permisAdministration
 														or definicioProces.expedientTipus.permisDesignAdmin
 														or definicioProces.expedientTipus.permisDesignDeleg}"/>
 
@@ -108,7 +108,7 @@
 	var hidWidth;
 	var scrollBarWidths = 40;
 
-	$(document).ready(function() {		
+	$(document).ready(function() {
 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 			var targetHref = $(e.target).attr('href');
 			var loaded = $(targetHref).data('loaded')
@@ -120,7 +120,7 @@
 			<c:when test="${not empty pipellaActiva}">$('#definicioProces-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
 			<c:otherwise>$('#definicioProces-pipelles li:first a').click();</c:otherwise>
 		</c:choose>
-		
+
 		$(window).on('resize', function(e) {
 			reAdjust();
 		});
@@ -148,15 +148,15 @@
 
 			});
 		});
-		
-		reAdjust();		
+
+		reAdjust();
 	});
-	
+
 	function carregaTab(targetHref) {
 		//mostrem cada cop l'icona de càrrega
-		$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>'); 
+		$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>');
 		///////////////
-		
+
 		$(targetHref).load(
 			$(targetHref).data('href'),
 			function (responseText, textStatus, jqXHR) {
@@ -167,8 +167,8 @@
 				}
 			}
 		);
-	}	
-	
+	}
+
 	var widthOfList = function() {
 		var itemsWidth = 0;
 		$('.pipelles li').each(function() {
@@ -186,7 +186,7 @@
 	var getLeftPosi = function() {
 		if ($('.pipelles').size() > 0)
 			return $('.pipelles').position().left;
-		else 
+		else
 			return 0;
 	};
 
@@ -207,12 +207,12 @@
 		}
 	}
 </script>
-	
+
 </head>
 <body>
-														
+
 <c:choose>
-	<c:when test="${not empty definicioProces and potDissenyarDefinicioProcesDeleg}">		
+	<c:when test="${not empty definicioProces and potDissenyarDefinicioProcesDeleg}">
 
 		<form class="well" style="padding-top: 10px; padding-bottom:10px;">
 			<div class="row">
@@ -249,6 +249,7 @@
 					<c:if test="${potDissenyarDefinicioProcesAdmin}">
 						<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.terminis"/></a></li>
 						<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.accions"/></a></li>
+						<li id="pipella-editor"><a href="#contingut-editor" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.editor"/></a></li>
 						<li id="pipella-recursos"><a href="#contingut-recursos" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.recursos"/></a></li>
 					</c:if>
 				</ul>
@@ -272,6 +273,9 @@
 				<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/accions"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
+				<div id="contingut-editor" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/editor"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>
 				<div id="contingut-recursos" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/recurs"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
@@ -291,6 +295,7 @@
 					$('#contingut-documents').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/documents');
 					$('#contingut-terminis').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/terminis');
 					$('#contingut-accions').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/accions');
+					$('#contingut-editor').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/editor');
 					$('#contingut-recursos').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/recurs');
 					$('#accioExportarDiv').remove();
 					$('#accioExportar').attr('href',  '<c:url value="/definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId="/>'+definicioProcesId );

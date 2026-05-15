@@ -1,6 +1,3 @@
-/**
- *
- */
 package es.caib.helium.ejb;
 
 import java.util.List;
@@ -10,7 +7,8 @@ import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
@@ -35,47 +33,49 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.logic.intf.service.DissenyService;
 
-
 /**
  * Servei que proporciona la funcionalitat de disseny d'expedients.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class DissenyServiceBean implements DissenyService {
+public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> implements DissenyService {
 
-	@Autowired
-	DissenyService delegate;
+	@Delegate
+	DissenyService delegateService;
+
+	protected void setDelegateService(DissenyService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId) {
-		return delegate.findAccionsJbpmOrdenades(definicioProcesId);
+		return delegateService.findAccionsJbpmOrdenades(definicioProcesId);
 	}
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<String> findHandlersJbpmOrdenats(Long definicioProcesId) {
-        return delegate.findHandlersJbpmOrdenats(definicioProcesId);
+        return delegateService.findHandlersJbpmOrdenats(definicioProcesId);
     }
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler) {
-        return delegate.findHandlerParams(definicioProcesId, handler);
+        return delegateService.findHandlerParams(definicioProcesId, handler);
     }
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<String> findHandlersRecursos(Long expedientTipusId) {
-		return delegate.findHandlersRecursos(expedientTipusId);
+		return delegateService.findHandlersRecursos(expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ParellaCodiValorDto> findHandlerRecursParams(Long expedientTipusId, String nomClasse) {
-		return delegate.findHandlerRecursParams(expedientTipusId, nomClasse);
+		return delegateService.findHandlerRecursParams(expedientTipusId, nomClasse);
 	}
 
     /**
@@ -87,7 +87,7 @@ public class DissenyServiceBean implements DissenyService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisReadUsuariActual(Long entornId) {
-		return delegate.findExpedientTipusAmbPermisReadUsuariActual(entornId);
+		return delegateService.findExpedientTipusAmbPermisReadUsuariActual(entornId);
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class DissenyServiceBean implements DissenyService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisDissenyUsuariActual(Long entornId) {
-		return delegate.findExpedientTipusAmbPermisDissenyUsuariActual(entornId);
+		return delegateService.findExpedientTipusAmbPermisDissenyUsuariActual(entornId);
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class DissenyServiceBean implements DissenyService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisGestioUsuariActual(Long entornId) {
-		return delegate.findExpedientTipusAmbPermisGestioUsuariActual(entornId);
+		return delegateService.findExpedientTipusAmbPermisGestioUsuariActual(entornId);
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class DissenyServiceBean implements DissenyService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(Long entornId) {
-		return delegate.findExpedientTipusAmbPermisCrearUsuariActual(entornId);
+		return delegateService.findExpedientTipusAmbPermisCrearUsuariActual(entornId);
 	}
 
 	@Override
@@ -139,85 +139,84 @@ public class DissenyServiceBean implements DissenyService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public byte[] getDeploymentResource(Long id, String recursForm) {
-		return delegate.getDeploymentResource(id, recursForm);
+		return delegateService.getDeploymentResource(id, recursForm);
 	}
 
 	public ExpedientTipusDto getExpedientTipusById(Long id) {
-		return delegate.getExpedientTipusById(id);
+		return delegateService.getExpedientTipusById(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto getById(Long id) {
-		return delegate.getById(id);
+		return delegateService.getById(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId) {
-		return delegate.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+		return delegateService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornId) {
-		return delegate.findExpedientTipusAmbEntorn(entornId);
+		return delegateService.findExpedientTipusAmbEntorn(entornId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ConsultaDto> findConsultesActivesAmbEntornIExpedientTipusOrdenat(Long entornId, Long expedientTipusId) {
-		return delegate.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornId, expedientTipusId);
+		return delegateService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornId, expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ConsultaDto findConsulteById(Long id) {
-		return delegate.findConsulteById(id);
+		return delegateService.findConsulteById(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampDto> findCampsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId, boolean herencia) {
-		return delegate.findCampsOrdenatsPerCodi(expedientTipusId, definicioProcesId, herencia);
+		return delegateService.findCampsOrdenatsPerCodi(expedientTipusId, definicioProcesId, herencia);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesExpedientDto getDefinicioProcesByEntorIdAndProcesId(Long entornId, Long procesId) {
-		return delegate.getDefinicioProcesByEntorIdAndProcesId(entornId, procesId);
+		return delegateService.getDefinicioProcesByEntorIdAndProcesId(entornId, procesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findDarreraVersioForExpedientTipusIDefProcCodi(Long expedientTipusId, String defProcCodi)
 			throws NoTrobatException {
-		return delegate.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, defProcCodi);
+		return delegateService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, defProcCodi);
 	}
-
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId) {
-		return delegate.getDefinicioProcesByTipusExpedientById(expedientTipusId);
+		return delegateService.getDefinicioProcesByTipusExpedientById(expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(Long expedientTipusId, String jbpmId) {
-		return delegate.getSubprocessosByProces(expedientTipusId, jbpmId);
+		return delegateService.getSubprocessosByProces(expedientTipusId, jbpmId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AreaDto findAreaById(Long areaId) {
-		return delegate.findAreaById(areaId);
+		return delegateService.findAreaById(areaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) {
-		return delegate.getByVersionsInstanciaProcesById(processInstanceId);
+		return delegateService.getByVersionsInstanciaProcesById(processInstanceId);
 	}
 
 	@Override
@@ -225,7 +224,7 @@ public class DissenyServiceBean implements DissenyService {
 	public List<ParellaCodiValorDto> findTasquesAmbEntornIExpedientTipusPerSeleccio(
 			Long entornId,
 			Long expedientTipusId) {
-		return delegate.findTasquesAmbEntornIExpedientTipusPerSeleccio(
+		return delegateService.findTasquesAmbEntornIExpedientTipusPerSeleccio(
 				entornId,
 				expedientTipusId);
 	}
@@ -235,48 +234,47 @@ public class DissenyServiceBean implements DissenyService {
 	public List<FilaResultat> consultaDominiIntern(
 			String id,
 			List<ParellaCodiValor> parametres) throws Exception {
-		return delegate.consultaDominiIntern(id, parametres);
+		return delegateService.consultaDominiIntern(id, parametres);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto documentFindOne(
 			Long documentId) throws NoTrobatException {
-		return delegate.documentFindOne(documentId);
+		return delegateService.documentFindOne(documentId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DocumentDto> documentFindAmbDefinicioProces(
 			Long definicioProcesId) throws NoTrobatException {
-		return delegate.documentFindAmbDefinicioProces(definicioProcesId);
+		return delegateService.documentFindAmbDefinicioProces(definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Set<String> getRecursosNom(Long definicioProcesId) {
-		return delegate.getRecursosNom(definicioProcesId);
+		return delegateService.getRecursosNom(definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public byte[] getRecursContingut(Long definicioProcesId, String nom) {
-		return delegate.getRecursContingut(definicioProcesId, nom);
+		return delegateService.getRecursContingut(definicioProcesId, nom);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public byte[] getParContingut(Long definicioProcesId) {
-		return delegate.getParContingut(definicioProcesId);
+		return delegateService.getParContingut(definicioProcesId);
 	}
-
 
 	public PaginaDto<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesExpedientTipus(
 			Long entornId,
 			Long expedientTipusId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findDefinicionsProcesNoUtilitzadesExpedientTipus(
+		return delegateService.findDefinicionsProcesNoUtilitzadesExpedientTipus(
 				entornId,
 				expedientTipusId,
 				filtre,
@@ -288,7 +286,7 @@ public class DissenyServiceBean implements DissenyService {
 	public List<Long> findIdsDefinicionsProcesNoUtilitzadesExpedientTipus(
 			Long entornId,
 			Long expedientTipusId) {
-		return delegate.findIdsDefinicionsProcesNoUtilitzadesExpedientTipus(
+		return delegateService.findIdsDefinicionsProcesNoUtilitzadesExpedientTipus(
 				entornId,
 				expedientTipusId);
 	}
@@ -300,7 +298,7 @@ public class DissenyServiceBean implements DissenyService {
 			Long expedientTipusId,
 			Long jbpmId,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		return delegateService.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				entornId,
 				expedientTipusId,
 				jbpmId,
@@ -313,7 +311,7 @@ public class DissenyServiceBean implements DissenyService {
 			Long entornId,
 			Long expedientTipusId,
 			Long jbpmId) {
-		return delegate.findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		return delegateService.findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				entornId,
 				expedientTipusId,
 				jbpmId);
@@ -322,13 +320,13 @@ public class DissenyServiceBean implements DissenyService {
 	public DominiDto dominiFindAmbCodi(
 			Long entornId,
 			String codiDomini) {
-		return delegate.dominiFindAmbCodi(entornId, codiDomini);
+		return delegateService.dominiFindAmbCodi(entornId, codiDomini);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto updateHandlers(Long entornId, Long expedientTipusId, String nomArxiu, byte[] contingut) {
-		return delegate.updateHandlers(entornId, expedientTipusId, nomArxiu, contingut);
+		return delegateService.updateHandlers(entornId, expedientTipusId, nomArxiu, contingut);
 	}
 
 	@Override
@@ -336,38 +334,38 @@ public class DissenyServiceBean implements DissenyService {
 	public void propagarHandlers(
 			Long idDefinicioProcesOrigen,
 			List<Long> idsDefinicioProcesDesti) {
-		delegate.propagarHandlers(idDefinicioProcesOrigen, idsDefinicioProcesDesti);
+		delegateService.propagarHandlers(idDefinicioProcesOrigen, idsDefinicioProcesDesti);
 	}
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<String> updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
-        return delegate.updateHandlersAccions(expedientTipusId, nomArxiu, contingut);
+        return delegateService.updateHandlersAccions(expedientTipusId, nomArxiu, contingut);
     }
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesExportacio getDefinicioProcesExportacioFromContingut(String fitxer, byte[] contingut) {
-		return delegate.getDefinicioProcesExportacioFromContingut(fitxer, contingut);
+		return delegateService.getDefinicioProcesExportacioFromContingut(fitxer, contingut);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DocumentDto> findDocumentsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId)
 			throws NoTrobatException {
-		return delegate.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
+		return delegateService.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DocumentDto> findDocumentsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId, boolean herencia) {
-		return delegate.findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId, herencia);
+		return delegateService.findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId, herencia);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ConsultaDto getConsultaById(Long id) {
-		return delegate.getConsultaById(id);
+		return delegateService.getConsultaById(id);
 	}
 
 	@Override
@@ -375,36 +373,37 @@ public class DissenyServiceBean implements DissenyService {
 	public List<ConsultaCampDto> findCampsInformePerCampsConsulta(
 			ConsultaDto consulta,
 			boolean filtrarValorsPredefinits){
-		return delegate.findCampsInformePerCampsConsulta(consulta, filtrarValorsPredefinits);
+		return delegateService.findCampsInformePerCampsConsulta(consulta, filtrarValorsPredefinits);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<FilaResultat> consultaDomini(Long id, String codiDomini, Map<String, Object> parametres) {
-		return delegate.consultaDomini(id, codiDomini, parametres);
+		return delegateService.consultaDomini(id, codiDomini, parametres);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<HandlerDto> getHandlersPredefinits() {
-		return delegate.getHandlersPredefinits();
+		return delegateService.getHandlersPredefinits();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DefinicioProcesDto> findByEntornAndExpedientTipusOpcional(Long entornId, Long expedientTipusId) {
-		return delegate.findByEntornAndExpedientTipusOpcional(entornId, expedientTipusId);
+		return delegateService.findByEntornAndExpedientTipusOpcional(entornId, expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientDocumentPinbalDto findDocumentPinbalByExpedient(Long expedientId, Long documentId) {
-		return delegate.findDocumentPinbalByExpedient(expedientId, documentId);
+		return delegateService.findDocumentPinbalByExpedient(expedientId, documentId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findExpedientTipusBySistraTramitCodi(String sistraTramitCodi) {
-		return delegate.findExpedientTipusBySistraTramitCodi(sistraTramitCodi);
+		return delegateService.findExpedientTipusBySistraTramitCodi(sistraTramitCodi);
 	}
+
 }

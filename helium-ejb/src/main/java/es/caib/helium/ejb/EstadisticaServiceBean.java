@@ -6,10 +6,12 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
+
 import es.caib.comanda.model.server.monitoring.DimensioDesc;
 import es.caib.comanda.model.server.monitoring.IndicadorDesc;
 import es.caib.comanda.model.server.monitoring.RegistresEstadistics;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import es.caib.helium.logic.intf.service.EstadisticaService;
 
@@ -19,58 +21,61 @@ import es.caib.helium.logic.intf.service.EstadisticaService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class EstadisticaServiceBean implements EstadisticaService {
+public class EstadisticaServiceBean extends AbstractServiceEjb<EstadisticaService> implements EstadisticaService {
 
-	@Autowired
-	private EstadisticaService delegate;
+	@Delegate
+	private EstadisticaService delegateService;
+
+	protected void setDelegateService(EstadisticaService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean generarDadesExplotacio() {
-		return delegate.generarDadesExplotacio();
+		return delegateService.generarDadesExplotacio();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean generarDadesExplotacio(Date data) {
-		return delegate.generarDadesExplotacio(data);
+		return delegateService.generarDadesExplotacio(data);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void generarDadesExplotacio(Date data, Date toDate) {
-		delegate.generarDadesExplotacio(data, toDate);
+		delegateService.generarDadesExplotacio(data, toDate);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public RegistresEstadistics consultaDarreresEstadistiques() {
-		return delegate.consultaDarreresEstadistiques();
+		return delegateService.consultaDarreresEstadistiques();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public RegistresEstadistics consultaEstadistiques(Date data) {
-		return delegate.consultaEstadistiques(data);
+		return delegateService.consultaEstadistiques(data);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<RegistresEstadistics> consultaEstadistiques(Date dataInici, Date dataFi) {
-		return delegate.consultaEstadistiques(dataInici, dataFi);
+		return delegateService.consultaEstadistiques(dataInici, dataFi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DimensioDesc> getDimensions() {
-		return delegate.getDimensions();
+		return delegateService.getDimensions();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<IndicadorDesc> getIndicadors() {
-		return delegate.getIndicadors();
+		return delegateService.getIndicadors();
 	}
 
 }

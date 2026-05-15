@@ -5,7 +5,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.MonitorTascaInfo;
 import es.caib.helium.logic.intf.service.MonitorTasquesService;
@@ -13,65 +14,66 @@ import es.caib.helium.logic.intf.service.MonitorTasquesService;
 /**
  * Implementació de AvisService com a EJB que empra una clase
  * delegada per accedir a la funcionalitat del servei.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class MonitorTasquesServiceBean implements MonitorTasquesService {
+public class MonitorTasquesServiceBean extends AbstractServiceEjb<MonitorTasquesService> implements MonitorTasquesService {
 
-	@Autowired
-	MonitorTasquesService delegate;
-	
+	@Delegate
+	MonitorTasquesService delegateService;
+
+	protected void setDelegateService(MonitorTasquesService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public MonitorTascaInfo addTasca(String codiTasca) {
-		return delegate.addTasca(codiTasca);
+		return delegateService.addTasca(codiTasca);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void updateProperaExecucio(String codi, Long plusValue) {
-		delegate.updateProperaExecucio(codi, plusValue);		
+		delegateService.updateProperaExecucio(codi, plusValue);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<MonitorTascaInfo> findAll() {
-		return delegate.findAll();
+		return delegateService.findAll();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public MonitorTascaInfo findByCodi(String codi) {
-		return delegate.findByCodi(codi);
+		return delegateService.findByCodi(codi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void inici(String codiTasca) {
-		delegate.inici(codiTasca);	
+		delegateService.inici(codiTasca);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void fi(String codiTasca) {
-		delegate.fi(codiTasca);
+		delegateService.fi(codiTasca);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void error(String codiTasca, String error) {
-		delegate.error(codiTasca, error);		
+		delegateService.error(codiTasca, error);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void reiniciarTasquesEnSegonPla(String codiTasca) {
-		delegate.reiniciarTasquesEnSegonPla(codiTasca);
+		delegateService.reiniciarTasquesEnSegonPla(codiTasca);
 	}
-
 
 }

@@ -1,6 +1,3 @@
-/**
- *
- */
 package es.caib.helium.ejb;
 
 import java.util.List;
@@ -8,7 +5,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.CampTascaDto;
 import es.caib.helium.commons.dto.ConsultaDto;
@@ -31,15 +29,19 @@ import es.caib.helium.logic.intf.service.DefinicioProcesService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-public class DefinicioProcesServiceBean implements DefinicioProcesService {
+public class DefinicioProcesServiceBean extends AbstractServiceEjb<DefinicioProcesService> implements DefinicioProcesService {
 
-	@Autowired
-	private DefinicioProcesService delegate;
+	@Delegate
+	private DefinicioProcesService delegateService;
+
+	protected void setDelegateService(DefinicioProcesService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findByEntornTipusIdAndJbpmKey(Long entornId, Long expedientTipusId, String jbpmKey) {
-		return delegate.findByEntornTipusIdAndJbpmKey(entornId, expedientTipusId, jbpmKey);
+		return delegateService.findByEntornTipusIdAndJbpmKey(entornId, expedientTipusId, jbpmKey);
 	}
 
 	@Override
@@ -51,13 +53,13 @@ public class DefinicioProcesServiceBean implements DefinicioProcesService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DefinicioProcesDto> findAll(Long entornId, Long expedientTipusId, boolean incloureGlobals) {
-		return delegate.findAll(entornId, expedientTipusId, incloureGlobals);
+		return delegateService.findAll(entornId, expedientTipusId, incloureGlobals);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findById(Long definicioProcesId) {
-		return delegate.findById(definicioProcesId);
+		return delegateService.findById(definicioProcesId);
 	}
 
 	@Override
@@ -68,7 +70,13 @@ public class DefinicioProcesServiceBean implements DefinicioProcesService {
 			boolean incloureGlobals,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findPerDatatable(entornId, expedientTipusId, incloureGlobals, filtre, paginacioParams);
+		return delegateService.findPerDatatable(entornId, expedientTipusId, incloureGlobals, filtre, paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public String getXml(Long entornId, Long definicioProcesId) {
+		return delegateService.getXml(entornId, definicioProcesId);
 	}
 
 	@Override
@@ -77,7 +85,7 @@ public class DefinicioProcesServiceBean implements DefinicioProcesService {
 			Long entornId,
 			Long definicioProcesId,
 			DefinicioProcesExportacioCommandDto command) {
-		return delegate.exportar(entornId, definicioProcesId, command);
+		return delegateService.exportar(entornId, definicioProcesId, command);
 	}
 
 	@Override
@@ -88,237 +96,237 @@ public class DefinicioProcesServiceBean implements DefinicioProcesService {
 			Long definicioProcesId,
 			DefinicioProcesExportacioCommandDto command,
 			DefinicioProcesExportacio importacio) {
-		return delegate.importar(entornId, expedientTipusId, definicioProcesId, command, importacio);
+		return delegateService.importar(entornId, expedientTipusId, definicioProcesId, command, importacio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(Long entornId, Long definicioProcesId) throws Exception {
-		delegate.delete(entornId, definicioProcesId);
+		delegateService.delete(entornId, definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<TascaDto> tascaFindPerDatatable(Long entornId, Long expedientTipusId, Long definicioProcesId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.tascaFindPerDatatable(entornId, expedientTipusId, definicioProcesId, filtre, paginacioParams);
+		return delegateService.tascaFindPerDatatable(entornId, expedientTipusId, definicioProcesId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public TascaDto tascaFindAmbId(Long expedientTipusId, Long tascaId) throws NoTrobatException {
-		return delegate.tascaFindAmbId(expedientTipusId, tascaId);
+		return delegateService.tascaFindAmbId(expedientTipusId, tascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDto> tascaFindAll(Long definicioProcesId) {
-		return delegate.tascaFindAll(definicioProcesId);
+		return delegateService.tascaFindAll(definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto tascaFindDefinicioProcesDeTasca(Long tascaId) {
-		return delegate.tascaFindDefinicioProcesDeTasca(tascaId);
+		return delegateService.tascaFindDefinicioProcesDeTasca(tascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public TascaDto tascaUpdate(TascaDto tasca) throws NoTrobatException, PermisDenegatException {
-		return delegate.tascaUpdate(tasca);
+		return delegateService.tascaUpdate(tasca);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampTascaDto tascaCampCreate(Long tascaId, CampTascaDto tascaCamp) throws PermisDenegatException {
-		return delegate.tascaCampCreate(tascaId, tascaCamp);
+		return delegateService.tascaCampCreate(tascaId, tascaCamp);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampTascaDto tascaCampUpdate(CampTascaDto tascaCamp) throws NoTrobatException, PermisDenegatException {
-		return delegate.tascaCampUpdate(tascaCamp);
+		return delegateService.tascaCampUpdate(tascaCamp);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void tascaCampDelete(Long id) throws NoTrobatException, PermisDenegatException {
-		delegate.tascaCampDelete(id);
+		delegateService.tascaCampDelete(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<CampTascaDto> tascaCampFindPerDatatable(Long tascaId, Long expedientTipusId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.tascaCampFindPerDatatable(tascaId, expedientTipusId, filtre, paginacioParams);
+		return delegateService.tascaCampFindPerDatatable(tascaId, expedientTipusId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampTascaDto> tascaCampFindAll(Long expedientTipusId, Long tascaId) {
-		return delegate.tascaCampFindAll(expedientTipusId, tascaId);
+		return delegateService.tascaCampFindAll(expedientTipusId, tascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean tascaCampMourePosicio(Long id, Long expedientTipusId, int posicio) {
-		return delegate.tascaCampMourePosicio(id, expedientTipusId, posicio);
+		return delegateService.tascaCampMourePosicio(id, expedientTipusId, posicio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampTascaDto tascaCampFindById(Long expedientTipusId, Long campTascaId) {
-		return delegate.tascaCampFindById(expedientTipusId, campTascaId);
+		return delegateService.tascaCampFindById(expedientTipusId, campTascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentTascaDto tascaDocumentCreate(Long tascaId, DocumentTascaDto tascaDocument)
 			throws PermisDenegatException {
-		return delegate.tascaDocumentCreate(tascaId, tascaDocument);
+		return delegateService.tascaDocumentCreate(tascaId, tascaDocument);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentTascaDto tascaDocumentUpdate(DocumentTascaDto tascaDocument)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.tascaDocumentUpdate(tascaDocument);
+		return delegateService.tascaDocumentUpdate(tascaDocument);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void tascaDocumentDelete(Long id) throws NoTrobatException, PermisDenegatException {
-		delegate.tascaDocumentDelete(id);
+		delegateService.tascaDocumentDelete(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<DocumentTascaDto> tascaDocumentFindPerDatatable(Long tascaId, Long expedientTipusId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.tascaDocumentFindPerDatatable(tascaId, expedientTipusId, filtre, paginacioParams);
+		return delegateService.tascaDocumentFindPerDatatable(tascaId, expedientTipusId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DocumentTascaDto> tascaDocumentFindAll(Long expedientTipusId, Long tascaId) {
-		return delegate.tascaDocumentFindAll(expedientTipusId, tascaId);
+		return delegateService.tascaDocumentFindAll(expedientTipusId, tascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean tascaDocumentMourePosicio(Long id, Long expedientTipusId, int posicio) {
-		return delegate.tascaDocumentMourePosicio(id, expedientTipusId, posicio);
+		return delegateService.tascaDocumentMourePosicio(id, expedientTipusId, posicio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentTascaDto tascaDocumentFindById(Long expedientTipusId, Long documentTascaId) {
-		return delegate.tascaDocumentFindById(expedientTipusId, documentTascaId);
+		return delegateService.tascaDocumentFindById(expedientTipusId, documentTascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaTascaDto tascaFirmaCreate(Long tascaId, FirmaTascaDto tascaFirma)
 			throws PermisDenegatException {
-		return delegate.tascaFirmaCreate(tascaId, tascaFirma);
+		return delegateService.tascaFirmaCreate(tascaId, tascaFirma);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaTascaDto tascaFirmaUpdate(FirmaTascaDto tascaFirma)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.tascaFirmaUpdate(tascaFirma);
+		return delegateService.tascaFirmaUpdate(tascaFirma);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void tascaFirmaDelete(Long id) throws NoTrobatException, PermisDenegatException {
-		delegate.tascaFirmaDelete(id);
+		delegateService.tascaFirmaDelete(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<FirmaTascaDto> tascaFirmaFindPerDatatable(Long tascaId, Long expedientTipusId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.tascaFirmaFindPerDatatable(tascaId, expedientTipusId, filtre, paginacioParams);
+		return delegateService.tascaFirmaFindPerDatatable(tascaId, expedientTipusId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<FirmaTascaDto> tascaFirmaFindAll(Long expedientTipusId, Long tascaId) {
-		return delegate.tascaFirmaFindAll(expedientTipusId, tascaId);
+		return delegateService.tascaFirmaFindAll(expedientTipusId, tascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean tascaFirmaMourePosicio(Long id, Long expedientTipusId, int posicio) {
-		return delegate.tascaFirmaMourePosicio(id, expedientTipusId, posicio);
+		return delegateService.tascaFirmaMourePosicio(id, expedientTipusId, posicio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(Long tascaId, Long documentId, Long expedientTipusId) {
-		return delegate.tascaFirmaFindAmbTascaDocument(tascaId, documentId, expedientTipusId);
+		return delegateService.tascaFirmaFindAmbTascaDocument(tascaId, documentId, expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaTascaDto tascaFirmaFindById(Long expedientTipusId, Long campTascaId) {
-		return delegate.tascaFirmaFindById(expedientTipusId, campTascaId);
+		return delegateService.tascaFirmaFindById(expedientTipusId, campTascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TerminiDto> terminiFindAll(Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
-		return delegate.terminiFindAll(definicioProcesId);
+		return delegateService.terminiFindAll(definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findAmbIdPermisDissenyar(Long entornId, Long definicioProcesId) throws NoTrobatException {
-		return delegate.findAmbIdPermisDissenyar(entornId, definicioProcesId);
+		return delegateService.findAmbIdPermisDissenyar(entornId, definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findAmbIdPermisDissenyarDelegat(Long entornId, Long definicioProcesId) throws NoTrobatException {
-		return delegate.findAmbIdPermisDissenyarDelegat(entornId, definicioProcesId);
+		return delegateService.findAmbIdPermisDissenyarDelegat(entornId, definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ConsultaDto> consultaFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException {
-		return delegate.consultaFindByEntorn(entornId);
+		return delegateService.consultaFindByEntorn(entornId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void copiarDefinicioProces(Long origenId, Long destiId) {
-		delegate.copiarDefinicioProces(origenId, destiId);
+		delegateService.copiarDefinicioProces(origenId, destiId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public String consultarStartTaskName(Long definicioProcesId) {
-		return delegate.consultarStartTaskName(definicioProcesId);
+		return delegateService.consultarStartTaskName(definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void relacionarDarreresVersions(Long expedientTipusId) {
-		delegate.relacionarDarreresVersions(expedientTipusId);
+		delegateService.relacionarDarreresVersions(expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findAmbProcessInstanceId(String processInstanceId) {
-		return delegate.findAmbProcessInstanceId(processInstanceId);
+		return delegateService.findAmbProcessInstanceId(processInstanceId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findByJbpmKeyAndVersio(String defprocJbpmKey, int defprocVersio) {
-		return delegate.findByJbpmKeyAndVersio(defprocJbpmKey, defprocVersio);
+		return delegateService.findByJbpmKeyAndVersio(defprocJbpmKey, defprocVersio);
 	}
 
 }

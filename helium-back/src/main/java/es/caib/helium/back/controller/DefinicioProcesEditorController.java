@@ -1,0 +1,60 @@
+/**
+ *
+ */
+package es.caib.helium.back.controller;
+
+import es.caib.helium.back.helper.*;
+import es.caib.helium.commons.dto.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+
+/**
+ * Controlador per a la pipella de l'editor de la definició de procés.
+ *
+ */
+@Controller(value = "definicioProcesEditorControllerV3")
+@RequestMapping("/definicioProces")
+public class DefinicioProcesEditorController extends BaseDefinicioProcesController {
+
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/editor")
+	public String editor(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			Model model) {
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioDefinicioProcesPerPipelles(
+					request,
+					jbmpKey,
+					definicioProcesId,
+					model,
+					"editor");
+		}
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entornActual != null) {
+			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
+					definicioProcesId);
+			model.addAttribute("definicioProces", definicioProces);
+			model.addAttribute("baseUrl", ("/helium/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+		}
+		return "definicioProcesEditor";
+	}
+
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/editorXml")
+	@ResponseBody
+	public String editorXml(
+		HttpServletRequest request,
+		@PathVariable String jbmpKey,
+		@PathVariable Long definicioProcesId) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entornActual != null) {
+			return definicioProcesService.getXml(entornActual.getId(), definicioProcesId);
+		} else {
+			return null;
+		}
+	}
+
+}

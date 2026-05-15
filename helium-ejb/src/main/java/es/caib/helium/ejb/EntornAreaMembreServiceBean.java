@@ -3,7 +3,8 @@ package es.caib.helium.ejb;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.AreaMembreDto;
 import es.caib.helium.commons.dto.PaginaDto;
@@ -12,38 +13,41 @@ import es.caib.helium.logic.intf.service.EntornAreaMembreService;
 
 /**
  * EJB per a EntornAreaMembreService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class EntornAreaMembreServiceBean implements EntornAreaMembreService {
+public class EntornAreaMembreServiceBean extends AbstractServiceEjb<EntornAreaMembreService> implements EntornAreaMembreService {
 
-	@Autowired
-	EntornAreaMembreService delegate;
+	@Delegate
+	EntornAreaMembreService delegateService;
+
+	protected void setDelegateService(EntornAreaMembreService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<AreaMembreDto> findPerDatatable(Long entornAreaId, PaginacioParamsDto paginacioParams) {
-		return delegate.findPerDatatable(entornAreaId, paginacioParams);
+		return delegateService.findPerDatatable(entornAreaId, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AreaMembreDto create(Long entornId, Long carrecId, AreaMembreDto areaMembre) {
-		return delegate.create(entornId, carrecId, areaMembre);
+		return delegateService.create(entornId, carrecId, areaMembre);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(Long entornAreaId, Long id) {
-		delegate.delete(entornAreaId, id);
+		delegateService.delete(entornAreaId, id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AreaMembreDto findAmbCodiAndAreaId(String codi, Long areaId) {
-		return delegate.findAmbCodiAndAreaId(codi, areaId);
+		return delegateService.findAmbCodiAndAreaId(codi, areaId);
 	}
 
 }

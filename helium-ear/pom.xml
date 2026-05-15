@@ -8,9 +8,6 @@
 	</parent>
 	<artifactId>helium-ear</artifactId>
 	<packaging>ear</packaging>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -106,6 +103,80 @@
 							<bundleFileName>helium-back.war</bundleFileName>
 						</webModule>
 					</modules>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.42.1</version>
+				<configuration>
+					<verbose>true</verbose>
+					<images>
+						<image>
+							<name>${project.parent.artifactId}</name>
+							<alias>${project.parent.artifactId}</alias>
+							<build>
+								<from>280421/jboss-eap-caib-7.2</from>
+								<maintainer>limit@limit.es</maintainer>
+								<ports>
+									<port>8080</port>
+								</ports>
+								<assemblies>
+									<assembly>
+										<name>copy_jboss_config</name>
+										<inline>
+											<fileSets>
+												<fileSet>
+													<directory>
+														${basedir}/src/main/docker/jboss</directory>
+													<outputDirectory>config</outputDirectory>
+												</fileSet>
+											</fileSets>
+										</inline>
+										<targetDir>$JBOSS_USERHOME</targetDir>
+										<user>jboss:nogroup</user>
+									</assembly>
+									<assembly>
+										<name>copy_config_files</name>
+										<inline>
+											<fileSets>
+												<fileSet>
+													<directory>
+														${basedir}/src/main/docker/properties</directory>
+													<outputDirectory>
+														${project.parent.artifactId}</outputDirectory>
+												</fileSet>
+												<fileSet>
+													<directory>
+														${basedir}/src/main/docker/other</directory>
+													<outputDirectory>
+														${project.parent.artifactId}</outputDirectory>
+												</fileSet>
+											</fileSets>
+										</inline>
+										<targetDir>$JBOSS_USERHOME/apps</targetDir>
+										<user>jboss:nogroup</user>
+									</assembly>
+									<assembly>
+										<descriptorRef>artifact</descriptorRef>
+										<targetDir>
+											$JBOSS_HOME/standalone/deployments</targetDir>
+										<user>jboss:nogroup</user>
+									</assembly>
+								</assemblies>
+								<runCmds>
+									<run>mkdir $JBOSS_USERHOME/apps/${project.parent.artifactId}/files</run>
+									<run>chmod a+x $JBOSS_USERHOME/config/jboss_config.sh</run>
+									<run>dos2unix $JBOSS_USERHOME/config/jboss_config.sh</run>
+									<run>sed -i 's~#!/bin/sh~#!/bin/sh\n$JBOSS_USERHOME/config/jboss_config.sh~' $JBOSS_HOME/bin/standalone.sh</run>
+								</runCmds>
+								<tags>
+									<tag>latest</tag>
+									<tag>${project.version}</tag>
+								</tags>
+							</build>
+						</image>
+					</images>
 				</configuration>
 			</plugin>
 		</plugins>

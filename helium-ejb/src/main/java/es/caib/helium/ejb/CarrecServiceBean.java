@@ -3,7 +3,8 @@ package es.caib.helium.ejb;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.CarrecJbpmIdDto;
 import es.caib.helium.commons.dto.PaginaDto;
@@ -12,65 +13,67 @@ import es.caib.helium.logic.intf.service.CarrecService;
 
 /**
  * EJB per a CarrecService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class CarrecServiceBean implements CarrecService {
-	
-	@Autowired
-	CarrecService delegate;
+public class CarrecServiceBean extends AbstractServiceEjb<CarrecService> implements CarrecService {
 
-	
+	@Delegate
+	CarrecService delegateService;
+
+	protected void setDelegateService(CarrecService delegateService) {
+		this.delegateService = delegateService;
+	}
+
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public PaginaDto<CarrecJbpmIdDto> findConfigurats(PaginacioParamsDto paginacioParams) {
-		return delegate.findConfigurats(paginacioParams);
+		return delegateService.findConfigurats(paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public PaginaDto<CarrecJbpmIdDto> findSenseConfigurar(PaginacioParamsDto params) {
 		// TODO Auto-generated method stub
-		return delegate.findSenseConfigurar(params);
+		return delegateService.findSenseConfigurar(params);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public CarrecJbpmIdDto findAmbId(Long id) {
-		return delegate.findAmbId(id);
+		return delegateService.findAmbId(id);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public CarrecJbpmIdDto findAmbCodi(String codi) {
-		return delegate.findAmbCodi(codi);
+		return delegateService.findAmbCodi(codi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public CarrecJbpmIdDto create(CarrecJbpmIdDto carrec) {
 		// TODO Auto-generated method stub
-		return delegate.create(carrec);
+		return delegateService.create(carrec);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public CarrecJbpmIdDto update(CarrecJbpmIdDto carrec) {
-		return delegate.update(carrec);
+		return delegateService.update(carrec);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public void delete(Long carrecId) {
-		delegate.delete(carrecId);	
+		delegateService.delete(carrecId);
 	}
 
 	@Override
 	public CarrecJbpmIdDto findAmbCodiAndGrup(String codi, String grup) {
-		return delegate.findAmbCodiAndGrup(codi, grup);
+		return delegateService.findAmbCodiAndGrup(codi, grup);
 	}
-	
 
 }

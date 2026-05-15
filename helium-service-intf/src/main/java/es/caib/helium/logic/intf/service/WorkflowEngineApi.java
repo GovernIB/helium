@@ -1,5 +1,6 @@
 package es.caib.helium.logic.intf.service;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +18,12 @@ import es.caib.helium.logic.intf.dto.engine.WToken;
 /**
  * Interfície comú dels motors de workflow amb els mètodes necessaris per desplegar, consultar,
  * executar i mantenir els workflows de processos.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  *
  */
 public interface WorkflowEngineApi {
-	
+
 	public static final String VAR_TASCA_DELEGACIO = "H3l1um#tasca.delegacio";
 	public static final String VAR_TASCA_VALIDADA = "H3l1um#tasca.validada";
 
@@ -31,35 +32,35 @@ public interface WorkflowEngineApi {
 		MOSTRAR_TASQUES_NOMES_GROUPS,
 		MOSTRAR_TASQUES_NOMES_PERSONALS
 	}
-	
+
 	// DEFINICIÓ DE PROCÉS
 	////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	// Desplegaments
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/*
 	 * Deployment:
-	 * 
+	 *
 	 * getId()
 	 * 		Activiti: deploymentId
 	 * 		Jpmb: processDefinitionId
 	 * getKey()
 	 * getVersion()
 	 * getProcessDefinitions()
-	 * 		A Activiti un desplegament pot incloure diferents definicions de procés, 
-	 * 		així que hem substituit la cridada getProcessDefinition() utilitzada per a 
-	 * 		obtenir les tasques de la definició de procés desplegada, per aquesta, 
+	 * 		A Activiti un desplegament pot incloure diferents definicions de procés,
+	 * 		així que hem substituit la cridada getProcessDefinition() utilitzada per a
+	 * 		obtenir les tasques de la definició de procés desplegada, per aquesta,
 	 * 		que retora una llista
-	 * 
-	 * 		S'han modificat els mètodes de deploy, ja que ara poden generar vàries 
-	 * 		definicions de procés. 
+	 *
+	 * 		S'han modificat els mètodes de deploy, ja que ara poden generar vàries
+	 * 		definicions de procés.
 	 */
-	
+
 	/**
 	 * Desplega un model BPMN2.0
-	 * 
+	 *
 	 * @param nomArxiu
 	 * @param contingut
 	 * @return
@@ -67,36 +68,45 @@ public interface WorkflowEngineApi {
 	public WProcessDefinition desplegar(
             String nomArxiu,
             byte[] contingut);
-	
-	// Afegim el següent mètode per a compatibilitat amb Activiti, on un desplegament pot 
-	// incloure diverses definicions de procés. 
+
+	/**
+	 * Retorna el flux en format BPMN del desplegament.
+	 *
+	 * @param deploymentId
+	 *
+	 * @return el flux en format BPMN.
+	 */
+	String getXml(String deploymentId) throws IOException;
+
+	// Afegim el següent mètode per a compatibilitat amb Activiti, on un desplegament pot
+	// incloure diverses definicions de procés.
 	/**
 	 * Obté les dades d'un desplegament concret
-	 * 
+	 *
 	 * @param deploymentId
 	 * @return
 	 */
 	public WDeployment getDesplegament(String deploymentId);
-	
+
 	/**
 	 * Elimina un desplegament concret
-	 * 
+	 *
 	 * @param deploymentId
 	 */
 	public void esborrarDesplegament(String deploymentId);
-	
-	
+
+
 	/**
 	 * Obté els noms dels recursos desplegats en un desplegament concret
-	 * 
+	 *
 	 * @param deploymentId
 	 * @return
 	 */
 	public Set<String> getResourceNames(String deploymentId);
-	
+
 	/**
 	 * Obté el contingut d'un recurs d'un desplegament concret. El recurs s'identifica amb el nom
-	 * 
+	 *
 	 * @param deploymentId
 	 * @param resourceName
 	 * @return
@@ -104,10 +114,10 @@ public interface WorkflowEngineApi {
 	public byte[] getResourceBytes(
             String deploymentId,
             String resourceName);
-	
+
 	/**
 	 * Actualitza els recursos de tipus acció, sense canviar la versió d'un desplagament
-	 * 
+	 *
 	 * @param deploymentId
 	 */
 	public void updateDeploymentActions(
@@ -125,37 +135,37 @@ public interface WorkflowEngineApi {
 	public void propagateDeploymentActions(
 			String deploymentOrigenId,
 			String deploymentDestiId);
-	
+
 	// Consulta de Definicions de Procés
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/*
 	 * getProcessDefinition().getName() == getName()
 	 * getVersion()
 	 * getKey()
 	 * getName()
 	 */
-	
+
 	/**
-	 * Obté una definició de procés donat el codi de desplegament i de la definició de procés 
+	 * Obté una definició de procés donat el codi de desplegament i de la definició de procés
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public WProcessDefinition getProcessDefinition(
             String processDefinitionId);
-	
+
 	/**
 	 * Obté les definicions de procés dels subprocessos donat el codi de desplegament i de la definició de procés pare
-	 * 
+	 *
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public List<WProcessDefinition> getSubProcessDefinitions(
             String processDefinitionId);
-	
+
 	/**
 	 * Obté els noms de les tasques d'una definició de procés donat el desplegament i el codi de definició de procés
-	 * 
+	 *
 	 * @param dpd
 	 * @param processDefinitionId
 	 * @return
@@ -163,15 +173,15 @@ public interface WorkflowEngineApi {
 	public List<String> getTaskNamesFromDeployedProcessDefinition(
             String processKey,
             Integer version);
-	
+
 	/**
 	 * Obté el nom de la tasca inicial d'una definició de procés
-	 * 
+	 *
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public String getStartTaskName(String processDefinitionId);
-	
+
 	/**
 	 * Obté la definició de procés d'una instància de procés
 	 * @param processInstanceId
@@ -180,16 +190,16 @@ public interface WorkflowEngineApi {
 	public WProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId);
 
 	public void updateSubprocessDefinition(WProcessDefinition pd1, WProcessDefinition pd2);
-	
+
 	// DEFINICIÓ DE TASQUES
 	////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////
-	
-	
+
+
 	// INSTÀNCIA DE PROCÉS
 	////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/*
 	 * getId()
 	 * getProcessDefinitionId()
@@ -199,18 +209,18 @@ public interface WorkflowEngineApi {
 	 * getEnd() ==> Activiti::HistoricProcessInstance.getEndTime()
 	 * getProcessInstance().getTaskMgmtInstance().getUnfinishedTasks(currentToken) ==> Retroces!!!
 	 */
-	
+
 	// Consulta de instància de procés
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Compta el número de processos per una definició de procés.
-	 * 
+	 *
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public long countProcessInstancesWithProcessDefinitionId(String processDefinitionId);
-	
+
 //	/**
 //	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom
 //	 *
@@ -218,10 +228,10 @@ public interface WorkflowEngineApi {
 //	 * @return
 //	 */
 //	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName);
-	
+
 	/**
 	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom i l'entorn Helium
-	 * 
+	 *
 	 * @param processName
 	 * @param entornId
 	 * @return
@@ -233,31 +243,31 @@ public interface WorkflowEngineApi {
 
 	/**
 	 * Obté les instàncies de procés del procés principal, i dels subprocessos donat l'identificador del procés principal
-	 * 
+	 *
 	 * @param rootProcessInstanceId
 	 * @return
 	 */
 	public List<WProcessInstance> getProcessInstanceTree(String rootProcessInstanceId);
-	
+
 	/**
 	 * Obté la instància de procés donat el seu codi
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @return
 	 */
 	public WProcessInstance getProcessInstance(String processInstanceId);
-	
+
 	/**
 	 * Obté la instància de procés principal donat el codi de la instància de procés principal, o d'un dels seus subprocessos
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @return
 	 */
 	public WProcessInstance getRootProcessInstance(String processInstanceId);
-	
+
 	/**
 	 * Obté les instàncies de procés principals filtrades
-	 * 
+	 *
 	 * @param actorId
 	 * @param processInstanceIds
 	 * @param nomesMeves
@@ -276,10 +286,10 @@ public interface WorkflowEngineApi {
 
 	// Tramitació
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Inicia una nova instància de procés
-	 * 
+	 *
 	 * @param actorId
 	 * @param processDefinitionId
 	 * @param variables
@@ -289,67 +299,67 @@ public interface WorkflowEngineApi {
             String actorId,
             String processDefinitionId,
             Map<String, Object> variables);
-	
+
 	/**
 	 * Envia un disparador extern a una instància de procés
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param transitionName
 	 */
 	public void signalProcessInstance(
             String processInstanceId,
             String transitionName);
-	
+
 	/**
 	 * Elimina una instància de procés existent
-	 * 
+	 *
 	 * @param processInstanceId
 	 */
 	public void deleteProcessInstance(String processInstanceId);
-	
+
 	/**
 	 * Suspen les instàncies de procés indicades
-	 * 
+	 *
 	 * @param processInstanceIds
 	 */
 	public void suspendProcessInstances(String[] processInstanceIds);
-	
+
 	/**
 	 * Activa les instàncies de procés indicades
-	 * 
+	 *
 	 * @param processInstanceIds
 	 */
 	public void resumeProcessInstances(String[] processInstanceIds);
-	
+
 	/**
 	 * Canvia la versió de la instància de procés indicada
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param newVersion
 	 */
 	public void changeProcessInstanceVersion(
             String processInstanceId,
             int newVersion);
-	
-	
+
+
 	// VARIABLES DE PROCÉS
 	////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	// Consulta de variables
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Obté les variables d'una instància de procés concreta
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @return
 	 */
 	public Map<String, Object> getProcessInstanceVariables(String processInstanceId);
-	
+
 	/**
 	 * Obté una variable d'una instància de procés concreta
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param varName
 	 * @return
@@ -358,13 +368,13 @@ public interface WorkflowEngineApi {
             String processInstanceId,
             String varName);
 
-	
+
 	// Actualització de variables
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Assigna el valor indicat a una variable de la instància de procés
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param varName
 	 * @param value
@@ -373,10 +383,10 @@ public interface WorkflowEngineApi {
             String processInstanceId,
             String varName,
             Object value);
-	
+
 	/**
 	 * Elimina una variable d'una instància de procés
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param varName
 	 */
@@ -384,7 +394,7 @@ public interface WorkflowEngineApi {
             String processInstanceId,
             String varName);
 
-	
+
 	// INSTÀNCIA DE TASQUES
 	////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////
@@ -398,59 +408,59 @@ public interface WorkflowEngineApi {
 	 * getTaskInstance().getId()
 	 * getProcessDefinitionId()
 	 * getTaskInstance().getPooledActors() ==> Activiti::TaskService.getIdentityLinksForTask(String taskId)
-	 * 
+	 *
 	 */
-	
+
 	// Consulta de tasques
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Obté la instància d0una tasca donat el seu codi
-	 * 
+	 *
 	 * @param taskId
 	 * @return
 	 */
 	public WTaskInstance getTaskById(String taskId); // Instancia de tasca
-	
+
 	/**
 	 * Obté la llista de instàncies de tasca d'una instància de procés
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @return
 	 */
 	public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId);
-	
+
 	/**
 	 * Obté l'identificador de la instància de tasca activa donat el seu token d'execució
-	 *  
+	 *
 	 * @param executionTokenId
 	 * @return
 	 */
 	public String getTaskInstanceIdByExecutionTokenId(String executionTokenId);
-	
+
 	// Tramitació de tasques
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Agafa una tasca per a ser tramitada per un usuari
-	 *  
+	 *
 	 * @param taskId
 	 * @param actorId
 	 */
 	public WTaskInstance takeTaskInstance(
             String taskId,
             String actorId);
-	
+
 	/**
 	 * Allibera una tasca per a que pugui ser tramitada per altres usuaris
-	 * 
+	 *
 	 * @param taskId
 	 */
 	public WTaskInstance releaseTaskInstance(String taskId);
-	
+
 	/**
 	 * Inicia la tramitació d'una tasca
-	 * 
+	 *
 	 * @param taskId
 	 * @return
 	 */
@@ -470,33 +480,33 @@ public interface WorkflowEngineApi {
 
 	/**
 	 * Cancel·la una tasca i continua amb l'execució de la instància de procés
-	 * 
+	 *
 	 * @param taskId
 	 * @return
 	 */
 	public WTaskInstance cancelTaskInstance(String taskId);
-	
+
 	/**
 	 * Suspén una tasca
-	 * 
+	 *
 	 * @param taskId
 	 * @return
 	 */
 	public WTaskInstance suspendTaskInstance(String taskId);
-	
+
 	/**
 	 * Activa una tasca suspesa
-	 * 
+	 *
 	 * @param taskId
 	 * @return
 	 */
 	public WTaskInstance resumeTaskInstance(String taskId);
-	
+
 	// Reassignació / Delegació
-	
+
 	/**
 	 * Reassigna una instància de tasca segons la expressió donada
-	 * 
+	 *
 	 * @param taskId
 	 * @param expression
 	 * @param entornId
@@ -510,7 +520,7 @@ public interface WorkflowEngineApi {
 	public void setTaskInstanceActorId(String taskInstanceId, String actorId);
 
 	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors);
-	
+
 //	/**
 //	 * Delega una tasca a un altre usuari
 //	 *
@@ -541,12 +551,12 @@ public interface WorkflowEngineApi {
 //	 * @param task
 //	 */
 //	public void cancelDelegationTaskInstance(WTaskInstance task);
-	
+
 	// Caché
-	
+
 	/**
 	 * Desa la informació de caché de la tasca
-	 * 
+	 *
 	 * @param taskId
 	 * @param titol
 	 * @param infoCache
@@ -559,78 +569,78 @@ public interface WorkflowEngineApi {
 	public List<String> findStartTaskOutcomes(String jbpmId, String taskName);
 
 	public List<String> findTaskInstanceOutcomes(String taskInstanceId);
-	
+
 	// VARIABLES DE TASQUES
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Obté les variables de la instància de procés.
 	 * @param taskId
 	 * @return Retorna un Map de codi i valor de les variables de la instància de procés.
 	 */
 	public Map<String, Object> getTaskInstanceVariables(String taskId);
-	
-	/** 
+
+	/**
 	 * Obé el valor d'una variable d'una instàcia de procés.
 	 * @param taskId
 	 * @param varName
 	 * @return
 	 */
 	public Object getTaskInstanceVariable(String taskId, String varName);
-	
-	/** 
+
+	/**
 	 * Fixa el valor de la variable de la instància de procés.
 	 * @param taskId
 	 * @param varName
 	 * @param valor
 	 */
 	public void setTaskInstanceVariable(String taskId, String varName, Object valor);
-	
+
 	/**
-	 * Fixa el valor de vàries variables a la vegada de la instància de la tasca. 
+	 * Fixa el valor de vàries variables a la vegada de la instància de la tasca.
 	 * Es pot especificar si esborrar abans les variables.
 	 * @param taskId
 	 * @param variables
 	 * @param deleteFirst
 	 */
 	public void setTaskInstanceVariables(String taskId, Map<String, Object> variables, boolean deleteFirst);
-	
+
 	/** Esborra una variable de la instància de la tasca
-	 * 
+	 *
 	 * @param taskId
 	 * @param varName
 	 */
 	public void deleteTaskInstanceVariable(String taskId, String varName);
-	
-	//TODO: Comprovar si s'ha d'implementr el mètode per finalitzar expedients demanat en la versió 3.2.45 
+
+	//TODO: Comprovar si s'ha d'implementr el mètode per finalitzar expedients demanat en la versió 3.2.45
 	// finalitzarExpedient(, boolean cancel·larTasquesActives)
-	
+
 	// FILS D'EXECUCIÓ (Token / Execution path)
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/** Obté la informació del token per identificador.
-	 * 
+	 *
 	 * @param tokenId
 	 * @return
 	 */
 	public WToken getTokenById(String tokenId);
-	
+
 	/** Consulta la llista de tokens actius per una instància de procés.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @return
 	 */
 	public Map<String, WToken> getActiveTokens(String processInstanceId);
-	
+
 	/** Retorna una llista de tots els tokens d'una instància de procés.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @return
 	 */
 	public Map<String, WToken> getAllTokens(String processInstanceId);
-	
+
 	/** Mètode per redirigir la execució cap a un altre token
-	 * 
+	 *
 	 * @param tokenId
 	 * @param nodeName
 	 * @param cancelTasks
@@ -638,22 +648,22 @@ public interface WorkflowEngineApi {
 	 * @param executeNode
 	 */
 	public void tokenRedirect(String tokenId, String nodeName, boolean cancelTasks, boolean enterNodeIfTask, boolean executeNode);
-	
+
 	/** Mètode per activar o desactivar un token.
-	 * 
+	 *
 	 * @param tokenId
 	 * @param activar
 	 * @return
 	 */
 	public boolean tokenActivar(String tokenId, boolean activar);
-	
+
 	/** Mètode per enviar un senyal a un token per a que avanci per una transició.
-	 * 
+	 *
 	 * @param tokenId
 	 * @param transitionName
 	 */
 	public void signalToken(String tokenId, String transitionName);
-	
+
 	// ACCIONS
 	////////////////////////////////////////////////////////////////////////////////
 	public Map<String, Object> evaluateScript(
@@ -665,7 +675,7 @@ public interface WorkflowEngineApi {
 			String processInstanceId,
 			String expression,
 			Map<String, Object> valors);
-	
+
 	public List<String> listActions(String jbpmId);
 	public void executeActionInstanciaProces(
 			String processInstanceId,
@@ -750,7 +760,7 @@ public interface WorkflowEngineApi {
 //	public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId);
 
 	/** Mètode per obtenir una definició de procés a partir del contingut comprimit del mateix.
-	 * 
+	 *
 	 * @param zipInputStream
 	 * @return
 	 * @throws Exception
@@ -821,7 +831,7 @@ public interface WorkflowEngineApi {
 	public void signalToken(long longValue, String transicioOK);
 
 	/** Mètode per interpretar, validar i retornar la definició de procés a partir del contingut.
-	 * 
+	 *
 	 * @param contingut
 	 * @return Retorna una llista d'errors identificats.
 	 */

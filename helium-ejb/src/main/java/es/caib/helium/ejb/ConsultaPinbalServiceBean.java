@@ -5,7 +5,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
@@ -16,56 +17,60 @@ import es.caib.helium.commons.dto.ServeiPinbalDto;
 import es.caib.helium.logic.intf.service.ConsultaPinbalService;
 
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class ConsultaPinbalServiceBean implements ConsultaPinbalService {
+public class ConsultaPinbalServiceBean extends AbstractServiceEjb<ConsultaPinbalService> implements ConsultaPinbalService {
 
-	@Autowired ConsultaPinbalService delegate;
+	@Delegate ConsultaPinbalService delegateService;
+
+	protected void setDelegateService(ConsultaPinbalService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<PeticioPinbalDto> findAmbFiltrePaginat(PaginacioParamsDto paginacioParams, PeticioPinbalFiltreDto filtreDto) {
-		return delegate.findAmbFiltrePaginat(paginacioParams, filtreDto);
+		return delegateService.findAmbFiltrePaginat(paginacioParams, filtreDto);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PeticioPinbalDto findById(Long peticioPinbalId) {
-		return delegate.findById(peticioPinbalId);
+		return delegateService.findById(peticioPinbalId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<PeticioPinbalDto> findConsultesPinbalPerExpedient(Long expedientId) {
-		return delegate.findConsultesPinbalPerExpedient(expedientId);
+		return delegateService.findConsultesPinbalPerExpedient(expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PeticioPinbalDto findByExpedientAndDocumentStore(Long expedientId, Long documentStoreId) {
-		return delegate.findByExpedientAndDocumentStore(expedientId, documentStoreId);
+		return delegateService.findByExpedientAndDocumentStore(expedientId, documentStoreId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public PaginaDto<ServeiPinbalDto> findServeisPinbalAmbFiltrePaginat(PaginacioParamsDto paginacioParams) {
-		return delegate.findServeisPinbalAmbFiltrePaginat(paginacioParams);
+		return delegateService.findServeisPinbalAmbFiltrePaginat(paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public ServeiPinbalDto findServeiPinbalById(Long id) {
-		return delegate.findServeiPinbalById(id);
+		return delegateService.findServeiPinbalById(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public ServeiPinbalDto updateServeiPinbal(ServeiPinbalDto serveiPinbalDto) {
-		return delegate.updateServeiPinbal(serveiPinbalDto);
+		return delegateService.updateServeiPinbal(serveiPinbalDto);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ScspRespostaPinbal tractamentPeticioAsincronaPendentPinbal(Long peticioPinbalId) {
-		return delegate.tractamentPeticioAsincronaPendentPinbal(peticioPinbalId);
+		return delegateService.tractamentPeticioAsincronaPendentPinbal(peticioPinbalId);
 	}
+
 }

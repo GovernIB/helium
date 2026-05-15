@@ -1,6 +1,3 @@
-/**
- *
- */
 package es.caib.helium.ejb;
 
 import java.util.List;
@@ -8,7 +5,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.PaginaDto;
@@ -22,11 +20,14 @@ import es.caib.helium.logic.intf.service.EntornService;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class EntornServiceBean implements EntornService {
+public class EntornServiceBean extends AbstractServiceEjb<EntornService> implements EntornService {
 
-	@Autowired
-	EntornService delegate;
+	@Delegate
+	EntornService delegateService;
+
+	protected void setDelegateService(EntornService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -34,7 +35,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed("HEL_ADMIN")
 	public EntornDto create(EntornDto entorn) {
-		return delegate.create(entorn);
+		return delegateService.create(entorn);
 	}
 
 	/**
@@ -43,7 +44,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed("HEL_ADMIN")
 	public EntornDto update(EntornDto entorn) {
-		return delegate.update(entorn);
+		return delegateService.update(entorn);
 	}
 
 	/**
@@ -52,7 +53,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed("HEL_ADMIN")
 	public void delete(Long entornId) {
-		delegate.delete(entornId);
+		delegateService.delete(entornId);
 	}
 
 	/**
@@ -61,7 +62,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<EntornDto> findActiusAmbPermisAcces() {
-		return delegate.findActiusAmbPermisAcces();
+		return delegateService.findActiusAmbPermisAcces();
 	}
 
 	/**
@@ -70,7 +71,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed("HEL_ADMIN")
 	public List<EntornDto> findActiusAll() {
-		return delegate.findActiusAll();
+		return delegateService.findActiusAll();
 	}
 
 	/**
@@ -81,7 +82,7 @@ public class EntornServiceBean implements EntornService {
 	public PaginaDto<EntornDto> findPerDatatable(
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findPerDatatable(
+		return delegateService.findPerDatatable(
 				filtre,
 				paginacioParams);
 	}
@@ -92,7 +93,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed("HEL_ADMIN")
 	public EntornDto findOne(Long entornId) {
-		return delegate.findOne(entornId);
+		return delegateService.findOne(entornId);
 	}
 
 	/**
@@ -101,7 +102,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed("HEL_ADMIN")
 	public EntornDto findAmbCodi(String entornCodi) {
-		return delegate.findAmbCodi(entornCodi);
+		return delegateService.findAmbCodi(entornCodi);
 	}
 
 	/**
@@ -112,7 +113,7 @@ public class EntornServiceBean implements EntornService {
 	public void permisUpdate(
 			Long entornId,
 			PermisDto permis) {
-		delegate.permisUpdate(
+		delegateService.permisUpdate(
 				entornId,
 				permis);
 	}
@@ -125,7 +126,7 @@ public class EntornServiceBean implements EntornService {
 	public void permisDelete(
 			Long entornId,
 			Long permisId) {
-		delegate.permisDelete(
+		delegateService.permisDelete(
 				entornId,
 				permisId);
 	}
@@ -136,7 +137,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed("HEL_ADMIN")
 	public List<PermisDto> permisFindAll(Long entornId) {
-		return delegate.permisFindAll(entornId);
+		return delegateService.permisFindAll(entornId);
 	}
 
 	/**
@@ -145,7 +146,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed("HEL_ADMIN")
 	public PermisDto permisFindById(Long entornId, Long permisId) {
-		return delegate.permisFindById(
+		return delegateService.permisFindById(
 				entornId,
 				permisId);
 	}
@@ -156,7 +157,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<EntornDto> findActiusAmbPermisAdmin() {
-		return delegate.findActiusAmbPermisAdmin();
+		return delegateService.findActiusAmbPermisAdmin();
 	}
 
 	/**
@@ -165,7 +166,7 @@ public class EntornServiceBean implements EntornService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EntornDto getEntornComprovantPermisos(Long entornId, boolean comprovarPermisAcces) {
-		return delegate.getEntornComprovantPermisos(entornId, comprovarPermisAcces);
+		return delegateService.getEntornComprovantPermisos(entornId, comprovarPermisAcces);
 	}
 
 }

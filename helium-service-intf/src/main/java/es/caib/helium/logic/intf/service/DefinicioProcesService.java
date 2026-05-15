@@ -15,14 +15,15 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacioCommandDto;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servei per al manteniment de definicions de processos.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface DefinicioProcesService {
-	
+
 	/** Codi del flux jbpm pels expedients basats en estats. */
 	public static String HELIUM_JBPM_FLOW = "PD_ESTATS_";
 	public final static String PROCESS_DEFINITION_XML =
@@ -41,21 +42,21 @@ public interface DefinicioProcesService {
 			"</process-definition>";
 
 	/** Tasca la definició de proces per identificador.
-	 * 
+	 *
 	 * @param definicioProcesId
 	 * @return
 	 */
 	public DefinicioProcesDto findById(Long definicioProcesId);
 
 	/**
-	 * Retorna la darrera versió de la definició de procés donat l'identificador de l'entorn, l'identificador del tipus d'expedient i 
+	 * Retorna la darrera versió de la definició de procés donat l'identificador de l'entorn, l'identificador del tipus d'expedient i
 	 * i l'identificador jbpm.
 	 * @param entornId
 	 * @param jbpmKey
 	 * @return
 	 */
 	public DefinicioProcesDto findByEntornTipusIdAndJbpmKey(
-			Long entornId, 
+			Long entornId,
 			Long expedientTipusId,
 			String jbpmKey);
 
@@ -65,46 +66,57 @@ public interface DefinicioProcesService {
 	 * @return
 	 */
 	public List<DefinicioProcesDto> findSubDefinicionsProces(Long definicioProcesId);
-	
+
 	/**
 	 * Retorna la llista de darreres versions de les definicions de procés donat l'identificador de l'entorn
 	 * i l'identificador del tipus d'expedient. Si no s'especifica el tipus d'expedient només es filtra per
 	 * entorn.
 	 * @param entornId
 	 * @param expedientTipusId
-	 * @param incloureGlobals 
+	 * @param incloureGlobals
 	 * 			  Especifica si incloure les definicions de procés amb expedientTipus null en cas d'especificar
 	 * 				un expedientTipusId.
 	 * @return
 	 */
 	public List<DefinicioProcesDto> findAll(
-			Long entornId, 
+			Long entornId,
 			Long expedientTipusId,
 			boolean incloureGlobals);
-	
-	/** 
+
+	/**
 	 * Retorna la llista de definicions de procés paginada per la datatable.
-	 * 
+	 *
 	 * @param entornId
 	 *            Atribut id de l'entorn.
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient si es volen mostrar només les de un expedient.
-	 * @param incloureGlobals 
+	 * @param incloureGlobals
 	 * 			  Especifica si incloure les definicions de procés amb expedientTipus null en cas d'especificar
 	 * 				un expedientTipusId.
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
-	 * @param string 
+	 * @param string
 	 * @param paginacioParams
 	 *            Paràmetres per a la paginació dels resultats.
 	 * @return La pàgina del llistat de definicions de procés.
 	 */
 	public PaginaDto<DefinicioProcesDto> findPerDatatable(
-			Long entornId, 
+			Long entornId,
 			Long expedientTipusId,
-			boolean incloureGlobals, 
-			String filtre, 
+			boolean incloureGlobals,
+			String filtre,
 			PaginacioParamsDto paginacioParams);
+
+	/**
+	 * Retorna el codi BPMN associat a la definició de procés
+	 *
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param definicioProcesId
+	 *            Atribut id de la definició de procés.
+	 * @return el codi BPMN.
+	 */
+	public String getXml(Long entornId, Long definicioProcesId);
 
 	/**
 	 * Mètode per crear un objecte d'exportació per al tipus d'expedient amb la informació sol·licitada
@@ -112,35 +124,35 @@ public interface DefinicioProcesService {
 	 * @param entornId Id de l'entorn.
 	 * @param Id de la definició de procés de la qual es realitza la exportació.
 	 * @param command Objecte amb la informació que s'ha d'incloure a l'exportació.
-	 * 
+	 *
 	 * @return Objecte d'exportació serialitzable.
 	 */
 	public DefinicioProcesExportacio exportar(
-			Long entornId, 
+			Long entornId,
 			Long definicioProcesId,
 			DefinicioProcesExportacioCommandDto command);
 
-	
+
 
 	/** Mètode per importar la informació d'un fitxer d'exportació de definicó de procés cap a una nova definició de
-	 * procés si aquesta no està especificada o una definició de procés existent. La importació es fa de 
+	 * procés si aquesta no està especificada o una definició de procés existent. La importació es fa de
 	 * forma selectiva segons la definicioProcesExportacioCommand.
 	 * @param entornId Especifica l'entorn de treball de l'usuari.
 	 * @param definicioProcesId Tipus d'expedient on fer la importació. Si està buit llavors es crea un de nou.
-	 * @param expedientTipusId 
+	 * @param expedientTipusId
 	 * @param command Llista de codis de la informació a importar.
 	 * @param importacio Objecte desserialitzat amb la informació per a la importació.
 	 * @return Retorna l'expedient tipus creat o modificat.
 	 */
 	public DefinicioProcesDto importar(
-			Long entornId, 
-			Long expedientTipusId, 
-			Long definicioProcesId, 
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId,
 			DefinicioProcesExportacioCommandDto command,
 			DefinicioProcesExportacio importacio);
-	
+
 	/** Mètode per despublicar una definició de procés.
-	 * 
+	 *
 	 * @param entornId Identificador de l'entorn per comprovar permisos.
 	 * @param definicioProcesId Especifica la definició de procés a despublicar.
 	 * @throws Exception Es llança excepció si no s'ha pogut esborrar amb el motiu com a missatge.
@@ -148,15 +160,15 @@ public interface DefinicioProcesService {
 	public void delete(
 			Long entornId,
 			Long definicioProcesId) throws Exception;
-	
-	/** 
+
+	/**
 	 * Retorna la llista de tasques de la definició de procés paginada per la datatable.
-	 * 
+	 *
 	 * @param definicioProcesId
-	 * 
+	 *
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
-	 * @param string 
+	 * @param string
 	 * @param paginacioParams
 	 *            Paràmetres per a la paginació dels resultats.
 	 * @return La pàgina del llistat de tipus d'expedients.
@@ -165,41 +177,41 @@ public interface DefinicioProcesService {
 	 */
 	public PaginaDto<TascaDto> tascaFindPerDatatable(
 			Long entornId,
-			Long expedientTipusId, 
-			Long definicioProcesId, 
-			String filtre, 
+			Long expedientTipusId,
+			Long definicioProcesId,
+			String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
-	/** 
+	/**
 	 * Retorna la llista de tasques per a una definició de procés.
-	 * 
+	 *
 	 * @param definicioProcesId
-	 * 
+	 *
 	 * @return La llista de tasques de la definició de procés.
 	 */
 	public List<TascaDto> tascaFindAll(Long definicioProcesId);
-	
-	/** 
+
+	/**
 	 * Retorna la tasca de la definició de procés donat el seu identificador. Té en compte l'herència del tipus d'expedient
 	 * passat com a paràmetre. Si no es passa cap identificador del tipus d'expedient llavors no es mira si la tasca està heretada.
-	 * 
+	 *
 	 * @param expedientTipusId
-	 * @param tascaId 
-	 * 
+	 * @param tascaId
+	 *
 	 * @return La tasca de la definició de procés.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
 	public TascaDto tascaFindAmbId(
-			Long expedientTipusId, 
+			Long expedientTipusId,
 			Long tascaId) throws NoTrobatException;
-	
+
 	/** Recupera la informació de la definició de procés d'una tasca donat el seu id. */
-	public DefinicioProcesDto tascaFindDefinicioProcesDeTasca(Long tascaId);	
-	
+	public DefinicioProcesDto tascaFindDefinicioProcesDeTasca(Long tascaId);
+
 	/**
 	 * Modificació d'una tasca existent.
-	 * 
+	 *
 	 * @param tasca
 	 *            La informació de la tasca a modificar.
 	 * @return la tasca modificat.
@@ -208,13 +220,13 @@ public interface DefinicioProcesService {
 	 * @throws CampDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public TascaDto tascaUpdate(TascaDto tasca) throws NoTrobatException, PermisDenegatException;	
+	public TascaDto tascaUpdate(TascaDto tasca) throws NoTrobatException, PermisDenegatException;
 
-	
-	
+
+
 	/**
 	 * Crea un nou camp per la tasca.
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param tascaCamp
@@ -226,10 +238,10 @@ public interface DefinicioProcesService {
 	public CampTascaDto tascaCampCreate(
 			Long tascaId,
 			CampTascaDto tascaCamp) throws PermisDenegatException;
-	
+
 	/**
 	 * Modificació d'un camp de tasca existent.
-	 * 
+	 *
 	 * @param tascaCamp
 	 *            La informació del camp del registre a modificar.
 	 * @return el camp del registre modificat.
@@ -240,10 +252,10 @@ public interface DefinicioProcesService {
 	 */
 	public CampTascaDto tascaCampUpdate(
 			CampTascaDto tascaCamp) throws NoTrobatException, PermisDenegatException;
-	
+
 	/**
 	 * Esborra un camp de la tasca.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id del camp de la tasca.
 	 * @throws NoTrobatException
@@ -252,17 +264,17 @@ public interface DefinicioProcesService {
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public void tascaCampDelete(
-			Long id) throws NoTrobatException, PermisDenegatException;	
-	
+			Long id) throws NoTrobatException, PermisDenegatException;
 
-	/** 
+
+	/**
 	 * Retorna la llista de camps de la tasca de la definició de procés paginada per la datatable.
-	 * 
+	 *
 	 * @param tascaId
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * 			Identificador de l'expedient tipus des del que es fa la consulta per establir si hi ha herència o no.
-	 * 
+	 *
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
 	 * @param paginacioParams
@@ -274,21 +286,21 @@ public interface DefinicioProcesService {
 	public PaginaDto<CampTascaDto> tascaCampFindPerDatatable(
 			Long tascaId,
 			Long expedientTipusId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+			String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
 	/**
 	 * Consulta la llista de camps de la tasca tenint en compte l'herència amb l'expedient tipus passat com a paràmetre.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @param tascaId
 	 * @return
 	 */
 	public List<CampTascaDto> tascaCampFindAll(Long expedientTipusId, Long tascaId);
 
-	
+
 	/** Mou el camp de la tasca amb id de camp cap a la posició indicada reassignant el valor pel camp ordre.
-	 * 
+	 *
 	 * @param id
 	 * @param expedientTipusId Identificador del tipus d'expedient en el cas que es faci l'operaicó des del tipus d'expedient per tenir en compte l'herència
 	 * @param posicio
@@ -296,24 +308,24 @@ public interface DefinicioProcesService {
 	 */
 	public boolean tascaCampMourePosicio(Long id, Long expedientTipusId, int posicio);
 
-	
-	/** 
+
+	/**
 	 * Retorna el camp tasca de la definició de procés donat el seu identificador.
-	 * 
+	 *
 	 * @param expedientTipusId Id de l'expedient tipus pel qual es busca la tasca per establir les propietats d'herència.
-	 * 
+	 *
 	 * @param campTascaId Id de la tasca a cercar.
-	 * 
+	 *
 	 * @return El camp tasca de la definició de procés.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
 	public CampTascaDto tascaCampFindById(Long expedientTipusId, Long campTascaId);
-	
-	
+
+
 	/**
 	 * Crea un nou document per la tasca.
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param tascaDocument
@@ -325,10 +337,10 @@ public interface DefinicioProcesService {
 	public DocumentTascaDto tascaDocumentCreate(
 			Long tascaId,
 			DocumentTascaDto tascaDocument) throws PermisDenegatException;
-	
+
 	/**
 	 * Modificació d'un document de tasca existent.
-	 * 
+	 *
 	 * @param tascaDocument
 	 *            La informació del document del registre a modificar.
 	 * @return el document del registre modificat.
@@ -339,10 +351,10 @@ public interface DefinicioProcesService {
 	 */
 	public DocumentTascaDto tascaDocumentUpdate(
 			DocumentTascaDto tascaDocument) throws NoTrobatException, PermisDenegatException;
-	
+
 	/**
 	 * Esborra un document de la tasca.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id del document de la tasca.
 	 * @throws NoTrobatException
@@ -351,17 +363,17 @@ public interface DefinicioProcesService {
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public void tascaDocumentDelete(
-			Long id) throws NoTrobatException, PermisDenegatException;	
-	
+			Long id) throws NoTrobatException, PermisDenegatException;
 
-	/** 
+
+	/**
 	 * Retorna la llista de documents de la tasca de la definició de procés paginada per la datatable.
-	 * 
+	 *
 	 * @param tascaId
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * 			Identificador de l'expedient tipus des del que es fa la consulta per establir si hi ha herència o no.
-	 * 
+	 *
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
 	 * @param paginacioParams
@@ -372,22 +384,22 @@ public interface DefinicioProcesService {
 	 */
 	public PaginaDto<DocumentTascaDto> tascaDocumentFindPerDatatable(
 			Long tascaId,
-			Long expedientTipusId, 
-			String filtre, 
+			Long expedientTipusId,
+			String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
-	
+
 	/**
 	 * Consulta la llista de documents de la tasca tenint en compte l'herència amb l'expedient tipus passat com a paràmetre.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @param tascaId
 	 * @return
 	 */
 	public List<DocumentTascaDto> tascaDocumentFindAll(Long expedientTipusId, Long tascaId);
 
-	
+
 	/** Mou el document de la tasca amb id de document cap a la posició indicada reassignant el valor pel document ordre.
-	 * 
+	 *
 	 * @param id
 	 * @param expedientTipusId Identificador del tipus d'expedient en el cas que es faci l'operaicó des del tipus d'expedient per tenir en compte l'herència
 	 * @param posicio
@@ -395,27 +407,27 @@ public interface DefinicioProcesService {
 	 */
 	public boolean tascaDocumentMourePosicio(Long id, Long expedientTipusId, int posicio);
 
-	/** 
+	/**
 	 * Retorna el document tasca de la definició de procés donat el seu identificador. Té en compte l'herència del tipus d'expedient
 	 * passat com a paràmetre. Si no es passa cap identificador del tipus d'expedient llavors no es mira si la tasca està heretada.
-	 * 
+	 *
 	 * @param expedientTipusId
-	 * 
+	 *
 	 * @param documentTascaId
-	 * 
+	 *
 	 * @return El document tasca de la definició de procés.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
 	public DocumentTascaDto tascaDocumentFindById(
-			Long expedientTipusId, 
+			Long expedientTipusId,
 			Long documentTascaId);
-	
 
-	
+
+
 	/**
 	 * Crea una nova firma per la tasca.
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param tascaFirma
@@ -427,10 +439,10 @@ public interface DefinicioProcesService {
 	public FirmaTascaDto tascaFirmaCreate(
 			Long tascaId,
 			FirmaTascaDto tascaFirma) throws PermisDenegatException;
-	
+
 	/**
 	 * Modificació d'una firma de tasca existent.
-	 * 
+	 *
 	 * @param tascaFirma
 	 *            La informació de la firma del registre a modificar.
 	 * @return la firma del registre modificat.
@@ -441,10 +453,10 @@ public interface DefinicioProcesService {
 	 */
 	public FirmaTascaDto tascaFirmaUpdate(
 			FirmaTascaDto tascaFirma) throws NoTrobatException, PermisDenegatException;
-	
+
 	/**
 	 * Esborra una firma de la tasca.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de la firma de la tasca.
 	 * @throws NoTrobatException
@@ -453,17 +465,17 @@ public interface DefinicioProcesService {
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public void tascaFirmaDelete(
-			Long id) throws NoTrobatException, PermisDenegatException;	
-	
+			Long id) throws NoTrobatException, PermisDenegatException;
 
-	/** 
+
+	/**
 	 * Retorna la llista de firmes de la tasca de la definició de procés paginada per la datatable.
-	 * 
+	 *
 	 * @param tascaId
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * 			Identificador de l'expedient tipus des del que es fa la consulta per establir si hi ha herència o no.
-	 * 
+	 *
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
 	 * @param paginacioParams
@@ -475,12 +487,12 @@ public interface DefinicioProcesService {
 	public PaginaDto<FirmaTascaDto> tascaFirmaFindPerDatatable(
 			Long tascaId,
 			Long expedientTipusId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+			String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
 	/**
 	 * Consulta la llista de firmes de la tasca tenint en compte l'herència amb l'expedient tipus passat com a paràmetre.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @param tascaId
 	 * @return
@@ -488,7 +500,7 @@ public interface DefinicioProcesService {
 	public List<FirmaTascaDto> tascaFirmaFindAll(Long expedientTipusId, Long tascaId);
 
 	/** Mou la firma de la tasca amb id de firma cap a la posició indicada reassignant el valor per la firma ordre.
-	 * 
+	 *
 	 * @param id
 	 * @param expedientTipusId Identificador del tipus d'expedient en el cas que es faci l'operaicó des del tipus d'expedient per tenir en compte l'herència
 	 * @param posicio
@@ -497,29 +509,29 @@ public interface DefinicioProcesService {
 	public boolean tascaFirmaMourePosicio(Long id, Long expedientTipusId, int posicio);
 
 	/** Consulta la firma utilitzades per a una tasca i un document concret.
-	 * 
+	 *
 	 * @param tascaId
 	 * @param documentId
 	 * @return
 	 */
 	public FirmaTascaDto tascaFirmaFindAmbTascaDocument(Long tascaId, Long documentId, Long expedientTipusId);
 
-	/** 
+	/**
 	 * Retorna la firma tasca de la definició de procés donat el seu identificador.
-	 * 
+	 *
 	 * @param expedientTipusId Id de l'expedient tipus pel qual es busca la tasca per establir les propietats d'herència.
-	 * 
+	 *
 	 * @param campTascaId Id de la tasca a cercar.
-	 * 
+	 *
 	 * @return La firma tasca de la definició de procés.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public FirmaTascaDto tascaFirmaFindById(Long expedientTipusId, Long firmaTascaId);	
-	
+	public FirmaTascaDto tascaFirmaFindById(Long expedientTipusId, Long firmaTascaId);
+
 	/**
 	 * Retorna una definicio de procés donat el seu id per a dissenyar.
-	 * 
+	 *
 	 * @param entornId
 	 *            Atribut id de l'entorn.
 	 * @param definicioProcesId
@@ -533,11 +545,11 @@ public interface DefinicioProcesService {
 	public DefinicioProcesDto findAmbIdPermisDissenyar(
 			Long entornId,
 			Long definicioProcesId) throws NoTrobatException;
-	
+
 	/**
 	 * Retorna una definicio de procés donat el seu id per a dissenyar amb permís delegat. El permís
 	 * delegat és menys restrictiu que el permís d'administrador.
-	 * 
+	 *
 	 * @param entornId
 	 *            Atribut id de l'entorn.
 	 * @param definicioProcesId
@@ -554,7 +566,7 @@ public interface DefinicioProcesService {
 
 	/**
 	 * Retorna els terminis per a una definició de procés.
-	 * 
+	 *
 	 * @param definicioProcesId
 	 *            Atribut id del tipus d'expedient.
 	 * @return els terminis del tipus d'expedient.
@@ -568,7 +580,7 @@ public interface DefinicioProcesService {
 
 	/**
 	 * Retorna les consultes per l'entorn
-	 * 
+	 *
 	 * @param entorndId
 	 *            Atribut id de l'entorn
 	 * @return les consultes de l'entorn
@@ -585,31 +597,31 @@ public interface DefinicioProcesService {
 	 * @param destiId
 	 */
 	public void copiarDefinicioProces(
-			Long origenId, 
+			Long origenId,
 			Long destiId);
-	
+
 	/** Consulta el nom de la tasca inicial de la definició de procés.
-	 * 
+	 *
 	 * @param definicioProcesId
 	 * @return
 	 */
 	public String consultarStartTaskName(Long definicioProcesId);
 
 	/** Mètode per relacionar correctament les darreres definicions de procés per a un tipus d'expedient
-	 * 
+	 *
 	 * @param id
 	 */
 	public void relacionarDarreresVersions(Long expedientTipusId);
 
 	/** Mètode per obtenir la definició de procés associada a una instància de procés
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @return
 	 */
 	public DefinicioProcesDto findAmbProcessInstanceId(String processInstanceId);
 
 	/** Consulta la definició de procés a partir del codi i la versió
-	 * 
+	 *
 	 * @param defprocJbpmKey
 	 * @param defprocVersio
 	 * @return

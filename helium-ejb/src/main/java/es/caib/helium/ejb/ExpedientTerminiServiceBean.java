@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -10,7 +10,8 @@ import java.util.Map;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.FestiuDto;
 import es.caib.helium.commons.dto.TerminiDto;
@@ -23,15 +24,18 @@ import es.caib.helium.logic.intf.service.ExpedientTerminiService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientTerminiService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
-	
-	@Autowired
-	ExpedientTerminiService delegate;
+public class ExpedientTerminiServiceBean extends AbstractServiceEjb<ExpedientTerminiService> implements ExpedientTerminiService {
+
+	@Delegate
+	ExpedientTerminiService delegateService;
+
+	protected void setDelegateService(ExpedientTerminiService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -41,7 +45,7 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 			Long terminiId,
 			Date data,
 			boolean esDataFi) throws NoTrobatException, PermisDenegatException {
-		return delegate.iniciar(
+		return delegateService.iniciar(
 				expedientId,
 				processInstanceId,
 				terminiId,
@@ -60,7 +64,7 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 			int mesos,
 			int dies,
 			boolean esDataFi) throws NoTrobatException, PermisDenegatException {
-		delegate.modificar(
+		delegateService.modificar(
 				expedientId,
 				processInstanceId,
 				terminiIniciatId,
@@ -77,7 +81,7 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 			Long expedientId,
 			String processInstanceId,
 			Long terminiIniciatId, Date data) throws NoTrobatException, PermisDenegatException {
-		delegate.suspendre(
+		delegateService.suspendre(
 				expedientId,
 				processInstanceId,
 				terminiIniciatId,
@@ -91,7 +95,7 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 			String processInstanceId,
 			Long terminiIniciatId,
 			Date data) throws NoTrobatException, PermisDenegatException {
-		delegate.reprendre(
+		delegateService.reprendre(
 				expedientId,
 				processInstanceId,
 				terminiIniciatId,
@@ -105,7 +109,7 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 			String processInstanceId,
 			Long terminiIniciatId,
 			Date data) throws NoTrobatException, PermisDenegatException {
-		delegate.cancelar(
+		delegateService.cancelar(
 				expedientId,
 				processInstanceId,
 				terminiIniciatId,
@@ -117,7 +121,7 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 	public List<TerminiDto> findAmbProcessInstanceId(
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException {
-		return delegate.findAmbProcessInstanceId(
+		return delegateService.findAmbProcessInstanceId(
 				expedientId,
 				processInstanceId);
 	}
@@ -127,7 +131,7 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 	public List<TerminiIniciatDto> iniciatFindAmbProcessInstanceId(
 			Long expedientId,
 			String processInstanceId) {
-		return delegate.iniciatFindAmbProcessInstanceId(
+		return delegateService.iniciatFindAmbProcessInstanceId(
 				expedientId,
 				processInstanceId);
 	}
@@ -138,7 +142,7 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 			Long expedientId,
 			String processInstanceId,
 			Long terminiIniciatId) throws NoTrobatException {
-		return delegate.iniciatFindAmbId(
+		return delegateService.iniciatFindAmbId(
 				expedientId,
 				processInstanceId,
 				terminiIniciatId);
@@ -148,28 +152,28 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 	@RolesAllowed({"HEL_ADMIN"})
 	public List<FestiuDto> festiuFindAmbAny(
 			int any) {
-		return delegate.festiuFindAmbAny(any);
+		return delegateService.festiuFindAmbAny(any);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public void festiuCreate(
 			String data) throws Exception {
-		delegate.festiuCreate(data);
+		delegateService.festiuCreate(data);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public void festiuDelete(
 			String data) throws ValidacioException, Exception {
-		delegate.festiuDelete(data);
-		
+		delegateService.festiuDelete(data);
+
 	}
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public Map<String, CampFormProperties> getTerminisFormProperties(Long expedientTipusId, String estatCodi) {
-        return delegate.getTerminisFormProperties(expedientTipusId, estatCodi);
+        return delegateService.getTerminisFormProperties(expedientTipusId, estatCodi);
     }
 
 }

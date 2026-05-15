@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -8,7 +8,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.CampAgrupacioDto;
 import es.caib.helium.commons.dto.CampInfoDto;
@@ -19,15 +20,18 @@ import es.caib.helium.logic.intf.service.ExpedientDadaService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientDadaService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class ExpedientDadaServiceBean implements ExpedientDadaService {
+public class ExpedientDadaServiceBean extends AbstractServiceEjb<ExpedientDadaService> implements ExpedientDadaService {
 
-	@Autowired
-	ExpedientDadaService delegate;
+	@Delegate
+	ExpedientDadaService delegateService;
+
+	protected void setDelegateService(ExpedientDadaService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -36,7 +40,7 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 			String processInstanceId,
 			String varCodi,
 			Object varValor) {
-		delegate.create(
+		delegateService.create(
 				expedientId,
 				processInstanceId,
 				varCodi,
@@ -50,7 +54,7 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 			String processInstanceId,
 			String varCodi,
 			Object varValor) {
-		delegate.update(
+		delegateService.update(
 				expedientId,
 				processInstanceId,
 				varCodi,
@@ -63,7 +67,7 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 			Long expedientId,
 			String processInstanceId,
 			String varCodi) {
-		delegate.delete(
+		delegateService.delete(
 				expedientId,
 				processInstanceId,
 				varCodi);
@@ -75,25 +79,24 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 			Long expedientId,
 			String processInstanceId,
 			String varCodi) {
-		return delegate.findOnePerInstanciaProces(
+		return delegateService.findOnePerInstanciaProces(
 				expedientId,
 				processInstanceId,
 				varCodi);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientDadaDto getDadaBuida(long campId) {
-		return delegate.getDadaBuida(campId);
+		return delegateService.getDadaBuida(campId);
 	}
-
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientDadaDto> findAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId) {
-		return delegate.findAmbInstanciaProces(
+		return delegateService.findAmbInstanciaProces(
 				expedientId,
 				processInstanceId);
 	}
@@ -103,7 +106,7 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 	public List<CampAgrupacioDto> agrupacionsFindAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId) {
-		return delegate.agrupacionsFindAmbInstanciaProces(
+		return delegateService.agrupacionsFindAmbInstanciaProces(
 				expedientId,
 				processInstanceId);
 	}
@@ -111,18 +114,19 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DadaListDto> findDadesExpedient(Long expedientId, Long estatId, Boolean totes, Boolean ambOcults, Boolean noPendents, PaginacioParamsDto paginacioParams) {
-		return delegate.findDadesExpedient(expedientId, estatId, totes, ambOcults, noPendents, paginacioParams);
+		return delegateService.findDadesExpedient(expedientId, estatId, totes, ambOcults, noPendents, paginacioParams);
 	}
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<CampInfoDto> getCampsNoUtilitzatsPerEstats(Long expedientId) {
-        return delegate.getCampsNoUtilitzatsPerEstats(expedientId);
+        return delegateService.getCampsNoUtilitzatsPerEstats(expedientId);
     }
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public DadaListDto getDadaList(Long expedientId, String procesId, String varCodi) {
-        return delegate.getDadaList(expedientId, procesId, varCodi);
+        return delegateService.getDadaList(expedientId, procesId, varCodi);
     }
+
 }

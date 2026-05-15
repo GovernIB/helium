@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -11,7 +11,8 @@ import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.DocumentDto;
@@ -29,29 +30,32 @@ import es.caib.helium.logic.intf.service.TascaService;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat de Helium.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class TascaServiceBean implements TascaService {
+public class TascaServiceBean extends AbstractServiceEjb<TascaService> implements TascaService {
 
-	@Autowired
-	TascaService delegate;
+	@Delegate
+	TascaService delegateService;
+
+	protected void setDelegateService(TascaService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTascaDto findAmbIdPerExpedient(
 			String id,
 			Long expedientId) {
-		return delegate.findAmbIdPerExpedient(id, expedientId);
+		return delegateService.findAmbIdPerExpedient(id, expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTascaDto findAmbIdPerTramitacio(
 			String id) {
-		return delegate.findAmbIdPerTramitacio(id);
+		return delegateService.findAmbIdPerTramitacio(id);
 	}
 
 	@Override
@@ -71,7 +75,7 @@ public class TascaServiceBean implements TascaService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesTasquesMeves) {
-		return delegate.findIdsPerFiltre(
+		return delegateService.findIdsPerFiltre(
 				entornId,
 				expedientTipusId,
 				titol,
@@ -84,7 +88,7 @@ public class TascaServiceBean implements TascaService {
 				dataLimitFi,
 				prioritat,
 				nomesTasquesPersonals,
-				nomesTasquesGrup, 
+				nomesTasquesGrup,
 				nomesTasquesMeves);
 	}
 
@@ -107,7 +111,7 @@ public class TascaServiceBean implements TascaService {
 			boolean nomesTasquesGrup,
 			boolean nomesTasquesMeves,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findPerFiltrePaginat(
+		return delegateService.findPerFiltrePaginat(
 				entornId,
 				tramitacioMassivaTascaId,
 				expedientTipusId,
@@ -120,8 +124,8 @@ public class TascaServiceBean implements TascaService {
 				dataLimitInici,
 				dataLimitFi,
 				prioritat,
-				nomesTasquesPersonals, 
-				nomesTasquesGrup, 
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
 				nomesTasquesMeves,
 				paginacioParams);
 	}
@@ -130,14 +134,14 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDadaDto> findDades(
 			String id) {
-		return delegate.findDades(id);
+		return delegateService.findDades(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDocumentDto> findDocuments(
 			String id) {
-		return delegate.findDocuments(id);
+		return delegateService.findDocuments(id);
 	}
 
 	@Override
@@ -151,7 +155,7 @@ public class TascaServiceBean implements TascaService {
 			Long registreCampId,
 			Integer registreIndex,
 			Map<String, Object> valorsFormulari) {
-		return delegate.findValorsPerCampDesplegable(
+		return delegateService.findValorsPerCampDesplegable(
 				id,
 				processInstanceId,
 				campId,
@@ -166,14 +170,14 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTascaDto agafar(
 			String id) {
-		return delegate.agafar(id);
+		return delegateService.agafar(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTascaDto alliberar(
 			String id) {
-		return delegate.alliberar(id);
+		return delegateService.alliberar(id);
 	}
 
 	@Override
@@ -181,7 +185,7 @@ public class TascaServiceBean implements TascaService {
 	public void guardar(
 			String taskId,
 			Map<String, Object> variables) {
-		delegate.guardar(
+		delegateService.guardar(
 				taskId,
 				variables);
 	}
@@ -191,7 +195,7 @@ public class TascaServiceBean implements TascaService {
 	public void validar(
 			String tascaId,
 			Map<String, Object> variables) {
-		delegate.validar(
+		delegateService.validar(
 				tascaId,
 				variables);
 	}
@@ -199,7 +203,7 @@ public class TascaServiceBean implements TascaService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void restaurar(String tascaId) {
-		delegate.restaurar(tascaId);
+		delegateService.restaurar(tascaId);
 	}
 
 	@Override
@@ -207,7 +211,7 @@ public class TascaServiceBean implements TascaService {
 	public void completar(
 			String tascaId,
 			String outcome) {
-		delegate.completar(
+		delegateService.completar(
 				tascaId,
 				outcome);
 	}
@@ -217,7 +221,7 @@ public class TascaServiceBean implements TascaService {
 	public void executarAccio(
 			String id,
 			String accio) {
-		delegate.executarAccio(
+		delegateService.executarAccio(
 				id,
 				accio);
 	}
@@ -226,7 +230,7 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FormulariExternDto formulariExternObrir(
 			String tascaId) {
-		return delegate.formulariExternObrir(tascaId);
+		return delegateService.formulariExternObrir(tascaId);
 	}
 
 	@Override
@@ -235,7 +239,7 @@ public class TascaServiceBean implements TascaService {
 			String tascaIniciId,
 			Long expedientTipusId,
 			Long definicioProcesId) {
-		return delegate.formulariExternObrirTascaInicial(
+		return delegateService.formulariExternObrirTascaInicial(
 				tascaIniciId,
 				expedientTipusId,
 				definicioProcesId);
@@ -244,43 +248,43 @@ public class TascaServiceBean implements TascaService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDadaDto> findDadesPerTascaDto(Long expedientTipusId, ExpedientTascaDto tasca) {
-		return delegate.findDadesPerTascaDto(expedientTipusId, tasca);
+		return delegateService.findDadesPerTascaDto(expedientTipusId, tasca);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids) {
-		return delegate.findAmbIds(ids);
+		return delegateService.findAmbIds(ids);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public TascaDocumentDto findDocument(String tascaId, Long docId, Long expedientTipusId) {
-		return delegate.findDocument(tascaId, docId, expedientTipusId);
+		return delegateService.findDocument(tascaId, docId, expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Long guardarDocumentTasca(
-			Long entornId, 
-			String taskInstanceId, 
-			String documentCodi, 
-			Date documentData, 
-			String arxiuNom, 
-			byte[] arxiuContingut, 
-			String arxiuContentType, 
+			Long entornId,
+			String taskInstanceId,
+			String documentCodi,
+			Date documentData,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			String arxiuContentType,
 			boolean ambFirma,
 			boolean firmaSeparada,
 			byte[] firmaContingut,
 			String user) {
-		return delegate.guardarDocumentTasca(
-				entornId, 
+		return delegateService.guardarDocumentTasca(
+				entornId,
 				taskInstanceId,
-				documentCodi, 
-				documentData, 
-				arxiuNom, 
-				arxiuContingut, 
-				arxiuContentType, 
+				documentCodi,
+				documentData,
+				arxiuNom,
+				arxiuContingut,
+				arxiuContentType,
 				ambFirma,
 				firmaSeparada,
 				firmaContingut,
@@ -290,43 +294,43 @@ public class TascaServiceBean implements TascaService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void esborrarDocument(String taskInstanceId, String documentCodi, String user) {
-		delegate.esborrarDocument(taskInstanceId, documentCodi, user);
+		delegateService.esborrarDocument(taskInstanceId, documentCodi, user);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean signarDocumentTascaAmbToken(String tascaId, String token, byte[] signatura) throws Exception {
-		return delegate.signarDocumentTascaAmbToken(tascaId, token, signatura);
+		return delegateService.signarDocumentTascaAmbToken(tascaId, token, signatura);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDocumentDto> findDocumentsSignar(String id) {
-		return delegate.findDocumentsSignar(id);
+		return delegateService.findDocumentsSignar(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean hasFormulari(String tascaId) {
-		return delegate.hasFormulari(tascaId);
+		return delegateService.hasFormulari(tascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean hasDocuments(String tascaId) {
-		return delegate.hasDocuments(tascaId);
+		return delegateService.hasDocuments(tascaId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean hasDocumentsNotReadOnly(String tascaId) {
-		return delegate.hasDocumentsNotReadOnly(tascaId);
+		return delegateService.hasDocumentsNotReadOnly(tascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean hasSignatures(String tascaId) {
-		return delegate.hasSignatures(tascaId);
+		return delegateService.hasSignatures(tascaId);
 	}
 
 	@Override
@@ -334,96 +338,97 @@ public class TascaServiceBean implements TascaService {
 	public ArxiuDto getArxiuPerDocumentCodi(
 			String tascaId,
 			String documentCodi) {
-		return delegate.getArxiuPerDocumentCodi(
+		return delegateService.getArxiuPerDocumentCodi(
 				tascaId,
 				documentCodi);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto getDocumentPerDocumentCodi(
-			String tascaId, 
+			String tascaId,
 			String documentCodi) {
-		return delegate.getDocumentPerDocumentCodi(
-				tascaId, 
+		return delegateService.getDocumentPerDocumentCodi(
+				tascaId,
 				documentCodi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean isTascaValidada(String tascaId) {
-		return delegate.isTascaValidada(tascaId);
+		return delegateService.isTascaValidada(tascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean isDocumentsComplet(String tascaId) {
-		return delegate.isDocumentsComplet(tascaId);
+		return delegateService.isDocumentsComplet(tascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean isSignaturesComplet(String tascaId) {
-		return delegate.isSignaturesComplet(tascaId);
+		return delegateService.isSignaturesComplet(tascaId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void comprovarTasquesSegonPla() {
-		delegate.comprovarTasquesSegonPla();
+		delegateService.comprovarTasquesSegonPla();
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void carregaTasquesSegonPla() {
-		delegate.carregaTasquesSegonPla();
+		delegateService.carregaTasquesSegonPla();
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio) {
-		delegate.completaTascaSegonPla(tascaId, iniciFinalitzacio);
+		delegateService.completaTascaSegonPla(tascaId, iniciFinalitzacio);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio) {
-		delegate.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
+		delegateService.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Map<Long, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds) {
-		return delegate.obtenirEstatsPerIds(tasquesSegonPlaIds);
+		return delegateService.obtenirEstatsPerIds(tasquesSegonPlaIds);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean isEnSegonPla(String tascaSegonPlaId) {
-		return delegate.isEnSegonPla(tascaSegonPlaId);
+		return delegateService.isEnSegonPla(tascaSegonPlaId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId) {
-		return delegate.getMissatgesExecucioSegonPla(tascaSegonPlaId);
+		return delegateService.getMissatgesExecucioSegonPla(tascaSegonPlaId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void updateVariable(Long expedientId, String taskId, String codiVariable, Object valor) throws Exception {
-		delegate.updateVariable(expedientId, taskId, codiVariable, valor);
+		delegateService.updateVariable(expedientId, taskId, codiVariable, valor);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void completarMassiu(String tascaId, String outcome) throws NoTrobatException, ValidacioException {
-		delegate.completarMassiu(tascaId, outcome);
+		delegateService.completarMassiu(tascaId, outcome);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public TascaDto findTascaById(Long id) {
-		return delegate.findTascaById(id);
+		return delegateService.findTascaById(id);
 	}
+
 }

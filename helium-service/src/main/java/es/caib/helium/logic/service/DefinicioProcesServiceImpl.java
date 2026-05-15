@@ -3,6 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -316,7 +317,27 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		return pagina;
 	}
 
-
+	@Override
+	@Transactional(readOnly = true)
+	public String getXml(Long entornId, Long definicioProcesId) {
+		logger.debug(
+			"Obtenint l'XML de la definició de procés (" +
+				"entornId=" + entornId + ", " +
+				"definicioProcesId = " + definicioProcesId + ")");
+		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
+		if (definicioProces != null) {
+			try {
+				return jbpmHelper.getXml(definicioProces.getJbpmId());
+			} catch (IOException ex) {
+				logger.error("Error obtenint l'XML de la definició de procés (" +
+					"definicioProcesId=" + definicioProcesId + ")",
+					ex);
+				return null;
+			}
+		} else {
+			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		}
+	}
 
 	/**
 	 * {@inheritDoc}

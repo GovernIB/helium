@@ -5,7 +5,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.AnotacioDto;
 import es.caib.helium.commons.dto.AnotacioFiltreDto;
@@ -21,15 +22,18 @@ import es.caib.helium.logic.intf.service.AnotacioService;
 
 /**
  * Servei per a gestionar les enumeracions.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class AnotacioServiceBean implements AnotacioService {
+public class AnotacioServiceBean extends AbstractServiceEjb<AnotacioService> implements AnotacioService {
 
-	@Autowired
-	AnotacioService delegate;
+	@Delegate
+	AnotacioService delegateService;
+
+	protected void setDelegateService(AnotacioService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -38,135 +42,134 @@ public class AnotacioServiceBean implements AnotacioService {
 			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findAmbFiltrePaginat(entornId, expedientTipusDtoAccessibles, filtreDto, paginacioParams);
+		return delegateService.findAmbFiltrePaginat(entornId, expedientTipusDtoAccessibles, filtreDto, paginacioParams);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<Long> findIdsAmbFiltre(
 			Long entornId,
 			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions,
 			AnotacioFiltreDto filtreDto) {
-		return delegate.findIdsAmbFiltre( 
-				entornId, 
+		return delegateService.findIdsAmbFiltre(
+				entornId,
 				expedientTipusDtoAccessiblesAnotacions,
 				filtreDto);
 	}
 
-
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AnotacioDto findAmbId(Long id) throws NoTrobatException {
-		return delegate.findAmbId(id);
+		return delegateService.findAmbId(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void rebutjar(Long anotacioId, String observacions) {
-		delegate.rebutjar(anotacioId, observacions);
+		delegateService.rebutjar(anotacioId, observacions);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AnotacioDto updateExpedient(Long anotacioId, Long expedientTipusId, Long expedientId) {
-		return delegate.updateExpedient(anotacioId, expedientTipusId, expedientId);
+		return delegateService.updateExpedient(anotacioId, expedientTipusId, expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AnotacioDto incorporarReprocessarExpedient(Long anotacioId, Long expedientTipusId, Long expedientId, boolean associarInteressats, boolean comprovarPermis, boolean reprocessar) {
-		return delegate.incorporarReprocessarExpedient(anotacioId, expedientTipusId, expedientId, associarInteressats, comprovarPermis, reprocessar);
+		return delegateService.incorporarReprocessarExpedient(anotacioId, expedientTipusId, expedientId, associarInteressats, comprovarPermis, reprocessar);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(Long anotacioId) {
-		delegate.delete(anotacioId);
+		delegateService.delete(anotacioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Throwable reprocessar(Long anotacioId) {
-		return delegate.reprocessar(anotacioId);
+		return delegateService.reprocessar(anotacioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AnotacioDto marcarPendent(Long anotacioId) throws Exception {
-		return delegate.marcarPendent(anotacioId);
+		return delegateService.marcarPendent(anotacioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AnotacioDto reintentarConsulta(Long anotacioId) throws Exception {
-		return delegate.reintentarConsulta(anotacioId);
+		return delegateService.reintentarConsulta(anotacioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto getAnnexContingutVersioOriginal(Long annexId) {
-		return delegate.getAnnexContingutVersioOriginal(annexId);
+		return delegateService.getAnnexContingutVersioOriginal(annexId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto getAnnexContingutVersioImprimible(Long annexId) {
-		return delegate.getAnnexContingutVersioImprimible(annexId);
+		return delegateService.getAnnexContingutVersioImprimible(annexId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ArxiuFirmaDto> getAnnexFirmes(Long annexId) {
-		return delegate.getAnnexFirmes(annexId);
+		return delegateService.getAnnexFirmes(annexId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void reintentarAnnex(Long anotacioId, Long annexId) throws Exception {
-		delegate.reintentarAnnex(anotacioId, annexId);
+		delegateService.reintentarAnnex(anotacioId, annexId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void esborrarAnotacionsExpedient(Long expedientId) {
-		delegate.esborrarAnotacionsExpedient(expedientId);
+		delegateService.esborrarAnotacionsExpedient(expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
-		return delegate.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
-		
+		return delegateService.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Exception reintentarTraspasAnotacio(Long anotacioId) {
-		return delegate.reintentarTraspasAnotacio(anotacioId);
+		return delegateService.reintentarTraspasAnotacio(anotacioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<String>[] emailAnotacio(long anotacioId) {
-		return delegate.emailAnotacio(anotacioId);
+		return delegateService.emailAnotacio(anotacioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(
 			Long expedientId, Long anotacioId,
-			boolean reprocessarMapeigVariables, 
-			boolean reprocessarMapeigDocuments, 
+			boolean reprocessarMapeigVariables,
+			boolean reprocessarMapeigDocuments,
 			boolean reprocessarMapeigAdjunts,
 			boolean reprocessarMapeigInteressats) {
-		return delegate.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId, reprocessarMapeigVariables,
+		return delegateService.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId, reprocessarMapeigVariables,
 				reprocessarMapeigDocuments, reprocessarMapeigAdjunts, reprocessarMapeigInteressats);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AnotacioMapeigResultatDto processarMapeigAnotacioExpedient(Long expedientTipusId, Long anotacioId) {
-		return delegate.processarMapeigAnotacioExpedient(expedientTipusId, anotacioId);
+		return delegateService.processarMapeigAnotacioExpedient(expedientTipusId, anotacioId);
 	}
 
 }

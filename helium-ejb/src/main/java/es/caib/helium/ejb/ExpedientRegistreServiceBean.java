@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -11,7 +11,8 @@ import java.util.SortedSet;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.ExpedientLogDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
@@ -22,22 +23,25 @@ import es.caib.helium.logic.intf.service.ExpedientRegistreService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientRegistreService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class ExpedientRegistreServiceBean implements ExpedientRegistreService {
+public class ExpedientRegistreServiceBean extends AbstractServiceEjb<ExpedientRegistreService> implements ExpedientRegistreService {
 
-	@Autowired
-	ExpedientRegistreService delegate;
+	@Delegate
+	ExpedientRegistreService delegateService;
+
+	protected void setDelegateService(ExpedientRegistreService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
 			Long expedientId,
 			boolean detall) throws NoTrobatException, PermisDenegatException {
-		return delegate.registreFindLogsOrdenatsPerData(
+		return delegateService.registreFindLogsOrdenatsPerData(
 				expedientId,
 				detall);
 	}
@@ -47,15 +51,15 @@ public class ExpedientRegistreServiceBean implements ExpedientRegistreService {
 	public List<ExpedientLogDto> registreFindExpedientCanvisEstat(
 			Long expedientId,
 			boolean detall) throws NoTrobatException {
-		return delegate.registreFindExpedientCanvisEstat(expedientId, detall);
+		return delegateService.registreFindExpedientCanvisEstat(expedientId, detall);
 	}
 
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
 			Long expedientId) throws NoTrobatException, PermisDenegatException {
-		return delegate.registreFindTasquesPerLogExpedient(
+		return delegateService.registreFindTasquesPerLogExpedient(
 				expedientId);
 	}
 
@@ -65,7 +69,7 @@ public class ExpedientRegistreServiceBean implements ExpedientRegistreService {
 			Long expedientId,
 			Long logId,
 			boolean retrocedirPerTasques) throws NoTrobatException, PermisDenegatException {
-		delegate.registreRetrocedir(
+		delegateService.registreRetrocedir(
 				expedientId,
 				logId,
 				retrocedirPerTasques);
@@ -75,7 +79,7 @@ public class ExpedientRegistreServiceBean implements ExpedientRegistreService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void registreBuidarLog(
 			Long expedientId) throws NoTrobatException, PermisDenegatException {
-		delegate.registreBuidarLog(expedientId);
+		delegateService.registreBuidarLog(expedientId);
 	}
 
 	@Override
@@ -83,7 +87,7 @@ public class ExpedientRegistreServiceBean implements ExpedientRegistreService {
 	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
 			Long expedientId,
 			Long logId) throws NoTrobatException, PermisDenegatException {
-		return delegate.registreFindLogsTascaOrdenatsPerData(
+		return delegateService.registreFindLogsTascaOrdenatsPerData(
 				expedientId,
 				logId);
 	}
@@ -93,7 +97,7 @@ public class ExpedientRegistreServiceBean implements ExpedientRegistreService {
 	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
 			Long expedientId,
 			Long logId) throws NoTrobatException, PermisDenegatException {
-		return delegate.registreFindLogsRetroceditsOrdenatsPerData(
+		return delegateService.registreFindLogsRetroceditsOrdenatsPerData(
 				expedientId,
 				logId);
 	}
@@ -102,7 +106,7 @@ public class ExpedientRegistreServiceBean implements ExpedientRegistreService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientLogDto registreFindLogById(
 			Long logId) throws NoTrobatException, PermisDenegatException {
-		return delegate.registreFindLogById(logId);
+		return delegateService.registreFindLogById(logId);
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -8,29 +8,33 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.TokenDto;
 import es.caib.helium.logic.intf.service.ExpedientTokenService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientTokenService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class ExpedientTokenServiceBean implements ExpedientTokenService {
+public class ExpedientTokenServiceBean extends AbstractServiceEjb<ExpedientTokenService> implements ExpedientTokenService {
 
-	@Autowired
-	ExpedientTokenService delegate;
+	@Delegate
+	ExpedientTokenService delegateService;
+
+	protected void setDelegateService(ExpedientTokenService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TokenDto> findAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId) {
-		return delegate.findAmbInstanciaProces(
+		return delegateService.findAmbInstanciaProces(
 				expedientId,
 				processInstanceId);
 	}
@@ -42,7 +46,7 @@ public class ExpedientTokenServiceBean implements ExpedientTokenService {
 			String processInstanceId,
 			Long tokenId,
 			boolean activar) {
-		return delegate.canviarEstatActiu(
+		return delegateService.canviarEstatActiu(
 				expedientId,
 				processInstanceId,
 				tokenId,
@@ -55,7 +59,7 @@ public class ExpedientTokenServiceBean implements ExpedientTokenService {
 			Long expedientId,
 			String processInstanceId,
 			String tokenId) {
-		return delegate.findArrivingNodeNames(
+		return delegateService.findArrivingNodeNames(
 				expedientId,
 				processInstanceId,
 				tokenId);
@@ -67,7 +71,7 @@ public class ExpedientTokenServiceBean implements ExpedientTokenService {
 			Long expedientId,
 			String processInstanceId,
 			String tokenId) {
-		return delegate.findById(
+		return delegateService.findById(
 				expedientId,
 				processInstanceId,
 				tokenId);
@@ -81,7 +85,7 @@ public class ExpedientTokenServiceBean implements ExpedientTokenService {
 			String tokenId,
 			String nodeName,
 			boolean cancelTasks) {
-		delegate.retrocedir(
+		delegateService.retrocedir(
 				expedientId,
 				processInstanceId,
 				tokenId,

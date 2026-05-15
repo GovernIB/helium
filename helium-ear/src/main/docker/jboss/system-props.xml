@@ -1,0 +1,7 @@
+    <system-properties>
+        <property name="es.caib.helium.properties" value="/home/jboss/apps/helium/helium.properties"/>
+        <property name="es.caib.helium.system.properties" value="/home/jboss/apps/helium/helium-system.properties"/>
+        <property name="javax.net.ssl.trustStore" value="/home/jboss/apps/helium/truststore.jks"/>
+        <property name="javax.net.ssl.trustStorePassword" value="tecnologies"/>
+        <property name="resteasy.preferJacksonOverJsonB" value="false"/>
+    </system-properties>

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -8,7 +8,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.EnumeracioDto;
 import es.caib.helium.commons.dto.ExpedientTipusEnumeracioValorDto;
@@ -20,15 +21,18 @@ import es.caib.helium.logic.intf.service.EnumeracioService;
 
 /**
  * Servei per a gestionar les enumeracions.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class EnumeracioServiceBean implements EnumeracioService {
+public class EnumeracioServiceBean extends AbstractServiceEjb<EnumeracioService> implements EnumeracioService {
 
-	@Autowired
-	EnumeracioService delegate;
+	@Delegate
+	EnumeracioService delegateService;
+
+	protected void setDelegateService(EnumeracioService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -38,14 +42,14 @@ public class EnumeracioServiceBean implements EnumeracioService {
 			boolean incloureGlobals,
 			String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.findPerDatatable(entornId, expedientTipusId, incloureGlobals, filtre, paginacioParams);
+		return delegateService.findPerDatatable(entornId, expedientTipusId, incloureGlobals, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EnumeracioDto create(Long entornId, Long expedientTipusId, EnumeracioDto enumeracio)
 			throws PermisDenegatException {
-		return delegate.create(entornId, expedientTipusId, enumeracio);
+		return delegateService.create(entornId, expedientTipusId, enumeracio);
 	}
 
 	@Override
@@ -54,98 +58,98 @@ public class EnumeracioServiceBean implements EnumeracioService {
 			Long entornId,
 			Long expedientTipusId, String codi)
 			throws NoTrobatException {
-		return delegate.findAmbCodi(entornId, expedientTipusId, codi);
+		return delegateService.findAmbCodi(entornId, expedientTipusId, codi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(Long enumeracioId) throws NoTrobatException, PermisDenegatException {
-		delegate.delete(enumeracioId);
+		delegateService.delete(enumeracioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EnumeracioDto findAmbId(Long expedientTipusId, Long enumeracioId) throws NoTrobatException {
-		return delegate.findAmbId(expedientTipusId, enumeracioId);
+		return delegateService.findAmbId(expedientTipusId, enumeracioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<EnumeracioDto> findGlobals(Long entornId) throws NoTrobatException, PermisDenegatException {
-		return delegate.findGlobals(entornId);
+		return delegateService.findGlobals(entornId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EnumeracioDto update(EnumeracioDto enumeracio)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.update(enumeracio);
+		return delegateService.update(enumeracio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<ExpedientTipusEnumeracioValorDto> valorFindPerDatatable(
-			Long enumeracioId, 
-			String filtre, 
+			Long enumeracioId,
+			String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.valorFindPerDatatable(enumeracioId, filtre, paginacioParams);
+		return delegateService.valorFindPerDatatable(enumeracioId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusEnumeracioValorDto valorsCreate(Long expedientTipusId, Long enumeracioId,
 			Long entornId, ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException {
-		return delegate.valorsCreate(expedientTipusId, enumeracioId, entornId, enumeracio);
+		return delegateService.valorsCreate(expedientTipusId, enumeracioId, entornId, enumeracio);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusEnumeracioValorDto valorsUpsert(Long expedientTipusId, Long enumeracioId,
 			Long entornId, ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException {
-		return delegate.valorsUpsert(expedientTipusId, enumeracioId, entornId, enumeracio);
+		return delegateService.valorsUpsert(expedientTipusId, enumeracioId, entornId, enumeracio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void valorDelete(Long valorId) throws NoTrobatException, PermisDenegatException {
-		delegate.valorDelete(valorId);		
+		delegateService.valorDelete(valorId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusEnumeracioValorDto valorFindAmbId(Long valorId) throws NoTrobatException {
-		return delegate.valorFindAmbId(valorId);
+		return delegateService.valorFindAmbId(valorId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusEnumeracioValorDto valorUpdate(ExpedientTipusEnumeracioValorDto enumeracio)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.valorUpdate(enumeracio);
+		return delegateService.valorUpdate(enumeracio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusEnumeracioValorDto valorFindAmbCodi(Long expedientTipusId, Long enumeracioId,
 			String codi) throws NoTrobatException {
-		return delegate.valorFindAmbCodi(expedientTipusId, enumeracioId, codi);
+		return delegateService.valorFindAmbCodi(expedientTipusId, enumeracioId, codi);
 	}
 
 	@Override
 	public boolean valorMoure(Long valorId, int posicio) throws NoTrobatException {
-		return delegate.valorMoure(valorId, posicio);
+		return delegateService.valorMoure(valorId, posicio);
 	}
 
 	@Override
 	public List<ExpedientTipusEnumeracioValorDto> valorsFind(Long enumeracioId) throws NoTrobatException {
 		// TODO Auto-generated method stub
-		return delegate.valorsFind(enumeracioId);
+		return delegateService.valorsFind(enumeracioId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean valorInUse(Long valorId) throws NoTrobatException, PermisDenegatException {
-		return delegate.valorInUse(valorId);
+		return delegateService.valorInUse(valorId);
 	}
 
 }

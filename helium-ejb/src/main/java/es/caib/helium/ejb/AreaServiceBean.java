@@ -3,7 +3,8 @@ package es.caib.helium.ejb;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.AreaJbpmIdDto;
 import es.caib.helium.commons.dto.PaginaDto;
@@ -12,56 +13,59 @@ import es.caib.helium.logic.intf.service.AreaService;
 
 /**
  * EJB per a AreaService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class AreaServiceBean implements AreaService {
+public class AreaServiceBean extends AbstractServiceEjb<AreaService> implements AreaService {
 
-	@Autowired
-	AreaService delegate;
+	@Delegate
+	AreaService delegateService;
+
+	protected void setDelegateService(AreaService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public AreaJbpmIdDto findAmbId(Long id) {
-		return delegate.findAmbId(id);
+		return delegateService.findAmbId(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public AreaJbpmIdDto findAmbCodi(String codi) {
-		return delegate.findAmbCodi(codi);
+		return delegateService.findAmbCodi(codi);
 	}
-	
+
 	@Override
-	
+
 	public PaginaDto<AreaJbpmIdDto> findConfigurades(PaginacioParamsDto paginacioParams) {
-		return delegate.findConfigurades(paginacioParams);
+		return delegateService.findConfigurades(paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public PaginaDto<AreaJbpmIdDto> findSenseConfigurar(PaginacioParamsDto paginacioParams) {
-		return delegate.findSenseConfigurar(paginacioParams);
+		return delegateService.findSenseConfigurar(paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public AreaJbpmIdDto create(AreaJbpmIdDto area) {
-		return delegate.create(area);
+		return delegateService.create(area);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public void delete(Long areaId) {
-		delegate.delete(areaId);
+		delegateService.delete(areaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public AreaJbpmIdDto update(AreaJbpmIdDto area) {
-		return delegate.update(area);
+		return delegateService.update(area);
 	}
 
 }

@@ -3,81 +3,85 @@ package es.caib.helium.ejb;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.exception.ExecucioMassivaException;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.TascaProgramadaService;
 
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class TascaProgramadaServiceBean implements TascaProgramadaService {
-	
-	@Autowired
-	TascaProgramadaService delegate;
+public class TascaProgramadaServiceBean extends AbstractServiceEjb<TascaProgramadaService> implements TascaProgramadaService {
+
+	@Delegate
+	TascaProgramadaService delegateService;
+
+	protected void setDelegateService(TascaProgramadaService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void comprovarExecucionsMassives() {
-		delegate.comprovarExecucionsMassives();
+		delegateService.comprovarExecucionsMassives();
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void actualitzarEstatNotificacions(Long notificacioId) throws NoTrobatException {
-		delegate.actualitzarEstatNotificacions(notificacioId);
+		delegateService.actualitzarEstatNotificacions(notificacioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void comprovarEstatNotificacions() throws NoTrobatException {
-		delegate.comprovarEstatNotificacions();
+		delegateService.comprovarEstatNotificacions();
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void comprovarAnotacionsPendents() throws NoTrobatException {
-		delegate.comprovarAnotacionsPendents();
+		delegateService.comprovarAnotacionsPendents();
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void processarAnotacionsAutomatiques() throws NoTrobatException {
-		delegate.processarAnotacionsAutomatiques();
+		delegateService.processarAnotacionsAutomatiques();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void updatePeticionsAsincronesPinbal() throws ExecucioMassivaException {
-		delegate.updatePeticionsAsincronesPinbal();
+		delegateService.updatePeticionsAsincronesPinbal();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void actualitzarUnitatsIProcediments() {
-		delegate.actualitzarUnitatsIProcediments();
+		delegateService.actualitzarUnitatsIProcediments();
 	}
 
 	@Override
 	public void comprovarEmailAnotacionsNoAgrupats() {
-		delegate.comprovarEmailAnotacionsNoAgrupats();
+		delegateService.comprovarEmailAnotacionsNoAgrupats();
 	}
 
 	@Override
 	public void comprovarEmailAnotacionsAgrupats() {
-		delegate.comprovarEmailAnotacionsAgrupats();
+		delegateService.comprovarEmailAnotacionsAgrupats();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void migrarExpedientsDocumentsArxiu() {
-		delegate.migrarExpedientsDocumentsArxiu();
+		delegateService.migrarExpedientsDocumentsArxiu();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void restartSchedulledTasks(String taskCodi) {
-		delegate.restartSchedulledTasks(taskCodi);
+		delegateService.restartSchedulledTasks(taskCodi);
 	}
 
 }

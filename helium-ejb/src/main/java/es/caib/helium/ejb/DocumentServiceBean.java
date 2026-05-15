@@ -5,7 +5,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.ArxiuFirmaValidacioDetallDto;
@@ -20,21 +21,24 @@ import es.caib.helium.logic.intf.service.DocumentService;
 
 /**
  * EJB que implementa la interfície del servei DocumentService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class DocumentServiceBean implements DocumentService {
+public class DocumentServiceBean extends AbstractServiceEjb<DocumentService> implements DocumentService {
 
-	@Autowired
-	DocumentService delegate;
+	@Delegate
+	DocumentService delegateService;
+
+	protected void setDelegateService(DocumentService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<DocumentDto> findPerDatatable(Long expedientTipusId, Long definicioProcesId,
 			String filtre, PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.findPerDatatable(expedientTipusId, definicioProcesId, filtre, paginacioParams);
+		return delegateService.findPerDatatable(expedientTipusId, definicioProcesId, filtre, paginacioParams);
 	}
 
 	@Override
@@ -43,31 +47,31 @@ public class DocumentServiceBean implements DocumentService {
 			Long expedientTipusId,
 			Long definicioProcesId,
 			DocumentDto document) throws PermisDenegatException {
-		return delegate.create(expedientTipusId, definicioProcesId, document);
+		return delegateService.create(expedientTipusId, definicioProcesId, document);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto findAmbCodi(Long expedientTipusId, Long definicioProcesId, String codi, boolean herencia) {
-		return delegate.findAmbCodi(expedientTipusId, definicioProcesId, codi, herencia);
+		return delegateService.findAmbCodi(expedientTipusId, definicioProcesId, codi, herencia);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DocumentDto> findAll(Long expedientTipusId, Long definicioProcesId) {
-		return delegate.findAll(expedientTipusId, definicioProcesId);
+		return delegateService.findAll(expedientTipusId, definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(Long documentId) throws NoTrobatException, PermisDenegatException {
-		delegate.delete(documentId);
+		delegateService.delete(documentId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto findAmbId(Long expedientTipusId, Long documentId) throws NoTrobatException {
-		return delegate.findAmbId(expedientTipusId, documentId);
+		return delegateService.findAmbId(expedientTipusId, documentId);
 	}
 
 	@Override
@@ -76,7 +80,7 @@ public class DocumentServiceBean implements DocumentService {
 			DocumentDto document,
 			boolean actualitzarContingut)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.update(
+		return delegateService.update(
 				document,
 				actualitzarContingut);
 	}
@@ -84,26 +88,26 @@ public class DocumentServiceBean implements DocumentService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto getArxiu(Long documentId) throws NoTrobatException {
-		return delegate.getArxiu(documentId);
+		return delegateService.getArxiu(documentId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public String createDocumentPinbal(ExpedientDocumentPinbalDto expedientDocumentPinbalDto) {
-		return delegate.createDocumentPinbal(expedientDocumentPinbalDto);
+		return delegateService.createDocumentPinbal(expedientDocumentPinbalDto);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuFirmaValidacioDetallDto validateFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
 			byte[] firmaContingut) throws Exception {
-		return delegate.validateFirmaDocument(documentContingut, contentType, tipusFirma, firmaContingut);
+		return delegateService.validateFirmaDocument(documentContingut, contentType, tipusFirma, firmaContingut);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public byte[] removeSignaturesPdf(byte[] arxiuContingut) {
-		return delegate.removeSignaturesPdf(arxiuContingut);
+		return delegateService.removeSignaturesPdf(arxiuContingut);
 	}
 
 }

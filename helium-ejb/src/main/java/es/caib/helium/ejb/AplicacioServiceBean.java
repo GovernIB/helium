@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -8,7 +8,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.ExcepcioLogDto;
 import es.caib.helium.commons.dto.PersonaDto;
@@ -19,15 +20,18 @@ import es.caib.helium.logic.intf.service.AplicacioService;
 
 /**
  * EJB per a AplicacioService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class AplicacioServiceBean implements AplicacioService {
+public class AplicacioServiceBean extends AbstractServiceEjb<AplicacioService> implements AplicacioService {
 
-	@Autowired
-	AplicacioService delegate;
+	@Delegate
+	AplicacioService delegateService;
+
+	protected void setDelegateService(AplicacioService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -35,7 +39,7 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public UsuariPreferenciesDto getUsuariPreferencies() {
-		return delegate.getUsuariPreferencies();
+		return delegateService.getUsuariPreferencies();
 	}
 
 	/**
@@ -44,7 +48,7 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public PersonaDto findPersonaAmbCodi(String codi) {
-		return delegate.findPersonaAmbCodi(codi);
+		return delegateService.findPersonaAmbCodi(codi);
 	}
 
 	/**
@@ -53,13 +57,13 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
-		return delegate.findPersonaLikeNomSencer(text);
+		return delegateService.findPersonaLikeNomSencer(text);
 	}
 
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public List<PersonaDto> findPersonaLikeCodiOrNomSencer(String text) throws SistemaExternException {
-		return delegate.findPersonaLikeCodiOrNomSencer(text);
+		return delegateService.findPersonaLikeCodiOrNomSencer(text);
 	}
 
 	/**
@@ -68,7 +72,7 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public PersonaDto findPersonaActual() throws NoTrobatException, SistemaExternException {
-		return delegate.findPersonaActual();
+		return delegateService.findPersonaActual();
 	}
 
 	/**
@@ -77,7 +81,7 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public PersonaDto findPersonaCarrecAmbCodi(String codi) {
-		return delegate.findPersonaCarrecAmbCodi(codi);
+		return delegateService.findPersonaCarrecAmbCodi(codi);
 	}
 
 	/**
@@ -86,7 +90,7 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public void excepcioSave(String peticio, String params, Throwable exception) {
-		delegate.excepcioSave(peticio, params, exception);
+		delegateService.excepcioSave(peticio, params, exception);
 	}
 
 	/**
@@ -95,7 +99,7 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public ExcepcioLogDto excepcioFindOne(Long index) {
-		return delegate.excepcioFindOne(index);
+		return delegateService.excepcioFindOne(index);
 	}
 
 	/**
@@ -104,7 +108,7 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public List<ExcepcioLogDto> excepcioFindAll() {
-		return delegate.excepcioFindAll();
+		return delegateService.excepcioFindAll();
 	}
 
 	/**
@@ -113,7 +117,7 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public void updateEntornActual(String entorn) throws NoTrobatException {
-		delegate.updateEntornActual(entorn);
+		delegateService.updateEntornActual(entorn);
 	}
 
 	/**
@@ -122,7 +126,7 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public List<PersonaDto> findPersonesAll() {
-		return delegate.findPersonesAll();
+		return delegateService.findPersonesAll();
 	}
 
 	/**
@@ -131,6 +135,7 @@ public class AplicacioServiceBean implements AplicacioService {
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public void clearExpedient() {
-		delegate.clearExpedient();
+		delegateService.clearExpedient();
 	}
+
 }

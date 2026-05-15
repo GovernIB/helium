@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.ejb;
 
@@ -8,7 +8,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
@@ -17,15 +18,18 @@ import es.caib.helium.logic.intf.service.ExpedientTascaService;
 
 /**
  * EJB que implementa la interfície del servei ExpedientTascaService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class ExpedientTascaServiceBean implements ExpedientTascaService {
+public class ExpedientTascaServiceBean extends AbstractServiceEjb<ExpedientTascaService> implements ExpedientTascaService {
 
-	@Autowired
-	ExpedientTascaService delegate;
+	@Delegate
+	ExpedientTascaService delegateService;
+
+	protected void setDelegateService(ExpedientTascaService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -33,7 +37,7 @@ public class ExpedientTascaServiceBean implements ExpedientTascaService {
 			Long expedientId,
 			String processInstanceId)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.findAmbInstanciaProces(
+		return delegateService.findAmbInstanciaProces(
 				expedientId,
 				processInstanceId);
 	}
@@ -44,7 +48,7 @@ public class ExpedientTascaServiceBean implements ExpedientTascaService {
 			Long expedientId,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
-		return delegate.findPendents(
+		return delegateService.findPendents(
 				expedientId,
 				nomesTasquesPersonals,
 				nomesTasquesGrup);
@@ -53,7 +57,7 @@ public class ExpedientTascaServiceBean implements ExpedientTascaService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void cancelar(Long expedientId, String tascaId) {
-		delegate.cancelar(
+		delegateService.cancelar(
 				expedientId,
 				tascaId);
 	}
@@ -61,7 +65,7 @@ public class ExpedientTascaServiceBean implements ExpedientTascaService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void suspendre(Long expedientId, String tascaId) {
-		delegate.suspendre(
+		delegateService.suspendre(
 				expedientId,
 				tascaId);
 	}
@@ -69,7 +73,7 @@ public class ExpedientTascaServiceBean implements ExpedientTascaService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void reprendre(Long expedientId, String tascaId) {
-		delegate.reprendre(
+		delegateService.reprendre(
 				expedientId,
 				tascaId);
 	}
@@ -80,7 +84,7 @@ public class ExpedientTascaServiceBean implements ExpedientTascaService {
 			Long expedientId,
 			String tascaId,
 			String expressio) {
-		delegate.reassignar(
+		delegateService.reassignar(
 				expedientId,
 				tascaId,
 				expressio);

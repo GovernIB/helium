@@ -5,7 +5,8 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
+import lombok.experimental.Delegate;
 
 import es.caib.helium.commons.dto.CampAgrupacioDto;
 import es.caib.helium.commons.dto.CampDto;
@@ -20,213 +21,216 @@ import es.caib.helium.logic.intf.service.CampService;
 
 /**
  * EJB que implementa la interfície del servei CampService.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
-//@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class CampServiceBean implements CampService {
+public class CampServiceBean extends AbstractServiceEjb<CampService> implements CampService {
 
-	@Autowired
-	CampService delegate;
+	@Delegate
+	CampService delegateService;
+
+	protected void setDelegateService(CampService delegateService) {
+		this.delegateService = delegateService;
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampAgrupacioDto> agrupacioFindAll(Long expedientTipusId, Long definicioProcesId, boolean herencia)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.agrupacioFindAll(expedientTipusId, definicioProcesId, herencia);
+		return delegateService.agrupacioFindAll(expedientTipusId, definicioProcesId, herencia);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampAgrupacioDto agrupacioCreate(Long expedientTipusId, Long definicioProcesId, CampAgrupacioDto agrupacio)
 			throws PermisDenegatException {
-		return delegate.agrupacioCreate(expedientTipusId, definicioProcesId, agrupacio);
+		return delegateService.agrupacioCreate(expedientTipusId, definicioProcesId, agrupacio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampAgrupacioDto agrupacioUpdate(CampAgrupacioDto agrupacio)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.agrupacioUpdate(agrupacio);
+		return delegateService.agrupacioUpdate(agrupacio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean agrupacioMourePosicio(Long id, int posicio) {
-		return delegate.agrupacioMourePosicio(id, posicio);
+		return delegateService.agrupacioMourePosicio(id, posicio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void agrupacioDelete(Long agrupacioCampId) throws NoTrobatException, PermisDenegatException {
-		delegate.agrupacioDelete(agrupacioCampId);
+		delegateService.agrupacioDelete(agrupacioCampId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampAgrupacioDto agrupacioFindAmbCodiPerValidarRepeticio(Long expedientTipusId, Long definicioProcesId,
 			String codi) throws NoTrobatException {
-		return delegate.agrupacioFindAmbCodiPerValidarRepeticio(expedientTipusId, definicioProcesId, codi);
+		return delegateService.agrupacioFindAmbCodiPerValidarRepeticio(expedientTipusId, definicioProcesId, codi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampAgrupacioDto agrupacioFindAmbId(Long id) throws NoTrobatException {
-		return delegate.agrupacioFindAmbId(id);
+		return delegateService.agrupacioFindAmbId(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<CampAgrupacioDto> agrupacioFindPerDatatable(Long expedientTipusId, Long definicioProcesId,
 			String filtre, PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.agrupacioFindPerDatatable(expedientTipusId, definicioProcesId, filtre, paginacioParams);
+		return delegateService.agrupacioFindPerDatatable(expedientTipusId, definicioProcesId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampDto create(Long expedientTipusId, Long definicioProcesId, CampDto camp) throws PermisDenegatException {
-		return delegate.create(expedientTipusId, definicioProcesId, camp);
+		return delegateService.create(expedientTipusId, definicioProcesId, camp);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampDto update(CampDto camp) throws NoTrobatException, PermisDenegatException {
-		return delegate.update(camp);
+		return delegateService.update(camp);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(Long campCampId) throws NoTrobatException, PermisDenegatException {
-		delegate.delete(campCampId);
+		delegateService.delete(campCampId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampDto findAmbId(Long expedientTipusId, Long id) throws NoTrobatException {
-		return delegate.findAmbId(expedientTipusId, id);
+		return delegateService.findAmbId(expedientTipusId, id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<CampDto> findPerDatatable(
-			Long expedientTipusId, 
+			Long expedientTipusId,
 			Long definicioProcesId,
 			boolean totes,
 			Long agrupacioId,
-			String filtre, 
+			String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.findPerDatatable(expedientTipusId, definicioProcesId, totes, agrupacioId, filtre, paginacioParams);
+		return delegateService.findPerDatatable(expedientTipusId, definicioProcesId, totes, agrupacioId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampDto> findTipusData(Long expedientTipusId, Long definicioProcesId) throws NoTrobatException {
-		return delegate.findTipusData(expedientTipusId, definicioProcesId);
+		return delegateService.findTipusData(expedientTipusId, definicioProcesId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampDto findAmbCodi(Long tipusExpedientId, Long definicioProcesId, String codi, boolean herencia) {
-		return delegate.findAmbCodi(tipusExpedientId, definicioProcesId, codi, herencia);
+		return delegateService.findAmbCodi(tipusExpedientId, definicioProcesId, codi, herencia);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampDto> findAllOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId) {
-		return delegate.findAllOrdenatsPerCodi(expedientTipusId, definicioProcesId);
+		return delegateService.findAllOrdenatsPerCodi(expedientTipusId, definicioProcesId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean afegirAgrupacio(Long campId, Long agrupacioId) {
-		return delegate.afegirAgrupacio(campId, agrupacioId);
+		return delegateService.afegirAgrupacio(campId, agrupacioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean remoureAgrupacio(Long campId) {
-		return delegate.remoureAgrupacio(campId);
+		return delegateService.remoureAgrupacio(campId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean mourePosicio(Long id, int posicio) {
-		return delegate.mourePosicio(id, posicio);
+		return delegateService.mourePosicio(id, posicio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampRegistreDto registreCreate(Long campId, CampRegistreDto campRegistre) throws PermisDenegatException {
-		return delegate.registreCreate(campId, campRegistre);
+		return delegateService.registreCreate(campId, campRegistre);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampRegistreDto registreUpdate(CampRegistreDto campRegistre)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.registreUpdate(campRegistre);
+		return delegateService.registreUpdate(campRegistre);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void registreDelete(Long id) throws NoTrobatException, PermisDenegatException {
-		delegate.registreDelete(id);
+		delegateService.registreDelete(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampRegistreDto registreFindAmbId(Long id) throws NoTrobatException {
-		return delegate.registreFindAmbId(id);
+		return delegateService.registreFindAmbId(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampDto> registreFindMembresAmbRegistreId(Long registreId) {
-		return delegate.registreFindMembresAmbRegistreId(registreId);
+		return delegateService.registreFindMembresAmbRegistreId(registreId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<CampRegistreDto> registreFindPerDatatable(Long campId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.registreFindPerDatatable(campId, filtre, paginacioParams);
+		return delegateService.registreFindPerDatatable(campId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean registreMourePosicio(Long id, int posicio) {
-		return delegate.registreMourePosicio(id, posicio);
+		return delegateService.registreMourePosicio(id, posicio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDto> findTasquesPerCamp(Long campId) {
-		return delegate.findTasquesPerCamp(campId);
+		return delegateService.findTasquesPerCamp(campId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ConsultaDto> findConsultesPerCamp(Long expedientTipusId, Long campId) {
-		return delegate.findConsultesPerCamp(expedientTipusId, campId);
+		return delegateService.findConsultesPerCamp(expedientTipusId, campId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampDto> findRegistresPerCamp(Long campId) {
-		return delegate.findRegistresPerCamp(campId);
+		return delegateService.findRegistresPerCamp(campId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampRegistreDto> findRegistresByCampId(Long campId) {
-		return delegate.findRegistresByCampId(campId);
+		return delegateService.findRegistresByCampId(campId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampDto findById(Long campId) {
-		return delegate.findById(campId);
+		return delegateService.findById(campId);
 	}
 
 }

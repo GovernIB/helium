@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.config;
 
@@ -57,7 +57,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Configuració de Spring Security per a desplegar l'aplicació sobre JBoss.
- * 
+ *
  * @author Limit Tecnologies
  */
 @Slf4j
@@ -66,7 +66,7 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnWarDeployment
 public class JBossWebSecurityConfig extends BaseWebSecurityConfig {
 
-	@Value("${es.caib.helium.security.mappableRoles:" + BaseConfig.ROLE_SUPER + "}")
+	@Value("${es.caib.helium.security.mappableRoles:" + BaseConfig.ROLE_ADMIN + "}")
 	private String mappableRoles;
 	@Value("${es.caib.helium.security.nameAttributeKey:preferred_username}")
 	private String nameAttributeKey;

@@ -1,6 +1,9 @@
 package es.caib.helium.logic.flowable;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -57,6 +60,13 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	                .singleResult();
 		WProcessDefinition ret = toWProcessDefinition(pd);
 		return ret;
+	}
+
+	public String getXml(String deploymentId) throws IOException {
+		ProcessDefinition processDefinition = processEngine.getRepositoryService().
+			getProcessDefinition(deploymentId);
+		InputStream is = processEngine.getRepositoryService().getProcessModel(processDefinition.getId());
+		return new String(is.readAllBytes(), StandardCharsets.UTF_8);
 	}
 
 	@Override
@@ -121,11 +131,11 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		this.cercarSubprocessos(process.getFlowElements(), subprocessos);
 		return subprocessos;
 	}
-	
+
 	/** Funció recursiva per cercar subprocessos.
 	 */
 	private void cercarSubprocessos(Collection<FlowElement> elements, List<WProcessDefinition> subprocessos) {
-		
+
 		for (FlowElement element : elements) {
 		    if (element instanceof CallActivity) {
 		        CallActivity call = (CallActivity) element;
@@ -143,7 +153,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	/** Converteix l'objecte ProcessDefintion a WProcessDefinition.
-	 * 
+	 *
 	 * @param pd
 	 * @return
 	 */
