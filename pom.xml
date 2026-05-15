@@ -61,9 +61,8 @@
 	</dependencyManagement>
 	<modules>
 		<module>helium-commons</module>
-		<module>helium-back</module>
+		<module>helium-disseny</module>
 		<module>helium-api-interna</module>
-		<module>helium-ear</module>
 		<module>helium-persistence</module>
 		<module>helium-plugin</module>
 		<module>helium-plugin-impl</module>
@@ -72,7 +71,6 @@
 		<module>helium-ejb</module>
 		<module>helium-back</module>
 		<module>helium-ear</module>
-		<module>helium-disseny</module>
 		<!-- mòduls a migrar
 		<module>helium-core-api</module>
 		<module>helium-disseny</module>

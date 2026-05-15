@@ -9,12 +9,9 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import es.caib.helium.back.mvc.ArxiuView;
-import es.caib.helium.back.mvc.SerialitzarView;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.web.servlet.support.RequestContext;
@@ -26,6 +23,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.caib.helium.back.helper.AjaxHelper;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.ModalHelper;
+import es.caib.helium.back.mvc.ArxiuView;
+import es.caib.helium.back.mvc.SerialitzarView;
+import es.caib.helium.commons.utils.GlobalProperties;
 
 /**
  * Controlador base que implementa funcionalitats comunes.
@@ -34,8 +34,9 @@ import es.caib.helium.back.helper.ModalHelper;
  */
 public class BaseController implements MessageSourceAware {
 
-	@Value("${server.servlet.context-path}")
-	public static String ESQUEMA_PREFIX;
+	/* Propietat estàtica on posar el valor de la propietat server.servlet.context-path amb el context de l'aplicació. */
+	private static String ESQUEMA_PREFIX = null;
+	
 	MessageSource messageSource;
 
 	@Autowired
@@ -58,6 +59,13 @@ public class BaseController implements MessageSourceAware {
 		return "redirect:/nodeco/util/ajaxOk";
 	}
 
+	public String getBaseUrl() {
+		if (ESQUEMA_PREFIX == null) {
+			ESQUEMA_PREFIX = GlobalProperties.getInstance().getProperty("server.servlet.context-path", "/heliumback");
+		}
+		return ESQUEMA_PREFIX;
+	}
+	
 	protected String getPageURI(HttpServletRequest request) {
 		String uri = request.getRequestURI();
 		return uri.substring(uri.indexOf(ESQUEMA_PREFIX) + ESQUEMA_PREFIX.length());

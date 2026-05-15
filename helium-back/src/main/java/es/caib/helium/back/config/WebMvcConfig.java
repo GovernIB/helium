@@ -86,10 +86,23 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		};
 		registry.addInterceptor(aplicacioInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(personaInterceptor).excludePathPatterns(excludedPathPatterns);
-		registry.addInterceptor(modalInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(nodecoInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(ajaxInterceptor).excludePathPatterns(excludedPathPatterns);
+		
+		excludedPathPatterns = new String [] {
+				"/js/**",
+				"/css/**",
+				"/fonts/**",
+				"/img/**",
+				"/images/**",
+				"/extensions/**",
+				"/webjars/**",
+				"/webjars/**",
+				"/**/selection/**",
+				"/public/**"
+		};
+		registry.addInterceptor(modalInterceptor).excludePathPatterns(excludedPathPatterns);
 	}
 
 	@Bean
