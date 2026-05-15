@@ -26,23 +26,6 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<!--<dependency>
-			<groupId>axis</groupId>
-			<artifactId>axis</artifactId>
-			<version>1.4</version>
-			<type>jar</type>
-			<exclusions>
-				<exclusion>
-					<artifactId>axis-wsdl4j</artifactId>
-					<groupId>axis</groupId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.axis</groupId>
-					<artifactId>axis-jaxrpc</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>-->
-
 		<!-- Portafirmes API REST -->
 		<dependency>
 			<groupId>es.caib.portafib</groupId>

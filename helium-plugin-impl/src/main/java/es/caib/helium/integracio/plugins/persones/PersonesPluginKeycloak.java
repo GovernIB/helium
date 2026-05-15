@@ -1,6 +1,7 @@
 package es.caib.helium.integracio.plugins.persones;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -19,8 +20,6 @@ import org.keycloak.admin.client.resource.RoleResource;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-
-import com.google.common.collect.Lists;
 
 import es.caib.helium.commons.utils.GlobalProperties;
 
@@ -74,7 +73,7 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException {
 		try {
 			RolesInfo rolesInfo = getRolesByUsername(codi);
-			return Lists.newArrayList(rolesInfo.getRoles());
+			return Arrays.asList(rolesInfo.getRoles());
 		} catch (Exception e) {
 			throw new PersonesPluginException("Error cercant rols de persona amb codi: " + codi, e);
 		}
