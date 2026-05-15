@@ -48,7 +48,6 @@ public class FluxosFirmaController extends BaseExpedientController {
 	DatatablesResponse datatable(
 			HttpServletRequest request,
 			Model model) {
-//		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(
 				null,
