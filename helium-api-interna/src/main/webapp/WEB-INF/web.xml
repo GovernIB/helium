@@ -31,15 +31,6 @@
 		<url-pattern>*</url-pattern>
 	</filter-mapping>
 
-	<servlet>
-		<servlet-name>apiinterna</servlet-name>
-		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>apiinterna</servlet-name>
-		<url-pattern>/</url-pattern>
-	</servlet-mapping>
 	<!-- swagger -->
 	<servlet-mapping>
 		<servlet-name>default</servlet-name>

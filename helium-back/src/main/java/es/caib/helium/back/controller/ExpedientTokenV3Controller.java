@@ -39,11 +39,10 @@ import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.dto.TokenDto;
 import es.caib.helium.logic.intf.service.ExpedientTokenService;
-import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -52,17 +51,13 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientTokenService expedientTokenService;
-	@Resource
-	private WorkflowEngineApi jbpmHelper;
-
-
 
 	@RequestMapping(value = "/{expedientId}/token", method = RequestMethod.GET)
 	public String tokens(
-			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);	
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 		Map<InstanciaProcesDto, List<TokenDto>> tokens = new LinkedHashMap<InstanciaProcesDto, List<TokenDto>>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
@@ -108,7 +103,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 			@PathVariable String procesId,
 			@PathVariable Long tokenId,
 			Model model) {
-		boolean response = false; 
+		boolean response = false;
 		TokenDto token = expedientTokenService.findById(
 				expedientId,
 				procesId,
@@ -163,9 +158,9 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
 			@PathVariable String tokenId,
-			@ModelAttribute TokenExpedientCommand command, 
-			BindingResult result, 
-			SessionStatus status, 
+			@ModelAttribute TokenExpedientCommand command,
+			BindingResult result,
+			SessionStatus status,
 			Model model) {
 		try{
 			new TokenRetrocedirValidator().validate(command, result);
@@ -189,7 +184,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.retrocedir.token", new Object[] {String.valueOf(tokenId)} ), ex);
 	    	logger.error("No s'ha pogut retrocedir el token " + String.valueOf(tokenId), ex);
 		}
-		
+
 		return modalUrlTancar(false);
 	}
 

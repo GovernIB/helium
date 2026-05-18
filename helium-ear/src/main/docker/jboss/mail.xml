@@ -2,4 +2,7 @@
             <mail-session name="default" jndi-name="java:jboss/mail/Default">
                 <smtp-server outbound-socket-binding-ref="mail-smtp"/>
             </mail-session>
+            <mail-session name="helium" jndi-name="java:jboss/mail/HeliumSession">
+                <smtp-server username="${env.JBOSS_MAIL_USERNAME}" password="${env.JBOSS_MAIL_PASSWORD}" ssl="${env.JBOSS_MAIL_SSL}" tls="${env.JBOSS_MAIL_TLS}" outbound-socket-binding-ref="smtp-helium"/>
+            </mail-session>
         </subsystem>

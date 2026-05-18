@@ -36,14 +36,9 @@
             <logger category="es.caib.${env.JBOSS_APP_NAME}">
                 <level name="INFO"/>
             </logger>
-            <!--
-            <logger category="es.caib.helium.ejb.services">
-                <level name="TRACE"/>
+            <logger category="es.caib.helium.persistence.config">
+                <level name="DEBUG"/>
             </logger>
-            <logger category="es.caib.helium.ejb.utils.ValidacioFirmaUtils">
-                <level name="TRACE"/>
-            </logger>
-            -->
             <!--<logger category="org.springframework.transaction.jta">
                 <level name="DEBUG"/>
             </logger>

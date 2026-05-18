@@ -41,14 +41,10 @@
 			<artifactId>helium-disseny</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
-		<!-- Flowable -->
 		<dependency>
 			<groupId>org.flowable</groupId>
 			<artifactId>flowable-spring-boot-starter-process</artifactId>
-			<version>6.8.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>dom4j</groupId>
 		 	<artifactId>dom4j</artifactId>
@@ -244,18 +240,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-core</artifactId>
-			<version>1.18</version>
-		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>javax.servlet</groupId>-->
-<!--			<artifactId>servlet-api</artifactId>-->
-<!--			<version>2.5</version>-->
-<!--			<type>jar</type>-->
-<!--			<scope>provided</scope>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>

@@ -15,6 +15,7 @@ if ! grep -q "<system-properties" $CONFIG_STANDALONE_FILE; then
 	echo "Configuració inicial de JBoss..."
 	sed '/<\/extensions>/a <system-properties\/>' -i $CONFIG_STANDALONE_FILE
 	sed '/<\/socket-binding-group>/i <socket-binding name="proxy-https" port="443"\/>' -i $CONFIG_STANDALONE_FILE
+	sed '/<\/socket-binding-group>/i <outbound-socket-binding name="smtp-helium" source-port="0" fixed-source-port="false"><remote-destination host="${env.JBOSS_MAIL_HOST}" port="${env.JBOSS_MAIL_PORT}"\/><\/outbound-socket-binding>' -i $CONFIG_STANDALONE_FILE
 	sed -i 's/<http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true"\/>/<http-listener name="default" socket-binding="http" proxy-address-forwarding="true" redirect-socket="proxy-https"\/>/g' $CONFIG_STANDALONE_FILE
 	echo "...configuració inicial de JBoss finalitzada"
 fi

@@ -23,8 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tika.Tika;
-import org.apache.tika.mime.MimeTypes;
 import org.fundaciobit.pluginsib.validatecertificate.InformacioCertificat;
 import org.fundaciobit.pluginsib.validatesignature.api.IValidateSignaturePlugin;
 import org.fundaciobit.pluginsib.validatesignature.api.SignatureDetailInfo;
@@ -36,6 +34,8 @@ import org.fundaciobit.pluginsib.validatesignature.api.ValidationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Component;
 
 import es.caib.helium.commons.dto.ArxiuDetallDto;
@@ -239,9 +239,6 @@ public class PluginHelper {
 	private FirmaWebPlugin firmaWebPlugin;
 	private ProcedimentPlugin procedimentPlugin;
 	private DadesExternesPlugin dadesExternesPlugin;
-
-
-	private Tika tika = new Tika();
 
 
 	public List<PersonaDto> personaFindAmbGrup(
@@ -4617,11 +4614,9 @@ public class PluginHelper {
 	}
 
 	public String getContentType(String arxiuNom) {
-        String fileContentDetect = tika.detect(arxiuNom);
-        if (!fileContentDetect.equals(MimeTypes.OCTET_STREAM)) {
-            return fileContentDetect;
-        }
-        return MimeTypes.OCTET_STREAM;
+		return MediaTypeFactory.getMediaType(arxiuNom)
+			.map(MediaType::toString)
+			.orElse(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 	}
 
 	/**

@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -20,7 +19,6 @@ import es.caib.helium.commons.dto.AccioDto;
 import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.logic.helper.ExceptionHelper;
 
 /**
  * Controlador per a la pàgina d'accions de l'expedient.
@@ -30,9 +28,6 @@ import es.caib.helium.logic.helper.ExceptionHelper;
 @Controller
 @RequestMapping("/expedient")
 public class ExpedientAccioController extends BaseExpedientController {
-
-	@Resource
-	ExceptionHelper exceptionHelper;
 
 	@RequestMapping(value = "/{expedientId}/accio", method = RequestMethod.GET)
 	public String accions(

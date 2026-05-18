@@ -27,7 +27,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -35,6 +34,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -174,9 +175,6 @@ public class DocumentHelperV3 {
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
-	private Tika tika = new Tika();
-
-
 
 	public ExpedientDocumentDto findOnePerInstanciaProces(
 			String processInstanceId,
@@ -3185,11 +3183,9 @@ public class DocumentHelperV3 {
 	}
 
 	public String getContentType(String arxiuNom) {
-        String fileContentDetect = tika.detect(arxiuNom);
-        if (!fileContentDetect.equals(MimeTypes.OCTET_STREAM)) {
-            return fileContentDetect;
-        }
-        return MimeTypes.OCTET_STREAM;
+		return MediaTypeFactory.getMediaType(arxiuNom)
+			.map(MediaType::toString)
+			.orElse(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 	}
 
 	private String getPropertyNtiCsvDef() {

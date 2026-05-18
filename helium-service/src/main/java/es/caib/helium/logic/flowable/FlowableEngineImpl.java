@@ -43,7 +43,7 @@ import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 @Component
 public class FlowableEngineImpl implements WorkflowEngineApi {
 
-	@Autowired
+	@Autowired(required = false)
 	private ProcessEngine processEngine;
 
 	@Override

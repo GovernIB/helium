@@ -30,8 +30,9 @@ import java.util.Locale;
 		JerseyServerMetricsAutoConfiguration.class
 })
 @ComponentScan({
-		BaseConfig.BASE_PACKAGE + ".service",
-		BaseConfig.BASE_PACKAGE + ".persistence"
+		BaseConfig.BASE_PACKAGE + ".persistence",
+		BaseConfig.BASE_PACKAGE + ".commons",
+		BaseConfig.BASE_PACKAGE + ".logic",
 })
 //@EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 @PropertySource(ignoreResourceNotFound = true, value = {

@@ -34,7 +34,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @ConditionalOnWarDeployment
-@SpringBootApplication(exclude = {
+@SpringBootApplication(
+	exclude = {
 		DataSourceAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class,
 		JpaRepositoriesAutoConfiguration.class,
@@ -43,8 +44,15 @@ import lombok.extern.slf4j.Slf4j;
 		LiquibaseAutoConfiguration.class,
 		FreeMarkerAutoConfiguration.class,
 		WebSocketServletAutoConfiguration.class,
-		JerseyServerMetricsAutoConfiguration.class
-})
+		JerseyServerMetricsAutoConfiguration.class,
+	},
+	excludeName = {
+		"org.flowable.spring.boot.EndpointAutoConfiguration",
+		"org.flowable.spring.boot.ProcessEngineAutoConfiguration",
+		"org.flowable.spring.boot.ProcessEngineServicesAutoConfiguration",
+		"org.flowable.spring.boot.eventregistry.EventRegistryAutoConfiguration",
+		"org.flowable.spring.boot.eventregistry.EventRegistryServicesAutoConfiguration",
+	})
 @ComponentScan(
 		basePackages = { BaseConfig.BASE_PACKAGE },
 		excludeFilters = {

@@ -46,19 +46,17 @@ import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 
 /**
  * Controlador per reassignacio massiva de tasques
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
 @RequestMapping("/tasca")
 public class MassivaTascaReassignacioController extends BaseExpedientController {
-	
+
 	@Autowired
 	private AplicacioService aplicacioService;
-	
-	@Resource(name="execucioMassivaServiceV3")
 	private ExecucioMassivaService execucioMassivaService;
-	
+
 	@RequestMapping(value = "/massivaReassignacioTasca", method = RequestMethod.GET)
 	public String massivaTramitacio(
 			HttpServletRequest request,
@@ -76,9 +74,9 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			model.addAttribute("inici", inici);
 			model.addAttribute("enviarCorreu", correu);
 		}
-		model.addAttribute("massiva", massiva);		
+		model.addAttribute("massiva", massiva);
 		model.addAttribute("reassignacioTasquesCommand", new ReassignacioTasquesCommand());
-		
+
 		return "tasquesReassignacio";
 	}
 
@@ -128,22 +126,22 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			@RequestParam(value = "enviarCorreu", required = false) String enviarCorreu,
 			@RequestParam(value = "massiva", required = true) boolean massiva,
 			@ModelAttribute("reassignacioTasquesCommand") ReassignacioTasquesCommand reassignacioTasquesCommand,
-			BindingResult result, 
-			SessionStatus status, 
-			Model model) {	
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
 		inici = inici.replaceAll("undefined,", "");
-		
+
 		model.addAttribute("inici", inici);
 		model.addAttribute("enviarCorreu", enviarCorreu);
-		model.addAttribute("massiva", massiva);		
-		
+		model.addAttribute("massiva", massiva);
+
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
 			return modalUrlTancar();
 		}
-		String tipus = request.getParameter("tipusExpressio"); 
+		String tipus = request.getParameter("tipusExpressio");
 		ReassignarValidator validator = new ReassignarValidator();
 		validator.setTipus(tipus);
 		validator.validate(reassignacioTasquesCommand, result);
@@ -172,7 +170,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		try {
 			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 //			Authentication massiuAuthentication = SecurityContextHolder.getContext().getAuthentication();
-			
+
 			ExecucioMassivaDto dto = new ExecucioMassivaDto();
 			dto.setDataInici(dInici);
 			dto.setEnviarCorreu(enviarCorreu != null);
@@ -183,7 +181,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			dto.setTascaIds(idsAsString.toArray(new String[idsAsString.size()]));
 			dto.setTipus(ExecucioMassivaTipusDto.REASSIGNAR);
 			dto.setParam1(expression);
-			
+
 			Object[] params = new Object[1];
 			params[0] = entorn.getId();
 //			params[1] = massiuAuthentication.getCredentials();
@@ -192,7 +190,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 //				rols.add(gauth.getAuthority());
 //			}
 //			params[2] = rols;
-			
+
 			dto.setParam2(execucioMassivaService.serialize(params));
 			execucioMassivaService.crearExecucioMassiva(dto);
 			MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.reassignat", new Object[] {ids.size()}));
@@ -207,10 +205,10 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		}
 		return modalUrlTancar(false);
 	}
-	
-	private class ReassignarValidator implements Validator {		
+
+	private class ReassignarValidator implements Validator {
 		private String tipus;
-		
+
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ReassignacioTasquesCommand.class);

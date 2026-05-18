@@ -19,7 +19,6 @@ import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.ConsultaPinbalService;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientService;
@@ -37,7 +36,6 @@ public class BaseExpedientController extends BaseController {
 	@Autowired protected ExpedientTipusService expedientTipusService;
 	@Autowired protected DissenyService dissenyService;
 	@Autowired protected ConsultaPinbalService consultaPinbalService;
-	@Resource protected WorkflowEngineApi jbpmHelper;
 
 	protected String mostrarInformacioExpedientPerPipella(
 			HttpServletRequest request,
@@ -80,8 +78,8 @@ public class BaseExpedientController extends BaseController {
 				numAccions += accionsTrobades.size();
 			}
 
-			WProcessInstance jbpmProcessInstance = jbpmHelper.getProcessInstance(expedient.getProcessInstanceId());
-			model.addAttribute("processInstance", jbpmProcessInstance != null? jbpmProcessInstance.getProcessInstance() : null);
+			/*WProcessInstance jbpmProcessInstance = jbpmHelper.getProcessInstance(expedient.getProcessInstanceId());
+			model.addAttribute("processInstance", jbpmProcessInstance != null? jbpmProcessInstance.getProcessInstance() : null);*/
 		model.addAttribute("subprocessos", subprocessos);
 		model.addAttribute("numAccions", numAccions);
 		}
