@@ -126,7 +126,7 @@ public class ExpedientTipusServiceBean extends AbstractServiceEjb<ExpedientTipus
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntornPermisConsultar(entornId);
+		return delegateService.findAmbEntornPermisConsultar(entornId);
 	}
 
 	@Override
@@ -149,21 +149,21 @@ public class ExpedientTipusServiceBean extends AbstractServiceEjb<ExpedientTipus
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisDissenyar(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntornPermisDissenyar(entornId);
+		return delegateService.findAmbEntornPermisDissenyar(entornId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisAnotacio(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntornPermisAnotacio(entornId);
+		return delegateService.findAmbEntornPermisAnotacio(entornId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisExecucioScript(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntornPermisExecucioScript(entornId);
+		return delegateService.findAmbEntornPermisExecucioScript(entornId);
 	}
 
 	@Override
@@ -181,7 +181,7 @@ public class ExpedientTipusServiceBean extends AbstractServiceEjb<ExpedientTipus
 	public ExpedientTipusDto findAmbIdPermisDissenyarDelegat(
 			Long entornId,
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
-		return findAmbIdPermisDissenyarDelegat(
+		return delegateService.findAmbIdPermisDissenyarDelegat(
 				entornId,
 				expedientTipusId);
 	}
@@ -190,7 +190,7 @@ public class ExpedientTipusServiceBean extends AbstractServiceEjb<ExpedientTipus
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisCrear(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntornPermisCrear(entornId);
+		return delegateService.findAmbEntornPermisCrear(entornId);
 	}
 
 	@Override

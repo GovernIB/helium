@@ -89,7 +89,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addInterceptor(nodecoInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(ajaxInterceptor).excludePathPatterns(excludedPathPatterns);
-		
+
 		excludedPathPatterns = new String [] {
 				"/js/**",
 				"/css/**",
@@ -152,6 +152,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	public ArxiuView arxiuView() {
 		return new ArxiuView();
 	}
-
 
 }
