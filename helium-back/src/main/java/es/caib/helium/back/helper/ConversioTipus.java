@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.helper;
 
@@ -14,7 +14,7 @@ import ma.glasnost.orika.impl.DefaultMapperFactory;
 
 /**
  * Helper per a convertir entre diferents formats de documents.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 // @Component

@@ -59,8 +59,11 @@
 			<taglib-uri>http://www.springframework.org/tags/form</taglib-uri>
 			<taglib-location>tags/spring-form.tld</taglib-location>
 		</taglib>
+		<taglib>
+			<taglib-uri>http://www.springframework.org/security/tags</taglib-uri>
+			<taglib-location>tags/security.tld</taglib-location>
+		</taglib>
 	</jsp-config>
-
 	<session-config>
 		<!-- session-timeout.begin --><!--@@web.session.timeout@@--><session-timeout>30</session-timeout><!-- session-timeout.end -->
 	</session-config>
