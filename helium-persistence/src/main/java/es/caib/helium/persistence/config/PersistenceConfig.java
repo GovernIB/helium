@@ -123,7 +123,7 @@ public class PersistenceConfig {
 
 	@Bean
 	@Primary
-	public TransactionManager mainTransactionManager(EntityManagerFactory entityManagerFactory) {
+	public PlatformTransactionManager mainTransactionManager(EntityManagerFactory entityManagerFactory) {
 		log.debug("Creating main TransactionManager...");
 		PlatformTransactionManager transactionManager;
 		if (!containerTransactionsDisabled && isJboss()) {
