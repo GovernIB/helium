@@ -48,7 +48,7 @@
 		.cabecera_reducida .navbar-btn .btn {padding: 3px 12px;}
 		.cabecera_reducida-main {margin-top: -30px;}
 		.navbar-right {margin-right: 0px;}
-		.nav-consulta-tipus {    
+		.nav-consulta-tipus {
 			color: black;
 		    list-style-type: none;
 		    margin-left: 30px;
@@ -60,7 +60,7 @@
 		    text-align: left;
 			padding-right: 15px;
 		}
-		
+
 		.nav-consulta-tipus a {
 			padding: 3px 0px !important;
 		}
@@ -74,29 +74,29 @@
 		    text-overflow: ellipsis;
 		    margin-bottom: -7px;
 		}
-		
+
 		.text-limit.w475{
 			max-width:475px;
 		}
 		.text-limit.w900{
 			max-width:900px;
 		}
-		
+
 		ul.ul-menu{
 			margin-bottom: 5px;
 		}
-		
+
 		.top-sep{
 			margin-top: 20px;
 		}
-		
+
 		#iniciar-expediente a{
 			margin-right: 10px;
 			border-bottom-right-radius: 4px;
     		border-top-right-radius: 4px;
 		}
 		.dada-heretada{
-			color:gray !important; 
+			color:gray !important;
 		}
 		#overlay {
 			background-color: rgba(0,0,0, 0.25);
@@ -111,7 +111,7 @@
 			text-align: center;
 			padding-top: 25%;
 		}
-		
+
 <c:choose>
 	<c:when test="${entornActual.colorFons!=null  && not empty entornActual.colorFons}">
 		.navbar-app {
@@ -123,10 +123,10 @@
 			.navbar-app {
 				background: ${globalProperties['app.capsalera.color.fons']} !important;
 			}
-		</c:if>		
+		</c:if>
 	</c:otherwise>
 </c:choose>
-		
+
 <c:choose>
 	<c:when test="${entornActual.colorLletra!=null  && not empty entornActual.colorLletra}">
 		.navbar-app .list-inline li.dropdown>a {
@@ -149,10 +149,10 @@
 		<c:if test="${globalProperties['app.capsalera.color.lletra'] !=null  && not empty globalProperties['app.capsalera.color.lletra']}">
 			.navbar-app .list-inline li.dropdown>a {
 				color: ${globalProperties['app.capsalera.color.lletra']};
-			}	
+			}
 			.caret-white {
 				border-top-color: ${globalProperties['app.capsalera.color.lletra']} !important;
-			}	
+			}
 			.list-inline.pull-right {
 				color: ${globalProperties['app.capsalera.color.lletra']} !important;
 			}
@@ -165,11 +165,11 @@
 		</c:if>
 	</c:otherwise>
 </c:choose>
-		
+
 		.arrow-top {
 			display: none;
 			position: fixed;
-			bottom: 80px; 
+			bottom: 80px;
 			right: 5px;
 			width: 35px;
 			height: 35px;
@@ -179,33 +179,33 @@
 			cursor: pointer;
 		}
 	</style>
-	<script type="text/javascript">	
+	<script type="text/javascript">
 		$(document).ready(function(){
 
 			$('#menuEntorns').click(function () {
-				setTimeout( function(){ 
-						$('#searchEntorns').focus(); 
+				setTimeout( function(){
+						$('#searchEntorns').focus();
 					}, 0);
-			});	
-			
+			});
+
 			$('#searchEntorns').on('input', function(){
 				searchEntorns($('#searchEntorns').val());
-				
+
 			}).click(function(e){
 				e.preventDefault();
 				e.stopPropagation();
 				$('#searchEntorns').focus().select();
 				return false;
 			});
-			
+
 			$(".dropdown-menu").css("max-height", ($(window).height() - 75) +"px");
 
 			if($(".nav-consulta-tipus").length == 0) {
 				$("#btnConsultes").remove();
 			}
-			
+
 			$('[title]').tooltip({container: 'body', trigger : 'hover'});
-			
+
 			$('#topBtn').click(function(){
 				// Scroll a l'inici
 				window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -218,23 +218,23 @@
 			 $('.arrow-top').fadeOut();
 			}
 		});
-		
+
 		function searchEntorns(text) {
 			fadeoutMs = 300;
 			$('.liEntorn').each(function() {
 				$entorn = $(this);
 				if (text == ""
-						|| $('a', this).text().toLowerCase().includes(text.toLowerCase())) 
+						|| $('a', this).text().toLowerCase().includes(text.toLowerCase()))
 				{
 					$entorn.show();
-					
+
 				} else {
 					// amaga l'entorn
 					$entorn.hide(fadeoutMs);
 				}
 			});
 		}
-		
+
 	</script>
 	<decorator:head />
 </head>
@@ -267,11 +267,11 @@
 					<ul class="list-inline pull-right ul-menu">
 						<li class="dropdown big-size">
 							<c:if test="${fn:length(entorns) gt 1}"><a id="menuEntorns" href="#" data-toggle="dropdown"></c:if>
-							<span class="fa fa-cubes"></span> <span id="entornActualNom" data-toggle="tooltip" data-placement="bottom" title="${entornActual.nom}" class="text-limit w475" >${entornActual.nom}</span>		
+							<span class="fa fa-cubes"></span> <span id="entornActualNom" data-toggle="tooltip" data-placement="bottom" title="${entornActual.nom}" class="text-limit w475" >${entornActual.nom}</span>
 							<ul class="dropdown-menu" id="ulEntorn" role="menu" aria-labelledby="dLabel">
 								<li style="display: block; min-width:350px; ">
 									<span class="fa fa-search" style="position: absolute;float: left;padding-left:30px;padding-top: 10px;"></span>
-									<input id="searchEntorns" class="form-control" 
+									<input id="searchEntorns" class="form-control"
 											placeholder="<spring:message code="perfil.usuari.filtrar"/>"
 											 autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1" inline="true"
 										 style="padding-left: 30px; margin-left:7%; width:90% ; margin-right:9%; margin-top:2%;">
@@ -285,9 +285,9 @@
 						</li>
 					</ul>
 					<div class="clearfix"></div>
-					
+
 					<ul class="list-inline pull-right ul-menu">
-						
+
 						<li class="dropdown">
 							<span class="fa fa-cube"></span>
 							<c:if test="${fn:length(expedientTipusAccessibles) gt 0}"><a href="#" data-toggle="dropdown"></c:if>
@@ -306,13 +306,13 @@
 						</li>
 						<li class="dropdown">
 							<a href="#" data-toggle="dropdown">
-								<span class="fa fa-user"></span> ${dadesPersona.nom} ${dadesPersona.llinatge1} 
+								<span class="fa fa-user"></span> ${dadesPersona.nom} ${dadesPersona.llinatge1}
 								<b class="caret caret-white"></b>
 							</a>
 							<ul id="ul-perfil" class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 								<li><a href="<c:url value="/perfil"/>"><spring:message code='perfil.info.meu_perfil' /></a></li>
 								<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/execucionsMassives/user"/>"><spring:message code='comuns.massiu' /></a></li>
-			    				<li><a href="<c:url value="/perfil/logout"/>"><i class="fa fa-power-off"></i> <spring:message code='login.desconnectar' /></a></li>
+			    				<li><a href="<c:url value="/usuari/logout"/>"><i class="fa fa-power-off"></i> <spring:message code='login.desconnectar' /></a></li>
 			    			</ul>
 			    			<script type="text/javascript">
 								$('#ul-perfil a').heliumEvalLink({
@@ -341,9 +341,9 @@
 						<c:if test="${dadesPersona.admin || potProcessarAnotacions}">
 							<a id="menuAnotacions" class="btn btn-primary" href="<c:url value="/anotacio"/>"><spring:message code="decorator.menu.anotacions"/></a>
 						</c:if>
-						
+
 						<a id="menuFluxosFirma" class="btn btn-primary" href="<c:url value="/fluxeFirma"/>"><spring:message code="decorator.menu.fluxes"/></a>
-											
+
 						<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
 							<div id="menuDisseny" class="btn-group" >
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>
@@ -375,12 +375,12 @@
 									<c:if test="${dadesPersona.admin || (fn:length(expedientTipusAdmin) gt 0)}">
 										<li><a href="<c:url value="/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.consultes.pinbal' /></a></li>
 									</c:if>
-									
+
 									<c:if test="${dadesPersona.admin || (fn:length(expedientTipusAdmin) gt 0) || (fn:length(expedientTipusAccessibles) gt 0)}">
 										<li><a href="<c:url value="/notificacionsNotib"/>"><spring:message code='decorator.menu.consultar.notificacions' /></a></li>
 										<li><a href="<c:url value="/enviamentsPortafib"/>"><spring:message code='decorator.menu.consultar.documents.enviats.portafib' /></a></li>
 									</c:if>
-									
+
 									<li><a id="unitatsOrganitzatives" href="<c:url value="/unitatOrganitzativa"/>"><spring:message code="decorator.menu.unitats.organitzatives"/></a></li>
 									<li><a id="procediments" href="<c:url value="/procediment"/>"><spring:message code="decorator.menu.procediments"/></a></li>
 								</ul>
@@ -400,19 +400,19 @@
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/monitorDomini"/>"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
-									</c:if>									
+									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 										<li><a data-toggle="modal" href="<c:url value="/modal/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin}">
-									  <li><a 
+									  <li><a
 									     data-toggle="modal"
 									     data-maximized="true"
 									     href="<c:url value='/modal/tascaSegonPla'/>">
 									     <spring:message code='decorator.menu.administracio.tasques.segonPla' />
 									  </a></li>
 									</c:if>
-									
+
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
 									</c:if>
@@ -442,7 +442,7 @@
 									</c:if>
 									<c:if test="${dadesPersona.admin}">
 										<li><a id="usernames" href="<c:url value="/usernames"/>"><spring:message code="decorator.usuari.codi.mapeig"/></a></li>
-									</c:if>									
+									</c:if>
 								</ul>
 								<script type="text/javascript">
 									$('#mesures a').heliumEvalLink({
@@ -486,12 +486,12 @@
 			<div id="accordion">
 				<c:forEach var="avis" items="${avisos}" varStatus="status">
 						<div class="card avisCard ${avis.avisNivell == 'INFO' ? 'avisCardInfo':''} ${avis.avisNivell == 'WARNING' ? 'avisCardWarning':''} ${avis.avisNivell == 'ERROR' ? 'avisCardError':''}">
-	
+
 							<div data-toggle="collapse" data-target="#collapse${status.index}" class="card-header avisCardHeader">
 								${avis.avisNivell == 'INFO' ? '<span class="fa fa-info-circle text-info"></span>':''} ${avis.avisNivell == 'WARNING' ? '<span class="fa fa-exclamation-triangle text-warning"></span>':''} ${avis.avisNivell == 'ERROR' ? '<span class="fa fa-warning text-danger"></span>':''} ${avis.assumpte}
-							<button class="btn btn-default btn-xs pull-right"><span class="fa fa-chevron-down "></span></button>										
+							<button class="btn btn-default btn-xs pull-right"><span class="fa fa-chevron-down "></span></button>
 							</div>
-	
+
 							<div id="collapse${status.index}" class="collapse" data-parent="#accordion">
 								<div class="card-body avisCardBody" >${avis.missatge}</div>
 							</div>
@@ -521,11 +521,11 @@
 								<c:if test="${not empty expedientTipusAccessiblesAmbConsultesActives}">
 									<div id="btnConsultes" class="btn-group pull-right" >
 										<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultes"/> <span class="caret"></span></button>
-										<ul class="dropdown-menu">	
+										<ul class="dropdown-menu">
 											<li class="nav-consulta-tipus"><a href="<c:url value="/expedient"></c:url>"><spring:message code="decorator.menu.consultes.generic"/></a></li>
 											<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}" varStatus="consultaStatus">
 												<c:if test="${empty expedientTipusActual or expedientTipusActual.id == expedientTipus.id}">
-													<c:if test="${consultaStatus.index == 0}"><li class="divider"></li></c:if>	
+													<c:if test="${consultaStatus.index == 0}"><li class="divider"></li></c:if>
 													<li class="nav-header">${expedientTipus.nom}</li>
 													<c:forEach var="consulta" items="${expedientTipus.consultesSort}">
 														<%--li class="nav-consulta-tipus"><a href="<c:url value="/informe?consultaId=${consulta.id}"></c:url>">${consulta.nom}</a></li--%>

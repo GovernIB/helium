@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWarDeployment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
@@ -29,7 +32,11 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 
 /**
  * Configuració de Spring Security per a executar l'aplicació amb Spring Boot.
@@ -43,6 +50,9 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 @EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 public class SpringBootWebSecurityConfig extends BaseWebSecurityConfig {
 
+	@Autowired(required = false)
+	private ClientRegistrationRepository clientRegistrationRepository;
+
 	@Bean
 	public SecurityFilterChain oauth2LoginSecurityFilterChain(HttpSecurity http) throws Exception {
 		http.authorizeRequests().
@@ -51,11 +61,36 @@ public class SpringBootWebSecurityConfig extends BaseWebSecurityConfig {
 		http.oauth2Login().userInfoEndpoint(info -> {
 			info.oidcUserService(oidcUserService());
 		});
-		http.logout().
+		LogoutHandler deleteCookiesLogoutHandler = (request, response, authentication) -> {
+			try {
+				log.info("Logout called");
+				Cookie[] cookies = request.getCookies();
+				if (cookies != null) {
+					for (Cookie cookie : cookies) {
+						Cookie deletedCookie = new Cookie(cookie.getName(), "");
+						deletedCookie.setPath(cookie.getPath() != null ? cookie.getPath() : "/");
+						deletedCookie.setMaxAge(0);
+						deletedCookie.setHttpOnly(cookie.isHttpOnly());
+						deletedCookie.setSecure(cookie.getSecure());
+						response.addCookie(deletedCookie);
+					}
+				}
+				request.logout();
+			} catch (ServletException ex) {
+				log.error("Error en el logout", ex);
+			}
+		};
+		OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler = new OidcClientInitiatedLogoutSuccessHandler(
+			clientRegistrationRepository);
+		oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}/");
+		http.logout(lo -> lo.
+			addLogoutHandler(deleteCookiesLogoutHandler).
+			logoutRequestMatcher(new AntPathRequestMatcher(LOGOUT_URL)).
 			invalidateHttpSession(true).
 			clearAuthentication(true).
 			deleteCookies("OAuth_Token_Request_State", "JSESSIONID").
-			logoutSuccessUrl("/");
+			logoutSuccessHandler(oidcLogoutSuccessHandler).
+			logoutSuccessUrl("/"));
 		http.headers().frameOptions().sameOrigin();
 		http.csrf().disable();
 		http.cors();

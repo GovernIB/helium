@@ -45,7 +45,7 @@ import es.caib.helium.logic.intf.service.EntornService;
 
 /**
  * Controlador per la gestió d'perfils
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -58,10 +58,10 @@ public class PerfilesController extends BaseController {
 	private AplicacioService aplicacioService;
 	@Autowired
 	private AdminService adminService;
-	
+
 	@Autowired
 	private DissenyService dissenyService;
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,
@@ -70,7 +70,7 @@ public class PerfilesController extends BaseController {
 		return "persona/perfil";
 	}
 
-	@RequestMapping(value = "/logout", method = RequestMethod.GET)
+	/*@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public String logout(
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		HttpSession session = request.getSession(false);
@@ -79,7 +79,7 @@ public class PerfilesController extends BaseController {
 		if (session != null) {
 			session.invalidate();
         }// Només per Jboss
-        for(Cookie cookie : request.getCookies()) {
+        for (Cookie cookie : request.getCookies()) {
         	Cookie ck = new Cookie(cookie.getName(), null);
         	if (cookie.getName().startsWith("es.caib.loginModule")) {
     			ck.setPath("/");
@@ -90,8 +90,7 @@ public class PerfilesController extends BaseController {
 			response.addCookie(ck);
         }
 		return "persona/logout";
-	}
-	
+	}*/
 
 	@RequestMapping(value = "/consulta/{entornCodi}", method = RequestMethod.GET)
 	@ResponseBody
@@ -155,8 +154,8 @@ public class PerfilesController extends BaseController {
 		resposta.add(new ParellaCodiValorDto("1", getMessage(request, "txt.home")));
 		return resposta;
 	}
-	
-	private PersonaUsuariCommand getFiltreCommand(HttpServletRequest request, Model model) {		
+
+	private PersonaUsuariCommand getFiltreCommand(HttpServletRequest request, Model model) {
 		PersonaUsuariCommand filtreCommand = new PersonaUsuariCommand();
 		UsuariPreferenciesDto preferencies = aplicacioService.getUsuariPreferencies();
 		if (preferencies == null)
@@ -171,10 +170,10 @@ public class PerfilesController extends BaseController {
 		}
 		// Comprova que l'usuari pugi accedir a l'entorn que té configurat
 		if (preferencies.getDefaultEntornCodi() != null && entornUsuari == null) {
-			MissatgesHelper.error(request, getMessage(request, "info.perfil.entorn.error", new Object[] {preferencies.getDefaultEntornCodi()}));			
+			MissatgesHelper.error(request, getMessage(request, "info.perfil.entorn.error", new Object[] {preferencies.getDefaultEntornCodi()}));
 		}
 		filtreCommand.setEntornCodi(preferencies.getDefaultEntornCodi());
-		
+
 		List<ExpedientTipusDto> expedientTipusConConsultas = new ArrayList<ExpedientTipusDto>();
 		ExpedientTipusDto expedientTipusUsuari = null;
 		if (entornUsuari != null) {
@@ -184,7 +183,7 @@ public class PerfilesController extends BaseController {
 				if (!expTip.getConsultes().isEmpty()) {
 					expedientTipusConConsultas.add(expTip);
 				}
-				if (preferencies.getExpedientTipusDefecteId() != null 
+				if (preferencies.getExpedientTipusDefecteId() != null
 						&& expTip.getId().equals(preferencies.getExpedientTipusDefecteId())) {
 					expedientTipusUsuari = expTip;
 				}
@@ -208,7 +207,7 @@ public class PerfilesController extends BaseController {
 						}
 					}
 					if (consultaUsuari == null) {
-						MissatgesHelper.error(request, getMessage(request, "info.perfil.consulta.error", new Object[] {preferencies.getConsultaId()}));						
+						MissatgesHelper.error(request, getMessage(request, "info.perfil.consulta.error", new Object[] {preferencies.getConsultaId()}));
 						filtreCommand.setConsultaId(null);
 					} else {
 						filtreCommand.setConsultaId(preferencies.getConsultaId());
@@ -245,9 +244,9 @@ public class PerfilesController extends BaseController {
 				}
 			}
 		}
-		
+
 		filtreCommand.setRolsUsuari(rolsUsuari);
-		
+
 		return filtreCommand;
 	}
 
@@ -273,7 +272,7 @@ public class PerfilesController extends BaseController {
 	        	preferencies.setCorreusBustiaAgrupatsDia(personaUsuariCommand.isCorreusBustiaAgrupatsDia());
 	        	preferencies.setEmailAlternatiu(personaUsuariCommand.getEmailAlternatiu());
 	        	adminService.updatePerfil(preferencies);
-	        	SessionHelper.getSessionManager(request).setPreferenciesUsuari(preferencies);		        	
+	        	SessionHelper.getSessionManager(request).setPreferenciesUsuari(preferencies);
         	} else if ("Modificar".equals(accio) && !result.hasErrors()) {
         		PersonaDto persona = new PersonaDto();
         		persona.setCodi(request.getUserPrincipal().getName());
@@ -286,7 +285,7 @@ public class PerfilesController extends BaseController {
         		adminService.updatePersona(persona);
         	} else {
                 MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
-                
+
                 PersonaUsuariCommand pars = getFiltreCommand(request, model);
                 personaUsuariCommand.setCabeceraReducida(pars.isCabeceraReducida());
                 personaUsuariCommand.setConsultaId(pars.getConsultaId());
@@ -297,7 +296,7 @@ public class PerfilesController extends BaseController {
                 personaUsuariCommand.setListado(pars.getListado());
                 personaUsuariCommand.setNumElementosPagina(pars.getNumElementosPagina());
                 personaUsuariCommand.setCorreusBustia(pars.isCorreusBustia());
-                personaUsuariCommand.setCorreusBustiaAgrupatsDia(pars.isCorreusBustiaAgrupatsDia()); 	                
+                personaUsuariCommand.setCorreusBustiaAgrupatsDia(pars.isCorreusBustiaAgrupatsDia());
         		return "persona/perfil";
         	}
     		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(null);

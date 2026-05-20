@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.config;
 
@@ -13,7 +13,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Configuració de Spring Security per a executar l'aplicació amb Spring Boot.
- * 
+ *
  * @author Limit Tecnologies
  */
 public class BaseWebSecurityConfig {
