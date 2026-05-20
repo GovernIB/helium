@@ -125,7 +125,6 @@
 
 	<c:set var="esPersonesActiu" value="true"/>
 	<c:if test="${esPersonesActiu}">
-	<!--<c:set var="esReadOnly" value="${globalProperties['app.persones.readonly'] == 'true'}"/>-->	
 		<c:set var="esReadOnly" value="true"/>
 		<c:set var="tipusText"><c:choose><c:when test="${not esReadOnly}">text</c:when><c:otherwise>static</c:otherwise></c:choose></c:set>
 		<c:set var="tipusSelect"><c:choose><c:when test="${not esReadOnly}">select</c:when><c:otherwise>static</c:otherwise></c:choose></c:set>

@@ -1,7 +1,7 @@
 package es.caib.helium.commons.config;
 
 /**
- * Configuració base de l'aplicació.
+ * Clase amb constants per la cofiguració de l'aplicació.
  *
  * @author Límit Tecnologies
  */
