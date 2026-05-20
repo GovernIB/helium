@@ -383,7 +383,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 		else {
 			String sheetName = expTipus.getJbpmProcessDefinitionKey();
-			XSSFSheet sheet = wb.createSheet(sheetName);
+			XSSFSheet sheet = wb.createSheet(sheetName != null? sheetName : expTipus.getCodi());
 			createBook(sheetName, sheet, wb, expedientsConsultaDissenyDto, dStyle, iStyle, bdStyle, cellDateStyle);
 		}
 

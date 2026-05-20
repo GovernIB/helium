@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -8,9 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.ExpedientDades;
 
+import java.util.List;
+
 /**
  * Repositori amb els mètodes per consultar i obtenir les dades dels expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientDadesRepository extends JpaRepository<ExpedientDades, Long> {
@@ -24,4 +26,7 @@ public interface ExpedientDadesRepository extends JpaRepository<ExpedientDades, 
 	/** Obté les dades d'un expedient sense procés ni tasca. */
 	public ExpedientDades findByExpedient(Expedient expedient);
 
+	public List<ExpedientDades> findByExpedientIdIn(List<Long> llistaExpedientIds);
+
+	public void deleteByExpedientId(Long expedientId);
 }

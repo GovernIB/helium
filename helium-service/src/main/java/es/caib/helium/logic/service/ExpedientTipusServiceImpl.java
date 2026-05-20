@@ -3300,7 +3300,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		int lastComma = estatsPrevis.lastIndexOf(",");
 		String darrerEstat = estatsPrevis.substring(lastComma + 1, estatsPrevis.length());
 		Long darrerEstatId = Long.parseLong(darrerEstat.trim());
-		return conversioTipusHelper.convertirList(Arrays.asList(estatRepository.findById(darrerEstatId)), EstatDto.class);
+
+		return conversioTipusHelper.convertirList(Arrays.asList(estatRepository.getReferenceById(darrerEstatId)), EstatDto.class);
 	}
 
 	private EstatExportacio getEstatExportacio(Estat estat, boolean ambPermisos) {

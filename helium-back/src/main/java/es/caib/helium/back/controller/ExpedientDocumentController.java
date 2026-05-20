@@ -1091,12 +1091,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) {
 		return notificarGet(request, expedientId, null, documentStoreId, model);
 	}
-	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/notificar", method = RequestMethod.GET)
+	@RequestMapping(value = {
+		"/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/notificar",
+		"/{expedientId}/proces/{processInstanceId}/document/notificar"}, method = RequestMethod.GET)
 	public String notificarGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
-			@PathVariable Long documentStoreId,
+			@PathVariable(required = false) Long documentStoreId,
 			Model model) {
 
 		if (processInstanceId == null) {
@@ -1962,7 +1964,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 				expedient.getTipus().getId(),
-				instanciaProces.getDefinicioProces().getId(),
+				instanciaProces != null? instanciaProces.getDefinicioProces().getId() : null,
 				true);	// amb herència
 		List<ExpedientDocumentDto> documentsInstancia = expedientDocumentService.findAmbInstanciaProces(expedientId, procesId);
 		if (documentsInstancia != null && documentsInstancia.size() > 0) {
@@ -2322,7 +2324,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				String documentCodi = command.getTitol();
 				documentStoreId = expedientDocumentService.guardarDocumentProces(expedient.getProcessInstanceId(), null, new Date(), documentCodi+".zip", contingut, annexosPerNotificar);
 			}
-			return "redirect:/modal/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/notificar";
+			if(documentStoreId != null)
+				return "redirect:/modal/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/notificar";
+			return "redirect:/modal/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/notificar";
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "expedient.document.notificat.zip.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);

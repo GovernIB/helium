@@ -2,7 +2,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
-<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>	
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <meta content="senseCapNiPeus" name="decorator"/>
@@ -20,7 +20,7 @@
 <link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 <script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-	
+
 <style type="text/css">
 	.carregant {margin: 1em 0 2em 0;text-align: center;}
 	.col-xs-3 {width: 20%;}
@@ -31,7 +31,7 @@
 </style>
 
 <c:if test="${not empty param.labelClass}"><c:set var="labelClass" value="${param.labelClass}"/></c:if>
-	
+
 <form:form id="command" modelAttribute="addVariableCommand" action="" cssClass="form-horizontal form-tasca" method="post">
 	<input type="hidden" id="procesId" name="procesId" value="${procesId}">
 
@@ -95,42 +95,49 @@
 			<c:set var="inline" value="${false}"/>
 			<c:set var="isRegistre" value="${false}"/>
 			<c:set var="isMultiple" value="${false}"/>
-			
+
 			<c:choose>
 				<c:when test="${dada.campTipus != 'REGISTRE'}">
 					<c:choose>
 						<c:when test="${dada.campMultiple}">
 							<c:set var="campErrorsMultiple"><form:errors path="${dada.varCodi}"/></c:set>
 							<div class="multiple<c:if test="${not empty campErrorsMultiple}"> has-error</c:if>">
-								<label for="${dada.varCodi}" class="control-label col-xs-3">${dada.campEtiqueta}</label>
-								<c:forEach var="membre" items="${command[dada.varCodi]}" varStatus="varStatusCab">
-									<c:set var="inline" value="${true}"/>
-									<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
-									<c:set var="campNom" value="${dada.varCodi}"/>
-									<c:set var="campIndex" value="${varStatusCab.index}"/>
-									<div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
-										<c:set var="isMultiple" value="${true}"/>
-										<%@ include file="campsTasca.jsp" %>
-										<c:set var="isMultiple" value="${false}"/>
+							<div class="row">
+								<div class="col-xs-3">
+									<label for="${dada.varCodi}" class="control-label col-xs-3">${dada.campEtiqueta}</label>
+								</div>
+								<div class="col-xs-9">
+									<c:forEach var="membre" items="${command[dada.varCodi]}" varStatus="varStatusCab">
+										<c:set var="inline" value="${true}"/>
+										<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
+										<c:set var="campNom" value="${dada.varCodi}"/>
+										<c:set var="campIndex" value="${varStatusCab.index}"/>
+										<div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
+											<c:set var="isMultiple" value="${true}"/>
+											<%@ include file="campsTasca.jsp" %>
+											<c:set var="isMultiple" value="${false}"/>
+										</div>
+									</c:forEach>
+									<c:if test="${empty dada.multipleDades}">
+										<c:set var="inline" value="${true}"/>
+										<c:set var="campCodi" value="${dada.varCodi}[0]"/>
+										<c:set var="campNom" value="${dada.varCodi}"/>
+										<c:set var="campIndex" value="0"/>
+										<div class="col-xs-9 input-group-multiple">
+											<c:set var="isMultiple" value="${true}"/>
+											<%@ include file="campsTasca.jsp" %>
+											<c:set var="isMultiple" value="${false}"/>
+										</div>
+									</c:if>
+									<div class="form-group col-xs-9 input-group-multiple">
+										<div>
+											<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
+											<button id="button_add_var_mult_${campCodi}" type="button" class="btn btn-default pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
+											<div class="clear"></div>
+											<c:if test="${not empty campErrorsMultiple}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dada.varCodi}"/></p></c:if>
+										</div>
 									</div>
-								</c:forEach>
-								<c:if test="${empty dada.multipleDades}">
-									<c:set var="inline" value="${true}"/>
-									<c:set var="campCodi" value="${dada.varCodi}[0]"/>
-									<c:set var="campNom" value="${dada.varCodi}"/>
-									<c:set var="campIndex" value="0"/>
-									<div class="col-xs-9 input-group-multiple">
-										<c:set var="isMultiple" value="${true}"/>
-										<%@ include file="campsTasca.jsp" %>
-										<c:set var="isMultiple" value="${false}"/>
-									</div>
-								</c:if>
-								<div class="form-group">
-									<div class="col-xs-9 pad-left-col-xs-3">
-										<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
-										<button id="button_add_var_mult_${campCodi}" type="button" class="btn btn-default pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
-										<div class="clear"></div>
-										<c:if test="${not empty campErrorsMultiple}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dada.varCodi}"/></p></c:if>
+								</div>
 						</c:when>
 						<c:otherwise>
 							<c:set var="campCodi" value="${dada.varCodi}"/>
@@ -170,7 +177,7 @@
 			formatResult: formatDisabled
 		});
 		$("#varCodi").on("change", function(e) {
-			var ruta = document.URL; 
+			var ruta = document.URL;
 			$("#command").attr('action', ruta);
 			if (e.val == "") {
 				$("#nova").addClass("hide");

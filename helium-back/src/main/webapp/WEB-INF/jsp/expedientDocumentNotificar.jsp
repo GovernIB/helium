@@ -8,7 +8,7 @@
 <head>
 	<title><spring:message code="expedient.document.notificar"/> ${document.arxiuNom}</title>
 	<hel:modalHead/>
-	<script src="<c:url value="/js/webutil.common.js"/>"></script>	
+	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
@@ -29,8 +29,8 @@
 $(document).ready(function() {
 	$("#interessatsIds").on('change', function() { checkMidaCampsNotificacio();	});
 	$("#representantId").on('change', function() { checkMidaCampsNotificacio();	});
-	
-	$('#entregaPostalActiva').on('change', function() { 
+
+	$('#entregaPostalActiva').on('change', function() {
 		if (this.checked) {
 			$('#entregaPostal').removeClass('hidden');
 		} else {
@@ -45,25 +45,24 @@ function checkMidaCampsNotificacio() {
 
 	var l_interessatsIds = $("#interessatsIds").val();
 	var v_representantId = $("#representantId").val();
-	
+
 	if (v_representantId!=null && ""!=v_representantId) {
 		l_interessatsIds.push(v_representantId);
 	}
-	
+
 	if (l_interessatsIds!=null && l_interessatsIds.length>0) {
-		
+
 		l_interessatsIds = convertirYEliminarDuplicados(l_interessatsIds);
-		
+
 		var queryString = l_interessatsIds.map(function(id) {
 			return 'nifs=' + encodeURIComponent(id);
 		}).join('&');
-		
+
 		$.ajax({
 			type: 'GET',
 			url: getUrl + '?' + queryString,
 			async: true,
 			success: function(data) {
-				debugger;
 				if (data!="OK") {
 					refrescarAlertas();
 				} else {
@@ -102,12 +101,12 @@ function refrescarAlertas() {
 </script>
 
 </head>
-<body>		
+<body>
 	<form:form cssClass="form-horizontal form-tasca" action="notificar"  method="post" modelAttribute="documentNotificacioCommand">
 
 		<hel:inputSelect required="true" name="interessatsIds" multiple="true" textKey="expedient.document.notificar.form.camp.titulars" placeholderKey="expedient.document.notificar.form.camp.titulars.placeholder" comment="expedient.document.notificar.form.camp.titulars.info" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
 		<hel:inputSelect required="false" name="representantId" multiple="false" emptyOption="true" textKey="expedient.document.notificar.form.camp.representant" placeholderKey="expedient.document.notificar.form.camp.representant.placeholder" comment="expedient.document.notificar.form.camp.representant.info"
-		 		optionItems="${interessats}" 
+		 		optionItems="${interessats}"
 		 		optionValueAttribute="id" optionTextAttribute="fullInfo"/>
 		<hel:inputText required="true" name="concepte" textKey="expedient.document.notificar.form.camp.concepte" />
 		<hel:inputSelect required="true" name="serveiTipusEnum" optionItems="${serveiTipusEstats}" optionValueAttribute="codi" optionTextAttribute="valor" textKey="expedient.document.notificar.form.camp.serveiTipus"/>
@@ -118,14 +117,14 @@ function refrescarAlertas() {
 		<hel:inputNumber name="retard" textKey="expedient.document.notificar.form.camp.retard" comment="notificacio.form.camp.retard.comment"/>
 		<hel:inputText name="grupCodi" textKey="expedient.document.notificar.form.camp.grupCodi" />
 		<hel:inputSelect name="idioma" optionItems="${idiomes}" emptyOption="true" textKey="notificacio.form.camp.idioma" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
-		
+
 	<!--	<hel:inputCheckbox name="entregaPostalActiva" textKey="expedient.document.notificar.form.camp.entregaPostalActiva" /> -->
-		
+
 <!-- 		<div id="entregaPostal" class="hidden"> -->
 <%-- 			<hel:inputSelect required="true" name="entregaPostalViaTipus" optionItems="${entregaPostalViaTipusEstats}" optionValueAttribute="valor" optionTextAttribute="codi" textKey="expedient.document.notificar.form.camp.entregaPostalViaTipus" /> --%>
 <%-- 			<hel:inputSelect required="true" name="entregaPostalTipus" optionItems="${entregaPostalTipusEstats}" optionValueAttribute="valor" optionTextAttribute="codi" textKey="expedient.document.notificar.form.camp.entregaPostalTipus" /> --%>
-			
-			
+
+
 <%-- 			<hel:inputText required="true" name="entregaPostalViaNom" textKey="expedient.document.notificar.form.camp.entregaPostalViaNom" /> --%>
 <%-- 			<hel:inputText required="true" name="entregaPostalNumeroCasa" textKey="expedient.document.notificar.form.camp.entregaPostalNumeroCasa" /> --%>
 <%-- 			<hel:inputText required="true" name="entregaPostalNumeroQualificador" textKey="expedient.document.notificar.form.camp.entregaPostalNumeroQualificador" /> --%>
@@ -148,7 +147,7 @@ function refrescarAlertas() {
 <%-- 			<hel:inputText required="true" name="entregaPostalFormatSobre" textKey="expedient.document.notificar.form.camp.entregaPostalFormatSobre" /> --%>
 <%-- 			<hel:inputText required="true" name="entregaPostalFormatFulla" textKey="expedient.document.notificar.form.camp.entregaPostalFormatFulla" /> --%>
 <!-- 		</div> -->
-		
+
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			<button class="btn btn-primary right" type="submit" name="accio" value="notificar"><spring:message code='comuns.notificar' /></button>

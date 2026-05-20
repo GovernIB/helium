@@ -23,12 +23,12 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
-	
+
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	
+
 	<style type="text/css">
 		.col-md-1.btn-group {width: 4.333%;}
 		.col-md-6.btn-group {width: 54%;}
@@ -50,7 +50,7 @@
 			color: red;
 		    font-size: 18px;
 		    top: 4px;
-		    position: relative;	
+		    position: relative;
 		}
 		a.no-deco-link {
 			text-decoration: none;
@@ -97,7 +97,7 @@ $(document).ready(function() {
 				window.location = '<c:url value="/expedient/"/>' + $(row).find(".rdt-seleccio").val();
 				return false;
 			}
-			
+
 			var clickNomesDesplegar = true;
 			var numTds = $('td', $(event.target).closest('tr')).length;
 			var tdDesplegarIndex = numTds - 6;
@@ -116,7 +116,7 @@ $(document).ready(function() {
 				}
 			}
 		},
-		seleccioCallback: function(seleccio) {			
+		seleccioCallback: function(seleccio) {
 			$('#tramitacioMassivaCount').html(seleccio.length);
 		}
 	});
@@ -162,7 +162,7 @@ $(document).ready(function() {
 	$('#expedientTipusId').select2().on("select2-removed", function(e) {
 		$('#consultar').trigger('click');
     })
-	
+
 	$('#expedientTipusId').trigger('change');
 
 	//Per defecte, si no s'especifica al fitxer de properties
@@ -173,22 +173,23 @@ $(document).ready(function() {
 	<c:if test="${refrescaSegonPla}">
 		setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
 	</c:if>
-	
+
 	// Si es passa el paràmetre accio=iniciar provinent de l'iniciar antic llavors es prem el botó d'iniciar
 	// És un cas especial de redirecció des de l'iniciar de la v2.6 amb l'acció d'iniciar expedient
 	if (window.location.href.includes("accio=iniciar"))
 		$('#iniciar-expediente').find('a').click();
-	
+
 	// A vegades es creen dos inputs type hidden i s'envia accio=netejar,consultar #1258
 	$('#netejar').click(function() {
-		if ($(':input[name=accio][type=hidden]').length > 1 ) {
+		if ($(':input[name=accio]').length >= 1 ) {
 				var i = 0;
-				$(':input[name=accio][type=hidden]').each(function(){
+				$(':input[name=accio]').each(function(){
 					if (i == 0) {
 						$(this).val('netejar');
 					} else {
 						$(this).remove();
 					}
+					i++;
 				});
 		}
 	});
@@ -301,7 +302,7 @@ function filtreActiu() {
 		else
 			filtre = true;
 	}
-		
+
 	if (filtre) {
 		$('#expedientConsultaCommand').addClass("filtrat");
 	} else {
@@ -312,8 +313,8 @@ function filtreActiu() {
 function refrescaEstatSegonPla() {
 	var tasquesSegonPlaIds = [];
 	$('span.segon-pla-icona').each(function (index, value) {
-		var id = $(value).attr('id').split('spi-')[1]; 
-	 	tasquesSegonPlaIds.push(id);	
+		var id = $(value).attr('id').split('spi-')[1];
+	 	tasquesSegonPlaIds.push(id);
 	});
 	if (tasquesSegonPlaIds.length > 0) {
 		$.ajax({
@@ -321,7 +322,7 @@ function refrescaEstatSegonPla() {
 		    data: {"tasquesSegonPlaIds": tasquesSegonPlaIds},
 		    type: "POST",
 		    success: function(data) {
-			    //recorrem de nou les icones de les tasques per 
+			    //recorrem de nou les icones de les tasques per
 			    //actualitzar-ne l'estat
 			    if (data != undefined) {
 				    $.each(tasquesSegonPlaIds, function(ind,val) {
@@ -354,10 +355,10 @@ function refrescaEstatSegonPla() {
 									}
 									$('.icona-tasques-pendents', row).removeClass('fa-chevron-up').addClass('fa-chevron-down');
 									$('.icona-tasques-pendents', row).attr('title', 'Mostrar tasques pendents');
-									
+
 									carregaTasques(row,numTds);
 								}
-						    }				    	
+						    }
 						} else {
 							iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
 							//refrescam el datatable
@@ -401,14 +402,14 @@ function refrescaEstatSegonPla() {
 				<hel:inputSelect emptyOption="true" name="expedientTipusId" textKey="expedient.llistat.filtre.camp.expedient.tipus" placeholderKey="expedient.llistat.filtre.camp.expedient.tipus" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom" disabled="${not empty expedientTipusActual}" inline="true"/>
 			</div>
 			<div class="col-md-3">
-			<hel:inputSuggest 
-					name="unitatOrganitzativaCodi" 
-					urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
-					urlConsultaLlistat="/unitatOrganitzativa/suggest" 
+			<hel:inputSuggest
+					name="unitatOrganitzativaCodi"
+					urlConsultaInicial="/unitatOrganitzativa/suggestInici"
+					urlConsultaLlistat="/unitatOrganitzativa/suggest"
 					placeholderKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
 					inline="true"
-					/>	
-			</div>	
+					/>
+			</div>
 		</div>
 		<div class="row">
 			<div class="col-md-3">
@@ -451,7 +452,7 @@ function refrescaEstatSegonPla() {
 					</div>
 				</div>
 			</div>
-			<!-- 
+			<!--
 				<c:if test="${globalProperties['app.georef.actiu']}">
 					<label><spring:message code="expedient.llistat.filtre.camp.geopos"/></label>
 					<c:choose>
@@ -477,7 +478,7 @@ function refrescaEstatSegonPla() {
 						<hel:inputSelect inline="true" name="mostrarAnulats" optionItems="${interessatTipus}" optionValueAttribute="valor" optionTextAttribute="codi"/>
 					</div>
 				</div>
-			</div>		
+			</div>
 			<div class="col-md-12">
 				<form:hidden path="nomesAlertes"/>
 				<form:hidden path="nomesSeleccio"/>
@@ -485,7 +486,7 @@ function refrescaEstatSegonPla() {
 				<form:hidden path="nomesErrorsArxiu"/>
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
-				<button id="consultarOcult" style="display:none" type="submit" name="accio" value="consultar"></button>
+				<button id="consultarOcult" style="display:none" type="submit" value="consultar"></button>
 				<div class="row">
 					<div class="col-md-6">
 						<div class="btn-group">
@@ -503,8 +504,8 @@ function refrescaEstatSegonPla() {
 					<div class="col-md-6">
 						<div class="pull-right">
 							<input type="hidden" name="consultaRealitzada" value="true"/>
-							<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
-							<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+							<button id="netejar" type="submit" name="accio" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
+							<button id="consultar" type="submit" name="accio" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 						</div>
 					</div>
 				</div>
@@ -528,7 +529,7 @@ function refrescaEstatSegonPla() {
 					{{:identificador}}
 					{{if reindexarData || reindexarError}}
 						<div class="pull-right">
-							<span class="fa fa-refresh {{if reindexarError}}text-danger {{/if}}" 
+							<span class="fa fa-refresh {{if reindexarError}}text-danger {{/if}}"
 							title="{{if reindexarData}}<spring:message code="expedient.consulta.reindexacio.asincrona"/>{{/if}}
 								   {{if reindexarError}}<spring:message code="expedient.consulta.reindexacio.error.full"/>{{/if}}"></span>
 						</div>
@@ -557,20 +558,20 @@ function refrescaEstatSegonPla() {
 				<th data-rdt-property="tipus.nom" data-rdt-template="cellTipusTemplate" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
 					<span class="expedient_tipus" data-tipus="{{:tipus.tipus}}">
-						{{if tipus.procedimentComu == true }}							
+						{{if tipus.procedimentComu == true }}
 							{{if unitatOrganitzativa.estat !='V' }}
 								<span class="fa fa-university text-warning" title="{{:unitatOrganitzativa.codiAndNom}} (<spring:message code="expedient.llistat.unitat.organitzativa.obsoleta"/>)" style="float:left"> </span>
-							{{/if}} 
+							{{/if}}
 							{{if unitatOrganitzativa.estat =='V' }}
 								<span class="fa fa-university" title="{{:unitatOrganitzativa.codiAndNom}}" style="float:left"> </span>
 							{{/if}}
 							&nbsp;{{:tipus.nom}}
-						{{/if}} 
+						{{/if}}
 						{{if tipus.procedimentComu == false }}
 							<span> </span> {{:tipus.nom}}
-						{{/if}} 
+						{{/if}}
 					</span>
-					</script>				
+					</script>
 				</th>
 				<th data-rdt-property="dataInici" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.iniciat"/></th>
 				<th data-rdt-property="dataFi" data-rdt-type="datetime" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.finalitzat"/></th>
@@ -599,7 +600,7 @@ function refrescaEstatSegonPla() {
 								<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}" data-error-detall="{{:errorFull}}" data-error-pid="{{:processInstanceId}}"><span class="fa fa-exclamation-circle"></span> </span>
 							{{else}}
 								<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}"><span class="fa fa-exclamation-circle"></span> </span>
-							{{/if}}						
+							{{/if}}
 						{{/if}} -->
 						{{if alertesTotals}}
 							<a class="no-deco-link" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../expedient/{{:id}}/alertes"/>">
@@ -621,13 +622,13 @@ function refrescaEstatSegonPla() {
 				<th data-rdt-property="anulat" data-rdt-visible="false"></th>
 				<th data-rdt-property="processInstanceId" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>
-				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>		
+				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisStop" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisCancel" data-rdt-visible="false"></th>
-				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>	
+				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>
 				<th data-rdt-property="ambErrors" data-rdt-visible="false"></th>
@@ -657,10 +658,10 @@ function refrescaEstatSegonPla() {
 	<script id="tableButtonsTemplate" type="text/x-jsrender">
 		<div style="text-align:right">
 			<div id="btnTramitacio" class="btn-group">
-				<a class="btn btn-default" href="../expedient/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
-				<a class="btn btn-default" href="../expedient/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-				<a id="btnBdades" class="btn btn-default" href="../expedient/descarregardades"><span class="fa fa-download"></span> <spring:message code="expedient.llistat.accio.descarregar"/></a>
-				<a class="btn btn-default" href="../expedient/massiva"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+				<a class="btn btn-default" href="expedient/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
+				<a class="btn btn-default" href="expedient/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+				<a id="btnBdades" class="btn btn-default" href="expedient/descarregardades"><span class="fa fa-download"></span> <spring:message code="expedient.llistat.accio.descarregar"/></a>
+				<a class="btn btn-default" href='<c:url value="/expedient/massiva"/>'><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 			</div>
 		</div>
 	</script>

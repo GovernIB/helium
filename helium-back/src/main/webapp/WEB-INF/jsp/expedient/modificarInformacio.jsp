@@ -8,7 +8,7 @@
 
 <html>
 <head>
-	<title><spring:message code="expedient.accio.modificar.titol"/></title>	
+	<title><spring:message code="expedient.accio.modificar.titol"/></title>
 	<hel:modalHead/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
@@ -17,16 +17,16 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	
+
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	
+
 	<style type="text/css">
 		.form-group {width: 100%;}
-		.fila_reducida {width: 100%;}		
-		.col-xs-4 {width: 20%;}		
+		.fila_reducida {width: 100%;}
+		.col-xs-4 {width: 20%;}
 		.col-xs-8 {width: 77%;}
 		.col-xs-8 .form-group {margin-left: 0px;margin-right: 0px;}
 		.col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
@@ -50,7 +50,7 @@
 			<hel:inputDate name="dataInici" textKey="expedient.consulta.datainici" placeholderKey="expedient.consulta.datainici" placeholder="dd/MM/aaaa"/>
 		</div>
 		<div class="control-group fila_reducida">
-			<hel:inputSuggest inline="false" name="responsableCodi" urlConsultaInicial="/../../tasca/persona/suggestInici" urlConsultaLlistat="/../../tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+			<hel:inputSuggest inline="false" name="responsableCodi" urlConsultaInicial="/tasca/persona/suggestInici" urlConsultaLlistat="/tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 		</div>
 		<div class="control-group fila_reducida">
 			<hel:inputTextarea name="comentari" textKey="expedient.editar.comentari" placeholderKey="expedient.editar.comentari"/>
@@ -94,6 +94,6 @@
 				<span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.accio.modificar.boto.modificar"/>
 			</button>
 		</div>
-	</form:form> 		
+	</form:form>
 </body>
 </html>

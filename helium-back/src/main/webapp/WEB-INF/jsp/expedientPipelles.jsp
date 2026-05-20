@@ -113,7 +113,7 @@ dd.subproc {
 	color: red;
     font-size: 18px;
     top: 4px;
-    position: relative;	
+    position: relative;
 }
 .etiqueta-nti-arxiu {
 	display: flex;
@@ -151,9 +151,9 @@ dd.subproc {
 				error: modalAjaxErrorFunction,
 				complete: $(this).tooltip('hide')
 			});
-			
+
 		})
-		
+
 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 			var targetHref = $(e.target).attr('href');
 			var loaded = $(targetHref).data('loaded')
@@ -172,7 +172,7 @@ dd.subproc {
 			}
 			window.history.replaceState({}, '', url);
 		});
-		
+
 		<c:choose>
 			<c:when test="${not empty pipellaActiva}">$('#expedient-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
 			<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
@@ -186,7 +186,7 @@ dd.subproc {
 			setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
 		</c:if>
 		<c:if test="${expedient.reindexarData != null}">
-		setTimeout( function(){ 
+		setTimeout( function(){
 				refrescarEstatExpedient();
 		 	}  , 5000 );
 		</c:if>
@@ -194,8 +194,8 @@ dd.subproc {
 	function refrescaEstatSegonPla() {
 		var tasquesSegonPlaIds = [];
 		$('span.segon-pla-icona').each(function (index, value) {
-			var id = $(value).attr('id').split('spi-')[1]; 
-		 	tasquesSegonPlaIds.push(id);	
+			var id = $(value).attr('id').split('spi-')[1];
+		 	tasquesSegonPlaIds.push(id);
 		});
 		if (tasquesSegonPlaIds.length > 0) {
 			$.ajax({
@@ -203,7 +203,7 @@ dd.subproc {
 			    data: {"tasquesSegonPlaIds": tasquesSegonPlaIds},
 			    type: "POST",
 			    success: function(data) {
-				    //recorrem de nou les icones de les tasques per 
+				    //recorrem de nou les icones de les tasques per
 				    //actualitzar-ne l'estat
 				    if (data != undefined) {
 					    $.each(tasquesSegonPlaIds, function(ind,val) {
@@ -230,7 +230,7 @@ dd.subproc {
 						    		//refrescam el datatable
 						    		carregaTab("#contingut-tasques");
 						    		refrescarEstatExpedient();
-							    }				    	
+							    }
 							} else {
 								iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
 								//refrescam el datatable
@@ -251,9 +251,9 @@ dd.subproc {
 	}
 	function carregaTab(targetHref) {
 		//mostrem cada cop l'icona de càrrega
-		$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>'); 
+		$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>');
 		///////////////
-		
+
 		$(targetHref).load(
 			$(targetHref).data('href'),
 			function (responseText, textStatus, jqXHR) {
@@ -306,7 +306,7 @@ dd.subproc {
 		return confirm("<spring:message code='expedient.accio.migrararxiu.confirmacio' />");
 	}
 	/** Refresca l'estat i la data de fi de l'expedient quan hi ha accions sobre les tasques. */
-	function refrescarEstatExpedient() {		
+	function refrescarEstatExpedient() {
 		var getUrl = '<c:url value="/expedient/${expedientId}/consultaEstat"/>';
 		$.ajax({
 			type: 'GET',
@@ -328,7 +328,7 @@ dd.subproc {
 					if (data.reindexarData) {
 						title = "<spring:message code='expedient.consulta.reindexacio.asincrona.amb.data'/> " + data.reindexarData + ". ";
 						// Programa un refresc de l'estat
-						setTimeout( function(){ 
+						setTimeout( function(){
 							refrescarEstatExpedient();
 					 	}  , 5000 );
 					}
@@ -359,10 +359,10 @@ dd.subproc {
 		<c:if test="${estatsRetrocedir != null }">
 			<c:forEach var="estat" items="${estatsRetrocedir}">
 				<a href="<c:url value="/expedient/${expedientId}/estat/${estat.id}/canviar?retrocedir=true" />" class="btn btn-warning"  style="float: left; margin-left: 15px;">
-					<b>&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a>					
+					<b>&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a>
 			</c:forEach>
 		</c:if>
-	
+
 		<!-- Botons per avançar d'estat -->
 		<c:if test="${estatsAvancar != null }">
 			<div style="float: right;">
@@ -415,7 +415,7 @@ dd.subproc {
 								<a id="descarregarZip"
 									href="<c:url value="${arxiuUrl}"/>" class="fa fa-book" title="<spring:message code="expedient.tipus.form.camp.manual.ajuda.descarregar"/>">
 								</a>
-						</c:if>	
+						</c:if>
 					</dd>
 					<c:if test="${expedient.unitatOrganitzativa != null}">
 						<dt><spring:message code='expedient.info.camp.unitat.organitzativa' /></dt>
@@ -428,7 +428,7 @@ dd.subproc {
 					<c:if test="${not empty expedient.registreData}">
 						<dt><spring:message code='expedient.info.camp.registre.data' /></dt>
 						<dd><fmt:formatDate value="${expedient.registreData}" pattern="dd/MM/yyyy"/></dd>
-					</c:if>					
+					</c:if>
 					<dt><spring:message code="expedient.info.camp.data.inici"/></dt>
 					<dd><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></dd>
 					<c:choose>
@@ -478,7 +478,7 @@ dd.subproc {
 					<c:if test="${not empty expedient.responsablePersona}">
 						<dt><spring:message code='expedient.info.camp.responsable' /></dt>
 						<dd>${expedient.responsablePersona.nomSencer}</dd>
-					</c:if>		
+					</c:if>
 				<c:if test="${expedient.tipus.restringirPerGrup }">
 						<dt><spring:message code="expedient.info.camp.codi.grup"/></dt>
 						<dd>
@@ -490,19 +490,19 @@ dd.subproc {
 									-
 								</c:otherwise>
 							</c:choose>
-						</dd>	
-				</c:if>								
+						</dd>
+				</c:if>
 					<c:if test="${!perEstats}">
 						<dt><spring:message code="expedient.info.camp.defproc"/></dt>
-						<dd class="proces">	
+						<dd class="proces">
 							<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
 							&nbsp;<label id="desc_def_proc"><c:out value="${definicioProces.etiqueta}"/></label>&nbsp;
 	<%-- 						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span></c:if> --%>
 							<c:if test="${expedient.permisDefprocUpdate}"><a id="canviversio" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true" href="<c:url value="/modal/expedient/${expedientId}/canviVersio"/>"><span class="fa fa-pencil edita"></span></a></c:if>
-							<%-- 				
+							<%--
 							<div id="imgDefinicioProcesJbpm" class="hide">
 								<img src="<c:url value="/expedient/${expedientId}/imatgeDefProces"/>"/>
-							</div> 
+							</div>
 							--%>
 							<c:if test="${not empty subprocessos}">
 								<dt class="subproc"><spring:message code="expedient.info.camp.defproc.subprocessos"/></dt>
@@ -539,17 +539,17 @@ dd.subproc {
 						</c:forEach>
 					</ul>
 				</c:if>
-				
-				<c:set value="${expedient.permisWrite 
-							|| expedient.permisStop 
-							|| expedient.permisCancel 
+
+				<c:set value="${expedient.permisWrite
+							|| expedient.permisStop
+							|| expedient.permisCancel
 							|| expedient.permisDelete
 							|| expedient.permisRelate
 							|| expedient.permisScriptExe
 							|| expedient.permisUndoEnd
 							|| expedient.permisLogManage}" var="tePermisAdministrar" ></c:set>
-				
-				<c:if test="${(expedient.permisRead && (empty expedient.dataFi) && (not empty processInstance.end)) 
+
+				<c:if test="${(expedient.permisRead && (empty expedient.dataFi) && (not empty processInstance.end))
 							|| tePermisAdministrar }">
 					<div id="expedient-info-accio" class="dropdown">
 						<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/expedient/${expedientId}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.eines"/>&nbsp;<span class="caret"></span></a>
@@ -564,8 +564,8 @@ dd.subproc {
 										<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.confirm_reprendre_tramitacio"/>" href="<c:url value="/modal/expedient/${expedientId}/reprendre"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.info.accio.reprendre"/></a></li>
 									</c:otherwise>
 								</c:choose>
-							</c:if>								
-							
+							</c:if>
+
 							<c:if test="${expedient.permisCancel}">
 								<c:choose>
 									<c:when test="${not expedient.anulat}">
@@ -575,12 +575,12 @@ dd.subproc {
 										<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>" href="<c:url value="/modal/expedient/${expedientId}/activar"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.info.accio.activar"/></a></li>
 									</c:otherwise>
 								</c:choose>
-							</c:if>								
+							</c:if>
 
 							<c:if test="${expedient.permisDelete}">
 								<li><a href="<c:url value="/modal/expedient/${expedientId}/delete"/>" data-rdt-link-ajax="false" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</c:if>
-							
+
 							<c:if test="${expedient.permisWrite || expedient.permisRead}">
 								<li class="divider"></li>
 								<c:if test="${empty expedient.dataFi}">
@@ -588,7 +588,7 @@ dd.subproc {
 										<c:choose>
 											<c:when test="${expedient.arxiuActiu}">
 												<!--  Modal per seleccionar i firmar documents -->
-												<a 
+												<a
 												data-rdt-link-confirm="<spring:message code="expedient.eines.confirm.finalitzar.expedient.arxiu"/>"
 												data-toggle="modal"
 												data-maximized="true"
@@ -633,17 +633,17 @@ dd.subproc {
 							<c:if test="${expedient.permisAdministration and expedient.tipus.arxiuActiu and empty expedient.arxiuUuid}">
 								<li><a href="<c:url value="/modal/expedient/${expedientId}/migrarArxiu"/>" onclick="return confirmarMigrarArxiu(event)"><span class="fa fa-suitcase"></span>&nbsp;<spring:message code="expedient.info.accio.migrararxiu"/></a></li>
 							</c:if>
-							
+
 							<c:if test="${tePermisAdministrar}">
 								<li class="divider"></li>
 								<li><a href="<c:url value="/modal/expedient/${expedientId}/generarIndexExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.exportarIndex.title"/>">
 									<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.exportarIndex"/>
 								</a></li>
-								
+
 								<c:if test="${not empty expedient.arxiuUuid}">
 									<li><a href="<c:url value="/modal/expedient/${expedientId}/exportarEniExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.eniExp.title"/>">
 										<span class="fa fa-file-code-o"></span>&nbsp;<spring:message code="expedient.info.accio.eniExp"/>
-									</a></li>							
+									</a></li>
 									<li><a href="<c:url value="/modal/expedient/${expedientId}/exportarEniDocumentsAmbIndex"/>" target="_blank" title="<spring:message code="expedient.info.accio.eni.title"/>">
 										<span class="fa fa-file-code-o"></span>&nbsp;<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.eni"/>
 									</a></li>
@@ -651,19 +651,19 @@ dd.subproc {
 								<c:if test="${empty expedient.arxiuUuid}">
 									<li class="disabled"><a href="#" title="<spring:message code="expedient.exportacio.eniExp.noActiu"/>">
 										<span class="fa fa-file-code-o"></span>&nbsp;<spring:message code="expedient.info.accio.eniExp"/>
-									</a></li>							
+									</a></li>
 									<li class="disabled"><a href="#" title="<spring:message code="expedient.exportacio.eniExp.noActiu"/>">
 										<span class="fa fa-file-code-o"></span>&nbsp;<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.eni"/>
 									</a></li>
 								</c:if>
-								
+
 								<c:if test="${perEstats == true }">
 									<li class="divider"></li>
 									<c:forEach var="estat" items="${estatsRetrocedir}">
 										<li><a href="<c:url value="/expedient/${expedientId}/estat/${estat.id}/canviar?retrocedir=true" />">
 											<b>&lt;&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a></li>
 									</c:forEach>
-								
+
 									<c:forEach var="estat" items="${estatsAvancar}">
 										<li><a href="<c:url value="/expedient/${expedientId}/estat/${estat.id}/canviar" />">
 											<b>&gt;&gt;</b> <spring:message code="expedient.info.estat.avancar" arguments="${estat.nom}"></spring:message></a></li>
@@ -714,18 +714,18 @@ dd.subproc {
 					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/expedient/${expedientId}/alertes"/>"><spring:message code="expedient.boto.veure_alertes"/></a>
 				</div>
 			</c:if>
-			
+
 			<c:if test="${expedient.reindexarError}">
 				<div class="alert alert-danger" role="alert">
 					<span class="fa fa-refresh text-danger"></span>
 					<strong><spring:message code="expedient.info.reindexacio"/>: </strong>
 					<c:if test="${expedient.reindexarData != null}"> <spring:message code="expedient.consulta.reindexacio.asincrona.data" arguments="${expedient.reindexarData}"/>. </c:if>
-					<spring:message code="expedient.consulta.reindexacio.error.full"/>.					
+					<spring:message code="expedient.consulta.reindexacio.error.full"/>.
 					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value='/modal/expedient/lucene/${expedientId}'/>"><spring:message code="expedient.boto.veure_dades"/></a>
 				</div>
 			</c:if>
 
-			
+
 			<ul class="nav nav-tabs" role="tablist">
 				<li id="pipella-dades"><a href="#contingut-dades" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.dades"/></a></li>
 				<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>
@@ -756,8 +756,8 @@ dd.subproc {
 				</c:if>
 				<c:if test="${numPinbals > 0}">
 					<li id="pipella-pinbal"><a href="#contingut-pinbal" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.pinbal"/></a></li>
-				</c:if>				
-				
+				</c:if>
+
 			</ul>
 			<div class="tab-content">
 				<div id="contingut-dades" class="tab-pane" data-href="<c:url value="/nodeco/expedient/${expedient.id}/dada"/>">
@@ -768,7 +768,7 @@ dd.subproc {
 				</div>
 				<div id="contingut-interessats" class="tab-pane" data-href="<c:url value="/nodeco/expedient/${expedient.id}/interessat"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-				</div>				
+				</div>
 				<div id="contingut-cronograma" class="tab-pane" data-href="<c:url value="/nodeco/expedient/${expedient.id}/timeline"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
@@ -821,7 +821,7 @@ dd.subproc {
 			</div>
 		</div>
 	</div>
-	
+
 
 	<script type="text/javascript">
 	// <![CDATA[

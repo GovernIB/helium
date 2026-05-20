@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -19,24 +19,24 @@ import es.caib.helium.persistence.entity.Validacio;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a la relació entre estats i les accions de sortida per
  * expedients basats en l'execució per estats.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface EstatAccioSortidaRepository extends JpaRepository<EstatAccioSortida, Long> {
 
 	@Query("select count(ea) from EstatAccioSortida ea where ea.estat.id = :estatId ")
 	public Long countByEstatId(@Param("estatId") Long estatId);
-	
+
 	@Query(	"from EstatAccioSortida eae " +
 			"where " +
 			"   eae.estat.id = :estatId " +
 			"	and (:esNullFiltre = true " +
 			"			or lower(eae.estat.nom) like lower('%'||:filtre||'%') " +
 			"			or lower(eae.accio.nom) like lower('%'||:filtre||'%')) ")
-	Page<Validacio> findByFiltrePaginat(
+	Page<EstatAccioSortida> findByFiltrePaginat(
 			@Param("estatId") Long estatId,
 			@Param("esNullFiltre") boolean esNullFiltre,
-			@Param("filtre") String filtre,		
+			@Param("filtre") String filtre,
 			Pageable pageable);
 
 	@Query("select max(ea.ordre) "

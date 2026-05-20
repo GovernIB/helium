@@ -7,7 +7,7 @@ function desplegableObtenirParams(input, value) {
 		dataObj['q'] = value;
 	}
 	var regPrefix = '';
-	if (input.attr('id').indexOf('.') != -1) 
+	if (input.attr('id').indexOf('.') != -1)
 		regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
 	var params = '';
 	$('input', input.parents('form')).each(function() {
@@ -40,7 +40,7 @@ function desplegableInitSeleccio(url, element, callback) {
             };
 	} else {
 		ajaxData = {
-            	valor: $(element).val()				
+            	valor: $(element).val()
 		};
 	}
 	if ($(element).val()) {
@@ -141,13 +141,13 @@ function initSeleccio(element) {
 	    },
 	}).on('change', function () {
 		var regPrefix = '';
-		if (input.attr('id').indexOf('.') != -1) 
+		if (input.attr('id').indexOf('.') != -1)
 			regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
 		var campName = (regPrefix) ? $(this).attr('name').substring(regPrefix.length + 1) : $(this).attr('name');
 		console.log("regPrefix: " + regPrefix + ", campName: " + campName);
 		$('input.suggest,input.seleccio', input.parents('form')).each(function() {
 			var thisPrefix = '';
-			if ($(this).attr('id').indexOf('.') != -1) 
+			if ($(this).attr('id').indexOf('.') != -1)
 				thisPrefix = $(this).attr('id').substring(0, $(this).attr('id').indexOf('.'));
 			if (thisPrefix == regPrefix) {
 				console.log("verificant: " + campName + ", " + $(this).data('campparams'));
@@ -168,7 +168,7 @@ function initSeleccio(element) {
 function bindCampsParams(element) {
 	var input = $(element);
 	var regPrefix = '';
-	if (input.attr('id').indexOf('.') != -1) 
+	if (input.attr('id').indexOf('.') != -1)
 		regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
 	var campParams;
 	if ($(input).data('campparams'))
@@ -185,8 +185,8 @@ function bindCampsParams(element) {
 					});
 			 }
 		}
-	});	
-	
+	});
+
 }
 
 /** Funció per refrescar la selecció i les opcions.*/
@@ -281,7 +281,7 @@ $(function() {
 	$("#command").on("click", ".eliminarFila", function() {
 		delFila(this);
 	});
-	
+
 	// Funcionalitats concretes
 	$("#command").on("click", ".btn_date", function(){
 		$(this).closest(".date").focus();
@@ -336,7 +336,7 @@ function addMultiple(boto) {
 		}
 		$('label', newInput).text('');
 		if ($('label', newInput).hasClass('sr-only') && !$('label', newInput).closest('.input-group-multiple').hasClass('pad-left-col-xs-3')) {
-			$('label', newInput).closest('.input-group-multiple').addClass('pad-left-col-xs-3');
+			$('label', newInput).closest('.input-group-multiple'); //.addClass('pad-left-col-xs-3');
 		}
 	});
 	previousInput.after(newInput);
@@ -536,9 +536,9 @@ function addField(idTable, campId ) {
 		if (trHtml == null)
 			return;
 		newTr = trHtml;
-	} else	if (tabla.find('tbody tr').size() == 1 
+	} else	if (tabla.find('tbody tr').size() == 1
 			&& tr.is(":hidden") ) {
-		// Si n'hi ha una i està amagada llavors la mostra		
+		// Si n'hi ha una i està amagada llavors la mostra
 		// habilita i mostra la fila buida
 		$(tr).find(':input').removeProp("disabled");
 		$(tr).show();
@@ -549,7 +549,7 @@ function addField(idTable, campId ) {
 	}
 	// La afegeix a la taula
 	newTr.appendTo(tabla);
-	
+
 	// Prepara els events i les propietats de la nova fila
 	$('.select2-container', newTr).remove();
 	limpiarFila(newTr);
@@ -563,7 +563,7 @@ function addField(idTable, campId ) {
 			var id_pre = id.substr(0, id.lastIndexOf("["));
 			var id_post = id.substr(id.lastIndexOf("]") + 1);
 			var index = parseInt(id.substr(id.lastIndexOf("[") + 1, id.lastIndexOf("]"))) + 1;
-			input.attr({ 
+			input.attr({
 				"id" : id_pre + "[" + index + "]" + id_post
 			});
 		}
@@ -573,7 +573,7 @@ function addField(idTable, campId ) {
 				var nom_pre = nom.substr(0, nom.lastIndexOf("["));
 				var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
 				var index = parseInt(nom.substr(nom.lastIndexOf("[") + 1, nom.lastIndexOf("]"))) + 1;
-				input.attr({ 
+				input.attr({
 					"name" : nom_pre + "[" + index + "]" + nom_post
 				});
 			}
@@ -604,7 +604,7 @@ function addField(idTable, campId ) {
 	// Camp de tipus enter
 	newTr.find(".enter").keyfilter(/^[-+]?[0-9]*$/);
 	// Camp de tipus float
-	newTr.find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
+	newTr.find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);
 	// Camp de tipus suggest
 	newTr.find(".suggest").each(function() {
 		$(this).val('');
@@ -649,7 +649,7 @@ function renumerarFiles(table){
 				}
 			}
 		});
-	});	
+	});
 }
 
 function limpiarFila(tr) {

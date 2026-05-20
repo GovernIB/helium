@@ -19,10 +19,10 @@
 	                    .off('click')
 	                    .on('click', function (e) {
 	                        $(this).hide();
-	                
+
 	                        var $invokedOn = $(this).data("invokedOn");
 	                        var $selectedMenu = $(e.target);
-	                        
+
 	                        settings.menuSelected.call(this, $invokedOn, $selectedMenu);
 	                });
             	}
@@ -40,9 +40,9 @@
             if (mouseWidth + menuWidth > pageWidth &&
                 menuWidth < mouseWidth) {
                 return mouseWidth - menuWidth;
-            } 
+            }
             return mouseWidth;
-        }        
+        }
         function getTopLocation(e) {
             var mouseHeight = e.pageY+5;
             var pageHeight = $(window).height();
@@ -51,11 +51,11 @@
             if (mouseHeight + menuHeight > pageHeight &&
                 menuHeight < mouseHeight) {
                 return mouseHeight - menuHeight;
-            } 
+            }
             return mouseHeight;
         }
     };
-	$.fn.heliumDataTable = function(options) {        
+	$.fn.heliumDataTable = function(options) {
 		return this.filter("table").each(function() {
 			var settings = $.extend({
 				paginacio: true,
@@ -179,10 +179,10 @@
 				if (confirmat) {
 					if (ajax) {
 						var ajaxUrl = $(this).attr("href");
-						if (ajaxUrl.indexOf("../") != -1)
-							ajaxUrl = ajaxUrl.substr(0, ajaxUrl.lastIndexOf("../") + "../".length) + "ajax/" + ajaxUrl.substr(ajaxUrl.lastIndexOf("../") + "../".length);
-						else
-							ajaxUrl = "ajax/" + ajaxUrl;
+						// if (ajaxUrl.indexOf("../") != -1)
+						// 	ajaxUrl = ajaxUrl.substr(0, ajaxUrl.lastIndexOf("../") + "../".length) + "ajax/" + ajaxUrl.substr(ajaxUrl.lastIndexOf("../") + "../".length);
+						// else
+						// 	ajaxUrl = "ajax/" + ajaxUrl;
 						$.ajax({
 							type: "GET",
 							url: ajaxUrl,
@@ -409,7 +409,7 @@
 									}
 								}
 							)
-						);						
+						);
 						if ($(this).data('rdt-context') && $("td:eq(" + index + ")", nRow).find('.dropdown-menu').length > 0) {
 							$(nRow).contextMenu({
 							    menuSelector: "#dropdown-menu-context"+$(nRow).data('id'),
@@ -516,18 +516,18 @@
 
 function checkParametreNecessari(parametre) {
 	var necessari = true;
-	if (parametre.name != null && 
+	if (parametre.name != null &&
 			(
 				parametre.name.startsWith("bRegex_")
 				|| parametre.name.startsWith("sSearch_")
-				|| parametre.name.startsWith("bSortable_") 
+				|| parametre.name.startsWith("bSortable_")
 				|| parametre.name.startsWith("bSearchable_")
 			)
 		)
 	{
-		necessari = false;		
+		necessari = false;
 	}
-	return necessari	
+	return necessari
 }
 
 function datatableExecuteFunctionByName(functionName, context /*, args */) {
@@ -546,7 +546,7 @@ function datatableExecuteFunctionByName(functionName, context /*, args */) {
 	return context[func].apply(this, args);
 }
 
-/** Retorna true si ha estat l'usuari que ha apretat la tecla ESC o 
+/** Retorna true si ha estat l'usuari que ha apretat la tecla ESC o
  * ha navegat cap a una altra pàgina.
  */
 function userAborted(xhr) {

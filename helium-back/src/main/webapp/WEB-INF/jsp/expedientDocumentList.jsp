@@ -288,7 +288,7 @@
 					{{if !docValid}}
 						<span class="label label-danger label-doc" title="<spring:message code='expedient.document.invalid' arguments='{{:docError}}'/>"><span class="fa fa-exclamation-triangle"></span></span>
 					{{/if}}
-					
+
 				{{/if}}
 			</script>
 		</th>
@@ -351,7 +351,7 @@
 						<a class="btn btn-default" href="${expedient.id}/document/{{:codi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
 					{{/if}}
 
-					<c:if test="${documentsPinbal == true}"> 
+					<c:if test="${documentsPinbal == true}">
 						{{if pinbalActiu}}
 							<!-- Cas amb dropdown -->
 							<div class="btn-group">
@@ -388,8 +388,8 @@
 							<%--Modificar  TODO: Si no està en estat definitiu ni pendent de firma (portafirmes)--%>
 							{{if editable && ${expedient.permisDocManagement} && !signat}}<li><a data-toggle="modal" href="${expedient.id}/document/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>{{/if}}
 							<%--Borrar --%>
-							{{if editable && ${expedient.permisDocManagement}}} 
-								<li>				
+							{{if editable && ${expedient.permisDocManagement}}}
+								<li>
 									{{if signat && arxiuActiu}}
 										<a href="<c:url value="/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/esborrar"/>" data-toggle="ajax" data-confirm="<spring:message code="expedient.document.firmat.esborrar.confirmacio"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a>
 									{{else}}
@@ -472,7 +472,7 @@
 						<%-- Historial de versions --%>
 						<li>
 							<a  href="../../expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/versions"
-								data-toggle="modal" 
+								data-toggle="modal"
 								class="icon">
 									<span class="fa fa-history fa-fw"></span>
 									<spring:message code="expedient.document.versions.historial"/>
@@ -490,7 +490,7 @@
 									<spring:message code="comu.boto.descarregar"/>
 								</a>
 							</li>
-						
+
 							<li>
 								<a href="${expedient.id}/document/{{:id}}/descarregar/imprimible">
 									<span class="fa fa-print"></span>
@@ -522,8 +522,8 @@
 				<input type="checkbox" id="boto-dpendents" autocomplete="off" checked><span class="fa fa-plus"></span>
 			</label>
 		</div>
-		<a class="btn btn-default" 
-			href="../../expedient/${expedientId}/document/notificarZip" "
+		<a class="btn btn-default"
+			href="${expedientId}/document/notificarZip"
 			data-toggle="modal">
 				<span class="fa fa-paper-plane"></span>
 				<spring:message code="expedient.boto.notificar_zip"/>

@@ -270,7 +270,9 @@ public class ConsultaHelper {
 	public List<Camp> toListCamp(List<TascaDadaDto> listTascaDadaDto) {
 		List<Camp> listCamp = new ArrayList<Camp>();
 		for (TascaDadaDto tascaDadaDto : listTascaDadaDto) {
-			Camp camp = campRepository.findById(tascaDadaDto.getCampId()).orElse(null);
+			Camp camp = null;
+			if(tascaDadaDto.getCampId() != null)
+				camp = campRepository.getReferenceById(tascaDadaDto.getCampId());
 			if (camp == null) {
 				camp = new Camp(
 						tascaDadaDto.getVarCodi(),

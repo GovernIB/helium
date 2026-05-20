@@ -20,7 +20,7 @@
 	</c:when>
 	<c:otherwise>
 		<c:set var="titol"><spring:message code="expedient.tipus.accio.form.titol.visualitzar"/></c:set>
-		<c:set var="formAction">none</c:set>		
+		<c:set var="formAction">none</c:set>
 	</c:otherwise>
 </c:choose>
 
@@ -34,12 +34,12 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
-<body>	
+<body>
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusAccioCommand">
-		<div>        
+		<div>
 			<input type="hidden" name="id" value="${expedientTipusAccioCommand.id}"/>
 			<input type="hidden" name="perEstats" value="${expedientTipusAccioCommand.perEstats}"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.accio.form.accio.codi" />
@@ -77,7 +77,7 @@
 				<hel:inputTextarea name="script" required="true" textKey="expedient.tipus.accio.form.accio.script" />
 			</div>
 		</div>
-		
+
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			<c:if test="${!heretat}">
@@ -95,7 +95,7 @@
 				</c:choose>
 			</c:if>
 		</div>
-		
+
 	<script type="text/javascript">
 
 		// <![CDATA[
@@ -122,7 +122,7 @@
 				switch($(this).val()) {
 					case 'ACCIO':
 						webutilEnableInputs('#rowDefProc');
-						webutilEnableInputs('#rowAccio');						
+						webutilEnableInputs('#rowAccio');
 						$('#rowDefProc').show();
 						$('#rowAccio').show();
 					break;
@@ -148,14 +148,14 @@
 						break;
 				}
 			}).change();
-			
+
 			// Canvi en la selecció de la definicion
 			$('#defprocJbpmKey').change(function() {
 				refrescaAccions();
 				refrescaHandlersPropis();
 			});
-			
-			
+
+
 			$('#handlerPredefinit').after($("#handlerPredefinitDescripcio"));
 			$('#handlerPredefinit').change(function() {
 				carregarParametresHandlerPredefinit();
@@ -166,14 +166,14 @@
 			//</c:if>
 
 			$('#jbpmAction').val('${expedientTipusAccioCommand.jbpmAction}');
-			
+
 			$('#handlerPropi').change(function() {
 				carregarParametresHandler();
 			}).change();
-			
-			carregarHandlersPredefinits();			
+
+			carregarHandlersPredefinits();
 		});
-		
+
 
 		function refrescaAccions() {
 			var definicioProcesId = $("#defprocJbpmKey").val();
@@ -203,7 +203,7 @@
 				$('#jbpmAction').val('').change();
 			}
 		}
-		
+
 		function refrescaHandlersPropis() {
 			var definicioProcesId = $("#defprocJbpmKey").val();
 			var handlerPropiActual = $('#handlerPropi').val();
@@ -232,14 +232,14 @@
 				$('#handlerPropi').val('').change();
 			}
 		}
-				
+
 		var handlersPredefinititsGrups = new Map([]);
 		<c:forEach items="${handlersPredefinititsGrups}" var="handlersPredefinititsGrup">
 		handlersPredefinititsGrups["${handlersPredefinititsGrup.codi}"] = "${handlersPredefinititsGrup.valor}";
   		</c:forEach>
-		
+
 		// Carrega el select de handlers predefinits agrupats
-		function carregarHandlersPredefinits() { 
+		function carregarHandlersPredefinits() {
 			var valor = "${expedientTipusAccioCommand.handlerPredefinit}";
 			var mapAgrupacions = new Map();
 			for (i = 0; i < handlersPredefinitsJson.length; i++) {
@@ -255,7 +255,7 @@
 			}
 			$("#handlerPredefinit").val('${command.handlerPredefinit}').val(valor).change();
 		}
-		
+
 		// A partir del handler predefinit carrega els paràmetres
 		function carregarParametresHandlerPredefinit() {
 
@@ -287,7 +287,6 @@
 		}
 
 		function afegirControlsParametre(handlerInfo, parametre) {
-			debugger;
 			// clona la plantilla
 			var $parametres = $('#handlerParametreTemplate').clone(true);
 			$parametres.attr('id', 'handlerParametre_' + parametre.codi);
@@ -425,28 +424,28 @@
 			$inputText.val(handlerDades[parametre]);
 			$('#mapejosHandler').append($parametres);
 		}
-				
+
 		// ]]>
-	</script>			
+	</script>
 
 	</form:form>
-	
+
 	<!-- Plantilla no visible per paràmetres -->
 	<div style="display: none;">
-	
+
 		<div id="handlerParametreTemplate" class="form-group handlerParametre">
-		
+
 			<label class="control-label col-xs-3 paramLabel" for="[codi]">
 				[parametre.nom]
 			</label>
-			
+
 			<div class="col-xs-2">
 				<select class="menuSelect">
 					<option value="text">Text</option>
 					<option value="var">Var</option>
 				</select>
 			</div>
-			
+
 			<div class="col-xs-7">
 				<input id="[parametre.param]" name="handlerDades[parametre.param]" class="form-control param" type="text" value="handlerDades[parametre.param]">
 				<select  id="[parametre.varParam] name="handlerDades[parametre.varParam]" class="varParam">
@@ -459,11 +458,11 @@
 						</c:if>
 						<c:if test="${variable.sobreescriu }">
 							<span class='label label-warning'>S</span>
-						</c:if>									
+						</c:if>
 					</option>
 				</c:forEach>
 				</select>
-			</div>						
+			</div>
 		</div>
 
 		<div id="handlerParametreTemplate2" class="form-group handlerParametre">

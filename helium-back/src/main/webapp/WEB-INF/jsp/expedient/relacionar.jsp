@@ -21,9 +21,9 @@
 			#select2-drop{left: 30px !important;}
 		</style>
 	</head>
-	<body>		
+	<body>
 		<form:form id="relacionarExpediente" name="relacionarExpedient" action="relacionarExpediente" method="post" modelAttribute="relacionarCommand" cssClass="uniForm">
-			<hel:inputSuggest name="expedientIdDesti" urlConsultaLlistat="/expedient/suggest" useparam="true" urlConsultaInicial="/expedient/suggest" textKey="expedient.info.relacionar.amb" placeholderKey="expedient.info.relacionar.amb"/>
+			<hel:inputSuggest name="expedientIdDesti" urlConsultaLlistat="expedient/suggest" useparam="true" urlConsultaInicial="expedient/suggest" textKey="expedient.info.relacionar.amb" placeholderKey="expedient.info.relacionar.amb"/>
 			<div id="modal-botons">
 				<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 					<spring:message code='comuns.cancelar' />

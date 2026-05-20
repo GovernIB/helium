@@ -12,7 +12,7 @@ import lombok.Setter;
 /**
  * Dto amb els paràmetres per a paginar i ordenar els
  * resultats d'una consulta.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Getter
@@ -108,7 +108,7 @@ public class PaginacioParamsDto implements Serializable {
 		ASCENDENT,
 		DESCENDENT
 	}
-	public class OrdreDto implements Serializable {
+	public static class OrdreDto implements Serializable {
 		private String camp;
 		private OrdreDireccioDto direccio;
 		public OrdreDto(

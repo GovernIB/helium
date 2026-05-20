@@ -161,6 +161,10 @@ public class HeliumApiImpl implements HeliumApi {
 			ambFirma,
 			firmaSeparada,
 			firmaContingut,
+			null,
+			null,
+			null,
+			null,
 			null);
 	}
 
@@ -227,6 +231,10 @@ public class HeliumApiImpl implements HeliumApi {
 			null,
 			false,
 			false,
+			null,
+			null,
+			null,
+			null,
 			null,
 			null);
 		if (esborrarDocument) {

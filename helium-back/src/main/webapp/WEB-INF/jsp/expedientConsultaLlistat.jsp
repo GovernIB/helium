@@ -26,11 +26,11 @@
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
-	
+
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-	
+
 	<style>
 		#filtresCollapsable .controls{ width: 100% !important;}
 		#filtresCollapsable {padding-top: 20px;}
@@ -40,8 +40,8 @@
 		 #taulaDades {display: block;border-left: 0 none;border-right: 0 none;border-bottom: 0 none;}
 		.col-xs-13 {/*margin-left: -5px;margin-right: -15px;*/}
 		.form-group {padding-right: 	15px;margin-left: 	10px !important;margin-bottom:	15px;}
-		.form-group input, .form-group textarea {width: 100%;}		
-		.form-group li > .select2-container {width: 100%;padding-right: 20px;}		
+		.form-group input, .form-group textarea {width: 100%;}
+		.form-group li > .select2-container {width: 100%;padding-right: 20px;}
 		.form-group .select2-container {width: calc(100% + 0px) !important;}
 		.condensed {margin-bottom: 0px;}
 		.form-group.registre {padding-right: 1px;}
@@ -71,11 +71,11 @@
 		.like-cols {
 			 float: left;
 			 padding-left: 0px;
-			 margin-bottom: 6px;	
+			 margin-bottom: 6px;
 		}
 		.top-label {
-			padding-right: 11px; 
-			text-align: left !important; 
+			padding-right: 11px;
+			text-align: left !important;
 			margin-bottom:4px !important;
 		}
 		.form-group .consulta-tipus-controls .form-group {
@@ -96,13 +96,13 @@ function comprovarPendentsReindexacio() {
 		//console.log("Consultant alertes de reindexació...");
 		jQuery.ajaxSetup({async:false});
 		$('#contingut-alertes-reindexacio').load(webutilContextPath() + "/nodeco/expedient/consulta/${consulta.id}/alertes");
-		jQuery.ajaxSetup({async:true});	
+		jQuery.ajaxSetup({async:true});
 		//console.log("Alertes reindexació consultades");
 	}
 	comprovacio_numero++;
 }
 
-$(document).ready(function() {	
+$(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
 		ajaxSourceUrl: "<c:url value="/expedient/consulta/${consulta.id}/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
@@ -174,7 +174,7 @@ $(document).ready(function() {
 			$("input#nomesTasquesPersonals", $formulari).val(false);
 		}
 		$(this).blur();
-				
+
 		$("button#consultar", $formulari).click();
 	});
 
@@ -190,11 +190,11 @@ $(document).ready(function() {
 <body>
 	<!-- Alertes per expedients pendents de reindexació asíncrona o per error de reindexació -->
 	<div id="contingut-alertes-reindexacio"></div>
-	
+
 	<form:form method="post" action="" cssClass="well form-horizontal form-tasca" modelAttribute="expedientConsultaCommand">
 		<form:hidden path="consultaId"/>
 		<div class="control-group fila_reducida">
-		
+
 			<c:set var="ampleLabel">135px</c:set>
 			<c:set var="ampleInput">calc(100% - ${ampleLabel})</c:set>
 			<c:set var="comptadorCols">0</c:set>
@@ -203,33 +203,33 @@ $(document).ready(function() {
 				<c:set var="campActual" value="${camp}" scope="request"/>
 				<c:set var="readonly" value="${false}" scope="request"/>
 				<c:set var="required" value="${false}" scope="request"/>
-				
-				
+
+
 				<c:set var="ampleCols">${camp.ampleCols}</c:set>
 				<c:set var="buitCols">${camp.buitCols}</c:set>
 				<c:set var="buitAbsCols">${buitCols < 0 ? -buitCols : buitCols}</c:set>
 				<c:set var="ampleBuit">${buitAbsCols + ampleCols}</c:set>
-				
+
 				<c:set var="comptadorCols">${comptadorCols + ampleBuit}</c:set>
-				
+
 				<c:if test="${comptadorCols > 12}">
 					<c:set var="comptadorCols">${comptadorCols - 12}</c:set>
-					
+
 					<!--tanquem row i la tornem a obrir per a la següent fila-->
 					</div>
 						<div class="row">
 					<!------------------------->
 				</c:if>
-				
+
 				<!-- si tenim el buit menor que 0, l'offset va al davant del camp -->
 				<c:if test="${buitCols < 0}">
 					<div class="col-sm-${buitAbsCols}"></div>
 				</c:if>
-				
+
 				<div class="col-sm-${ampleCols > 0?ampleCols:12}">
 					<%@ include file="campsFiltre.jsp" %>
 				</div>
-				
+
 				<!-- si el buit es major que 0, l'offset va després del camp -->
 				<c:if test="${buitCols > 0}">
 					<div class="col-sm-${buitAbsCols}"></div>
@@ -243,7 +243,7 @@ $(document).ready(function() {
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
 				<%-- <form:hidden path="nomesErrors"/> --%>
-				
+
 				<button style="display:none" type="submit" name="accio" value="filtrar"></button>
 				<div class="row">
 					<div class="col-md-6">
@@ -271,7 +271,7 @@ $(document).ready(function() {
 				<th data-rdt-property="expedient.id" width="4%" data-rdt-sortable="false"></th>
 				<th data-rdt-property="expedient.id" data-rdt-template="cellPendentsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="2%">
 					<script id="cellPendentsTemplate" type="text/x-jsrender">
-						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>						
+						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>
 					</script>
 				</th>
 				<th data-rdt-property="expedient.identificador" data-rdt-template="cellReindexacioTemplate" data-rdt-sorting="desc" data-visible=true>
@@ -280,7 +280,7 @@ $(document).ready(function() {
 					{{:expedient_identificador}}
 					{{if reindexarData || reindexarError || reindexarCampError }}
 						<div class="pull-right">
-							<span class="fa fa-refresh {{if reindexarError || reindexarCampError }}text-danger {{/if}}" 
+							<span class="fa fa-refresh {{if reindexarError || reindexarCampError }}text-danger {{/if}}"
 							title="{{if reindexarData}}<spring:message code="expedient.consulta.reindexacio.asincrona"/>{{/if}}
 								   {{if reindexarError}}<spring:message code="expedient.consulta.reindexacio.error.full"/>{{/if}}
 								   {{if reindexarCampError}}<spring:message code="expedient.consulta.reindexacio.error.camp"/>{{/if}}"></span>
@@ -313,7 +313,7 @@ $(document).ready(function() {
 										<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}" data-error-detall="{{:errorFull}}" data-error-pid="{{:processInstanceId}}"><span class="fa fa-exclamation-circle"></span> </span>
 									{{else}}
 										<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}"><span class="fa fa-exclamation-circle"></span> </span>
-									{{/if}}						
+									{{/if}}
 								{{/if}}
 							</div>
 							{{:error}}
@@ -333,14 +333,14 @@ $(document).ready(function() {
 				<th data-rdt-property="finalitzat" data-rdt-visible="false"></th>
 				<th data-rdt-property="processInstanceId" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>
-				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>		
+				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
-				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>		
+				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
-				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>	
-				<th data-rdt-property="ambErrors" data-rdt-visible="false"></th>		
+				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>
+				<th data-rdt-property="ambErrors" data-rdt-visible="false"></th>
 				<th data-rdt-property="reindexarData" data-rdt-visible="false"></th>
 				<th data-rdt-property="id" data-rdt-context="true" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
@@ -359,7 +359,7 @@ $(document).ready(function() {
 			</tr>
 		</thead>
 	</table>
-	
+
 	<script id="tableButtonsTemplate" type="text/x-jsrender">
 		<div class="btn-group pull-right">
 			<a class="btn btn-default" href="<c:url value="/expedient/consulta/${consulta.id}/selectionAll"/>" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
@@ -384,7 +384,7 @@ $(document).ready(function() {
 			</c:if>
 		</div>
 	</script>
-	
+
 	<div id="modal-error" class="modal fade">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -400,7 +400,7 @@ $(document).ready(function() {
 			</div>
 		</div>
 	</div>
-	
+
 	<div id="informeDescarregarModal" class="modal fade" role="dialog">
 		<div class="modal-dialog">
 		    <div class="modal-content">
@@ -430,7 +430,7 @@ $(document).ready(function() {
       		</div>
 	    </div>
 	</div>
-	
+
 	<script type="text/javascript">
 		function recarregarTaula(tableId, correcte) {
 			if (correcte) {
@@ -438,7 +438,7 @@ $(document).ready(function() {
 				$("#"+tableId).dataTable().fnDraw();
 			}
 		}
-	
+
 		function refrescarAlertas(e) {
 			$.ajax({
 				url: "<c:url value="/nodeco/missatges"/>",
@@ -449,18 +449,18 @@ $(document).ready(function() {
 				}
 			});
 		}
-		
+
 		$("#tableButtonsTemplate a").heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false,
 			alertesRefreshUrl: "<c:url value="/nodeco/missatges"/>",
 		});
-		
-		
+
+
 		// Variable on es guarda la informació de la generació en curs
 		var informe = null;
 		var interval = null;
-		
+
 		$(document).ready(function() {
 
 			$('#informeDescarregarModal').on('shown.bs.modal', function () {
@@ -472,7 +472,7 @@ $(document).ready(function() {
 					generarInforme();
 				}
 			});
-			
+
 			$('#informeDescarregarModal').on('hide.bs.modal', function (e) {
 				if (informe != null && (["NO_TROBAT", "INICIALITZANT", "GENERANT"].indexOf(informe.estat) >= 0)) {
 				    if (confirm("<spring:message code='expedient.informe.generacio.cancellar.confirmacio'/>")) {
@@ -484,9 +484,9 @@ $(document).ready(function() {
 				    	return false;
 				    }
 				}
-			});			
+			});
 		});
-		
+
 		/** Inicia asíncronament la generació de l'informe. */
 		function generarInforme() {
 
@@ -496,7 +496,7 @@ $(document).ready(function() {
 			$("#divInfo").hide()
 			$('#spinnerIcon').css('visibility', 'visible');
 			$("#informeDescarregarModal").modal();
-			
+
 			$.ajax({
 				type: 'GET',
 				url: '<c:url value="/expedient/consulta/${consulta.id}/informeAsync"/>',
@@ -508,7 +508,7 @@ $(document).ready(function() {
 				.done(function( data ) {
 					informe = data;
 					actualitzarInfoDescarrega(informe);
-					consultarPeriodicament();		
+					consultarPeriodicament();
 				})
 				.fail(function(jqXHR, textStatus) {
 				    console.log( "Error iniciant la generació de l'informe: " + textStatus );
@@ -516,19 +516,19 @@ $(document).ready(function() {
 					$("#divError").show();
 				});
 		}
-		
+
 		function consultarPeriodicament() {
 			console.log('consultarPeriodicament');
 			// Consulta periòdica
 			clearInterval(interval);
-			interval = setInterval(function(){ 
+			interval = setInterval(function(){
 				informe = getConsultaInfo();
 				actualitzarInfoDescarrega(informe);
 				if (informe == null || (["NO_TROBAT", "FINALITZAT", "CANCELLAT", "ERROR"].indexOf(informe.estat) >= 0))
 					clearInterval(interval);
-			}, 5000);		
+			}, 5000);
 		}
-				
+
 		/** Mètode per consultar l'estat de la consulta */
 		function getConsultaInfo() {
 			var ret = null;
@@ -552,10 +552,10 @@ $(document).ready(function() {
 				  })
 				.always(function() {
 					$('#dataTransferIcon').css('visibility', 'hidden');
-				  });	
+				  });
 			return ret;
 		}
-		
+
 		var estats = {};
 		estats['NO_TROBAT'] = '<spring:message code="expedient.informe.estat.NO_TROBAT"/>';
 		estats['INICIALITZANT'] = '<spring:message code="expedient.informe.estat.INICIALITZANT"/>';
@@ -564,7 +564,7 @@ $(document).ready(function() {
 		estats['CANCELLAT'] = '<spring:message code="expedient.informe.estat.CANCELLAT"/>';
 		estats['ERROR'] = '<spring:message code="expedient.informe.estat.ERROR"/>';
 
-		
+
 		/** Actualitza visualment la modal de descàrrega segons la informació rebuda. */
 		function actualitzarInfoDescarrega(info) {
 
@@ -605,7 +605,7 @@ $(document).ready(function() {
 				}
 			}
 		}
-		
+
 		function cancellarInforme() {
 			var ret = null;
 			if (interval != null)
@@ -633,9 +633,9 @@ $(document).ready(function() {
 				  })
 				.always(function() {
 					$('#dataTransferIcon').css('visibility', 'hidden');
-				  });	
+				  });
 			return ret;
-			
+
 		}
 	</script>
 </body>

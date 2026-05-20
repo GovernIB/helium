@@ -81,12 +81,12 @@
 						$('#liReassignment').attr('title', "<spring:message code='expedient.llistat.accio.reassignar.sense.permis'/>");
 					}
 				}
-				if ( $('#nomesTasquesMeves').val() == 'true') 
+				if ( $('#nomesTasquesMeves').val() == 'true')
 					$('#nomesTasquesMevesCheck').addClass('active');
-				else 
+				else
 					$('#nomesTasquesMevesCheck').removeClass('active');
 			}
-		});	
+		});
 		$('.date_time').datetimepicker({
 			locale: moment.locale('${idioma}'),
 			minDate: new Date(),
@@ -145,7 +145,7 @@
 				}
 				//permisos d'expedientTipus
 				if (value != undefined && value != "-1"){
-					$.get('tasca/expedientTipusAmbPermis/${entornId}/' + value)				
+					$.get('tasca/expedientTipusAmbPermis/${entornId}/' + value)
 					.done(function(data) {
 						if(data != undefined && (data.permisTaskSupervision || data.permisReassignment)){
 							$('#responsableDiv').show();
@@ -154,7 +154,7 @@
 							$('#responsableDiv').hide();
 							window['ambPermisReassignment'] = false;
 						}
-						
+
 						if(data != undefined && data.permisTaskSupervision){
 							$("#nomesTasquesMevesCheck").prop("disabled", false);
 						} else {
@@ -190,8 +190,8 @@
 	function refrescaEstatSegonPla() {
 		var tasquesSegonPlaIds = [];
 		$('span.segon-pla-icona').each(function (index, value) {
-			var id = $(value).attr('id').split('spi-')[1]; 
-		 	tasquesSegonPlaIds.push(id);	
+			var id = $(value).attr('id').split('spi-')[1];
+		 	tasquesSegonPlaIds.push(id);
 		});
 		if (tasquesSegonPlaIds.length > 0) {
 			$.ajax({
@@ -199,7 +199,7 @@
 			    data: {"tasquesSegonPlaIds": tasquesSegonPlaIds},
 			    type: "POST",
 			    success: function(data) {
-				    //recorrem de nou les icones de les tasques per 
+				    //recorrem de nou les icones de les tasques per
 				    //actualitzar-ne l'estat
 				    if (data != undefined) {
 					    $.each(tasquesSegonPlaIds, function(ind,val) {
@@ -225,7 +225,7 @@
 						    		iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
 						    		//refrescam el datatable
 						    		refrescaPaginacio();
-							    }				    	
+							    }
 							} else {
 								iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
 								//refrescam el datatable
@@ -282,7 +282,7 @@
 			filtre = true;
 		if ($("#dataLimitFinal").val() != "")
 			filtre = true;
-			
+
 		if (filtre) {
 			$('#tascaConsultaCommand').addClass("filtrat");
 		} else {
@@ -370,7 +370,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-md-4">				
+						<div class="col-md-4">
 							<label>&nbsp;</label>
 							<div class="row">
 							<c:choose>
@@ -390,7 +390,7 @@
 					</div>
 				</div>
 				<button style="display:none" type="submit" name="accio" value="consultar"></button>
-				<div class="row">						
+				<div class="row">
 					<div class="col-md-12">
 						<form:hidden path="nomesTasquesPersonals"/>
 						<form:hidden path="nomesTasquesGrup"/>
@@ -421,14 +421,14 @@
 			</c:otherwise>
 		</c:choose>
 	</form:form>
-	<table 
-		id="taulaDades" 
-		class="table table-striped table-bordered table-hover" 
-		data-rdt-button-template="tableButtonsTemplate" 
-		<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}"> data-rdt-paginable="false"</c:if> 
-		data-rdt-seleccionable-columna="0" 
-		data-rdt-filtre-form-id="tascaConsultaCommand" 
-		data-rdt-seleccionable="true" 
+	<table
+		id="taulaDades"
+		class="table table-striped table-bordered table-hover"
+		data-rdt-button-template="tableButtonsTemplate"
+		<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}"> data-rdt-paginable="false"</c:if>
+		data-rdt-seleccionable-columna="0"
+		data-rdt-filtre-form-id="tascaConsultaCommand"
+		data-rdt-seleccionable="true"
 		<c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr data-toggle="context" data-target="#context-menu">
@@ -456,9 +456,9 @@
 							{{if agafada}}
 								<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 							{{/if}}
- 							{{if !completed && tascaTramitacioMassiva && assignadaUsuariActual}}													
+ 							{{if !completed && tascaTramitacioMassiva && assignadaUsuariActual}}
 								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: $('td').unbind('click');window.location='../tasca/{{:id}}/massiva';"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
-							{{/if}}	
+							{{/if}}
 
 							{{if errorFinalitzacio != null || marcadaFinalitzar != null || iniciFinalitzacio != null}}
 								<a data-rdt-link-modal="true" href="<c:url value="/modal/expedient/{{:expedientId}}/execucioInfo/{{:id}}"/>">
@@ -480,18 +480,18 @@
 				</th>
 				<th data-rdt-property="expedientIdentificador" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.expedient"/></th>
 				<th data-rdt-property="responsableString" data-rdt-visible="true"><spring:message code="expedient.tasca.columna.asignada_a"/></th>
-				
-				<th data-rdt-property="unitatOrganitzativaCodiNom" data-rdt-template="cellTipusTemplate" data-rdt-visible="false">			
+
+				<th data-rdt-property="unitatOrganitzativaCodiNom" data-rdt-template="cellTipusTemplate" data-rdt-visible="false">
 				<th data-rdt-property="expedientTipusNom" data-rdt-template="cellTipusTemplate"  data-rdt-visible="true">
-					<spring:message code="tasca.llistat.columna.tipexp"/>	
+					<spring:message code="tasca.llistat.columna.tipexp"/>
 						<script id="cellTipusTemplate" type="text/x-jsrender">
-							
+
 							{{if unitatOrganitzativaCodiNom != null}}
 								<span class="fa fa-university" title="{{:unitatOrganitzativaCodiNom}}" style="float:left"></span>
 							{{/if}}
 							&nbsp;{{:expedientTipusNom}}
-						</script>	
-				</th>		
+						</script>
+				</th>
 				<th data-rdt-property="createTime" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.creada"/></th>
 				<th data-rdt-property="dueDate" data-rdt-type="date" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.limit"/></th>
 				<th data-rdt-property="prioritat" data-rdt-visible="false"><spring:message code="tasca.llistat.columna.prioritat"/></th>
@@ -538,7 +538,7 @@
 				<th data-rdt-property="suspended" data-rdt-visible="false"></th>
 				<th data-rdt-property="tascaTramitacioMassiva" data-rdt-visible="false"></th>
 				<th data-rdt-property="open" data-rdt-visible="false"></th>
-				<th data-rdt-property="completed" data-rdt-visible="false"></th>				
+				<th data-rdt-property="completed" data-rdt-visible="false"></th>
 				<th data-rdt-property="expedientId" data-rdt-visible="false"></th>
 				<th data-rdt-property="responsables" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
@@ -558,14 +558,14 @@
 			<div id="btnTramitacio" class="btn-group">
 				<c:choose>
 					<c:when test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
-						<a class="btn btn-default" href="../tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
-						<a id="botoNetejarSeleccio" class="btn btn-default" href="../tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+						<a class="btn btn-default" href="tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
+						<a id="botoNetejarSeleccio" class="btn btn-default" href="tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
   						<ul class="dropdown-menu">
 							<li id="liTramitacioMassiva" class="disabled"><a href="<c:url value="tasca//massiva"/>"><spring:message code="expedient.llistat.tramitacio.massiva"/></a></li>
-  							<li id="liReassignment"><a id="botoReassignment" class="btn" href="../tasca/massivaReassignacioTasca" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
-  							<li><a id="botoAgafar" href="<c:url value="../tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
-							<li><a id="botoAllibrerar" href="<c:url value="../tasca/seleccioAlliberar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.alliberar.seleccionats"/></a></li>
+  							<li id="liReassignment"><a id="botoReassignment" class="btn" href="tasca/massivaReassignacioTasca" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
+  							<li><a id="botoAgafar" href="<c:url value="tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
+							<li><a id="botoAllibrerar" href="<c:url value="tasca/seleccioAlliberar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.alliberar.seleccionats"/></a></li>
   						</ul>
 					</c:when>
 					<c:otherwise>
@@ -573,13 +573,13 @@
 						<a id="botoNetejarSeleccio" class="btn btn-default" onclick="marcarTotesVisibles(false)" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
  						<ul class="dropdown-menu">
-							<li><a href="<c:url value="../../../tasca/massivaTramitacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/></a></li>
-							<li id="liReassignment"><a id="botoReassignment" class="btn" href="<c:url value="../../../tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
- 							<li><a id="botoAgafar" href="<c:url value="../../../tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
+							<li><a href="<c:url value="/tasca/massivaTramitacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/></a></li>
+							<li id="liReassignment"><a id="botoReassignment" class="btn" href="<c:url value="/tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
+ 							<li><a id="botoAgafar" href="<c:url value="/tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
 							<li><a id="botoAllibrerar" href="<c:url value="/tasca/seleccioAlliberar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.alliberar.seleccionats"/></a></li>
  						</ul>
 					</c:otherwise>
-				</c:choose>	
+				</c:choose>
 			</div>
 		</div>
 	</script>

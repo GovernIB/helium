@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -54,7 +54,7 @@ import es.caib.helium.commons.dto.TascaDadaDto;
 
 /**
  * Controlador per al llistat d'expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -65,20 +65,20 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 	public Object getFiltreCommand(
 			HttpServletRequest request,
 			Long consultaId) throws Exception {
-		if (consultaId == null) 
+		if (consultaId == null)
 			return null;
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
 		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
-		if (filtreCommand != null 
+		if (filtreCommand != null
 				&& TascaFormHelper.commandForCampsValid( filtreCommand, campsFiltre)) {
 			return filtreCommand;
 		}
 		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-		campsAddicionals.put("consultaId", consultaId);		
+		campsAddicionals.put("consultaId", consultaId);
 		campsAddicionals.put("nomesMeves", false);
 		campsAddicionals.put("nomesAlertes", false);
 		campsAddicionals.put("mostrarAnulats", false);
@@ -105,21 +105,21 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 			Model model) throws Exception {
 		ConsultaDto consulta;
 		try {
-			consulta = dissenyService.findConsulteById(consultaId);			
+			consulta = dissenyService.findConsulteById(consultaId);
 		} catch (Exception e) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					"Error accedint a la consulta amb id " + consultaId + ": " + e.getMessage() + ". Si és la consulta per defecte revisi el seu perfil.",
 					e);
 			return "redirect:/expedient";
 		}
-		
+
 		model.addAttribute(
 				"consulta",
 				consulta);
 		model.addAttribute(
 				"campsFiltre",
-				expedientService.findConsultaFiltre(consultaId));	
+				expedientService.findConsultaFiltre(consultaId));
 		model.addAttribute(
 				"campsInforme",
 				expedientService.findConsultaInforme(consultaId));
@@ -153,7 +153,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId,
 				filtreCommand);
 		model.addAttribute("expedientConsultaCommand", filtreCommand);
-		
+
 		return "expedientConsultaLlistat";
 	}
 
@@ -161,7 +161,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 	public String post(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
-			@Valid @ModelAttribute("expedientConsultaCommand") Object filtreCommand,			
+			@Valid @ModelAttribute("expedientConsultaCommand") Object filtreCommand,
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio,
 			Model model) throws Exception  {
@@ -329,7 +329,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 				Object.class,
 				new ObjectTypeEditorHelper());
 	}
-	
+
 	private Map<String, Object> processarValorsFiltre(
 			Object filtreCommand,
 			List<TascaDadaDto> dadesFiltre,
@@ -354,10 +354,10 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		}
 		return valorsPerService;
 	}
-	
+
 	/**
 	 * Mètode pel suggest d'expedients inicial
-	 * 
+	 *
 	 * @param text
 	 * @param model
 	 * @return
@@ -379,11 +379,11 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		return resultat;
 	}
 
-	
+
 	/**
 	 * Mètode per cercar un expedient per número o títol per a un control de tipus
 	 * suggest
-	 * 
+	 *
 	 * @param text  Tetxt per filtrar.
 	 * @param model
 	 * @return
@@ -413,5 +413,5 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		}
 		return resultat;
 	}
-		
+
 }

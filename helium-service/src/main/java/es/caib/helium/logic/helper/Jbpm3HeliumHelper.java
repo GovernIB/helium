@@ -3184,8 +3184,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 		// consultar a l'índex
 		List<Long> expedientsIds = expedientDadaHelper.findExpedientsIdsByFiltre(
-				entorn,
-				expedientTipus,
+				entorn.getId(),
+				expedientTipus != null? expedientTipus.getId() : null,
 				filtreCamps,
 				filtreValors);
 		Expedient expedient;

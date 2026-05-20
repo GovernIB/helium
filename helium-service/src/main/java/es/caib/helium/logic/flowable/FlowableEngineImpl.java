@@ -776,7 +776,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			boolean mostrarAssignadesUsuari, boolean mostrarAssignadesGrup, boolean b, boolean administrador,
 			PaginacioParamsDto paginacioParams) {
 		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<WTaskInstance>();
 	}
 
 	@Override

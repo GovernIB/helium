@@ -5,6 +5,7 @@ package es.caib.helium.logic.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.validation.ValidationException;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -291,8 +293,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private TascaHelper tascaHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private LuceneHelper luceneHelper;
+//	@Resource
+//	private LuceneHelper luceneHelper;
 	@Resource(name="permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
@@ -690,8 +692,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				desti.removeRelacioOrigen(expedient);
 			}
 		}
+		expedientDadaHelper.deleteByExpedient(expedient.getId());
 		expedientRepository.delete(expedient);
-		luceneHelper.deleteExpedient(expedient);
 		if (expedient.getArxiuUuid() != null && pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
 			try {
 				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
@@ -903,7 +905,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		dataFi2 = this.ajustaFinalDia(dataFi2);
 
 		// Obté la llista de tipus d'expedient permesos
-		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+//		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+		List<ExpedientTipus> tipusPermesos = expedientTipusHelper.findAmbPermisRead(entorn);
 
 		//Tenim en compte si es filtre per unitatOrganitzativa, es té en compte la llista de uo's permeses
 		Long unitatOrganitzativaId = null;
@@ -913,7 +916,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 
 		List<Long> expedientsIds;
-
+		/*
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
 		if(idsSeleccionats == null || idsSeleccionats.isEmpty()) {
 			// Executa la consulta amb paginació
@@ -951,88 +954,119 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					nomesErrorsArxiu,
 					idsSeleccionats);
 			// Retorna la pàgina amb la resposta
-
+			*/
 			// TODO: Mostrar nomes els expedients que compleixen el filtre
 			//if (expedientsIds.size() > 0) {
-			try {
-				expedients = conversioTipusHelper.convertirList(
-					expedientRepository.findAll(),
-					//expedientRepository.findByIdIn(expedientsIds),
-					ExpedientDto.class);
-			} catch(Exception e) {
-				e.printStackTrace();
-				throw e;
-			}
-			//}
-		} else {
-
-			expedientsIds = new ArrayList<Long>(0);
-			//List<Expedient> expedientsList = new ArrayList<Expedient>();
-
-			for(List<Long> expIds : Iterables.partition(idsSeleccionats, 800)) {
-
-				paginacioParams.setPaginaTamany(idsSeleccionats.size());
-
-				List<Long> fiteredExpedientsIds = jbpmHelper.expedientFindByFiltre(
-						entornId,
-						auth.getName(),
-						tipusPermesosIds,
-						unitatsPerTipusComu,
+//			try {
+				return paginacioHelper.toPaginaDto(
+					expedientRepository.findByFiltreGeneralPaginat(
+						entorn,
+						tipusPermesos,
+						expedientTipus == null,
+						expedientTipus,
+						titol == null,
 						titol,
+						numero == null,
 						numero,
-						unitatOrganitzativaId,
-						expedientTipusId,
+						dataInici1 == null,
 						dataInici1,
+						dataInici2 == null,
 						dataInici2,
-						dataFi1,
-						dataFi2,
-						estatId,
-						geoPosX,
-						geoPosY,
-						geoReferencia,
-						//TODO3: afegir el nou camp en la capa service
-						registreNumero,
 						EstatTipusDto.INICIAT.equals(estatTipus),
 						EstatTipusDto.FINALITZAT.equals(estatTipus),
-						MostrarAnulatsDto.SI.equals(mostrarAnulats),
-						MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-						nomesAlertes,
-						nomesErrors,
-						nomesTasquesPersonals,
-						nomesTasquesGrup,
-						true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
-						usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
-						paginacioParams,
+						estat == null,
+						estat,
+						geoPosX == null,
+						geoPosX,
+						geoPosY == null,
+						geoPosY,
+						geoReferencia == null,
+						geoReferencia,
 						false,
-						nomesErrorsArxiu,
-						Sets.newTreeSet(expIds));
-
-				expedientsIds.addAll(fiteredExpedientsIds);
-
-				// TODO: Mostrar nomes els expedients que compleixen el filtre
-				expedients.addAll(
-						conversioTipusHelper.convertirList(
-								expedientRepository.findAll(),
-//								expedientRepository.findByIdIn(fiteredExpedientsIds),
-								ExpedientDto.class));
-			}
-
-			paginacioParams.setPaginaTamany(expedients.size());
-		}
+						null,
+						null,
+						null,
+						null,
+						null,
+						MostrarAnulatsDto.SI.equals(mostrarAnulats),
+						nomesAlertes,
+						paginacioHelper.toSpringDataPageable(paginacioParams)
+					),
+					ExpedientDto.class);
+//			} catch(Exception e) {
+//				e.printStackTrace();
+//				throw e;
+//			}
+			//}
+//		} else {
+//
+//			expedientsIds = new ArrayList<Long>(0);
+//			//List<Expedient> expedientsList = new ArrayList<Expedient>();
+//
+//			for(List<Long> expIds : Iterables.partition(idsSeleccionats, 800)) {
+//
+//				paginacioParams.setPaginaTamany(idsSeleccionats.size());
+//
+//				List<Long> fiteredExpedientsIds = jbpmHelper.expedientFindByFiltre(
+//						entornId,
+//						auth.getName(),
+//						tipusPermesosIds,
+//						unitatsPerTipusComu,
+//						titol,
+//						numero,
+//						unitatOrganitzativaId,
+//						expedientTipusId,
+//						dataInici1,
+//						dataInici2,
+//						dataFi1,
+//						dataFi2,
+//						estatId,
+//						geoPosX,
+//						geoPosY,
+//						geoReferencia,
+//						//TODO3: afegir el nou camp en la capa service
+//						registreNumero,
+//						EstatTipusDto.INICIAT.equals(estatTipus),
+//						EstatTipusDto.FINALITZAT.equals(estatTipus),
+//						MostrarAnulatsDto.SI.equals(mostrarAnulats),
+//						MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+//						nomesAlertes,
+//						nomesErrors,
+//						nomesTasquesPersonals,
+//						nomesTasquesGrup,
+//						true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
+//						usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
+//						paginacioParams,
+//						false,
+//						nomesErrorsArxiu,
+//						Sets.newTreeSet(expIds));
+//
+//				expedientsIds.addAll(fiteredExpedientsIds);
+//
+//				// TODO: Mostrar nomes els expedients que compleixen el filtre
+//				expedients.addAll(
+//						conversioTipusHelper.convertirList(
+//								expedientRepository.findAll(),
+////								expedientRepository.findByIdIn(fiteredExpedientsIds),
+//								ExpedientDto.class));
+//			}
+//
+//			paginacioParams.setPaginaTamany(expedients.size());
+//		}
 
 		// Després de la consulta els expedients es retornen en ordre invers
-		Collections.sort(expedients, new ExpedientDtoIdsComparator(expedientsIds));
-
-		if (expedients.size() > 0) {
-			for(List<ExpedientDto> expedientsChunk : Iterables.partition(expedients, 800)) {
-				expedientHelper.omplirPermisosExpedients(expedientsChunk);
-				expedientHelper.trobarAlertesExpedients(expedientsChunk);
-			}
-		}
-		return paginacioHelper.toPaginaDto(
-				expedients,
-				expedientsIds.size(),
-				paginacioParams);
+//		Collections.sort(expedients, new ExpedientDtoIdsComparator(expedientsIds));
+//
+//		if (expedients.size() > 0) {
+//			for(List<ExpedientDto> expedientsChunk : Iterables.partition(expedients, 800)) {
+//				expedientHelper.omplirPermisosExpedients(expedientsChunk);
+//				expedientHelper.trobarAlertesExpedients(expedientsChunk);
+//			}
+//		}
+//		return paginacioHelper.toPaginaDto(
+//				expedients,
+//				expedientsIds.size(),
+//				paginacioParams);
 	}
 
 	/** Ajusta el dia per a que estigui tot inclòs. Ajusta l'hora i els minuts fins al final del dia. */
@@ -1148,7 +1182,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		dataFi2 = this.ajustaFinalDia(dataFi2);
 
 		// Obté la llista de tipus d'expedient permesos
-		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+		List<ExpedientTipus> tipusPermesos = expedientTipusHelper.findAmbPermisRead(entorn);
 
 		Long unitatOrganitzativaId=null;
 		if(unitatOrganitzativaCodi!=null) {
@@ -1162,40 +1196,39 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				ExtendedPermission.ADMINISTRATION};
 		unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList, permisosRequerits);
 		// Executa la consulta amb paginació
-		List<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
-				entornId,
-				auth.getName(),
-				tipusPermesosIds,
-				unitatsPerTipusComu,
-				titol,
-				numero,
-				unitatOrganitzativaId,
-				expedientTipusId,
-				dataInici1,
-				dataInici2,
-				dataFi1,
-				dataFi2,
-				estatId,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				registreNumero,
-				EstatTipusDto.INICIAT.equals(estatTipus),
-				EstatTipusDto.FINALITZAT.equals(estatTipus),
-				MostrarAnulatsDto.SI.equals(mostrarAnulats),
-				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-				nomesAlertes,
-				nomesErrors,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
-				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
-				new PaginacioParamsDto(),
-				false,
-				nomesErrorsArxiu,
-				null // idsSeleccionats
+
+		return expedientRepository.findIdsByFiltreGeneral(
+					entorn,
+					tipusPermesos,
+					expedientTipus == null,
+					expedientTipus,
+					titol == null,
+					titol,
+					numero == null,
+					numero,
+					dataInici1 == null,
+					dataInici1,
+					dataInici2 == null,
+					dataInici2,
+					EstatTipusDto.INICIAT.equals(estatTipus),
+					EstatTipusDto.FINALITZAT.equals(estatTipus),
+					estat == null,
+					estat,
+					geoPosX == null,
+					geoPosX,
+					geoPosY == null,
+					geoPosY,
+					geoReferencia == null,
+					geoReferencia,
+					false,
+					null,
+					null,
+					null,
+					null,
+					null,
+					MostrarAnulatsDto.SI.equals(mostrarAnulats),
+					nomesAlertes
 				);
-		return expedientsIds;
 	}
 	/**
 	 * {@inheritDoc}
@@ -1359,6 +1392,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					expedient.getUnitatOrganitzativa().getCodi(),
 					permisos);
 		}
+
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		for (WProcessInstance jpi: jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId())) {
 			resposta.addAll(
@@ -1474,7 +1508,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		jbpmHelper.suspendProcessInstances(ids);
 		expedient.setAnulat(true);
 		expedient.setComentariAnulat(motiu);
-		luceneHelper.deleteExpedient(expedient);
+		expedientDadaHelper.deleteByExpedient(expedient.getId());
 		crearRegistreExpedient(
 				expedient.getId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),
@@ -2482,7 +2516,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		InstanciaProcesDto dto = new InstanciaProcesDto();
 		dto.setId(processInstanceId);
 		WProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
-		if (pi.getProcessInstance() == null)
+		if (pi == null || pi.getProcessInstance() == null)
 			return null;
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
 		if (pi.getDescription() != null && pi.getDescription().length() > 0)
@@ -2615,13 +2649,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		if (paginacioParams != null) {
 			for (OrdreDto or : paginacioParams.getOrdres()) {
 				asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
-				String clau = or.getCamp().replace(
-						ExpedientCamps.EXPEDIENT_PREFIX_JSP,
-						ExpedientCamps.EXPEDIENT_PREFIX);
 				if (or.getCamp().contains("dadesExpedient")) {
-					sort = clau.replace("/", ".").replace("dadesExpedient.", "").replace(".valorMostrar", "");
+					sort = or.getCamp().replace("/", ".").replace("dadesExpedient.", "").replace(".valorMostrar", "");
 				} else {
-					sort = clau.replace(
+					sort = or.getCamp().replace(
 							".",
 							ExpedientCamps.EXPEDIENT_PREFIX_SEPARADOR);
 				}
@@ -2632,16 +2663,13 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 		List<Long> llistaExpedientIds = new ArrayList<Long>();
 		if (ids == null || ids.isEmpty()) {
-			llistaExpedientIds = luceneHelper.findIdsAmbDadesExpedientPaginatV3(
-					consulta.getEntorn(),
-					consulta.getExpedientTipus(),
-					campsFiltre,
-					campsInforme,
-					valors,
-					sort,
-					asc,
-					0,
-					-1);
+			llistaExpedientIds = expedientDadaHelper.findExpedientsIdsByFiltre(
+				consulta.getEntorn().getId(),
+				consulta.getExpedientTipus() != null ? consulta.getExpedientTipus().getId() : null,
+				campsFiltre,
+				valors,
+				List.of(new PaginacioParamsDto.OrdreDto(sort, asc? OrdreDireccioDto.ASCENDENT : OrdreDireccioDto.DESCENDENT))
+			);
 		} else {
 			llistaExpedientIds.addAll(ids);
 		}
@@ -2657,18 +2685,22 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = new ArrayList<Map<String,DadaIndexadaDto>>();
 		if (!llistaExpedientIds.isEmpty())
-			dadesExpedients = luceneHelper.findAmbDadesExpedientPaginatV3(
-					consulta.getEntorn().getCodi(),
-					llistaExpedientIds,
-					campsInforme,
-					sort,
-					asc,
-					firstRow,
-					maxResults);
+			dadesExpedients = expedientDadaHelper.findDadesExpedients(
+				consulta.getEntorn().getId(),
+				null,
+				llistaExpedientIds,
+				null,
+				null,
+				campsInforme,
+				Lists.newArrayList(
+					new OrdreDto(sort, asc? OrdreDireccioDto.ASCENDENT : OrdreDireccioDto.DESCENDENT)
+				),
+				firstRow,
+				maxResults);
 
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
-			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(ExpedientDadaHelper.CLAU_EXPEDIENT_ID);
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
 			Expedient expedient = expedientRepository.findById(Long.parseLong(dadaExpedientId.getValorIndex())).orElse(null);
 			if (expedient != null) {
@@ -2682,14 +2714,14 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				fila.setDadesExpedient(dadesExpedient);
 				resposta.add(fila);
 			}
-			dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
+			dadesExpedient.remove(ExpedientDadaHelper.CLAU_EXPEDIENT_ID);
 		}
 
 		if (paginacioParams == null) {
 			Iterator<Map<String, DadaIndexadaDto>> it = dadesExpedients.iterator();
 			while (it.hasNext()) {
 				Map<String, DadaIndexadaDto> dadesExpedient = it.next();
-				DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+				DadaIndexadaDto dadaExpedientId = dadesExpedient.get(ExpedientDadaHelper.CLAU_EXPEDIENT_ID);
 				if (dadaExpedientId != null && !llistaExpedientIds.contains(Long.parseLong(dadaExpedientId.getValorIndex()))) {
 					it.remove();
 				}
@@ -2715,15 +2747,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 		List<Camp> campsFiltre = consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(
 				consulta,
-				TipusConsultaCamp.FILTRE));
+				TipusConsultaCamp.INFORME));
 
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 
-		List<Long> llistaExpedientIds = luceneHelper.findNomesIds(
-				consulta.getEntorn(),
-				consulta.getExpedientTipus(),
+		List<Long> llistaExpedientIds = expedientDadaHelper.findExpedientsIdsByFiltre(
+				consulta.getEntorn().getId(),
+				consulta.getExpedientTipus() != null? consulta.getExpedientTipus().getId() : null,
 				campsFiltre,
-				valors);
+				valors
+			);
 		boolean filtreTasques = nomesMeves || nomesTasquesPersonals || nomesTasquesGrup;
 		if (filtreTasques) {
 			filtrarExpedientsAmbTasques(
@@ -2761,23 +2794,28 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			}
 		}
 		String sort = "expedient$identificador"; //ExpedientCamps.EXPEDIENT_CAMP_ID;
-		boolean asc = false;
+//		boolean asc = false;
 		int firstRow = 0;
 		int maxResults = -1;
 
-		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientPaginatV3(
-				entornActual.getCodi(),
-				ids,
-				camps,
-				sort,
-				asc,
-				firstRow,
-				maxResults);
+		List<PaginacioParamsDto.OrdreDto> orders = Lists.newArrayList(
+			new PaginacioParamsDto.OrdreDto(sort, OrdreDireccioDto.DESCENDENT));
+
+		List<Map<String, DadaIndexadaDto>> dadesExpedients = expedientDadaHelper.findDadesExpedients(
+									entornActual.getId(),
+									null,
+									ids,
+								null,
+									null,
+									camps,
+									orders,
+									firstRow,
+									maxResults);
 
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
-			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(ExpedientDadaHelper.CLAU_EXPEDIENT_ID);
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
-			Expedient expedient = expedientRepository.findById(Long.parseLong(dadaExpedientId.getValorIndex())).orElse(null);
+			Expedient expedient = expedientRepository.findById(((BigDecimal)dadaExpedientId.getValor()).longValue()).orElse(null);
 			if (expedient != null) {
 				ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
 				expedientHelper.omplirPermisosExpedient(expedientDto);
@@ -2789,13 +2827,13 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				fila.setDadesExpedient(dadesExpedient);
 				resposta.add(fila);
 			}
-			dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
+			dadesExpedient.remove(ExpedientDadaHelper.CLAU_EXPEDIENT_ID);
 		}
 
 		Iterator<Map<String, DadaIndexadaDto>> it = dadesExpedients.iterator();
 		while (it.hasNext()) {
 			Map<String, DadaIndexadaDto> dadesExpedient = it.next();
-			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(ExpedientDadaHelper.CLAU_EXPEDIENT_ID);
 			if (dadaExpedientId != null && !ids.contains(Long.parseLong(dadaExpedientId.getValorIndex()))) {
 				it.remove();
 			}
@@ -2907,45 +2945,31 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				consulta,
 				TipusConsultaCamp.INFORME);
 
-		List<Map<String, Object>> result = expedientDadaHelper.queryConsultaPaginat(
-				consulta.getEntorn().getId(),
-				consulta.getExpedientTipus().getId(),
-				filtreValors,
-				consultaHelper.findCampsPerCampsConsulta(
-						consulta,
-						TipusConsultaCamp.FILTRE),
-				campsConsulta,
-				paginacioParams);
+		List<Map<String, DadaIndexadaDto>> result = expedientDadaHelper.findDadesExpedients(
+			consulta.getEntorn().getId(),
+			consulta.getExpedientTipus().getId(),
+			null,
+			consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(
+				consulta,
+				TipusConsultaCamp.FILTRE)),
+			filtreValors,
+			consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(
+				consulta,
+				TipusConsultaCamp.INFORME)),
+			paginacioParams.getOrdres(),
+			paginacioParams.getPaginaNum(),
+			paginacioParams.getPaginaTamany()
+		);
 
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
-		for(Map<String, Object> row : result) {
+		for(Map<String, DadaIndexadaDto> row : result) {
+			DadaIndexadaDto expedientIdDada = row.get(ExpedientDadaHelper.CLAU_EXPEDIENT_ID);
+			Expedient expedient = expedientRepository.getReferenceById(Long.parseLong(expedientIdDada.getValorIndex()));
+			ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
-			Expedient expedient = expedientRepository.findById((Long)row.get("id")).orElse(null);
-			if (expedient != null) {
-				Map<String, DadaIndexadaDto> dadesExpedient = new HashMap<String, DadaIndexadaDto>();
-
-				for(String k : row.keySet()) {
-					TascaDadaDto dada = campsConsulta.stream().filter(cc -> {
-						return cc.getVarCodi()
-								.replace(ExpedientCamps.EXPEDIENT_PREFIX, "")
-								.equalsIgnoreCase(k);
-					}).findFirst().orElse(null);
-					DadaIndexadaDto di;
-					if(dada != null) {
-						di = new DadaIndexadaDto(dada.getVarCodi(), dada.getCampEtiqueta());
-					} else {
-						di = new DadaIndexadaDto(k, k);
-					}
-					di.setValor(row.get(k));
-					dadesExpedient.put(di.getCampCodi(), di);
-				}
-
-				ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
-				expedientHelper.omplirPermisosExpedient(expedientDto);
-				fila.setExpedient(expedientDto);
-				fila.setDadesExpedient(dadesExpedient);
-				resposta.add(fila);
-			}
+			fila.setExpedient(expedientDto);
+			fila.setDadesExpedient(row);
+			resposta.add(fila);
 		}
 
 		return paginacioHelper.toPaginaDto(
@@ -3041,19 +3065,25 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				consulta,
 				TipusConsultaCamp.FILTRE));
 		afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
-		Object[] respostaLucene = luceneHelper.findPaginatNomesIdsV3(
-				entorn,
-				expedientTipus,
-				expedientsIds,
-				filtreCamps,
-				filtreValors,
-				paginacioParams);
-		@SuppressWarnings("unchecked")
-		List<Long> ids = (List<Long>)respostaLucene[0];
-		Long count = (Long)respostaLucene[1];
+		List<Long> ids = expedientDadaHelper.findExpedientsIdsByFiltre(
+			entorn.getId(),
+			expedientTipus != null? expedientTipus.getId() : null,
+			filtreCamps,
+			filtreValors,
+			paginacioParams.getOrdres());
+//		Object[] respostaLucene = luceneHelper.findPaginatNomesIdsV3(
+//				entorn,
+//				expedientTipus,
+//				expedientsIds,
+//				filtreCamps,
+//				filtreValors,
+//				paginacioParams);
+//		@SuppressWarnings("unchecked")
+//		List<Long> ids = (List<Long>)respostaLucene[0];
+//		Long count = (Long)respostaLucene[1];
 		return paginacioHelper.toPaginaDto(
 				ids,
-				count.intValue(),
+				ids.size(),
 				paginacioParams);
 	}
 

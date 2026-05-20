@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -23,7 +23,7 @@ import es.caib.helium.persistence.entity.ExpedientTipus;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a un expedient que està emmagatzemat a dins la base
  * de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
@@ -33,8 +33,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 	Expedient findByEntornIdAndTipusIdAndNumero(
 			Long entornId,
 			Long tipusId,
-			String numero);	
-	
+			String numero);
+
 	@Query(	"select e " +
 			"from Expedient e " +
 			"where " +
@@ -46,17 +46,17 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("tipusId") Long tipusId,
 			@Param("esNullTitol") boolean esNullTitol,
 			@Param("titol") String titol);
-	
+
 	/** Mètode per buscar els expedients d'un tipus d'expedient el número o el títol dels quals continguin el text de cerca. Serveix
 	 * pel suggest d'expedients.
-	 * 
+	 *
 	 * @return
 	 */
 	@Query(	"select e " +
 			"from Expedient e " +
 			"where " +
 			"   e.tipus.id = :expedientTipusId " +
-			"	and ((lower(e.titol) like lower('%'||:text||'%')) " + 
+			"	and ((lower(e.titol) like lower('%'||:text||'%')) " +
 			"		 or (e.numero like '%'||:text||'%')) ")
 	List<Expedient> findByTipusAndNumeroOrTitol(
 			@Param("expedientTipusId") Long expedientTipusId,
@@ -75,7 +75,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 	Expedient findByEntornIdAndId(
 			Long entornId,
 			Long id);
-	
+
 	@Query(	"from Expedient e " +
 			"where " +
 			"    e.entorn = :entorn " +
@@ -184,10 +184,10 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("rootProcessInstanceIdsAmbTasquesActives4") Collection<String> rootProcessInstanceIdsAmbTasquesActives4,
 			@Param("rootProcessInstanceIdsAmbTasquesActives5") Collection<String> rootProcessInstanceIdsAmbTasquesActives5,
 			@Param("mostrarAnulats") boolean mostrarAnulats,
-			@Param("nomesAlertes") boolean nomesAlertes,			
+			@Param("nomesAlertes") boolean nomesAlertes,
 			Pageable pageable);
 
-	@Query(	"from Expedient e " +
+	@Query(	"SELECT e.id from Expedient e " +
 			"where " +
 			"    e.entorn = :entorn " +
 			"and e.tipus in (:tipusPermesos) " +
@@ -327,7 +327,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 	List<Expedient> findAmbIds(
 			@Param("ids") Collection<Long> ids);
 
-	
+
 	/** Consulta els diferents tipus per id. El conjunt ids no pot tenir
 	 * més de 1000 registres per evitar l'error de BBDD de la clàusula in(...).
 	 * @param ids
@@ -337,7 +337,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"        e.id in (:ids) ")
 	List<Long> getIdsDiferentsTipusExpedients(
 			@Param("ids") Collection<Long> ids);
-	
+
 	@Query(	"select e.id " +
 			"from Expedient e " +
 			"where e.processInstanceId = :processInstanceId")
@@ -351,7 +351,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 	Long findExpedientTipusIdByProcessInstanceId(String processInstanceId);
 
 	/** Mètode per buscar un expedient per a un tipus d'expedient i un número d'expedient per veure si coincideix amb cap anotació de registre.
-	 * 
+	 *
 	 * @param tipus
 	 * @param numero
 	 * @return
@@ -375,9 +375,9 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"from Expedient e " +
 			"where e.id = :expedientId ")
 	String getExpedientProcessInstanceId(@Param("expedientId") Long expedientId);
-	
+
 	/** Compta els expedients amb un tipus d'expedient concret.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @return
 	 */
@@ -396,7 +396,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 
 
 	/** Consulta els identificadors dels expedients per un tipus d'expedient.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @return
 	 */

@@ -301,6 +301,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			ambFirma,
 			firmaSeparada,
 			firmaContingut,
+			ntiOrigen,
+			ntiEstadoElaboracion,
+			ntiTipoDocumental,
+			ntiIdOrigen,
 			annexosPerNotificar);
 
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
@@ -1031,22 +1035,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		logger.debug("Consulta els documents de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,
 				false,
 				false,
 				false);
-		if (processInstanceId == null) {
-			return documentHelper.findDocumentsPerInstanciaProces(
-					expedient.getProcessInstanceId());
-		} else {
-			expedientHelper.comprovarInstanciaProces(
-					expedient,
-					processInstanceId);
-			return documentHelper.findDocumentsPerInstanciaProces(
-					processInstanceId);
-		}
+		return findExpedientDocumentsByExpedient(expedientId, processInstanceId);
 	}
 
     @Override
@@ -1072,9 +1067,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 		List<ExpedientDocumentDto> documentsExpedient;
 		if(expedient.getTipus().getTipus().equals(ExpedientTipusTipusEnumDto.ESTAT)) {
-			documentsExpedient = findExpedientDocumentsByExpedient(expedientId);
+			documentsExpedient = findExpedientDocumentsByExpedient(expedientId, null);
 		} else {
-			documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
+			documentsExpedient = findExpedientDocumentsByExpedient(expedientId, expedient.getProcessInstanceId());
 		}
 
 		Map<String, CampFormProperties> documentsFormProperties = reglaHelper.getDocumentFormProperties(expedient.getTipus(), estat);
@@ -2625,7 +2620,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.build();
 	}
 
-	private List<ExpedientDocumentDto> findExpedientDocumentsByExpedient(Long expedientId) {
+	private List<ExpedientDocumentDto> findExpedientDocumentsByExpedient(Long expedientId, String processInstanceId) {
 		List<ExpedientDocumentDto> resultat = new ArrayList<ExpedientDocumentDto>();
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 			expedientId,
@@ -2634,7 +2629,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			false,
 			false);
 		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
-		List<DocumentStore> documentStoreList = expedientDocumentHelper.findByExpedient(expedientId);
+
+		List<DocumentStore> documentStoreList = null;
+		if(processInstanceId != null) {
+			documentStoreList = expedientDocumentHelper.findByExpedientAndProcess(expedientId, processInstanceId);
+		} else {
+			documentStoreList = expedientDocumentHelper.findByExpedient(expedientId);
+		}
 
 		for(DocumentStore ds : documentStoreList) {
 			for(Document d : documentsTipusExpedient) {

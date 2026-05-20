@@ -26,7 +26,7 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 
 <style type="text/css">
@@ -38,9 +38,9 @@
     left:       0;
     height:     100%;
     width:      100%;
-    background: rgba( 255, 255, 255, .8 ) 
-                url('<c:url value="/img/loading.gif"/>') 
-                50% 50% 
+    background: rgba( 255, 255, 255, .8 )
+                url('<c:url value="/img/loading.gif"/>')
+                50% 50%
                 no-repeat;
 }
 .rmodal_carrecs {
@@ -51,13 +51,13 @@
     left:       0;
     height:     100%;
     width:      100%;
-    background: rgba( 255, 255, 255, .8 ) 
-                url('<c:url value="/img/loading.gif"/>') 
-                50% 50% 
+    background: rgba( 255, 255, 255, .8 )
+                url('<c:url value="/img/loading.gif"/>')
+                50% 50%
                 no-repeat;
 }
 body.loading {
-    overflow: hidden;   
+    overflow: hidden;
 }
 body.loading .rmodal {
     display: block;
@@ -136,13 +136,13 @@ div.dropdown-menu {
 	width: 70%;
 }
 div.dropdown-menu.loading {
-    overflow: hidden;   
+    overflow: hidden;
     height: 100px;
 }
 div.dropdown-menu.loading .rmodal_carrecs {
     display: block;
 }
-</style>	
+</style>
 </head>
 <body>
 	<c:if test="${potFirmar}">
@@ -154,34 +154,34 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			<div>
 				<input type="hidden" name="id" value="${documentExpedientEnviarPortasignaturesCommand.id}"/>
 				<hel:inputText required="true" name="motiu" textKey="expedient.document.enviar.portasignatures.camp.motiu"/>
-				<hel:inputSelect name="portafirmesPrioritatTipus" textKey="expedient.document.enviar.portasignatures.camp.prioritat" 
-							optionItems="${portafirmesPrioritatEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
+				<hel:inputSelect name="portafirmesPrioritatTipus" textKey="expedient.document.enviar.portasignatures.camp.prioritat"
+							optionItems="${portafirmesPrioritatEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text"
 							disabled="${bloquejarCamps}"/>
 				<hel:inputSelect name="annexos" multiple="true" textKey="expedient.document.enviar.portasignatures.camp.annexos" placeholderKey="expedient.document.enviar.portasignatures.camp.annexos.placeholder" optionItems="${annexos}" optionValueAttribute="id" optionTextAttribute="documentNom" labelSize="4"/>
 				<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesActiu}">
-				<input type="hidden" name="portafirmesFluxTipus" value="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus}"/> 
+				<input type="hidden" name="portafirmesFluxTipus" value="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus}"/>
 					<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus eq 'FLUX'}">
 						<label class="control-label success-label hidden col-xs-4"></label>
-						<hel:inputSelect name="portafirmesEnviarFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"  
+						<hel:inputSelect name="portafirmesEnviarFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"
 							icon="fa fa-external-link" iconAddicional="fa fa-eye" buttonMsg="${buttonTitle}"
 							placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit" required="true"/>
 
 						<!-- Camp hidden on s'informarà des de portafirmesModalTancar en el cas de crear-se un flux temporal per part de l'usuari. -->
 						<hel:inputHidden name="portafirmesNouFluxId"/>
-												
+
 						<label class="control-label col-xs-4"></label>
 						<c:if test="${!nouFluxDeFirma}">
 							<p class="comment col-xs-8"><spring:message code="expedient.document.enviar.portasignatures.camp.flux.definit.comentari" /></p>
 						</c:if>
 					</c:if>
-					<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus eq 'SIMPLE'}">	
-						<hel:inputSuggest 
-							inline="false" 
-							name="portafirmesResponsables" 
-							urlConsultaInicial="/personaCarrec/suggestInici" 
-							urlConsultaLlistat="/expedient/persona/suggest" 
-							textKey="expedient.document.enviar.portasignatures.camp.responsables" 
-							placeholderKey="expedient.document.enviar.portasignatures.camp.responsables" 
+					<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus eq 'SIMPLE'}">
+						<hel:inputSuggest
+							inline="false"
+							name="portafirmesResponsables"
+							urlConsultaInicial="/personaCarrec/suggestInici"
+							urlConsultaLlistat="/expedient/persona/suggest"
+							textKey="expedient.document.enviar.portasignatures.camp.responsables"
+							placeholderKey="expedient.document.enviar.portasignatures.camp.responsables"
 							multiple="true"/>
 
 					<!-- Botó i desplegable de responsables -->
@@ -201,40 +201,40 @@ div.dropdown-menu.loading .rmodal_carrecs {
 										</div>
 									</td>
 								</tr>
-							</table>		
+							</table>
 						</div>
 					</div>
-			
-						<hel:inputSelect name="portafirmesSequenciaTipus" textKey="expedient.tipus.document.form.camp.portafirmes.sequencia.firma" 
-							optionItems="${portafirmesSequenciaTipusEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
+
+						<hel:inputSelect name="portafirmesSequenciaTipus" textKey="expedient.tipus.document.form.camp.portafirmes.sequencia.firma"
+							optionItems="${portafirmesSequenciaTipusEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text"
 							disabled="${bloquejarCamps}"/>
 					</c:if>
-							
+
 				</c:if>
 			</div>
-			
+
 			<div id="modal-botons" class="well">
 				<c:if test="${potFirmar}">
 					<button type="submit" class="btn btn-success"><span class="fa fa-envelope-o"></span> <spring:message code="expedient.document.enviar.portasignatures.boto.enviar.portasignatures"/></button>
-				</c:if>			
+				</c:if>
 				<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
 			</div>
-			
+
 			<div style="height: 20px;"></div>
-			
+
 		</form:form>
 
 		<div class="flux_container"></div>
 		<div class="rmodal"></div>
 
 	</c:if>
-	
+
 	<c:if test="${!potFirmar}">
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>
 		</div>
 	</c:if>
-	
+
 	<script type="text/javascript">
 		// <![CDATA[
 		$(document).ready(function() {
@@ -249,10 +249,10 @@ div.dropdown-menu.loading .rmodal_carrecs {
 				let documentNom = "${fn:replace(documentExpedientEnviarPortasignaturesCommand.nom, charSearch, charReplace)}";
 				crearFlux(documentNom);
 			});
-			
+
 			$(".portafirmesEnviarFluxId_btn_edicio").attr("title", "<spring:message code="expedient.tipus.document.form.camp.portafirmes.flux.iniciar"/>");
 			$(".portafirmesEnviarFluxId_btn_addicional").attr("title", "<spring:message code="expedient.document.enviar.portasignatures.camp.flux.show"/>");
-						
+
 			//mostrar flux actual
 			$(".portafirmesEnviarFluxId_btn_addicional").on('click', function() {
 				$(this).find('i').toggleClass('fa-eye fa-eye-slash');
@@ -264,15 +264,15 @@ div.dropdown-menu.loading .rmodal_carrecs {
 					$(".portafirmesEnviarFluxId_btn_addicional").attr("title", "<spring:message code="expedient.document.enviar.portasignatures.camp.flux.show"/>");
 					amagarFluxSeleccionat();
 				}
-			});	
-			
+			});
+
 			$("#portafirmesEnviarFluxId").on('change', function () {
 				var portafirmesEnviarFluxId = $(this).val();
 				if(portafirmesEnviarFluxId != null && portafirmesEnviarFluxId != '') {
 					$(".portafirmesEnviarFluxId_btn_addicional").removeClass('disabled');
 					// si el flux és visible el recarrega o actualitza
 					if ($(".portafirmesEnviarFluxId_btn_addicional").find('i').hasClass('fa-eye-slash')) {
-						recuperarFluxSeleccionat(portafirmesEnviarFluxId);						
+						recuperarFluxSeleccionat(portafirmesEnviarFluxId);
 					}
 				} else {
 					$(".portafirmesEnviarFluxId_btn_addicional").addClass('disabled');
@@ -284,21 +284,21 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			$('.modal-cancel').on('click', function(){
 					localStorage.removeItem('transaccioId');
 			});
-						
+
 			$(".portafirmesResponsables_btn").attr("title", "<spring:message code="expedient.tipus.document.form.camp.portafirmes.carrecs"/>");
-			
+
 			$("#portafirmesResponsables").on('select2:unselecting', function (e) {
 					var optionRemoved = e.params.args.data.id;
 					$("#portafirmesResponsables option[value='" + optionRemoved + "']").remove();
 			});
-			
+
 			// Obtenir plantilles
 			obtenirPlantilles();
 		});
-					
+
 		var mostrarCarrecs = false;
 		var carrecsCarregats = false;
-					
+
 		function toggleCarrecs() {
 			mostrarCarrecs = !mostrarCarrecs;
 			if (mostrarCarrecs) {
@@ -312,7 +312,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 				$('#portafirmesCarrecsSelectDiv').hide();
 			}
 		}
-					
+
 		function recuperarCarrecs() {
 			$('#portafirmesCarrecsSpin').show();
 			$.ajax({
@@ -341,7 +341,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			        500: function(error) {
 						webutilAlertaWarning("Hi ha hagut un problema recuperant els càrrecs " + error.statusText, '#divAlertesFlux');
 			        }
-			   	}, 
+			   	},
 			   	complete: function() {
 					$('#portafirmesCarrecsSelectDiv').show();
 					$('#portafirmesCarrecsSpin').hide();
@@ -374,11 +374,11 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			if (responsables.includes(carrec)) {
 				responsables.splice( responsables.indexOf(carrec), 1);
 			} else {
-				responsables.push(carrec);				
+				responsables.push(carrec);
 			}
 			$('#portafirmesResponsables').val(responsables).change();
 		}
-						
+
 			function adjustModalPerFlux(amagar) {
 				let $iframe = $(window.frameElement);
 				$iframe.css('height', '100%');
@@ -399,7 +399,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			}
 
 			function recuperarFluxSeleccionat(portafirmesEnviarFluxId) {
-				
+
 				if (portafirmesEnviarFluxId != null && portafirmesEnviarFluxId != '') {
 					$.ajax({
 						type: 'GET',
@@ -412,8 +412,8 @@ div.dropdown-menu.loading .rmodal_carrecs {
 								mostrarFluxSeleccionat(transaccioResponse.urlRedireccio);
 							} else if (transaccioResponse != null && transaccioResponse.error) {
 								let currentIframe = window.frameElement;
-								var alertDiv = '<div class="alert alert-danger" role="alert">' + 
-													'<a class="close" data-dismiss="alert">×</a><span>' + transaccioResponse.errorDescripcio + '</span>' + 
+								var alertDiv = '<div class="alert alert-danger" role="alert">' +
+													'<a class="close" data-dismiss="alert">×</a><span>' + transaccioResponse.errorDescripcio + '</span>' +
 												'</div>';
 								$('form').prev().find('.alert').remove();
 								$('form').prev().prepend(alertDiv);
@@ -425,8 +425,8 @@ div.dropdown-menu.loading .rmodal_carrecs {
 						error: function(error) {
 							if (error != null && error.responseText != null) {
 								let currentIframe = window.frameElement;
-								var alertDiv = '<div class="alert alert-danger" role="alert">' + 
-													'<a class="close" data-dismiss="alert">×</a><span>' + error.responseText + '</span>' + 
+								var alertDiv = '<div class="alert alert-danger" role="alert">' +
+													'<a class="close" data-dismiss="alert">×</a><span>' + error.responseText + '</span>' +
 												'</div>';
 								$('form').prev().find('.alert').remove();
 								$('form').prev().prepend(alertDiv);
@@ -441,11 +441,11 @@ div.dropdown-menu.loading .rmodal_carrecs {
 
 			function mostrarFluxSeleccionat(urlPlantilla) {
 				adjustModalPerFlux(false);
-				var plantilla = '<hr>' + 
+				var plantilla = '<hr>' +
 								'<div class="iframe_container">' +
 									'<iframe onload="removeLoading()" id="fluxIframe" class="iframe_content" width="100%" height="100%" frameborder="0" allowtransparency="true" src="' + urlPlantilla + '"></iframe>' +
 								'</div>';
-				$('.flux_container').html(plantilla);	
+				$('.flux_container').html(plantilla);
 			}
 
 			function amagarFluxSeleccionat() {
@@ -502,27 +502,25 @@ div.dropdown-menu.loading .rmodal_carrecs {
 					}
 				});
 			}
-			
+
 			function obtenirPlantilles() {
-				debugger;
 				// Càrregal de les opcions del desplegable de fluxos
 				$.ajax({
 					type: 'GET',
 					dataType: "json",
 					url: "<c:url value="/expedient/${expedientId}/proces/${document.processInstanceId}/document/${documentExpedientEnviarPortasignaturesCommand.id}/flux/plantilles"/>",
 						success: function(data) {
-							debugger;
 							var plantillaActual = "${portafirmesFluxSeleccionat}";
 							var selPlantilles = $("#portafirmesEnviarFluxId");
-							
+
 							var textFlxComu = "<spring:message code='expedient.tipus.document.form.camp.portafirmes.fluxos.comuns'/>";
 							var textFlxUser = "<spring:message code='expedient.tipus.document.form.camp.portafirmes.fluxos.usuari'/>";
-							
+
 							selPlantilles.empty();
 // 							selPlantilles.append("<option value=\"\"></option>");
 // 							selPlantilles.append("<option value=\"\"></option>");
-							
-							selPlantilles.append("<option style='font-weight: bold;' disabled><b>"+textFlxComu+"</b></option>");							
+
+							selPlantilles.append("<option style='font-weight: bold;' disabled><b>"+textFlxComu+"</b></option>");
 							if (data) {
 								var items = [];
 								$.each(data, function(i, val) {
@@ -535,7 +533,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 									}
 								});
 							}
-							
+
 							selPlantilles.append("<option style='font-weight: bold;' disabled><b>"+textFlxUser+"</b></option>");
 							if (data) {
 								var items = [];
@@ -549,7 +547,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 									}
 								});
 							}
-							
+
 							var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
 							selPlantilles.select2(select2Options);
 							if (plantillaActual != '') {
@@ -566,9 +564,9 @@ div.dropdown-menu.loading .rmodal_carrecs {
 						}
 				});
 			}
-				
+
 		// ]]>
-	</script>			
-		
+	</script>
+
 </body>
 </html>

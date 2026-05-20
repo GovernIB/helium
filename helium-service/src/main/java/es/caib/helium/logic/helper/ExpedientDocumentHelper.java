@@ -12,17 +12,21 @@ import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 @Slf4j
 @Component
 public class ExpedientDocumentHelper {
+
+	public static final String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
 
 	@Autowired
 	private DocumentNotificacioRepository documentNotificacioRepository;
@@ -98,6 +102,10 @@ public class ExpedientDocumentHelper {
 		boolean ambFirma,
 		boolean firmaSeparada,
 		byte[] firmaContingut,
+		NtiOrigenEnumDto ntiOrigen,
+		NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+		NtiTipoDocumentalEnumDto ntiTipoDocumental,
+		String ntiIdOrigen,
 		List<ExpedientDocumentDto> annexosPerNotificar
 	) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -147,6 +155,17 @@ public class ExpedientDocumentHelper {
 			documentStore.setContinguts(documentsContinguts);
 		}
 		documentStore.setSignat(ambFirma);
+
+		if (expedient.isNtiActiu()) {
+			actualizarMetadadesNti(
+				expedient,
+				document,
+				documentStore,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdOrigen);
+		}
 
 		documentStore = documentStoreRepository.save(documentStore);
 
@@ -343,6 +362,140 @@ public class ExpedientDocumentHelper {
 								.tipus(DocumentTipusEnum.DOCUMENT)
 								.build();
 		return expedientDocumentRepository.save(entity);
+	}
+
+	public void actualizarMetadadesNti(
+		Expedient expedient,
+		Document document,
+		DocumentStore documentStore,
+		NtiOrigenEnumDto ntiOrigen,
+		NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+		NtiTipoDocumentalEnumDto ntiTipoDocumental,
+		String ntiIdDocumentoOrigen) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(expedient.getDataInici());
+		String any = String.valueOf(cal.get(Calendar.YEAR));
+		String org = expedient.getNtiOrgano();
+		documentStore.setNtiIdentificador(
+			"ES_" + org + "_" + any + "_HEL" + String.format("%027d", documentStore.getId()));
+		documentStore.setNtiVersion(VERSIO_NTI);
+		documentStore.setNtiOrgano(expedient.getUnitatOrganitzativa()!=null ? expedient.getUnitatOrganitzativa().getCodi() : expedient.getNtiOrgano());
+		NtiOrigenEnumDto ntiOrigenCalculat = ntiOrigen;
+		if (ntiOrigenCalculat == null && document != null) {
+			ntiOrigenCalculat = document.getNtiOrigen();
+		}
+		if (ntiOrigenCalculat == null) {
+			ntiOrigenCalculat = NtiOrigenEnumDto.ADMINISTRACIO;
+		}
+		documentStore.setNtiOrigen(ntiOrigenCalculat);
+		NtiEstadoElaboracionEnumDto ntiEstadoElaboracionCalculat = ntiEstadoElaboracion;
+		if (ntiEstadoElaboracionCalculat == null && document != null) {
+			ntiEstadoElaboracionCalculat = document.getNtiEstadoElaboracion();
+		}
+		if (ntiEstadoElaboracionCalculat == null) {
+			ntiEstadoElaboracionCalculat = NtiEstadoElaboracionEnumDto.ORIGINAL;
+		}
+		documentStore.setNtiEstadoElaboracion(ntiEstadoElaboracionCalculat);
+		NtiTipoDocumentalEnumDto ntiTipoDocumentalCalculat = ntiTipoDocumental;
+		if (ntiTipoDocumentalCalculat == null && document != null) {
+			ntiTipoDocumentalCalculat = document.getNtiTipoDocumental();
+		}
+		if (ntiTipoDocumentalCalculat == null) {
+			ntiTipoDocumentalCalculat = NtiTipoDocumentalEnumDto.ALTRES;
+		}
+		documentStore.setNtiTipoDocumental(ntiTipoDocumentalCalculat);
+		NtiDocumentoFormato formato = getDocumentoFormatoPerArxiuNom(documentStore.getArxiuNom());
+		if (formato != null) {
+			documentStore.setNtiNombreFormato(formato);
+		} else {
+			throw new ValidacioException("Tipus d'arxiu no permes: " + documentStore.getArxiuNom());
+		}
+		documentStore.setNtiIdDocumentoOrigen(ntiIdDocumentoOrigen);
+	}
+
+	private NtiDocumentoFormato getDocumentoFormatoPerArxiuNom(
+		String arxiuNom) {
+		String extensio = FilenameUtils.getExtension(arxiuNom);
+		if ("AVI".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.AVI;
+		} else if ("CSS".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.CSS;
+		} else if ("CSV".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.CSV;
+		} else if ("DOCX".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.SOXML;
+		} else if ("GML".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.GML;
+		} else if ("GZ".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.GZIP;
+		} else if ("HTM".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.XHTML; // HTML o XHTML!!!
+		} else if ("HTML".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.XHTML; // HTML o XHTML!!!
+		} else if ("JPEG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.JPEG;
+		} else if ("JPG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.JPEG;
+		} else if ("MHT".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MHTML;
+		} else if ("MHTML".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MHTML;
+		} else if ("MP3".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MP3;
+		} else if ("MP4".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MP4V;
+		} else if ("MPEG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MP4V;
+		} else if ("ODG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OASIS12;
+		} else if ("ODP".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OASIS12;
+		} else if ("ODS".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OASIS12;
+		} else if ("ODT".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OASIS12;
+		} else if ("OGA".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OGG;
+		} else if ("OGG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.OGG;
+		} else if ("PDF".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.PDF;
+		} else if ("PNG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.PNG;
+		} else if ("PPTX".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.SOXML;
+		} else if ("RTF".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.RTF;
+		} else if ("SVG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.SVG;
+		} else if ("TIFF".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.TIFF;
+		} else if ("TXT".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.TXT;
+		} else if ("WEBM".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.WEBM;
+		} else if ("XLSX".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.SOXML;
+		} else if ("ZIP".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.ZIP;
+		} else if ("CSIG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.CSIG;
+		} else if ("XSIG".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.XSIG;
+		} else if ("XML".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.XML;
+
+			// FORMATS NO DEFINITS AL CATÀLEG GENERAL DE L'ENI
+		} else if ("DOC".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.DOC;
+		} else if ("XLS".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.XLS;
+		} else if ("MDB".equalsIgnoreCase(extensio)) {
+			return NtiDocumentoFormato.MDB;
+		} else if (extensio != null && !extensio.isEmpty()) {
+			return NtiDocumentoFormato.ALTRES;
+		}
+		return null;
 	}
 
 	/** Mètode per consultar els documents notificats tant directament com dins dels .zip que poden contenir altres documents.

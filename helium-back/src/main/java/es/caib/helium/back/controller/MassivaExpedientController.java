@@ -82,7 +82,7 @@ import es.caib.helium.logic.intf.service.TascaService;
 
 /**
  * Controlador per iniciar un expedient
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -114,7 +114,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			ids = sessionManager.getSeleccioInforme(consultaId);
 		}
 		sessionManager.setSeleccioMassives(ids);
-		
+
 		return ids;
 	}
 
@@ -161,7 +161,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec.diferenttipus"));
 			return "redirect:";
 		} else {
-			List<Long> listIds = new ArrayList<Long>(ids);			
+			List<Long> listIds = new ArrayList<Long>(ids);
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(listIds.get(0));
 			model.addAttribute("consultaId", consultaId);
 			model.addAttribute("numExpedients", ids.size());
@@ -186,16 +186,16 @@ public class MassivaExpedientController extends BaseExpedientController {
 							expedient.getProcessInstanceId()));
 			CanviVersioProcesCommand canviVersioProcesCommand = new CanviVersioProcesCommand();
 			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
-			
-			canviVersioProcesCommand.setDefinicioProcesId(definicioProces.getId());			
+			if(definicioProces != null) {
+				canviVersioProcesCommand.setDefinicioProcesId(definicioProces.getId());
+				model.addAttribute("definicioProces",definicioProces);
+				model.addAttribute("subDefinicioProces", dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId()));
+			}
 			model.addAttribute(canviVersioProcesCommand);
 
-			model.addAttribute("definicioProces",definicioProces);
-			model.addAttribute("subDefinicioProces", dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId()));
-			
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
 			model.addAttribute("instanciaProces", instanciaProces);
-			
+
 			// Variables
 			List<CampDto> variables = new ArrayList<CampDto>();
 			if (instanciaProces != null) {
@@ -209,14 +209,14 @@ public class MassivaExpedientController extends BaseExpedientController {
 			}
 			Collections.sort(variables, new ComparadorCampCodi());
 			model.addAttribute("variables", variables);
-			// Documents			
+			// Documents
 			List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 					expedient.getTipus().getId(),
-					definicioProces.getId(),
+					definicioProces != null? definicioProces.getId() : null,
 					true);
 			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
-			
+
 			model.addAttribute("permisAdministrador", expedient.isPermisAdministration());
 			return "massivaInfo";
 		}
@@ -263,7 +263,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {
 		return massivaPost(request, inici, correu, null, accio, null, null, model, null, null);
 	}
-	
+
 	@RequestMapping(value="finalitzarExpedientMas", method = RequestMethod.POST)
 	public String finalitzarExpedientMasPost(
 			HttpServletRequest request,
@@ -273,7 +273,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {
 		return massivaPost(request, inici, correu, null, accio, null, null, model, null, null);
 	}
-	
+
 	@RequestMapping(value="migrarExpedientMas", method = RequestMethod.POST)
 	public String migrarExpedientMasPost(
 			HttpServletRequest request,
@@ -289,11 +289,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
-			@ModelAttribute ExecucioAccioCommand command, 
+			@ModelAttribute ExecucioAccioCommand command,
 			@RequestParam(value = "accio", required = true) String accio,
-			BindingResult result, 
-			SessionStatus status, 
-			Model model) {		
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, null);
 	}
 
@@ -302,24 +302,24 @@ public class MassivaExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
-			@ModelAttribute ExpedientEinesAturarCommand command, 
+			@ModelAttribute ExpedientEinesAturarCommand command,
 			@RequestParam(value = "accio", required = true) String accio,
-			BindingResult result, 
-			SessionStatus status, 
-			Model model) {		
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, null);
 	}
-	
+
 	@RequestMapping(value="anularExpedientMas", method = RequestMethod.POST)
 	public String expedientEinesAnularCommandPost(
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
-			@ModelAttribute ExpedientEinesAnularCommand command, 
+			@ModelAttribute ExpedientEinesAnularCommand command,
 			@RequestParam(value = "accio", required = true) String accio,
-			BindingResult result, 
-			SessionStatus status, 
-			Model model) {		
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, null);
 	}
 
@@ -328,11 +328,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
-			@ModelAttribute ExpedientEinesScriptCommand command, 
+			@ModelAttribute ExpedientEinesScriptCommand command,
 			@RequestParam(value = "accio", required = true) String accio,
-			BindingResult result, 
-			SessionStatus status, 
-			Model model) {		
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, null);
 	}
 
@@ -341,11 +341,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
-			@ModelAttribute CanviVersioProcesCommand command, 
+			@ModelAttribute CanviVersioProcesCommand command,
 			@RequestParam(value = "accio", required = true) String accio,
-			BindingResult result, 
-			SessionStatus status, 
-			Model model) {		
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, null);
 	}
 
@@ -353,14 +353,14 @@ public class MassivaExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			String inici,
 			boolean correu,
-			Object command, 
+			Object command,
 			String accio,
-			BindingResult result, 
-			SessionStatus status, 
-			Model model, 
+			BindingResult result,
+			SessionStatus status,
+			Model model,
 			String multipartName,
-			Long campId) {		
-		
+			Long campId) {
+
 		getExpedient(request, null, true, model);
 		Set<Long> ids = recuperarIdsAccionesMasivas(request);
 		if (ids == null || ids.isEmpty()) {
@@ -378,17 +378,17 @@ public class MassivaExpedientController extends BaseExpedientController {
 
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
-		
+
 		List<Long> listIds = new ArrayList<Long>(ids);
-		
+
 		ExecucioMassivaDto dto = new ExecucioMassivaDto();
 		dto.setDataInici(dInici);
 		dto.setEnviarCorreu(correu);
 		dto.setExpedientIds(listIds);
 		ExpedientDto expedientAux = expedientService.findAmbIdAmbPermis(listIds.get(0));
 		dto.setExpedientTipusId(expedientAux.getTipus().getId());
-		
-		try {					
+
+		try {
 			if ("reindexar".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.REINDEXAR);
 				execucioMassivaService.crearExecucioMassiva(dto);
@@ -440,13 +440,13 @@ public class MassivaExpedientController extends BaseExpedientController {
 				} else {
 					dto.setTipus(ExecucioMassivaTipusDto.ATURAR_EXPEDIENT);
 					dto.setParam2(execucioMassivaService.serialize(((ExpedientEinesAturarCommand) command).getMotiu()));
-					execucioMassivaService.crearExecucioMassiva(dto);		
+					execucioMassivaService.crearExecucioMassiva(dto);
 					MissatgesHelper.success(request, getMessage(request, "info.expedient.massiu.aturats", new Object[] {listIds.size()}));
 					model.addAttribute("expedientEinesAturarCommand", command);
 				}
 			} else if ("executar_accio".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_ACCIO);
-					
+
 //				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				Object[] params = new Object[1];
 				params[0] = ((ExecucioAccioCommand) command).getAccioCodi();
@@ -457,7 +457,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 //				}
 //				params[2] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
-				execucioMassivaService.crearExecucioMassiva(dto);				
+				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.executat", new Object[] {listIds.size()}));
 				model.addAttribute("execucioAccioCommand", command);
 			} else if ("canviar_versio".equals(accio)) {
@@ -465,7 +465,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				Object[] params = new Object[3];
 				params[0] = ((CanviVersioProcesCommand) command).getDefinicioProcesId();
 				params[1] = ((CanviVersioProcesCommand) command).getSubprocesId();
-								
+
 				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(listIds.get(0));
 				DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
 				List<DefinicioProcesExpedientDto> supProcessos = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId());
@@ -478,23 +478,23 @@ public class MassivaExpedientController extends BaseExpedientController {
 				params[2] = keys;
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-				
+
 				MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {listIds.size()}));
 				model.addAttribute("canviVersioProcesCommand", command);
 			} else if ("document_esborrar".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
-				
+
 				Long docId = ((DocumentExpedientCommand) command).getDocId();
 				DocumentDto document = dissenyService.documentFindOne(docId);
 				dto.setParam1(document.getDocumentNom());
-				
+
 				Object[] params = new Object[4];
 				params[0] = docId;
 				params[1] = null;
 				params[2] = "delete";
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-				
+
 				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.esborrar", new Object[] {listIds.size()}));
 				model.addAttribute("documentExpedientCommand", command);
 			} else if ("document_generar".equals(accio)) {
@@ -502,14 +502,14 @@ public class MassivaExpedientController extends BaseExpedientController {
 				Long docId = ((DocumentExpedientCommand) command).getDocId();
 				DocumentDto document = dissenyService.documentFindOne(docId);
 				dto.setParam1(document.getDocumentNom());
-				
+
 				Object[] params = new Object[4];
 				params[0] = docId;
 				params[1] = new Date();
 				params[2] = "generate";
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-				
+
 				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.generar", new Object[] {listIds.size()}));
 				model.addAttribute("documentExpedientCommand", command);
 			} else if ("document_adjuntar".equals(accio)) {
@@ -544,7 +544,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				Long docId = ((DocumentExpedientCommand) command).getDocId();
 				Object[] params = new Object[12];
 				params[0] = docId;
-				
+
 				if (((DocumentExpedientCommand) command).getArxiu().getBytes().length > 0) {
 					// Modificar document
 					dto.setParam1(multipartName);
@@ -573,7 +573,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				}
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-				
+
 				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.guardat", new Object[] {listIds.size()}));
 				return modalUrlTancar();
 			} else if ("modificar_variable".equals(accio)) {
@@ -624,7 +624,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				Object[] params = new Object[] {entorn.getId(), null, valors};
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-				
+
 				MissatgesHelper.success(request, getMessage(request, "info.dada.massiu.modificat", new Object[] {varCodi, listIds.size()}));
 				return modalUrlTancar();
 			}
@@ -635,20 +635,20 @@ public class MassivaExpedientController extends BaseExpedientController {
 					e);
 			logger.error("Error al programar les accions massives", e);
 		}
-		
+
 		return "redirect:/expedient/massiva?readIdsAccionesMasivas=true";
 	}
-	
+
 	@ModelAttribute("modificarVariablesCommand")
 	public Object populateCommand(
 			HttpServletRequest request,
-			Long campId,			
+			Long campId,
 			Model model) {
 		try {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			Set<Long> ids = recuperarIdsAccionesMasivas(request);
-			List<Long> listIds = new ArrayList<Long>(ids);			
+			List<Long> listIds = new ArrayList<Long>(ids);
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(listIds.get(0));
 			CampDto campo = null;
 			for (CampDto camp : expedientService.getCampsInstanciaProcesById(
@@ -672,7 +672,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				tascaDada.setVarValor(null);
 			}
 			listTasca.add(tascaDada);
-			model.addAttribute("campId", campId);			
+			model.addAttribute("campId", campId);
 			model.addAttribute("dada", tascaDada);
 			return TascaFormHelper.getCommandForCamps(
 					listTasca,
@@ -682,10 +682,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 		} catch (NoTrobatException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
-		} catch (Exception ignored) {} 
+		} catch (Exception ignored) {}
 		return null;
 	}
-	
+
 	@RequestMapping(value = "/{campId}/modificarVariables", method = RequestMethod.GET)
 	public String modificarVariablesGet(
 			HttpServletRequest request,
@@ -706,17 +706,17 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {
 		return this.documentMassiu(request, model, inici, correu, docId, adjuntar, null);
 	}
-	
+
 	/**
-	/** Mètode comú per adjuntar o modificar un document massivament. 
-	 * @param model 
+	/** Mètode comú per adjuntar o modificar un document massivament.
+	 * @param model
 	 * @param request */
 	private String documentMassiu(
-			HttpServletRequest request, 
-			Model model, 
-			String inici, 
-			Boolean correu, 
-			Long docId, 
+			HttpServletRequest request,
+			Model model,
+			String inici,
+			Boolean correu,
+			Long docId,
 			Boolean adjuntar,
 			DocumentExpedientCommand command) {
 		if (command == null){
@@ -760,7 +760,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			DocumentDto document = dissenyService.documentFindOne(docId);
 			command.setNom(document.getDocumentNom());
 			command.setCodi(document.getCodi());
-			model.addAttribute("document", document);			
+			model.addAttribute("document", document);
 		}
 		model.addAttribute(
 				"tipusFirmaOptions",
@@ -770,7 +770,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		model.addAttribute("adjuntar", adjuntar);
 		return "massivaInfoDocumentForm";
 	}
-	
+
 	@RequestMapping(value="/documentMasForm", method = RequestMethod.POST)
 	public String documentMasFormPost(
 			HttpServletRequest request,
@@ -778,10 +778,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "correu", required = false) boolean correu,
 			@RequestParam(value = "accio", required = true) String accio,
 			@RequestParam(value = "adjuntar", required = false, defaultValue = "true") boolean adjuntar,
-			SessionStatus status, 
+			SessionStatus status,
 			@Validated(Massiu.class) @ModelAttribute DocumentExpedientCommand command,
-			BindingResult result, 
-			Model model) {	
+			BindingResult result,
+			Model model) {
 		if (result.hasErrors()) {
 			return this.documentMassiu(request, model, inici, correu, command.getDocId(), adjuntar, command);
 		}
@@ -795,11 +795,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
 			@RequestParam(value = "accio", required = true) String accio,
-			@ModelAttribute DocumentExpedientCommand command, 
-			BindingResult result, 
-			SessionStatus status, 
-			Model model) {		
-		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("arxiuNom"), null);		
+			@ModelAttribute DocumentExpedientCommand command,
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
+		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("arxiuNom"), null);
 	}
 
 	@RequestMapping(value="/{campId}/modificarVariablesMas", method = RequestMethod.POST)
@@ -808,11 +808,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
 			@PathVariable Long campId,
-			@Valid @ModelAttribute("modificarVariablesCommand") Object command, 
+			@Valid @ModelAttribute("modificarVariablesCommand") Object command,
 			@RequestParam(value = "accio", required = true) String accio,
-			BindingResult result, 
+			BindingResult result,
 			SessionStatus status,
-			Model model) {		
+			Model model) {
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, campId);
 	}
 
@@ -856,7 +856,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		for (int i=0; i <= 12 ; i++)		
+		for (int i=0; i <= 12 ; i++)
 			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
 		return resposta;
 	}
@@ -898,7 +898,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			ValidationUtils.rejectIfEmpty(errors, "script", "not.blank");
 		}
 	}
-	
+
 	private class ExpedientAturarValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {

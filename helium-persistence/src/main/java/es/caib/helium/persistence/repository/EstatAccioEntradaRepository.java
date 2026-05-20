@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -19,7 +19,7 @@ import es.caib.helium.persistence.entity.Validacio;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a la relació entre estats i les acccions d'entrada per
  * expedients basats en l'execució per estats.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface EstatAccioEntradaRepository extends JpaRepository<EstatAccioEntrada, Long> {
@@ -33,10 +33,10 @@ public interface EstatAccioEntradaRepository extends JpaRepository<EstatAccioEnt
 			"	and (:esNullFiltre = true " +
 			"			or lower(eae.estat.nom) like lower('%'||:filtre||'%') " +
 			"			or lower(eae.accio.nom) like lower('%'||:filtre||'%')) ")
-	Page<Validacio> findByFiltrePaginat(
+	Page<EstatAccioEntrada> findByFiltrePaginat(
 			@Param("estatId") Long estatId,
 			@Param("esNullFiltre") boolean esNullFiltre,
-			@Param("filtre") String filtre,		
+			@Param("filtre") String filtre,
 			Pageable pageable);
 
 	@Query("select max(ea.ordre) "
