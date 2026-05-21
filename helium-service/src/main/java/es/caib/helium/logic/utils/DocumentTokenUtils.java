@@ -7,6 +7,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
@@ -124,7 +125,7 @@ public class DocumentTokenUtils {
 	}
 
 	private boolean isTokenLlarg() {
-		return "true".equals(GlobalProperties.getInstance().getProperty("app.signatura.token.llarg"));
+		return "true".equals(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_SIGNATURA_TOKEN_LLARG));
 	}
 
 }

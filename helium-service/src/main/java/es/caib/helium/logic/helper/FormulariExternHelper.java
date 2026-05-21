@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,18 +67,12 @@ public class FormulariExternHelper {
 				password = expedientTipus.getFormextContrasenya();
 		} else {
 			url = GlobalProperties.getInstance().getProperty(
-					"app.forms.service.url");
+				PropertyConfig.PROP_FORMS_SERVICE_URL);
 			username = GlobalProperties.getInstance().getProperty(
-					"app.forms.service.username");
+				PropertyConfig.PROP_FORMS_SERVICE_USERNAME);
 			password = GlobalProperties.getInstance().getProperty(
-					"app.forms.service.password");
+				PropertyConfig.PROP_FORMS_SERVICE_PASSWORD);
 		}
-
-//		RespostaIniciFormulari resposta = new RespostaIniciFormulari();
-//		resposta.setFormulariId(taskId);
-//		resposta.setUrl("http://oficina.limit.es");
-//		resposta.setWidth(800);
-//		resposta.setHeight(600);
 
 		RespostaIniciFormulari resposta = null;
 		try {

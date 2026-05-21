@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -344,7 +345,7 @@ public class PdfUtils {
 		}
 	}
 	private String getRegistreEntitat() {
-		return GlobalProperties.getInstance().getProperty("app.registre.segell.entitat");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_REGISTRE_SEGELL_ENTITAT);
 	}
 
 	private static String[] extensionsConvertiblesPdf = {

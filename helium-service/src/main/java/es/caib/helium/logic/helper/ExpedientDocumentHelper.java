@@ -1,5 +1,6 @@
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dades.DocumentTipusEnum;
 import es.caib.helium.commons.dto.*;
 import es.caib.helium.commons.exception.ValidacioException;
@@ -705,15 +706,15 @@ public class ExpedientDocumentHelper {
 
 	private String getPropertyNtiCsvDef() {
 		return GlobalProperties.getInstance().getProperty(
-			"app.nti.csv.definicio");
+			PropertyConfig.PROP_NTI_CSV_DEFINICIO);
 	}
 	private String getPropertyCustodiaVerificacioBaseUrl() {
 		return GlobalProperties.getInstance().getProperty(
-			"app.custodia.plugin.caib.verificacio.baseurl");
+			PropertyConfig.PROP_CUSTODIA_PLUGIN_CAIB_VERIFICACIO_BASEURL);
 	}
 	private String getPropertyArxiuVerificacioBaseUrl() {
 		return GlobalProperties.getInstance().getProperty(
-			"app.arxiu.verificacio.baseurl");
+			PropertyConfig.PROP_ARXIU_VERIFICACIO_BASEURL);
 	}
 
 }

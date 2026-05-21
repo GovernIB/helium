@@ -1,11 +1,12 @@
 /**
- * 
+ *
  */
 package es.caib.helium.integracio.plugins.notificacio;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.codec.binary.Base64;
 
 import es.caib.helium.commons.utils.GlobalProperties;
@@ -29,20 +30,20 @@ import es.caib.notib.client.domini.RespostaConsultaEstatNotificacioV2;
 /**
  * Implementació de del plugin d'enviament de notificacions
  * emprant NOTIB.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class NotificacioPluginNotib implements NotificacioPlugin {
 
-	
+
 	private NotificacioRestClientV2 clientV2;
 
 	@Override
 	public RespostaEnviar enviar(
 			Notificacio notificacio) throws NotificacioPluginException {
-		
+
 		try {
-			
+
 			DocumentV2 document = new DocumentV2();
 			document.setArxiuNom(notificacio.getDocumentArxiuNom());
 			if (notificacio.getDocumentArxiuContingut() != null) {
@@ -50,8 +51,8 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			}
 			document.setUuid(notificacio.getDocumentArxiuUuid());
 			document.setCsv(notificacio.getDocumentArxiuCsv());
-			
-			
+
+
 			NotificacioV2 notificacioNotib = new NotificacioV2();
 			notificacioNotib.setEmisorDir3Codi(notificacio.getEmisorDir3Codi());
 			notificacioNotib.setEnviamentTipus(notificacio.getEnviamentTipus() != null ? EnviamentTipusEnum.valueOf(notificacio.getEnviamentTipus().toString()) : null);
@@ -67,10 +68,10 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			notificacioNotib.setNumExpedient(notificacio.getNumExpedient());
 			if (notificacio.getIdioma() != null)
 				notificacioNotib.setIdioma(es.caib.notib.client.domini.IdiomaEnumDto.valueOf(notificacio.getIdioma().toString()));
-						
+
 			if (notificacio.getEnviaments() != null) {
 				for (Enviament enviament: notificacio.getEnviaments()) {
-					
+
 					es.caib.notib.client.domini.Enviament enviamentNotib = new es.caib.notib.client.domini.Enviament();
 					enviamentNotib.setServeiTipus(enviament.getServeiTipusEnum() != null ? NotificaServeiTipusEnumDto.valueOf(enviament.getServeiTipusEnum().toString()) : null);
 					enviamentNotib.setTitular(toPersonaNotib(enviament.getTitular()));
@@ -108,7 +109,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 						entregaPostal.setFormatFulla(enviament.getEntregaPostalFormatFulla());
 						enviamentNotib.setEntregaPostal(entregaPostal);
 					}
-					
+
 					if (enviament.getEntregaDehProcedimentCodi() != null) {
 						EntregaDeh entregaDeh = new EntregaDeh();
 						entregaDeh.setObligat(enviament.isEntregaDehObligat());
@@ -121,9 +122,9 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			}
 
 			RespostaAltaV2 respostaAlta = getNotificacioService().alta(notificacioNotib);
-			
-			if (respostaAlta.isError() 
-					&& (respostaAlta.getReferencies() == null || respostaAlta.getReferencies().isEmpty())) 
+
+			if (respostaAlta.isError()
+					&& (respostaAlta.getReferencies() == null || respostaAlta.getReferencies().isEmpty()))
 			{
 				throw new NotificacioPluginException(respostaAlta.getErrorDescripcio());
 			} else {
@@ -220,7 +221,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			RespostaConsultaEstatEnviamentV2 respostaConsultaEstat = getNotificacioService().consultaEstatEnviament(referencia);
 
 			RespostaConsultaEstatEnviament resposta = new RespostaConsultaEstatEnviament();
-			
+
 			resposta.setEstat(toEnviamentEstat(respostaConsultaEstat.getEstat()));
 			resposta.setEstatData(respostaConsultaEstat.getEstatData());
 			resposta.setEstatDescripcio(respostaConsultaEstat.getEstatDescripcio());
@@ -242,7 +243,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			}
 			resposta.setError(respostaConsultaEstat.isError());
 			resposta.setErrorDescripcio(respostaConsultaEstat.getErrorDescripcio());
-			
+
 			return resposta;
 		} catch (Exception ex) {
 			throw new NotificacioPluginException(
@@ -381,7 +382,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 		}
 		return p;
 	}
-	
+
 	private NotificacioRestClientV2 getNotificacioService() {
 		if (clientV2 == null) {
 			clientV2 = NotificacioRestClientFactory.getRestClientV2(
@@ -393,13 +394,13 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 	}
 
 	private String getUrl() {
-		return GlobalProperties.getInstance().getProperty("app.notificacio.plugin.url");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_NOTIFICACIO_PLUGIN_URL);
 	}
 	private String getUsername() {
-		return GlobalProperties.getInstance().getProperty("app.notificacio.plugin.username");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_NOTIFICACIO_PLUGIN_USERNAME);
 	}
 	private String getPassword() {
-		return GlobalProperties.getInstance().getProperty("app.notificacio.plugin.password");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_NOTIFICACIO_PLUGIN_PASSWORD);
 	}
 
 }

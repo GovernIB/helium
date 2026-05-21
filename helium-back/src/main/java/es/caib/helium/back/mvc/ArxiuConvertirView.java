@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.mvc;
 
@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -39,7 +40,7 @@ import es.caib.helium.commons.utils.GlobalProperties;
 
 /**
  * Vista per mostrar arxius
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ArxiuConvertirView extends ArxiuView {
@@ -278,16 +279,16 @@ public class ArxiuConvertirView extends ArxiuView {
 		}
 	}
 	private boolean getPropertyEnabled() {
-		return "true".equals(GlobalProperties.getInstance().getProperty("app.conversio.actiu"));
+		return "true".equals(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_ACTIU));
 	}
 	private String getPropertyHost() {
-		return GlobalProperties.getInstance().getProperty("app.conversio.openoffice.host");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_OPENOFFICE_HOST);
 	}
 	private int getPropertyPort() {
-		return Integer.parseInt(GlobalProperties.getInstance().getProperty("app.conversio.openoffice.port"));
+		return Integer.parseInt(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_OPENOFFICE_PORT));
 	}
 	private String getPropertyDefaultExtension() {
-		return GlobalProperties.getInstance().getProperty("app.conversio.default.extension");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_DEFAULT_EXTENSION);
 	}
 
 	private static final Log logger = LogFactory.getLog(ArxiuConvertirView.class);

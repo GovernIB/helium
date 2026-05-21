@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.disseny.handler.HeliumActionHandler;
 import es.caib.helium.logic.bpmn.HeliumActionHandlerPredefinitFactory;
 import es.caib.helium.logic.bpmn.HeliumApiFactory;
@@ -1673,7 +1674,7 @@ public class ExpedientHelper {
 	}
 
 	private String getNumexpDefaultExpression() {
-		return GlobalProperties.getInstance().getProperty("app.numexp.expression");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_NUMEXP_EXPRESSION);
 	}
 
 	/**

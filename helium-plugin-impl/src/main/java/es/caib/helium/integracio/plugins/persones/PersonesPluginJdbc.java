@@ -11,6 +11,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -20,17 +21,17 @@ import es.caib.helium.integracio.plugins.persones.DadesPersona.Sexe;
 
 /**
  * Implementació de la interficie PersonesPlugin amb accés per JDBC.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 
 public class PersonesPluginJdbc implements PersonesPlugin {
-	
+
 	private NamedParameterJdbcTemplate namedJdbcTemplate;
-	
+
 	public DadesPersona findAmbCodi(String codi) throws PersonesPluginException {
 		try {
-			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.code");
+			String query = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_JDBC_FILTER_CODE);
 			Map<String, Object> parametres = new HashMap<String, Object>();
 			parametres.put("codi", codi);
 			List<DadesPersona> resultat = consultaSql(query, parametres);
@@ -44,7 +45,7 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 
 	public List<DadesPersona> findLikeNomSencer(String text) throws PersonesPluginException {
 		try {
-			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.name");
+			String query = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_JDBC_FILTER_NAME);
 			Map<String, Object> parametres = new HashMap<String, Object>();
 			parametres.put("nom", text);
 			List<DadesPersona> resultat = consultaSql(query, parametres);
@@ -58,7 +59,7 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 
 	public List<DadesPersona> findLikeCodiOrNomSencer(String text) throws PersonesPluginException {
 		try {
-			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.codename");
+			String query = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_JDBC_FILTER_CODENAME);
 			Map<String, Object> parametres = new HashMap<String, Object>();
 			parametres.put("text", text);
 			List<DadesPersona> resultat = consultaSql(query, parametres);
@@ -72,7 +73,7 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 
 	public List<DadesPersona> findAll() throws PersonesPluginException {
 		try {
-			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.name");
+			String query = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_JDBC_FILTER_NAME);
 			Map<String, Object> parametres = new HashMap<String, Object>();
 			parametres.put("nom", "");
 			List<DadesPersona> resultat = consultaSql(query, parametres);
@@ -88,12 +89,12 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException {
 		List<String> rols = new ArrayList<String>();
 		try {
-			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.roles");
+			String query = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_JDBC_FILTER_ROLES);
 			if (query != null && !query.isEmpty()) {
 				Map<String, Object> parametres = new HashMap<String, Object>();
 				parametres.put("codi", codi);
-				
-				String jndi = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.jndi.parameter");
+
+				String jndi = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_JDBC_JNDI_NAME);
 				Context initContext = new InitialContext();
 				DataSource ds = (DataSource)initContext.lookup(jndi);
 				namedJdbcTemplate = new NamedParameterJdbcTemplate(ds);
@@ -102,7 +103,7 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 						return true;
 					}
 				};
-				
+
 				rols = namedJdbcTemplate.query(
 						query,
 						parameterSource,
@@ -121,7 +122,7 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 	@Override
 	public List<DadesPersona> findAmbGrup(String grupCodi) throws PersonesPluginException {
 		try {
-			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.grup");
+			String query = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_JDBC_FILTER_GRUP);
 			Map<String, Object> parametres = new HashMap<String, Object>();
 			parametres.put("grup", grupCodi);
 			List<DadesPersona> resultat = consultaSql(query, parametres);
@@ -137,7 +138,7 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 	private List<DadesPersona> consultaSql(
 			String query,
 			Map<String, Object> parametres) throws Exception {
-		String jndi = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.jndi.parameter");
+		String jndi = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_JDBC_JNDI_NAME);
 		Context initContext = new InitialContext();
 		DataSource ds = (DataSource)initContext.lookup(jndi);
 		namedJdbcTemplate = new NamedParameterJdbcTemplate(ds);
@@ -202,9 +203,7 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 	}
 
 	private boolean nomLlinatgesSeparat() {
-		String junt = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.nom.llinatges.junt");
-		if (junt == null)
-			junt = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.nom.llimatges.junt");
+		String junt = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_JDBC_NOM_LLINATGES_JUNT);
 		if (junt == null)
 			return true;
 		return junt.equalsIgnoreCase("false");

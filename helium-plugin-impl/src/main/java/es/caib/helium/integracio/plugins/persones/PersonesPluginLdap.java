@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.integracio.plugins.persones;
 
@@ -16,12 +16,13 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.integracio.plugins.persones.DadesPersona.Sexe;
 
 /**
  * Implementació de la interficie PersonesPlugin amb accés a un directori LDAP
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class PersonesPluginLdap implements PersonesPlugin {
@@ -30,7 +31,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 
 	public DadesPersona findAmbCodi(String codi) throws PersonesPluginException {
 		try {
-			String userFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.user");
+			String userFilter = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_USER);
 			String filter = new String(userFilter).replace("###", codi);
 			List<DadesPersona> persones = findPersonesLdap(filter);
 			if (persones.size() > 0)
@@ -43,7 +44,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 
 	public List<DadesPersona> findLikeNomSencer(String text) throws PersonesPluginException {
 		try {
-			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.like");
+			String likeFilter = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_LIKE);
 			String filter = new String(likeFilter).replace("###", text);
 			return findPersonesLdap(filter);
 		} catch (Exception ex) {
@@ -53,7 +54,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 
 	public List<DadesPersona> findLikeCodiOrNomSencer(String text) throws PersonesPluginException {
 		try {
-			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.userlike");
+			String likeFilter = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_USERLIKE);
 			String filter = new String(likeFilter).replace("###", text);
 			return findPersonesLdap(filter);
 		} catch (Exception ex) {
@@ -63,7 +64,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 
 	public List<DadesPersona> findAll() throws PersonesPluginException {
 		try {
-			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.like");
+			String likeFilter = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_LIKE);
 			String filter = new String(likeFilter).replace("*###*", "*");
 			return findPersonesLdap(filter);
 		} catch (Exception ex) {
@@ -73,25 +74,25 @@ public class PersonesPluginLdap implements PersonesPlugin {
 
 	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException {
 		List<String> roles = new ArrayList<String>();
-		
-		String userFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.filter.user");
+
+		String userFilter = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_FILTER_USER);
 		String filter = new String(userFilter).replace("###", codi);
-		
-		String roleAtt = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.attribute.role");
-		String roleName = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.attribute.role.name");
-		
+
+		String roleAtt = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_ATTRIBUTE_ROLE);
+		String roleName = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_ATTRIBUTE_ROLE_NAME);
+
 		if (roleAtt != null && roleName != null) {
 			LdapContext ctx = null;
-			
+
 			try {
 				ctx = getContext();
 				SearchControls searchCtls = new SearchControls();
 				searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 				NamingEnumeration<SearchResult> answer = ctx.search(
-						GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.searchbase"),
+						GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_SEARCHBASE),
 						filter,
 						searchCtls);
-				
+
 				if (answer.hasMoreElements()) {
 					SearchResult sr = (SearchResult)answer.next();
 					Attribute memberOf = sr.getAttributes().get(roleAtt);
@@ -109,14 +110,14 @@ public class PersonesPluginLdap implements PersonesPlugin {
 				throw new PersonesPluginException("No s'ha pogut trobar cap persona", ex);
 			}
 		}
-		
+
 		return roles;
 	}
 
 	@Override
 	public List<DadesPersona> findAmbGrup(String grupCodi) throws PersonesPluginException {
 		try {
-			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.grup");
+			String likeFilter = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_GRUP);
 			String filter = new String(likeFilter).replace("###", grupCodi);
 			return findPersonesLdap(filter);
 		} catch (Exception ex) {
@@ -126,13 +127,13 @@ public class PersonesPluginLdap implements PersonesPlugin {
 
 
 	private List<DadesPersona> findPersonesLdap(String filter) throws Exception {
-		String[] returnedAtts = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.attributes").split(",");
+		String[] returnedAtts = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_ATTRIBUTES).split(",");
 		LdapContext ctx = getContext();
 		SearchControls searchCtls = new SearchControls();
 		//searchCtls.setReturningAttributes(returnedAtts);
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		NamingEnumeration<SearchResult> answer = ctx.search(
-				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.base"),
+				GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_SEARCH_BASE),
 				filter,
 				searchCtls);
 		List<DadesPersona> resposta = new ArrayList<DadesPersona>();
@@ -166,7 +167,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		ctx.close();
 		return resposta;
 	}
-	
+
 	private LdapContext getContext() throws Exception {
 		Hashtable<String, String> envDC = new Hashtable<String, String>();
 		envDC.put(
@@ -174,16 +175,16 @@ public class PersonesPluginLdap implements PersonesPlugin {
 				"com.sun.jndi.ldap.LdapCtxFactory");
 		envDC.put(
 				Context.PROVIDER_URL,
-				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.url"));
+				GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_URL));
 		envDC.put(
 				Context.SECURITY_AUTHENTICATION,
 				"simple");
 		envDC.put(
 				Context.SECURITY_PRINCIPAL,
-				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.principal"));
+				GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_PRINCIPAL));
 		envDC.put(
 				Context.SECURITY_CREDENTIALS,
-				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.credentials"));
+				GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_CREDENTIALS));
 		return new InitialLdapContext(envDC, null);
 	}
 
@@ -211,7 +212,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 	}
 
 	private String construirEmail(String email) {
-		String dominiEmail = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.email.domini");
+		String dominiEmail = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_EMAIL_DOMINI);
 		if (dominiEmail == null)
 			return email;
 		else

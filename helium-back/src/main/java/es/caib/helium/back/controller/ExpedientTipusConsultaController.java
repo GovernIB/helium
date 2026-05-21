@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -12,6 +12,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,7 +61,7 @@ import es.caib.helium.logic.intf.service.DissenyService;
 
 /**
  * Controlador per a les diferents consultes dels tipus d'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller("expedientTipusConsultaControllerV3")
@@ -73,9 +74,9 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 	private CampService campService;
 	@Autowired
 	private DefinicioProcesService definicioProcesService;
-	
-	
-	
+
+
+
 
 	@RequestMapping(value = "/{expedientTipusId}/consultes")
 	public String consultes(
@@ -98,7 +99,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		}
 		return "expedientTipusConsulta";
 	}
-	
+
 	@RequestMapping(value="/{expedientTipusId}/consulta/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
@@ -116,8 +117,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 						paginacioParams.getFiltre(),
 						paginacioParams),
 				"id");
-	}	
-			
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/consulta/new", method = RequestMethod.GET)
 	public String nova(
 			HttpServletRequest request,
@@ -145,16 +146,16 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
         	// Verificar permisos
     		expedientTipusService.consultaCreate(
     				expedientTipusId,
-        			ExpedientTipusConsultaCommand.asConsultaDto(command));    		
+        			ExpedientTipusConsultaCommand.asConsultaDto(command));
     		MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.tipus.consulta.controller.creat"));
-			return modalUrlTancar(false);			
+			return modalUrlTancar(false);
         }
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{id}/update", method = RequestMethod.GET)
 	public String modificar(
 			HttpServletRequest request,
@@ -164,13 +165,13 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		ConsultaDto dto = expedientTipusService.consultaFindAmbId(id);
 		ExpedientTipusConsultaCommand command = ConversioTipus.convertir(
 				dto,
-				ExpedientTipusConsultaCommand.class);		
+				ExpedientTipusConsultaCommand.class);
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusConsultaCommand", command);
     	this.omplirModelFormats(request, expedientTipusId, model);
 		return "expedientTipusConsultaForm";
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
@@ -198,14 +199,14 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
         			ExpedientTipusConsultaCommand.asConsultaDto(command),
         			actualitzarContingut);
     		MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.tipus.consulta.controller.modificat"));
 			return modalUrlTancar(false);
         }
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean delete(
@@ -213,10 +214,10 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
-		
+
 		try {
 			expedientTipusService.consultaDelete(id);
-			
+
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -234,7 +235,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			return false;
 		}
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{consultaId}/var/{id}/{propietat}")
 	@ResponseBody
 	public boolean cols(
@@ -243,12 +244,12 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long id,
 			@PathVariable String propietat,
 			@RequestParam int valor) {
-		
+
 		expedientTipusService.consultaCampCols(id, propietat, valor);
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Mètode Ajax per moure una consulta de posició dins del tipus d'expedient.
 	 * @param request
@@ -265,15 +266,15 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			@PathVariable int posicio) {
-		
+
 		return expedientTipusService.consultaMourePosicio(id, posicio);
 	}
-	
+
 	/** Mètode per descarregar l'informe de la consulta. */
 	@RequestMapping(value="/{expedientTipusId}/consulta/{consultaId}/download", method = RequestMethod.GET)
 	public String desacarregarInforme(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
 			@PathVariable Long consultaId,
 			Model model) {
 		ConsultaDto consulta = expedientTipusService.consultaFindAmbId(consultaId);
@@ -282,15 +283,15 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, consulta.getInformeContingut());
 		}
 		return "arxiuView";
-	}	
-	
+	}
+
 	private void omplirModelFormats(
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Model model) {
-		model.addAttribute("formats", new String[] {"PDF","ODT","RTF","HTML","CSV","XLS","XML"});		
+		model.addAttribute("formats", new String[] {"PDF","ODT","RTF","HTML","CSV","XLS","XML"});
 	}
-	
+
 	// Mètodes pel manteniment de les variables de les consultes
 
 	/** Modal per veure els camps de la consulta de tipus filtre. */
@@ -310,10 +311,10 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long consultaId,
 			Model model) {
-		
+
 		return this.variables(request, expedientTipusId, consultaId, model, TipusConsultaCamp.INFORME, null);
 	}
-	
+
 	/** Mètode per construir i descarregar un exemple de JasperReports a partir del camps definits a la consulta. */
 	@RequestMapping(value = "/{expedientTipusId}/consulta/reportDownload")
 	public String downloadAction(
@@ -325,19 +326,19 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			List<ConsultaCampDto> consultaCamps = dissenyService.findCampsInformePerCampsConsulta(
 					consulta,
 					false);
-			
+
 			List<CampDto> camps = new ArrayList<CampDto>();
-					
-			ExpedientTipusDto expedientTipus = new ExpedientTipusDto(); 
+
+			ExpedientTipusDto expedientTipus = new ExpedientTipusDto();
 			expedientTipus.setId(consulta.getExpedientTipus().getId());
-			
+
 			for(ConsultaCampDto consultaCamp: consultaCamps) {
 				if(consultaCamp.getDefprocJbpmKey() != null) {
 					DefinicioProcesDto dp  = definicioProcesService.findByJbpmKeyAndVersio(consultaCamp.getDefprocJbpmKey(), consultaCamp.getDefprocVersio());
 					CampDto camp = campService.findAmbCodi(null, dp.getId(), consultaCamp.getCampCodi(), true);
 					if(camp != null) {
 						camp.setExpedientTipus(expedientTipus);
-						camps.add(camp);	
+						camps.add(camp);
 					} else {
 						logger.info("No s'ha trobat el camp amb el codi = [" + consultaCamp.getCampCodi() + "] i la definició de procés amb l'id = [" + dp.getId() + "]");
 					}
@@ -345,28 +346,28 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 					CampDto camp = campService.findAmbCodi(expedientTipus.getId(), null, consultaCamp.getCampCodi(), expedientTipus.getExpedientTipusPareId() != null);
 					if(camp != null) {
 						camp.setExpedientTipus(expedientTipus);
-						camps.add(camp);	
+						camps.add(camp);
 					} else {
 						logger.info("No s'ha trobat el camp amb el codi = [" + consultaCamp.getCampCodi() + "] i el tipus d'expedient amb l'id = [" + expedientTipus.getId() + "]");
 					}
 				}
 			}
-					
-			String jasperReport = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-							"<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" " + 
-								"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + 
-								"xsi:schemaLocation=\"http://jasperreports.sourceforge.net/jasperreports " + 
-								"http://jasperreports.sourceforge.net/xsd/jasperreport.xsd\" " + 
-								"name=\"report_basic\" language=\"groovy\" pageWidth=\"842\" pageHeight=\"595\" " + 
+
+			String jasperReport = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+							"<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" " +
+								"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+								"xsi:schemaLocation=\"http://jasperreports.sourceforge.net/jasperreports " +
+								"http://jasperreports.sourceforge.net/xsd/jasperreport.xsd\" " +
+								"name=\"report_basic\" language=\"groovy\" pageWidth=\"842\" pageHeight=\"595\" " +
 								"orientation=\"Landscape\" columnWidth=\"802\" leftMargin=\"20\" " +
 								"rightMargin=\"20\" topMargin=\"20\" bottomMargin=\"20\">" +
 								"\n<property name=\"ireport.zoom\" value=\"1.0\"/>" +
 								"\n<property name=\"ireport.x\" value=\"0\"/>" +
 								"\n<property name=\"ireport.y\" value=\"0\"/>";
 			for (CampDto camp: camps) {
-				jasperReport = jasperReport + "\n<field name=\"" + camp.getCodiPerInforme() +"\" class=\"net.conselldemallorca.helium.report.FieldValue\"/>";	
+				jasperReport = jasperReport + "\n<field name=\"" + camp.getCodiPerInforme() +"\" class=\"net.conselldemallorca.helium.report.FieldValue\"/>";
 			}
-			jasperReport = jasperReport + 
+			jasperReport = jasperReport +
 				"\n<title>" +
 					"\n<band height=\"30\" splitType=\"Stretch\">" +
 						"\n<staticText>" +
@@ -387,24 +388,24 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			if (camps.size()>0) widthField = 800/camps.size();
 			int xPosition = 0;
 			for (CampDto camp: camps) {
-				jasperReport = jasperReport + 
-						"\n<staticText>" + 
+				jasperReport = jasperReport +
+						"\n<staticText>" +
 							"\n<reportElement x=\""+xPosition+"\" y=\"2\" width=\""+widthField+"\" height=\"20\"/>" +
 							"\n<textElement/>" +
 							"\n<text><![CDATA[" + camp.getEtiqueta() + "]]></text>" +
 						"\n</staticText>";
 				xPosition = xPosition + widthField;
 			}
-			
+
 			jasperReport = jasperReport +
 						"\n</band>" +
 					"\n</columnHeader>" +
 					"\n<detail>" +
 						"\n<band height=\"24\" splitType=\"Stretch\">";
-			
+
 			xPosition = 0;
 			for (CampDto camp: camps) {
-				jasperReport = jasperReport + 		
+				jasperReport = jasperReport +
 					"\n<textField>" +
 						"\n<reportElement x=\""+xPosition+"\" y=\"4\" width=\""+widthField+"\" height=\"20\"/>" +
 						"\n<textElement/>" +
@@ -422,7 +423,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 					"\n<band height=\"30\" splitType=\"Stretch\"/>" +
 				"\n</pageFooter>" +
 			 "\n</jasperReport>";
-			
+
 			String nomInforme = consulta.getInformeNom();
 			if (nomInforme==null) nomInforme = "report_"+consulta.getCodi()+".jrxml";
 			byte[] byteArray = jasperReport.getBytes();
@@ -438,7 +439,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			return "redirect:/consulta/llistat.html";
 		}
 	}
-	
+
 	/** Mètode privat comú per veure els camps de la consulta per tipus. */
 	private String variables(
 			HttpServletRequest request,
@@ -464,21 +465,21 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 				model);
 
 		return "expedientTipusConsultaVar";
-	}	
-	
+	}
+
 	/** Mètode privat per omplir el model pel formulari de variables. */
 	private void omplirModelVariables(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			ExpedientTipusConsultaVarCommand command,
 			Model model) {
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		
+
 		List<DefinicioProcesDto> definicions = definicioProcesService.findAll(
 				entornActual.getId(),
 				command.getExpedientTipusId(),
 				true); //incloureGlobals
-	
+
 		model.addAttribute("definicionsProces", definicions);
 
 		model.addAttribute("expedientTipusId", command.getExpedientTipusId());
@@ -492,7 +493,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 				command.getOrigen(),
 				command.getTipus()));
 	}
-	
+
 	@RequestMapping(value="/{expedientTipusId}/consulta/{consultaId}/var/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse variablesDatatable(
@@ -511,8 +512,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 						paginacioParams.getFiltre(),
 						paginacioParams),
 				"id");
-	}		
-	
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{consultaId}/var/new", method = RequestMethod.POST)
 	public String variableNouPost(
 			HttpServletRequest request,
@@ -547,7 +548,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 	        		nSuccess++;
     			} catch (Exception e) {
     				MissatgesHelper.error(
-    						request, 
+    						request,
     						getMessage(
     								request,
     								"expedient.tipus.consulta.vars.controller.crear.error",
@@ -566,7 +567,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 								new Object [] {nSuccess}));
         	return variables(request, expedientTipusId, consultaId, model, command.getTipus(), command.getOrigen());
         }
-	}	
+	}
 
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{consultaId}/var/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
@@ -576,10 +577,10 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long consultaId,
 			@PathVariable Long id,
 			Model model) {
-				
+
 		try {
 			expedientTipusService.consultaCampDelete(id);
-			
+
         	// Esborra de la sessió el filtre
 			SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
 
@@ -587,7 +588,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.consulta.vars.controller.eliminar.success"));			
+							"expedient.tipus.consulta.vars.controller.eliminar.success"));
 			return true;
 		} catch(Exception e) {
 			MissatgesHelper.error(
@@ -600,7 +601,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Mètode Ajax per moure una validació d'una consulta de posició dins la seva agrupació.
 	 * @param request
@@ -618,10 +619,10 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long consultaId,
 			@PathVariable Long id,
 			@PathVariable int posicio) {
-		
+
 		return expedientTipusService.consultaCampMourePosicio(id, posicio);
-	}	
-	
+	}
+
 	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{consultaId}/var/select", method = RequestMethod.GET)
 	@ResponseBody
@@ -633,8 +634,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@RequestParam TipusConsultaCamp tipus,
 			Model model) {
 		return obtenirParellesVariables(request, expedientTipusId, consultaId, origen, tipus);
-	}	
-			
+	}
+
 	/**
 	 * Retorna les parelles codi i valor per a les possibles variables per als camps de les consultes.
 	 * Lleva les variables que s'han utilitzat ja en la consulta depenent del tipus.
@@ -653,41 +654,41 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		if (origen == ExpedientTipusConsultaVarCommand.ORIGEN_EXPEDIENT) {
 			// Variables del tipus d'expedient
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_ID, 
+					ExpedientCamps.EXPEDIENT_CAMP_ID,
 					getMessage(request, "etiqueta.exp.id")));
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_NUMERO, 
+					ExpedientCamps.EXPEDIENT_CAMP_NUMERO,
 					getMessage(request, "etiqueta.exp.numero")));
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_TITOL, 
+					ExpedientCamps.EXPEDIENT_CAMP_TITOL,
 					getMessage(request, "etiqueta.exp.titol")));
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI, 
+					ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI,
 					getMessage(request, "etiqueta.exp.data_ini")));
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_DATA_FI, 
+					ExpedientCamps.EXPEDIENT_CAMP_DATA_FI,
 					getMessage(request, "etiqueta.exp.data_fi")));
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_NIF, 
-					getMessage(request, "etiqueta.exp.nif")));			
+					ExpedientCamps.EXPEDIENT_CAMP_NIF,
+					getMessage(request, "etiqueta.exp.nif")));
 			resposta.add(new ParellaCodiValorDto(
-					ExpedientCamps.EXPEDIENT_CAMP_ESTAT, 
+					ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
 					getMessage(request, "etiqueta.exp.estat")));
-			
-			boolean isGeorefActiu = "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.georef.actiu"));
-			boolean isGeorefAmbReferencia = "ref".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.georef.tipus"));
-			
+
+			boolean isGeorefActiu = "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_GEOREF_ACTIU));
+			boolean isGeorefAmbReferencia = "ref".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_GEOREF_TIPUS));
+
 			if (isGeorefActiu)
 				if (isGeorefAmbReferencia)
 					resposta.add(new ParellaCodiValorDto(
-							ExpedientCamps.EXPEDIENT_CAMP_GEOREF, 
+							ExpedientCamps.EXPEDIENT_CAMP_GEOREF,
 							getMessage(request, "comuns.georeferencia.codi")));
 				else {
 					resposta.add(new ParellaCodiValorDto(
-							ExpedientCamps.EXPEDIENT_CAMP_GEOX, 
+							ExpedientCamps.EXPEDIENT_CAMP_GEOX,
 							getMessage(request, "comuns.georeferencia.coordenadaX")));
 					resposta.add(new ParellaCodiValorDto(
-							ExpedientCamps.EXPEDIENT_CAMP_GEOY, 
+							ExpedientCamps.EXPEDIENT_CAMP_GEOY,
 							getMessage(request, "comuns.georeferencia.coordenadaY")));
 				}
 		} else if (origen == ExpedientTipusConsultaVarCommand.ORIGEN_TIPUS_EXPEDIENT){
@@ -697,7 +698,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			// Crea les parelles de codi i valor
 			for (CampDto variable : variables) {
 				resposta.add(new ParellaCodiValorDto(
-						variable.getCodi(), 
+						variable.getCodi(),
 						variable.getCodi() + " / " + variable.getEtiqueta()));
 			}
 		} else {
@@ -707,7 +708,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			// Crea les parelles de codi i valor
 			for (CampDto variable : variables) {
 				resposta.add(new ParellaCodiValorDto(
-						variable.getCodi(), 
+						variable.getCodi(),
 						variable.getCodi() + " / " + variable.getEtiqueta()));
 			}
 		}
@@ -722,11 +723,11 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		Iterator<ParellaCodiValorDto> it = resposta.iterator();
 		while (it.hasNext()) {
 			ParellaCodiValorDto parellaCodiValor = it.next();
-			if (campsExistents.contains(parellaCodiValor.getCodi())) 
+			if (campsExistents.contains(parellaCodiValor.getCodi()))
 				it.remove();
 		}
 		return resposta;
-	}		
+	}
 
 	/** Modal per veure els paràmetres de la consulta de tipus informe. */
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{consultaId}/parametre", method = RequestMethod.GET)
@@ -735,7 +736,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long consultaId,
 			Model model) {
-		
+
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("consulta", expedientTipusService.consultaFindAmbId(consultaId));
 		model.addAttribute("tipus", ConsultaCampDto.TipusConsultaCamp.PARAM);
@@ -749,7 +750,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 
 		return "expedientTipusConsultaParam";
 	}
-	
+
 	@RequestMapping(value="/{expedientTipusId}/consulta/{consultaId}/parametre/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse parametresDatatable(
@@ -767,8 +768,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 						paginacioParams.getFiltre(),
 						paginacioParams),
 				"id");
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{consultaId}/parametre/new", method = RequestMethod.POST)
 	public String parametreNouPost(
 			HttpServletRequest request,
@@ -787,7 +788,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
         	// Verificar permisos
     		expedientTipusService.consultaCampCreate(
     				consultaId,
-    				ExpedientTipusConsultaParamCommand.asConsultaCampDto(command));    		
+    				ExpedientTipusConsultaParamCommand.asConsultaCampDto(command));
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -795,8 +796,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 							"expedient.tipus.consulta.params.controller.creat"));
         	return parametres(request, expedientTipusId, consultaId, model);
         }
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{consultaId}/parametre/{id}/update", method = RequestMethod.POST)
 	public String parametreModificarPost(
 			HttpServletRequest request,
@@ -822,7 +823,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 							"expedient.tipus.campRegistre.controller.modificat"));
         	return parametres(request, expedientTipusId, consultaId, model);
         }
-	}	
+	}
 
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{consultaId}/parametre/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
@@ -832,15 +833,15 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			@PathVariable Long consultaId,
 			@PathVariable Long id,
 			Model model) {
-				
+
 		try {
 			expedientTipusService.consultaCampDelete(id);
-			
+
 			MissatgesHelper.success(
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.consulta.params.controller.eliminar.success"));			
+							"expedient.tipus.consulta.params.controller.eliminar.success"));
 			return true;
 		} catch(Exception e) {
 			MissatgesHelper.error(
@@ -852,12 +853,12 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			logger.error("S'ha produit un error al intentar eliminar el paràmetre de la consulta registre amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId + "'", e);
 			return false;
 		}
-	}	
-	
+	}
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ExpedientTipusConsultaController.class);
 }

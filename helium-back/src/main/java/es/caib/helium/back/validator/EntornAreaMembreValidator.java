@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import es.caib.helium.back.command.EntornAreaMembreCommand;
@@ -45,7 +46,7 @@ public class EntornAreaMembreValidator
 				valid = false;
 			}
 			Long entornAreaId;
-			try {				
+			try {
 				entornAreaId = Long.parseLong(path[path.length-3]);
 			} catch (Exception e) {
 				return false;
@@ -56,8 +57,8 @@ public class EntornAreaMembreValidator
 						.addConstraintViolation();
 				valid = false;
 			}
-			
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
+
+			String pluginClass = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_CLASS);
 			if (pluginClass == null) {
 				return false;
 			}
@@ -78,7 +79,7 @@ public class EntornAreaMembreValidator
 						.addConstraintViolation();
 				valid = false;
 			}
-			
+
 			if (command.getCarrecId() != null && carrec.getArea().getId().longValue() != entornAreaId.longValue()) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(anotacio.carrecInexistent())).addNode("carrecId")

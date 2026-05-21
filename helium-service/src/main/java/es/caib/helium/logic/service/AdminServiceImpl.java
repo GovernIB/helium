@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -401,11 +402,11 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	private String getCorreuRemitent() {
-		return GlobalProperties.getInstance().getProperty("app.correu.remitent");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CORREU_REMITENT);
 	}
 
 	private String getCorreuMetriquesDestinataris() {
-		return GlobalProperties.getInstance().getProperty("app.correu.metrics.recipients");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CORREU_METRICS_RECIPIENTS);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);

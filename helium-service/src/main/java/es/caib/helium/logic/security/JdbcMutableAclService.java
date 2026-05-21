@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -102,7 +103,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         insertEntry = "insert into " + TableNames.TABLE_ENTRY + " (acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure) values (?, ?, ?, ?, ?, ?, ?)";
 
         try {
-	        String dialecteBBDD = GlobalProperties.getInstance().getProperty("app.hibernate.dialect");
+	        String dialecteBBDD = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_HIBERNATE_DIALECT);
 	        if (dialecteBBDD != null && dialecteBBDD.indexOf("Postgre") != -1) {
 	            classIdentityQuery = "SELECT currval(pg_get_serial_sequence('" + TableNames.TABLE_CLASS + "', 'id'))";
 	            sidIdentityQuery = "SELECT currval(pg_get_serial_sequence('" + TableNames.TABLE_SID + "', 'id'))";

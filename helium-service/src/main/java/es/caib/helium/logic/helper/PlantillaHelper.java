@@ -17,6 +17,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -847,7 +848,7 @@ public class PlantillaHelper {
 	}
 
 	private boolean esIdentitySourceHelium() {
-		String identitySource = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
+		String identitySource = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_JBPM_IDENTITY_SOURCE);
 		return (identitySource.equalsIgnoreCase("helium"));
 	}
 

@@ -623,7 +623,7 @@ public class VariableHelper {
 			String campCodi = parts[1];
 			Object value = null;
 			if (campCodi.startsWith("@")) {
-				value = (String)GlobalProperties.getInstance().get(campCodi.substring(1));
+				value = (String)GlobalProperties.getInstance().getProperty(campCodi.substring(1));
 			} else if (campCodi.startsWith("#{")) {
 				if (processInstanceId != null) {
 					value = workflowEngineApi.evaluateExpression(

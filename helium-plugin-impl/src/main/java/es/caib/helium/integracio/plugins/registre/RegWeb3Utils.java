@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import javax.xml.ws.BindingProvider;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.io.IOUtils;
 //import org.fundaciobit.genapp.common.utils.Utils;
 
@@ -25,68 +26,68 @@ import es.caib.regweb3.ws.api.v3.RegWebRegistroEntradaWs;
 import es.caib.regweb3.ws.api.v3.RegWebRegistroEntradaWsService;
 
 /**
- * 
+ *
  * @author anadal
- * 
+ *
  */
 public abstract class RegWeb3Utils  {
 
   public static final String HELLO_WORLD = "RegWebHelloWorld";
-  
+
   public static final String HELLO_WORLD_WITH_SECURITY = "RegWebHelloWorldWithSecurity";
-  
+
   public static final String REGWEB3_PERSONAS = "RegWebPersonas";
   public static final String REGWEB3_REGISTRO_ENTRADA = "RegWebAsientoRegistral";
   public static final String REGWEB3_REGISTRO_SALIDA = "RegWebAsientoRegistral";
   public static final String REGWEB3_INFO = "RegWebInfo";
- 
+
   private static Properties testProperties = new Properties();
- 
-  
- 
+
+
+
 
   public static String getEndPoint(String api) {
-    return GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.host") + api;
+    return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_REGISTRE_PLUGIN_WS_HOST) + api;
   }
 
   public static String getAppUserName() {
-    return GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.usuari");
+    return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_REGISTRE_PLUGIN_WS_USUARI);
   }
 
   public static String getAppPassword() {
-    return GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.password");
+    return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_REGISTRE_PLUGIN_WS_PASSWORD);
   }
 
   public static String getTestEntidadCodigoDir3() {
     return testProperties.getProperty("test_entidadcodigodir3");
   }
-  
+
   public static String getTestDestinoCodigoDir3() {
     return testProperties.getProperty("test_destinocodigodir3");
   }
-  
+
   public static String getTestOrigenOficinaCodigoDir3() {
     return testProperties.getProperty("test_origenoficinacodigodir3");
   }
-  
+
   public static String getTestDestinoLibro() {
     return testProperties.getProperty("test_destinolibro");
   }
-  
+
   public static String getTestUserName() {
     return testProperties.getProperty("test_username");
   }
-  
-  
+
+
   public static String getTestTipoAsunto() {
     return testProperties.getProperty("test_tipoasunto");
   }
-  
+
 
   public static String getTestAnexoTipoDocumental() {
     return testProperties.getProperty("test_anexo_tipodocumental");
   }
-  
+
 
   public static String getTestArchivosPath() {
     return testProperties.getProperty("test_archivos_path");
@@ -104,9 +105,9 @@ public abstract class RegWeb3Utils  {
   public static RegWebHelloWorldWs getHelloWorldApi() throws Exception {
 
     final String endpoint = getEndPoint(HELLO_WORLD);
-    
+
     final URL wsdl = new URL(endpoint + "?wsdl");
-    
+
 
     RegWebHelloWorldWsService helloService = new RegWebHelloWorldWsService(wsdl);
 
@@ -121,8 +122,8 @@ public abstract class RegWeb3Utils  {
   }
 
 
-  
- 
+
+
   public static RegWebHelloWorldWithSecurityWs getHelloWorldWithSecurityApi() throws Exception {
     final String endpoint = getEndPoint(HELLO_WORLD_WITH_SECURITY);
     final URL wsdl = new URL(endpoint + "?wsdl");
@@ -134,8 +135,8 @@ public abstract class RegWeb3Utils  {
 
     return api;
   }
-  
-  
+
+
   public static RegWebPersonasWs getPersonasApi() throws Exception  {
     final String endpoint = getEndPoint(REGWEB3_PERSONAS);
 
@@ -164,13 +165,13 @@ public abstract class RegWeb3Utils  {
 
     public static RegWebAsientoRegistralWs getRegistroSalidaApi() throws Exception  {
         final String endpoint = getEndPoint(REGWEB3_REGISTRO_SALIDA);
-	
+
         final URL wsdl = new URL(endpoint + "?wsdl");
-        
+
         RegWebAsientoRegistralWsService asientoService =  new RegWebAsientoRegistralWsService(wsdl);
         RegWebAsientoRegistralWs api = asientoService.getRegWebAsientoRegistralWs();
         configAddressUserPassword(getAppUserName(), getAppPassword(), endpoint, api);
-        
+
         return api;
     }
 
@@ -186,14 +187,14 @@ public abstract class RegWeb3Utils  {
 
         return api;
     }
-    
-    
+
+
     public static byte[] constructFitxerFromResource(String name) throws Exception  {
       String filename;
       if (name.startsWith("/")) {
         filename = name.substring(1);
       } else {
-        filename = '/' + name; 
+        filename = '/' + name;
       }
       InputStream is = RegWeb3Utils.class.getResourceAsStream(filename);
       if (is == null) {
@@ -209,8 +210,8 @@ public abstract class RegWeb3Utils  {
       }
 
     }
-    
-    
+
+
 //    protected List<AnexoWs> getAnexos() throws Exception {
 //
 //      List<AnexoWs> anexos = new ArrayList<AnexoWs>();
@@ -302,7 +303,7 @@ public abstract class RegWeb3Utils  {
 //
 //      return anexos;
 //    }
-    
+
     /**
      *     Idioma de l’assentament.
      *         1: Català
@@ -333,5 +334,5 @@ public abstract class RegWeb3Utils  {
     	}
     	return idioma;
     }
-  
+
 }

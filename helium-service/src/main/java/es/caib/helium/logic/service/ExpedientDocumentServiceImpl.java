@@ -18,6 +18,7 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.helper.*;
 import org.apache.commons.io.FilenameUtils;
@@ -2736,7 +2737,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				dto.setSignaturaUrlVerificacio("error_" + time);
 			}
 		} else {
-			String arxiuVerificacioBaseUrl = GlobalProperties.getInstance().getProperty("app.arxiu.verificacio.baseurl");
+			String arxiuVerificacioBaseUrl = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ARXIU_VERIFICACIO_BASEURL);
 			// Arxiu
 			dto.setSignaturaUrlVerificacio(arxiuVerificacioBaseUrl + documentStore.getNtiCsv());
 		}
@@ -2863,19 +2864,19 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	}
 
 	private String getExtensioArxiuSignat() {
-		return (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+		return (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_EXTENSION);
 	}
 	private String getExtensioArxiuRegistrat() {
-		return (String)GlobalProperties.getInstance().get("app.conversio.registre.extension");
+		return (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_REGISTRE_EXTENSION);
 	}
 	private boolean isSignaturaFileAttached() {
-		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
+		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_SIGNATURA_PLUGIN_FILE_ATTACHED));
 	}
 	private boolean isActiuConversioSignatura() {
-		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		String actiuConversio = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_ACTIU);
 		if (!"true".equalsIgnoreCase(actiuConversio))
 			return false;
-		String actiuConversioSignatura = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
+		String actiuConversioSignatura = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_ACTIU);
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 

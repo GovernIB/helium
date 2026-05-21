@@ -3,6 +3,7 @@
  */
 package es.caib.helium.logic.helpers;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.PortafirmesEstatEnum;
@@ -741,14 +742,14 @@ public class DocumentHelper {
 	}
 
 	private boolean isSignaturaFileAttached() {
-		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
+		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_SIGNATURA_PLUGIN_FILE_ATTACHED));
 	}
 
 	private boolean isActiuConversioSignatura() {
-		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		String actiuConversio = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_ACTIU);
 		if (!"true".equalsIgnoreCase(actiuConversio))
 			return false;
-		String actiuConversioSignatura = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
+		String actiuConversioSignatura = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_ACTIU);
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
@@ -767,10 +768,10 @@ public class DocumentHelper {
 		}
 	}
 	private String getExtensioArxiuSignat() {
-		return (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+		return (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_EXTENSION);
 	}
 	private String getExtensioArxiuRegistrat() {
-		return (String)GlobalProperties.getInstance().get("app.conversio.registre.extension");
+		return (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_REGISTRE_EXTENSION);
 	}
 
 	private byte[] getContingutDocumentAmbFont(DocumentStore document) {
@@ -787,9 +788,9 @@ public class DocumentHelper {
 		if (urlCustodia != null) {
 			return urlCustodia;
 		} else {
-			String baseUrl = (String)GlobalProperties.getInstance().get("app.base.verificacio.url");
+			String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
 			if (baseUrl == null)
-				baseUrl = (String)GlobalProperties.getInstance().get("app.base.url");
+				baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
 			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 		}
 	}
@@ -821,7 +822,7 @@ public class DocumentHelper {
 	private DocumentTokenUtils getDocumentTokenUtils() {
 		if (documentTokenUtils == null)
 			documentTokenUtils = new DocumentTokenUtils(
-					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
+					(String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ENCRIPTACIO_CLAU));
 		return documentTokenUtils;
 	}
 	private PdfUtils getPdfUtils() {

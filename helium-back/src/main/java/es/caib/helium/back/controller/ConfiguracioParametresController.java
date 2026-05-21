@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,31 +27,31 @@ import es.caib.helium.logic.intf.service.ParametreService;
  * De moment aquesta pàgina només es crea per al paràmetre de la redirecció de menús
  * antics cap a la nova interfície v3. Si s'ha d'amplicar es pot pensar en posar
  * els paràmetres a nivell de BBDD o crear un Map<String, Object> de paràmetres.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
 @RequestMapping("/configuracio/parametres")
 public class ConfiguracioParametresController extends BaseController {
-	
+
 	@Autowired
 	private ParametreService parametreService;
-	
+
 	public enum Accions {
 		RESTAURAR,
 		GUARDAR;
 	}
-	
+
 	/** Map per guardar els valors per defecte en el cas de restaurar els valors. */
 	private Map<String, String> valorsDefecte = new HashMap<String, String>();
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,
-			Model model) {	
-		ParametresCommand parametresCommand = new ParametresCommand();	
+			Model model) {
+		ParametresCommand parametresCommand = new ParametresCommand();
 		List<ParametreDto> parametres = parametreService.findAll();
-		for(ParametreDto parametre: parametres) {	
+		for(ParametreDto parametre: parametres) {
 			if(parametre.getCodi()!=null && parametre.getCodi().equals(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS)) {
 				parametresCommand.setPropagarEsborratExpedients("0".equals(parametre.getValor()) ? false : true);
 			}
@@ -58,13 +59,15 @@ public class ConfiguracioParametresController extends BaseController {
 				parametresCommand.setFitxerMidaMaxim(parametre.getValor());
 			}
 		}
-		
-		model.addAttribute("entorn", GlobalProperties.getInstance().getProperty("app.entorn.helium", ""));
+
+		model.addAttribute("entorn", GlobalProperties.getInstance().getProperty(
+			PropertyConfig.PROP_ENTORN_HELIUM,
+			""));
 		model.addAttribute("parametres", parametres);
 		model.addAttribute("parametresCommand", parametresCommand);
 		return "parametres";
 	}
-	
+
 	@RequestMapping(method = RequestMethod.POST)
 	public String post (
 			HttpServletRequest request,
@@ -73,48 +76,48 @@ public class ConfiguracioParametresController extends BaseController {
 			Model model) {
 		String messageKey="configuracio.parametres.accio.restaurar.confirmacio";
 		List<ParametreDto> parametres = parametreService.findAll();
-		if (Accions.GUARDAR.equals(accio)) {	
-			for(ParametreDto parametre: parametres) { //De moment només serà configurable des de l'app Helium el paràmetre Propagar Esborrat expedients(els demés via BBDD només)	
+		if (Accions.GUARDAR.equals(accio)) {
+			for(ParametreDto parametre: parametres) { //De moment només serà configurable des de l'app Helium el paràmetre Propagar Esborrat expedients(els demés via BBDD només)
 				if(parametre.getCodi()!=null && parametre.getCodi().equals(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS)) {
 					parametre.setValor(parametresCommand.isPropagarEsborratExpedients() ? "1" : "0");
 					parametreService.update(parametre);
 					messageKey = "configuracio.parametres.accio.guardar.confirmacio";
 //					Guardar els valors en les propietats
 //					logger.info("Guardant els valors dels paràmetres: {propagar_esborrat_expedients: "+parametresCommand.isPropagarEsborratExpedients() +"}");
-//					GlobalProperties.getInstance().setProperty(parametre.getCodi(), String.valueOf(parametresCommand.isPropagarEsborratExpedients()));		
+//					GlobalProperties.getInstance().setProperty(parametre.getCodi(), String.valueOf(parametresCommand.isPropagarEsborratExpedients()));
 				}
 				if(parametre.getCodi()!=null && parametre.getCodi().equals(ParametreService.APP_CONFIGURACIO_FITXER_MIDA_MAXIM)) {
 					parametre.setValor(parametresCommand.getFitxerMidaMaxim());
 					parametreService.update(parametre);
 				}
-			}	
+			}
 		} else {
 			if(valorsDefecte==null || valorsDefecte.isEmpty()) {
 				// Omple amb els valors del fitxer de propietats per defecte
 				guardarValorsPerDefecte(parametresCommand);
-			} 
+			}
 			// Restaurar els valors
 			logger.info("Restaurant els valors per defecte dels paràmetres");
 			// Restaura els valors per defecte
-			for (String valorDefecte : valorsDefecte.keySet()){ 
+			for (String valorDefecte : valorsDefecte.keySet()){
 				for(ParametreDto parametre: parametres) {
 						//en el cas de la data de darrera sincronització no hi serà al fitxer de properties
 						if (valorsDefecte.containsKey(parametre.getCodi()) && !ParametreService.APP_CONFIGURACIO_DATA_SINCRONITZACIO_UO.equals(parametre.getCodi())) {
 							if(parametre.getCodi()!=null && parametre.getCodi().equals(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS)) {
 								parametre.setValor(valorsDefecte.get(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS).equals("true") ? "1" : "0");
-							} else { 
+							} else {
 								parametre.setValor(valorsDefecte.get(valorDefecte));//en els demés casos no és boolean
 							}
-							GlobalProperties.getInstance().setProperty(valorDefecte, valorsDefecte.get(valorDefecte));	
+							//GlobalProperties.getInstance().setProperty(valorDefecte, valorsDefecte.get(valorDefecte));
 							parametreService.update(parametre);
 						}
 				}
 			}
 		}
 		MissatgesHelper.success(
-				request, 
+				request,
 				getMessage(
-						request, 
+						request,
 						messageKey));
 
 		return "redirect:/modal/configuracio/parametres";
@@ -131,6 +134,6 @@ public class ConfiguracioParametresController extends BaseController {
 			parametresCommand.setCodi(valorsDefecte.get(GlobalProperties.getInstance().getProperty(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO)));
 		}
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ConfiguracioParametresController.class);
 }

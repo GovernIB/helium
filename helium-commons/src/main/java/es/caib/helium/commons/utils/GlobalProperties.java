@@ -1,140 +1,76 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.utils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertySource;
+import org.springframework.stereotype.Component;
 
 /**
  * Emmagatzema les propietats globals de l'aplicació
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class GlobalProperties extends Properties {
+@Component
+@RequiredArgsConstructor
+public class GlobalProperties implements ApplicationContextAware {
 
-	private static final String APPSERV_PROPS_PATH = "es.caib.helium.properties.path";
+	private final Environment environment;
 
-	private static GlobalProperties instance = null;
-
-	private boolean llegirSystem = true;
-
-
-
+	private static ApplicationContext applicationContext;
 	public static GlobalProperties getInstance() {
-		return getProperties();
-	}
-
-	public GlobalProperties() {
-		super();
-	}
-	public GlobalProperties(Resource resource) throws IOException {
-		super();
-		super.load(resource.getInputStream());
-		if (instance == null) {
-			instance = this;
-		}
-	}
-	public static GlobalProperties getProperties() {
-		if (instance == null) {
-			instance = new GlobalProperties();
-			String propertiesPath = System.getProperty(APPSERV_PROPS_PATH);
-			if (propertiesPath != null) {
-				instance.llegirSystem = false;
-				logger.info("Llegint les propietats de l'aplicació del path: " + propertiesPath);
-				try {
-					if (propertiesPath.startsWith("classpath:")) {
-						instance.load(
-								GlobalProperties.class.getClassLoader().getResourceAsStream(
-										propertiesPath.substring("classpath:".length())));
-					} else if (propertiesPath.startsWith("file://")) {
-						FileInputStream fis = new FileInputStream(
-								propertiesPath.substring("file://".length()));
-						instance.load(fis);
-					} else {
-						FileInputStream fis = new FileInputStream(propertiesPath);
-						instance.load(fis);
-					}
-				} catch (Exception ex) {
-					logger.error("No s'han pogut llegir els properties", ex);
-				}
-			}
-		}
-		return instance;
+		return applicationContext.getBean(GlobalProperties.class);
 	}
 
 	public String getProperty(String key) {
-		if (llegirSystem)
-			return System.getProperty(key);
-		else
-			return super.getProperty(key);
+		return environment.getProperty(key);
 	}
+
 	public String getProperty(String key, String defaultValue) {
-		String val = getProperty(key);
-        return (val == null) ? defaultValue : val;
+		return environment.getProperty(key, defaultValue);
 	}
 
-	public boolean getAsBoolean(String key) {
-		String value = getProperty(key);
-		if (value != null)
-			return Boolean.valueOf(getProperty(key)).booleanValue();
-		else
-			return false;
-	}
-	public int getAsInt(String key) {
-		return Integer.valueOf(getProperty(key)).intValue();
-	}
-	public long getAsLong(String key) {
-		return Long.valueOf(getProperty(key)).longValue();
-	}
-	public float getAsFloat(String key) {
-		return Float.valueOf(getProperty(key)).floatValue();
-	}
-	public double getAsDouble(String key) {
-		return Double.valueOf(getProperty(key)).doubleValue();
+	public Integer getPropertyAsInteger(String key) {
+		String value = environment.getProperty(key);
+		return value != null ? Integer.valueOf(getProperty(key)) : null;
 	}
 
-	public Properties findByPrefix(String prefix) {
-		Properties properties = new Properties();
-		if (llegirSystem) {
-			for (Object key: System.getProperties().keySet()) {
-				if (key instanceof String) {
-					String keystr = (String)key;
-					if (prefix == null || keystr.startsWith(prefix)) {
-						properties.put(
-								keystr,
-								System.getProperty(keystr));
-					}
-				}
-			}
-		} else {
-			for (Object key: this.keySet()) {
-				if (key instanceof String) {
-					String keystr = (String)key;
-					if (prefix == null || keystr.startsWith(prefix)) {
-						properties.put(
-								keystr,
-								getProperty(keystr));
+	public Properties toPropertiesWithPrefix(String prefix) {
+		if (!(environment instanceof ConfigurableEnvironment)) {
+			throw new IllegalArgumentException("Environment is not of type ConfigurableEnvironment");
+		}
+		Properties props = new Properties();
+		for (PropertySource<?> ps: ((ConfigurableEnvironment)environment).getPropertySources()) {
+			if (ps instanceof EnumerablePropertySource<?>) {
+				EnumerablePropertySource<?> eps = (EnumerablePropertySource<?>)ps;
+				for (String name: eps.getPropertyNames()) {
+					if (prefix == null || name.startsWith(prefix)) {
+						Object value = eps.getProperty(name);
+						if (value != null) {
+							props.put(name, value.toString());
+						}
 					}
 				}
 			}
 		}
-		return properties;
-	}
-	public Properties findAll() {
-		return findByPrefix(null);
+		return props;
 	}
 
-	public boolean isLlegirSystem() {
-		return llegirSystem;
+	public Properties toProperties() {
+		return toPropertiesWithPrefix(null);
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(GlobalProperties.class);
-	private static final long serialVersionUID = 1L;
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		GlobalProperties.applicationContext = applicationContext;
+	}
 
 }

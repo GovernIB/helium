@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.domain.BasePermission;
@@ -147,7 +148,7 @@ public class UsuariActualHelper {
 	}
 
 	private boolean esIdentitySourceHelium() {
-		String identitySource = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
+		String identitySource = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_JBPM_IDENTITY_SOURCE);
 		return (identitySource.equalsIgnoreCase("helium"));
 	}
 

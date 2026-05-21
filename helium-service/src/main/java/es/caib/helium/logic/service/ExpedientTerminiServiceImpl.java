@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -535,7 +536,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		if (expedientTipus.getDiesNoLaborables() != null && !expedientTipus.getDiesNoLaborables().isEmpty())
 			nolabs = expedientTipus.getDiesNoLaborables();
 		else
-			nolabs = GlobalProperties.getInstance().getProperty("app.calendari.nolabs");
+			nolabs = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CALENDARI_NOLABS);
 
 		if (nolabs != null && !nolabs.isEmpty()) {
 			String[] dies = nolabs.split(",");

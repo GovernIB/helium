@@ -22,6 +22,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dto.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -2666,9 +2667,9 @@ public class DocumentHelperV3 {
 		if (urlCustodia != null) {
 			return urlCustodia;
 		} else {
-			String baseUrl = (String)GlobalProperties.getInstance().get("app.base.verificacio.url");
+			String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
 			if (baseUrl == null)
-				baseUrl = (String)GlobalProperties.getInstance().get("app.base.url");
+				baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
 			String token = getDocumentTokenUtils().xifrarToken(documentStoreId.toString());
 			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 		}
@@ -2705,19 +2706,19 @@ public class DocumentHelperV3 {
 
 
 	private String getExtensioArxiuSignat() {
-		return (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+		return (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_EXTENSION);
 	}
 	private String getExtensioArxiuRegistrat() {
-		return (String)GlobalProperties.getInstance().get("app.conversio.registre.extension");
+		return (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_REGISTRE_EXTENSION);
 	}
 	private boolean isSignaturaFileAttached() {
-		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
+		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_SIGNATURA_PLUGIN_FILE_ATTACHED));
 	}
 	private boolean isActiuConversioSignatura() {
-		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		String actiuConversio = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_ACTIU);
 		if (!"true".equalsIgnoreCase(actiuConversio))
 			return false;
-		String actiuConversioSignatura = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
+		String actiuConversioSignatura = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_ACTIU);
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
@@ -2729,7 +2730,7 @@ public class DocumentHelperV3 {
 	private DocumentTokenUtils getDocumentTokenUtils() {
 		if (documentTokenUtils == null)
 			documentTokenUtils = new DocumentTokenUtils(
-					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
+					(String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ENCRIPTACIO_CLAU));
 		return documentTokenUtils;
 	}
 
@@ -2738,9 +2739,9 @@ public class DocumentHelperV3 {
 		if (urlCustodia != null) {
 			return urlCustodia;
 		} else {
-			String baseUrl = (String)GlobalProperties.getInstance().get("app.base.verificacio.url");
+			String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
 			if (baseUrl == null)
-				baseUrl = (String)GlobalProperties.getInstance().get("app.base.url");
+				baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
 			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 		}
 	}
@@ -2784,12 +2785,12 @@ public class DocumentHelperV3 {
 	}
 
 	private boolean isActiuConversioVista() {
-		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		String actiuConversio = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_ACTIU);
 		if (!"true".equalsIgnoreCase(actiuConversio))
 			return false;
-		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
+		String actiuConversioVista = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_VISTA_ACTIU);
 		if (actiuConversioVista == null)
-			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
+			actiuConversioVista = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_GENTASCA_ACTIU);
 		return "true".equalsIgnoreCase(actiuConversioVista);
 	}
 
@@ -2799,9 +2800,9 @@ public class DocumentHelperV3 {
 			if (document.getConvertirExtensio() != null && document.getConvertirExtensio().length() > 0) {
 				extensioVista = document.getConvertirExtensio();
 			} else {
-				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
+				extensioVista = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_VISTA_EXTENSION);
 				if (extensioVista == null)
-					extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
+					extensioVista = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_GENTASCA_EXTENSION);
 			}
 		}
 		return extensioVista;
@@ -3189,16 +3190,13 @@ public class DocumentHelperV3 {
 	}
 
 	private String getPropertyNtiCsvDef() {
-		return GlobalProperties.getInstance().getProperty(
-				"app.nti.csv.definicio");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_NTI_CSV_DEFINICIO);
 	}
 	private String getPropertyCustodiaVerificacioBaseUrl() {
-		return GlobalProperties.getInstance().getProperty(
-				"app.custodia.plugin.caib.verificacio.baseurl");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CUSTODIA_PLUGIN_CAIB_VERIFICACIO_BASEURL);
 	}
 	private String getPropertyArxiuVerificacioBaseUrl() {
-		return GlobalProperties.getInstance().getProperty(
-				"app.arxiu.verificacio.baseurl");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ARXIU_VERIFICACIO_BASEURL);
 	}
 
 	private Registre crearRegistreSignarDocument(

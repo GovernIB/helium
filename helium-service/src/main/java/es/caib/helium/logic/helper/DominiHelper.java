@@ -14,6 +14,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -554,7 +555,7 @@ public class DominiHelper {
 	}
 
 	private boolean isDesplegamentTomcat() {
-		String desplegamentTomcat = GlobalProperties.getInstance().getProperty("app.domini.desplegament.tomcat");
+		String desplegamentTomcat = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DOMINI_DESPLEGAMENT_TOMCAT);
 		return "true".equalsIgnoreCase(desplegamentTomcat);
 	}
 
@@ -562,8 +563,8 @@ public class DominiHelper {
 		Integer timeout = 10000; //valor per defecte
 		if (domini.getTimeout() != null && domini.getTimeout() > 0)
 			timeout = domini.getTimeout() * 1000; //valor específic de timeout del domini
-		else if (GlobalProperties.getInstance().getProperty("app.domini.timeout") != null)
-			timeout = Integer.parseInt(GlobalProperties.getInstance().getProperty("app.domini.timeout")); //valor global de timeout pels dominis
+		else if (GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DOMINI_TIMEOUT) != null)
+			timeout = Integer.parseInt(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DOMINI_TIMEOUT)); //valor global de timeout pels dominis
 		return timeout;
 	}
 
@@ -1014,7 +1015,7 @@ public class DominiHelper {
 	}
 
 	private boolean isHeliumIdentitySource() {
-		String organigramaActiu = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
+		String organigramaActiu = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_JBPM_IDENTITY_SOURCE);
 		return "helium".equalsIgnoreCase(organigramaActiu);
 	}
 

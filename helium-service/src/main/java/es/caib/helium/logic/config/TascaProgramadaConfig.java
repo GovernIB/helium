@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -252,7 +253,7 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
                 public Date nextExecutionTime(TriggerContext triggerContext) {
                 	Long value = null;
                 	try {
-                		String strProperty = GlobalProperties.getInstance().getProperty("app.massiu.periode.noves");
+                		String strProperty = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_MASSIU_PERIODE_NOVES);
                 		value = Long.valueOf(strProperty);
                 	} catch (Exception e) {
 						logger.warn("Error consultant la propietat per la propera execució de comprovar execucions massives: " + e.getMessage());
@@ -300,7 +301,7 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
 	                    public Date nextExecutionTime(TriggerContext triggerContext) {
 	                    	String value = null;
 							try {
-						value = GlobalProperties.getInstance().getProperty("app.unitats.procediments.sync");
+						value = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_UNITATS_PROCEDIMENT_SYNC);
 							} catch (Exception e) {
 						logger.warn("Error consultant la propietat per la propera execució d'actualitzar unitats, procediments i serveis: " + e.getMessage());
 							}
@@ -346,7 +347,7 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
                 public Date nextExecutionTime(TriggerContext triggerContext) {
                 	String value = null;
 					try{
-						value = GlobalProperties.getInstance().getProperty("app.anotacions.emails.agrupats.cron");
+						value = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ANOTACIONS_EMAILS_AGRUPATS_CRON);
 					} catch (Exception e) {
 						logger.warn("Error consultant la propietat per la propera execució d'enviament de correus agrupats: " + e.getMessage());
 					}

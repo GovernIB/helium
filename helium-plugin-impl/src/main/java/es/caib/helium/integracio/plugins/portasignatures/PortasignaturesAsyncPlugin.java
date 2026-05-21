@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.ApiFirmaAsyncSimple;
@@ -58,14 +59,14 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 
 	@Override
 	public Integer uploadDocument(
-				DocumentPortasignatures document, 
+				DocumentPortasignatures document,
 				List<DocumentPortasignatures> annexos,
-				boolean isSignarAnnexos, 
-				List<PortafirmesFluxBloc> blocList, 
-				String remitent, 
+				boolean isSignarAnnexos,
+				List<PortafirmesFluxBloc> blocList,
+				String remitent,
 				String importancia,
-				Date dataLimit, 
-				String fluxId, 
+				Date dataLimit,
+				String fluxId,
 				String fluxTipus) throws PortasignaturesPluginException {
 		try {
 
@@ -109,7 +110,7 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 					fass.setRequired(isSignarAnnexos);
 					fass.setRevisers(null);
 					fass.setSigner(null);
-					
+
 					List<FirmaAsyncSimpleSignature> fassList = new ArrayList<FirmaAsyncSimpleSignature>();
 					fassList.add(fass);
 					FirmaAsyncSimpleSignatureBlock b = new FirmaAsyncSimpleSignatureBlock(bloc.getMinSignataris(), fassList);
@@ -146,11 +147,11 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 
 	@Override
 	public PortafirmesIniciFluxResposta iniciarFluxDeFirma(
-			String idioma, 
-			boolean isPlantilla, 
+			String idioma,
+			boolean isPlantilla,
 			String nom,
-			String descripcio, 
-			boolean descripcioVisible, 
+			String descripcio,
+			boolean descripcioVisible,
 			String returnUrl) throws SistemaExternException {
 		PortafirmesIniciFluxResposta transaccioResponse = new PortafirmesIniciFluxResposta();
 		try {
@@ -257,7 +258,7 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 		List<PortafirmesFluxResposta> plantilles = new ArrayList<PortafirmesFluxResposta>();
 		try {
 			FlowTemplateSimpleFlowTemplateList resposta = getFluxDeFirmaClient().getAllFlowTemplates(idioma);
-			
+
 			for (FlowTemplateSimpleKeyValue flowTemplate : resposta.getList()) {
 				PortafirmesFluxResposta plantilla = new PortafirmesFluxResposta();
 				plantilla.setFluxId(flowTemplate.getKey());
@@ -280,62 +281,62 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 			FlowTemplateSimpleFlowTemplateRequest request = new FlowTemplateSimpleFlowTemplateRequest(idioma, idPlantilla);
 
 			FlowTemplateSimpleFlowTemplate result = getFluxDeFirmaClient().getFlowInfoByFlowTemplateID(request);
-			
+
 			if (result != null) {
 				info = new PortafirmesFluxInfo();
 				info.setNom(result.getName());
 				info.setDescripcio(result.getDescription());
 			}
-			
+
 			List<FlowTemplateSimpleBlock> blocks = result.getBlocks();
-			
+
 			for (FlowTemplateSimpleBlock block : blocks) {
 				List<FlowTemplateSimpleSignature> signatures = block.getSignatures();
-				
+
 				for (FlowTemplateSimpleSignature signature: signatures) {
 					PortafirmesFluxSigner signerFlux = new PortafirmesFluxSigner();
 					UsuariPersonaBean detallSigner = null;
-					
+
 					FlowTemplateSimpleSigner signer = signature.getSigner();
 
 					signerFlux.setObligat(signature.isRequired());
-					
+
 					if (signer.getIntermediateServerUsername() != null) {
 						UsuariEntitatBean usuariEntitat = getUsuariEntitatWs().getUsuariEntitat(signer.getIntermediateServerUsername());
 						detallSigner = getUsuariEntitatWs().getUsuariPersona(usuariEntitat.getUsuariPersonaID());
-						
+
 						signerFlux.setNom(detallSigner.getNom());
 						signerFlux.setLlinatges(detallSigner.getLlinatges());
 						signerFlux.setNif(detallSigner.getNif());
-						
+
 					} else if (signer.getPositionInTheCompany() != null) {
-						CarrecWs carrecWs = getUsuariEntitatWs().getCarrec(signer.getPositionInTheCompany());	
+						CarrecWs carrecWs = getUsuariEntitatWs().getCarrec(signer.getPositionInTheCompany());
 						detallSigner = getUsuariEntitatWs().getUsuariPersona(carrecWs.getUsuariPersonaID());
-						
+
 						String carrecNom = carrecWs.getCarrecName() + " (" + detallSigner.getNom() + " " + detallSigner.getLlinatges() + ")";
 						signerFlux.setNom(carrecNom);
 						signerFlux.setNif(detallSigner.getNif());
 					}
-					
+
 					List<FlowTemplateSimpleReviser> revisers = signature.getRevisers();
-					
+
 					if (revisers != null) {
 						for (FlowTemplateSimpleReviser reviser: revisers) {
 							PortafirmesFluxReviser reviserFlux = new PortafirmesFluxReviser();
-							
+
 							reviserFlux.setObligat(reviser.isRequired());
-							
+
 							if (reviser.getIntermediateServerUsername() != null) {
 								UsuariEntitatBean usuariEntitat = getUsuariEntitatWs().getUsuariEntitat(reviser.getIntermediateServerUsername());
 								detallSigner = getUsuariEntitatWs().getUsuariPersona(usuariEntitat.getUsuariPersonaID());
-								
+
 								reviserFlux.setNom(detallSigner.getNom());
 								reviserFlux.setLlinatges(detallSigner.getLlinatges());
 								reviserFlux.setNif(detallSigner.getNif());
 							} else if (reviser.getPositionInTheCompany() != null) {
-								CarrecWs carrecWs = getUsuariEntitatWs().getCarrec(reviser.getPositionInTheCompany());							
+								CarrecWs carrecWs = getUsuariEntitatWs().getCarrec(reviser.getPositionInTheCompany());
 								detallSigner = getUsuariEntitatWs().getUsuariPersona(carrecWs.getUsuariPersonaID());
-								
+
 								String carrecNom = carrecWs.getCarrecName() + " (" + detallSigner.getNom() + detallSigner.getLlinatges() + ")";
 								reviserFlux.setNom(carrecNom);
 								reviserFlux.setNif(detallSigner.getNif());
@@ -346,7 +347,7 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 					info.getSigners().add(signerFlux);
 				}
 			}
-			
+
 		} catch (Exception ex) {
 			throw new SistemaExternException(
 					"S'ha produït un error recuperant el detall del flux de firmes",
@@ -410,7 +411,7 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 		fitxer.setData(document.getArxiuContingut());
 		return fitxer;
 	}
-	
+
 	private FirmaAsyncSimpleSignatureBlock[] toFirmaAsyncSimpleSignatureBlockFromId(
 			String plantillaFluxId,
 			String idioma) throws SistemaExternException {
@@ -427,42 +428,42 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 			if (result != null) {
 				blocks = result.getBlocks();
 			}
-		
+
 			blocsAsyncs = toFirmaAsyncSimpleSignatureBlock(blocks);
 		} catch (Exception ex) {
 			throw new SistemaExternException(ex);
 		}
 		return blocsAsyncs;
 	}
-	
+
 	private FirmaAsyncSimpleSignatureBlock[] toFirmaAsyncSimpleSignatureBlock(List<FlowTemplateSimpleBlock> blocks) throws SistemaExternException {
 		FirmaAsyncSimpleSignatureBlock[] blocsAsyncs = null;
 		int i = 0;
-		
+
 		try {
 			if (blocks != null) {
 				blocsAsyncs = new FirmaAsyncSimpleSignatureBlock[blocks.size()];
-		
+
 				for (FlowTemplateSimpleBlock flowTemplateSimpleBlock : blocks) {
 					FirmaAsyncSimpleSignatureBlock blocAsync = new FirmaAsyncSimpleSignatureBlock();
 					//firmes mínimes
 					blocAsync.setMinimumNumberOfSignaturesRequired(flowTemplateSimpleBlock.getSignatureMinimum());
-		
+
 					//Firmants
 					List<FirmaAsyncSimpleSignature> signatures = new ArrayList<FirmaAsyncSimpleSignature>();
-		
+
 					for (FlowTemplateSimpleSignature flowTemplateSimpleSignature : flowTemplateSimpleBlock.getSignatures()) {
 						FirmaAsyncSimpleSignature signature = new FirmaAsyncSimpleSignature();
 						signature.setMinimumNumberOfRevisers(flowTemplateSimpleSignature.getMinimumNumberOfRevisers());
 						signature.setReason(flowTemplateSimpleSignature.getReason());
 						signature.setRequired(flowTemplateSimpleSignature.isRequired());
-		
+
 						//Revisor
 						if (flowTemplateSimpleSignature.getRevisers() != null) {
 							List<FirmaAsyncSimpleReviser> revisers = new ArrayList<FirmaAsyncSimpleReviser>();
 							for (FlowTemplateSimpleReviser flowTemplateSimpleReviser : flowTemplateSimpleSignature.getRevisers()) {
 								FirmaAsyncSimpleReviser reviser = new FirmaAsyncSimpleReviser();
-								
+
 								String intermediateServerUsername = flowTemplateSimpleReviser.getIntermediateServerUsername();
 								String positionInTheCompany = flowTemplateSimpleReviser.getPositionInTheCompany();
 								if (intermediateServerUsername != null)
@@ -472,27 +473,27 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 								reviser.setAdministrationID(flowTemplateSimpleReviser.getAdministrationID());
 								reviser.setRequired(flowTemplateSimpleReviser.isRequired());
 								reviser.setUsername(flowTemplateSimpleReviser.getUsername());
-		
+
 								revisers.add(reviser);
 							}
 							signature.setRevisers(revisers);
 						}
 						//Firmant
 						FirmaAsyncSimpleSigner signer = new FirmaAsyncSimpleSigner();
-		
+
 						if (flowTemplateSimpleSignature.getSigner() != null) {
 							signer.setAdministrationID(flowTemplateSimpleSignature.getSigner().getAdministrationID());
-		
+
 							if (flowTemplateSimpleSignature.getSigner().getExternalSigner() != null) {
 								FirmaAsyncSimpleExternalSigner externalSigner = new FirmaAsyncSimpleExternalSigner();
-		
+
 								externalSigner.setAdministrationId(flowTemplateSimpleSignature.getSigner().getExternalSigner().getAdministrationId());
 								externalSigner.setEmail(flowTemplateSimpleSignature.getSigner().getExternalSigner().getEmail());
 								externalSigner.setLanguage(flowTemplateSimpleSignature.getSigner().getExternalSigner().getLanguage());
 								externalSigner.setName(flowTemplateSimpleSignature.getSigner().getExternalSigner().getName());
 								externalSigner.setSecurityLevel(flowTemplateSimpleSignature.getSigner().getExternalSigner().getSecurityLevel());
 								externalSigner.setSurnames(flowTemplateSimpleSignature.getSigner().getExternalSigner().getSurnames());
-		
+
 								signer.setExternalSigner(externalSigner);
 							}
 							String intermediateServerUsername = flowTemplateSimpleSignature.getSigner().getIntermediateServerUsername();
@@ -502,12 +503,12 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 							if (positionInTheCompany != null)
 								signer.setPositionInTheCompany(positionInTheCompany);
 							signer.setUsername(flowTemplateSimpleSignature.getSigner().getUsername());
-							
+
 							signature.setSigner(signer);
 						}
 						signatures.add(signature);
 					}
-		
+
 					blocAsync.setSigners(signatures);
 					blocsAsyncs[i] = blocAsync;
 					i++;
@@ -518,7 +519,7 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 		}
 		return blocsAsyncs;
 	}
-	
+
 	private ApiFlowTemplateSimple getFluxDeFirmaClient() throws MalformedURLException {
 		String apiRestUrl = getUrlFirmaSimpleFlux();
 		ApiFlowTemplateSimple api = new ApiFlowTemplateSimpleJersey(
@@ -527,7 +528,7 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 				getPasswordFirmaSimpleFlux());
 		return api;
 	}
-	
+
 	private ApiFirmaAsyncSimple getFirmaAsyncSimpleApi() throws MalformedURLException {
 		String apiRestUrl = getUrlFirmaSimpleAsync();
 		ApiFirmaAsyncSimple api = new ApiFirmaAsyncSimpleJersey(
@@ -536,7 +537,7 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 				getPasswordFirmaSimpleAsync());
 		return api;
 	}
-	
+
 	private String getTransaction(
 			String idioma,
 			boolean isPlantilla,
@@ -556,7 +557,7 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 		} catch (Exception ex) {
 			throw new SistemaExternException(
 					"No s'ha pogut recuperar el id de la transacció (" +
-					"portafib=" + getUrlFirmaSimpleFlux() + ", " +					
+					"portafib=" + getUrlFirmaSimpleFlux() + ", " +
 					"nom=" + nom + ", " +
 					"descripcio=" + descripcio + ")",
 					ex);
@@ -577,14 +578,14 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 		} catch (Exception ex) {
 			throw new SistemaExternException(
 					"No s'ha pogut iniciar la transacció (" +
-					"portafib=" + getUrlFirmaSimpleFlux() + ", " +			
+					"portafib=" + getUrlFirmaSimpleFlux() + ", " +
 					"transactionId=" + idTransaccio + ", " +
 					"returnUrl=" + urlReturn + ")",
 					ex);
 		}
 		return urlRedireccio;
 	}
-	
+
 	private FlowTemplateSimpleGetFlowResultResponse getFlowTemplateResult(
 			String transactionID) throws SistemaExternException {
 		FlowTemplateSimpleGetFlowResultResponse result = null;
@@ -596,7 +597,7 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 		}
 		return result;
 	}
-	
+
 	private PortaFIBUsuariEntitatWs getUsuariEntitatWs() throws MalformedURLException {
 		String webServiceUrl = getUrlUsuariEntitatWS();
 		URL wsdlUrl = new URL(webServiceUrl + "?wsdl");
@@ -624,37 +625,37 @@ public class PortasignaturesAsyncPlugin implements PortasignaturesPlugin {
 			throw new SistemaExternException("", ex);
 		}
 	}
-	
+
 	private String getUrlFirmaSimpleAsync() {
-		return GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.portafib.url");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_URL);
 	}
 	private String getUsernameFirmaSimpleAsync() {
-		return GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.portafib.username");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_USERNAME);
 	}
 	private String getPasswordFirmaSimpleAsync() {
-		return GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.portafib.password");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_PASSWORD);
 	}
 	private String getUrlFirmaSimpleFlux() {
-		return GlobalProperties.getInstance().getProperty("app.portafirmes.plugin.flux.firma.url");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_URL);
 	}
 	private String getUsernameFirmaSimpleFlux() {
-		return GlobalProperties.getInstance().getProperty("app.portafirmes.plugin.flux.firma.usuari");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_USUARI);
 	}
 	private String getPasswordFirmaSimpleFlux() {
-		return GlobalProperties.getInstance().getProperty("app.portafirmes.plugin.flux.firma.password");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_PASSWORD);
 	}
 	private String getPerfil() {
-		return GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.portafib.perfil");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_PERFIL);
 	}
 	private String getUrlUsuariEntitatWS() {
-		return GlobalProperties.getInstance().getProperty("plugin.portafirmes.plugin.flux.entiatws.url");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_URL);
 	}
 	private String getUsernameUsuariEntitatWS() {
-		return GlobalProperties.getInstance().getProperty("plugin.portafirmes.plugin.flux.entiatws.username");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_USERNAME);
 	}
 	private String getPasswordUsuariEntitatWS() {
-		return GlobalProperties.getInstance().getProperty("plugin.portafirmes.plugin.flux.entiatws.password");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_PASSWORD);
 	}
 	private static final Log logger = LogFactory.getLog(PortasignaturesAsyncPlugin.class);
-	
+
 }

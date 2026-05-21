@@ -3,6 +3,7 @@ package es.caib.helium.integracio.plugins.firmaweb;
 import java.util.List;
 import java.util.Properties;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fundaciobit.apisib.apifirmasimple.v1.ApiFirmaWebSimple;
@@ -25,28 +26,28 @@ import es.caib.helium.commons.dto.StatusEnumDto;
 
 public class FirmaSimpleWebPluginPortafib implements FirmaWebPlugin {
 
-	private static final String PROPERTIES_BASE = "app.plugin.passarelafirma.plugins.signatureweb.portafib.apifirmawebsimple.";
+	private static final String PROPERTIES_BASE = PropertyConfig.PROP_BASE_PREFIX_PLUGIN_PASSARELAFIRMA;
 	private ApiFirmaWebSimple api = null;
 	private Properties properties;
 
 	/** Constructor per guardar les propietats i crear el client.
-	 * 
+	 *
 	 * @param properties
 	 */
 	public FirmaSimpleWebPluginPortafib(Properties properties) {
 		this.properties = properties;
 		this.getApi();
 	}
-	
+
 
 	@Override
 	public String firmaSimpleWebStart(
 			String signId,
-			ArxiuDto arxiu, 
+			ArxiuDto arxiu,
 			String motiu,
 			String lloc,
-			PersonaDto persona, 
-			String urlRetorn) 
+			PersonaDto persona,
+			String urlRetorn)
 	{
 		ApiFirmaWebSimple api = getApi();
 
@@ -79,7 +80,7 @@ public class FirmaSimpleWebPluginPortafib implements FirmaWebPlugin {
 			final String reason = motiu;
 			final String location = lloc != null ? lloc : this.getPropertyLloc();
 			long tipusDocumentalID = 99; // =TD99
-			
+
 
 			FirmaSimpleFileInfoSignature fileInfoSignature = new FirmaSimpleFileInfoSignature(
 					fileToSign,
@@ -96,7 +97,7 @@ public class FirmaSimpleWebPluginPortafib implements FirmaWebPlugin {
 						fileInfoSignature);
 				api.addFileToSign(newDocument);
 
-			
+
 
 			// Aquí especificam la URL de retorn un cop finalitzada la transacció
 			urlRetorn = urlRetorn + "?transactionID=" + transactionID;
@@ -135,7 +136,7 @@ public class FirmaSimpleWebPluginPortafib implements FirmaWebPlugin {
 		try {
 
 			api = getApi();
-			
+
 			FirmaSimpleGetTransactionStatusResponse fullTransactionStatus = api.getTransactionStatus(transactionID);
 
 			FirmaSimpleStatus transactionStatus = fullTransactionStatus.getTransactionStatus();
@@ -195,8 +196,8 @@ public class FirmaSimpleWebPluginPortafib implements FirmaWebPlugin {
 
 		return firmaResultat;
 	}
-	
-	
+
+
 	private FirmaResultatDto processStatusFileOfSign(
 			ApiFirmaWebSimple api,
 			String transactionID,
@@ -240,15 +241,15 @@ public class FirmaSimpleWebPluginPortafib implements FirmaWebPlugin {
 				break;
 
 			case FirmaSimpleStatus.STATUS_FINAL_OK: // = 2;
-				
+
 				FirmaSimpleSignatureResult fssr = api.getSignatureResult(
 						new FirmaSimpleGetSignatureResultRequest(
 								transactionID,
 								signID));
-				
+
 				FirmaSimpleFile fsf = fssr.getSignedFile();
 				String outFile = fsf.getNom();
-				
+
 				// Corregeix l'extensió a partir del tipus mime
 				int punt = outFile.lastIndexOf(".");
 				if (punt > 0) {
@@ -269,27 +270,27 @@ public class FirmaSimpleWebPluginPortafib implements FirmaWebPlugin {
 		if (api == null) {
 			this.api = new ApiFirmaWebSimpleJersey(
 					getPropertyApiEndpoint(),
-					getPropertyApiUsername(), 
+					getPropertyApiUsername(),
 					getPropertyApiPassword());
 		}
 		return api;
-		
+
 	}
-	
+
 	private String getPropertyApiEndpoint() {
 		return properties.getProperty(
 				PROPERTIES_BASE + "endpoint");
 	}
-	
+
 	private String getPropertyApiUsername() {
 		return properties.getProperty(
 				PROPERTIES_BASE + "username");
 	}
-	
+
 	private String getPropertyApiPassword() {
 		return properties.getProperty(PROPERTIES_BASE + "password");
 	}
-	
+
 	private String getPropertyLloc() {
 		return properties.getProperty(PROPERTIES_BASE + "location");
 	}

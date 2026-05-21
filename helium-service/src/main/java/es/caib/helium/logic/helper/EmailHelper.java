@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -238,7 +239,7 @@ public class EmailHelper {
 
 		SimpleMailMessage missatge = new SimpleMailMessage();
 		missatge.setTo(anotacioEmail.getDestinatariEmail());
-		String fromAddress = GlobalProperties.getInstance().getProperty("app.correu.remitent");
+		String fromAddress = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CORREU_REMITENT);
 		missatge.setFrom(fromAddress != null ? fromAddress : "HELIUM");
 		//Depenent del tipus tindrem un Assumpte o un altre
 		String subject = this.getSubject(anotacioEmail);
@@ -271,7 +272,7 @@ public class EmailHelper {
 		SimpleMailMessage missatge = new SimpleMailMessage();
 
 		missatge.setTo(emailDestinatari);
-		String fromAddress = GlobalProperties.getInstance().getProperty("app.correu.remitent");
+		String fromAddress = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CORREU_REMITENT);
 		missatge.setFrom(fromAddress != null ? fromAddress : "HELIUM");
 		missatge.setSubject(getPrefixHelium() + " Emails agrupats");
 
@@ -391,7 +392,7 @@ public class EmailHelper {
 
 
 	private String getPrefixHelium() {
-		String entorn = GlobalProperties.getInstance().getProperty("app.entorn.helium");
+		String entorn = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ENTORN_HELIUM);
 		String prefix;
 		if (entorn != null) {
 			prefix = "[HELIUM-" + entorn + "]";

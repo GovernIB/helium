@@ -4,6 +4,7 @@ import java.util.Calendar;
 
 import javax.servlet.http.HttpServletRequest;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +20,7 @@ import es.caib.helium.logic.intf.service.ExpedientTerminiService;
 
 /**
  * Controlador per a la de configuració de festius.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -34,7 +35,7 @@ public class ConfiguracioFestiusController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "any", required = false) Integer any,
 			Model model) {
-		
+
 		Calendar cal = Calendar.getInstance();
 		int anyActual = (any != null) ? any : cal.get(Calendar.YEAR);
 		int[] darrerDiaMes = new int[12];
@@ -68,16 +69,16 @@ public class ConfiguracioFestiusController extends BaseController {
 		model.addAttribute(
 				"festius",
 				expedientTerminiService.festiuFindAmbAny(anyActual));
-		String nolabsStr = GlobalProperties.getInstance().getProperty("app.calendari.nolabs");
+		String nolabsStr = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CALENDARI_NOLABS);
 		if (nolabsStr != null) {
 			model.addAttribute(
 					"nolabs",
 					nolabsStr.split(","));
 		}
-		
+
 		return "festius";
 	}
-	
+
 	@RequestMapping(value = "/create/{dia}/{mes}/{any}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean crearFestiu(
@@ -109,6 +110,6 @@ public class ConfiguracioFestiusController extends BaseController {
 			return false;
 		}
 	}
-		
+
 //	private static final Log logger = LogFactory.getLog(ConfiguracioFestiusController.class);
 }

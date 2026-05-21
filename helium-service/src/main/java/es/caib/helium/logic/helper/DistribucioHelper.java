@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -188,9 +189,9 @@ public class DistribucioHelper {
 
 		if (restClient == null) {
 
-			String url_base = GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");
-			String usuari = GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.username");
-			String contrasenya = GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.password");
+			String url_base = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_URL);
+			String usuari = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_USERNAME);
+			String contrasenya = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_PASSWORD);
 
 			if (url_base != null && usuari != null && contrasenya != null) {
 				logger.trace(">>> Creant el client BackofficeIntegracioRestClient API REST");

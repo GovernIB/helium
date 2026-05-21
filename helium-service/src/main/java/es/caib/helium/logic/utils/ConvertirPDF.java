@@ -12,6 +12,7 @@ import com.artofsolving.jodconverter.DocumentFormatRegistry;
 import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
 import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocumentConverter;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.utils.GlobalProperties;
 
 /**
@@ -25,7 +26,7 @@ public class ConvertirPDF {
 	private DocumentFormatRegistry documentFormatRegistry;
 
 	public byte[] render(byte[] contingut, String nom) throws Exception {
-		Boolean conversionEnabled = "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.conversio.portasignatures.actiu"));
+		Boolean conversionEnabled = "true".equalsIgnoreCase((String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_PORTASIGNATURES_ACTIU));
 		boolean conversion = (conversionEnabled == null) ? getPropertyEnabled() : conversionEnabled.booleanValue();
 		if (!getPropertyEnabled()) conversion = false;
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(contingut);
@@ -116,16 +117,16 @@ public class ConvertirPDF {
 	}
 
 	private boolean getPropertyEnabled() {
-		return "true".equals(GlobalProperties.getInstance().getProperty("app.conversio.portasignatures.actiu"));
+		return "true".equals(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_PORTASIGNATURES_ACTIU));
 	}
 	private String getPropertyHost() {
-		return GlobalProperties.getInstance().getProperty("app.conversio.openoffice.host");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_OPENOFFICE_HOST);
 	}
 	private int getPropertyPort() {
-		return Integer.parseInt(GlobalProperties.getInstance().getProperty("app.conversio.openoffice.port"));
+		return Integer.parseInt(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_OPENOFFICE_PORT));
 	}
 	private String getPropertyOutputExtension() {
-		return GlobalProperties.getInstance().getProperty("app.conversio.portasignatures.extension");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_PORTASIGNATURES_EXTENSION);
 	}
 
 }

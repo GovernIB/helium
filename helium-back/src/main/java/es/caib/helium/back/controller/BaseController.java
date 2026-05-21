@@ -25,7 +25,6 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.ModalHelper;
 import es.caib.helium.back.mvc.ArxiuView;
 import es.caib.helium.back.mvc.SerialitzarView;
-import es.caib.helium.commons.utils.GlobalProperties;
 
 /**
  * Controlador base que implementa funcionalitats comunes.
@@ -36,7 +35,7 @@ public class BaseController implements MessageSourceAware {
 
 	/* Propietat estàtica on posar el valor de la propietat server.servlet.context-path amb el context de l'aplicació. */
 	private static String ESQUEMA_PREFIX = null;
-	
+
 	MessageSource messageSource;
 
 	@Autowired
@@ -57,18 +56,6 @@ public class BaseController implements MessageSourceAware {
 
 	protected String ajaxUrlOk() {
 		return "redirect:/nodeco/util/ajaxOk";
-	}
-
-	public String getBaseUrl() {
-		if (ESQUEMA_PREFIX == null) {
-			ESQUEMA_PREFIX = GlobalProperties.getInstance().getProperty("server.servlet.context-path", "/heliumback");
-		}
-		return ESQUEMA_PREFIX;
-	}
-	
-	protected String getPageURI(HttpServletRequest request) {
-		String uri = request.getRequestURI();
-		return uri.substring(uri.indexOf(ESQUEMA_PREFIX) + ESQUEMA_PREFIX.length());
 	}
 
 	protected String getAjaxControllerReturnValueSuccess(

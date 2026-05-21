@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.integracio.plugins.firma;
 
@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fundaciobit.apisib.apifirmasimple.v1.ApiFirmaEnServidorSimple;
@@ -27,36 +28,36 @@ import es.caib.helium.commons.utils.GlobalProperties;
 /**
  * Implementació del plugin de signatura emprant el portafirmes
  * de la CAIB desenvolupat per l'IBIT (PortaFIB).
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class FirmaPluginPortafib implements FirmaPlugin {	
-	
-	private static final String PROPERTIES_BASE = "app.plugin.firma.portafib.";
+public class FirmaPluginPortafib implements FirmaPlugin {
+
+	private static final String PROPERTIES_BASE = PropertyConfig.PROP_BASE_PREFIX_PLUGIN_FIRMA_PORTAFIB;
 
 	@Override
 	public FirmaResposta firmar(
-			String id, 
-			String nom, 
-			String motiu, 
-			byte[] contingut, 
+			String id,
+			String nom,
+			String motiu,
+			byte[] contingut,
 			String mime,
 			String tipusDocumental) throws SistemaExternException {
-		
+
 		FirmaResposta resposta = new FirmaResposta();
 
 		ApiFirmaEnServidorSimple api = new ApiFirmaEnServidorSimpleJersey(
-				getPropertyApiEndpoint(), 
+				getPropertyApiEndpoint(),
 				getPropertyApiUsername(),
 				getPropertyApiPassword());
-		
+
 		logger.debug("Firma simple en servidor. URL API REST Jersey: " + getPropertyApiEndpoint());
-		
+
 		FirmaSimpleFile fileToSign = new FirmaSimpleFile(nom, mime, contingut);
 
 		FirmaSimpleSignatureResult result;
 		try {
-			
+
 //			getAvailableProfiles(api);
 			String perfil = getPropertyApiPerfil();
 			result = internalSignDocument(
@@ -66,7 +67,7 @@ public class FirmaPluginPortafib implements FirmaPlugin {
 					fileToSign,
 					motiu,
 					tipusDocumental);
-			
+
 			resposta.setContingut(result.getSignedFile().getData());
 			if (result.getSignedFile() != null) {
 				resposta.setNom(result.getSignedFile().getNom());
@@ -77,15 +78,15 @@ public class FirmaPluginPortafib implements FirmaPlugin {
 				resposta.setTipusFirmaEni(result.getSignedFileInfo().getEniTipoFirma());
 				resposta.setPerfilFirmaEni(result.getSignedFileInfo().getEniPerfilFirma());
 			}
-			
+
 			return resposta;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	protected FirmaSimpleSignatureResult internalSignDocument(
-			String id, 
+			String id,
 			ApiFirmaEnServidorSimple api,
 			final String perfil,
 			FirmaSimpleFile fileToSign,
@@ -175,40 +176,40 @@ public class FirmaPluginPortafib implements FirmaPlugin {
 		      }
 		    }
 	 }
-	 
+
 	private String getPropertyUsername() {
 		return GlobalProperties.getInstance().getProperty(
-				PROPERTIES_BASE + "username");
+			PROPERTIES_BASE + "username");
 	}
-	 
+
 	private String getLocationProperty() {
 		return GlobalProperties.getInstance().getProperty(
-				PROPERTIES_BASE + "location", "Palma");
+			PROPERTIES_BASE + "location", "Palma");
 	}
 
 	private String getSignerEmailProperty() {
 		return GlobalProperties.getInstance().getProperty(
-				PROPERTIES_BASE + "signer.email", "suport@caib.es");
+			PROPERTIES_BASE + "signer.email", "suport@caib.es");
 	}
-	 
+
 	private String getPropertyApiEndpoint() {
-		return GlobalProperties.getProperties().getProperty(
-				"app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_url");
+		return GlobalProperties.getInstance().getProperty(
+			PROPERTIES_BASE + "plugins.signatureserver.portafib.api_passarela_url");
 	}
-	
+
 	private String getPropertyApiUsername() {
-		return GlobalProperties.getProperties().getProperty(
-				"app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_username");
+		return GlobalProperties.getInstance().getProperty(
+			PROPERTIES_BASE + "plugins.signatureserver.portafib.api_passarela_username");
 	}
-	
+
 	private String getPropertyApiPassword() {
-		return GlobalProperties.getProperties().getProperty(
-				"app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_password");
+		return GlobalProperties.getInstance().getProperty(
+			PROPERTIES_BASE + "plugins.signatureserver.portafib.api_passarela_password");
 	}
-	
+
 	private String getPropertyApiPerfil() {
-		return GlobalProperties.getProperties().getProperty(
-				"app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_perfil");
+		return GlobalProperties.getInstance().getProperty(
+			PROPERTIES_BASE + "plugins.signatureserver.portafib.api_passarela_perfil");
 	}
 
 	private static final Log logger = LogFactory.getLog(FirmaPluginPortafib.class);

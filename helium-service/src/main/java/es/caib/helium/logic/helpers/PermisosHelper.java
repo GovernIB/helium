@@ -381,7 +381,7 @@ public class PermisosHelper {
 
 	private String getMapeigRol(String rol) {
 		String propertyMapeig =
-				(String)GlobalProperties.getInstance().get(
+				(String)GlobalProperties.getInstance().getProperty(
 						"es.caib.helium.mapeig.rol." + rol);
 		if (propertyMapeig != null)
 			return propertyMapeig;

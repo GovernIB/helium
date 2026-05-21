@@ -1,11 +1,12 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.security;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.mapping.MappableAttributesRetriever;
@@ -14,7 +15,7 @@ import es.caib.helium.commons.utils.GlobalProperties;
 
 /**
  * Aconsegueix els rols que seran rellevants per a l'aplicació.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class RolesBasedMappableAttributesRetriever implements MappableAttributesRetriever {
@@ -43,7 +44,7 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 		mappableAttributes.clear();
 		if (defaultMappableAttributes != null)
 			mappableAttributes.addAll(defaultMappableAttributes);
-		String source = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
+		String source = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_JBPM_IDENTITY_SOURCE);
 		if (source.equalsIgnoreCase("helium")) {
 //			for (Permis permis: permisService.findAll()) {
 //				String codi = permis.getCodi();

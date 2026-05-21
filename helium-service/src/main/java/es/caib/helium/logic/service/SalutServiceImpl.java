@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 import es.caib.comanda.model.server.monitoring.*;
 import es.caib.comanda.ms.salut.helper.IntegracioApp;
 import es.caib.comanda.ms.salut.helper.SalutHelper;
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +41,7 @@ public class SalutServiceImpl implements SalutService {
 
 	private static final int MAX_CONNECTION_RETRY = 3;
 
-	private String baseUrl = GlobalProperties.getInstance().getProperty("app.base.url");
+	private String baseUrl = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
 
 	@Resource
 	private AvisRepository avisRepository;
@@ -161,7 +162,7 @@ public class SalutServiceImpl implements SalutService {
 	}
 
 	private boolean isDesplegamentTomcat() {
-		String desplegamentTomcat = GlobalProperties.getInstance().getProperty("app.domini.desplegament.tomcat");
+		String desplegamentTomcat = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DOMINI_DESPLEGAMENT_TOMCAT);
 		return "true".equalsIgnoreCase(desplegamentTomcat);
 	}
 
@@ -325,23 +326,23 @@ public class SalutServiceImpl implements SalutService {
 		if(codi == null) return null;
 		switch(IntegracioApp.valueOf(codi)) {
 		case ARX:
-			return GlobalProperties.getInstance().getProperty("app.plugin.arxiu.caib.base.url");
+			return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PLUGIN_ARXIU_CAIB_BASE_URL);
 		case AFI:
-			return GlobalProperties.getInstance().getProperty("app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_url");
+			return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PLUGIN_FIRMA_PORTAFIB_PLUGINS_SIGNATURESERVER_PASSARELA_URL);
 		case VFI:
-			return GlobalProperties.getInstance().getProperty("app.plugins.validatesignature.afirmacxf.endpoint");
+			return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PLUGINS_VALIDATESIGNATURE_AFIRMACXF_ENDPOINT);
 		case NOT:
-			return GlobalProperties.getInstance().getProperty("app.notificacio.plugin.url");
+			return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_NOTIFICACIO_PLUGIN_URL);
 		case PBL:
-			return GlobalProperties.getInstance().getProperty("app.pinbal.plugin.url");
+			return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PINBAL_PLUGIN_URL);
 		case PFI:
-			return GlobalProperties.getInstance().getProperty("app.plugin.passarelafirma.1.plugins.signatureweb.portafib.apifirmawebsimple.endpoint");
+			return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PLUGIN_PASSARELAFIRMA_1_SIGNATUREWEBAPIFIRMAWEBSIMPLE_ENDPOINT);
 		case REG:
-			return GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.url");
+			return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_REGISTRE_PLUGIN_WS_URL);
 		case RSC:
-			return GlobalProperties.getInstance().getProperty("app.plugins.procediments.rolsac.service.url");
+			return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_URL);
 		case DIS:
-			return GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");
+			return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_URL);
 		default:
 			return null;
 		}

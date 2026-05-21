@@ -2,9 +2,7 @@ package es.caib.helium.logic.helper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -13,8 +11,10 @@ import javax.ws.rs.core.MediaType;
 import es.caib.comanda.model.management.Prioritat;
 import es.caib.comanda.model.management.Tasca;
 import es.caib.comanda.model.management.TascaEstat;
+import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.sun.jersey.api.client.Client;
@@ -22,7 +22,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
-import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.util.DatesUtils;
 
@@ -36,13 +35,16 @@ import es.caib.helium.logic.intf.util.DatesUtils;
 @Component
 public class ComandaHelper {
 
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
-	private String API_URL			= GlobalProperties.getInstance().getProperty("app.comanda.api.url");
-	private String API_USER			= GlobalProperties.getInstance().getProperty("app.comanda.api.user");
-	private String API_PASS			= GlobalProperties.getInstance().getProperty("app.comanda.api.password");
-	private String HELIUM_BASE_URL	= GlobalProperties.getInstance().getProperty("app.base.url");
-	private String ENTORN			= GlobalProperties.getInstance().getProperty("app.entorn.helium");
+	@Value("${" + PropertyConfig.PROP_COMANDA_API_URL + ":#{null}}")
+	private String API_URL;
+	@Value("${" + PropertyConfig.PROP_COMANDA_API_USER + ":#{null}}")
+	private String API_USER;
+	@Value("${" + PropertyConfig.PROP_COMANDA_API_PASSWORD + ":#{null}}")
+	private String API_PASS;
+	@Value("${" + PropertyConfig.PROP_BASE_URL + ":#{null}}")
+	private String HELIUM_BASE_URL;
+	@Value("${" + PropertyConfig.PROP_ENTORN_HELIUM + ":#{null}}")
+	private String ENTORN;
 
 	private static final Logger logger = LoggerFactory.getLogger(ComandaHelper.class);
 

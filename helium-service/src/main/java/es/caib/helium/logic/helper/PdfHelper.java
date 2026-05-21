@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -318,7 +319,7 @@ public class PdfHelper {
 				header.setLockedWidth(true);
 				Image logoCapsalera = null;
 
-				String logoUrl = (String)GlobalProperties.getInstance().get("app.helium.logo");
+				String logoUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_HELIUM_LOGO);
 				if (logoUrl!=null && !logoUrl.isEmpty()) {
 					logoCapsalera = Image.getInstance(logoUrl);
 				} else {

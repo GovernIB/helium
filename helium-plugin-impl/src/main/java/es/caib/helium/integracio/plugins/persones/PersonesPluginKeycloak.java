@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.fundaciobit.pluginsib.userinformation.RolesInfo;
 import org.fundaciobit.pluginsib.userinformation.SearchUsersResult;
 import org.fundaciobit.pluginsib.userinformation.UserInfo;
@@ -24,11 +25,13 @@ import org.keycloak.representations.idm.UserRepresentation;
 import es.caib.helium.commons.utils.GlobalProperties;
 
 public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implements PersonesPlugin {
-	
+
 	public PersonesPluginKeycloak() {
-		super("app.plugin.persones.", GlobalProperties.getInstance());
+		super(
+			PropertyConfig.PROP_BASE_PREFIX_PLUGIN_PERSONES,
+			GlobalProperties.getInstance().toPropertiesWithPrefix(PropertyConfig.PROP_BASE_PREFIX_PLUGIN_PERSONES));
 	}
-	
+
 	@Override
 	public List<DadesPersona> findLikeNomSencer(String text) throws PersonesPluginException {
 		SearchUsersResult result;
@@ -36,7 +39,7 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 			result = getUsersByPartialNameOrPartialSurnames(text);
 			if(result.getUsers() == null)
 				return new ArrayList<DadesPersona>();
-			
+
 			return result
 				.getUsers()
 				.stream()
@@ -134,7 +137,7 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 		}
 		return users.values();
 	}
-	
+
 	private Set<UserRepresentation> getUsernamesByRolOfRealm(String rol) throws Exception {
 		RolesResource roleres = this.getKeyCloakConnectionForRoles();
 		return roleres.get(rol).getRoleUserMembers();
@@ -152,7 +155,7 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 		RoleResource rr = rrs.get(rol);
 		return rr.getRoleUserMembers();
 	}
-	
+
 	private DadesPersona toDadesPersona(UserInfo ui) {
 		DadesPersona.Sexe sexe;
 		switch(ui.getGender()) {
@@ -165,7 +168,7 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 		default:
 			sexe = DadesPersona.Sexe.SEXE_HOME;
 		}
-		
+
 		return DadesPersona
 			.builder()
 			.codi(ui.getUsername())
@@ -176,7 +179,7 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 			.dni(ui.getAdministrationID())
 			.build();
 	}
-	
+
 	private DadesPersona toDadesPersona(UserRepresentation ur) {
 		return DadesPersona
 				.builder()

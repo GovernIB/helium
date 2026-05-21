@@ -10,6 +10,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ import es.caib.helium.commons.utils.GlobalProperties;
 /**
  * Implementació del plugin de dades externes que consulta la informació
  * a DIR3CAIB.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class DadesExternesPluginDir3 implements DadesExternesPlugin {
@@ -46,9 +47,9 @@ public class DadesExternesPluginDir3 implements DadesExternesPlugin {
 			if (catPaisos != null) {
 				for (CatPais catPais: catPaisos) {
 					Pais pais = new Pais(
-							catPais.getCodigoPais(), 
-							catPais.getAlfa2Pais(), 
-							catPais.getAlfa3Pais(), 
+							catPais.getCodigoPais(),
+							catPais.getAlfa2Pais(),
+							catPais.getAlfa3Pais(),
 							catPais.getDescripcionPais());
 					paisos.add(pais);
 				}
@@ -72,8 +73,8 @@ public class DadesExternesPluginDir3 implements DadesExternesPlugin {
 			if (catComunitats != null) {
 				for (CatComunidadAutonomaTF catComunitat: catComunitats) {
 					ComunitatAutonoma comunitat = new ComunitatAutonoma(
-							catComunitat.getCodigoComunidad(), 
-							catComunitat.getCodigoPais(), 
+							catComunitat.getCodigoComunidad(),
+							catComunitat.getCodigoPais(),
 							catComunitat.getDescripcionComunidad());
 					comunitats.add(comunitat);
 				}
@@ -97,8 +98,8 @@ public class DadesExternesPluginDir3 implements DadesExternesPlugin {
 			if (catProvincies != null) {
 				for (CatProvinciaTF catProvincia: catProvincies) {
 					Provincia provincia = new Provincia(
-							catProvincia.getCodigoProvincia(), 
-							catProvincia.getCodigoComunidadAutonoma(), 
+							catProvincia.getCodigoProvincia(),
+							catProvincia.getCodigoComunidadAutonoma(),
 							catProvincia.getDescripcionProvincia());
 					provincies.add(provincia);
 				}
@@ -161,7 +162,7 @@ public class DadesExternesPluginDir3 implements DadesExternesPlugin {
 			if (catEntitatsGeografiques != null) {
 				for (CatEntidadGeograficaTF catEntitatGeografica: catEntitatsGeografiques) {
 					EntitatGeografica entitatGeografica = new EntitatGeografica(
-							catEntitatGeografica.getCodigoEntidadGeografica(), 
+							catEntitatGeografica.getCodigoEntidadGeografica(),
 							catEntitatGeografica.getDescripcionEntidadGeografica());
 					entitatsGeografiques.add(entitatGeografica);
 				}
@@ -185,7 +186,7 @@ public class DadesExternesPluginDir3 implements DadesExternesPlugin {
 			if (catNivellsAdministracio != null) {
 				for (CatNivelAdministracion catNivellAdministracio: catNivellsAdministracio) {
 					NivellAdministracio nivellAdministracio = new NivellAdministracio(
-							catNivellAdministracio.getCodigoNivelAdministracion(), 
+							catNivellAdministracio.getCodigoNivelAdministracion(),
 							catNivellAdministracio.getDescripcionNivelAdministracion());
 					nivellsAdministracio.add(nivellAdministracio);
 				}
@@ -209,7 +210,7 @@ public class DadesExternesPluginDir3 implements DadesExternesPlugin {
 			if (catTiposVia != null) {
 				for (CatTipoVia catTipoVia: catTiposVia) {
 					TipusVia tipoVia = new TipusVia(
-							catTipoVia.getCodigoTipoVia(), 
+							catTipoVia.getCodigoTipoVia(),
 							catTipoVia.getDescripcionTipoVia());
 					tipusVia.add(tipoVia);
 				}
@@ -239,9 +240,9 @@ public class DadesExternesPluginDir3 implements DadesExternesPlugin {
 			if (catLocalitats != null) {
 				for (CatLocalidadTF catLocalitat: catLocalitats) {
 					Municipi localitat = new Municipi(
-							catLocalitat.getCodigoLocalidad(), 
-							catLocalitat.getCodigoEntidadGeografica(), 
-							catLocalitat.getCodigoProvincia(), 
+							catLocalitat.getCodigoLocalidad(),
+							catLocalitat.getCodigoEntidadGeografica(),
+							catLocalitat.getCodigoProvincia(),
 							catLocalitat.getDescripcionLocalidad());
 					municipis.add(localitat);
 				}
@@ -279,34 +280,18 @@ public class DadesExternesPluginDir3 implements DadesExternesPlugin {
 		}
 		return client;
 	}
-	
+
 
 	private String getServiceUrl() {
-		String url = GlobalProperties.getInstance().getProperty(
-				"app.dadesext.dir3.plugin.service.url");
-		return url;
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DADESEXT_DIR3_PLUGIN_SERVICE_URL);
 	}
 	private String getUsername() {
-		String username = GlobalProperties.getInstance().getProperty(
-				"app.dadesext.dir3.plugin.service.url.username");
-		if (username != null) {
-			return username;
-		} else {
-			return GlobalProperties.getInstance().getProperty(
-					"app.unitats.organiques.dir3.plugin.service.username");
-		}
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DADESEXT_DIR3_PLUGIN_SERVICE_USERNAME);
 	}
 	private String getPassword() {
-		String password = GlobalProperties.getInstance().getProperty(
-				"app.dadesext.dir3.plugin.service.url.password");
-		if (password != null) {
-			return password;
-		} else {
-			return GlobalProperties.getInstance().getProperty(
-					"app.unitats.organiques.dir3.plugin.service.password");
-		}
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DADESEXT_DIR3_PLUGIN_SERVICE_PASSWORD);
 	}
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(DadesExternesPluginDir3.class);
 
 

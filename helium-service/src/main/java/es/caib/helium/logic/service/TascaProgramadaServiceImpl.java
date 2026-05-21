@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,7 +154,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		int timeBetweenExecutions = 500;
 		try {
 			timeBetweenExecutions = Integer.parseInt(
-					GlobalProperties.getInstance().getProperty("app.massiu.periode.execucions"));
+					GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_MASSIU_PERIODE_EXECUCIONS));
 		} catch (Exception ex) {}
 
 		while (active) {
@@ -420,7 +421,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private int getConsultaAnotacioMaxReintents() {
 		int maxReintents = 5;
 		try {
-			String strVal = GlobalProperties.getInstance().getProperty("app.anotacions.pendents.comprovar.intents", "5");
+			String strVal = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ANOTACIONS_PENDENTS_COMPROVAR_INTENTS, "5");
 			if (strVal != null && !"".equals(strVal.trim())) {
 				maxReintents = Integer.parseInt(strVal);
 			}
@@ -433,7 +434,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private int getMaxThreadsParallel() {
 		int maxThreads = 5;
 		try {
-			String strVal = GlobalProperties.getInstance().getProperty("app.anotacions.consulta.num.threads", "5");
+			String strVal = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ANOTACIONS_CONSULTA_NUM_THREADS, "5");
 			if (strVal != null && !"".equals(strVal.trim())) {
 				maxThreads = Integer.parseInt(strVal);
 			}
@@ -667,7 +668,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	@Transactional
 	public void migrarExpedientsDocumentsArxiu() {
 		try {
-			String value = GlobalProperties.getInstance().getProperty("app.arxiu.migracio.reintents");
+			String value = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ARXIU_MIGRACIO_REINTENTS);
 			Long maxReintents = (value == null || value.isEmpty())? 0L : Long.parseLong(value);
 			if (maxReintents == 0L) {
 				return;

@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.lang.StringUtils;
 
 import es.caib.helium.commons.dto.NivellAdministracioDto;
@@ -16,52 +17,38 @@ import es.caib.helium.commons.utils.GlobalProperties;
 
 /**
  * Implementació de proves del plugin d'unitats organitzatives.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
-	
+
 	private String getServiceUrl() {
-		return GlobalProperties.getInstance().getProperty(
-				"app.unitats.organiques.dir3.plugin.service.url");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_URL);
 	}
-	
+
 	private String getServiceUsername() {
-		return GlobalProperties.getInstance().getProperty(
-				"app.unitats.organiques.dir3.plugin.service.username");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_USERNAME);
 	}
 	private String getServicePassword() {
-		return GlobalProperties.getInstance().getProperty(
-				"app.unitats.organiques.dir3.plugin.service.password");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_PASSWORD);
 	}
-//	private boolean isLogMissatgesActiu() {
-//		return GlobalProperties.getInstance().getAsBoolean(
-//				"app.unitats.organiques.dir3.plugin.service.log.actiu");
-//	}
-//	private Integer getServiceTimeout() {
-//		String key = "app.unitats.organiques.dir3.plugin.service.connect.timeout";
-//		if (GlobalProperties.getInstance().getProperty(key) != null)
-//			return GlobalProperties.getInstance().getAsInt(key);
-//		else
-//			return null;
-//	}
 	private String getServiceCercaUrl() {
 		String serviceUrl = GlobalProperties.getInstance().getProperty(
-				"app.unitats.organiques.dir3.plugin.service.cerca.url");
+			PropertyConfig.PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_CERCA_URL);
 		if (serviceUrl == null) {
 			serviceUrl = GlobalProperties.getInstance().getProperty(
-					"app.unitats.organiques.dir3.plugin.service.url");
+				PropertyConfig.PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_URL);
 		}
 		return serviceUrl;
 	}
-	
+
 	@Override
 	public UnitatOrganitzativaDto findUnidad(
-			String pareCodi, 
-			Timestamp fechaActualizacion, 
+			String pareCodi,
+			Timestamp fechaActualizacion,
 			Timestamp fechaSincronizacion) throws MalformedURLException {
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		UnidadRest unidad = getUnitatsOrganitzativesRestClient().obtenerUnidad(
 				pareCodi,
 				fechaActualizacion != null ? dateFormat.format(fechaActualizacion) : null,
@@ -73,7 +60,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 		}
 
 	}
-	
+
 	@Override
 	public List<UnitatOrganitzativaDto> findAmbPare(
 			String pareCodi,
@@ -81,7 +68,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 			Timestamp fechaSincronizacion) throws SistemaExternException {
 		try {
 			List<UnitatOrganitzativaDto> unitatOrganitzativaDto = new ArrayList<UnitatOrganitzativaDto>();
-			 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
+			 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			List<UnidadRest> unidades = getUnitatsOrganitzativesRestClient().obtenerArbolUnidades(
 					pareCodi,
 					fechaActualizacion != null ? dateFormat.format(fechaActualizacion) : null,
@@ -93,7 +80,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
                 }
             }
 			return unitatOrganitzativaDto;
-			
+
 		} catch (Exception ex) {
 			throw new SistemaExternException(
 					"No s'han pogut consultar les unitats organitzatives via WS (" +
@@ -101,7 +88,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 					ex);
 		}
 	}
-	
+
 	@Override
 	public UnitatOrganitzativaDto unitatsOrganitzativesFindByCodi(
 			String codi) throws SistemaExternException{
@@ -111,7 +98,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 		try {
 			UnitatOrganitzativaDto unitatOrganitzativa = null;
 			UnidadRest unidad = getUnitatsOrganitzativesRestClient().obtenerUnidad(codi, null, null, null);
-			
+
 //			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 //					new IntegracioParametreDto(
 //							"codi",
@@ -128,7 +115,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 			}
 			return unitatOrganitzativa;
 
-		
+
 		} catch (Exception ex) {
 			String errorDescripcio = "Error al accedir al plugin d'unitats organitzatives";
 //			monitorIntegracioHelper.addAccioError(
@@ -144,7 +131,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 					ex);
 		}
 	}
-	
+
 	@Override
 	public List<NivellAdministracioDto> nivellAdministracioFindAll() throws SistemaExternException {
 		try {
@@ -155,41 +142,41 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 					ex);
 		}
 	}
-	
+
 	public List<UnitatOrganitzativaDto> cercaUnitats(
-			String codi, 
-			String denominacio, 
+			String codi,
+			String denominacio,
 			String nivellAdministracio,
-			Long comunitatAutonoma, 
-			Boolean ambOficines, 
-			Boolean esUnitatArrel, 
-			String provincia, 
+			Long comunitatAutonoma,
+			Boolean ambOficines,
+			Boolean esUnitatArrel,
+			String provincia,
 			String municipi)
 			throws SistemaExternException {
-		
+
 		try {
 			List<UnitatOrganitzativaDto> unitatOrganitzativaDto = new ArrayList<UnitatOrganitzativaDto>();
 			List<Nodo> unidades = getUnitatsOrganitzativesRestClient().cercaUnitats(
-					codi, 
-					denominacio, 
-					nivellAdministracio, 
-					comunitatAutonoma, 
-					ambOficines, 
-					esUnitatArrel, 
-					provincia, 
+					codi,
+					denominacio,
+					nivellAdministracio,
+					comunitatAutonoma,
+					ambOficines,
+					esUnitatArrel,
+					provincia,
 					municipi);
 			if (unidades != null) {
 				for (Nodo unidad : unidades) {
 					unitatOrganitzativaDto.add(toUnitatOrganitzativa(unidad));
 				}
 			}
-			
+
 			return unitatOrganitzativaDto;
 		} catch (Exception ex) {
 			throw new SistemaExternException("Error al accedir al plugin d'unitats organitzatives (" + "codi=" + codi + ")", ex);
 		}
 	}
-	
+
 	private UnitatsOrganitzativesRestClient getUnitatsOrganitzativesRestClient() {
 		UnitatsOrganitzativesRestClient unitatsOrganitzativesRestClient = new UnitatsOrganitzativesRestClient(
 				getServiceUrl(),
@@ -199,7 +186,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 
 		return unitatsOrganitzativesRestClient;
 	}
-	
+
 	private UnitatOrganitzativaDto toUnitatOrganitzativa(UnidadRest unidad) {
 		UnitatOrganitzativaDto unitat = new UnitatOrganitzativaDto(
 				unidad.getCodigo(),
@@ -214,13 +201,13 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 				unidad.getCodAmbProvincia(),
 				unidad.getCodPostal(),
 				unidad.getDescripcionLocalidad(),
-				unidad.getCodigoTipoVia(), 
-				unidad.getNombreVia(), 
+				unidad.getCodigoTipoVia(),
+				unidad.getNombreVia(),
 				unidad.getNumVia(),
 				unidad.getHistoricosUO());
 		return unitat;
 	}
-	
+
 	private UnitatOrganitzativaDto toUnitatOrganitzativa(Nodo unidad) {
 		UnitatOrganitzativaDto unitat = new UnitatOrganitzativaDto(
 				unidad.getCodigo(),
@@ -228,6 +215,6 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 				unidad.getCif());
 		return unitat;
 	}
-	
+
 
 }

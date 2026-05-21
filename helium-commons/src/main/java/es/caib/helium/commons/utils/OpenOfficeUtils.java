@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.utils;
 
@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,7 @@ import es.caib.helium.commons.exception.SistemaExternTimeoutException;
 
 /**
  * Utilitats per a conversió de documents amb OpenOffice.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
@@ -59,7 +60,7 @@ public class OpenOfficeUtils {
 				"arxiuNom=" + arxiuNom + ", " +
 				"arxiuContingut=" + arxiuContingut.available() + "bytes, " +
 				"extensioSortida=" + extensioSortida + ")");
-		DocumentFormat inputFormat = formatPerNomArxiu(arxiuNom);			
+		DocumentFormat inputFormat = formatPerNomArxiu(arxiuNom);
 		DocumentFormat outputFormat = getDocumentFormatRegistry().getFormatByFileExtension(extensioSortida);
 		if (!outputFormat.getFileExtension().equals(inputFormat.getFileExtension())) {
 			convert(
@@ -131,16 +132,16 @@ public class OpenOfficeUtils {
 				future.get();
 		} catch (TimeoutException e) {
 			throw new SistemaExternTimeoutException(
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(Conversió OpenOffice)", 
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					"(Conversió OpenOffice)",
 					e);
 		} finally {
 			if (connection.isConnected())
@@ -165,13 +166,13 @@ public class OpenOfficeUtils {
 	}
 
 	private String getPropertyHost() {
-		return GlobalProperties.getInstance().getProperty("app.conversio.openoffice.host");
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_OPENOFFICE_HOST);
 	}
 	private int getPropertyPort() {
-		return Integer.parseInt(GlobalProperties.getInstance().getProperty("app.conversio.openoffice.port"));
+		return Integer.parseInt(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_OPENOFFICE_PORT));
 	}
 	private int getPropertyTimeout() {
-		String timeout = GlobalProperties.getInstance().getProperty("app.conversio.openoffice.timeout");
+		String timeout = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_OPENOFFICE_TIMEOUT);
 		if (timeout == null)
 			return -1;
 		else

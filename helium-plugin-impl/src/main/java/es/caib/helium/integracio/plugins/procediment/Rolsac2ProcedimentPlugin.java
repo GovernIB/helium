@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ import es.caib.helium.integracio.plugins.procediment.Rolsac2FiltreOrden.Rolsac2T
 
 /**
  * Implementació del plugin de consulta de procediments emprant ROLSAC2.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
@@ -39,10 +40,10 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 	public Rolsac2ProcedimentPlugin() {
 		super();
 	}
-	
+
 	public Rolsac2ProcedimentPlugin(Properties properties) {
 	}
-	
+
 	@Override
 	public List<Procediment> findAmbCodiDir3(String codiDir3) throws SistemaExternException {
 
@@ -68,7 +69,7 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 					"codiDir3=" + codiDir3 + ")",
 					ex);
 		}
-		
+
 		if (response != null && response.getItems() != null) {
 			List<Procediment> procediments = new ArrayList<Procediment>();
 			for (Rolsac2Procediment procediment : response.getItems()) {
@@ -83,7 +84,7 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 					"codiDir3=" + codiDir3 + "). Resposta rebuda amb el codi " + response.getStatus());
 		}
 	}
-	
+
 	@Override
 	public List<Procediment> findServeisAmbCodiDir3(String codiDir3) throws SistemaExternException {
 		logger.debug("Consulta dels serveis de l'unitat organitzativa (" +
@@ -107,7 +108,7 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 					"codiDir3=" + codiDir3 + ")",
 					ex);
 		}
-		
+
 		if (response != null && response.getStatus().equals("200")) {
 			List<Procediment> procediments = new ArrayList<Procediment>();
 			for (Rolsac2Servei procediment : response.getItems()) {
@@ -141,7 +142,7 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 		}
 		return dto;
 	}
-	
+
 	public Procediment toProcemiment (Rolsac2Servei procediment) throws  SistemaExternException {
 		Procediment dto = new Procediment();
 		if (procediment != null) {
@@ -184,9 +185,9 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 
 	private Rolsac2ProcedimientosResponse findAllProcedimentsRolsac(
 			Rolsac2ProcedimentFilterRequest body) throws Exception {
-		
+
 		body.setFiltroPaginacion(new Rolsac2FiltrePaginacio(0, 100));
-		
+
 		final String url = getServiceUrl() + "/procedimientos";
 		logger.debug("Enviant petició HTTP a l'arxiu (" +
 				"url=" + url + ", " +
@@ -197,9 +198,9 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 				accept("application/json").
 				type("application/json").
 				post(ClientResponse.class, body);
-		
+
 		Rolsac2ProcedimientosResponse procedimentsResponse = response.getEntity(Rolsac2ProcedimientosResponse.class);
-		
+
 		ExecutorService executor = Executors.newFixedThreadPool(procedimentsResponse.getTotalPages());
 		List<Future<Rolsac2ProcedimientosResponse>> futures = new ArrayList<Future<Rolsac2ProcedimientosResponse>>();
 
@@ -234,11 +235,11 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 		}
 
 		executor.shutdown();
-		
+
 		return procedimentsResponse;
 	}
-	
-	
+
+
 	@Override
 	public UnitatAdministrativa findUnitatAdministrativaAmbCodi(String codi) throws SistemaExternException {
 
@@ -249,11 +250,11 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 		try {
 			String urlAmbMetode = getServiceUrl() + "/unidades_administrativas/" + codi;
 			Client jerseyClient = getJerseyClient();
-			
+
 			Rolsac2UAResponse resposta = jerseyClient.
 					resource(urlAmbMetode).
 					post(Rolsac2UAResponse.class);
-			
+
 			if (resposta.getItems() != null && !resposta.getItems().isEmpty()) {
 				Rolsac2UnitatAdministrativa unitatAdministrativaRolsac = resposta.getItems().get(0);
 				unitatAdministrativa = new UnitatAdministrativa();
@@ -271,7 +272,7 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 		}
 		return unitatAdministrativa;
 	}
-	
+
 	private Rolsac2ServiciosResponse findServeisRolsac(
 			Rolsac2ServicioFilterRequest body) throws UniformInterfaceException, ClientHandlerException, IOException {
 		String url = getServiceUrl() + "/servicios";
@@ -286,23 +287,23 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 				post(ClientResponse.class, body);
 		return response.getEntity(Rolsac2ServiciosResponse.class);
 	}
-	
+
 	private String getServiceUrl() {
 		return GlobalProperties.getInstance().getProperty(
-				"app.plugins.procediments.rolsac.service.url");
+			PropertyConfig.PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_URL);
 	}
 	private String getServiceUsername() {
 		return GlobalProperties.getInstance().getProperty(
-				"app.plugins.procediments.rolsac.service.username");
+			PropertyConfig.PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_USERNAME);
 	}
 	private String getServicePassword() {
 		return GlobalProperties.getInstance().getProperty(
-				"app.plugins.procediments.rolsac.service.password");
+			PropertyConfig.PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_PASSWORD);
 	}
 	private Integer getServiceTimeout() {
-		String key = "app.plugins.procediments.rolsac.service.timeout";
+		String key = PropertyConfig.PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_TIMEOUT;
 		if (GlobalProperties.getInstance().getProperty(key) != null) {
-			return GlobalProperties.getInstance().getAsInt(key);
+			return GlobalProperties.getInstance().getPropertyAsInteger(key);
 		} else {
 			return null;
 		}

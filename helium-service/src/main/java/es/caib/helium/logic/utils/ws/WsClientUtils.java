@@ -6,6 +6,7 @@ package es.caib.helium.logic.utils.ws;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -90,7 +91,7 @@ public class WsClientUtils {
 
 	private static boolean isWsClientChunked() {
 		try {
-			String chunked = GlobalProperties.getInstance().getProperty("app.ws.client.chunked");
+			String chunked = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_WS_CLIENT_CHUNKED);
 			if (chunked == null)
 				chunked = "false";
 			return "true".equalsIgnoreCase(chunked);

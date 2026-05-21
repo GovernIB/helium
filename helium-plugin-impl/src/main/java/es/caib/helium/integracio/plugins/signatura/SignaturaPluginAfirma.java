@@ -1,10 +1,11 @@
 /**
- * 
+ *
  */
 package es.caib.helium.integracio.plugins.signatura;
 
 import java.util.ArrayList;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fundaciobit.pluginsib.validatecertificate.InformacioCertificat;
@@ -21,20 +22,20 @@ import es.caib.helium.commons.utils.GlobalProperties;
 /**
  * Implementació del plugin de signatura emprant els
  * serveis de @Firma.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class SignaturaPluginAfirma implements SignaturaPlugin {
 
 	@Override
 	public RespostaValidacioSignatura verificarSignatura(
-			byte[] documentContingut, 
-			byte[] firmaContingut, 
+			byte[] documentContingut,
+			byte[] firmaContingut,
 			boolean obtenirDadesCertificat) throws SignaturaPluginException {
-	
+
 		ValidateSignatureRequest validationRequest = new ValidateSignatureRequest();
 		RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
-		
+
 		if (documentContingut != null && firmaContingut == null) {
 			firmaContingut = documentContingut;
 			documentContingut = null;
@@ -55,16 +56,16 @@ public class SignaturaPluginAfirma implements SignaturaPlugin {
 		validationRequest.setSignatureRequestedInformation(sri);
 		ValidateSignatureResponse validateSignatureResponse;
 		try {
-			
+
 			validateSignatureResponse = new org.fundaciobit.pluginsib.validatesignature.afirmacxf.AfirmaCxfValidateSignaturePlugin(
-					"app.signatura.plugin.",
-					GlobalProperties.getInstance()).
+				PropertyConfig.PROP_BASE_PREFIX_SIGNATURA_PLUGIN,
+				GlobalProperties.getInstance().toPropertiesWithPrefix(PropertyConfig.PROP_BASE_PREFIX_SIGNATURA_PLUGIN)).
 			validateSignature(validationRequest);
 		} catch (Exception e) {
 			logger.error("Error validant signatura", e);
 			throw new SistemaExternException(e);
 		}
-		
+
 		// Completa la resposta
 		String estat = RespostaValidacioSignatura.ESTAT_INVALID;
 		switch(validateSignatureResponse.getValidationStatus().getStatus()) {
@@ -78,7 +79,7 @@ public class SignaturaPluginAfirma implements SignaturaPlugin {
 			estat = RespostaValidacioSignatura.ESTAT_INVALID;
 			break;
 		}
-		
+
 		resposta.setEstat(estat);
 		resposta.setErrorMsg(validateSignatureResponse.getValidationStatus().getErrorMsg());
 		resposta.setErrorException(validateSignatureResponse.getValidationStatus().getErrorException());

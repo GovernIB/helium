@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -952,7 +953,7 @@ public class AnotacioController extends BaseExpedientController {
 
 
 	private String getMaxConsultaIntents() {
-		String maxConsultaIntents = GlobalProperties.getInstance().getProperty("app.anotacions.pendents.comprovar.intents", "5");
+		String maxConsultaIntents = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ANOTACIONS_PENDENTS_COMPROVAR_INTENTS, "5");
 		if (maxConsultaIntents == null || "".equals(maxConsultaIntents.trim())) {
 			maxConsultaIntents = "5";
 		}

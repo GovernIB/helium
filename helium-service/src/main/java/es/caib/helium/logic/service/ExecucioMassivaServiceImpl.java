@@ -21,6 +21,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -1247,7 +1248,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 						emailAddresses.add(persona.getEmail());
 					}
 
-					mailHelper.send(GlobalProperties.getInstance().getProperty("app.correu.remitent"), emailAddresses,
+					mailHelper.send(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CORREU_REMITENT), emailAddresses,
 							null, null, "Execució massiva: " + ome.getExecucioMassiva().getTipus(),
 							"L'execució massiva ha finalitzat.");
 				}
