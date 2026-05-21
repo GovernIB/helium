@@ -3,12 +3,8 @@
  */
 package es.caib.helium.back.config;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.opensymphony.module.sitemesh.filter.PageFilter;
-import es.caib.helium.back.interceptor.*;
-import es.caib.helium.back.mvc.ArxiuView;
-import es.caib.helium.back.mvc.SerialitzarView;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -19,12 +15,23 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opensymphony.module.sitemesh.filter.PageFilter;
+
+import es.caib.helium.back.interceptor.AjaxInterceptor;
+import es.caib.helium.back.interceptor.AplicacioInterceptor;
+import es.caib.helium.back.interceptor.EntornInterceptor;
+import es.caib.helium.back.interceptor.GlobalPropertiesInterceptor;
+import es.caib.helium.back.interceptor.ModalInterceptor;
+import es.caib.helium.back.interceptor.NodecoInterceptor;
+import es.caib.helium.back.interceptor.PersonaInterceptor;
+import es.caib.helium.back.mvc.ArxiuView;
+import es.caib.helium.back.mvc.SerialitzarView;
 
 /**
  * Configuració dels interceptors de peticions.
@@ -48,6 +55,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	private EntornInterceptor entornInterceptor;
 	@Autowired
 	private AjaxInterceptor ajaxInterceptor;
+	@Autowired
+	private GlobalPropertiesInterceptor globalPropertiesInterceptor;
 
 	@Bean
 	public FilterRegistrationBean<PageFilter> sitemeshFilter() {
@@ -89,6 +98,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addInterceptor(nodecoInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludedPathPatterns);
 		registry.addInterceptor(ajaxInterceptor).excludePathPatterns(excludedPathPatterns);
+		registry.addInterceptor(globalPropertiesInterceptor).excludePathPatterns(excludedPathPatterns);
 
 		excludedPathPatterns = new String [] {
 				"/js/**",
