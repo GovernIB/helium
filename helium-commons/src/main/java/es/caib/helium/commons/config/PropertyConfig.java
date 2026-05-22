@@ -7,9 +7,7 @@ package es.caib.helium.commons.config;
  */
 public class PropertyConfig {
 
-	/** Prefix de les propietats es.caib.helium." */
-	//private static final String PROPERTY_PREFIX = BaseConfig.BASE_PACKAGE + ".";
-	private static final String PROPERTY_PREFIX = "app.";
+	private static final String PROPERTY_PREFIX = BaseConfig.BASE_PACKAGE + ".";
 
 	public static final String PROP_BASE_URL = PROPERTY_PREFIX + "base.url";
 	public static final String PROP_BASE_VERIFICACIO_URL = PROPERTY_PREFIX + "base.verificacio.url";
