@@ -26,13 +26,13 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 
 
 <c:choose>
-	<c:when test="${!empty globalProperties['app.capsalera.color.fons']}">
-		<c:set var="colorFonsDefault">${globalProperties['app.capsalera.color.fons']}}</c:set>
+	<c:when test="${!empty propCapsaleraColorFons}">
+		<c:set var="colorFonsDefault">${propCapsaleraColorFons}}</c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="colorFonsDefault">#ff9523</c:set>
@@ -48,8 +48,8 @@
 </c:choose>
 
 <c:choose>
-	<c:when test="${!empty globalProperties['app.capsalera.color.lletra']}">
-		<c:set var="colorLletraDefault">${globalProperties['app.capsalera.color.lletra']}}</c:set>
+	<c:when test="${!empty propCapsaleraColorLletra}">
+		<c:set var="colorLletraDefault">${propCapsaleraColorLletra}}</c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="colorLletraDefault">#ffffff</c:set>
@@ -76,14 +76,14 @@
 		border: 0.5px solid gray;
 		cursor: pointer;
 	}
-	
+
 	.mida-selector {
 		width: 300px;
 	}
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {
-		
+
 		// Color de Fons
 		$('#colorFons').change(function(e) {
 			var colorFons;
@@ -100,7 +100,7 @@
 				colorFons = $('#colorFons').val();
 			else
 				colorFons = '${colorFonsDefault}';
-			document.getElementById("html5ColorFonsPicker").value = colorFons; 
+			document.getElementById("html5ColorFonsPicker").value = colorFons;
 			$('#html5ColorFonsPicker').click();
 		});
 		$('#html5ColorFonsPicker').change(function(e) {
@@ -122,14 +122,14 @@
 				colorLletra = $('#colorLletra').val();
 			else
 				colorLletra = '${colorLletraDefault}';
-			document.getElementById("html5ColorLletraPicker").value = colorLletra; 
+			document.getElementById("html5ColorLletraPicker").value = colorLletra;
 			$('#html5ColorLletraPicker').click();
 		});
 		$('#html5ColorLletraPicker').change(function(e) {
 			$('#colorLletra').val($(this).val()).trigger('change');
 		});
 	});
-</script>	
+</script>
 
 </head>
 <body>
@@ -165,7 +165,7 @@
 	</form:form>
 	<div class="botons-titol text-right">
 		<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="area.boto.afegir.membre"/></button>
-	</div>	
+	</div>
 	<div style="height: 390px;">
 		<table	id="entornAreaMembre"
 				data-toggle="datatable"
@@ -173,7 +173,7 @@
 				data-paging-enabled="false"
 				data-ordering="true"
 				data-default-order="1"
-				data-rowhref-toggle="modal" 
+				data-rowhref-toggle="modal"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -197,31 +197,31 @@
 	</div>
 	<script type="text/javascript">
 	// <![CDATA[
-	            
+
 	$(document).ready(function() {
-		
+
 		$('#btnNew').click(function(){
 			$('#btnNew').hide();
 			$('#createForm').show();
 			$('#btnCreate').show();
-			
+
 			$('#createForm').trigger('reset').show(300);
 			$('#createForm .help-block').remove();
 			$('#createForm .has-error').removeClass('has-error');
 
 			$('#createForm').attr('action','${baseUrl}/new');
 		});
-		
+
 		$('#btnCancelar').click(function(e) {
 			e.preventDefault();
 			$('#btnNew').show();
 			$('#createForm').hide();
 			$('#createForm').attr('action','');
 		});
-				
+
 	});
-	
+
 	// ]]>
-	</script>	
+	</script>
 </body>
 </html>

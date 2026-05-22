@@ -3,15 +3,14 @@
  */
 package es.caib.helium.commons.utils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.*;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,7 +22,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GlobalProperties implements ApplicationContextAware {
 
-	private final Environment environment;
+	private static final String SOURCE_NAME = "dynamicProperties";
+
+	private final ConfigurableEnvironment environment;
 
 	private static ApplicationContext applicationContext;
 	public static GlobalProperties getInstance() {
@@ -43,12 +44,23 @@ public class GlobalProperties implements ApplicationContextAware {
 		return value != null ? Integer.valueOf(getProperty(key)) : null;
 	}
 
-	public Properties toPropertiesWithPrefix(String prefix) {
-		if (!(environment instanceof ConfigurableEnvironment)) {
-			throw new IllegalArgumentException("Environment is not of type ConfigurableEnvironment");
+	public void updateProperty(String key, String value) {
+		MutablePropertySources sources = environment.getPropertySources();
+		MapPropertySource targetSource;
+		if (sources.contains(SOURCE_NAME)) {
+			targetSource = (MapPropertySource) sources.get(SOURCE_NAME);
+		} else {
+			targetSource = new MapPropertySource(SOURCE_NAME, new HashMap<>());
+			sources.addFirst(targetSource);
 		}
+		Map<String, Object> updated = new HashMap<>(targetSource.getSource());
+		updated.put(key, value);
+		sources.replace(SOURCE_NAME, new MapPropertySource(SOURCE_NAME, updated));
+	}
+
+	public Properties toPropertiesWithPrefix(String prefix) {
 		Properties props = new Properties();
-		for (PropertySource<?> ps: ((ConfigurableEnvironment)environment).getPropertySources()) {
+		for (PropertySource<?> ps: environment.getPropertySources()) {
 			if (ps instanceof EnumerablePropertySource<?>) {
 				EnumerablePropertySource<?> eps = (EnumerablePropertySource<?>)ps;
 				for (String name: eps.getPropertyNames()) {

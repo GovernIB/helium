@@ -30,15 +30,15 @@
 	// <![CDATA[
 
 		$(document).ready(function() {
-			
+
 			$("#netejar").click(function() {
 				$('#codiUnitatSuperior').val('').change();
 				$('#estat').val('VIGENTE').change();
 			})
 		});
-		
+
 		// ]]>
-		</script>	
+		</script>
 </head>
 <body>
 	<div class="text-right" data-toggle="botons-titol">
@@ -56,11 +56,11 @@
 				<hel:inputText name="denominacio" textKey="unitat.organitzativa.denominacio" placeholderKey="unitat.organitzativa.denominacio" inline="true"/>
 			</div>
 			<div class="col-md-3">
-				<hel:inputSuggest 
-					name="codiUnitatSuperior" 
-					urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
-					urlConsultaLlistat="/unitatOrganitzativa/suggest" 
-					textKey="unitat.organitzativa.unitat.superior" 
+				<hel:inputSuggest
+					name="codiUnitatSuperior"
+					urlConsultaInicial="/unitatOrganitzativa/suggestInici"
+					urlConsultaLlistat="/unitatOrganitzativa/suggest"
+					textKey="unitat.organitzativa.unitat.superior"
 					placeholderKey="unitat.organitzativa.unitat.superior"
 					inline="true"/>
 			</div>
@@ -71,14 +71,14 @@
 				<hel:inputSelect emptyOption="true" name="estat"  textKey="unitat.organitzativa.estat" placeholderKey="unitat.organitzativa.estat" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="valor" inline="true"/>
 			</div>
 		</div>
-		<div class="row">	
+		<div class="row">
 			<div class="col-md-12">
-				
+
 				<div class="pull-right">
 					<button type="submit" name="accio" value="consultar" class="hidden"></button>
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
 					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
-					
+
 				</div>
 			</div>
 		</div>
@@ -91,9 +91,9 @@
 			data-info-type="button"
 			data-ordering="true"
 			data-default-order="1"
-			data-rowhref-toggle="modal" 
+			data-rowhref-toggle="modal"
 			data-botons-template="#tableButtonsAccionsTemplate"
-			class="table table-striped table-bordered table-hover">			
+			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
 				<th data-col-name="codi"><spring:message code="unitat.organitzativa.codi"/></th>
@@ -128,7 +128,7 @@
 			</tr>
 		</thead>
 	</table>
-	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
+	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
 		<div class="text-right" style="padding-top: 8px;">
 			<b><spring:message code="unitat.organitzativa.llistat.unitat.arrel"/>:</b> ${codiUnitatArrel}
 			&nbsp;
@@ -136,7 +136,7 @@
 			&nbsp;
 			<b><spring:message code="unitat.organitzativa.llistat.data.actualitzacio"/>:</b> ${dataActualitzacio}
 			&nbsp;
-			<b><spring:message code="unitat.organitzativa.cron.sync"/>:</b> ${globalProperties['app.unitats.procediments.sync']}
+			<b><spring:message code="unitat.organitzativa.cron.sync"/>:</b> ${propUnitatsProcedimentSync}
 		</div>
 	</script>
 </body>

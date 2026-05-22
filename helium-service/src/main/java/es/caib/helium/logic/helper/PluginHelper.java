@@ -4937,8 +4937,8 @@ public class PluginHelper {
 					arxiuPlugin = (IArxiuPlugin)clazz.getDeclaredConstructor(
 							String.class,
 							Properties.class).newInstance(
-						PropertyConfig.PROP_BASE_PREFIX_EMPTY,
-							GlobalProperties.getInstance().toPropertiesWithPrefix(PropertyConfig.PROP_BASE_PREFIX_EMPTY));
+						PropertyConfig.PROP_BASE_PREFIX_PLUGIN_ARXIU,
+							GlobalProperties.getInstance().toPropertiesWithPrefix(PropertyConfig.PROP_BASE_PREFIX_PLUGIN_ARXIU));
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
 							MonitorIntegracioHelper.INTCODI_ARXIU,
@@ -5013,8 +5013,8 @@ public class PluginHelper {
 					validaSignaturaPlugin = (IValidateSignaturePlugin)clazz.getDeclaredConstructor(
 							String.class,
 							Properties.class).newInstance(
-						PropertyConfig.PROP_BASE_PREFIX_EMPTY,
-							GlobalProperties.getInstance().toPropertiesWithPrefix(PropertyConfig.PROP_BASE_PREFIX_EMPTY));
+						PropertyConfig.PROP_BASE_PREFIX_PLUGIN_VALIDATESIGNATURE,
+							GlobalProperties.getInstance().toPropertiesWithPrefix(PropertyConfig.PROP_BASE_PREFIX_PLUGIN_VALIDATESIGNATURE));
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
 							MonitorIntegracioHelper.INTCODI_VALIDASIG,

@@ -12,7 +12,7 @@
 	<meta name="title" content="<spring:message code='procediment.llistat.titol'/>"/>
 	<meta name="screen" content="procediments">
 	<meta name="title-icon-class" content="fa fa-book"/>
-	
+
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
@@ -25,10 +25,10 @@
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 	<hel:modalHead/>
-	
+
 	<style type="text/css">
 	</style>
-	
+
 	<script>
 	// <![CDATA[
 
@@ -44,16 +44,16 @@
 		}
 
 		$(document).ready(function() {
-			
+
 			$("#netejar").click(function() {
 				$('#unitatOrganitzativa').val('').change();
 				$('#estat').val('').change();
 				$('#tipus').val('').change();
 			})
 		});
-		
+
 		// ]]>
-		</script>	
+		</script>
 </head>
 <body>
 	<form:form action="" method="post" cssClass="well" modelAttribute="procedimentFiltreCommand">
@@ -63,15 +63,15 @@
 			</div>
 			<div class="col-md-3">
 				<hel:inputText name="nom" inline="true" placeholderKey="procediment.llistat.filtre.procediment"/>
-			</div>			
+			</div>
 			<div class="col-md-3">
-				<hel:inputSuggest 
-					name="unitatOrganitzativa" 
-					urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
-					urlConsultaLlistat="/unitatOrganitzativa/suggest" 
-					textKey="procediment.llistat.columna.unitatOrganitzativa" 
+				<hel:inputSuggest
+					name="unitatOrganitzativa"
+					urlConsultaInicial="/unitatOrganitzativa/suggestInici"
+					urlConsultaLlistat="/unitatOrganitzativa/suggest"
+					textKey="procediment.llistat.columna.unitatOrganitzativa"
 					placeholderKey="procediment.llistat.columna.unitatOrganitzativa"
-					inline="true" />			
+					inline="true" />
 			</div>
 			<div class="col-md-2">
 				<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="procediment.llistat.columna.estat" placeholderKey="procediment.llistat.columna.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
@@ -122,7 +122,7 @@
 					{{if unitatOrganitzativa.estat!='V'}}
 						<span class="fa fa-warning text-warning  pull-right" style="margin-top: 3px;" title="<spring:message code="unitat.arbre.unitatObsoleta"/>"></span>
 					{{/if}}
- 
+
 					{{:unitatOrganitzativa.codi}} -  {{:unitatOrganitzativa.denominacio}}
 
 				</script>
@@ -157,14 +157,14 @@
 							{{:estat}}
 						{{/if}}
 					</script>
-				</th>			
+				</th>
 			</tr>
 		</thead>
 	</table>
-	
-	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
+
+	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
 		<div class="text-right" style="padding-top: 8px;">
-			<b><spring:message code="unitat.organitzativa.cron.sync"/>:</b> ${globalProperties['app.unitats.procediments.sync']}
+			<b><spring:message code="unitat.organitzativa.cron.sync"/>:</b> ${propUnitatsProcedimentSync}
 			&nbsp;
 		</div>
 	</script>

@@ -119,9 +119,9 @@
 		}
 	</c:when>
 	<c:otherwise>
-		<c:if test="${!empty globalProperties['app.capsalera.color.fons']}">
+		<c:if test="${!empty propCapsaleraColorFons}">
 			.navbar-app {
-				background: ${globalProperties['app.capsalera.color.fons']} !important;
+				background: propCapsaleraColorFons} !important;
 			}
 		</c:if>
 	</c:otherwise>
@@ -146,21 +146,21 @@
 		}
 	</c:when>
 	<c:otherwise>
-		<c:if test="${globalProperties['app.capsalera.color.lletra'] !=null  && not empty globalProperties['app.capsalera.color.lletra']}">
+		<c:if test="${propCapsaleraColorLletra !=null  && not empty propCapsaleraColorLletra}">
 			.navbar-app .list-inline li.dropdown>a {
-				color: ${globalProperties['app.capsalera.color.lletra']};
+				color: ${propCapsaleraColorLletra};
 			}
 			.caret-white {
-				border-top-color: ${globalProperties['app.capsalera.color.lletra']} !important;
+				border-top-color: ${propCapsaleraColorLletra} !important;
 			}
 			.list-inline.pull-right {
-				color: ${globalProperties['app.capsalera.color.lletra']} !important;
+				color: ${propCapsaleraColorLletra} !important;
 			}
 			.navbar-app .list-inline li {
-				border-right-color: ${globalProperties['app.capsalera.color.lletra']} !important;
+				border-right-color: ${propCapsaleraColorLletra} !important;
 			}
 			#govern-logo {
-				border-right-color: ${globalProperties['app.capsalera.color.lletra']} !important;
+				border-right-color: ${propCapsaleraColorLletra} !important;
 			}
 		</c:if>
 	</c:otherwise>
@@ -359,7 +359,7 @@
 								</ul>
 							</div>
 						</c:if>
-						<c:if test="${globalProperties['app.organigrama.actiu'] && dadesPersona.admin}">
+						<c:if test="${propOrganigramaActiu && dadesPersona.admin}">
 							<div id="menuOrganitzacio" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.organitzacio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="organitzacio">
@@ -389,7 +389,7 @@
 							<div id="menuAdministracio" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="mesures">
-									<c:if test="${ globalProperties['app.expedient.monitor'] && potAdministrarEntorn}">
+									<c:if test="${propExpedientMonitor && potAdministrarEntorn}">
 										<li><a data-toggle="modal" data-maximized="true" id="botoMonitor" href="<c:url value="/modal/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
@@ -417,7 +417,7 @@
 										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/entorn"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
-									<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
+									<c:if test="${propJbpmIdentitySource == 'jbpm'}">
 										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/carrec"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
 										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/area"/>"><spring:message code='comuns.arees' /></a></li></c:if>
 									</c:if>

@@ -108,7 +108,7 @@ public class ConfiguracioParametresController extends BaseController {
 							} else {
 								parametre.setValor(valorsDefecte.get(valorDefecte));//en els demés casos no és boolean
 							}
-							//GlobalProperties.getInstance().setProperty(valorDefecte, valorsDefecte.get(valorDefecte));
+							GlobalProperties.getInstance().updateProperty(valorDefecte, valorsDefecte.get(valorDefecte));
 							parametreService.update(parametre);
 						}
 				}

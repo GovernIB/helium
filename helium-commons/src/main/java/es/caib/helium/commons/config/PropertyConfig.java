@@ -10,8 +10,6 @@ public class PropertyConfig {
 	/** Prefix de les propietats es.caib.helium." */
 	//private static final String PROPERTY_PREFIX = BaseConfig.BASE_PACKAGE + ".";
 	private static final String PROPERTY_PREFIX = "app.";
-	private static final String PROPERTY_PREFIX_CONSELL = "net.conselldemallorca.";
-	private static final String PROPERTY_PREFIX_EMPTY = "";
 
 	public static final String PROP_BASE_URL = PROPERTY_PREFIX + "base.url";
 	public static final String PROP_BASE_VERIFICACIO_URL = PROPERTY_PREFIX + "base.verificacio.url";
@@ -34,6 +32,12 @@ public class PropertyConfig {
 	public static final String PROP_GIS_PLUGIN_SITIBSA_URL_VISOR = PROPERTY_PREFIX + "gis.plugin.sitibsa.url.visor";
 	public static final String PROP_JBPM_IDENTITY_SOURCE = PROPERTY_PREFIX + "jbpm.identity.source";
 	public static final String PROP_NTI_CSV_DEFINICIO = PROPERTY_PREFIX + "nti.csv.definicio";
+	public static final String PROP_CAPSALERA_COLOR_LLETRA = PROPERTY_PREFIX + "capsalera.color.lletra";
+	public static final String PROP_CAPSALERA_COLOR_FONS = PROPERTY_PREFIX + "capsalera.color.fons";
+	public static final String PROP_SEGONPLA_REFRESCAR_AUTO = PROPERTY_PREFIX + "segonpla.refrescar.auto";
+	public static final String PROP_SEGONPLA_REFRESCAR_AUTO_PERIODE = PROPERTY_PREFIX + "segonpla.refrescar.auto.periode";
+	public static final String PROP_EXPEDIENT_MONITOR = PROPERTY_PREFIX + "expedient.monitor";
+	public static final String PROP_ORGANIGRAMA_ACTIU = PROPERTY_PREFIX + "organigrama.actiu";
 
 	public static final String PROP_CONVERSIO_ACTIU = PROPERTY_PREFIX + "conversio.actiu";
 	public static final String PROP_CONVERSIO_VISTA_ACTIU = PROPERTY_PREFIX + "conversio.vista.actiu";
@@ -104,9 +108,9 @@ public class PropertyConfig {
 	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_URL = PROPERTY_PREFIX + "portafirmes.plugin.flux.firma.url";
 	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_USUARI = PROPERTY_PREFIX + "portafirmes.plugin.flux.firma.username";
 	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_PASSWORD = PROPERTY_PREFIX + "portafirmes.plugin.flux.firma.password";
-	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_URL = PROPERTY_PREFIX_EMPTY + "plugin.portafirmes.plugin.flux.entiatws.url";
-	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_USERNAME = PROPERTY_PREFIX_EMPTY + "plugin.portafirmes.plugin.flux.entiatws.username";
-	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_PASSWORD = PROPERTY_PREFIX_EMPTY + "plugin.portafirmes.plugin.flux.entiatws.password";
+	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_URL = PROPERTY_PREFIX + "portafirmes.plugin.flux.entitatws.url";
+	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_USERNAME = PROPERTY_PREFIX + "portafirmes.plugin.flux.entitatws.username";
+	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_PASSWORD = PROPERTY_PREFIX + "portafirmes.plugin.flux.entitatws.password";
 
 	public static final String PROP_SIGNATURA_PLUGIN_CLASS = PROPERTY_PREFIX + "signatura.plugin.class";
 	public static final String PROP_SIGNATURA_PLUGIN_FILE_ATTACHED = PROPERTY_PREFIX + "signatura.plugin.file.attached";
@@ -141,9 +145,9 @@ public class PropertyConfig {
 	public static final String PROP_PINBAL_PLUGIN_PASSWORD = PROPERTY_PREFIX + "pinbal.plugin.password";
 	public static final String PROP_PINBAL_PLUGIN_ISJBOSS = PROPERTY_PREFIX + "pinbal.plugin.isJBoss";
 
-	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_URL = PROPERTY_PREFIX_CONSELL + "helium.distribucio.backofficeIntegracio.ws.url";
-	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_USERNAME = PROPERTY_PREFIX_CONSELL + "helium.distribucio.backofficeIntegracio.ws.username";
-	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_PASSWORD = PROPERTY_PREFIX_CONSELL + "helium.distribucio.backofficeIntegracio.ws.password";
+	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_URL = PROPERTY_PREFIX + "helium.distribucio.backofficeIntegracio.ws.url";
+	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_USERNAME = PROPERTY_PREFIX + "helium.distribucio.backofficeIntegracio.ws.username";
+	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_PASSWORD = PROPERTY_PREFIX + "helium.distribucio.backofficeIntegracio.ws.password";
 
 	public static final String PROP_VALIDATESIGNATURE_PLUGIN_CLASS = PROPERTY_PREFIX + "validatesignature.plugin.class";
 	public static final String PROP_PLUGINS_VALIDATESIGNATURE_AFIRMACXF_ENDPOINT = PROPERTY_PREFIX + "plugins.validatesignature.afirmacxf.endpoint";
@@ -179,7 +183,8 @@ public class PropertyConfig {
 	public static final String PROP_DOMINI_TIMEOUT = PROPERTY_PREFIX + "domini.timeout";
 	public static final String PROP_DOMINI_DESPLEGAMENT_TOMCAT = PROPERTY_PREFIX + "domini.desplegament.tomcat";
 
-	public static final String PROP_BASE_PREFIX_EMPTY = PROPERTY_PREFIX;
+	public static final String PROP_BASE_PREFIX_PLUGIN_ARXIU = PROPERTY_PREFIX;
+	public static final String PROP_BASE_PREFIX_PLUGIN_VALIDATESIGNATURE = PROPERTY_PREFIX;
 	public static final String PROP_BASE_PREFIX_PLUGIN_PERSONES = PROPERTY_PREFIX + "plugin.persones.";
 	public static final String PROP_BASE_PREFIX_SIGNATURA_PLUGIN = PROPERTY_PREFIX + "signatura.plugin.";
 	public static final String PROP_BASE_PREFIX_PLUGIN_FIRMA_PORTAFIB = PROPERTY_PREFIX + "plugin.firma.portafib.";

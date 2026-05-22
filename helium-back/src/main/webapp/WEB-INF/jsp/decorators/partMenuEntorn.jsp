@@ -51,7 +51,7 @@
 			<c:if test="${hiHaTramitsPerIniciar}">
 				<li id="menuIniciar" class="image expedient-iniciar"><a href="<c:url value="/expedient/iniciar.html"/>"><fmt:message key='decorators.entorn.nou_exp' /></a></li>
 			</c:if>
-			<c:if test="${globalProperties['app.organigrama.actiu']}">
+			<c:if test="${propOrganigramaActiu}">
 				<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,64">
 					<li id="menuOrganitzacio" class="dir image organitzacio">
 						<a href="#" onclick="return false"><fmt:message key='comuns.organitzacio' /></a>

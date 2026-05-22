@@ -13,14 +13,14 @@
 <style type="text/css">
 	#tasca-signatura .well.well-small {margin: 0 0 15px;}
 	#tasca-signatura .form-tasca .modal-botons {padding-bottom: 25px;}
-	.signarTramitacio .col-xs-1 {width: auto;padding-left: 0px;}	
+	.signarTramitacio .col-xs-1 {width: auto;padding-left: 0px;}
 	.signarTramitacio h4.titol-missatge {width: 100%;display: inline-table;}
 	.signarTramitacio .titol-missatge label {padding-top: 0px;}
 	.signarTramitacio .titol-missatge .obligatori {background-position: right 8px;}
 	.signarTramitacio h4.titol-missatge {width: 100%;display: inline-table;}
 	.signarTramitacio form {padding-top: 25px;}
 	.signarTramitacio .col-xs-4 {width: 20%;}
-	.signarTramitacio .col-xs-10 {width: 80%;padding-right: 0px;}		
+	.signarTramitacio .col-xs-10 {width: 80%;padding-right: 0px;}
 	.signarTramitacio .inlineLabels a {margin-left: 10px;}
 	.signarTramitacio .select2-container a {margin-left: 0px;}
 	.signarTramitacio .select2-container {width: 100% !important;}
@@ -29,7 +29,7 @@
 	.modal-botons-firma button {margin-left: 5px;}
 </style>
 <c:if test="${not tasca.documentsComplet}">
-	<div class="alert alert-warning">	
+	<div class="alert alert-warning">
 		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
 		<p>
 			<span class="fa fa-warning"></span>
@@ -46,7 +46,7 @@
 		</p>
 	</div>
 </c:if>
-<c:set var="sourceUrl" value="${globalProperties['app.base.url']}/expedient/document/arxiuPerSignar"/>
+<c:set var="sourceUrl" value="${propBaseUrl}/expedient/document/arxiuPerSignar"/>
 <c:forEach var="document" items="${signatures}">
 	<div class="signarTramitacio well well-small">
 		<div class="form-horizontal form-tasca">
@@ -66,7 +66,7 @@
 									<a class="icon signature" href="<c:url value="/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/descarregar"/>"><span class="fa fa-download" title="<spring:message code="comuns.descarregar"/>"></span></a>
 									<c:if test="${not empty document.urlVerificacioCustodia}">
 										<a class="icon signature" href="${document.urlVerificacioCustodia}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
-									</c:if>																	
+									</c:if>
 									<c:if test="${not empty document.signaturaUrlVerificacio}">
 										<c:choose>
 											<c:when test="${document.ntiCsv != null}">
@@ -82,8 +82,8 @@
 								</c:otherwise>
 							</c:choose>
 							<c:if test="${document.registrat}">
-								<a 	data-rdt-link-modal="true" 
-									class="icon registre" 
+								<a 	data-rdt-link-modal="true"
+									class="icon registre"
 									href="<c:url value='/modal/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/registre/verificar'/>">
 									<span class="fa fa-book" title="<spring:message code='expedient.document.registrat' />"></span>
 								</a>
@@ -99,7 +99,7 @@
 									</c:if>
 								</div>
 							</c:if>
-														
+
 						</c:when>
 						<c:otherwise>
 							</h4>
@@ -124,9 +124,9 @@ function refreshSignatures() {
 function obrirFinestraFirma(url) {
 	// Obre la nova finestra per firmar
 	finestraFirma = window.open(url, 'Firma passarel.la', 'location=0,status=0,scrollbars=0,resizable=0,directories=0,toolbar=0,titlebar=0,width=800,height=450,top=200,left=200');
-	
+
 	// Comprova periòdicament si la finestra s'ha tancat
-	var timer = setInterval(function() { 
+	var timer = setInterval(function() {
 	    if(finestraFirma.closed) {
 	        clearInterval(timer);
 	        refreshSignatures();
@@ -136,7 +136,7 @@ function obrirFinestraFirma(url) {
 
 
 $(document).ready(function() {
-	
+
 	$(document).on('show.bs.modal', '.modal', function (event) {
         var zIndex = 1040 + (10 * $('.modal:visible').length);
         $(this).css('z-index', zIndex);
@@ -144,7 +144,7 @@ $(document).ready(function() {
             $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
         }, 0);
     });
-	
+
 	$('.icon.signature, .icon.registre').heliumEvalLink({
 		refrescarAlertes: true,
 		refrescarPagina: false,

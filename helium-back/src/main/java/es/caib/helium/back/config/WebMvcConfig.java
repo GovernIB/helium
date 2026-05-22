@@ -26,7 +26,7 @@ import com.opensymphony.module.sitemesh.filter.PageFilter;
 import es.caib.helium.back.interceptor.AjaxInterceptor;
 import es.caib.helium.back.interceptor.AplicacioInterceptor;
 import es.caib.helium.back.interceptor.EntornInterceptor;
-import es.caib.helium.back.interceptor.GlobalPropertiesInterceptor;
+import es.caib.helium.back.interceptor.PropertiesInterceptor;
 import es.caib.helium.back.interceptor.ModalInterceptor;
 import es.caib.helium.back.interceptor.NodecoInterceptor;
 import es.caib.helium.back.interceptor.PersonaInterceptor;
@@ -56,7 +56,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Autowired
 	private AjaxInterceptor ajaxInterceptor;
 	@Autowired
-	private GlobalPropertiesInterceptor globalPropertiesInterceptor;
+	private PropertiesInterceptor globalPropertiesInterceptor;
 
 	@Bean
 	public FilterRegistrationBean<PageFilter> sitemeshFilter() {

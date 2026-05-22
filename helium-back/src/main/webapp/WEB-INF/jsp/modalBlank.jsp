@@ -14,13 +14,13 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 
 
 <c:choose>
-	<c:when test="${!empty globalProperties['app.capsalera.color.fons']}">
-		<c:set var="colorFonsDefault">${globalProperties['app.capsalera.color.fons']}}</c:set>
+	<c:when test="${!empty propCapsaleraColorFons}">
+		<c:set var="colorFonsDefault">${propCapsaleraColorFons}}</c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="colorFonsDefault">#ff9523</c:set>
@@ -30,8 +30,8 @@
 <c:set var="colorFons">${colorFonsDefault}</c:set>
 
 <c:choose>
-	<c:when test="${!empty globalProperties['app.capsalera.color.lletra']}">
-		<c:set var="colorLletraDefault">${globalProperties['app.capsalera.color.lletra']}}</c:set>
+	<c:when test="${!empty propCapsaleraColorLletra}">
+		<c:set var="colorLletraDefault">${propCapsaleraColorLletra}}</c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="colorLletraDefault">#ffffff</c:set>
@@ -51,7 +51,7 @@
 		border: 0.5px solid gray;
 		cursor: pointer;
 	}
-	
+
 	.mida-selector {
 		width: 300px;
 	}
@@ -74,7 +74,7 @@
 				colorFons = $('#colorFons').val();
 			else
 				colorFons = '${colorFonsDefault}';
-			document.getElementById("html5ColorFonsPicker").value = colorFons; 
+			document.getElementById("html5ColorFonsPicker").value = colorFons;
 			$('#html5ColorFonsPicker').click();
 		});
 		$('#html5ColorFonsPicker').change(function(e) {
@@ -96,14 +96,14 @@
 				colorLletra = $('#colorLletra').val();
 			else
 				colorLletra = '${colorLletraDefault}';
-			document.getElementById("html5ColorLletraPicker").value = colorLletra; 
+			document.getElementById("html5ColorLletraPicker").value = colorLletra;
 			$('#html5ColorLletraPicker').click();
 		});
 		$('#html5ColorLletraPicker').change(function(e) {
 			$('#colorLletra').val($(this).val()).trigger('change');
 		});
 	});
-</script>	
+</script>
 
 </head>
 <body>

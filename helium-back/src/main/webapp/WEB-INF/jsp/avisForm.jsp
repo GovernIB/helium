@@ -30,18 +30,18 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	
+
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	
+
 <hel:modalHead/>
-	
+
 
 <c:choose>
-	<c:when test="${!empty globalProperties['app.capsalera.color.fons']}">
-		<c:set var="colorFonsDefault">${globalProperties['app.capsalera.color.fons']}}</c:set>
+	<c:when test="${!empty propCapsaleraColorFons}">
+		<c:set var="colorFonsDefault">${propCapsaleraColorFons}}</c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="colorFonsDefault">#ff9523</c:set>
@@ -50,8 +50,8 @@
 
 
 <c:choose>
-	<c:when test="${!empty globalProperties['app.capsalera.color.lletra']}">
-		<c:set var="colorLletraDefault">${globalProperties['app.capsalera.color.lletra']}}</c:set>
+	<c:when test="${!empty propCapsaleraColorLletra}">
+		<c:set var="colorLletraDefault">${propCapsaleraColorLletra}}</c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="colorLletraDefault">#ffffff</c:set>
@@ -74,8 +74,8 @@
 </style>
 <script type="text/javascript">
 
-	
-</script>	
+
+</script>
 
 </head>
 <body>

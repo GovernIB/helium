@@ -37,56 +37,56 @@
 </head>
 <body>
 	<form:form action="" method="post" cssClass="well" modelAttribute="anotacioFiltreCommand">
-	
+
 	<div class="row">
 		<div class="col-md-2">
 			<hel:inputDate name="dataInicial" textKey="anotacio.llistat.filtre.camp.dataInicial" placeholder="dd/mm/aaaa" inline="true"/>
-		</div>	
+		</div>
 		<div class="col-md-2">
 			<hel:inputDate name="dataFinal" textKey="anotacio.llistat.filtre.camp.dataFinal" placeholder="dd/mm/aaaa" inline="true"/>
-		</div>	
-		<div class="col-md-2">							
+		</div>
+		<div class="col-md-2">
 			<hel:inputText name="numero" textKey="anotacio.llistat.filtre.camp.numero" placeholderKey="anotacio.llistat.filtre.camp.numero" inline="true"/>
 		</div>
-		<div class="col-md-4">							
+		<div class="col-md-4">
 			<hel:inputText name="extracte" textKey="anotacio.llistat.filtre.camp.extracte" placeholderKey="anotacio.llistat.filtre.camp.extracte" inline="true"/>
-		</div>		
+		</div>
 		<div class="col-md-2">
 			<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="anotacio.llistat.filtre.camp.estat" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-4">							
-			<hel:inputSuggest 
-					name="codiProcediment" 
-					urlConsultaInicial="/procediment/suggestInici" 
-					urlConsultaLlistat="/procediment/suggest" 
+		<div class="col-md-4">
+			<hel:inputSuggest
+					name="codiProcediment"
+					urlConsultaInicial="/procediment/suggestInici"
+					urlConsultaLlistat="/procediment/suggest"
 					placeholderKey="anotacio.llistat.filtre.camp.codiProcediment"
 					inline="true"
-					/>	
-		</div>	
-		<div class="col-md-2">							
+					/>
+		</div>
+		<div class="col-md-2">
 			<hel:inputText name="codiAssumpte" textKey="anotacio.llistat.filtre.camp.codiAssumpte" placeholderKey="anotacio.llistat.filtre.camp.codiAssumpte" inline="true"/>
-		</div>	
+		</div>
 		<div class="col-md-4">
 			<hel:inputSelect name="expedientTipusId" textKey="anotacio.llistat.filtre.camp.expedientTipus"
 				optionItems="${expedientsTipus}" optionValueAttribute="codi" emptyOption="true"
 				inline="true" placeholderKey="anotacio.llistat.filtre.camp.expedientTipus" optionTextAttribute="valor" />
-		</div>						
+		</div>
 		<div class="col-md-2">
 			<hel:inputText name="numeroExpedient" textKey="anotacio.llistat.filtre.camp.numeroExpedient" placeholderKey="anotacio.llistat.filtre.camp.numeroExpedient" inline="true"/>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-4">
-			<hel:inputSuggest 
-					name="unitatOrganitzativaCodi" 
-					urlConsultaInicial="/unitatOrganitzativa/suggestInici" 
-					urlConsultaLlistat="/unitatOrganitzativa/suggest" 
+			<hel:inputSuggest
+					name="unitatOrganitzativaCodi"
+					urlConsultaInicial="/unitatOrganitzativa/suggestInici"
+					urlConsultaLlistat="/unitatOrganitzativa/suggest"
 					placeholderKey="anotacio.llistat.filtre.camp.unitat.organitzativa.desti"
 					inline="true"
-					/>	
-		</div>	
+					/>
+		</div>
 		<div class="col-md-2">
 			<hel:inputText name="nif" textKey="anotacio.llistat.filtre.camp.nif" placeholderKey="anotacio.llistat.filtre.camp.nif" inline="true"/>
 		</div>
@@ -96,11 +96,11 @@
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
 					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 			</div>
-		</div>				
+		</div>
 	</div>
-	
+
 	</form:form>
-	
+
 	<table	id="anotacio"
 			data-toggle="datatable"
 			data-url="<c:url value="anotacio/datatable"/>"
@@ -115,7 +115,7 @@
 			data-info-type="button"
 			data-botons-template="#tableButtonsAccionsTemplate"
 			class="table table-striped table-bordered table-hover"
-			style="width:100%">			
+			style="width:100%">
 		<thead>
 			<tr>
 				<th data-col-name="id" data-visible="false" data-orderable="false"/>
@@ -125,31 +125,31 @@
 				<th data-col-name="procedimentCodi"><spring:message code="anotacio.llistat.columna.procedimentCodi"/></th>
 				<th data-col-name="serveiCodi"><spring:message code="anotacio.llistat.columna.serveiCodi"/></th>
 				<th data-col-name="expedientNumero"><spring:message code="anotacio.llistat.columna.expedientNumero"/></th>
-				<th data-col-name="dataRecepcio" data-converter="datetime" width="7%"><spring:message code="anotacio.llistat.columna.dataRecepcio"/></th>				
+				<th data-col-name="dataRecepcio" data-converter="datetime" width="7%"><spring:message code="anotacio.llistat.columna.dataRecepcio"/></th>
 				<th data-col-name="destiCodiAndNom" data-visible="false" data-orderable="false"/>
 				<th data-col-name="expedientTipus.codi" data-template="#cellAnotacioExpedientTipusTemplate" width="12%">
 					<spring:message code="anotacio.llistat.columna.expedientTipus"/>
 					<script id="cellAnotacioExpedientTipusTemplate" type="text/x-jsrender">
 						{{if expedientTipus != null }}
-							{{if expedientTipus.procedimentComu == true }}							
+							{{if expedientTipus.procedimentComu == true }}
 								<span class="fa fa-university" title="{{:destiCodiAndNom}}" style="float:left"></span>&nbsp;
-							{{/if}} 
+							{{/if}}
 							{{:expedientTipus.codi}}
-							{{if expedientTipus.distribucioProcesAuto == true }}	
+							{{if expedientTipus.distribucioProcesAuto == true }}
 								<span class="fa fa-info-circle" style="color:#337ab7"
-									title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}} 
-(Entorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}}) 
+									title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}}
+(Entorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})
 (automàtic)">
-								</span> 
+								</span>
 							{{else}}
 								<span class="fa fa-info-circle"
-									title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}} 
+									title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}}
 (Entorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})
 (manual)">
-								</span> 
+								</span>
 							{{/if}}
 						</span>
-							 
+
 						{{/if}}
 					</script>
 				</th>
@@ -187,7 +187,7 @@
 
 						{{if dataProcessament}}
 							<br/><span class="text-muted small">
-									{{:~formatTemplateDate(dataProcessament)}} 
+									{{:~formatTemplateDate(dataProcessament)}}
 								</span>
 						{{/if}}
 						{{if errorProcessament != null}}
@@ -195,13 +195,13 @@
 						{{/if}}
 						{{if errorAnnexos}}
 							<div class="pull-right">
-								<span class="fa fa-exclamation-triangle text-danger" 
+								<span class="fa fa-exclamation-triangle text-danger"
 								title="<spring:message code="expedient.anotacio.llistat.error.annexos"/>"></span>
 							</div>
 						{{/if}}
 						{{if annexosInvalids}}
 							<div class="pull-right">
-								<span class="fa fa-exclamation-triangle text-danger" 
+								<span class="fa fa-exclamation-triangle text-danger"
 								title="<spring:message code="expedient.anotacio.llistat.annexos.invalids"/>"></span>
 							</div>
 						{{/if}}
@@ -238,7 +238,7 @@
 				</th>
 				<th data-col-name="dataProcessament" data-visible="false"/></th>
 				<th data-col-name="errorProcessament" data-visible="false"/>
-				<th data-col-name="rebuigMotiu" data-visible="false"/>	
+				<th data-col-name="rebuigMotiu" data-visible="false"/>
 				<th data-col-name="consultaIntents" data-visible="false"/>
 				<th data-col-name="consultaError" data-visible="false"/>
 				<th data-col-name="consultaData" data-visible="false"/>
@@ -272,7 +272,7 @@
 								<!-- Opció de comunicar per email -->
 								{{if estat == 'PENDENT' || estat =='PROCESSADA'  }}
 									<li>
-										<a href="<c:url value="/anotacio/{{:id}}/email"/>" data-rdt-link-ajax="true" 
+										<a href="<c:url value="/anotacio/{{:id}}/email"/>" data-rdt-link-ajax="true"
 												{{if estat == 'PENDENT'}}
 													data-confirm="<spring:message code="anotacio.llistat.email.avisar.confirmacio.pedent"/>"
 												{{else}}
@@ -289,7 +289,7 @@
 				</th>
 			</tr>
 		</thead>
-	</table>	
+	</table>
 
 	<div id="modal-error" class="modal fade">
 		<div class="modal-dialog">
@@ -305,7 +305,7 @@
 				</div>
 			</div>
 		</div>
-	</div>	
+	</div>
 	<!-- Modal pels estats del processament -->
 	<div id="modalProcesEstat" class="modal fade">
 		<div class="modal-dialog" style="width: 100%;max-width: 950px;">
@@ -336,26 +336,26 @@
 				</div>
 			</div>
 		</div>
-	</div>	
-	<script id="rowhrefTemplate" type="text/x-jsrender"><c:url value="/anotacio/{{:id}}"/></script>	
-	
-	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
+	</div>
+	<script id="rowhrefTemplate" type="text/x-jsrender"><c:url value="/anotacio/{{:id}}"/></script>
+
+	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
 		<div class="botons-titol text-right">
 			<b><spring:message code="anotacio.llistat.numero.threads.consultats"/></b>
 			<c:choose>
-				<c:when test="${!empty globalProperties['app.anotacions.consulta.num.threads']}">
-					${globalProperties['app.anotacions.consulta.num.threads']}
+				<c:when test="${!empty propAnotacionsConsultaNumThreads}">
+					${propAnotacionsConsultaNumThreads}
 				</c:when>
 				<c:otherwise>
 					5
 				</c:otherwise>
-			</c:choose>	
+			</c:choose>
 			<span ></span>&nbsp;
 			<a id="exportar_excel" href="<c:url value="/anotacio/excel"/>" class="btn btn-default">
 				<span class="fa fa-download"></span>&nbsp;<spring:message code="comuns.descarregar"/>
 			</a>
 			<div id="btnTramitacio" class="btn-group">
-			
+
 				<button id="seleccioAll" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>" class="btn btn-default"><span class="fa fa-check-square-o"></span></button>
 				<button id="seleccioNone" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>" class="btn btn-default"><span class="fa fa-square-o"></span></button>
 
@@ -370,7 +370,7 @@
 			</div>
 		</div>
 	</script>
-		
+
 	<script type="text/javascript">
 	// <![CDATA[
 
@@ -379,16 +379,16 @@
 			   return moment(new Date(d)).format("DD/MM/YYYY HH:mm:ss");
 		    }
 		});
-		            
+
 	$(document).ready(function() {
 		$('#showModalProcesEstatButton').click(function(e) {
 			$('#modalProcesEstat').modal();
 			e.stopPropagation();
-		});	
-		
+		});
+
 			var selectButtonsInitialized = false;
-		
-			$('#anotacio').on( 'draw.dt', function () {		
+
+			$('#anotacio').on( 'draw.dt', function () {
 
 				if (!selectButtonsInitialized) {
 
@@ -412,7 +412,7 @@
 								}
 						);
 						return false;
-					});	
+					});
 				}//if
 			})
 			.on('selectionchange.dataTable', function (accio, ids) {
@@ -424,18 +424,18 @@
 						$("#tramitacioMassivaCount").html(data);
 					});
 			});
-			
+
 		$("#netejar").click(function() {
 			$('#codiProcediment').val('').change();
 			$('#unitatOrganitzativaCodi').val('').change();
 			$('#expedientTipusId').val('').change();
 			$('#estat').val("PENDENT").change().change();
 		})
-			
+
 	});
-	
+
 	// ]]>
-	</script>	
+	</script>
 
 </body>
 </html>

@@ -24,13 +24,13 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 
 
 <c:choose>
-	<c:when test="${!empty globalProperties['app.capsalera.color.fons']}">
-		<c:set var="colorFonsDefault">${globalProperties['app.capsalera.color.fons']}}</c:set>
+	<c:when test="${!empty propCapsaleraColorFons}">
+		<c:set var="colorFonsDefault">${propCapsaleraColorFons}}</c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="colorFonsDefault">#ff9523</c:set>
@@ -46,8 +46,8 @@
 </c:choose>
 
 <c:choose>
-	<c:when test="${!empty globalProperties['app.capsalera.color.lletra']}">
-		<c:set var="colorLletraDefault">${globalProperties['app.capsalera.color.lletra']}}</c:set>
+	<c:when test="${!empty propCapsaleraColorLletra}">
+		<c:set var="colorLletraDefault">${propCapsaleraColorLletra}}</c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="colorLletraDefault">#ffffff</c:set>
@@ -93,7 +93,7 @@
 				colorFons = $('#colorFons').val();
 			else
 				colorFons = '${colorFonsDefault}';
-			document.getElementById("html5ColorFonsPicker").value = colorFons; 
+			document.getElementById("html5ColorFonsPicker").value = colorFons;
 			$('#html5ColorFonsPicker').click();
 		});
 		$('#html5ColorFonsPicker').change(function(e) {
@@ -115,14 +115,14 @@
 				colorLletra = $('#colorLletra').val();
 			else
 				colorLletra = '${colorLletraDefault}';
-			document.getElementById("html5ColorLletraPicker").value = colorLletra; 
+			document.getElementById("html5ColorLletraPicker").value = colorLletra;
 			$('#html5ColorLletraPicker').click();
 		});
 		$('#html5ColorLletraPicker').change(function(e) {
 			$('#colorLletra').val($(this).val()).trigger('change');
 		});
 	});
-</script>	
+</script>
 
 </head>
 <body>
@@ -133,7 +133,7 @@
 				<hel:inputText required="true" name="codi" textKey="entorn.form.camp.codi" disabled="${not empty entornCommand.id}"/>
 				<hel:inputText required="true" name="nom" textKey="entorn.form.camp.nom" />
 				<hel:inputTextarea name="descripcio" textKey="entorn.form.camp.descripcio" />
-		
+
 				<fieldset>
 					<legend><spring:message code="entorn.form.legend.visualitzacio"></spring:message></legend>
 					<div class="alert alert-info">
@@ -147,16 +147,16 @@
 							<input type="color" id="html5ColorFonsPicker" style="display: none;" />
 						</div>
 						<div class="col-sm-12">
-							<hel:inputText name="colorLletra" textKey="entorn.form.camp.colorLletra" placeholder="${colorLletraDefault}"/>		
+							<hel:inputText name="colorLletra" textKey="entorn.form.camp.colorLletra" placeholder="${colorLletraDefault}"/>
 							<div id="cercleColorLletra" class="cercle" style="background: ${colorLletra}"></div>
 							<input type="color" id="html5ColorLletraPicker" style="display: none;" />
 						</div>
 		 			</div>
 		 			<div class="row">
 		 			 	<div class="col-sm-4"></div>
-		 			 	<div id="divExemple" 
-		 			 			class="col-sm-8" 
-		 			 			style="background: ${colorFons}; 
+		 			 	<div id="divExemple"
+		 			 			class="col-sm-8"
+		 			 			style="background: ${colorFons};
 		 			 					color: ${colorLletra};
 										font-size: larger;
 										text-align: right;
@@ -173,9 +173,9 @@
 				</fieldset>
 			</div>
 		</div>
-		
-		
-		
+
+
+
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.cancelar"/>
