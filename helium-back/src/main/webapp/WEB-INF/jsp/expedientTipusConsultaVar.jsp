@@ -7,7 +7,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 
-<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<c:set var="idioma">ca</c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.consulta.vars.llistat.titol" arguments="${tipus},${consulta.nom}"/></c:set>
 <c:set var="baseUrlModal"><c:url value="/modal/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var"></c:url></c:set>
 <c:set var="baseUrl"><c:url value="/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var"></c:url></c:set>
@@ -31,7 +31,8 @@
 
 	<hel:modalHead/>
 </head>
-<body>			
+<body>		
+
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 	</div>

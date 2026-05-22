@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<c:set var="idioma">ca</c:set>
 <c:set var="titol"><spring:message code="expedient.document.pendent.portasignatures.titol"/></c:set>
 
 <html>

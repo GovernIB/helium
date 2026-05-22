@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
-<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<c:set var="idioma">ca</c:set>
 <c:set var="titol"><spring:message code="area.nou.membres.titol"/></c:set>
 <c:set var="formAction">new</c:set>
 <c:set var="baseUrl"><c:url value="/modal/entorn-area/${entornAreaId}/membres"></c:url></c:set>

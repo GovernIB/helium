@@ -9,7 +9,7 @@
 
 <form:form id="command" modelAttribute="command" action="" cssClass="form-horizontal form-tasca" method="post">
 
-	<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>	
+	<c:set var="idioma">ca</c:set>	
 	<c:set var="dadaActual" value="${dada}"/>
 
 	<%-- Primer registre, que utilitzam per a definir la capÃ§alera de la taula --%>

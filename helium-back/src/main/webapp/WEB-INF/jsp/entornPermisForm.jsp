@@ -4,7 +4,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
-<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<c:set var="idioma">ca</c:set>
 <c:choose>
 	<c:when test="${empty permisCommand.id}"><c:set var="titol"><spring:message code="entorn.permis.form.titol.nou"/></c:set></c:when>
 	<c:otherwise><c:set var="titol"><spring:message code="entorn.permis.form.titol.modificar"/></c:set></c:otherwise>

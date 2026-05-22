@@ -439,7 +439,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 				maxThreads = Integer.parseInt(strVal);
 			}
 		} catch (Exception ex) {
-			logger.warn("Error llegint la propietat 'app.anotacions.consulta.num.threads':" + ex.getMessage() );
+			logger.warn("Error llegint la propietat '" + PropertyConfig.PROP_ANOTACIONS_CONSULTA_NUM_THREADS + "':" + ex.getMessage() );
 		}
 		return maxThreads;
 	}

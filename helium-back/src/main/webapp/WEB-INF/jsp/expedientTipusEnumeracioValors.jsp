@@ -7,7 +7,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 
-<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<c:set var="idioma">ca</c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.enumeracio.form.titol.llistat"/>${enumeracio.nom}</c:set>
 
 <c:set var="permisDisseny" value="${((expedientTipusId != null and expedientTipus.permisDesignAdmin) or (expedientTipusId == null and potDissenyarEntorn)) and (not inUse)}" />

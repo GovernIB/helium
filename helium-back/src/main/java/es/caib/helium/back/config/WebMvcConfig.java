@@ -82,7 +82,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				"/images/**",
 				"/extensions/**",
 				"/webjars/**",
-				"/webjars/**",
 				"/**/datatable/**",
 				"/**/selection/**",
 				"/**/rest/notib**",
@@ -107,7 +106,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				"/img/**",
 				"/images/**",
 				"/extensions/**",
-				"/webjars/**",
 				"/webjars/**",
 				"/**/selection/**",
 				"/public/**"

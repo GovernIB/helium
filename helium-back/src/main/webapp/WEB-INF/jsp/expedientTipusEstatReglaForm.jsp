@@ -4,7 +4,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
-<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<c:set var="idioma">ca</c:set>
 <c:choose>
 	<c:when test="${!heretat}">
 		<c:choose>
@@ -21,10 +21,10 @@
 <head>
 	<title>${titol}</title>
 	<meta name="title" content="${titol}"/>
-	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
-	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
-	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/webjars/select2/3.4.8/dist/js/i18n/${idioma}.js"/>"></script>
+	<link href="<c:url value="/webjars/select2/4.0.1/dist/css/select2.min.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/webjars/select2-bootstrap-theme/0.1.0-beta.4/dist/select2-bootstrap.min.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/webjars/select2/4.0.1/dist/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/webjars/select2/4.0.1/dist/js/i18n/${idioma}.js"/>"></script>
 	<script>
 		$(document).ready(function() {
 			configQuiValor("${estatReglaCommand.qui}");
@@ -170,7 +170,6 @@
 		.valors-load { position: absolute; font-size: 20px; right: 10px; top: 8px; color: cornflowerblue; }
 		.select2-results__options { max-height: 19em !important; }
 	</style>
-	<hel:modalHead/>
 </head>
 <body>
 	<form:form action="" method="post" cssClass="form-horizontal" modelAttribute="estatReglaCommand">

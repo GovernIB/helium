@@ -7,7 +7,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 
-<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<c:set var="idioma">ca</c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.campValidacio.llistat.titol" arguments="${camp.etiqueta}"/></c:set>
 <c:set var="baseUrl"><c:url value="/modal/${basicUrl}/variable/${camp.id}/validacio"></c:url></c:set>
 
