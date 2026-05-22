@@ -28,10 +28,13 @@ public class GlobalProperties implements ApplicationContextAware {
 
 	private static ApplicationContext applicationContext;
 	public static GlobalProperties getInstance() {
-		return applicationContext.getBean(GlobalProperties.class);
+		GlobalProperties gp = applicationContext.getBean(GlobalProperties.class);
+		gp.environment.setIgnoreUnresolvableNestedPlaceholders(true);
+		return gp;
 	}
 
 	public String getProperty(String key) {
+
 		return environment.getProperty(key);
 	}
 

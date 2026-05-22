@@ -12,8 +12,8 @@
 <head>
 	<title>${titol}</title>
 	<hel:modalHead/>
-	<script type="text/javascript">	
-	//<![CDATA[            
+	<script type="text/javascript">
+	//<![CDATA[
 		$(document).ready(function() {
 			$('input[class=documentPerFirmarServidor]').on('change', function(event) {
 				const total = $('input[class=documentPerFirmarServidor]:not(:disabled):checkbox').length;
@@ -25,7 +25,7 @@
 			}).click();
 		});
 	// ]]>
-	
+
 	function sendForm() {
 		const total = $('input[class=documentPerFirmarServidor]:not(:disabled)').length;
 		const countSeleccionats = $('input[class=documentPerFirmarServidor]:not(:disabled):checked').length;
@@ -38,7 +38,7 @@
 		}
 		$('#expedientFinalitzar-button').trigger('click');
 	}
-	
+
 	</script>
 	<style type="text/css">
 	.etiqueta-nti-arxiu {
@@ -47,24 +47,24 @@
 	</style>
 </head>
 <body>
-	
+
 	<form:form action="prefinalitzar" method="post" modelAttribute="expedientFinalitzarDto">
-	
+
 		<form:hidden path="expedient.id"/>
 		<form:hidden path="expedient.titol"/>
 		<form:hidden path="expedient.arxiuActiu"/>
 		<form:hidden path="expedient.arxiuUuid"/>
 		<form:hidden path="accio"/>
-		
+
 		<c:if test="${!expedientFinalitzarDto.error}">
-				
+
 		<c:if test="${expedientFinalitzarDto.documentsFinalitzar!=null && fn:length(expedientFinalitzarDto.documentsFinalitzar)>0}">
-		
+
 			<div class="alert alert-info" role="alert">
 				<span class="fa fa-info-circle"></span>
 				<spring:message code="finalitzar.expedient.info"/>
 			</div>
-		
+
 			<table id="docsPrefinalitzar" class="table table-striped table-bordered table-hover dataTable no-footer">
 				<thead>
 					<tr role="row">
@@ -76,7 +76,7 @@
 					</tr>
 				</thead>
 				<tbody>
-		
+
 				<c:forEach var="doc" varStatus="status" items="${expedientFinalitzarDto.documentsFinalitzar}">
 					<tr>
 						<td title="${doc.arxiuNom}">${doc.documentCodi}</td>
@@ -100,7 +100,7 @@
 							<c:if test="${doc.firmaInvalida}">&nbsp;
 								<span class="fa fa-exclamation-triangle text-danger"
 									title="Aquest annex està marcat com a invàlid: El document original tenia firmes invàlides."></span>
-							</c:if>							
+							</c:if>
 							<c:if test="${not empty doc.notificacioId}">&nbsp;
 								<span class="label label-warning etiqueta-nti-arxiu" title="${doc.notificacioDesc}">
 									<spring:message code="expedient.document.info.etiqueta.notificat"/>
@@ -126,7 +126,7 @@
 							<c:if test="${not empty doc.annexAnotacioId and doc.anotacioAnnexNoMogut}">
 								<c:set var="valorDefaultChecked" value=""/>
 								<c:set var="valorDefaultDisabled" value="disabled='true'"/>
-								<c:set var="valorDefaultTitle" value="L'annex s'ha de mourer correctament a l'arxiu abans de poder enviarse a firmar en servidor."/>						
+								<c:set var="valorDefaultTitle" value="L'annex s'ha de mourer correctament a l'arxiu abans de poder enviarse a firmar en servidor."/>
 							</c:if>
 							<input type="checkbox" class="documentPerFirmarServidor" title="${valorDefaultTitle}" ${valorDefaultChecked} ${valorDefaultDisabled} name="documentsFinalitzar[${status.index}].seleccionat">
 							<form:hidden path="documentsFinalitzar[${status.index}].documentStoreId"/>
@@ -139,10 +139,10 @@
 						</td>
 					</tr>
 				</c:forEach>
-			
+
 				</tbody>
 			</table>
-		
+
 			<div class="control-group fila_reducida ocult">
 				<div class="form-group">
 					<label class="control-label col-xs-2">Motiu</label>
@@ -151,9 +151,9 @@
 					</div>
 				</div>
 			</div>
-		
+
 		</c:if>
-		
+
 		<c:if test="${expedientFinalitzarDto.documentsFinalitzar==null || fn:length(expedientFinalitzarDto.documentsFinalitzar)==0}">
 			<c:choose>
 				<c:when test="${not expedientFinalitzarDto.expedient.arxiuActiu}">
@@ -166,14 +166,14 @@
 					<div class="alert alert-info" role="alert">
 						<span class="fa fa-info-circle"></span>
 						<spring:message code="finalitzar.expedient.info2"/>
-					</div>				
+					</div>
 				</c:otherwise>
 			</c:choose>
 		</c:if>
-		
+
 		<button id="expedientFinalitzar-button" type="submit" name="submit" value="submit" class="hidden">
 		</button>
-		
+
 		<div id="modal-botons" class="well">
 			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 				<spring:message code='comuns.cancelar' />
@@ -182,7 +182,7 @@
 				<button type="button" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('firmar'); sendForm()">
 					<span class="fa fa-pencil"></span>&nbsp;
 					<spring:message code="finalitzar.expedient.accio1"/>
-				</button>			
+				</button>
 				<button type="button" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('finalitzar'); sendForm()">
 					<span class="fa fa-power-off"></span>&nbsp;
 					<spring:message code="finalitzar.expedient.accio2"/>
@@ -194,14 +194,14 @@
 					<spring:message code="finalitzar.expedient.accio3"/>
 				</button>
 			</c:if>
-			
-			
-			
-			
+
+
+
+
 		</div>
 	</c:if>
 	<c:if test="${expedientFinalitzarDto.error}">
-	
+
 		<c:if test="${expedientFinalitzarDto.documentsPendentsFirma!=null && fn:length(expedientFinalitzarDto.documentsPendentsFirma)>0}">
 			<div class="alert alert-warning" role="alert">
 				<span class="fa fa-warning"></span>&nbsp;<spring:message code="prefinalitzar.expedient.errorPendents"/></br>

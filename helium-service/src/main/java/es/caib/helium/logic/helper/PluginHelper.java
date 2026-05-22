@@ -4837,7 +4837,7 @@ public class PluginHelper {
 
 	private PortasignaturesPlugin getPortafirmesPluginPortafibFluxSimple() {
 		if (portasignaturesPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTASIGNATURES_PLUGIN_CLASS);
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.class");
 			if ((pluginClass != null) && (pluginClass.length() > 0)) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);

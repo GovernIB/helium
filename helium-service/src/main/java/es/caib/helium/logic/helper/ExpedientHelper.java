@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityNotFoundException;
 
 import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.disseny.handler.HeliumActionHandler;
@@ -288,11 +289,13 @@ public class ExpedientHelper {
 	public Expedient getExpedientComprovantPermisos(
 			Long id,
 			Permission[] permisos) {
-		Expedient expedient = expedientRepository.findById(id).orElse(null);
-		if (expedient == null) {
+		Expedient expedient = null;
+		try {
+			expedient = expedientRepository.getReferenceById(id);
+		} catch(EntityNotFoundException e) {
 			throw new NoTrobatException(
-					Expedient.class,
-					id);
+				Expedient.class,
+				id);
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		// Si no te accés a l'entorn no te accés a l'expedient
@@ -992,13 +995,8 @@ public class ExpedientHelper {
 		 * 2.- Documents. Crea o actualitza els documents a l'arxiu.
 		 */
 
-		List<DocumentStore> documents = new ArrayList<DocumentStore>();
-		List<InstanciaProcesDto> arbreProcesInstance = getArbreInstanciesProces(expedient.getProcessInstanceId());
-
-		// Genera llista de tots els documents del expedient
-		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
-			documents.addAll(documentStoreRepository.findByProcessInstanceId(procesInstance.getId()));
-		}
+		// Cerca tots els documents del expedient
+		List<DocumentStore> documents = expedientDocumentHelper.findByExpedient(expedient.getId());
 
 		for (DocumentStore documentStore: documents) {
 			try {

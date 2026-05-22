@@ -932,18 +932,20 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
     	}
     	resultat.addAll(docsAux);
 
-    	for (DocumentFinalitzarDto df: resultat) {
-    		if (df.getProcessInstanceId()!=null && !"".equals(df.getProcessInstanceId())) {
-    			InstanciaProcesDto ipDto = expedientHelper.getInstanciaProcesById(df.getProcessInstanceId());
-    			if (ipDto!=null) {
-    				if (ipDto.getInstanciaProcesPareId()==null) {
-    					df.setProcessInstanceNom("Procés principal");
-    				} else {
-    					df.setProcessInstanceNom(ipDto.getTitol());
-    				}
-    			}
-    		}
-    	}
+		if(expedient.getTipus().getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
+			for (DocumentFinalitzarDto df : resultat) {
+				if (df.getProcessInstanceId() != null && !"".equals(df.getProcessInstanceId())) {
+					InstanciaProcesDto ipDto = expedientHelper.getInstanciaProcesById(df.getProcessInstanceId());
+					if (ipDto != null) {
+						if (ipDto.getInstanciaProcesPareId() == null) {
+							df.setProcessInstanceNom("Procés principal");
+						} else {
+							df.setProcessInstanceNom(ipDto.getTitol());
+						}
+					}
+				}
+			}
+		}
 
     	expedientFinalitzarDto.setDocumentsFinalitzar(resultat);
     	expedientFinalitzarDto.setDocumentsPendentsFirma(pendents);

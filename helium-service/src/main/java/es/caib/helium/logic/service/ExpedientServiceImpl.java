@@ -3,29 +3,39 @@
  */
 package es.caib.helium.logic.service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.validation.ValidationException;
-
 import com.google.common.collect.Lists;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
+import es.caib.helium.commons.constants.ExpedientCamps;
+import es.caib.helium.commons.dto.*;
+import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
+import es.caib.helium.commons.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.commons.dto.ExpedientErrorDto.ErrorTipusDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDto;
+import es.caib.helium.commons.exception.*;
+import es.caib.helium.commons.utils.EntornActual;
+import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.logic.helper.*;
+import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
+import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
+import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.logic.intf.service.*;
+import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.entity.Alerta.AlertaPrioritat;
+import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
+import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
+import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogAccioTipus;
+import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogEstat;
+import es.caib.helium.persistence.repository.*;
+import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.ExpedientMetadades;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,160 +54,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
-
-import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
-import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
-import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
-import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
-import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
-import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
-import es.caib.helium.commons.constants.ExpedientCamps;
-import es.caib.helium.commons.dto.AccioDto;
-import es.caib.helium.commons.dto.AlertaDto;
-import es.caib.helium.commons.dto.AnotacioAnnexEstatEnumDto;
-import es.caib.helium.commons.dto.AnotacioMapeigResultatDto;
-import es.caib.helium.commons.dto.ArxiuContingutDto;
-import es.caib.helium.commons.dto.ArxiuContingutTipusEnumDto;
-import es.caib.helium.commons.dto.ArxiuDetallDto;
-import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.DadaIndexadaDto;
-import es.caib.helium.commons.dto.DadesDocumentDto;
-import es.caib.helium.commons.dto.DadesNotificacioDto;
-import es.caib.helium.commons.dto.DefinicioProcesDto;
-import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.DocumentNotificacioDto;
-import es.caib.helium.commons.dto.DocumentStoreBackupDto;
-import es.caib.helium.commons.dto.EntornDto;
-import es.caib.helium.commons.dto.EstatDto;
-import es.caib.helium.commons.dto.ExpedientConsultaDissenyDto;
-import es.caib.helium.commons.dto.ExpedientDocumentDto;
-import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
-import es.caib.helium.commons.dto.ExpedientDto.IniciadorTipusDto;
-import es.caib.helium.commons.dto.ExpedientErrorDto;
-import es.caib.helium.commons.dto.ExpedientErrorDto.ErrorTipusDto;
-import es.caib.helium.commons.dto.ExpedientTascaDto;
-import es.caib.helium.commons.dto.ExpedientTipusDto;
-import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
-import es.caib.helium.commons.dto.InstanciaProcesDto;
-import es.caib.helium.commons.dto.IntegracioAccioTipusEnumDto;
-import es.caib.helium.commons.dto.IntegracioParametreDto;
-import es.caib.helium.commons.dto.MostrarAnulatsDto;
-import es.caib.helium.commons.dto.NotificacioDto;
-import es.caib.helium.commons.dto.NtiExpedienteEstadoEnumDto;
-import es.caib.helium.commons.dto.PaginaDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDto;
-import es.caib.helium.commons.dto.PersonaDto;
-import es.caib.helium.commons.dto.PortafirmesEstatEnum;
-import es.caib.helium.commons.dto.RespostaValidacioSignaturaDto;
-import es.caib.helium.commons.dto.TascaDadaDto;
-import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.commons.exception.TramitacioException;
-import es.caib.helium.commons.exception.TramitacioValidacioException;
-import es.caib.helium.logic.helper.ExceptionHelper;
-import es.caib.helium.commons.utils.EntornActual;
-import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.logic.helper.AlertaHelper;
-import es.caib.helium.logic.helper.ConsultaHelper;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DistribucioHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExpedientDadaHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientLoggerHelper;
-import es.caib.helium.logic.helper.ExpedientRegistreHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.helper.NotificacioHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.helper.VariableHelper;
-import es.caib.helium.logic.helpers.LuceneHelper;
-import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
-import es.caib.helium.logic.intf.service.AnotacioService;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
-import es.caib.helium.logic.intf.service.ParametreService;
-import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.persistence.entity.Accio;
-import es.caib.helium.persistence.entity.Alerta;
-import es.caib.helium.persistence.entity.Alerta.AlertaPrioritat;
-import es.caib.helium.persistence.entity.Anotacio;
-import es.caib.helium.persistence.entity.AnotacioAnnex;
-import es.caib.helium.persistence.entity.AnotacioEmail;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Consulta;
-import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentNotificacio;
-import es.caib.helium.persistence.entity.DocumentStore;
-import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
-import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.persistence.entity.Estat;
-import es.caib.helium.persistence.entity.ExecucioMassivaExpedient;
-import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.ExpedientLog;
-import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogAccioTipus;
-import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogEstat;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.ExpedientTipusUnitatOrganitzativa;
-import es.caib.helium.persistence.entity.Notificacio;
-import es.caib.helium.persistence.entity.Parametre;
-import es.caib.helium.persistence.entity.Portasignatures;
-import es.caib.helium.persistence.entity.Registre;
-import es.caib.helium.persistence.entity.Termini;
-import es.caib.helium.persistence.entity.TerminiIniciat;
-import es.caib.helium.persistence.entity.UnitatOrganitzativa;
-import es.caib.helium.persistence.repository.AccioRepository;
-import es.caib.helium.persistence.repository.AlertaRepository;
-import es.caib.helium.persistence.repository.AnotacioEmailRepository;
-import es.caib.helium.persistence.repository.AnotacioRepository;
-import es.caib.helium.persistence.repository.CampRepository;
-import es.caib.helium.persistence.repository.ConsultaRepository;
-import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.persistence.repository.DocumentNotificacioRepository;
-import es.caib.helium.persistence.repository.DocumentRepository;
-import es.caib.helium.persistence.repository.DocumentStoreRepository;
-import es.caib.helium.persistence.repository.EnumeracioRepository;
-import es.caib.helium.persistence.repository.EstatAccioEntradaRepository;
-import es.caib.helium.persistence.repository.EstatAccioSortidaRepository;
-import es.caib.helium.persistence.repository.EstatRepository;
-import es.caib.helium.persistence.repository.ExecucioMassivaExpedientRepository;
-import es.caib.helium.persistence.repository.ExpedientHeliumRepository;
-import es.caib.helium.persistence.repository.ExpedientLoggerRepository;
-import es.caib.helium.persistence.repository.ExpedientRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRepository;
-import es.caib.helium.persistence.repository.NotificacioRepository;
-import es.caib.helium.persistence.repository.ParametreRepository;
-import es.caib.helium.persistence.repository.PeticioPinbalRepository;
-import es.caib.helium.persistence.repository.PortasignaturesRepository;
-import es.caib.helium.persistence.repository.RegistreRepository;
-import es.caib.helium.persistence.repository.TerminiIniciatRepository;
-import es.caib.helium.persistence.repository.TerminiRepository;
-import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.ExpedientMetadades;
-import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.validation.ValidationException;
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -305,6 +172,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Autowired
 	private ExpedientDadaHelper expedientDadaHelper;
+	@Autowired
+	private ExpedientDocumentHelper expedientDocumentHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;
 	@Resource
@@ -327,6 +196,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private ExpedientTipusService expedientTipusService;
 	@Resource
 	private Jbpm3HeliumService jbpm3HeliumService;
+
+	@Autowired
+	private EntityManager entityManager;
 
 	@PostConstruct
 	public void postContruct() {
@@ -601,52 +473,53 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	public void delete(Long id) {
 		logger.debug("Esborrant l'expedient (id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				false,
-				false,
-				true,
-				false);
+			id,
+			false,
+			false,
+			true,
+			false);
 		List<WProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
-		if (expedient.isArxiuActiu() && !isPropagarEsbExp()) {
-			// Si l'expedient està emmagatzemat a dins l'arxiu comprovam que
-			// l'expedient no contengui documents firmats abans d'esborrar-lo.
-			List<String> processInstanceIds = new ArrayList<String>();
-			for (WProcessInstance processInstance: processInstancesTree) {
-				processInstanceIds.add(processInstance.getId().toString());
+		if(processInstancesTree != null) {
+			if (expedient.isArxiuActiu() && !isPropagarEsbExp()) {
+				// Si l'expedient està emmagatzemat a dins l'arxiu comprovam que
+				// l'expedient no contengui documents firmats abans d'esborrar-lo.
+				List<String> processInstanceIds = new ArrayList<String>();
+				for (WProcessInstance processInstance : processInstancesTree) {
+					processInstanceIds.add(processInstance.getId().toString());
+				}
+	//			List<DocumentStore> documentsSignats = documentStoreRepository.findByProcessInstanceIdInAndSignatTrue(
+	//					processInstanceIds);
+	//			if (!documentsSignats.isEmpty()) {
+	//				throw new ValidacioException("Aquest expedient no es pot esborrar perquè conté documents firmats");
+	//			}
 			}
-//			List<DocumentStore> documentsSignats = documentStoreRepository.findByProcessInstanceIdInAndSignatTrue(
-//					processInstanceIds);
-//			if (!documentsSignats.isEmpty()) {
-//				throw new ValidacioException("Aquest expedient no es pot esborrar perquè conté documents firmats");
-//			}
-		}
-		for (Notificacio notificacio: notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
-			notificacioRepository.delete(notificacio);
-		}
-
-//		List<PeticioPinbal> pets = peticioPinbalRepository.findByExpedientId(expedient.getId());
-//		if (pets!=null) {
-//			for (PeticioPinbal p: pets) {
-//				if (p.getDocument()!=null) {
-//					documentHelper.esborrarDocument(null, expedient.getProcessInstanceId(), p.getDocument().getId());
-//				}
-//				peticioPinbalRepository.delete(p);
-//			}
-//		}
-
-		peticioPinbalRepository.deleteAll(peticioPinbalRepository.findByExpedientId(expedient.getId()));
-
-		List<AnotacioEmail> anotacioEmails = anotacioEmailRepository.findByExpedientId(expedient.getId());
-		if(anotacioEmails!=null && !anotacioEmails.isEmpty()) {
-			for (AnotacioEmail anotacioEmail : anotacioEmails) {
-				anotacioEmailRepository.delete(anotacioEmail);
+			for (Notificacio notificacio : notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
+				notificacioRepository.delete(notificacio);
 			}
-		}
 
-		anotacioService.esborrarAnotacionsExpedient(expedient.getId());
+	//		List<PeticioPinbal> pets = peticioPinbalRepository.findByExpedientId(expedient.getId());
+	//		if (pets!=null) {
+	//			for (PeticioPinbal p: pets) {
+	//				if (p.getDocument()!=null) {
+	//					documentHelper.esborrarDocument(null, expedient.getProcessInstanceId(), p.getDocument().getId());
+	//				}
+	//				peticioPinbalRepository.delete(p);
+	//			}
+	//		}
 
-		// Ordena per id de menor a major per evitar errors de dependències
-		Collections.sort(
+			peticioPinbalRepository.deleteAll(peticioPinbalRepository.findByExpedientId(expedient.getId()));
+
+			List<AnotacioEmail> anotacioEmails = anotacioEmailRepository.findByExpedientId(expedient.getId());
+			if (anotacioEmails != null && !anotacioEmails.isEmpty()) {
+				for (AnotacioEmail anotacioEmail : anotacioEmails) {
+					anotacioEmailRepository.delete(anotacioEmail);
+				}
+			}
+
+			anotacioService.esborrarAnotacionsExpedient(expedient.getId());
+
+			// Ordena per id de menor a major per evitar errors de dependències
+			Collections.sort(
 				processInstancesTree,
 				new Comparator<WProcessInstance>() {
 					public int compare(WProcessInstance o1, WProcessInstance o2) {
@@ -655,28 +528,30 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						return l2.compareTo(l1);
 					}
 				});
-		for (WProcessInstance pi: processInstancesTree){
-			for (TerminiIniciat ti: terminiIniciatRepository.findByProcessInstanceId(pi.getId().toString()))
-				terminiIniciatRepository.delete(ti);
-			jbpmHelper.deleteProcessInstance(pi.getId().toString());
-			for (DocumentStore documentStore: documentStoreRepository.findByProcessInstanceId(pi.getId())) {
-				if (documentStore.isSignat() && documentStore.getReferenciaCustodia()!=null ) {
-					try {
-						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
-					} catch (Exception ignored) {}
-				}
-				List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
-				if (enviaments != null && enviaments.size() > 0)
-					documentNotificacioRepository.deleteAll(enviaments);
+			for (WProcessInstance pi : processInstancesTree) {
+				for (TerminiIniciat ti : terminiIniciatRepository.findByProcessInstanceId(pi.getId().toString()))
+					terminiIniciatRepository.delete(ti);
+				jbpmHelper.deleteProcessInstance(pi.getId().toString());
+				for (DocumentStore documentStore : documentStoreRepository.findByProcessInstanceId(pi.getId())) {
+					if (documentStore.isSignat() && documentStore.getReferenciaCustodia() != null) {
+						try {
+							pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
+						} catch (Exception ignored) {
+						}
+					}
+					List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
+					if (enviaments != null && enviaments.size() > 0)
+						documentNotificacioRepository.deleteAll(enviaments);
 
-				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-					pluginHelper.gestioDocumentalDeleteDocument(
+					if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
+						pluginHelper.gestioDocumentalDeleteDocument(
 							documentStore.getReferenciaFont(), expedient);
-				//Si el document pertany a un zip, de moment no l'esborrem, esperarem a esborrar el zip
-				if(documentStore.getZips()!=null && !documentStore.getZips().isEmpty()) {
-					continue;
-				} else {
-					documentStoreRepository.deleteById(documentStore.getId());
+					//Si el document pertany a un zip, de moment no l'esborrem, esperarem a esborrar el zip
+					if (documentStore.getZips() != null && !documentStore.getZips().isEmpty()) {
+						continue;
+					} else {
+						documentStoreRepository.deleteById(documentStore.getId());
+					}
 				}
 			}
 		}
@@ -693,6 +568,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			}
 		}
 		expedientDadaHelper.deleteByExpedient(expedient.getId());
+		expedientDocumentHelper.deleteByExpedient(expedient.getId());
 		expedientRepository.delete(expedient);
 		if (expedient.getArxiuUuid() != null && pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
 			try {
@@ -1605,7 +1481,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	}
 
 
-	@Transactional
 	private void migrarArxiu(Long id, boolean esborrarExpSiError) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
@@ -1620,6 +1495,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		Expedient expedient = expedientRepository.findById(expedientId).orElse(null);
 		try {
 			expedientHelper.migrarExpedientArxiu(expedient);
+			entityManager.flush();
+			entityManager.clear();
 		} catch (Exception ex) {
 			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			if (esborrarExpSiError && expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
@@ -1645,8 +1522,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 	}
 
-
-	@Transactional
 	private void migrarDocumentsArxiu(Long id, boolean esborrarExpSiError) {
 		// Si el usuari no te permisos es llança una excepció
 		expedientHelper.getExpedientComprovantPermisos(
@@ -1668,6 +1543,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			if (expedient.getDataFi()==null) {
 				moureAnnexos(expedient);
 			}
+			entityManager.flush();
+			entityManager.clear();
 		} catch (Exception ex) {
 			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			if (esborrarExpSiError && expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
@@ -1697,6 +1574,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void sincronitzarArxiu(Long id, boolean esborrarExpSiError) {
 		// Comprovam si ja s'esta executant la migració per aquest expedient
 		if(isCurrentlyMigrating(id))
@@ -1721,13 +1599,15 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 	}
 
-	@Transactional
 	private void finalitzaArxiuMigrat(Long id) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				new Permission[] {
-						ExtendedPermission.WRITE,
-						ExtendedPermission.ADMINISTRATION});
+		finalitzaArxiuMigratTransactional(id);
+	}
+
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	private void finalitzaArxiuMigratTransactional(Long id) {
+		entityManager.flush();
+		entityManager.clear();
+		Expedient expedient = expedientRepository.getReferenceById(id);
 		try {
 			if(expedient.getDataFi() == null)
 				return;

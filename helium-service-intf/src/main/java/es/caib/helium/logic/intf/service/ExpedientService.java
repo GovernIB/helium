@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.logic.intf.service;
 
@@ -41,14 +41,14 @@ import es.caib.helium.commons.exception.TramitacioException;
 
 /**
  * Servei encarregat de gestionar els expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientService {
 
 	/**
 	 * Crea/inicia un nou expedient.
-	 * 
+	 *
 	 * @param entornId
 	 *            Atribut id de l'entorn l'expedient que es vol consultar.
 	 * @param usuari
@@ -96,9 +96,9 @@ public interface ExpedientService {
 	 * 			Id de la petició d'anotació de registre que s'associarà a l'expedient.
 	 * @param anotacioInteressatsAssociar
 	 * 			Indica si associar o no els interessats de l'anotació a l'expedient.
-	 * 
+	 *
 	 * @return El nou expedient creat.
-	 * @throws es.caib.helium.commons.exception.SistemaExternException 
+	 * @throws es.caib.helium.commons.exception.SistemaExternException
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 * @throws NotAllowedException
@@ -140,11 +140,11 @@ public interface ExpedientService {
 
 	/**
 	 * Modifica la informació d'un expedient.
-	 * 
+	 *
 	 * - Retornará true si s'ha pogut actualitzar tant a BBDD com a Axiu.
 	 * - False si només s'ha pogut actualitzar parcialment.
 	 * - Error en cas de que es produeixi un error no controlat que no permeti actualtizar.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol modificar.
 	 * @param numero
@@ -190,7 +190,7 @@ public interface ExpedientService {
 
 	/**
 	 * Esborra un expedient.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol esborrar.
 	 * @throws NotFoundException
@@ -202,7 +202,7 @@ public interface ExpedientService {
 
 	/**
 	 * Retorna un expedient donat el seu id.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return L'expedient.
@@ -212,10 +212,10 @@ public interface ExpedientService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientDto findAmbIdAmbPermis(Long id);
-	
+
 	/**
 	 * Retorna un expedient donat el seu id sense comprovar permisos.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return L'expedient.
@@ -223,10 +223,10 @@ public interface ExpedientService {
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 */
 	public ExpedientDto findAmbId(Long expedientId);
-	
+
 	/**
 	 * Retorna un expedient donat el processInstanceId sense comprovar permisos.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return L'expedient.
@@ -238,7 +238,7 @@ public interface ExpedientService {
 
 	/**
 	 * Retorna varios expedients donat el seu id.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return L'expedient.
@@ -251,7 +251,7 @@ public interface ExpedientService {
 
 	/**
 	 * Consulta d'expedients per entorn paginada.
-	 * 
+	 *
 	 * @param expedientTipusDtoAccessibles
 	 * 			  Llistat d'expedientTipus accessibles per l'usuari
 	 * @param entornId
@@ -295,7 +295,7 @@ public interface ExpedientService {
 	 * @param paginacioParams
 	 *            Paràmetres de paginació.
 	 * @return La pàgina del llistat d'expedients.
-	 * @throws Exception 
+	 * @throws Exception
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat algun dels elements especificats
 	 *             mitjançant el seu id (entorn, tipus, estat).
@@ -331,7 +331,7 @@ public interface ExpedientService {
 
 	/**
 	 * Consulta només ids d'expedient per entorn.
-	 * 
+	 *
 	 * @param entornId
 	 *            Atribut id de l'entorn l'expedient que es vol consultar.
 	 * @param expedientTipusId
@@ -371,7 +371,7 @@ public interface ExpedientService {
 	 * @param mostrarAnulats
 	 *            Indica si el resultat ha d'incloure expedients anulats.
 	 * @return La pàgina del llistat d'expedients.
-	 * @throws Exception 
+	 * @throws Exception
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat algun dels elements especificats
 	 *             mitjançant el seu id (entorn, tipus, estat).
@@ -401,7 +401,7 @@ public interface ExpedientService {
 			boolean nomesErrors,
 			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats);
-	
+
 	/** Mètode per cercar expedients pel suggest d'expedients. Filtra pel tipus d'expedient i busca
 	 * el text dins del número o el títol de l'expedient.
 	 * @param expedientTipusId
@@ -412,10 +412,10 @@ public interface ExpedientService {
 	 * @return Retorna la llista d'expedients el número o títol dels quals contenen el text
 	 */
 	public List<ExpedientDto> findPerSuggest(Long expedientTipusId, String text);
-	
+
 	/**
 	 * Retorna l'arxiu amb la imatge de la definició de procés.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @param processInstanceId
@@ -434,7 +434,7 @@ public interface ExpedientService {
 	/**
 	 * Retorna la llista de persones que han fet alguna tasca de
 	 * l'expedient.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista de persones.
@@ -447,7 +447,7 @@ public interface ExpedientService {
 
 	/**
 	 * Retorna la llista de tasques pendents de l'expedient.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista de tasques pendents.
@@ -463,7 +463,7 @@ public interface ExpedientService {
 
 	/**
 	 * Atura la tramitació d'un expedient.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol aturar.
 	 * @param motiu
@@ -479,7 +479,7 @@ public interface ExpedientService {
 
 	/**
 	 * Repren la tramitació d'un expedient aturat.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol reprendre.
 	 * @throws NoTrobatException
@@ -493,7 +493,7 @@ public interface ExpedientService {
 	 * Anul·la la tramitació d'un expedient. Un espedient anul·lat és més o manco
 	 * equivalent a esborrat, però les dades de l'expedient segueixen a dins la
 	 * base de dades i en qualsevol moment es pot tornar a activar.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol anular.
 	 * @param motiu
@@ -509,7 +509,7 @@ public interface ExpedientService {
 
 	/**
 	 * Reactiva un expedient prèviament anul·lat.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient.
 	 * @throws NoTrobatException
@@ -522,7 +522,7 @@ public interface ExpedientService {
 
 	/**
 	 * Retrocedeix la finalizació d'un expedient.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient.
 	 * @throws NoTrobatException
@@ -532,10 +532,10 @@ public interface ExpedientService {
 	 */
 	public void desfinalitzar(
 			Long id) throws NoTrobatException, PermisDenegatException;
-	
+
 	/**
 	 * Comprova si es pot retrocedir la finalizació d'un expedient.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient.
 	 * @throws NoTrobatException
@@ -545,10 +545,10 @@ public interface ExpedientService {
 	 */
 	public boolean potDesfinalitzar(
 			Long id) throws NoTrobatException, PermisDenegatException;
-	
+
 	/**
 	 * Finalitza un expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @throws NoTrobatException
@@ -561,7 +561,7 @@ public interface ExpedientService {
 
 	/**
 	 * Finalitza un expedient indicant si firmar o no els document sense firma abans de tancar l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param firmaDocumentsServidor
@@ -577,7 +577,7 @@ public interface ExpedientService {
 
 	/**
 	 * Migra l'expedient a l'arxiu
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient.
 	 * @throws NoTrobatException
@@ -586,7 +586,7 @@ public interface ExpedientService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void sincronitzarArxiu(Long id, boolean esborrarExpSiError) throws NoTrobatException, PermisDenegatException;
-	
+
 	/**
 	 * Migra l'expedient a l'arxiu sense comprovar permisos sobre el expedient
 	 * @param id
@@ -595,10 +595,10 @@ public interface ExpedientService {
 	 * @throws PermisDenegatException
 	 */
 	public void trySincronitzarArxiu(Long id) throws NoTrobatException;
-	
+
 	/**
 	 * Crea una relació entre dos expedients.
-	 * 
+	 *
 	 * @param expedientOrigenId
 	 *            Atribut id de l'expedient origen de la relació.
 	 * @param expedientDestiId
@@ -614,7 +614,7 @@ public interface ExpedientService {
 
 	/**
 	 * Esborra una relació entre dos expedients.
-	 * 
+	 *
 	 * @param origenId
 	 *            Atribut id de l'expedient origen de la relació.
 	 * @param destiId
@@ -631,7 +631,7 @@ public interface ExpedientService {
 	/**
 	 * Retorna la llista d'expedients relacionats amb l'expedient
 	 * especificat.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista d'expedients.
@@ -645,7 +645,7 @@ public interface ExpedientService {
 
 	/**
 	 * Executa un script sobre una instància de procés.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param processInstanceId
@@ -664,7 +664,7 @@ public interface ExpedientService {
 
 	/**
 	 * Canvia la versió de la definició de procés.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol actualitzar.
 	 * @param processInstanceId
@@ -682,7 +682,7 @@ public interface ExpedientService {
 
 	/**
 	 * Canvia la versió de la definició de procés de varis processos de l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol actualitzar.
 	 * @param processInstanceId
@@ -703,7 +703,7 @@ public interface ExpedientService {
 	/**
 	 * Consulta les accions visibles per a un usuari donat un expedient i una
 	 * instància de procés.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol actualitzar.
 	 * @param processInstanceId
@@ -718,7 +718,7 @@ public interface ExpedientService {
 
 	/**
 	 * Consulta una acció d'una instància de procés.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol actualitzar.
 	 * @param processInstanceId
@@ -736,7 +736,7 @@ public interface ExpedientService {
 
 	/**
 	 * Executa una acció d'una instància de procés.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol actualitzar.
 	 * @param processInstanceId
@@ -757,7 +757,7 @@ public interface ExpedientService {
 
 	/**
 	 * Retorna la llista d'accions visibles de l'expedient especificat.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista d'accions.
@@ -771,7 +771,7 @@ public interface ExpedientService {
 	/**
 	 * Retorna la llista d'alertes no eliminades de l'expedient
 	 * especificat
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista d'alertes.
@@ -785,7 +785,7 @@ public interface ExpedientService {
 	/**
 	 * Retorna la llista d'errors relacionats amb
 	 * l'Expedient
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista d'errors.
@@ -795,7 +795,7 @@ public interface ExpedientService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public Object[] findErrorsExpedient(Long id) throws NoTrobatException;
-	
+
 	/**
 	 * Neteja els errors de l'expedient.
 	 * @param id Atribut id de l'expedient que es vol consultar.
@@ -812,7 +812,7 @@ public interface ExpedientService {
 
 	/**
 	 * Fa una consulta per tipus damunt un tipus d'expedient.
-	 * 
+	 *
 	 * @param consultaId
 	 *            Atribut id de la consulta a executar
 	 * @param filtreValors
@@ -854,7 +854,7 @@ public interface ExpedientService {
 
 	/**
 	 * Fa una consulta per tipus damunt un tipus d'expedient i retorna només els ids.
-	 * 
+	 *
 	 * @param consultaId
 	 *            Atribut id de la consulta a executar
 	 * @param filtreValors
@@ -891,8 +891,8 @@ public interface ExpedientService {
 			boolean nomesErrors,
 			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
-			PaginacioParamsDto paginacioParams);	
-	
+			PaginacioParamsDto paginacioParams);
+
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId);
 
 	public List<TascaDadaDto> findConsultaInforme(Long consultaId);
@@ -900,15 +900,15 @@ public interface ExpedientService {
 	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(
 			Long consultaId,
 			Map<String, Object> valors,
-			PaginacioParamsDto paginacioParams, 
+			PaginacioParamsDto paginacioParams,
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			Set<Long> ids);
-	
-	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, 
+
+	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors,
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
@@ -939,7 +939,7 @@ public interface ExpedientService {
 
 	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(
 			Long consultaId,
-			Map<String, Object> valorsPerService, 
+			Map<String, Object> valorsPerService,
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
@@ -965,7 +965,7 @@ public interface ExpedientService {
 	 * @return
 	 */
 	public List<CampDto> getCampsInstanciaProcesById(
-			Long expedientTipusId, 
+			Long expedientTipusId,
 			String processInstanceId);
 
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
@@ -973,17 +973,17 @@ public interface ExpedientService {
 	public void deleteSignatura(Long expedientId, Long documentStoreId) throws NoTrobatException, SistemaExternException;
 
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
-	
+
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
 
 	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero);
 
 	public Long findIdAmbProcessInstanceId(String processInstanceId);
-	
+
 	public List<NotificacioDto> findNotificacionsPerExpedientId(Long expedientId) throws NoTrobatException;
 
 	public List<DadesNotificacioDto> findNotificacionsNotibPerExpedientId(Long expedientId) throws NoTrobatException;
-	
+
 	public NotificacioDto findNotificacioPerId(Long notificacioId, boolean arxiuActiu) throws NoTrobatException;
 
 	/**
@@ -994,7 +994,7 @@ public interface ExpedientService {
 	 * @return
 	 */
 	public List<String> findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
-			Long entornId, 
+			Long entornId,
 			Long expedientTipusId,
 			String jbpmKey);
 
@@ -1010,7 +1010,7 @@ public interface ExpedientService {
 
 	/**
 	 * Executa el handler associat a una variable de tipus acció amb les seves dades.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol actualitzar.
 	 * @param processInstanceId
@@ -1023,22 +1023,22 @@ public interface ExpedientService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void executarCampAccio(
-			Long expedientId, 
-			String processInstanceId, 
+			Long expedientId,
+			String processInstanceId,
 			String accioCamp);
 
 	/**
 	 * Retorna la informació de l'expedient emmagatzemada a dins l'arxiu.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol actualitzar.
 	 * @return la informació de l'expedient emmagatzemada a dins l'arxiu
 	 */
 	public ArxiuDetallDto getArxiuDetall(Long expedientId);
-	
+
 	/**
 	 * Consulta expedients per a un número Sistra
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return L'expedient.
@@ -1050,7 +1050,7 @@ public interface ExpedientService {
 	public List<ExpedientDto> findAmbIniciadorCodi(String responsableCodi);
 
 	/** Crea un .zip amb la documentació de l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 * @return Retorna el contingut del zip.
 	 */
@@ -1062,13 +1062,13 @@ public interface ExpedientService {
 	 * per l'expedient i pels documents. En principi a partir de la versió 3.2.112
 	 * ja no s'haurien de produir errors després de migrar un expedient sense dades
 	 * NTI a l'Arxiu i pert tant aquest mètode ja no seria necessari.
-	 * 
+	 *
 	 * @param expedientId
 	 */
 	public void arreglarMetadadesNti(Long expedientId);
 
 	/** Crea un .zip amb els documents a Notificar
-	 * 
+	 *
 	 * @param expedientId
 	 * @param documentsPerAfegir
 	 * @return Retorna el contingut del zip.
@@ -1077,7 +1077,7 @@ public interface ExpedientService {
 
 	/** Mètode per canviar l'estat a l'expedient tenint en compte les accions de sortida de l'estat
 	 * actual i les accions d'entrada de l'estat destí.
-	 * 
+	 *
 	 * @param expedientId
 	 * @param estatId
 	 * @return
@@ -1091,17 +1091,17 @@ public interface ExpedientService {
 	public void firmarDocumentServidorPerArxiuFiExpedient(Long documentStoreId);
 
 	/** Compta el número d'expedients pel tipus d'expedient.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @return
 	 */
-	public Long countByTipus(Long expedientTipusId);	
+	public Long countByTipus(Long expedientTipusId);
 
 	/** Consulta els ids dels expedients per un tipus d'expedient.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @return
 	 */
-	public List<Long> findIdsPerTipus(Long expedientTipusId);	
+	public List<Long> findIdsPerTipus(Long expedientTipusId);
 
 }

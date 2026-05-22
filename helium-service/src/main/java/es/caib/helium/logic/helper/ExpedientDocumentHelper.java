@@ -343,6 +343,10 @@ public class ExpedientDocumentHelper {
 		expedientDocumentRepository.deleteByDocumentStoreId(documentStoreId);
 	}
 
+	public void deleteByExpedient(Long expedientId) {
+		expedientDocumentRepository.deleteByExpedientId(expedientId);
+	}
+
 	private ExpedientDocument create(
 		DocumentStore documentStore,
 		String codi,

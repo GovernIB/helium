@@ -86,4 +86,5 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 		@Param("expedientId") Long expedientId,
 		@Param("codi") String codi);
 
+	public void deleteByExpedientId(Long expedientId);
 }
