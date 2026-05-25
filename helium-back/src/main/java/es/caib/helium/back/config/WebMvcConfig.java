@@ -10,14 +10,19 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.view.BeanNameViewResolver;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.JstlView;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,10 +31,10 @@ import com.opensymphony.module.sitemesh.filter.PageFilter;
 import es.caib.helium.back.interceptor.AjaxInterceptor;
 import es.caib.helium.back.interceptor.AplicacioInterceptor;
 import es.caib.helium.back.interceptor.EntornInterceptor;
-import es.caib.helium.back.interceptor.PropertiesInterceptor;
 import es.caib.helium.back.interceptor.ModalInterceptor;
 import es.caib.helium.back.interceptor.NodecoInterceptor;
 import es.caib.helium.back.interceptor.PersonaInterceptor;
+import es.caib.helium.back.interceptor.PropertiesInterceptor;
 import es.caib.helium.back.mvc.ArxiuView;
 import es.caib.helium.back.mvc.SerialitzarView;
 
@@ -58,6 +63,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Autowired
 	private PropertiesInterceptor globalPropertiesInterceptor;
 
+	@Override
+	public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+		configurer
+			.favorParameter(false)
+			.ignoreAcceptHeader(true)
+			.defaultContentType(MediaType.APPLICATION_JSON)
+			.useRegisteredExtensionsOnly(false); //.useJaf(true)
+	}
+	 
 	@Bean
 	public FilterRegistrationBean<PageFilter> sitemeshFilter() {
 		FilterRegistrationBean<PageFilter> registrationBean = new FilterRegistrationBean<>();
@@ -151,14 +165,35 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		return multipartResolver;
 	}
 
+	/** Resolver per poder retornar noms de vistes per nom, per exemple arxiuView. */
 	@Bean
+    public BeanNameViewResolver beanNameViewResolver() {
+        BeanNameViewResolver resolver = new BeanNameViewResolver();
+        resolver.setOrder(0);
+        return resolver;
+    }
+
+	@Bean(name ="serialitzarView")
 	public SerialitzarView serialitzarView() {
 		return new SerialitzarView();
 	}
 
-	@Bean
+	@Bean(name ="arxiuView")
 	public ArxiuView arxiuView() {
 		return new ArxiuView();
+	}
+
+	/**
+	 * Resolver per JSPs
+	 */
+	@Bean
+	public InternalResourceViewResolver jspViewResolver() {
+		InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+		resolver.setPrefix("/WEB-INF/jsp/");
+		resolver.setSuffix(".jsp");
+		resolver.setViewClass(JstlView.class);
+		resolver.setOrder(1);
+		return resolver;
 	}
 
 }

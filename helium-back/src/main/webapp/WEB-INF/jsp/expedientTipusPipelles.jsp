@@ -113,6 +113,17 @@
 			<c:otherwise>$('#expedientTipus-pipelles li:first a').click();</c:otherwise>
 		</c:choose>
 
+		// Actualitza la pipella activa a la query per poder refrescar
+		$('#expedientTipus-pipelles .nav-tabs>li').click(function() {
+			let url = new URL(window.location);
+			if ($(this).attr('id') != 'pipella-informacio') {
+				url.searchParams.set('pipellaActiva', $(this).attr('id').replace('pipella-',''));
+			} else {
+				url.searchParams.delete('pipellaActiva');
+			}
+			window.history.replaceState({}, '', url);
+		});
+
 		$(window).on('resize', function(e) {
 			reAdjust();
 		});

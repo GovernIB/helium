@@ -44,10 +44,8 @@ public class ArxiuView implements View {
         
         String safeFileName = sanitizeFileName(fileName);
         
-//		response.setHeader("Content-Disposition","attachment; filename=\"" + fileName + "\"");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + safeFileName + "\"");
 		if (contentType == null)
-//			response.setContentType(new MimetypesFileTypeMap().getContentType(fileName));
 			response.setContentType(new MimetypesFileTypeMap().getContentType(safeFileName));
 		else
 			response.setContentType(contentType);
