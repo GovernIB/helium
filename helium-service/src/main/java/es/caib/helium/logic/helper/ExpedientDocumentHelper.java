@@ -687,14 +687,14 @@ public class ExpedientDocumentHelper {
 			if (documentStore.getReferenciaCustodia() == null) {
 				documentStore.setReferenciaCustodia(documentStore.getId() + "_" + new Date().getTime());
 			}
-			String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-				documentStore.getReferenciaCustodia());
-			String baseUrl = getPropertyCustodiaVerificacioBaseUrl();
-			if (baseUrl != null && urlCustodia.startsWith(baseUrl)) {
-				arxiuCsv = urlCustodia.substring(baseUrl.length());
-			} else {
-				arxiuCsv = urlCustodia;
-			}
+//			String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+//				documentStore.getReferenciaCustodia());
+//			String baseUrl = getPropertyCustodiaVerificacioBaseUrl();
+//			if (baseUrl != null && urlCustodia.startsWith(baseUrl)) {
+//				arxiuCsv = urlCustodia.substring(baseUrl.length());
+//			} else {
+//				arxiuCsv = urlCustodia;
+//			}
 			arxiuCsvRegulacio = getPropertyNtiCsvDef();
 		}
 		if (arxiuTipoFirma != null) {

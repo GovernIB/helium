@@ -341,15 +341,15 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 
 	private String getUrlFirmaSimpleFlux() {
 		return GlobalProperties.getInstance().getProperty(
-				"app.portafirmes.plugin.flux.firma.url");
+			PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_URL);
 	}
 	private String getUsernameFirmaSimpleFlux() {
 		return GlobalProperties.getInstance().getProperty(
-				"app.portafirmes.plugin.flux.firma.usuari");
+			PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_USUARI);
 	}
 	private String getPasswordFirmaSimpleFlux() {
 		return GlobalProperties.getInstance().getProperty(
-				"app.portafirmes.plugin.flux.firma.password");
+			PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_PASSWORD);
 	}
 
 

@@ -17,11 +17,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Lists;
 import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dto.*;
 import org.apache.commons.io.FilenameUtils;
@@ -39,9 +41,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
@@ -112,8 +111,6 @@ import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.caib.ArxiuCaibException;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
-//import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-//import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 
 /**
  * Helper per a gestionar els documents dels expedients
@@ -320,16 +317,11 @@ public class DocumentHelperV3 {
 				}
 			}
 		} else {
-
-			if (documentStore.isSignat() && isSignaturaFileAttached()) {
-				arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
+			if (documentStore.getFont().equals(DocumentFont.INTERNA)) {
+				arxiuOrigenContingut = documentStore.getArxiuContingut();
 			} else {
-				if (documentStore.getFont().equals(DocumentFont.INTERNA)) {
-					arxiuOrigenContingut = documentStore.getArxiuContingut();
-				} else {
-					arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
-							documentStore.getReferenciaFont());
-				}
+				arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
+						documentStore.getReferenciaFont());
 			}
 
 			// Calculam el nom de l'arxiu
@@ -472,16 +464,11 @@ public class DocumentHelperV3 {
 			}
 
 		} else {
-
-			if (documentStore.isSignat() && isSignaturaFileAttached()) {
-				arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
+			if (documentStore.getFont().equals(DocumentFont.INTERNA)) {
+				arxiuOrigenContingut = documentStore.getArxiuContingut();
 			} else {
-				if (documentStore.getFont().equals(DocumentFont.INTERNA)) {
-					arxiuOrigenContingut = documentStore.getArxiuContingut();
-				} else {
-					arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
-							documentStore.getReferenciaFont());
-				}
+				arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
+						documentStore.getReferenciaFont());
 			}
 
 			String arxiuNomOriginal = calcularArxiuNomOriginal(documentStore);
@@ -806,11 +793,12 @@ public class DocumentHelperV3 {
 				false,
 				false, // Per notificar
 				false);
-		if (pluginHelper.custodiaPotObtenirInfoSignatures()) {
-			return conversioTipusHelper.convertirList(pluginHelper.custodiaDadesValidacioSignatura(
-					documentStore.getReferenciaCustodia()), RespostaValidacioSignaturaDto.class);
-		} else if (isSignaturaFileAttached()) {
-			List<byte[]> signatures = pluginHelper.custodiaObtenirSignatures(documentStore.getReferenciaCustodia());
+//		if (pluginHelper.custodiaPotObtenirInfoSignatures()) {
+//			return conversioTipusHelper.convertirList(pluginHelper.custodiaDadesValidacioSignatura(
+//					documentStore.getReferenciaCustodia()), RespostaValidacioSignaturaDto.class);
+//		} else
+		if (isSignaturaFileAttached()) {
+			List<byte[]> signatures = documentStore.getContinguts().stream().map(c -> c.getArxiuContingut()).collect(Collectors.toList());
 			List<RespostaValidacioSignatura> resposta = new ArrayList<RespostaValidacioSignatura>();
 			if (!signatures.isEmpty()) {
 				RespostaValidacioSignatura res = pluginHelper.signaturaVerificar(
@@ -822,8 +810,9 @@ public class DocumentHelperV3 {
 			return conversioTipusHelper.convertirList(resposta, RespostaValidacioSignaturaDto.class);
 		} else {
 			List<RespostaValidacioSignatura> resposta = new ArrayList<RespostaValidacioSignatura>();
-			List<byte[]> signatures = pluginHelper.custodiaObtenirSignatures(
-					documentStore.getReferenciaCustodia());
+//			List<byte[]> signatures = pluginHelper.custodiaObtenirSignatures(
+//					documentStore.getReferenciaCustodia());
+			List<byte[]> signatures = Lists.newArrayList(documentStore.getArxiuContingut());
 			for (byte[] signatura: signatures) {
 				RespostaValidacioSignatura res = pluginHelper.signaturaVerificar(
 						document.getArxiuContingut(),
@@ -1451,13 +1440,6 @@ public class DocumentHelperV3 {
 					}
 				}
 			} else {
-				if (documentStore.isSignat()) {
-					if (pluginHelper.custodiaIsPluginActiu()) {
-						this.programarCustodiaEsborrarSignatures(
-								documentStore.getReferenciaCustodia(),
-								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-					}
-				}
 				if (esborrarDocument && documentStore.getFont().equals(DocumentFont.ALFRESCO)) {
 					pluginHelper.gestioDocumentalDeleteDocument(
 							documentStore.getReferenciaFont(),
@@ -1512,51 +1494,6 @@ public class DocumentHelperV3 {
 			};
 		}
 		return documentsNotificats;
-	}
-
-	/** Programa la petició per esborrar el document de custòdia quan el commit acabi i vagi bé. */
-	@Transactional
-	private void programarCustodiaEsborrarSignatures(String referenciaCustodia, Expedient expedient) {
-		logger.debug("Programant l'esborrat de custòdia del document amb referència " + referenciaCustodia + " de l'expedient " + expedient.getNumeroIdentificador());
-		EsborrarDocumentCustodiaHandler esborrarDocumentCustodiaHandler = new EsborrarDocumentCustodiaHandler(referenciaCustodia, expedient);
-		TransactionSynchronizationManager.registerSynchronization(esborrarDocumentCustodiaHandler);
-	}
-
-	/** Classe que implementa la sincronització de transacció pes esborrar un document firmat de Custòdia només en el cas que la transacció
-	 * hagi finalitzat correctament. D'aquesta forma no s'esborra el documetn si no s'ha acabat la transacció correctament.
-	 */
-	public class EsborrarDocumentCustodiaHandler implements TransactionSynchronization {
-
-		private String referenciaCustodia;
-		private Expedient expedient;
-
-		public EsborrarDocumentCustodiaHandler(String referenciaCustodia, Expedient expedient) {
-			this.referenciaCustodia = referenciaCustodia;
-			this.expedient = expedient;
-		}
-
-		/** Mètode que s'executa després que s'hagi guardat correctament a BBDD i per tants els temporals es poden guardar correctament. */
-		@Override
-		@Transactional
-		public void afterCommit() {
-			logger.debug("Esborrant el document " + referenciaCustodia + " de l'expedient " + expedient.getIdentificador() + " de custòdia");
-			pluginHelper.custodiaEsborrarSignatures(
-			referenciaCustodia,
-			expedient);
-		}
-
-		@Override
-		public void suspend() {}
-		@Override
-		public void resume() {}
-		@Override
-		public void flush() {}
-		@Override
-		public void beforeCommit(boolean readOnly) {}
-		@Override
-		public void beforeCompletion() {}
-		@Override
-		public void afterCompletion(int status) {}
 	}
 
 	public Document getDocumentByTipusExpedientOrDefinicioProcesAndCodi(
@@ -1699,9 +1636,9 @@ public class DocumentHelperV3 {
 
  				if (documentStore.isSignat()) {
 					if (!expedient.isArxiuActiu()) {
-						dto.setUrlVerificacioCustodia(
-								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-										documentStore.getReferenciaCustodia()));
+//						dto.setUrlVerificacioCustodia(
+//								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+//										documentStore.getReferenciaCustodia()));
 						dto.setSignaturaUrlVerificacio(
 								dto.getUrlVerificacioCustodia());
 					} else {
@@ -1864,7 +1801,7 @@ public class DocumentHelperV3 {
 								getNomArxiuAmbExtensio(
 										documentStore.getArxiuNom(),
 										getExtensioArxiuSignat()));
-						byte[] signatura = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
+						byte[] signatura = documentStore.getArxiuContingut(); //pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
 						dto.setSignatContingut(signatura);
 					}
 					if (perNotificar && documentStore.isSignat()) {
@@ -1873,7 +1810,8 @@ public class DocumentHelperV3 {
 								getNomArxiuAmbExtensio(
 										documentStore.getArxiuNom(),
 										getExtensioArxiuSignat()));
-						byte[] signatura = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
+
+						byte[] signatura = documentStore.getArxiuContingut(); //pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
 						dto.setArxiuContingut(signatura);
 					}
 					if (ambContingutVista) {
@@ -1889,7 +1827,7 @@ public class DocumentHelperV3 {
 								arxiuOrigenNom = getNomArxiuAmbExtensio(
 										documentStore.getArxiuNom(),
 										getExtensioArxiuSignat());
-								arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
+								arxiuOrigenContingut = documentStore.getArxiuContingut(); //pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
 							}
 						} else {
 							arxiuOrigenNom = dto.getArxiuNom();
@@ -2059,14 +1997,14 @@ public class DocumentHelperV3 {
 			if (documentStore.getReferenciaCustodia() == null) {
 				documentStore.setReferenciaCustodia(documentStore.getId() + "_" + new Date().getTime());
 			}
-			String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-					documentStore.getReferenciaCustodia());
-			String baseUrl = getPropertyCustodiaVerificacioBaseUrl();
-			if (baseUrl != null && urlCustodia.startsWith(baseUrl)) {
-				arxiuCsv = urlCustodia.substring(baseUrl.length());
-			} else {
-				arxiuCsv = urlCustodia;
-			}
+//			String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+//					documentStore.getReferenciaCustodia());
+//			String baseUrl = getPropertyCustodiaVerificacioBaseUrl();
+//			if (baseUrl != null && urlCustodia.startsWith(baseUrl)) {
+//				arxiuCsv = urlCustodia.substring(baseUrl.length());
+//			} else {
+//				arxiuCsv = urlCustodia;
+//			}
 			arxiuCsvRegulacio = getPropertyNtiCsvDef();
 		}
 		if (arxiuTipoFirma != null) {
@@ -2289,14 +2227,6 @@ public class DocumentHelperV3 {
 		{
 			// Guardar firma a custòdia
 
-			// Si el document estava signat programa l'esborrat de la referència anterior en cas de commit
-			if (documentStore.getReferenciaCustodia() != null && documentStore.isSignat()) {
-				this.programarCustodiaEsborrarSignatures(
-						documentStore.getReferenciaCustodia(),
-						expedient);
-				documentStore.setReferenciaCustodia(null);
-
-			}
 			String referenciaCustodia = documentStore.getReferenciaCustodia();
 			// Nova referència de custòdia
 			if (referenciaCustodia == null) {
@@ -2304,35 +2234,35 @@ public class DocumentHelperV3 {
 			}
 
 			boolean hasErrors = false;
-			try {
+//			try {
+//
+//				referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+//						referenciaCustodia, // custodiaId
+//						documentStore.getReferenciaFont(),
+//						documentStore.getArxiuNom(),
+//						document.getCustodiaCodi(),
+//						signatura);
+//				documentStore.setReferenciaCustodia(referenciaCustodia);
+//			} catch (SistemaExternException ex) {
+//				// Si dona error perquè el document ja està arxivat l'esborra
+//				// i el torna a crear.
+//				logger.info("[PSIGN] Error guardant document a custòdia (" +
+//						exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " +
+//						exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (" +
+//						"docStoreId=" + documentStore.getId() + ", " +
+//						"refCustòdia=" + referenciaCustodia + ")");
+//				if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
+//					// ja està archivat
+//				} else {
+//					hasErrors = true;
+//					//throw ex;
+//				}
+//			}
 
-				referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-						referenciaCustodia, // custodiaId
-						documentStore.getReferenciaFont(),
-						documentStore.getArxiuNom(),
-						document.getCustodiaCodi(),
-						signatura);
-				documentStore.setReferenciaCustodia(referenciaCustodia);
-			} catch (SistemaExternException ex) {
-				// Si dona error perquè el document ja està arxivat l'esborra
-				// i el torna a crear.
-				logger.info("[PSIGN] Error guardant document a custòdia (" +
-						exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " +
-						exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (" +
-						"docStoreId=" + documentStore.getId() + ", " +
-						"refCustòdia=" + referenciaCustodia + ")");
-				if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
-					// ja està archivat
-				} else {
-					hasErrors = true;
-					//throw ex;
-				}
-			}
-
-			if(hasErrors) {
+//			if(hasErrors) {
 				documentStore.setArxiuContingut(signatura);
 				documentStore.setArxiuNom(arxiuNom);
-			}
+//			}
 
 			if (expedient.isNtiActiu()) {
 				actualitzarNtiFirma(documentStore, null);
@@ -2506,11 +2436,11 @@ public class DocumentHelperV3 {
 				dto.setRegistrat(documentStore.isRegistrat());
 				if (documentStore.isSignat()) {
 					if (documentStore.getArxiuUuid() == null) {
-						dto.setUrlVerificacioCustodia(
-								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-										documentStore.getReferenciaCustodia()));
-						dto.setSignaturaUrlVerificacio(
-								dto.getUrlVerificacioCustodia());
+//						dto.setUrlVerificacioCustodia(
+//								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+//										documentStore.getReferenciaCustodia()));
+//						dto.setSignaturaUrlVerificacio(
+//								dto.getUrlVerificacioCustodia());
 					} else {
 						dto.setSignaturaUrlVerificacio(
 								getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
@@ -2663,16 +2593,16 @@ public class DocumentHelperV3 {
 	}
 
 	private String getUrlComprovacioSignatura(Long documentStoreId, String referenciaCustodia) throws Exception {
-		String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(referenciaCustodia);
-		if (urlCustodia != null) {
-			return urlCustodia;
-		} else {
+//		String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(referenciaCustodia);
+//		if (urlCustodia != null) {
+//			return urlCustodia;
+//		} else {
 			String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
 			if (baseUrl == null)
 				baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
 			String token = getDocumentTokenUtils().xifrarToken(documentStoreId.toString());
 			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
-		}
+//		}
 	}
 
 	/** Mètode per obtenir la URL per verificar la signatura. Si el documentStore té uuid s'asumeix que és a l'Arxiu i si no
@@ -2684,19 +2614,19 @@ public class DocumentHelperV3 {
 	private void setSignautraUrlVerificacio(ExpedientDocumentDto dto, DocumentStore documentStore, boolean arxiuActiu) {
 		if (!arxiuActiu) {
 			// Custòdia
-			try {
-				dto.setSignaturaUrlVerificacio(
-						pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-								documentStore.getReferenciaCustodia()));
-			} catch(Exception e) {
-				long time = new Date().getTime();
-				String errMsg = time + " Error obtenint la url de verificació: " + e.toString();
-				if (dto.getError() != null) {
-					errMsg = dto.getError() + ". " + errMsg;
-				}
-				dto.setError(errMsg);
-				dto.setSignaturaUrlVerificacio("error_" + time);
-			}
+//			try {
+//				dto.setSignaturaUrlVerificacio(
+//						pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+//								documentStore.getReferenciaCustodia()));
+//			} catch(Exception e) {
+//				long time = new Date().getTime();
+//				String errMsg = time + " Error obtenint la url de verificació: " + e.toString();
+//				if (dto.getError() != null) {
+//					errMsg = dto.getError() + ". " + errMsg;
+//				}
+//				dto.setError(errMsg);
+//				dto.setSignaturaUrlVerificacio("error_" + time);
+//			}
 		} else {
 			// Arxiu
 			dto.setSignaturaUrlVerificacio(
@@ -2735,15 +2665,15 @@ public class DocumentHelperV3 {
 	}
 
 	private String getUrlComprovacioSignatura(String referenciaCustodia, String token) {
-		String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(referenciaCustodia);
-		if (urlCustodia != null) {
-			return urlCustodia;
-		} else {
+//		String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(referenciaCustodia);
+//		if (urlCustodia != null) {
+//			return urlCustodia;
+//		} else {
 			String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
 			if (baseUrl == null)
 				baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
 			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
-		}
+//		}
 	}
 
 	private byte[] getContingutDocumentAmbFont(DocumentStore document) {
@@ -2966,27 +2896,23 @@ public class DocumentHelperV3 {
 				}
 			}
 			if (ambFirma) {
-				// Guarda la firma a custòdia
-				if (documentStore.getReferenciaCustodia() != null) {
-					this.programarCustodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
-				}
 				String referenciaCustodia = documentStore.getId() + "_" + new Date().getTime();
-				try {
-					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-							referenciaCustodia,
-							documentStore.getReferenciaFont(),
-							arxiuNom,
-							document.getCustodiaCodi(),
-							firmes.get(0).getContingut());
-
-				} catch (Exception ex) {
-					logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (docStoreId=" + documentStore.getId() + ", refCustòdia=" + referenciaCustodia + ")");
-					if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
-						referenciaCustodia = documentStore.getId().toString();
-					} else {
-						throw new RuntimeException(ex);
-					}
-				}
+//				try {
+//					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+//							referenciaCustodia,
+//							documentStore.getReferenciaFont(),
+//							arxiuNom,
+//							document.getCustodiaCodi(),
+//							firmes.get(0).getContingut());
+//
+//				} catch (Exception ex) {
+//					logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (docStoreId=" + documentStore.getId() + ", refCustòdia=" + referenciaCustodia + ")");
+//					if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
+//						referenciaCustodia = documentStore.getId().toString();
+//					} else {
+//						throw new RuntimeException(ex);
+//					}
+//				}
 				if (expedient.isNtiActiu()) {
 					actualitzarNtiFirma(documentStore, null);
 				}

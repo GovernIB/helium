@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.web.servlet.support.RequestContext;
@@ -34,7 +35,8 @@ import es.caib.helium.back.mvc.SerialitzarView;
 public class BaseController implements MessageSourceAware {
 
 	/* Propietat estàtica on posar el valor de la propietat server.servlet.context-path amb el context de l'aplicació. */
-	private static String ESQUEMA_PREFIX = null;
+	@Value("${server.servlet.context-path}")
+	protected String ESQUEMA_PREFIX;
 
 	MessageSource messageSource;
 

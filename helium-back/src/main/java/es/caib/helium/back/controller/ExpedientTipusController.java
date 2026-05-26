@@ -468,7 +468,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			model.addAttribute("expedientTipus", dto);
 			model.addAttribute("command", command);
 			this.omplirModelFormulariExportacio(expedientTipusId, model, dto);
-        	return new InternalResourceView("expedientTipusExportarForm");
+        	return new InternalResourceView("/WEB-INF/jsp/expedientTipusExportarForm.jsp");
         } else {
 			model.addAttribute("filename", dto.getCodi() + ".exp");
 			ExpedientTipusExportacio expedientTipusExportacio =

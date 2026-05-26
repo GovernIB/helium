@@ -163,13 +163,13 @@ public class DocumentHelper {
 		if (documentStoreId != null){
 			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
 			if (documentStore != null) {
-				if (documentStore.isSignat()) {
-					if (pluginHelper.custodiaIsPluginActiu()) {
-						pluginHelper.custodiaEsborrarSignatures(
-								documentStore.getReferenciaCustodia(),
-								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-					}
-				}
+//				if (documentStore.isSignat()) {
+//					if (pluginHelper.custodiaIsPluginActiu()) {
+//						pluginHelper.custodiaEsborrarSignatures(
+//								documentStore.getReferenciaCustodia(),
+//								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
+//					}
+//				}
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
 					pluginHelper.gestioDocumentalDeleteDocument(
 							documentStore.getReferenciaFont(),
@@ -211,13 +211,13 @@ public class DocumentHelper {
 		if (documentStoreId != null){
 			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
 			if (documentStore != null) {
-				if (documentStore.isSignat()) {
-					if (pluginHelper.custodiaIsPluginActiu()) {
-						pluginHelper.custodiaEsborrarSignatures(
-								documentStore.getReferenciaCustodia(),
-								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-					}
-				}
+//				if (documentStore.isSignat()) {
+//					if (pluginHelper.custodiaIsPluginActiu()) {
+//						pluginHelper.custodiaEsborrarSignatures(
+//								documentStore.getReferenciaCustodia(),
+//								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
+//					}
+//				}
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
 					pluginHelper.gestioDocumentalDeleteDocument(
 							documentStore.getReferenciaFont(),
@@ -280,39 +280,40 @@ public class DocumentHelper {
 						true);
 				documentHelperV3.actualitzarNtiFirma(documentStore, documentArxiu);
 				custodiat = true;
-			} else if (pluginHelper.custodiaIsPluginActiu()) {
-				if (expedient.isNtiActiu()) {
-					documentHelperV3.actualitzarNtiFirma(documentStore, null);
-				}
-				String nomArxiu = getNomArxiuAmbExtensio(
-						dto.getArxiuNom(),
-						getExtensioArxiuSignat());
-				String referenciaCustodia = documentStore.getId() + "_" + new Date().getTime();
-				if (pluginHelper.custodiaIsValidacioImplicita()) {
-					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-							referenciaCustodia,
-							documentStore.getReferenciaFont(),
-							nomArxiu,
-							dto.getCustodiaCodi(),
-							signatura);
-					custodiat = true;
-				} else {
-					RespostaValidacioSignatura resposta = pluginHelper.signaturaVerificar(
-							dto.getVistaContingut(),
-							signatura,
-							false);
-					if (resposta.isEstatValid()) {
-						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-								referenciaCustodia,
-								documentStore.getReferenciaFont(),
-								nomArxiu,
-								dto.getCustodiaCodi(),
-								signatura);
-						custodiat = true;
-					}
-				}
-				documentStore.setReferenciaCustodia(referenciaCustodia);
 			}
+//			else if (pluginHelper.custodiaIsPluginActiu()) {
+//				if (expedient.isNtiActiu()) {
+//					documentHelperV3.actualitzarNtiFirma(documentStore, null);
+//				}
+//				String nomArxiu = getNomArxiuAmbExtensio(
+//						dto.getArxiuNom(),
+//						getExtensioArxiuSignat());
+//				String referenciaCustodia = documentStore.getId() + "_" + new Date().getTime();
+//				if (pluginHelper.custodiaIsValidacioImplicita()) {
+//					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+//							referenciaCustodia,
+//							documentStore.getReferenciaFont(),
+//							nomArxiu,
+//							dto.getCustodiaCodi(),
+//							signatura);
+//					custodiat = true;
+//				} else {
+//					RespostaValidacioSignatura resposta = pluginHelper.signaturaVerificar(
+//							dto.getVistaContingut(),
+//							signatura,
+//							false);
+//					if (resposta.isEstatValid()) {
+//						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
+//								referenciaCustodia,
+//								documentStore.getReferenciaFont(),
+//								nomArxiu,
+//								dto.getCustodiaCodi(),
+//								signatura);
+//						custodiat = true;
+//					}
+//				}
+//				documentStore.setReferenciaCustodia(referenciaCustodia);
+//			}
 			if (custodiat) {
 				documentStore.setSignat(true);
 //				jbpmDao.setTaskInstanceVariable(
@@ -586,16 +587,16 @@ public class DocumentHelper {
 //					dto.setUrlVerificacioCustodia(
 //							pluginHelper.custodiaObtenirUrlComprovacioSignatura(
 //									document.getReferenciaCustodia()));
-					if (document.getArxiuUuid() == null) {
-						dto.setUrlVerificacioCustodia(
-								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-										document.getReferenciaCustodia()));
+//					if (document.getArxiuUuid() == null) {
+//						dto.setUrlVerificacioCustodia(
+//								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+//										document.getReferenciaCustodia()));
 //						dto.set.setSignaturaUrlVerificacio(
 //								dto.getUrlVerificacioCustodia());
-					} else {
+//					} else {
 //						dto.setSignaturaUrlVerificacio(
 //								getPropertyArxiuVerificacioBaseUrl() + document.getNtiCsv());
-					}
+//					}
 
 				}
 				String codiDocument;
@@ -638,7 +639,7 @@ public class DocumentHelper {
 							getNomArxiuAmbExtensio(
 									document.getArxiuNom(),
 									getExtensioArxiuSignat()));
-					byte[] signatura = pluginHelper.custodiaObtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
+					byte[] signatura = document.getArxiuContingut();
 					dto.setSignatContingut(signatura);
 				}
 				if (ambContingutVista) {
@@ -654,7 +655,7 @@ public class DocumentHelper {
 							arxiuOrigenNom = getNomArxiuAmbExtensio(
 									document.getArxiuNom(),
 									getExtensioArxiuSignat());
-							arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
+							arxiuOrigenContingut = document.getArxiuContingut();
 						}
 					} else {
 						arxiuOrigenNom = dto.getArxiuNom();
@@ -783,16 +784,10 @@ public class DocumentHelper {
 	}
 
 	private String getUrlComprovacioSignatura(String referenciaCustodia, String token) {
-		String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-				referenciaCustodia);
-		if (urlCustodia != null) {
-			return urlCustodia;
-		} else {
-			String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
-			if (baseUrl == null)
-				baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
-			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
-		}
+		String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
+		if (baseUrl == null)
+			baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
+		return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 	}
 
 	private Long getDocumentStoreIdPerToken(String token) {

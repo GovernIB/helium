@@ -833,7 +833,7 @@ public class ExpedientController extends BaseExpedientController {
     						"expedient.exportacio.eni.error",
     						new Object[]{e.getMessage()}),
 					e);
-    		response.sendRedirect("/helium/expedient/" + expedientId);
+    		response.sendRedirect(ESQUEMA_PREFIX + "/expedient/" + expedientId);
     	}
 	}
 
@@ -856,7 +856,7 @@ public class ExpedientController extends BaseExpedientController {
     						"expedient.exportacio.eni.error",
     						new Object[]{e.getMessage()}),
 					e);
-    		response.sendRedirect("/helium/expedient/" + expedientId);
+    		response.sendRedirect(ESQUEMA_PREFIX + "/expedient/" + expedientId);
     	}
 	}
 
@@ -878,7 +878,7 @@ public class ExpedientController extends BaseExpedientController {
     						"expedient.exportacio.eni.error",
     						new Object[]{e.getMessage()}),
 					e);
-    		response.sendRedirect("/helium/expedient/" + expedientId);
+    		response.sendRedirect(ESQUEMA_PREFIX + "/expedient/" + expedientId);
     	}
 	}
 

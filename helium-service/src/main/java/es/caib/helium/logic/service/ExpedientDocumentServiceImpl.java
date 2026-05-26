@@ -2723,26 +2723,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	 * @param documentStore
 	 */
 	private void setSignautraUrlVerificacio(ExpedientDocumentDto dto, DocumentStore documentStore, boolean arxiuActiu) {
-		if (!arxiuActiu) {
-			// Custòdia
-			try {
-				dto.setSignaturaUrlVerificacio(
-					pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-						documentStore.getReferenciaCustodia()));
-			} catch(Exception e) {
-				long time = new Date().getTime();
-				String errMsg = time + " Error obtenint la url de verificació: " + e.toString();
-				if (dto.getError() != null) {
-					errMsg = dto.getError() + ". " + errMsg;
-				}
-				dto.setError(errMsg);
-				dto.setSignaturaUrlVerificacio("error_" + time);
-			}
-		} else {
-			String arxiuVerificacioBaseUrl = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ARXIU_VERIFICACIO_BASEURL);
-			// Arxiu
-			dto.setSignaturaUrlVerificacio(arxiuVerificacioBaseUrl + documentStore.getNtiCsv());
-		}
+		String arxiuVerificacioBaseUrl = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ARXIU_VERIFICACIO_BASEURL);
+		// Arxiu
+		dto.setSignaturaUrlVerificacio(arxiuVerificacioBaseUrl + documentStore.getNtiCsv());
 	}
 
 	private String calcularArxiuNom(
