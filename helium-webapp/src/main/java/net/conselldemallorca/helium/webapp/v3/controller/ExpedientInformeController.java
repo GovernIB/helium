@@ -442,7 +442,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				dadaIndex.getReportFieldName(),
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
-			field.setValor(dadaIndex.getValor());
+			field.setValor(dadaIndex.getValorIndex());
 			if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(field.getCampCodi())) {
 				if (expedient.getDataFi() != null) {
 					field.setValorMostrar(getMessage(request, "expedient.consulta.finalitzat"));

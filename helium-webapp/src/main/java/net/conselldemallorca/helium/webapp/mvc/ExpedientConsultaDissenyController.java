@@ -730,7 +730,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				dadaIndex.getReportFieldName(),
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
-			field.setValor(dadaIndex.getValor());
+			field.setValor(dadaIndex.getValorIndex());
 			if ("expedient%estat".equals(field.getCampCodi())) {
 				if (expedient.getDataFi() != null) {
 					field.setValorMostrar(this.getMessage("expedient.consulta.finalitzat"));
