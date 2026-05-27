@@ -95,19 +95,10 @@ public class UnitatsOrganitzativesRestClient extends RestClientBaseUnitats{
 	
 	public UnidadRest obtenerUnidad(String codigo, String fechaActualizacion, String fechaSincronizacion, Boolean denominacioCooficial) {
 		try {
-			String dadaAct = null;
-			String dadaSin = null;
-
-			if (fechaActualizacion != null) {
-				dadaAct = "fechaActualizacion=" + fechaActualizacion;
-			}
-			if (fechaSincronizacion != null) {
-				dadaSin = "fechaSincronizacion=" + fechaSincronizacion;
-			}
-
-			String urlGet = baseUrl + OBTENER_UNIDAD + "?codigo=" + codigo + "&"
-					+ (dadaAct != null ? (dadaAct + "&") : "") + (dadaSin != null ? (dadaSin + "&") : "")
-					+ "denominacionCooficial=" + denominacioCooficial;
+			String urlGet = baseUrl + OBTENER_UNIDAD + "?codigo=" + codigo 
+					+ (fechaActualizacion != null ?  "&fechaActualizacion=" + fechaActualizacion : "")
+					+ (fechaSincronizacion != null ?  "&fechaSincronizacion=" + fechaSincronizacion : "")
+					+ (denominacioCooficial != null ?  "&denominacionCooficial=" + denominacioCooficial : "");
 
 			Client jerseyClient = generarIAuthenticarClient(baseUrl + OBTENER_UNIDAD);
 			jerseyClient.addFilter(new HTTPBasicAuthFilter(username, password));

@@ -375,6 +375,8 @@ $(document).ready(function() {
  	 						$('#documentIdent').val(data.nifCif);
  	 						$('#documentIdent').prop("readonly", true);
 
+ 	 						$('#raoSocial').val(data.denominacio).change();
+
  	 						$('#provincia').val(data.codiProvincia);
  	 						$('#provincia').prop("readonly", true);
  	 						$('#provincia').select2("destroy");
@@ -411,6 +413,8 @@ $(document).ready(function() {
  	 						$('#dir3Codi').val(null).change();
  	 						$('#documentIdent').val(null);
  	 						$('#documentIdent').prop("readonly", true);
+
+ 	 						$('#raoSocial').val(null).change();
 
  	 						$('#provincia').val(null);
  	 						$('#provincia').prop("readonly", true);

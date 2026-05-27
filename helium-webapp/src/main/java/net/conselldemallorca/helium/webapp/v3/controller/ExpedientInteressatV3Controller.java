@@ -158,7 +158,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		InteressatCommand interessatCommand= new InteressatCommand();
-		populateModel(request, model, null);
+		populateModel(request, model, null, null);
 		interessatCommand.setPais(CODI_PAIS_ESPANYA);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(interessatCommand);
@@ -196,7 +196,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         	}
         }
     	if (error) {
-    		populateModel(request, model, null);
+    		populateModel(request, model, command.getProvincia(), command.getDir3Codi());
     		return "v3/interessatForm";
     	} else {
         	return modalUrlTancar(false);
@@ -216,7 +216,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		if(dto.getPais()==null) {
 			dto.setPais(CODI_PAIS_ESPANYA);
 		}
-		populateModel(request, model, dto.getProvincia());
+		populateModel(request, model, dto.getProvincia(), dto.getDir3Codi());
 		model.addAttribute("tipus",dto.getTipus());
 		model.addAttribute("es_representant",dto.getEs_representant());
 		//posem el valor de l'enum tal com apareix al llistat
@@ -273,7 +273,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         	}
         }
         if (error) {
-    		populateModel(request, model, command.getProvincia());
+    		populateModel(request, model, command.getProvincia(), command.getDir3Codi());
         	command.setEs_representant(es_representant);
         	if (command.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(command.getTipus())) {
     			this.populateUOsCommand(command);
@@ -290,7 +290,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		InteressatCommand interessatCommand= new InteressatCommand();
-		populateModel(request, model, null);
+		populateModel(request, model, null, null);
 		interessatCommand.setPais(CODI_PAIS_ESPANYA);
 		interessatCommand.setEs_representant(true);
 		model.addAttribute("expedientId", expedientId);
@@ -329,7 +329,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         	}
         }
         if (error) {
-    		populateModel(request, model, command.getProvincia());
+    		populateModel(request, model, command.getProvincia(), command.getDir3Codi());
         	return "v3/interessatForm";
         } else {
   			return modalUrlTancar(false);
@@ -484,7 +484,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		return "redirect:/v3/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}
 
-	private void populateModel(HttpServletRequest request, Model model, String provincia) {
+	private void populateModel(HttpServletRequest request, Model model, String provincia, String codi) {
 		model.addAttribute(
 				"interessatTipusOptions",
 				EnumHelper.getOptionsForEnum(
@@ -515,12 +515,23 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.provincies.error"));
 		}
 		try {
+			boolean conteCodi = false;
 			List<ParellaCodiValorDto> organs = new ArrayList<ParellaCodiValorDto>();
 			for (UnitatOrganitzativaDto uo : unitatOrganitzativaService.findAll()) {
 				ParellaCodiValorDto pcv = new ParellaCodiValorDto(uo.getCodi(), uo.getCodi() + " - " + uo.getDenominacio());
 				organs.add(pcv);
+				if (codi != null && codi.equals(uo.getCodi())) {
+					conteCodi = true;
+				}
 			}
 			model.addAttribute("organs", organs);
+			if (codi != null && !conteCodi) {
+				// Afegeix la unitat externa si es troba
+				UnitatOrganitzativaDto unitat = unitatOrganitzativaService.findByCodiExterna(codi);
+				if (unitat != null) {
+					organs.add(new ParellaCodiValorDto(unitat.getCodi(), unitat.getCodi() + " - " + unitat.getDenominacio()));
+				}
+			}
 			
 		} catch (Exception e) {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.unitats.error"));

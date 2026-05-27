@@ -16,7 +16,6 @@ import net.conselldemallorca.helium.core.helper.ParametreHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
-import net.conselldemallorca.helium.integracio.plugins.dadesext.NivellAdministracio;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -378,20 +377,6 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 				arrel, 
 				provincia, 
 				municipi);
-//		return conversioTipusHelper.convertirList(
-//				unitatOrganitzativaRepository.findByFiltre(
-//						pareCodi,
-//						Strings.isNullOrEmpty(pareCodi),
-//						provincia, 
-//						Strings.isNullOrEmpty(provincia),
-//						municipi, 
-//						Strings.isNullOrEmpty(municipi), 
-//						nif,
-//						Strings.isNullOrEmpty(nif),
-//						nom, 
-//						Strings.isNullOrEmpty(nom),
-//						arrel != null? arrel : false),
-//				UnitatOrganitzativaDto.class);
 	}
 
 	@Override

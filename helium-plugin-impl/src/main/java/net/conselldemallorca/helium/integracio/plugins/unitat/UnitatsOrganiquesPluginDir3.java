@@ -11,8 +11,6 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
 
-import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
-import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -27,11 +25,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
-	@Resource
-	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
-	
-	@Resource
-	private MonitorIntegracioHelper monitorIntegracioHelper;
 	
 	private String getServiceUrl() {
 		return GlobalProperties.getInstance().getProperty(
@@ -46,17 +39,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 		return GlobalProperties.getInstance().getProperty(
 				"app.unitats.organiques.dir3.plugin.service.password");
 	}
-	private boolean isLogMissatgesActiu() {
-		return GlobalProperties.getInstance().getAsBoolean(
-				"app.unitats.organiques.dir3.plugin.service.log.actiu");
-	}
-	private Integer getServiceTimeout() {
-		String key = "app.unitats.organiques.dir3.plugin.service.connect.timeout";
-		if (GlobalProperties.getInstance().getProperty(key) != null)
-			return GlobalProperties.getInstance().getAsInt(key);
-		else
-			return null;
-	}
+
 	private String getServiceCercaUrl() {
 		String serviceUrl = GlobalProperties.getInstance().getProperty(
 				"app.unitats.organiques.dir3.plugin.service.cerca.url");
@@ -118,43 +101,21 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 	public UnitatOrganitzativaDto unitatsOrganitzativesFindByCodi(
 			String codi) throws SistemaExternException{
 
-		String accioDescripcio = "Consulta d'unitat organitzativa donat el seu codi";
-		long t0 = System.currentTimeMillis();
+		UnitatOrganitzativaDto unitatOrganitzativa = null;
 		try {
-			UnitatOrganitzativaDto unitatOrganitzativa = null;
 			UnidadRest unidad = getUnitatsOrganitzativesRestClient().obtenerUnidad(codi, null, null, null);
 			
-			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-					new IntegracioParametreDto(
-							"codi",
-							codi)
-			};
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_UNITATS,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);			
 			if (unidad!=null) {
 				unitatOrganitzativa = toUnitatOrganitzativa(unidad);
 			}
-			return unitatOrganitzativa;
-
-		
 		} catch (Exception ex) {
 			String errorDescripcio = "Error al accedir al plugin d'unitats organitzatives";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_UNITATS,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex);
 			throw new SistemaExternException(
 					errorDescripcio +" (" +
 					"codi=" + codi + ")",
 					ex);
 		}
+		return unitatOrganitzativa;
 	}
 	
 	@Override
