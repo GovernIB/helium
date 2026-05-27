@@ -535,7 +535,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				for (DocumentStore documentStore : documentStoreRepository.findByProcessInstanceId(pi.getId())) {
 					if (documentStore.isSignat() && documentStore.getReferenciaCustodia() != null) {
 						try {
-							pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
+//							pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
 						} catch (Exception ignored) {
 						}
 					}
@@ -1298,9 +1298,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false);
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
 		if (documentStore != null && documentStore.isSignat()) {
-				pluginHelper.custodiaEsborrarSignatures(
-						documentStore.getReferenciaCustodia(),
-						expedient);
+//				pluginHelper.custodiaEsborrarSignatures(
+//						documentStore.getReferenciaCustodia(),
+//						expedient);
 			String codi = documentStore.getCodi();
 			documentStore.setReferenciaCustodia(null);
 			documentStore.setSignat(false);
