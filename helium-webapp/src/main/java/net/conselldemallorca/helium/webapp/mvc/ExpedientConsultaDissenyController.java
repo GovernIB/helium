@@ -730,7 +730,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				dadaIndex.getReportFieldName(),
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
-			field.setValor(dadaIndex.getValorIndex());
+			field.setValor(dadaIndex.getValor());
 			if ("expedient%estat".equals(field.getCampCodi())) {
 				if (expedient.getDataFi() != null) {
 					field.setValorMostrar(this.getMessage("expedient.consulta.finalitzat"));
@@ -743,9 +743,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			} else {
 				field.setValorMostrar(dadaIndex.getValorMostrar());
 			}
-			if (dadaIndex.isOrdenarPerValorMostrar())
+			if (dadaIndex.isOrdenarPerValorMostrar()) { //SELECCIO o SUGGEST
 				field.setValorOrdre(dadaIndex.getValorMostrar());
-			else
+				field.setValor(dadaIndex.getValorIndex());
+			} else
 				field.setValorOrdre(dadaIndex.getValorIndex());
 		} else {
 			field.setValorMultiple(dadaIndex.getValorMultiple());

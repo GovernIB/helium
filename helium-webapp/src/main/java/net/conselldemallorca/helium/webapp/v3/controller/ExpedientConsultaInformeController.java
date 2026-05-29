@@ -835,7 +835,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				dadaIndex.getReportFieldName(),
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
-			field.setValor(dadaIndex.getValorIndex());
+			field.setValor(dadaIndex.getValor());
 			if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(field.getCampCodi())) {
 				if (expedient.getDataFi() != null) {
 					field.setValorMostrar(getMessage(request, "expedient.consulta.finalitzat"));
@@ -848,9 +848,10 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			} else {
 				field.setValorMostrar(dadaIndex.getValorMostrar());
 			}
-			if (dadaIndex.isOrdenarPerValorMostrar())
+			if (dadaIndex.isOrdenarPerValorMostrar()) { //SELECCIO o SUGGEST
 				field.setValorOrdre(dadaIndex.getValorMostrar());
-			else
+				field.setValor(dadaIndex.getValorIndex());
+			} else
 				field.setValorOrdre(dadaIndex.getValorIndex());
 		} else {
 			field.setValorMultiple(dadaIndex.getValorMultiple());
