@@ -30,14 +30,17 @@
             <logger category="sun.rmi">
                 <level name="WARN"/>
             </logger>
+			<logger category="org.jboss.security">
+				<level name="DEBUG"/>
+			</logger>
+			<logger category="org.wildfly.security">
+				<level name="TRACE"/>
+			</logger>
             <logger category="org.springframework">
                 <level name="INFO"/>
             </logger>
             <logger category="es.caib.${env.JBOSS_APP_NAME}">
                 <level name="INFO"/>
-            </logger>
-            <logger category="es.caib.helium.persistence.config">
-                <level name="DEBUG"/>
             </logger>
             <!--<logger category="org.springframework.transaction.jta">
                 <level name="DEBUG"/>

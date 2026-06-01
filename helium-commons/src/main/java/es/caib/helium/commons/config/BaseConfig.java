@@ -16,6 +16,7 @@ public class BaseConfig {
 	public static final String APP_SYSTEM_PROPERTIES = BASE_PACKAGE + ".system.properties";
 
 	public static final String ROLE_ADMIN = "HEL_ADMIN";
+	public static final String ROLE_COMANDA = "HEL_COM";
 	public static final String ROLE_USER = "tothom";
 
 }

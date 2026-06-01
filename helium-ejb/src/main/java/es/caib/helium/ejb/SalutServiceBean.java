@@ -1,5 +1,6 @@
 package es.caib.helium.ejb;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
@@ -23,25 +24,25 @@ public class SalutServiceBean extends AbstractServiceEjb<SalutService> implement
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public List<IntegracioInfo> getIntegracions() {
 		return delegateService.getIntegracions();
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public List<SubsistemaInfo> getSubsistemes() {
 		return delegateService.getSubsistemes();
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public List<ContextInfo> getContexts() {
 		return delegateService.getContexts();
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@PermitAll
 	public SalutInfo checkSalut(String versio, String performanceUrl) {
 		return delegateService.checkSalut(versio, performanceUrl);
 	}

@@ -93,13 +93,13 @@
 						<webModule>
 							<groupId>${project.groupId}</groupId>
 							<artifactId>helium-api-interna</artifactId>
-							<contextRoot>/heliumapi/interna</contextRoot>
+							<contextRoot>/helium2api/interna</contextRoot>
 							<bundleFileName>helium-api-interna.war</bundleFileName>
 						</webModule>
 						<webModule>
 							<groupId>${project.groupId}</groupId>
 							<artifactId>helium-back</artifactId>
-							<contextRoot>/heliumback</contextRoot>
+							<contextRoot>/helium2back</contextRoot>
 							<bundleFileName>helium-back.war</bundleFileName>
 						</webModule>
 					</modules>

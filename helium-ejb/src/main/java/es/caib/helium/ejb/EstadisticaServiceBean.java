@@ -49,31 +49,31 @@ public class EstadisticaServiceBean extends AbstractServiceEjb<EstadisticaServic
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public RegistresEstadistics consultaDarreresEstadistiques() {
 		return delegateService.consultaDarreresEstadistiques();
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public RegistresEstadistics consultaEstadistiques(Date data) {
 		return delegateService.consultaEstadistiques(data);
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public List<RegistresEstadistics> consultaEstadistiques(Date dataInici, Date dataFi) {
 		return delegateService.consultaEstadistiques(dataInici, dataFi);
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public List<DimensioDesc> getDimensions() {
 		return delegateService.getDimensions();
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
 	public List<IndicadorDesc> getIndicadors() {
 		return delegateService.getIndicadors();
 	}
