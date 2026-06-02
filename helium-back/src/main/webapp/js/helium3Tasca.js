@@ -527,7 +527,7 @@ function addField(idTable, campId ) {
 		// Si no hi ha cap filla n'obté una des del controlador
 		var trHtml = null;
 		$.ajax({
-			url: '/heliumback/nodeco/camptasca/' + campId + '/afegir',
+			url: '/helium2back/nodeco/camptasca/' + campId + '/afegir',
 			success: function(data) {
 				trHtml = $(data, '.multiple').find('tr');
 			},

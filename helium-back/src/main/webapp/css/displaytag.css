@@ -1,7 +1,7 @@
 table.displaytag td.showDragHandle {
-    background-image: url(/heliumback/img/updown.png);
+    background-image: url(/helium2back/img/updown.png);
     background-repeat: no-repeat;
-    background-position: left 3px; 
+    background-position: left 3px;
     cursor: move;
 }
 

@@ -14,11 +14,11 @@
 		if (cookies[c].startsWith('es.caib.loginModule')) {
 			entorn = cookies[c].split('=')[0].split('/')[1];
 			document.cookie = 'es.caib.loginModule/' + entorn + '=; path=/; expires=' + new Date(0).toUTCString() + '; domain=' + domini;
-		}		
+		}
 	}
 
 	// Redirigeix a la pàgina inicial.
-	window.location="/heliumback";
+	window.location="/helium2back";
 </script>
 </head>
 <body>

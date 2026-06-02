@@ -1,6 +1,6 @@
 
 function webutilContextPath() {
-	return '/heliumback';
+	return '/helium2back';
 }
 function webutilModalTancarPath() {
 	return webutilContextPath() + '/modal/tancar';
@@ -8,11 +8,11 @@ function webutilModalTancarPath() {
 function webutilRefreshMissatges() {
 	jQuery.ajaxSetup({async:false});
 	$('#contingut-alertes').load(webutilContextPath() + "/nodeco/missatges");
-	jQuery.ajaxSetup({async:true});	
+	jQuery.ajaxSetup({async:true});
 }
 
 function webutilEsborrarAlertes(divAlertes) {
-	if (!divAlertes) {		
+	if (!divAlertes) {
 		divAlertes = '#contingut-alertes';
 	}
 	$(divAlertes).empty();
@@ -20,33 +20,33 @@ function webutilEsborrarAlertes(divAlertes) {
 
 function webutilAlertaSuccess(missatge, divAlertes) {
 	if (!divAlertes) {
-		divAlertes = '#contingut-alertes';		
+		divAlertes = '#contingut-alertes';
 	}
 	var $div = $('<div>', {'class': 'alert alert-success'});
 	$div.html('<span class="fa fa-check"></span>&nbsp;<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>');
-	$div.append(missatge);	
+	$div.append(missatge);
 	$(divAlertes).append($div);
 	return $div;
 }
 
 function webutilAlertaWarning(missatge, divAlertes) {
 	if (!divAlertes) {
-		divAlertes = '#contingut-alertes';		
+		divAlertes = '#contingut-alertes';
 	}
 	var $div = $('<div>', {'class': 'alert alert-warning'});
 	$div.html('<span class="fa fa-warning"></span>&nbsp;<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>');
-	$div.append(missatge);	
+	$div.append(missatge);
 	$(divAlertes).append($div);
 	return $div;
 }
 
 function webutilAlertaError(missatge, divAlertes) {
 	if (!divAlertes) {
-		divAlertes = '#contingut-alertes';		
+		divAlertes = '#contingut-alertes';
 	}
 	var $div = $('<div>', {'class': 'alert alert-danger'});
 	$div.html('<span class="fa fa-warning"></span>&nbsp;<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>');
-	$div.append(missatge);	
+	$div.append(missatge);
 	$(divAlertes).append($div);
 	return $div;
 }
@@ -82,7 +82,7 @@ function webutilUrlAmbPrefix(url, prefix) {
 	return absolutePath.substring(0, webutilContextPath().length) + '/' + prefixSenseBarra + absolutePath.substring(webutilContextPath().length);
 }
 
-/** Retorna true si ha estat l'usuari que ha apretat la tecla ESC o 
+/** Retorna true si ha estat l'usuari que ha apretat la tecla ESC o
  * ha navegat cap a una altra pàgina.
  */
 function userAborted(xhr) {
@@ -102,7 +102,7 @@ function webutilDownloadAndRefresh(arxiuUrl, event, callbackFunction) {
             if (disposition && disposition.indexOf('attachment') !== -1) {
                 var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
                 var matches = filenameRegex.exec(disposition);
-                if (matches != null && matches[1]) { 
+                if (matches != null && matches[1]) {
                   filename = matches[1].replace(/['"]/g, '');
                 }
             }
@@ -396,7 +396,7 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 				$(this).attr('data-botons-titol-eval', 'true');
 			}
 		});
-		
+
 		$('body').on('change', 'input', trimInput);
 		$('body').on('change', 'textarea', trimInput);
 	});
@@ -408,7 +408,7 @@ var trimInput = function() {
 	if(this.type !== 'file') {
 		this.value = this.value.trim();
 	}
-} 
+}
 
 jQuery.fn.highlight = function(pat) {
 	function innerHighlight(node, pat) {

@@ -26,19 +26,19 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
-<body>		
+<body>
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusCommand">
 		<div class="inlineLabels">
-        
+
 			<script type="text/javascript">
 				// <![CDATA[
 				var esborrarMsg = "<spring:message code='expedient.tipus.form.boto.esborrar' />";
-				
+
 				$(document).ready( function() {
-					
+
 					$('#tipus').change(function() {
 						if ($(this).val() == 'ESTAT') {
 							if ( !$('#ambInfoPropia').is(":checked")) {
@@ -59,7 +59,7 @@
 					$('#reiniciarCadaAny').change(function() {
 						canviReiniciar();
 					})
-					
+
 					$('#ambInfoPropiaNota').insertAfter('#ambInfoPropia');
 
 					// Habilita o deshabilita les opcions d'herència
@@ -85,17 +85,17 @@
 					        $('#heretable').prop('checked', false);
 					    }
 					});
-					
-				}); 
+
+				});
 
 				function add() {
 					var nFiles = $("#seqs > tbody > tr").length;
 					var classe = "odd";
-					if (nFiles % 2 == 1) classe = "even"; 
+					if (nFiles % 2 == 1) classe = "even";
 					var nouDiv =	"<tr class='" + classe + "'>\n" +
 									"	<td><input type='text' style='text-align:right; width: 100%;' class='form-control' value='' name='sequenciesAny' id='seqany_" + nFiles + "'></td>\n" +
 									"	<td><input type='text' style='text-align:right; width: 100%;' class='form-control' value='' name='sequenciesValor' id='seqseq_" + nFiles + "'></td>\n" +
-									"	<td style='width:16px'><a onclick='removeSeq(" + nFiles +")' href='javascript:void(0)'><img border='0' src='/heliumback/img/cross.png'></a></td>\n" +
+									"	<td style='width:16px'><a onclick='removeSeq(" + nFiles +")' href='javascript:void(0)'><img border='0' src='/helium2back/img/cross.png'></a></td>\n" +
 									"</tr>\n";
 					$("#seqs").append(nouDiv);
 		    	}
@@ -113,7 +113,7 @@
 						i++;
 					});
 				}
-				
+
 				function canviReiniciar() {
 					if ($("#reiniciarCadaAny").is(':checked')) {
 						$("#seqUnica").css("display", "none");
@@ -122,15 +122,15 @@
 						$("#seqUnica").css("display", "inline");
 						$("#seqMultiple").css("display", "none");
 					}
-				}				
-				
+				}
+
 				// ]]>
-			</script>			
+			</script>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.form.camp.codi" disabled="${! empty expedientTipusCommand.id}"/>
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.form.camp.titol" />
 			<hel:inputSelect required="true" disabled="${expedientTipusCommand.id != null}" name="tipus" textKey="expedient.tipus.form.camp.tipus" placeholderKey="expedient.tipus.form.camp.tipus" optionItems="${tipus}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			<hel:inputCheckbox name="ambInfoPropia" textKey="expedient.tipus.form.camp.ambInfoPropia" />
-			<p id="ambInfoPropiaNota" class="help-block"><spring:message code="expedient.tipus.form.camp.ambInfoPropia.nota"></spring:message></p>			
+			<p id="ambInfoPropiaNota" class="help-block"><spring:message code="expedient.tipus.form.camp.ambInfoPropia.nota"></spring:message></p>
 			<hel:inputCheckbox name="heretable" textKey="expedient.tipus.form.camp.heretable" disabled="${! expedientTipusCommand.ambInfoPropia}" />
 			<hel:inputSelect name="expedientTipusPareId" textKey="expedient.tipus.form.camp.expedientTipusPare" optionItems="${expedientTipusPares}" optionTextAttribute="nom" optionValueAttribute="id" emptyOption="true" disabled="${! expedientTipusCommand.ambInfoPropia}" />
 			<hel:inputCheckbox name="teTitol" textKey="expedient.tipus.form.camp.teTitol"/>
@@ -141,16 +141,16 @@
 			<hel:inputCheckbox name="reiniciarCadaAny" textKey="expedient.tipus.form.camp.reiniciarCadaAny" />
 			<div id="seqUnica" <c:if test="${expedientTipusCommand.reiniciarCadaAny}">style="display:none;"</c:if>>
 				<hel:inputText name="sequencia" textKey="expedient.tipus.form.camp.sequencia" />
-			</div>			
-			<div 	id="seqMultiple" 
+			</div>
+			<div 	id="seqMultiple"
 					class="form-group"
 					<c:if test="${not expedientTipusCommand.reiniciarCadaAny}">style="display:none;"</c:if>>
 					<label class="control-label col-xs-4" for="sequenciesAny"><spring:message code="expedient.tipus.form.camp.reiniciarCadaAny.seq_actuals"></spring:message></label>
-					<div class="controls col-xs-8">					
+					<div class="controls col-xs-8">
 			 			<div class="multiField" style="overflow:auto;">
-							<% 
-								String[] classes = {"odd", "even"}; 
-								int i = 0; 
+							<%
+								String[] classes = {"odd", "even"};
+								int i = 0;
 							%>
 							<table id="seqs" width="100%" style="border-collapse: separate; border-spacing: 5px;">
 								<thead>
@@ -165,18 +165,18 @@
 									<tr class="<%=classes[i%2]%>">
 										<td><input type="text" class="form-control" style="text-align:right; width: 100%;" value="${expedientTipusCommand.sequenciesAny[status.index]}" name="sequenciesAny" id="seqany_<%=i%>"></td>
 										<td><input type="text" class="form-control" style="text-align:right; width: 100%;" value="${expedientTipusCommand.sequenciesValor[status.index]}" name="sequenciesValor" id="seqseq_<%=i%>"></td>
-										<td style="width:16px"><a onclick="removeSeq(<%=i++%>)" href="javascript:void(0)"><img border="0" title="<spring:message code='expedient.tipus.form.boto.esborrar' />" alt="<spring:message code='expedient.tipus.form.boto.esborrar' />" src="/heliumback/img/cross.png"></a></td>
+										<td style="width:16px"><a onclick="removeSeq(<%=i++%>)" href="javascript:void(0)"><img border="0" title="<spring:message code='expedient.tipus.form.boto.esborrar' />" alt="<spring:message code='expedient.tipus.form.boto.esborrar' />" src="/helium2back/img/cross.png"></a></td>
 									</tr>
 									</c:forEach>
 								</tbody>
 							</table>
 							<button onclick="add()" class="btn btn-primary submitButton" type="button">
 								<span class="fa fa-plus"></span> <spring:message code="expedient.tipus.form.boto.afegir"/>
-							</button>							
+							</button>
 						</div>
 
 					</div>
-			</div>						
+			</div>
 			</div>
 			<hel:inputSuggest inline="false" name="responsableDefecteCodi" urlConsultaInicial="/tasca/persona/suggestInici" urlConsultaLlistat="/tasca/persona/suggest" textKey="expedient.tipus.form.camp.responsableDefecteCodi" placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi"/>
 			<hel:inputCheckbox name="restringirPerGrup" textKey="expedient.tipus.form.camp.restringirPerGrup" info="expedient.tipus.form.camp.restringirPerGrup.info" />
@@ -186,13 +186,13 @@
 				<hel:inputCheckbox name="reindexacioAsincrona" textKey="expedient.tipus.form.camp.reindexacioAsincrona" />
 			</c:if>
 			<c:set var="arxiuUrl">/expedientTipus/${id}/documentDownload</c:set>
-			<hel:inputFile 
-	 			name="manualAjudaContent" 
-	 			required="false" 
+			<hel:inputFile
+	 			name="manualAjudaContent"
+	 			required="false"
 	 			textKey="expedient.tipus.form.camp.manual.ajuda"
 	 			fileName="manualAjudaNom"
 	 			fileUrl="${arxiuUrl}"
-	 			fileExists="${not empty expedientTipusCommand.manualAjudaContent}" />	
+	 			fileExists="${not empty expedientTipusCommand.manualAjudaContent}" />
 		</div>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
