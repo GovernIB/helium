@@ -28,7 +28,7 @@ import java.util.jar.Manifest;
 public class OpenApiConfig {
 	@Bean
 	public OpenAPI customOpenAPI() {
-		String version = "Unknown";
+		String version = "1.0";
 		try {
 			Manifest manifest = new Manifest(getClass().getResourceAsStream("/META-INF/MANIFEST.MF"));
 			Attributes attributes = manifest.getMainAttributes();
@@ -40,8 +40,8 @@ public class OpenApiConfig {
 			.addSecurityItem(new SecurityRequirement().addList("basicAuth"))
 			.info(
 				new Info().
-					title("API interna de Helium").
-					description("API REST interna de Helium").
+					title("API interna de Helium2").
+					description("API REST interna de Helium2").
 					contact(new Contact().email("limit@limit.es")).
 					version(version));
 	}

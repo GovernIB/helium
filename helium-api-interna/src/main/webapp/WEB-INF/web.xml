@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-	<display-name>apiinterna</display-name>
+	<display-name>helium2-api-interna</display-name>
 
 	<filter>
 		<filter-name>springSecurityFilterChain</filter-name>
@@ -53,6 +53,7 @@
 	<security-constraint>
 		<display-name>API integració COMANDA amb autenticació</display-name>
 		<web-resource-collection>
+			<web-resource-name>Area Comanda</web-resource-name>
 			<url-pattern>/v1/salut/*</url-pattern>
 			<url-pattern>/v1/estadistiques</url-pattern>
 			<url-pattern>/v1/estadistiques/*</url-pattern>
@@ -66,22 +67,17 @@
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>Sense autenticació</web-resource-name>
+			<url-pattern>/</url-pattern>
+			<url-pattern>/index.html</url-pattern>
+			<url-pattern>/swagger-ui</url-pattern>
+			<url-pattern>/swagger-ui/*</url-pattern>
+			<url-pattern>/apidocs</url-pattern>
+			<url-pattern>/apidocs/*</url-pattern>
 			<url-pattern>/v1/salut</url-pattern>
 			<url-pattern>/v1/salut/performance</url-pattern>
 			<url-pattern>/swagger/*</url-pattern>
 		</web-resource-collection>
 	</security-constraint>
-	<!--
-	<security-constraint>
-		<web-resource-collection>
-			<web-resource-name>Secured areas</web-resource-name>
-			<url-pattern>/*</url-pattern>
-		</web-resource-collection>
-		<auth-constraint>
-			<role-name>HEL_ADMIN</role-name>
-		</auth-constraint>
-	</security-constraint>
-	-->
 
 	<session-config>
 		<session-timeout>480</session-timeout>
