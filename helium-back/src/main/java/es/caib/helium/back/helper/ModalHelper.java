@@ -1,7 +1,9 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.helper;
+
+import es.caib.helium.commons.config.BaseConfig;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,13 +14,12 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Utilitat per a finestres modals.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ModalHelper {
-	
-	private static String ESQUEMA_PREFIX = "/heliumback";
-	private static final String URI_PREFIX_MODAL = ESQUEMA_PREFIX + "/modal";
+
+	private static final String URI_PREFIX_MODAL = BaseConfig.BACK_CONTEXT_PREFIX + "/modal";
 	private static final String REQUEST_ATTRIBUTE_MODAL = "ModalHelper.Modal";
 	private static final String SESSION_ATTRIBUTE_URIMAP = "ModalHelper.UriMap";
 
@@ -37,7 +38,7 @@ public class ModalHelper {
 		    return false;
 		} else {
 			Set<String> uriMap = getUriMap(request);
-			String uriComprovacio = request.getRequestURI().substring(ESQUEMA_PREFIX.length());
+			String uriComprovacio = request.getRequestURI().substring(BaseConfig.BACK_CONTEXT_PREFIX.length());
 			if (uriMap.contains(uriComprovacio)) {
 				uriMap.remove(uriComprovacio);
 				marcarModal(request);

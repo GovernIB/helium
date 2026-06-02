@@ -1,7 +1,9 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.helper;
+
+import es.caib.helium.commons.config.BaseConfig;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,13 +14,12 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Utilitat per a finestres sense decoració.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class NodecoHelper {
 
-	private static final String ESQUEMA_PREFIX = "/heliumback";
-	private static final String URI_PREFIX_NODECO = ESQUEMA_PREFIX + "/nodeco";
+	private static final String URI_PREFIX_NODECO = BaseConfig.BACK_CONTEXT_PREFIX + "/nodeco";
 	private static final String REQUEST_ATTRIBUTE_NODECO = "NodecoHelper.Nodeco";
 	private static final String SESSION_ATTRIBUTE_URIMAP = "NodecoHelper.UriMap";
 
@@ -37,7 +38,7 @@ public class NodecoHelper {
 		    return false;
 		} else {
 			Set<String> uriMap = getUriMap(request);
-			String uriComprovacio = request.getRequestURI().substring(ESQUEMA_PREFIX.length());
+			String uriComprovacio = request.getRequestURI().substring(BaseConfig.BACK_CONTEXT_PREFIX.length());
 			if (uriMap.contains(uriComprovacio)) {
 				uriMap.remove(uriComprovacio);
 				marcarNodeco(request);

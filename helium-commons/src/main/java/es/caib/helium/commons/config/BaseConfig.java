@@ -10,6 +10,8 @@ public class BaseConfig {
 	public static final String APP_NAME = "helium";
 	public static final String DB_PREFIX = "hel_";
 
+	public static final String BACK_CONTEXT_PREFIX = "/helium2back";
+
 	public static final String BASE_PACKAGE = "es.caib." + APP_NAME;
 
 	public static final String APP_PROPERTIES = BASE_PACKAGE + ".properties";
