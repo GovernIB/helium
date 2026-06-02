@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.command;
 
@@ -13,19 +13,19 @@ import es.caib.helium.back.validator.Camp;
 import es.caib.helium.back.validator.CodiVariable;
 import es.caib.helium.commons.dto.CampAgrupacioDto;
 import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.DominiDto;
 import es.caib.helium.commons.dto.EnumeracioDto;
 
 /**
- * Command per editar la informació de les varialbes dels tipus d'expedient 
- * 
+ * Command per editar la informació de les varialbes dels tipus d'expedient
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Camp(groups = {Creacio.class, Modificacio.class})
 public class CampCommand {
-	
+
 	private Long expedientTipusId;
 	private Long definicioProcesId;
 	private Long id;
@@ -35,7 +35,7 @@ public class CampCommand {
 	@CodiVariable(groups = {Creacio.class, Modificacio.class})
 	private String codi;
 	@NotNull(groups = {Creacio.class, Modificacio.class})
-	private CampTipusEnum tipus;
+	private CampTipusDto tipus;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String etiqueta;
@@ -51,7 +51,7 @@ public class CampCommand {
 	private Long dominiId;
 	private Long consultaId;
 	boolean dominiIntern;
-	
+
 	// Paràmetres del domini
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String dominiIdentificador;
@@ -61,7 +61,7 @@ public class CampCommand {
 	private String dominiCampValor;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String dominiCampText;
-	
+
 	// Paràmetres de la consulta
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String consultaParams;
@@ -69,7 +69,7 @@ public class CampCommand {
 	private String consultaCampText;
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
 	private String consultaCampValor;
-	
+
 	// Dades de la acció
 	//@NotEmpty(groups = {AltaMassiva.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
@@ -77,9 +77,9 @@ public class CampCommand {
 	//@NotEmpty(groups = {AltaMassiva.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String jbpmAction;
-	
+
 	boolean dominiCacheText;
-	
+
 	// Dades del termini
 	private boolean terminiNomesDies = false;
 
@@ -102,10 +102,10 @@ public class CampCommand {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-	public CampTipusEnum getTipus() {
+	public CampTipusDto getTipus() {
 		return tipus;
 	}
-	public void setTipus(CampTipusEnum tipus) {
+	public void setTipus(CampTipusDto tipus) {
 		this.tipus = tipus;
 	}
 	public String getEtiqueta() {
@@ -163,7 +163,7 @@ public class CampCommand {
 	public void setExpedientTipusId(Long expedientTipusId) {
 		this.expedientTipusId = expedientTipusId;
 	}
-	
+
 	public Long getDefinicioProcesId() {
 		return definicioProcesId;
 	}
@@ -242,7 +242,7 @@ public class CampCommand {
 	public void setTerminiNomesDies(boolean terminiNomesDies) {
 		this.terminiNomesDies = terminiNomesDies;
 	}
-	
+
 	public static CampDto asCampDto(CampCommand command) {
 		CampDto dto = new CampDto();
 		dto.setId(command.getId());
@@ -259,7 +259,7 @@ public class CampCommand {
 		dto.setMultiple(command.isMultiple());
 		dto.setOcult(command.isOcult());
 		dto.setIgnored(command.isIgnored());
-		
+
 		// Dades consulta
 		if(command.getEnumeracioId() != null) {
 			EnumeracioDto enumeracioDto = new EnumeracioDto();
@@ -277,27 +277,27 @@ public class CampCommand {
 			dto.setConsulta(consultaDto);
 		}
 		dto.setDominiIntern(command.isDominiIntern());
-		
+
 		// Paràmetres del domini
 		dto.setDominiIdentificador(command.getDominiIdentificador());
 		dto.setDominiParams(command.getDominiParams());
 		dto.setDominiCampValor(command.getDominiCampValor());
 		dto.setDominiCampText(command.getDominiCampText());
-		
+
 		// Paràmetres de la consulta
 		dto.setConsultaParams(command.getConsultaParams());
 		dto.setConsultaCampText(command.getConsultaCampText());
 		dto.setConsultaCampValor(command.getConsultaCampValor());
-		
+
 		// Dades de la acció
 		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
 		dto.setJbpmAction(command.getJbpmAction());
-		
-		dto.setDominiCacheText(command.isDominiCacheText());	
-		
+
+		dto.setDominiCacheText(command.isDominiCacheText());
+
 		// Dades de Termini
 		dto.setTerminiNomesDies(command.isTerminiNomesDies());
-		
+
 		return dto;
 	}
 

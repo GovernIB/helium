@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import es.caib.helium.commons.dto.CampAgrupacioDto;
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.CampRegistreDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
@@ -106,7 +106,7 @@ public class CampServiceImpl implements CampService {
 
 		Camp entity = new Camp();
 		entity.setCodi(camp.getCodi());
-		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusEnum.class));
+		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class));
 		entity.setEtiqueta(camp.getEtiqueta());
 		entity.setObservacions(camp.getObservacions());
 		entity.setMultiple(camp.isMultiple());
@@ -189,7 +189,7 @@ public class CampServiceImpl implements CampService {
 				QueEnum.DADA);
 
 		entity.setCodi(camp.getCodi());
-		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusEnum.class));
+		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class));
 		entity.setEtiqueta(camp.getEtiqueta());
 		entity.setObservacions(camp.getObservacions());
 		entity.setMultiple(camp.isMultiple());
@@ -432,7 +432,7 @@ public class CampServiceImpl implements CampService {
 				}
 			}
 			// Camps registre
-			if (dto.getTipus() == CampTipusEnum.REGISTRE) {
+			if (dto.getTipus() == CampTipusDto.REGISTRE) {
 				for (Object[] reg: countMembres) {
 					Long campId = (Long)reg[0];
 					if (campId.equals(dto.getId())) {
@@ -961,11 +961,11 @@ public class CampServiceImpl implements CampService {
 		if (expedientTipusId != null)
 			camps = campRepository.findByExpedientTipusAndTipus(
 									expedientTipusRepository.findById(expedientTipusId).orElse(null),
-									CampTipusEnum.DATE);
+									CampTipusDto.DATE);
 		else
 			camps = campRepository.findByDefinicioProcesAndTipus(
 					definicioProcesRepository.findById(definicioProcesId).orElse(null),
-					CampTipusEnum.DATE);
+					CampTipusDto.DATE);
 		return conversioTipusHelper.convertirList(
 				camps,
 				CampDto.class);

@@ -42,7 +42,7 @@ import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
 import es.caib.helium.back.helper.TascaFormHelper;
 import es.caib.helium.commons.constants.ExpedientCamps;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.EstatDto;
 import es.caib.helium.commons.dto.ExpedientConsultaDissenyDto;
@@ -340,7 +340,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 			clau = clau.replace(
 					ExpedientCamps.EXPEDIENT_PREFIX_JSP,
 					ExpedientCamps.EXPEDIENT_PREFIX);
-			if (CampTipusEnum.BOOLEAN.equals(dada.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, dada.getVarCodi())) {
+			if (CampTipusDto.BOOLEAN.equals(dada.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, dada.getVarCodi())) {
 				Boolean valor = (Boolean) PropertyUtils.getSimpleProperty(
 						filtreCommand,
 						dada.getVarCodi());

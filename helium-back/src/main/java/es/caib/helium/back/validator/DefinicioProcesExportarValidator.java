@@ -12,7 +12,7 @@ import es.caib.helium.back.command.DefinicioProcesExportarCommand;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.CampTascaDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.DocumentTascaDto;
 import es.caib.helium.commons.dto.FirmaTascaDto;
@@ -24,7 +24,7 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
 
 /**
  * Validador per a la comanda d'exportació de dades de la definició de procés.
- * Valida les variables i documents. 
+ * Valida les variables i documents.
  */
 public class DefinicioProcesExportarValidator implements ConstraintValidator<DefinicioProcesExportar, DefinicioProcesExportarCommand>{
 
@@ -37,7 +37,7 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 	protected DefinicioProcesService definicioProcesService;
 	@Autowired
 	protected ExpedientTipusService expedientTipusService;
-	
+
 	@Override
 	public void initialize(DefinicioProcesExportar anotacio) {
 		codiMissatge = anotacio.message();
@@ -46,7 +46,7 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 	@Override
 	public boolean isValid(DefinicioProcesExportarCommand command, ConstraintValidatorContext context) {
 		boolean valid = true;
-		
+
 		if (command.getId() != null) {
 			// Variables
 			Map<String, CampDto> campsMap = new HashMap<String, CampDto>();
@@ -60,26 +60,26 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 						&& ! command.getAgrupacions().contains(camp.getAgrupacio().getCodi())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(
-									this.codiMissatge + ".variable.agrupacio", 
+									this.codiMissatge + ".variable.agrupacio",
 									new Object[] {camp.getCodi(), camp.getAgrupacio().getCodi()}))
 					.addNode("variables")
 					.addConstraintViolation();
 					valid = false;
-				}					
-				if (camp.getTipus() == CampTipusEnum.REGISTRE) {
+				}
+				if (camp.getTipus() == CampTipusDto.REGISTRE) {
 					// Comprova que les variables de tipus registre exportades tinguin les seves variables exportables.
 					for (CampDto membre : campService.registreFindMembresAmbRegistreId(camp.getId()))
 						if (!command.getVariables().contains(membre.getCodi())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.registre", 
+											this.codiMissatge + ".variable.registre",
 											new Object[] {camp.getCodi(), membre.getCodi()}))
 							.addNode("variables")
 							.addConstraintViolation();
 							valid = false;
 						}
 				}
-			}				
+			}
 			// Documents
 			Map<String, DocumentDto> documentsMap = new HashMap<String, DocumentDto>();
 			for (DocumentDto document : documentService.findAll(null, command.getId()))
@@ -91,14 +91,14 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 					&& !command.getVariables().contains(document.getCampData().getCodi())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(
-									this.codiMissatge + ".document.variable", 
-									new Object[] {	document.getCodi(), 
+									this.codiMissatge + ".document.variable",
+									new Object[] {	document.getCodi(),
 											document.getCampData().getCodi()}))
 					.addNode("documents")
 					.addConstraintViolation();
 					valid = false;
 				}
-			}	
+			}
 			// Tasques
 			for (TascaDto tasca : definicioProcesService.tascaFindAll(command.getId())) {
 				if (command.getTasques().contains(tasca.getJbpmName())) {
@@ -108,8 +108,8 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 								&& ! command.getVariables().contains(campTasca.getCamp().getCodi())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".tasca.variable", 
-											new Object[] {	tasca.getJbpmName(), 
+											this.codiMissatge + ".tasca.variable",
+											new Object[] {	tasca.getJbpmName(),
 													campTasca.getCamp().getCodi()}))
 							.addNode("tasques")
 							.addConstraintViolation();
@@ -121,8 +121,8 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 								&& ! command.getDocuments().contains(documentTasca.getDocument().getCodi())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".tasca.document", 
-											new Object[] {	tasca.getJbpmName(), 
+											this.codiMissatge + ".tasca.document",
+											new Object[] {	tasca.getJbpmName(),
 													documentTasca.getDocument().getCodi()}))
 							.addNode("tasques")
 							.addConstraintViolation();
@@ -134,8 +134,8 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 								&& ! command.getDocuments().contains(firma.getDocument().getCodi())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".tasca.firma", 
-											new Object[] {	tasca.getJbpmName(), 
+											this.codiMissatge + ".tasca.firma",
+											new Object[] {	tasca.getJbpmName(),
 													firma.getDocument().getCodi()}))
 							.addNode("tasques")
 							.addConstraintViolation();
@@ -149,7 +149,7 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();
-		
+
 		return valid;
 	}
 }

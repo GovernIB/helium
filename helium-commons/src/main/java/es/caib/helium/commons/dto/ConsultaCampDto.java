@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -9,7 +9,7 @@ import es.caib.helium.commons.constants.ExpedientCamps;
 
 /**
  * Objecte de domini que representa una camp d'una consulta d'expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ConsultaCampDto implements Serializable {
@@ -26,7 +26,7 @@ public class ConsultaCampDto implements Serializable {
 		DATA,
 		BOOLEAN
 	}
-	
+
 	private Long id;
 	private String campCodi;
 	private String campEtiqueta;
@@ -39,7 +39,7 @@ public class ConsultaCampDto implements Serializable {
 	private int buitCols;
 	private TipusParamConsultaCamp paramTipus;
 
-	private CampTipusEnum campTipus;
+	private CampTipusDto campTipus;
 
 	public ConsultaCampDto() {}
 	public ConsultaCampDto(String campCodi, TipusConsultaCamp tipus) {
@@ -47,10 +47,10 @@ public class ConsultaCampDto implements Serializable {
 		this.tipus = tipus;
 	}
 
-	public CampTipusEnum getCampTipus() {
+	public CampTipusDto getCampTipus() {
 		return campTipus;
 	}
-	public void setCampTipus(CampTipusEnum campTipus) {
+	public void setCampTipus(CampTipusDto campTipus) {
 		this.campTipus = campTipus;
 	}
 	public Long getId() {
@@ -70,7 +70,7 @@ public class ConsultaCampDto implements Serializable {
 	}
 	public void setCampEtiqueta(String campEtiqueta) {
 		this.campEtiqueta = campEtiqueta;
-	}	
+	}
 	public String getCampDescripcio() {
 		return campDescripcio;
 	}
@@ -101,7 +101,7 @@ public class ConsultaCampDto implements Serializable {
 	public void setOrdre(int ordre) {
 		this.ordre = ordre;
 	}
-	
+
 	public int getAmpleCols() {
 		return ampleCols;
 	}
@@ -119,7 +119,7 @@ public class ConsultaCampDto implements Serializable {
 		if (campCodi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
 			return campEtiqueta != null? campEtiqueta : campCodi;
 		else
-			return campCodi + (campEtiqueta != null? " / " + campEtiqueta : "");		
+			return campCodi + (campEtiqueta != null? " / " + campEtiqueta : "");
 	}
 
 	public TipusParamConsultaCamp getParamTipus() {

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.ExpedientTipus;
@@ -21,20 +21,20 @@ import es.caib.helium.persistence.entity.ExpedientTipus;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a un camp que està emmagatzemada a dins la base
  * de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface CampRepository extends JpaRepository<Camp, Long> {
-	
+
 	Camp findByDefinicioProcesAndCodi(
 			DefinicioProces definicioProces,
 			String codi);
 
 	@Query (
-			"from Camp c " + 
-			"where " + 
+			"from Camp c " +
+			"where " +
 			"	(:ambHerencia = false " +
-			"		or c.id not in ( " + 
+			"		or c.id not in ( " +
 						// Llistat de sobreescrits
 			"			select cs.id " +
 			"			from Camp ca " +
@@ -48,27 +48,27 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"	) " +
 			"	and	(c.expedientTipus.id = :expedientTipusId " +
 						// Heretats
-			"			or ( :ambHerencia = true and c.expedientTipus.id = ( " +	
-			"					select et.expedientTipusPare.id " + 
-			"					from ExpedientTipus et " + 
+			"			or ( :ambHerencia = true and c.expedientTipus.id = ( " +
+			"					select et.expedientTipusPare.id " +
+			"					from ExpedientTipus et " +
 			"					where et.id = :expedientTipusId))) " +
 			"	and c.codi = :codi"
 			)
 	Camp findByExpedientTipusAndCodi(
-			@Param("expedientTipusId") Long expedientTipus, 
+			@Param("expedientTipusId") Long expedientTipus,
 			@Param("codi") String codi,
 			@Param("ambHerencia") boolean ambHerencia);
 
-	
+
 	List<Camp> findByDefinicioProcesOrderByCodiAsc(DefinicioProces definicioProces);
 
 	Optional<Camp> findById(Long registreEsborrarId);
-	
-	@Query(	"select c " + 
+
+	@Query(	"select c " +
 			"from Camp c " +
-			"where " + 
+			"where " +
 			"	(:ambHerencia = false " +
-			"		or c.id not in ( " + 
+			"		or c.id not in ( " +
 						// Llistat de sobreescrits
 			"			select cs.id " +
 			"			from Camp ca " +
@@ -82,7 +82,7 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"  	and (	c.expedientTipus.id = :expedientTipusId " +
 						// Heretats
 			"			or (:ambHerencia = true " +
-			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
+			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
 			"			or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
 			"	and ((:totes = true) or (:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
@@ -92,33 +92,33 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("totes") boolean totes,
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId,
-			@Param("agrupacioId") Long agrupacioId,		
+			@Param("agrupacioId") Long agrupacioId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,
 			@Param("ambHerencia") boolean ambHerencia,
 			Pageable pageable);
-	
+
 	/** Consulta el següent valor per a ordre dins d'una agrupació. */
 	@Query(	"select coalesce( max( c.ordre), -1) + 1 " +
 			"from Camp c " +
 			"where " +
 			"    c.agrupacio.id = :agrupacioId " )
 	Integer getNextOrdre(@Param("agrupacioId") Long agrupacioId);
-	
+
 	List<Camp> findByAgrupacioIdOrderByOrdreAsc(Long campAgrupacioId);
-	
+
 	List<Camp> findByExpedientTipusAndTipus(
 			ExpedientTipus expedientTipus,
-			CampTipusEnum estat);
-	
+			CampTipusDto estat);
+
 	List<Camp> findByExpedientTipusOrderByCodiAsc(
 			ExpedientTipus expedientTipus);
-	
-	
+
+
 	@Query(	"select c from " +
 			"    Camp c " +
 			"where " +
-			"	(c.id not in ( " + 
+			"	(c.id not in ( " +
 						// Llistat de sobreescrits
 			"			select cs.id " +
 			"			from Camp ca " +
@@ -129,17 +129,17 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"			 	and cs.expedientTipus.id = et.expedientTipusPare.id " +
 			"		) " +
 			"	) " +
-			"   and (c.expedientTipus.id = :expedientTipusId " + 
+			"   and (c.expedientTipus.id = :expedientTipusId " +
 						// Heretats
 			"			or (c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) )) " +
 			"order by c.codi asc ")
 	List<Camp> findByExpedientTipusAmbHerencia(
 			@Param("expedientTipusId") Long expedientTipusId);
-	
+
 	List<Camp> findByDefinicioProcesAndTipus(
 			DefinicioProces definicioProces,
-			CampTipusEnum estat);
-	
+			CampTipusDto estat);
+
 	/** Compta el número de validacions per a cada camp passat per la llista d'identificadors. */
 	@Query(	"select " +
 			"    c.id, " +
@@ -147,10 +147,10 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"from " +
 			"   Camp c " +
 			"where " +
-			"	(c.expedientTipus.id = :expedientTipusId " + 
+			"	(c.expedientTipus.id = :expedientTipusId " +
 					// Heretats
 			"		or (:ambHerencia = true " +
-			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
+			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
 			"		or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
 			"	and ((:totes = true) or (:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
@@ -159,11 +159,11 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("totes") boolean totes,
-			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
+			@Param("esNullAgrupacioId") boolean esNullAgrupacioId,
 			@Param("agrupacioId") Long agrupacioId,
 			@Param("ambHerencia") boolean ambHerencia);
 
-	
+
 	/** Compta el número de registres per a cada camp passat per la llista d'identificadors. */
 	@Query(	"select " +
 			"    c.id, " +
@@ -171,20 +171,20 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"from " +
 			"   Camp c " +
 			"where " +
-			"	(c.expedientTipus.id = :expedientTipusId " + 
+			"	(c.expedientTipus.id = :expedientTipusId " +
 					// Heretats
 			"		or (:ambHerencia = true " +
-			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " + 
+			"					and c.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId)) " +
 			"		or c.expedientTipus.id is null) " +
 			"   and (c.definicioProces.id = :definicioProcesId or c.definicioProces.id is null) " +
-			"   and c.tipus = es.caib.helium.commons.dto.CampTipusEnum.REGISTRE " +
+			"   and c.tipus = es.caib.helium.commons.dto.CampTipusDto.REGISTRE " +
 			"	and ((:totes = true) or (:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
 			"group by id ")
 	List<Object[]> countMembres(
-			@Param("expedientTipusId") Long expedientTipusId, 
+			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("totes") boolean totes,
-			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
+			@Param("esNullAgrupacioId") boolean esNullAgrupacioId,
 			@Param("agrupacioId") Long agrupacioId,
 			@Param("ambHerencia") boolean ambHerencia);
 

@@ -18,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.DadaIndexadaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.persistence.entity.Camp;
@@ -1163,17 +1163,17 @@ public class LuceneHelper {
 
 	protected String valorIndexPerCamp(Camp camp, Object valor) {
 		if (valor != null) {
-			if (camp.getTipus().equals(CampTipusEnum.INTEGER)) {
+			if (camp.getTipus().equals(CampTipusDto.INTEGER)) {
 				return numberPerIndexar((Long) valor);
-			} else if (camp.getTipus().equals(CampTipusEnum.FLOAT)) {
+			} else if (camp.getTipus().equals(CampTipusDto.FLOAT)) {
 				return numberPerIndexar((Double) valor);
-			} else if (camp.getTipus().equals(CampTipusEnum.BOOLEAN)) {
+			} else if (camp.getTipus().equals(CampTipusDto.BOOLEAN)) {
 				return ((Boolean) valor) ? "S" : "N";
-			} else if (camp.getTipus().equals(CampTipusEnum.DATE)) {
+			} else if (camp.getTipus().equals(CampTipusDto.DATE)) {
 				return dataPerIndexar((Date) valor);
-			} else if (camp.getTipus().equals(CampTipusEnum.PRICE)) {
+			} else if (camp.getTipus().equals(CampTipusDto.PRICE)) {
 				return numberPerIndexar((BigDecimal) valor);
-			} else if (camp.getTipus().equals(CampTipusEnum.TERMINI)) {
+			} else if (camp.getTipus().equals(CampTipusDto.TERMINI)) {
 				if (valor instanceof Termini) {
 					Termini term = (Termini) valor;
 					return term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
@@ -1182,13 +1182,13 @@ public class LuceneHelper {
 				} else {
 					return valor.toString();
 				}
-			} else if (camp.getTipus().equals(CampTipusEnum.SELECCIO)) {
+			} else if (camp.getTipus().equals(CampTipusDto.SELECCIO)) {
 				return (String) valor;
-			} else if (camp.getTipus().equals(CampTipusEnum.SUGGEST)) {
+			} else if (camp.getTipus().equals(CampTipusDto.SUGGEST)) {
 				return (String) valor;
-			} else if (camp.getTipus().equals(CampTipusEnum.STRING)) {
+			} else if (camp.getTipus().equals(CampTipusDto.STRING)) {
 				return ((String) valor);
-			} else if (camp.getTipus().equals(CampTipusEnum.TEXTAREA)) {
+			} else if (camp.getTipus().equals(CampTipusDto.TEXTAREA)) {
 				return ((String) valor);
 			} else {
 				return valor.toString();
@@ -1198,30 +1198,30 @@ public class LuceneHelper {
 	}
 
 	protected Object valorCampPerIndex(Camp camp, String valor) throws Exception {
-		if (camp.getTipus().equals(CampTipusEnum.INTEGER)) {
+		if (camp.getTipus().equals(CampTipusDto.INTEGER)) {
 			return Long.parseLong(valor.split("\\.")[0]);
-		} else if (camp.getTipus().equals(CampTipusEnum.FLOAT)) {
+		} else if (camp.getTipus().equals(CampTipusDto.FLOAT)) {
 			return Double.parseDouble(valor);
-		} else if (camp.getTipus().equals(CampTipusEnum.BOOLEAN)) {
+		} else if (camp.getTipus().equals(CampTipusDto.BOOLEAN)) {
 			return new Boolean("S".equals(valor));
-		} else if (camp.getTipus().equals(CampTipusEnum.DATE)) {
+		} else if (camp.getTipus().equals(CampTipusDto.DATE)) {
 			if (!VALOR_CAMP_BUIT.equals(valor)) {
 				return new SimpleDateFormat(PATRO_DATES_INDEX).parse(valor);
 			} else {
 				return "";
 			}
-		} else if (camp.getTipus().equals(CampTipusEnum.PRICE)) {
+		} else if (camp.getTipus().equals(CampTipusDto.PRICE)) {
 			return new BigDecimal(valor);
-		} else if (camp.getTipus().equals(CampTipusEnum.TERMINI)) {
+		} else if (camp.getTipus().equals(CampTipusDto.TERMINI)) {
 			/*String[] parts = valor.split("/");
 			Termini term = new Termini();
 			term.setAnys(Integer.parseInt(parts[0]));
 			term.setMesos(Integer.parseInt(parts[0]));
 			term.setDies(Integer.parseInt(parts[0]));*/
 			return valor;
-		} else if (camp.getTipus().equals(CampTipusEnum.SELECCIO)) {
+		} else if (camp.getTipus().equals(CampTipusDto.SELECCIO)) {
 			return (String) valor;
-		} else if (camp.getTipus().equals(CampTipusEnum.SUGGEST)) {
+		} else if (camp.getTipus().equals(CampTipusDto.SUGGEST)) {
 			return (String) valor;
 		} else {
 			return valor;

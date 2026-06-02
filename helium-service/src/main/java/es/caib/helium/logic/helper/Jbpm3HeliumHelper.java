@@ -1687,7 +1687,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void emailSend(
-			String fromAddress,
 			List<String> recipients,
 			List<String> ccRecipients,
 			List<String> bccRecipients,
@@ -1695,7 +1694,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String text,
 			List<ArxiuDto> attachments)  {
 		logger.debug("Enviant correu (" +
-				"fromAddress=" + fromAddress + ", " +
 				"recipients=" + recipients + ", " +
 				"ccRecipients=" + ccRecipients + ", " +
 				"bccRecipients=" + bccRecipients + ", " +
@@ -1703,7 +1701,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"text=" + text + ")");
 		try {
 			mailHelper.send(
-					fromAddress,
 					recipients,
 					ccRecipients,
 					bccRecipients,

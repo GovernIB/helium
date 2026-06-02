@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO amb informació d'una dada de l'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Data
@@ -26,7 +26,7 @@ public class DadaListDto {
 
 	private Long campId;
 	private String campCodi;
-	private CampTipusEnum tipus;
+	private CampTipusDto tipus;
 	private boolean registre;
 	private boolean multiple;
 	private boolean ocult;
@@ -41,7 +41,7 @@ public class DadaListDto {
 
 	private String processInstanceId;
 	private Long expedientId;
-	
+
 	private Integer ordre;
 
 	@Builder.Default

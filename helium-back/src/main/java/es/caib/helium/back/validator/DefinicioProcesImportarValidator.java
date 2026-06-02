@@ -17,7 +17,7 @@ import es.caib.helium.back.command.DefinicioProcesExportarCommand;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
 import es.caib.helium.commons.dto.DocumentDto;
@@ -64,7 +64,7 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
 public class DefinicioProcesImportarValidator implements ConstraintValidator<DefinicioProcesImportar, DefinicioProcesExportarCommand>{
 
 	private String codiMissatge;
-	
+
 	@Autowired
 	ExpedientTipusService expedientTipusService;
 	@Autowired
@@ -81,7 +81,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 	DominiService dominiService;
 	@Autowired
 	private HttpServletRequest request;
-	
+
 	@Override
 	public void initialize(DefinicioProcesImportar anotacio) {
 		codiMissatge = anotacio.message();
@@ -90,7 +90,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 	@Override
 	public boolean isValid(DefinicioProcesExportarCommand command, ConstraintValidatorContext context) {
 		boolean valid = true;
-		
+
 		// Recupera l'exportació
 		DefinicioProcesExportacio exportacio = null;
 	 	try {
@@ -132,9 +132,9 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 			.addNode("file")
 			.addConstraintViolation();
 			valid = false;
-		}	
+		}
 		if ( exportacio != null)
-		{	
+		{
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		DefinicioProcesDto definicioProces = null;
     		if (command.getId() != null) {
@@ -146,23 +146,23 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
     		boolean herencia = false;
     		if (command.getExpedientTipusId() != null) {
     			expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
-    								entornActual.getId(), 
+    								entornActual.getId(),
     								command.getExpedientTipusId());
     			herencia = expedientTipus != null && expedientTipus.getExpedientTipusPareId() != null;
     		}
     		// Guarda la importació per no haver de desserialitzar un altre cop el fitxer.
 			command.setExportacio(exportacio);
-			
+
 			if (command.getId() == null) {
 				// comprova que no estigui buit
 				if (command.getCodi() == null || "".equals(command.getCodi())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty"))
 							.addNode("codi")
-							.addConstraintViolation();	
+							.addConstraintViolation();
 					valid = false;
 				}
-			}			
+			}
 			// Variables
 			Map<String, CampExportacio> campsMap = new HashMap<String, CampExportacio>();
 			for (CampExportacio camp : exportacio.getCamps())
@@ -170,19 +170,19 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 			CampExportacio camp;
 			for (String campCodi : command.getVariables()) {
 				camp = campsMap.get(campCodi);
-				if (camp.getTipus() == CampTipusEnum.REGISTRE) {
+				if (camp.getTipus() == CampTipusDto.REGISTRE) {
 					// Comprova que les variables de tipus registre exportades tinguin les seves variables exportables.
 					for (RegistreMembreExportacio membre : camp.getRegistreMembres())
 						if (!command.getVariables().contains(membre.getCodi())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.registre", 
+											this.codiMissatge + ".variable.registre",
 											new Object[] {camp.getCodi(), membre.getCodi()}))
 							.addNode("variables")
 							.addConstraintViolation();
 							valid = false;
 						}
-				} else if (camp.getTipus() == CampTipusEnum.SELECCIO) {
+				} else if (camp.getTipus() == CampTipusDto.SELECCIO) {
 					// Comprova les dependències del camp de tipus seleció
 					if (camp.getCodiEnumeracio() != null && !"".equals(camp.getCodiEnumeracio().trim())) {
 						// Comprova l'enumeració
@@ -190,32 +190,32 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 						if (camp.isDependenciaEntorn()) {
 							// Enumeració entorn
 							enumeracio = enumeracioService.findAmbCodi(
-									entornActual.getId(), 
-									null, 
+									entornActual.getId(),
+									null,
 									camp.getCodiEnumeracio());
 						} else {
 							// TE
 							if (expedientTipus != null)
 								enumeracio = enumeracioService.findAmbCodi(
 										entornActual.getId(),
-										expedientTipus.getId(), 
+										expedientTipus.getId(),
 										camp.getCodiEnumeracio());
 							if (enumeracio == null && herencia)
 								// Mira entre les enumeracions heretades
 								enumeracio = enumeracioService.findAmbCodi(
 										entornActual.getId(),
-										expedientTipus.getExpedientTipusPareId(), 
+										expedientTipus.getExpedientTipusPareId(),
 										camp.getCodiEnumeracio());
 						}
 						if (enumeracio == null) {
 							// enumeracio no trobada
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.enumeracio." + (camp.isDependenciaEntorn() ? "entorn" : "tipexp"), 
+											this.codiMissatge + ".variable.seleccio.enumeracio." + (camp.isDependenciaEntorn() ? "entorn" : "tipexp"),
 											new Object[] {camp.getCodi(), camp.getCodiEnumeracio()}))
 							.addNode("variables")
 							.addConstraintViolation();
-							valid = false;							
+							valid = false;
 						}
 					}
 					if (camp.getCodiConsulta() != null) {
@@ -230,7 +230,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 						if (consulta == null) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.consulta", 
+											this.codiMissatge + ".variable.seleccio.consulta",
 											new Object[] {camp.getCodi(), camp.getCodiConsulta()}))
 							.addNode("variables")
 							.addConstraintViolation();
@@ -248,13 +248,13 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 							if (expedientTipus != null)
 								domini = dominiService.findAmbCodi(
 										entornActual.getId(),
-										expedientTipus.getId(), 
+										expedientTipus.getId(),
 										camp.getCodiDomini());
 						}
 						if (domini == null) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
-											this.codiMissatge + ".variable.seleccio.domini." + (camp.isDependenciaEntorn() ? "entorn" : "tipexp"), 
+											this.codiMissatge + ".variable.seleccio.domini." + (camp.isDependenciaEntorn() ? "entorn" : "tipexp"),
 											new Object[] {camp.getCodi(), camp.getCodiDomini()}))
 							.addNode("variables")
 							.addConstraintViolation();
@@ -262,7 +262,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 						}
 					}
 				}
-			}	
+			}
 			// Documents
 			if (command.getDocuments().size() > 0) {
 				Map<String, DocumentExportacio> documentsMap = new HashMap<String, DocumentExportacio>();
@@ -275,18 +275,18 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 						&& !command.getVariables().contains(document.getCodiCampData())) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(
-										this.codiMissatge + ".document.variable", 
-										new Object[] {	document.getCodi(), 
+										this.codiMissatge + ".document.variable",
+										new Object[] {	document.getCodi(),
 												document.getCodiCampData()}))
 						.addNode("documents")
 						.addConstraintViolation();
 						valid = false;
 					}
-				}		
+				}
 			}
 			// Tasques
 			if (command.getTasques().size() > 0) {
-				boolean isAmbInfoPropia = 
+				boolean isAmbInfoPropia =
 						expedientTipus != null && expedientTipus.isAmbInfoPropia();
 				Map<String, TascaExportacio> tasquesMap = new HashMap<String, TascaExportacio>();
 				for (TascaExportacio tasca : exportacio.getTasques())
@@ -309,8 +309,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 							if (campDto == null) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
-												this.codiMissatge + ".tasca.variable.expedientTipus", 
-												new Object[] {	tasca.getJbpmName(), 
+												this.codiMissatge + ".tasca.variable.expedientTipus",
+												new Object[] {	tasca.getJbpmName(),
 														tascaCamp.getCampCodi()}))
 								.addNode("tasques")
 								.addConstraintViolation();
@@ -332,8 +332,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 								if (campDto == null) {
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(
-													this.codiMissatge + ".tasca.variable", 
-													new Object[] {	tasca.getJbpmName(), 
+													this.codiMissatge + ".tasca.variable",
+													new Object[] {	tasca.getJbpmName(),
 															tascaCamp.getCampCodi()}))
 									.addNode("tasques")
 									.addConstraintViolation();
@@ -347,15 +347,15 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 						if (isAmbInfoPropia) {
 							// Comprova que el camp estigui al tipus d'expedient
 							DocumentDto document =documentService.findAmbCodi(
-									expedientTipus.getId(), 
+									expedientTipus.getId(),
 									null,
 									documentCamp.getDocumentCodi(),
 									herencia);
 							if (document == null) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
-												this.codiMissatge + ".tasca.document.expedientTipus", 
-												new Object[] {	tasca.getJbpmName(), 
+												this.codiMissatge + ".tasca.document.expedientTipus",
+												new Object[] {	tasca.getJbpmName(),
 														documentCamp.getDocumentCodi()}))
 								.addNode("tasques")
 								.addConstraintViolation();
@@ -369,14 +369,14 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 								if (command.getId() != null)
 									document = documentService.findAmbCodi(
 											null,
-											command.getId(), 
+											command.getId(),
 											documentCamp.getDocumentCodi(),
 											false);
 								if (document == null) {
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(
-													this.codiMissatge + ".tasca.document", 
-													new Object[] {	tasca.getJbpmName(), 
+													this.codiMissatge + ".tasca.document",
+													new Object[] {	tasca.getJbpmName(),
 															documentCamp.getDocumentCodi()}))
 									.addNode("tasques")
 									.addConstraintViolation();
@@ -390,15 +390,15 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 						if (isAmbInfoPropia) {
 							// Comprova que el camp estigui al tipus d'expedient
 							DocumentDto document =documentService.findAmbCodi(
-									expedientTipus.getId(), 
+									expedientTipus.getId(),
 									null,
 									firmaCamp.getDocumentCodi(),
 									herencia);
 							if (document == null) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
-												this.codiMissatge + ".tasca.firma.expedientTipus", 
-												new Object[] {	tasca.getJbpmName(), 
+												this.codiMissatge + ".tasca.firma.expedientTipus",
+												new Object[] {	tasca.getJbpmName(),
 														firmaCamp.getDocumentCodi()}))
 								.addNode("tasques")
 								.addConstraintViolation();
@@ -412,14 +412,14 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 								if (command.getId() != null)
 									document = documentService.findAmbCodi(
 											null,
-											command.getId(), 
+											command.getId(),
 											firmaCamp.getDocumentCodi(),
 											false);
 								if (document == null) {
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(
-													this.codiMissatge + ".tasca.firma", 
-													new Object[] {	tasca.getJbpmName(), 
+													this.codiMissatge + ".tasca.firma",
+													new Object[] {	tasca.getJbpmName(),
 															firmaCamp.getDocumentCodi()}))
 									.addNode("tasques")
 									.addConstraintViolation();
@@ -430,10 +430,10 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 					}
 				}
 			}
-		} 
+		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();
-		
+
 		return valid;
 	}
 

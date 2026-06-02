@@ -34,7 +34,7 @@ import com.codahale.metrics.Timer;
 import es.caib.helium.commons.domini.DominiHelium;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.DominiDto.OrigenCredencials;
 import es.caib.helium.commons.dto.DominiDto.TipusDomini;
 import es.caib.helium.commons.dto.ExpedientDadaDto;
@@ -797,7 +797,7 @@ public class DominiHelper {
 		} else if (processInstanceId != null) {
 			ExpedientDadaDto dada = variableHelper.getDadaPerInstanciaProces(processInstanceId, variable);
 			camp = campRepository.findById(dada.getCampId()).orElse(null);
-			if (camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
+			if (camp.getTipus().equals(CampTipusDto.REGISTRE)) {
 				if (camp.isMultiple()) {
 					valor = dada.getVarValor();
 					for (ExpedientDadaDto dm : dada.getMultipleDades()) {
@@ -819,7 +819,7 @@ public class DominiHelper {
 				}
 			}
 		}
-		if (valor != null && valor instanceof Object[] && camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
+		if (valor != null && valor instanceof Object[] && camp.getTipus().equals(CampTipusDto.REGISTRE)) {
 			Object[] registres = (Object[])valor;
 			int indexFila = 0;
 			for (int i = 0; i < registres.length; i++) {

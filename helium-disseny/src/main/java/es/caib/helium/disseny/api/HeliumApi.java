@@ -1,6 +1,8 @@
 package es.caib.helium.disseny.api;
 
+import es.caib.helium.disseny.exception.HeliumHandlerException;
 import es.caib.helium.disseny.model.DocumentInfo;
+import es.caib.helium.disseny.model.ExpedientInfo;
 
 import java.util.Date;
 import java.util.List;
@@ -12,6 +14,8 @@ public interface HeliumApi {
 	<T> T getVariableDefaultValue(String codi, T defaultValue);
 	Date getVariableDefaultValueAsDate(String codi, Object defaultValue);
 	Boolean getVariableDefaultValueAsBoolean(String codi, Object defaultValue);
+
+	ExpedientInfo getExpedientInfo();
 
 	DocumentInfo getDocumentInfo(String documentCodi);
 
@@ -128,5 +132,13 @@ public interface HeliumApi {
 		String transicioOK,
 		String transicioKO,
 		String portafirmesFluxId);
+
+	void enviarEmail(
+		List<String> recipients,
+		List<String> ccRecipients,
+		List<String> bccRecipients,
+		String subject,
+		String text,
+		List<String> attachments);
 
 }

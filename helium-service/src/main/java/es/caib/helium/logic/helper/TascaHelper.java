@@ -18,7 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.ExpedientDadaDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.PersonaDto;
@@ -692,8 +692,8 @@ public class TascaHelper {
 		for (CampTasca campTasca: campsTasca) {
 			if (campTasca.getCamp().isDominiCacheText()) {
 				Object campValor = variables.get(campTasca.getCamp().getCodi());
-				if (	campTasca.getCamp().getTipus().equals(CampTipusEnum.SELECCIO) ||
-						campTasca.getCamp().getTipus().equals(CampTipusEnum.SUGGEST)) {
+				if (	campTasca.getCamp().getTipus().equals(CampTipusDto.SELECCIO) ||
+						campTasca.getCamp().getTipus().equals(CampTipusDto.SUGGEST)) {
 					if (campValor instanceof DominiCodiDescripcio) {
 						variables.put(
 								campTasca.getCamp().getCodi(),

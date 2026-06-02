@@ -1,14 +1,14 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
 /**
  * DTO amb informació d'un camp de la definició de procés.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public enum CampTipusEnum {
+public enum CampTipusDto {
 	STRING,
 	INTEGER,
 	FLOAT,

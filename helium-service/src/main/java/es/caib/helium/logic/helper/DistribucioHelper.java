@@ -62,7 +62,7 @@ import es.caib.helium.commons.dto.AnotacioInteressatDto;
 import es.caib.helium.commons.dto.AnotacioMapeigResultatDto;
 import es.caib.helium.commons.dto.ArxiuEstat;
 import es.caib.helium.commons.dto.ArxiuFirmaPerfilEnumDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.DadesDocumentDto;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
 import es.caib.helium.commons.dto.DocumentDto;
@@ -1217,7 +1217,7 @@ public class DistribucioHelper {
 
 	private Object valorVariableHelium(Campo campo, Camp camp) throws Exception {
 		Object valorHelium = null;
-		if (camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
+		if (camp.getTipus().equals(CampTipusDto.REGISTRE)) {
 			if (SISTRA2_CAMP_FORM_LISTA.equals(campo.getTipo())) {
 				// Camp registre
 
@@ -1292,11 +1292,11 @@ public class DistribucioHelper {
 	private Object valorPerHeliumSimple(String valor, Camp camp) {
 		try {
 			if (camp == null) {
-			} else if (camp.getTipus().equals(CampTipusEnum.DATE)) {
+			} else if (camp.getTipus().equals(CampTipusDto.DATE)) {
 				return new SimpleDateFormat("dd/MM/yyyy").parse(valor);
-			} else if (camp.getTipus().equals(CampTipusEnum.BOOLEAN)) {
+			} else if (camp.getTipus().equals(CampTipusDto.BOOLEAN)) {
 				return new Boolean(valor);
-			} else if (camp.getTipus().equals(CampTipusEnum.PRICE)) {
+			} else if (camp.getTipus().equals(CampTipusDto.PRICE)) {
 				Object preu = null;
 				try {
 					preu = new BigDecimal(valor);
@@ -1306,9 +1306,9 @@ public class DistribucioHelper {
 					preu = new BigDecimal(df.parse(valor).doubleValue());
 				}
 				return preu;
-			} else if (camp.getTipus().equals(CampTipusEnum.INTEGER)) {
+			} else if (camp.getTipus().equals(CampTipusDto.INTEGER)) {
 				return new Long(valor);
-			} else if (camp.getTipus().equals(CampTipusEnum.FLOAT)) {
+			} else if (camp.getTipus().equals(CampTipusDto.FLOAT)) {
 				try {
 					return new Double(valor);
 				} catch(Exception e) {

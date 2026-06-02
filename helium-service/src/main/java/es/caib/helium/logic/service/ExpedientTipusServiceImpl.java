@@ -93,7 +93,6 @@ import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.entity.Accio;
 import es.caib.helium.persistence.entity.Anotacio;
@@ -225,9 +224,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private ExecucioMassivaService execucioMassivaService;
 	@Autowired
 	private ExpedientService expedientService;
-	@Resource
-	private WorkflowEngineApi jbpmHelper;
-
 
 	/**
 	 * {@inheritDoc}
@@ -669,14 +665,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			for (Camp camp : tipus.getCamps())
 				if (command.getVariables().contains(camp.getCodi())) {
 					boolean necessitaDadesExternes =
-							CampTipusEnum.SELECCIO.equals(camp.getTipus())
-							|| CampTipusEnum.SUGGEST.equals(camp.getTipus());
+							CampTipusDto.SELECCIO.equals(camp.getTipus())
+							|| CampTipusDto.SUGGEST.equals(camp.getTipus());
 					boolean necessitaDadesExternesEntorn =
 							(camp.getDomini() != null && camp.getDomini().getExpedientTipus() == null)
 							|| (camp.getEnumeracio() != null && camp.getEnumeracio().getExpedientTipus() == null);
 					CampExportacio campExportacio = new CampExportacio(
 		                    camp.getCodi(),
-		                    CampTipusEnum.valueOf(camp.getTipus().toString()),
+		                    CampTipusDto.valueOf(camp.getTipus().toString()),
 		                    camp.getEtiqueta(),
 		                    camp.getObservacions(),
 		                    (necessitaDadesExternes) ? camp.getDominiId() : null,
@@ -1418,12 +1414,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							camp = new Camp(
 									expedientTipus,
 									campExportat.getCodi(),
-									CampTipusEnum.valueOf(campExportat.getTipus().toString()),
+									CampTipusDto.valueOf(campExportat.getTipus().toString()),
 									campExportat.getEtiqueta());
 							expedientTipus.getCamps().add(camp);
 							camp = campRepository.save(camp);
 						} else {
-							camp.setTipus(CampTipusEnum.valueOf(campExportat.getTipus().toString()));
+							camp.setTipus(CampTipusDto.valueOf(campExportat.getTipus().toString()));
 							camp.setEtiqueta(campExportat.getEtiqueta());
 						}
 						camp.setIgnored(campExportat.isIgnored());
@@ -1505,7 +1501,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						if (campExportat.getCodiConsulta() != null)
 							campsTipusConsulta.put(camp, campExportat);
 						// Guarda els registres per processar-los després de tots els camps
-						if (camp.getTipus() == CampTipusEnum.REGISTRE) {
+						if (camp.getTipus() == CampTipusDto.REGISTRE) {
 							registres.put(camp, campExportat);
 						}
 					}
@@ -3880,7 +3876,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setOcult(camp.isOcult());
 					nou.setDominiIntern(camp.getDominiIntern());
 					nou.setJbpmAction(camp.getJbpmAction());
-					if (camp.getTipus() == CampTipusEnum.ACCIO && camp.getDefinicioProces() != null)
+					if (camp.getTipus() == CampTipusDto.ACCIO && camp.getDefinicioProces() != null)
 						nou.setDefprocJbpmKey(camp.getDefinicioProces().getJbpmKey());
 					nou.setOrdre(camp.getOrdre());
 
@@ -3919,7 +3915,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						nova.setOrdre(validacio.getOrdre());
 						nou.addValidacio(nova);
 					}
-					if (nou.getTipus() == CampTipusEnum.REGISTRE) {
+					if (nou.getTipus() == CampTipusDto.REGISTRE) {
 						registres.put(nou.getCodi(), nou);
 					}
 				}
@@ -3962,7 +3958,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}
 			campRegistreRepository.flush();
 			for (Camp camp: definicioProces.getCamps()) {
-				if (camp.getTipus() == CampTipusEnum.REGISTRE && registres.containsKey(camp.getCodi())) {
+				if (camp.getTipus() == CampTipusDto.REGISTRE && registres.containsKey(camp.getCodi())) {
 					for (CampRegistre membre: camp.getRegistreMembres()) {
 						CampRegistre campRegistre = new CampRegistre(
 								camps.get(camp.getCodi()),
@@ -4487,7 +4483,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		for (ConsultaCampDto consultaCamp : paginaConsultaCamps.getContingut()) {
 			if (consultaCamp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 				// camp de l'expedient
-				consultaCamp.setCampTipus(CampTipusEnum.STRING);
+				consultaCamp.setCampTipus(CampTipusDto.STRING);
 				consultaCamp.setCampEtiqueta(this.getEtiquetaCampExpedient(consultaCamp.getCampCodi()));
 			} else {
 				Consulta consulta = consultaRepository.findById(consultaId).orElse(null);
@@ -4502,7 +4498,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								definicioProces,
 								consultaCamp.getCampCodi());
 						if (camp != null) {
-							consultaCamp.setCampTipus(CampTipusEnum.valueOf(camp.getTipus().toString()));
+							consultaCamp.setCampTipus(CampTipusDto.valueOf(camp.getTipus().toString()));
 							consultaCamp.setCampEtiqueta(camp.getEtiqueta());
 						}
 					}
@@ -4513,7 +4509,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							consultaCamp.getCampCodi(),
 							false);
 					if (camp != null) {
-						consultaCamp.setCampTipus(CampTipusEnum.valueOf(camp.getTipus().toString()));
+						consultaCamp.setCampTipus(CampTipusDto.valueOf(camp.getTipus().toString()));
 						consultaCamp.setCampEtiqueta(camp.getEtiqueta());
 					}
 				}

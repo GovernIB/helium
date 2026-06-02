@@ -36,7 +36,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
 import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
@@ -776,7 +776,7 @@ public class TascaServiceImpl implements TascaService {
 			for (CampTasca campTasca: tasca.getCamps()) {
 				if (campTasca.getCamp().equals(camp)) {
 					trobat = true;
-				} else if (campTasca.getCamp().getTipus().equals(CampTipusEnum.REGISTRE)) {
+				} else if (campTasca.getCamp().getTipus().equals(CampTipusDto.REGISTRE)) {
 					for (CampRegistre campReg: campTasca.getCamp().getRegistreMembres()) {
 						if (campReg.getMembre().equals(camp)) {
 							trobat = true;

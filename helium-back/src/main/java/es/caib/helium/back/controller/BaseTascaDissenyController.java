@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import es.caib.helium.commons.dto.CampDto;
 import es.caib.helium.commons.dto.CampTascaDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.DocumentTascaDto;
 import es.caib.helium.commons.dto.FirmaTascaDto;
@@ -22,10 +22,10 @@ import es.caib.helium.logic.intf.service.DocumentService;
  * Conté mètodes compartits i exten del BaseDissenyController que conté serveis i inicialitzacions.
  */
 public class BaseTascaDissenyController extends BaseDissenyController {
-	
+
 	@Autowired
 	DocumentService documentService;
-	
+
 	/**
 	 * Retorna les parelles codi i valor per a les possibles variables per als camps de les consultes.
 	 * Lleva les variables que s'han utilitzat ja en la tasca.
@@ -61,31 +61,31 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 			CampDto camp;
 			while (it.hasNext()) {
 				camp = it.next();
-				if (camp.getTipus().equals(CampTipusEnum.ACCIO))
+				if (camp.getTipus().equals(CampTipusDto.ACCIO))
 					it.remove();
 			}
 		}
 		// Crea les parelles de codi i valor
 		for (CampDto variable : variables) {
 			resposta.add(new ParellaCodiValorDto(
-					variable.getId().toString(), 
+					variable.getId().toString(),
 					variable.getCodi() + " / " + variable.getEtiqueta()));
-		}			
+		}
 		return resposta;
-	}	
-	
+	}
+
 	/**
 	 * Retorna les parelles codi i valor per a les possibles documents per als documents de les consultes.
 	 * Lleva les documents que s'han utilitzat ja en la tasca.
 	 * @param expedientTipusId
 	 * @param definicioProcesId
-	 * @param documents 
+	 * @param documents
 	 * @param tascaId
 	 * @return
 	 */
 	protected List<ParellaCodiValorDto> documentObtenirParellesDocuments(
 			Long expedientTipusId,
-			List<DocumentDto> documents, 
+			List<DocumentDto> documents,
 			Long tascaId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		// Documents de la tasca existents
@@ -104,12 +104,12 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 		// Crea les parelles de codi i valor
 		for (DocumentDto document : documents) {
 			resposta.add(new ParellaCodiValorDto(
-					document.getId().toString(), 
+					document.getId().toString(),
 					document.getCodi() + " / " + document.getNom()));
-		}			
+		}
 		return resposta;
 	}
-	
+
 	/**
 	 * Retorna les parelles codi i valor per als possibles docuemnts per a les firmes de les tasques.
 	 * Lleva els documents que s'han utilitzat ja en la tasca.
@@ -138,9 +138,9 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 		// Crea les parelles de codi i valor
 		for (DocumentDto firma : documents) {
 			resposta.add(new ParellaCodiValorDto(
-					firma.getId().toString(), 
+					firma.getId().toString(),
 					firma.getCodi() + " / " + firma.getNom()));
-		}			
+		}
 		return resposta;
-	}		
+	}
 }

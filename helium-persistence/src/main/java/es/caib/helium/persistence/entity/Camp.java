@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -34,12 +34,12 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import es.caib.helium.commons.constants.ExpedientCamps;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.TerminiDto;
 
 /**
  * Objecte de domini que representa un camp de la definició de procés.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
@@ -64,7 +64,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	private String codi;
-	private CampTipusEnum tipus;
+	private CampTipusDto tipus;
 	private String etiqueta;
 	private String observacions;
 	private String dominiId;
@@ -96,18 +96,18 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private Integer ordre;
 
 	public Camp() {}
-	public Camp(String codi, CampTipusEnum tipus, String etiqueta) {
+	public Camp(String codi, CampTipusDto tipus, String etiqueta) {
 		this.codi = codi;
 		this.tipus = tipus;
 		this.etiqueta = etiqueta;
 	}
-	public Camp(DefinicioProces definicioProces, String codi, CampTipusEnum tipus, String etiqueta) {
+	public Camp(DefinicioProces definicioProces, String codi, CampTipusDto tipus, String etiqueta) {
 		this.definicioProces = definicioProces;
 		this.codi = codi;
 		this.tipus = tipus;
 		this.etiqueta = etiqueta;
 	}
-	public Camp(ExpedientTipus expedientTipus, String codi, CampTipusEnum tipus, String etiqueta) {
+	public Camp(ExpedientTipus expedientTipus, String codi, CampTipusDto tipus, String etiqueta) {
 		this.expedientTipus = expedientTipus;
 		this.codi = codi;
 		this.tipus = tipus;
@@ -134,10 +134,10 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="tipus", length=255, nullable=false)
-	public CampTipusEnum getTipus() {
+	public CampTipusDto getTipus() {
 		return tipus;
 	}
-	public void setTipus(CampTipusEnum tipus) {
+	public void setTipus(CampTipusDto tipus) {
 		this.tipus = tipus;
 	}
 
@@ -228,7 +228,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public void setOcult(boolean ocult) {
 		this.ocult = ocult;
 	}
-	
+
 	@Column(name="ignored")
 	public boolean isIgnored() {
 		return ignored;
@@ -236,7 +236,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
 	}
-	
+
 	@Column(name="termini_nomes_dies")
 	public boolean isTerminiNomesDies() {
 		return terminiNomesDies;
@@ -244,7 +244,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public void setTerminiNomesDies(boolean terminiNomesDies) {
 		this.terminiNomesDies = terminiNomesDies;
 	}
-	
+
 	@ManyToOne(optional=true)
 	@JoinColumn(name="definicio_proces_id", foreignKey=@ForeignKey(name="hel_defproc_camp_fk"))
 	public DefinicioProces getDefinicioProces() {
@@ -371,7 +371,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public void removeRegistreMembre(CampRegistre registreMembre) {
 		getRegistreMembres().remove(registreMembre);
 	}
-	
+
 	@Column(name="ordre")
 	public Integer getOrdre() {
 		return ordre;
@@ -391,23 +391,23 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	@SuppressWarnings("rawtypes")
 	@Transient
 	public Class getJavaClass() {
-		if (CampTipusEnum.STRING.equals(tipus)) {
+		if (CampTipusDto.STRING.equals(tipus)) {
 			return String.class;
-		} else if (CampTipusEnum.INTEGER.equals(tipus)) {
+		} else if (CampTipusDto.INTEGER.equals(tipus)) {
 			return Long.class;
-		} else if (CampTipusEnum.FLOAT.equals(tipus)) {
+		} else if (CampTipusDto.FLOAT.equals(tipus)) {
 			return Double.class;
-		} else if (CampTipusEnum.BOOLEAN.equals(tipus)) {
+		} else if (CampTipusDto.BOOLEAN.equals(tipus)) {
 			return Boolean.class;
-		} else if (CampTipusEnum.TEXTAREA.equals(tipus)) {
+		} else if (CampTipusDto.TEXTAREA.equals(tipus)) {
 			return String.class;
-		} else if (CampTipusEnum.DATE.equals(tipus)) {
+		} else if (CampTipusDto.DATE.equals(tipus)) {
 			return Date.class;
-		} else if (CampTipusEnum.PRICE.equals(tipus)) {
+		} else if (CampTipusDto.PRICE.equals(tipus)) {
 			return BigDecimal.class;
-		} else if (CampTipusEnum.TERMINI.equals(tipus)) {
+		} else if (CampTipusDto.TERMINI.equals(tipus)) {
 			return String.class;
-		} else if (CampTipusEnum.REGISTRE.equals(tipus)) {
+		} else if (CampTipusDto.REGISTRE.equals(tipus)) {
 			return Object[].class;
 		} else {
 			return String.class;
@@ -415,28 +415,28 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	public static String getComText(
-			CampTipusEnum tipus,
+			CampTipusDto tipus,
 			Object valor,
 			String valorDomini) {
 		if (valor == null)
 			return null;
 		try {
 			String text = null;
-			if (tipus.equals(CampTipusEnum.INTEGER)) {
+			if (tipus.equals(CampTipusDto.INTEGER)) {
 				text = new DecimalFormat("#").format((Long)valor);
-			} else if (tipus.equals(CampTipusEnum.FLOAT)) {
+			} else if (tipus.equals(CampTipusDto.FLOAT)) {
 				text = new DecimalFormat("#.##########").format((Double)valor);
-			} else if (tipus.equals(CampTipusEnum.PRICE)) {
+			} else if (tipus.equals(CampTipusDto.PRICE)) {
 				text = new DecimalFormat("#,##0.00").format((BigDecimal)valor);
-			} else if (tipus.equals(CampTipusEnum.DATE)) {
+			} else if (tipus.equals(CampTipusDto.DATE)) {
 				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
-			} else if (tipus.equals(CampTipusEnum.BOOLEAN)) {
+			} else if (tipus.equals(CampTipusDto.BOOLEAN)) {
 				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
-			} else if (tipus.equals(CampTipusEnum.SELECCIO)) {
+			} else if (tipus.equals(CampTipusDto.SELECCIO)) {
 				text = valorDomini;
-			} else if (tipus.equals(CampTipusEnum.SUGGEST)) {
+			} else if (tipus.equals(CampTipusDto.SUGGEST)) {
 				text = valorDomini;
-			} else if (tipus.equals(CampTipusEnum.TERMINI)) {
+			} else if (tipus.equals(CampTipusDto.TERMINI)) {
 				if (valor instanceof Termini) {
 					text = ((Termini)valor).toString();
 				} else {
@@ -458,27 +458,27 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	public static Object getComObject(
-			CampTipusEnum tipus,
+			CampTipusDto tipus,
 			String text) {
 		if (text == null)
 			return null;
 		try {
 			Object obj = null;
-			if (tipus.equals(CampTipusEnum.INTEGER)) {
+			if (tipus.equals(CampTipusDto.INTEGER)) {
 				obj = new Long(text);
-			} else if (tipus.equals(CampTipusEnum.FLOAT)) {
+			} else if (tipus.equals(CampTipusDto.FLOAT)) {
 				obj = new Double(text);
-			} else if (tipus.equals(CampTipusEnum.PRICE)) {
+			} else if (tipus.equals(CampTipusDto.PRICE)) {
 				obj = new BigDecimal(text);
-			} else if (tipus.equals(CampTipusEnum.DATE)) {
+			} else if (tipus.equals(CampTipusDto.DATE)) {
 				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
-			} else if (tipus.equals(CampTipusEnum.BOOLEAN)) {
+			} else if (tipus.equals(CampTipusDto.BOOLEAN)) {
 				obj = new Boolean("S".equals(text));
-			} else if (tipus.equals(CampTipusEnum.SELECCIO)) {
+			} else if (tipus.equals(CampTipusDto.SELECCIO)) {
 				obj = text;
-			} else if (tipus.equals(CampTipusEnum.SUGGEST)) {
+			} else if (tipus.equals(CampTipusDto.SUGGEST)) {
 				obj = text;
-			} else if (tipus.equals(CampTipusEnum.TERMINI)) {
+			} else if (tipus.equals(CampTipusDto.TERMINI)) {
 				String[] parts = text.split("/");
 				Termini termini = new Termini();
 				if (parts.length == 3) {
@@ -505,7 +505,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		result = prime * result
 				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
 		result = prime * result
-				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());		
+				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());
 		return result;
 	}
 	@Override
@@ -539,7 +539,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public String getConsultaParams() {
 		return consultaParams;
 	}
-	
+
 	public void setConsultaParams(String consultaParams) {
 		this.consultaParams = consultaParams;
 	}
@@ -548,7 +548,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public String getConsultaCampText() {
 		return consultaCampText;
 	}
-	
+
 	public void setConsultaCampText(String consultaCampText) {
 		this.consultaCampText = consultaCampText;
 	}
@@ -557,7 +557,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public String getConsultaCampValor() {
 		return consultaCampValor;
 	}
-	
+
 	public void setConsultaCampValor(String consultaCampValor) {
 		this.consultaCampValor = consultaCampValor;
 	}
@@ -569,12 +569,12 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public void setDominiIntern(boolean dominiIntern) {
 		this.dominiIntern = dominiIntern;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Camp [id=" + id + ", codi=" + codi + ", tipus=" + tipus + ", DP= "+ (this.definicioProces!=null?this.definicioProces.getJbpmKey():"null")  +"]";
 	}
-	
+
 	@ManyToOne(optional=true)
     @JoinColumn(name="consulta_id", foreignKey=@ForeignKey(name="hel_consulta_camp_fk"))
     public Consulta getConsulta() {

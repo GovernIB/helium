@@ -19,7 +19,6 @@ import javax.persistence.EntityManagerFactory;
 
 import es.caib.helium.commons.dto.*;
 import es.caib.helium.persistence.repository.ExpedientRepository;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -32,7 +31,6 @@ import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dades.DadesValor;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Entorn;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.ExpedientDades;
 import es.caib.helium.persistence.entity.ExpedientTipus;
@@ -102,8 +100,8 @@ public class ExpedientDadaHelper {
 		}
 		if (camp != null && camp.isDominiCacheText()) {
 			if (varValue != null) {
-				if (camp.getTipus().equals(CampTipusEnum.SELECCIO) ||
-					camp.getTipus().equals(CampTipusEnum.SUGGEST)) {
+				if (camp.getTipus().equals(CampTipusDto.SELECCIO) ||
+					camp.getTipus().equals(CampTipusDto.SUGGEST)) {
 
 					String text;
 					try {
@@ -471,29 +469,29 @@ public class ExpedientDadaHelper {
 	}
 
 	private String getComText(
-			CampTipusEnum tipus,
+			CampTipusDto tipus,
 			String valor,
 			String valorDomini) {
 		if (valor == null)
 			return null;
 		try {
 			String text = null;
-			if (tipus.equals(CampTipusEnum.INTEGER)) {
+			if (tipus.equals(CampTipusDto.INTEGER)) {
 				text = new DecimalFormat("#").format(Long.valueOf(valor));
-			} else if (tipus.equals(CampTipusEnum.FLOAT)) {
+			} else if (tipus.equals(CampTipusDto.FLOAT)) {
 				text = new DecimalFormat("#.##########").format(Double.valueOf(valor));
-			} else if (tipus.equals(CampTipusEnum.PRICE)) {
+			} else if (tipus.equals(CampTipusDto.PRICE)) {
 				text = new DecimalFormat("#,##0.00").format(new BigDecimal(valor));
-			} else if (tipus.equals(CampTipusEnum.DATE)) {
+			} else if (tipus.equals(CampTipusDto.DATE)) {
 				// text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
 				text = valor;
-			} else if (tipus.equals(CampTipusEnum.BOOLEAN)) {
+			} else if (tipus.equals(CampTipusDto.BOOLEAN)) {
 				text = Boolean.valueOf(valor) ? "Si" : "No";
-			} else if (tipus.equals(CampTipusEnum.SELECCIO)) {
+			} else if (tipus.equals(CampTipusDto.SELECCIO)) {
 				text = valorDomini;
-			} else if (tipus.equals(CampTipusEnum.SUGGEST)) {
+			} else if (tipus.equals(CampTipusDto.SUGGEST)) {
 				text = valorDomini;
-			} else if (tipus.equals(CampTipusEnum.TERMINI)) {
+			} else if (tipus.equals(CampTipusDto.TERMINI)) {
 				//if (valor instanceof Termini) {
 					//text = ((Termini)valor).toString();
 				//} else {

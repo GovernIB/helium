@@ -1248,7 +1248,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 						emailAddresses.add(persona.getEmail());
 					}
 
-					mailHelper.send(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CORREU_REMITENT), emailAddresses,
+					mailHelper.send(emailAddresses,
 							null, null, "Execució massiva: " + ome.getExecucioMassiva().getTipus(),
 							"L'execució massiva ha finalitzat.");
 				}

@@ -21,14 +21,12 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cglib.beans.BeanGenerator;
-import org.springframework.validation.Validator;
 
 
 import es.caib.helium.commons.constants.ExpedientCamps;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.ExpedientDadaDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
-import es.caib.helium.commons.dto.ValidacioDto;
 
 
 /**
@@ -84,17 +82,17 @@ public class TascaFormHelper {
     	Map<String, Object> resposta = new HashMap<String, Object>();
     	for (TascaDadaDto tascaDada: tascaDades) {
     		try {
-    			if (!tascaDada.getCampTipus().equals(CampTipusEnum.ACCIO)) {
+    			if (!tascaDada.getCampTipus().equals(CampTipusDto.ACCIO)) {
     				Object valor = PropertyUtils.getSimpleProperty(
 			    				command,
 			    				tascaDada.getVarCodi());
-	    			if (tascaDada.isReadOnly() && !tascaDada.getCampTipus().equals(CampTipusEnum.REGISTRE)) {
+	    			if (tascaDada.isReadOnly() && !tascaDada.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 	    				valor = tascaDada.getVarValor();
 	    				setSimpleProperty(
 								command,
 								tascaDada.getVarCodi(),
 								valor);
-	    			} else if (tascaDada.getCampTipus().equals(CampTipusEnum.REGISTRE)) {
+	    			} else if (tascaDada.getCampTipus().equals(CampTipusDto.REGISTRE)) {
     					valor = getArrayFromRegistre(tascaDada, valor, esIniciExpedient);
     				}
 		    		if (!esConsultaPerTipus && tascaDada.isCampMultiple()) {
@@ -103,11 +101,11 @@ public class TascaFormHelper {
 		    			if (valor != null)
 			    			for (int i = 0; i < Array.getLength(valor); i++) {
 			    				Object va = Array.get(valor, i);
-			    				if (tascaDada.getCampTipus().equals(CampTipusEnum.BOOLEAN) && va == null) {
+			    				if (tascaDada.getCampTipus().equals(CampTipusDto.BOOLEAN) && va == null) {
 					    			va = Boolean.FALSE;
 					    		}
 			    				if (!empty(va)) {
-			    					if (tascaDada.getCampTipus().equals(CampTipusEnum.TERMINI)) {
+			    					if (tascaDada.getCampTipus().equals(CampTipusDto.TERMINI)) {
 			    						String[] pre_va = (String[])va;
 				    					if((pre_va).length < 3)
 				    						va = null;
@@ -120,30 +118,30 @@ public class TascaFormHelper {
 		    			Object newArray = null;
 		    			if (!valorSenseBuits.isEmpty()) {
 	    					newArray = Array.newInstance(
-	    							tascaDada.getCampTipus().equals(CampTipusEnum.TERMINI) ? String.class : tascaDada.getJavaClass(),
+	    							tascaDada.getCampTipus().equals(CampTipusDto.TERMINI) ? String.class : tascaDada.getJavaClass(),
 	    							valorSenseBuits.size());
 		    				int index = 0;
 		    				for (Object val: valorSenseBuits) {
 		    					Array.set(newArray, index++, val);
 		    				}
 		    			}
-		    			if (!tascaDada.getCampTipus().equals(CampTipusEnum.REGISTRE) || valor != null) {
+		    			if (!tascaDada.getCampTipus().equals(CampTipusDto.REGISTRE) || valor != null) {
 		    				resposta.put(
 		    						tascaDada.getVarCodi(),
 		    						newArray);
 		    			}
 		    		} else {
-		    			if (tascaDada.getCampTipus().equals(CampTipusEnum.TERMINI) && valor != null) {
+		    			if (tascaDada.getCampTipus().equals(CampTipusDto.TERMINI) && valor != null) {
 		    				String[] pre_valor = (String[])valor;
 	    					if((pre_valor).length < 3)
 	    						valor = null;
 	    					else
 	    						valor = obtenirValorTermini(pre_valor);
-	    				} else if (tascaDada.getCampTipus().equals(CampTipusEnum.BOOLEAN) && valor == null) {
+	    				} else if (tascaDada.getCampTipus().equals(CampTipusDto.BOOLEAN) && valor == null) {
 			    			valor = Boolean.FALSE;
 			    		}
 //		    			valor = compatibilitat26(camp, valor);
-		    			if (!tascaDada.getCampTipus().equals(CampTipusEnum.REGISTRE) || valor != null) {
+		    			if (!tascaDada.getCampTipus().equals(CampTipusDto.REGISTRE) || valor != null) {
 		    				resposta.put(
 			    					tascaDada.getVarCodi(),
 				    				valor);
@@ -256,12 +254,12 @@ public class TascaFormHelper {
 				} else {
 					valor = camp.getVarValor();
 				}
-				if (!camp.getCampTipus().equals(CampTipusEnum.REGISTRE)) {
+				if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 					// Camps múltiples
 					if (isCampMultiple(camp, esConsultaPerTipus)) {
 						Object valorMultiple = null;
 						if (valor != null) {
-							if (camp.getCampTipus().equals(CampTipusEnum.TERMINI)) {
+							if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
 								int mida = 1;
 								if (valor instanceof Object[]) {
 									mida = ((Object[])valor).length;
@@ -291,7 +289,7 @@ public class TascaFormHelper {
 									valorMultiple);
 						} else {
 							Object final_valor;
-							if (camp.getCampTipus().equals(CampTipusEnum.TERMINI)) {
+							if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
 								String[][] terminis = new String[][]{new String[]{"0","0",""}};
 								final_valor = terminis;
 							} else {
@@ -304,13 +302,13 @@ public class TascaFormHelper {
 						}
 					// Camps senzills
 					} else {
-						if (camp.getCampTipus().equals(CampTipusEnum.TERMINI)){
+						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
 							if (valor != null) {
 								valor = crearTermini(valor);
 							} else {
 								valor = new String[3];
 							}
-						} else if (camp.getCampTipus().equals(CampTipusEnum.STRING) && valor == null) {
+						} else if (camp.getCampTipus().equals(CampTipusDto.STRING) && valor == null) {
 							valor = "";
 						}
 						setSimpleProperty(
@@ -452,11 +450,11 @@ public class TascaFormHelper {
 				esConsultaPerTipus);
 		// Inicialitza els camps del command amb valors buits o els valors per defecte
 		for (TascaDadaDto camp: tascaDades) {
-			if (!camp.getCampTipus().equals(CampTipusEnum.REGISTRE)) {
+			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				Object valor = obtenirValorDefecte(camp, valorsPerDefecte);
 				try {
 					if (isCampMultiple(camp, esConsultaPerTipus)) {
-						if (camp.getCampTipus().equals(CampTipusEnum.TERMINI)) {
+						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
 							String[][] terminis = new String[][]{new String[]{"0","0",""}};
 							valor = terminis;
 						} else {
@@ -467,7 +465,7 @@ public class TascaFormHelper {
 							valor = a;
 						}
 					} else {
-						if (camp.getCampTipus().equals(CampTipusEnum.TERMINI)){
+						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
 							valor = new String[3];
 						}
 					}
@@ -532,7 +530,7 @@ public class TascaFormHelper {
 		Map<String, Object> registres = new HashMap<String, Object>();
 		// Inicialitza els camps del command amb valors buits
 		for (TascaDadaDto camp: tascaDadas) {
-			if (!camp.getCampTipus().equals(CampTipusEnum.REGISTRE)) {
+			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				Object valor = null;
 				try {
 					if (isCampMultiple(camp, esConsultaPerTipus)) {
@@ -677,7 +675,7 @@ public class TascaFormHelper {
 		if (registres == null) registres = new HashMap<String, Object>();
 		for (TascaDadaDto tascaDada: tascaDades) {
 			Class<?> propertyClass;
-			if (!tascaDada.getCampTipus().equals(CampTipusEnum.REGISTRE)) {
+			if (!tascaDada.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				if (tascaDada.getCampTipus() != null)  {
 					if (isCampMultiple(tascaDada, esConsultaPerTipus)) {
 						propertyClass = Array.newInstance(Object.class, 1).getClass();
@@ -816,11 +814,11 @@ public class TascaFormHelper {
 		if (!esConsultaPerTipus) {
 			ambArray = camp.isCampMultiple();
 		} else {
-			ambArray = 	camp.getCampTipus().equals(CampTipusEnum.DATE) ||
-						(camp.getCampTipus().equals(CampTipusEnum.STRING) && camp.getVarCodi()!=null && camp.getVarCodi().equals(ExpedientCamps.EXPEDIENT_CAMP_ID))||
-						camp.getCampTipus().equals(CampTipusEnum.INTEGER) ||
-						camp.getCampTipus().equals(CampTipusEnum.FLOAT) ||
-						camp.getCampTipus().equals(CampTipusEnum.PRICE);
+			ambArray = 	camp.getCampTipus().equals(CampTipusDto.DATE) ||
+						(camp.getCampTipus().equals(CampTipusDto.STRING) && camp.getVarCodi()!=null && camp.getVarCodi().equals(ExpedientCamps.EXPEDIENT_CAMP_ID))||
+						camp.getCampTipus().equals(CampTipusDto.INTEGER) ||
+						camp.getCampTipus().equals(CampTipusDto.FLOAT) ||
+						camp.getCampTipus().equals(CampTipusDto.PRICE);
 		}
 		return ambArray;
 	}
@@ -854,10 +852,10 @@ public class TascaFormHelper {
 			TascaDadaDto camp,
 			Object valor) {
 		// Per compatibilitat amb la forma de guardar els formularis v2.6
-		if (	camp.getCampTipus().equals(CampTipusEnum.STRING) ||
-				camp.getCampTipus().equals(CampTipusEnum.TEXTAREA) ||
-				camp.getCampTipus().equals(CampTipusEnum.SELECCIO) ||
-				camp.getCampTipus().equals(CampTipusEnum.SUGGEST)) {
+		if (	camp.getCampTipus().equals(CampTipusDto.STRING) ||
+				camp.getCampTipus().equals(CampTipusDto.TEXTAREA) ||
+				camp.getCampTipus().equals(CampTipusDto.SELECCIO) ||
+				camp.getCampTipus().equals(CampTipusDto.SUGGEST)) {
 			if (valor == null)
 				return "";
 		}
@@ -892,7 +890,7 @@ public class TascaFormHelper {
 				&& valorsPerDefecte != null
 				&& valorsPerDefecte.containsKey(camp.getVarCodi())) {
 			try {
-				CampTipusEnum tipus = camp.getCampTipus();
+				CampTipusDto tipus = camp.getCampTipus();
 				String str = valorsPerDefecte.get(camp.getVarCodi());
 				if (tipus != null && str != null && !"".equals(str.trim())) {
 					switch(tipus) {
@@ -972,7 +970,7 @@ public class TascaFormHelper {
 	}
 
 
-	public static Object convertCamp(CampTipusEnum tipus, Object v) {
+	public static Object convertCamp(CampTipusDto tipus, Object v) {
 		if(v == null)
 			return null;
 		if(tipus == null)

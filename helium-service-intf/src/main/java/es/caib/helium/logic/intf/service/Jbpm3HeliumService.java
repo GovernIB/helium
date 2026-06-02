@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.codahale.metrics.MetricRegistry;
 
+import com.sun.star.plugin.PluginException;
 import es.caib.comanda.model.management.TascaEstat;
 import es.caib.helium.commons.dto.AreaDto;
 import es.caib.helium.commons.dto.ArxiuDto;
@@ -54,6 +55,7 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.registre.RegistreAnotacio;
+import org.springframework.security.acls.model.NotFoundException;
 
 
 /**
@@ -782,7 +784,6 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 *
-	 * @param fromAddress
 	 * @param recipients
 	 * @param ccRecipients
 	 * @param bccRecipients
@@ -791,7 +792,6 @@ public interface Jbpm3HeliumService {
 	 * @param attachments
 	 */
 	public void emailSend(
-			String fromAddress,
 			List<String> recipients,
 			List<String> ccRecipients,
 			List<String> bccRecipients,

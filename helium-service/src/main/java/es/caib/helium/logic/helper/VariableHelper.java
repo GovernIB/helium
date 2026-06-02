@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
 import es.caib.helium.commons.dto.CampAgrupacioDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.ExpedientDadaDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.ParellaCodiValorDto;
@@ -203,7 +203,7 @@ public class VariableHelper {
 							false);
 					// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
 					try {
-						if (camp != null && (CampTipusEnum.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
+						if (camp != null && (CampTipusDto.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
 							List<Object> registreValors = (List)varsInstanciaProces.get(var);
 							varAmbContingut = !registreValors.isEmpty();
 						}
@@ -278,7 +278,7 @@ public class VariableHelper {
 					false);
 			// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
 			try {
-				if (camp != null && (CampTipusEnum.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
+				if (camp != null && (CampTipusDto.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
 					List<Object> registreValors = (List)valor;
 					varAmbContingut = !registreValors.isEmpty();
 				}
@@ -446,7 +446,7 @@ public class VariableHelper {
 					variableCodi);
 		}
 		boolean varAmbContingut = valor != null;
-		if (varAmbContingut && camp != null && (CampTipusEnum.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
+		if (varAmbContingut && camp != null && (CampTipusDto.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
 			Object[] registreValors = (Object[])valor;
 			varAmbContingut = registreValors.length > 0;
 		}
@@ -484,7 +484,7 @@ public class VariableHelper {
 		if (valor == null)
 			return null;
 		String valorFontExterna = null;
-		if (CampTipusEnum.SELECCIO.equals(camp.getTipus()) || CampTipusEnum.SUGGEST.equals(camp.getTipus())) {
+		if (CampTipusDto.SELECCIO.equals(camp.getTipus()) || CampTipusDto.SUGGEST.equals(camp.getTipus())) {
 
 			ParellaCodiValorDto parella = getTextPerCampAmbValor(
 					camp,
@@ -510,8 +510,8 @@ public class VariableHelper {
 			String taskInstanceId,
 			String processInstanceId) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		CampTipusEnum tipus = camp.getTipus();
-		if (tipus.equals(CampTipusEnum.SELECCIO) || tipus.equals(CampTipusEnum.SUGGEST)) {
+		CampTipusDto tipus = camp.getTipus();
+		if (tipus.equals(CampTipusDto.SELECCIO) || tipus.equals(CampTipusDto.SUGGEST)) {
 			if (camp.getDominiIntern() || camp.getDomini() != null ) {
 				Map<String, Object> parametres = getParamsConsulta(
 						taskInstanceId,
@@ -550,7 +550,7 @@ public class VariableHelper {
 									(
 										valor == null ||
 										parellaCodi.getValor().toString().equals(valor) ||
-										(tipus.equals(CampTipusEnum.SUGGEST) && parellaCodi.getValor().toString().toUpperCase().indexOf(valor.toString().toUpperCase()) != -1)
+										(tipus.equals(CampTipusDto.SUGGEST) && parellaCodi.getValor().toString().toUpperCase().indexOf(valor.toString().toUpperCase()) != -1)
 									)
 								) {
 								for (ParellaCodiValor parellaValor: fr.getColumnes()) {
@@ -818,14 +818,14 @@ public class VariableHelper {
 		}
 		tascaDto.setVarCodi(varCodi);
 		tascaDto.setCampId(camp.getId());
-		tascaDto.setCampTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusEnum.class));
+		tascaDto.setCampTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class));
 		tascaDto.setCampEtiqueta(camp.getEtiqueta());
 		tascaDto.setCampMultiple(camp.isMultiple());
 		tascaDto.setObservacions(camp.getObservacions());
 		tascaDto.setJbpmAction(camp.getJbpmAction());
 		tascaDto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
 
-		if (CampTipusEnum.SELECCIO.equals(camp.getTipus()) || CampTipusEnum.SUGGEST.equals(camp.getTipus())) {
+		if (CampTipusDto.SELECCIO.equals(camp.getTipus()) || CampTipusDto.SUGGEST.equals(camp.getTipus())) {
 			try {
 				tascaDto.setVarValor(
 						getPossiblesValorsCamp(
@@ -895,13 +895,13 @@ public class VariableHelper {
 		} else {
 			dto.setCampEtiqueta(varCodi);
 			dto.setText(String.valueOf(varValor));
-			dto.setCampTipus(CampTipusEnum.STRING);
+			dto.setCampTipus(CampTipusDto.STRING);
 		}
-		boolean esCampTipusAccio = camp != null && CampTipusEnum.ACCIO.equals(camp.getTipus());
+		boolean esCampTipusAccio = camp != null && CampTipusDto.ACCIO.equals(camp.getTipus());
 		if (camp != null && !esCampTipusAccio) {
 			try {
 				if (!camp.isMultiple() || forsarSimple) {
-					if (CampTipusEnum.REGISTRE.equals(camp.getTipus())) {
+					if (CampTipusDto.REGISTRE.equals(camp.getTipus())) {
 						List<ExpedientDadaDto> registreDades = new ArrayList<ExpedientDadaDto>();
 						List<Object> valorsRegistres = (List)varValor;
 						// Construeix el map per als valors addicionals dels parámetres del domini

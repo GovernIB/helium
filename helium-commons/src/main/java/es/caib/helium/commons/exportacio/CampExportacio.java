@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.exportacio;
 
@@ -8,19 +8,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import es.caib.helium.commons.dto.CampAgrupacioDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 
 
 
 /**
  * DTO amb informació d'un camp per exportar
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class CampExportacio implements Serializable {
 
 	private String codi;
-	private CampTipusEnum tipus;
+	private CampTipusDto tipus;
 	private String etiqueta;
 	private String observacions;
 	private String dominiId;
@@ -47,11 +47,11 @@ public class CampExportacio implements Serializable {
 	private boolean isIgnored;
 	/** Indica si el domini o la selecció són de l'entorn.*/
 	private boolean dependenciaEntorn;
-	
-	
+
+
 	public CampExportacio(
 			String codi,
-			CampTipusEnum tipus,
+			CampTipusDto tipus,
 			String etiqueta,
 			String observacions,
 			String dominiId,
@@ -108,10 +108,10 @@ public class CampExportacio implements Serializable {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-	public CampTipusEnum getTipus() {
+	public CampTipusDto getTipus() {
 		return tipus;
 	}
-	public void setTipus(CampTipusEnum tipus) {
+	public void setTipus(CampTipusDto tipus) {
 		this.tipus = tipus;
 	}
 	public String getEtiqueta() {
@@ -268,7 +268,7 @@ public class CampExportacio implements Serializable {
 	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
-	
+
 	public boolean isTerminiNomesDies() {
 		return terminiNomesDies;
 	}

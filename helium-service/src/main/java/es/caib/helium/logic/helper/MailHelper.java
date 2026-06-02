@@ -10,6 +10,8 @@ import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import es.caib.helium.commons.config.PropertyConfig;
+import es.caib.helium.commons.utils.GlobalProperties;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -28,20 +30,13 @@ public class MailHelper {
 	@Resource
 	private JavaMailSender mailSender;
 
-
-
-	public MailHelper() {
-	}
-
 	public void send(
-			String fromAddress,
 			List<String> recipients,
 			List<String> ccRecipients,
 			List<String> bccRecipients,
 			String subject,
 			String text) throws Exception {
 		send(
-				fromAddress,
 				recipients,
 				ccRecipients,
 				bccRecipients,
@@ -51,7 +46,6 @@ public class MailHelper {
 	}
 
 	public void send(
-			String fromAddress,
 			List<String> recipients,
 			List<String> ccRecipients,
 			List<String> bccRecipients,
@@ -59,7 +53,7 @@ public class MailHelper {
 			String text,
 			List<ArxiuDto> attachments) throws Exception {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
-        mimeMessage.setFrom(new InternetAddress(fromAddress));
+        mimeMessage.setFrom(new InternetAddress(getCorreuRemitent()));
 		if (recipients != null) {
 			for (String recipient: recipients) {
 				mimeMessage.addRecipient(
@@ -94,6 +88,10 @@ public class MailHelper {
 			mimeMessage.setText(text);
 		}
         this.mailSender.send(mimeMessage);
+	}
+
+	private String getCorreuRemitent() {
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CORREU_REMITENT);
 	}
 
 }

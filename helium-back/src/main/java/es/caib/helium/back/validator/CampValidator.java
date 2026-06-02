@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import es.caib.helium.back.command.CampCommand;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
 import es.caib.helium.logic.intf.service.CampService;
@@ -19,7 +19,7 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
  * - Comprova que el codi:
  * 		- no estigui duplicat
  * - Comprova que el tipus:
- * 
+ *
  */
 public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 
@@ -39,66 +39,66 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 		boolean valid = true;
 		boolean perEstats = false;
 		if (camp.getExpedientTipusId() != null) {
-			ExpedientTipusDto expedientTipusDto = 
+			ExpedientTipusDto expedientTipusDto =
 					expedientTipusService.findAmbId(camp.getExpedientTipusId());
 			perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipusDto.getTipus());
 		}
-		
+
 		// Comprova si ja hi ha una variable del tipus d'expedient amb el mateix codi
 		if (camp.getCodi() != null) {
 			CampDto repetit = campService.findAmbCodi(
 						camp.getExpedientTipusId(),
 						camp.getDefinicioProcesId(),
-						camp.getCodi(), 
+						camp.getCodi(),
 						false  );
 			if(repetit != null && (camp.getId() == null || !camp.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))
 						.addNode("codi")
-						.addConstraintViolation();	
+						.addConstraintViolation();
 				valid = false;
 			}
 		}
 		if (camp.getTipus() != null) {
-				if (camp.getTipus().equals(CampTipusEnum.ACCIO)) {
+				if (camp.getTipus().equals(CampTipusDto.ACCIO)) {
 					if (! perEstats) {
 						if (camp.getDefinicioProcesId() == null &&  (camp.getDefprocJbpmKey() == null || "".equals(camp.getDefprocJbpmKey().trim()))) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage("NotEmpty", null))
 									.addNode("defprocJbpmKey")
-									.addConstraintViolation();	
-							valid = false;								
+									.addConstraintViolation();
+							valid = false;
 						}
 					}
 					if(camp.getJbpmAction() == null || "".equals(camp.getJbpmAction().trim())) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage("NotEmpty", null))
 								.addNode("jbpmAction")
-								.addConstraintViolation();	
-						valid = false;								
+								.addConstraintViolation();
+						valid = false;
 					}
 				}
-				if (camp.getTipus().equals(CampTipusEnum.SELECCIO) || camp.getTipus().equals(CampTipusEnum.SUGGEST)) {
-					if ((camp.getDominiId() == null 
-							&& !camp.isDominiIntern()) 
-							&& camp.getEnumeracioId() == null 
+				if (camp.getTipus().equals(CampTipusDto.SELECCIO) || camp.getTipus().equals(CampTipusDto.SUGGEST)) {
+					if ((camp.getDominiId() == null
+							&& !camp.isDominiIntern())
+							&& camp.getEnumeracioId() == null
 							&& camp.getConsultaId() == null) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(this.codiMissatge + ".enumdomcons.buit", null))
 								.addNode("dominiId")
-								.addConstraintViolation();	
+								.addConstraintViolation();
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(this.codiMissatge + ".enumdomcons.buit", null))
 								.addNode("dominiIntern")
-								.addConstraintViolation();	
+								.addConstraintViolation();
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(this.codiMissatge + ".enumdomcons.buit", null))
 								.addNode("enumeracioId")
-								.addConstraintViolation();	
+								.addConstraintViolation();
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(this.codiMissatge + ".enumdomcons.buit", null))
 								.addNode("consultaId")
-								.addConstraintViolation();	
+								.addConstraintViolation();
 						valid = false;
 					} else {
 						if (camp.getDominiId() != null) {
@@ -106,22 +106,22 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage("NotEmpty", null))
 										.addNode("dominiIdentificador")
-										.addConstraintViolation();	
-								valid = false;								
+										.addConstraintViolation();
+								valid = false;
 							}
 							if(camp.getDominiCampText() == null || "".equals(camp.getDominiCampText().trim())) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage("NotEmpty", null))
 										.addNode("dominiCampText")
-										.addConstraintViolation();	
-								valid = false;								
+										.addConstraintViolation();
+								valid = false;
 							}
 							if(camp.getDominiCampValor() == null || "".equals(camp.getDominiCampValor().trim())) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage("NotEmpty", null))
 										.addNode("dominiCampValor")
-										.addConstraintViolation();	
-								valid = false;								
+										.addConstraintViolation();
+								valid = false;
 							}
 						}
 					}
@@ -129,7 +129,7 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();
-		
+
 		return valid;
 	}
 

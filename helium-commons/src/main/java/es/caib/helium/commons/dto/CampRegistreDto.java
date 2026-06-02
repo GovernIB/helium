@@ -1,11 +1,11 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
 /**
  * DTO amb informació del camp d'una variable de tipus registre.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class CampRegistreDto {
@@ -15,15 +15,15 @@ public class CampRegistreDto {
 	private Long membreId;
 	private String membreCodi;
 	private String membreEtiqueta;
-	private CampTipusEnum membreTipus;
+	private CampTipusDto membreTipus;
 	private boolean obligatori;
 	private boolean llistar;
 	private int ordre;
-	
+
 	public CampRegistreDto() {
-		
+
 	}
-	
+
 	public CampRegistreDto(Long id, boolean obligatori, boolean llistar, int ordre, Long registreId, Long membreId) {
 		super();
 		this.id = id;
@@ -33,7 +33,7 @@ public class CampRegistreDto {
 		this.registreId = registreId;
 		this.membreId = membreId;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -64,10 +64,10 @@ public class CampRegistreDto {
 	public void setMembreEtiqueta(String membreEtiqueta) {
 		this.membreEtiqueta = membreEtiqueta;
 	}
-	public CampTipusEnum getMembreTipus() {
+	public CampTipusDto getMembreTipus() {
 		return membreTipus;
 	}
-	public void setMembreTipus(CampTipusEnum membreTipus) {
+	public void setMembreTipus(CampTipusDto membreTipus) {
 		this.membreTipus = membreTipus;
 	}
 	public boolean isObligatori() {
@@ -87,5 +87,5 @@ public class CampRegistreDto {
 	}
 	public void setOrdre(int ordre) {
 		this.ordre = ordre;
-	}	
+	}
 }

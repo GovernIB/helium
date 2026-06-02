@@ -128,10 +128,9 @@ public class AdminServiceImpl implements AdminService {
 				for (String recipient : destinataris.split(",")) {
 					recipients.add(recipient.trim());
 				}
-				String fromAddress = getCorreuRemitent();
 				List<ArxiuDto> attachments = new ArrayList<ArxiuDto>();
 				attachments.add(new ArxiuDto("metrics.json", getApplictionMetrics().getBytes()));
-				mailHelper.send(fromAddress, recipients, null, null,
+				mailHelper.send(recipients, null, null,
 						"Mètriques Helium " + new SimpleDateFormat("dd/MM/yyyy").format(new Date()),
 						"Mètriques generades per a monitoritzar l'ús de l'aplicació.", attachments);
 			} catch (Exception ex) {
@@ -399,10 +398,6 @@ public class AdminServiceImpl implements AdminService {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new MetricsModule(TimeUnit.SECONDS, TimeUnit.MILLISECONDS, false));
 		return mapper.writeValueAsString(metricRegistry);
-	}
-
-	private String getCorreuRemitent() {
-		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CORREU_REMITENT);
 	}
 
 	private String getCorreuMetriquesDestinataris() {

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * DTO amb informació d'una dada de d'una tasca.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class TascaDadaDto {
@@ -22,7 +22,7 @@ public class TascaDadaDto {
 	private Object varValor;
 
 	private Long campId;
-	private CampTipusEnum campTipus;
+	private CampTipusDto campTipus;
 	private String campEtiqueta;
 	private boolean campMultiple;
 	private boolean campOcult;
@@ -31,7 +31,7 @@ public class TascaDadaDto {
 	private String jbpmAction;
 	private String observacions;
 	private String definicioProcesKey;
-	
+
 	private boolean terminiNomesDies = false;
 
 	private String text;
@@ -49,11 +49,11 @@ public class TascaDadaDto {
 	private int buitCols;
 
 	private boolean llistar;  // Si s'ha de llistar dins camp tipus registre
-	
-	CampAgrupacioDto agrupacio;
-	
 
-	public TascaDadaDto(String codi, CampTipusEnum tipus, String etiqueta) {
+	CampAgrupacioDto agrupacio;
+
+
+	public TascaDadaDto(String codi, CampTipusDto tipus, String etiqueta) {
 		this.varCodi = codi;
 		this.campTipus = tipus;
 		this.campEtiqueta = etiqueta;
@@ -80,10 +80,10 @@ public class TascaDadaDto {
 	public void setCampId(Long campId) {
 		this.campId = campId;
 	}
-	public CampTipusEnum getCampTipus() {
+	public CampTipusDto getCampTipus() {
 		return campTipus;
 	}
-	public void setCampTipus(CampTipusEnum campTipus) {
+	public void setCampTipus(CampTipusDto campTipus) {
 		this.campTipus = campTipus;
 	}
 	public String getCampEtiqueta() {
@@ -198,7 +198,7 @@ public class TascaDadaDto {
 	public void setLlistar(boolean llistar) {
 		this.llistar = llistar;
 	}
-	
+
 	public CampAgrupacioDto getAgrupacio() {
 		return agrupacio;
 	}
@@ -286,23 +286,23 @@ public class TascaDadaDto {
 	}
 
 	public  Class<?> getJavaClass() {
-		if (CampTipusEnum.STRING.equals(campTipus)) {
+		if (CampTipusDto.STRING.equals(campTipus)) {
 			return String.class;
-		} else if (CampTipusEnum.INTEGER.equals(campTipus)) {
+		} else if (CampTipusDto.INTEGER.equals(campTipus)) {
 			return Integer.class;
-		} else if (CampTipusEnum.FLOAT.equals(campTipus)) {
+		} else if (CampTipusDto.FLOAT.equals(campTipus)) {
 			return Double.class;
-		} else if (CampTipusEnum.BOOLEAN.equals(campTipus)) {
+		} else if (CampTipusDto.BOOLEAN.equals(campTipus)) {
 			return Boolean.class;
-		} else if (CampTipusEnum.TEXTAREA.equals(campTipus)) {
+		} else if (CampTipusDto.TEXTAREA.equals(campTipus)) {
 			return String.class;
-		} else if (CampTipusEnum.DATE.equals(campTipus)) {
+		} else if (CampTipusDto.DATE.equals(campTipus)) {
 			return Date.class;
-		} else if (CampTipusEnum.PRICE.equals(campTipus)) {
+		} else if (CampTipusDto.PRICE.equals(campTipus)) {
 			return BigDecimal.class;
-		} else if (CampTipusEnum.TERMINI.equals(campTipus)) {
+		} else if (CampTipusDto.TERMINI.equals(campTipus)) {
 			return String[].class;
-		} else if (CampTipusEnum.REGISTRE.equals(campTipus)) {
+		} else if (CampTipusDto.REGISTRE.equals(campTipus)) {
 			return Object[].class;
 		} else {
 			return String.class;
@@ -310,10 +310,10 @@ public class TascaDadaDto {
 	}
 
 	public boolean isFontExterna() {
-		return CampTipusEnum.SELECCIO.equals(campTipus) || CampTipusEnum.SUGGEST.equals(campTipus);
+		return CampTipusDto.SELECCIO.equals(campTipus) || CampTipusDto.SUGGEST.equals(campTipus);
 	}
 	public boolean isCampTipusRegistre() {
-		return CampTipusEnum.REGISTRE.equals(campTipus);
+		return CampTipusDto.REGISTRE.equals(campTipus);
 	}
 
 	public String getDefinicioProcesKey() {

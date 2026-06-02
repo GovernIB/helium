@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 /**
  * DTO amb informació d'una dada de l'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Data
@@ -30,7 +30,7 @@ public class ExpedientDadaDto {
 	private Object varValor;
 
 	private Long campId;
-	private CampTipusEnum campTipus;
+	private CampTipusDto campTipus;
 	private String campEtiqueta;
 	private boolean campMultiple;
 	private boolean campOcult;
@@ -83,10 +83,10 @@ public class ExpedientDadaDto {
 				dada.setRegistreDades(registreDades);
 				filaBuida.add(dada);
 				return filaBuida;
-			} else 
+			} else
 				return getMultipleDades();
 		}
-		
+
 		List<ExpedientDadaDto> resposta = new ArrayList<ExpedientDadaDto>();
 		ExpedientDadaDto dada = new ExpedientDadaDto();
 		dada.setCampId(campId);
@@ -104,11 +104,11 @@ public class ExpedientDadaDto {
 	}
 
 	public boolean isFontExterna() {
-		return CampTipusEnum.SELECCIO.equals(campTipus) || CampTipusEnum.SUGGEST.equals(campTipus);
+		return CampTipusDto.SELECCIO.equals(campTipus) || CampTipusDto.SUGGEST.equals(campTipus);
 	}
 
 	public boolean isCampTipusRegistre() {
-		return CampTipusEnum.REGISTRE.equals(campTipus);
+		return CampTipusDto.REGISTRE.equals(campTipus);
 	}
 
 	public String getTextMultiple() {
@@ -123,23 +123,23 @@ public class ExpedientDadaDto {
 	}
 
 	public  Class<?> getJavaClass() {
-		if (CampTipusEnum.STRING.equals(campTipus)) {
+		if (CampTipusDto.STRING.equals(campTipus)) {
 			return String.class;
-		} else if (CampTipusEnum.INTEGER.equals(campTipus)) {
+		} else if (CampTipusDto.INTEGER.equals(campTipus)) {
 			return Long.class;
-		} else if (CampTipusEnum.FLOAT.equals(campTipus)) {
+		} else if (CampTipusDto.FLOAT.equals(campTipus)) {
 			return Double.class;
-		} else if (CampTipusEnum.BOOLEAN.equals(campTipus)) {
+		} else if (CampTipusDto.BOOLEAN.equals(campTipus)) {
 			return Boolean.class;
-		} else if (CampTipusEnum.TEXTAREA.equals(campTipus)) {
+		} else if (CampTipusDto.TEXTAREA.equals(campTipus)) {
 			return String.class;
-		} else if (CampTipusEnum.DATE.equals(campTipus)) {
+		} else if (CampTipusDto.DATE.equals(campTipus)) {
 			return Date.class;
-		} else if (CampTipusEnum.PRICE.equals(campTipus)) {
+		} else if (CampTipusDto.PRICE.equals(campTipus)) {
 			return BigDecimal.class;
-		} else if (CampTipusEnum.TERMINI.equals(campTipus)) {
+		} else if (CampTipusDto.TERMINI.equals(campTipus)) {
 			return TerminiDto.class;
-		} else if (CampTipusEnum.REGISTRE.equals(campTipus)) {
+		} else if (CampTipusDto.REGISTRE.equals(campTipus)) {
 			return Object[].class;
 		} else {
 			return String.class;

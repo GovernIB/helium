@@ -23,7 +23,8 @@ public class HeliumApiFactory {
 		DocumentHelperV3 documentHelperV3,
 		PluginHelper pluginHelper,
 		AlertaHelper alertaHelper,
-		ExpedientInteressatHelper expedientInteressatHelper) {
+		ExpedientInteressatHelper expedientInteressatHelper,
+		MailHelper mailHelper) {
 		return new HeliumApiImpl(
 			expedient,
 			processId,
@@ -35,7 +36,8 @@ public class HeliumApiFactory {
 			documentHelperV3,
 			pluginHelper,
 			alertaHelper,
-			expedientInteressatHelper);
+			expedientInteressatHelper,
+			mailHelper);
 	}
 
 }

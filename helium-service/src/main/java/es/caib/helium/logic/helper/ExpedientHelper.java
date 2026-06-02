@@ -43,7 +43,7 @@ import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dto.AccioTipusEnumDto;
 import es.caib.helium.commons.dto.AnotacioMapeigResultatDto;
 import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.DadesDocumentDto;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
 import es.caib.helium.commons.dto.EntornDto;
@@ -191,6 +191,8 @@ public class ExpedientHelper {
 	private RecursHelper recursHelper;
 	@Resource
 	private ExpedientInteressatHelper expedientInteressatHelper;
+	@Resource
+	private MailHelper mailHelper;
 	@Autowired
 	@Lazy
 	private HeliumApiFactory heliumApiFactory;
@@ -1580,77 +1582,77 @@ public class ExpedientHelper {
 		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.INTEGER);
+			campExpedient.setTipus(CampTipusDto.INTEGER);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.id"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.STRING);
+			campExpedient.setTipus(CampTipusDto.STRING);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.numero"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.STRING);
+			campExpedient.setTipus(CampTipusDto.STRING);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.titol"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.STRING);
+			campExpedient.setTipus(CampTipusDto.STRING);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.comentari"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.SUGGEST);
+			campExpedient.setTipus(CampTipusDto.SUGGEST);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.iniciador"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.SUGGEST);
+			campExpedient.setTipus(CampTipusDto.SUGGEST);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.responsable"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.DATE);
+			campExpedient.setTipus(CampTipusDto.DATE);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.data_ini"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_DATA_FI.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.DATE);
+			campExpedient.setTipus(CampTipusDto.DATE);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.data_fi"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_NIF.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.STRING);
+			campExpedient.setTipus(CampTipusDto.STRING);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.nif"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.SELECCIO);
+			campExpedient.setTipus(CampTipusDto.SELECCIO);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.estat"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_ERRORS_REINDEXACIO.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusEnum.STRING);
+			campExpedient.setTipus(CampTipusDto.STRING);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.errorsReindexacio"));
 			return campExpedient;
 		}
@@ -2437,7 +2439,8 @@ public class ExpedientHelper {
 						documentHelper,
 						pluginHelper,
 						alertaHelper,
-						expedientInteressatHelper));
+						expedientInteressatHelper,
+						mailHelper));
 				} catch (ReflectiveOperationException ex) {
 					throw new RuntimeException(
 						"No s'ha pogut crear la instància del handler propi " + accio.getHandlerClasse() + " per l'acció (" +
@@ -2460,7 +2463,8 @@ public class ExpedientHelper {
 						documentHelper,
 						pluginHelper,
 						alertaHelper,
-						expedientInteressatHelper));
+						expedientInteressatHelper,
+						mailHelper));
 				} catch (ReflectiveOperationException ex) {
 					throw new RuntimeException(
 						"No s'ha pogut crear la instància del handler predefinit " + accio.getHandlerClasse() + " per l'acció (" +

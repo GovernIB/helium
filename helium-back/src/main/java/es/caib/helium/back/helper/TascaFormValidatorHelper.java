@@ -6,7 +6,6 @@ package es.caib.helium.back.helper;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -24,9 +23,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
-import es.caib.helium.commons.dto.CampTipusEnum;
+import es.caib.helium.commons.dto.CampTipusDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
-import es.caib.helium.commons.dto.ValidacioDto;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.TascaService;
 
@@ -86,8 +84,8 @@ public class TascaFormValidatorHelper implements Validator {
 		try {
 			List<TascaDadaDto> tascaDades = getTascaDades(command);
 			for (TascaDadaDto camp : tascaDades) {
-				if (validarObligatoris && (camp.isRequired() || camp.getCampTipus().equals(CampTipusEnum.REGISTRE))) {
-					if (camp.getCampTipus().equals(CampTipusEnum.REGISTRE)) {
+				if (validarObligatoris && (camp.isRequired() || camp.getCampTipus().equals(CampTipusDto.REGISTRE))) {
+					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 						Object valorRegistre = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
 						if ((valorRegistre == null && camp.isRequired()) || registreInvalid(camp, valorRegistre, errors)) {
 							if (camp.isReadOnly())
@@ -138,7 +136,7 @@ public class TascaFormValidatorHelper implements Validator {
 							}
 						}
 					} else if (!camp.isCampMultiple()) {
-						if (camp.getCampTipus().equals(CampTipusEnum.TERMINI)) {
+						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
 							Object termini = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
 							String[] termini_arr = (String[])termini;
 							if (termini == null || termini_arr.length < 3 || (termini_arr[0].equalsIgnoreCase("0") && termini_arr[1].equalsIgnoreCase("0") && (termini_arr[2].equalsIgnoreCase("") || termini_arr[2] == null)))
@@ -153,7 +151,7 @@ public class TascaFormValidatorHelper implements Validator {
 						} else {
 							for (int i = 0; i < Array.getLength(valors); i++) {
 								Object valor = Array.get(valors, i);
-								if (camp.getCampTipus().equals(CampTipusEnum.TERMINI)) {
+								if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
 									String[] valor_arr = (String[])valor;
 									if (valor == null || (valor_arr).length < 3 || (valor_arr[0].equalsIgnoreCase("0") && valor_arr[1].equalsIgnoreCase("0") && (valor_arr[2].equalsIgnoreCase("0") || valor_arr[2] == null)))
 										errors.rejectValue(camp.getVarCodi() + "[" + i + "]", "not.blank");
@@ -264,7 +262,7 @@ public class TascaFormValidatorHelper implements Validator {
 
 	private void comprovaCamp(TascaDadaDto camp, Object command, Errors errors) throws Exception {
 		if (camp != null && camp.getCampTipus() != null) {
-			if (camp.getCampTipus().equals(CampTipusEnum.STRING)) {
+			if (camp.getCampTipus().equals(CampTipusDto.STRING)) {
 				try {
 					if (camp.isCampMultiple()) {
 						String[] valors = (String[]) PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
@@ -281,7 +279,7 @@ public class TascaFormValidatorHelper implements Validator {
 				} catch (NoSuchMethodException ex) {
 					logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
 				}
-			} else if (camp.getCampTipus().equals(CampTipusEnum.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
+			} else if (camp.getCampTipus().equals(CampTipusDto.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
 				try {
 					PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
 					String valor = camp.getText();

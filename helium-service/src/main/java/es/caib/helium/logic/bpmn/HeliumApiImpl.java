@@ -4,6 +4,7 @@ import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.exception.HeliumHandlerException;
 import es.caib.helium.disseny.model.DocumentInfo;
 import es.caib.helium.commons.dto.*;
+import es.caib.helium.disseny.model.ExpedientInfo;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.repository.EstatRepository;
@@ -37,6 +38,7 @@ public class HeliumApiImpl implements HeliumApi {
 	private final PluginHelper pluginHelper;
 	private final AlertaHelper alertaHelper;
 	private final ExpedientInteressatHelper expedientInteressatHelper;
+	private final MailHelper mailHelper;
 
 	@Override
 	public <T> T getVariable(String codi) {
@@ -87,6 +89,17 @@ public class HeliumApiImpl implements HeliumApi {
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	public ExpedientInfo getExpedientInfo() {
+		ExpedientInfo expedientInfo = new ExpedientInfo();
+		expedientInfo.setId(expedient.getId());
+		expedientInfo.setTitol(expedient.getTitol());
+		expedientInfo.setNumero(expedient.getNumero());
+		expedientInfo.setDataInici(expedient.getDataInici());
+		expedientInfo.setDataFi(expedient.getDataFi());
+		return expedientInfo;
 	}
 
 	@Override
@@ -546,6 +559,29 @@ public class HeliumApiImpl implements HeliumApi {
 			PortafirmesTipusEnumDto.SIMPLE);
 	}
 
+	@Override
+	public void enviarEmail(
+		List<String> recipients,
+		List<String> ccRecipients,
+		List<String> bccRecipients,
+		String subject,
+		String text,
+		List<String> attachments) {
+		try {
+			mailHelper.send(
+				recipients,
+				ccRecipients,
+				bccRecipients,
+				subject,
+				text,
+				attachments != null ?
+					attachments.stream().map(this::toEmailAttachment).collect(Collectors.toList()) :
+					null);
+		} catch (Exception ex) {
+			throw new HeliumHandlerException("No s'ha pogut enviar el correu", ex);
+		}
+	}
+
 	private DocumentDto toPortafirmesDocumentDto(String documentCodi) {
 		DocumentDto document = new DocumentDto();
 		Document documentDisseny = expedientDocumentHelper.findDocument(
@@ -603,6 +639,24 @@ public class HeliumApiImpl implements HeliumApi {
 			value = defaultValue;
 		}
 		return value;
+	}
+
+	private ArxiuDto toEmailAttachment(String documentCodi) {
+		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
+			expedient.getId(),
+			processId,
+			taskId,
+			documentCodi);
+		if (documentStore != null) {
+			return documentHelperV3.getArxiuPerDocumentStoreId(
+				documentStore.getId(),
+				false,
+				false,
+				true,
+				null);
+		} else {
+			throw new HeliumHandlerException("Document store no trobat pel codi: " + documentCodi);
+		}
 	}
 
 }
