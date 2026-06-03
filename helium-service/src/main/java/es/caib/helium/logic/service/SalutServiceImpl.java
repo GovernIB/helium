@@ -14,11 +14,12 @@ import javax.sql.DataSource;
 
 import es.caib.comanda.model.server.monitoring.*;
 import es.caib.comanda.ms.salut.helper.IntegracioApp;
-import es.caib.comanda.ms.salut.helper.SalutHelper;
 import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,8 @@ public class SalutServiceImpl implements SalutService {
 
 	private static final int MAX_CONNECTION_RETRY = 3;
 
-	private String baseUrl = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
+	@Autowired
+	private Environment env;
 
 	@Resource
 	private AvisRepository avisRepository;
@@ -68,6 +70,7 @@ public class SalutServiceImpl implements SalutService {
 	}
 
 	public List<ContextInfo> getContexts() {
+		String baseUrl = env.getProperty(PropertyConfig.PROP_BASE_URL);
 		return Lists.newArrayList(
 			new ContextInfo()
 				.codi("BACK")
