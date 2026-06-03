@@ -53,6 +53,16 @@
 				<version>2.5.0</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-ui</artifactId>
+				<version>${openapi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-hateoas</artifactId>
+				<version>${openapi.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>dev.akkinoc.spring.boot</groupId>
 				<artifactId>orika-spring-boot-starter</artifactId>
 				<version>${orika.starter.version}</version>

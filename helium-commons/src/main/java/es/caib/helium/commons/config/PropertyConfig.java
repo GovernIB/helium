@@ -36,6 +36,7 @@ public class PropertyConfig {
 	public static final String PROP_SEGONPLA_REFRESCAR_AUTO_PERIODE = PROPERTY_PREFIX + "segonpla.refrescar.auto.periode";
 	public static final String PROP_EXPEDIENT_MONITOR = PROPERTY_PREFIX + "expedient.monitor";
 	public static final String PROP_ORGANIGRAMA_ACTIU = PROPERTY_PREFIX + "organigrama.actiu";
+	public static final String PROP_SECURITY_RESOURCEACCESS_API_INTERNA = PROPERTY_PREFIX + "security.resourceAcces.api-interna";
 
 	public static final String PROP_CONVERSIO_ACTIU = PROPERTY_PREFIX + "conversio.actiu";
 	public static final String PROP_CONVERSIO_VISTA_ACTIU = PROPERTY_PREFIX + "conversio.vista.actiu";

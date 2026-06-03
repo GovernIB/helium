@@ -23,9 +23,9 @@ import java.util.List;
 	name = "Portafib",
 	description = "API REST d'integració amb Portafib.")
 public class PortaFIBCallbackRest {
+
 	@Autowired
 	private AdminService adminService;
-
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
 

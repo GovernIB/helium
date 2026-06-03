@@ -1,11 +1,12 @@
 package es.caib.helium.api.controller.comanda.v1;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.JarFile;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import javax.servlet.ServletContext;
@@ -39,7 +40,7 @@ public class SalutController {
 	ManifestInfo manifestInfo;
 
 	@GetMapping("")
-	public SalutInfo getAppInfo(HttpServletRequest request) throws IOException {
+	public SalutInfo getAppInfo(HttpServletRequest request) {
 		ManifestInfo manifestInfo = getManifestInfo();
 		return salutService.checkSalut(
 			manifestInfo.getVersion(),
@@ -53,7 +54,7 @@ public class SalutController {
 	}
 
 	@GetMapping("/info")
-	public AppInfo appInfo() throws IOException {
+	public AppInfo appInfo() {
 		ManifestInfo manifestInfo = getManifestInfo();
 		return new AppInfo()
 			.codi("HEL")
@@ -67,34 +68,41 @@ public class SalutController {
 			.contexts(salutService.getContexts());
 	}
 
-	private ManifestInfo getManifestInfo() throws IOException {
+	private ManifestInfo getManifestInfo() {
 		if (manifestInfo == null)
 			manifestInfo = buildManifestInfo();
 		return manifestInfo;
 	}
 
-	private ManifestInfo buildManifestInfo() throws IOException {
+	private ManifestInfo buildManifestInfo() {
 		ManifestInfo manifestInfo = ManifestInfo.builder().build();
-
-		var manifest = new Manifest(servletContext.getResourceAsStream("/" + JarFile.MANIFEST_NAME));
-		var manifestAtributs = manifest.getMainAttributes();
-		Map<String, Object> manifestAtributsMap = new HashMap<>();
-		for (var key: new HashMap<>(manifestAtributs).keySet()) {
-			manifestAtributsMap.put(key.toString(), manifestAtributs.get(key));
-		}
-		if (!manifestAtributsMap.isEmpty()) {
-			var version = manifestAtributsMap.get("Implementation-Version");
-			var buildDate = manifestAtributsMap.get("Build-Timestamp");
-			var buildJDK = manifestAtributsMap.get("Build-Jdk-Spec");
-			var buildScmBranch = manifestAtributsMap.get("Implementation-SCM-Branch");
-			var buildScmRevision = manifestAtributsMap.get("Implementation-SCM-Revision");
-			manifestInfo = ManifestInfo.builder()
-				.version(version != null ? version.toString() : null)
-				.buildDate(buildDate != null ? getDate(buildDate.toString()) : null)
-				.buildJDK(buildJDK != null ? buildJDK.toString() : null)
-				.buildScmBranch(buildScmBranch != null ? buildScmBranch.toString() : null)
-				.buildScmRevision(buildScmRevision != null ? buildScmRevision.toString() : null)
-				.build();
+		try {
+			try (InputStream is = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF")) {
+				if (is != null) {
+					Manifest manifest = new Manifest(is);
+					Attributes attributes = manifest.getMainAttributes();
+					Map<String, Object> manifestAtributsMap = new HashMap<>();
+					for (Map.Entry<Object, Object> entry : attributes.entrySet()) {
+						manifestAtributsMap.put(entry.getKey().toString(), entry.getValue());
+					}
+					if (!manifestAtributsMap.isEmpty()) {
+						var version = manifestAtributsMap.get("Implementation-Version");
+						var buildDate = manifestAtributsMap.get("Build-Timestamp");
+						var buildJDK = manifestAtributsMap.get("Build-Jdk-Spec");
+						var buildScmBranch = manifestAtributsMap.get("Implementation-SCM-Branch");
+						var buildScmRevision = manifestAtributsMap.get("Implementation-SCM-Revision");
+						manifestInfo = ManifestInfo.builder()
+							.version(version != null ? version.toString() : null)
+							.buildDate(buildDate != null ? getDate(buildDate.toString()) : null)
+							.buildJDK(buildJDK != null ? buildJDK.toString() : null)
+							.buildScmBranch(buildScmBranch != null ? buildScmBranch.toString() : null)
+							.buildScmRevision(buildScmRevision != null ? buildScmRevision.toString() : null)
+							.build();
+					}
+				}
+			}
+		} catch (IOException ex) {
+			log.error("Couldn't read MANIFEST.MF", ex);
 		}
 		return manifestInfo;
 	}

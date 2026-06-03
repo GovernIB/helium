@@ -25,7 +25,6 @@ import es.caib.helium.commons.dto.ExplotacioFetsDto;
 import es.caib.helium.commons.dto.comanda.DimEnum;
 import es.caib.helium.commons.dto.comanda.FetEnum;
 import es.caib.helium.logic.intf.service.EstadisticaService;
-import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.ExplotacioDimensio;
 import es.caib.helium.persistence.entity.ExplotacioFets;
 import es.caib.helium.persistence.entity.ExplotacioTemps;
@@ -35,7 +34,6 @@ import es.caib.helium.persistence.repository.ExplotacioDimensioRepository;
 import es.caib.helium.persistence.repository.ExplotacioFetsRepository;
 import es.caib.helium.persistence.repository.ExplotacioTempsRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
 
 @Slf4j
 @Service
@@ -53,10 +51,6 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 	private ExplotacioDimensioRepository explotacioDimensioRepository;
 	@Resource
 	private ExplotacioFetsRepository explotacioFetsRepository;
-	@Resource
-	private WorkflowEngineApi jbpmHelper;
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
 
 	@Override
 	@Transactional

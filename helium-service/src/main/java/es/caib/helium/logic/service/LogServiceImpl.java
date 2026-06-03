@@ -1,7 +1,5 @@
 package es.caib.helium.logic.service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import es.caib.comanda.model.server.monitoring.FitxerContingut;
@@ -12,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.LogService;
 
 @Service

@@ -11,7 +11,6 @@ import org.apache.commons.logging.LogFactory;
 /** Classe per inicialitzar la aplicació d'helium en algus aspectes. */
 public class InicialitzacioListener implements ServletContextListener {
 
-
 	private PrintStream out;
 	private PrintStream err;
 

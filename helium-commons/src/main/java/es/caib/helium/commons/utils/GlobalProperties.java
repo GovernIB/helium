@@ -34,7 +34,6 @@ public class GlobalProperties implements ApplicationContextAware {
 	}
 
 	public String getProperty(String key) {
-
 		return environment.getProperty(key);
 	}
 
