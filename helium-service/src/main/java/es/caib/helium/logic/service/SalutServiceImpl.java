@@ -1,5 +1,7 @@
 package es.caib.helium.logic.service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,13 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
 
-import es.caib.comanda.model.server.monitoring.*;
-import es.caib.comanda.ms.salut.helper.IntegracioApp;
-import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,25 +21,43 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 
+import es.caib.comanda.model.server.monitoring.ContextInfo;
+import es.caib.comanda.model.server.monitoring.EstatSalut;
+import es.caib.comanda.model.server.monitoring.EstatSalutEnum;
+import es.caib.comanda.model.server.monitoring.InformacioSistema;
+import es.caib.comanda.model.server.monitoring.IntegracioInfo;
+import es.caib.comanda.model.server.monitoring.IntegracioPeticions;
+import es.caib.comanda.model.server.monitoring.IntegracioSalut;
+import es.caib.comanda.model.server.monitoring.Manual;
+import es.caib.comanda.model.server.monitoring.MissatgeSalut;
+import es.caib.comanda.model.server.monitoring.SalutInfo;
+import es.caib.comanda.model.server.monitoring.SalutNivell;
+import es.caib.comanda.model.server.monitoring.SubsistemaInfo;
+import es.caib.comanda.ms.salut.helper.IntegracioApp;
 import es.caib.comanda.ms.salut.helper.MonitorHelper;
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dto.AvisNivellEnumDto;
 import es.caib.helium.commons.dto.IntegracioAccioDto;
 import es.caib.helium.commons.dto.IntegracioAccioEstatEnumDto;
 import es.caib.helium.commons.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
 import es.caib.helium.logic.intf.service.SalutService;
 import es.caib.helium.logic.intf.util.DatesUtils;
 import es.caib.helium.persistence.entity.Avis;
 import es.caib.helium.persistence.repository.AvisRepository;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class SalutServiceImpl implements SalutService {
 
 	private static final int MAX_CONNECTION_RETRY = 3;
 
 	@Autowired
 	private Environment env;
+	
+	private final JdbcTemplate jdbcTemplate;
 
 	@Resource
 	private AvisRepository avisRepository;
@@ -140,33 +154,17 @@ public class SalutServiceImpl implements SalutService {
 	}
 
 	private EstatSalut checkDatabase() {
-		long start = System.currentTimeMillis();
 		try {
-			Context initContext = new InitialContext();
-			String dataSourceJndi = "java:/es.caib.helium.db";
-			if (isDesplegamentTomcat())
-				dataSourceJndi = "java:/comp/env/jdbc/HeliumDS";
-			DataSource ds = (DataSource)initContext.lookup(dataSourceJndi);
+            Instant start = Instant.now();
+            jdbcTemplate.execute("SELECT MAX(ID) FROM HEL_ENTORN");
+            Instant end = Instant.now();
 
-			JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
-			jdbcTemplate.execute("SELECT 1 AS x FROM DUAL");
-			long end = System.currentTimeMillis();
-			long latency = end - start;
-			return new EstatSalut()
-					.estat(EstatSalutEnum.UP)
-					.latencia(Long.valueOf(latency).intValue());
-		} catch (Exception e) {
-			long end = System.currentTimeMillis();
-			long latency = end - start;
-			return new EstatSalut()
-					.estat(EstatSalutEnum.DOWN)
-					.latencia(Long.valueOf(latency).intValue());
-		}
-	}
-
-	private boolean isDesplegamentTomcat() {
-		String desplegamentTomcat = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_DOMINI_DESPLEGAMENT_TOMCAT);
-		return "true".equalsIgnoreCase(desplegamentTomcat);
+            return new EstatSalut()
+                    .estat(EstatSalutEnum.UP)
+                    .latencia((int) Duration.between(start, end).toMillis());
+        } catch (Exception e) {
+            return new EstatSalut().estat(EstatSalutEnum.DOWN);
+        }
 	}
 
 	private List<IntegracioSalut> checkIntegracions() {
