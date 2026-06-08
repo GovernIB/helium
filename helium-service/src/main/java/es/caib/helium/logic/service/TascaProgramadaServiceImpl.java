@@ -63,7 +63,6 @@ import es.caib.helium.persistence.entity.PeticioPinbal;
 import es.caib.helium.persistence.repository.AnotacioEmailRepository;
 import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.ExecucioMassivaExpedientRepository;
-import es.caib.helium.persistence.repository.ExpedientReindexacioRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.NotificacioRepository;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;
@@ -72,7 +71,6 @@ import es.caib.helium.logic.helper.DistribucioHelper;
 import es.caib.helium.logic.helper.DocumentHelperV3;
 import es.caib.helium.logic.helper.EmailHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.IndexHelper;
 import es.caib.helium.logic.helper.MonitorIntegracioHelper;
 import es.caib.helium.logic.helper.NotificacioHelper;
 import es.caib.helium.logic.helper.PluginHelper;
@@ -99,8 +97,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource
-	private ExpedientReindexacioRepository expedientReindexacioRepository;
-	@Resource
 	private NotificacioRepository notificacioRepository;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
@@ -126,8 +122,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private PeticioPinbalRepository peticioPinbalRepository;
 	@Resource
 	private ConsultaPinbalHelper consultaPinbalHelper;
-	@Autowired
-	private IndexHelper indexHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource

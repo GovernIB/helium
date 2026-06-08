@@ -624,9 +624,6 @@ dd.subproc {
 									</c:choose>
 								</c:if>
 							</c:if>
-							<c:if test="${expedient.permisWrite}">
-								<li><a data-rdt-link-confirm="<spring:message code="expedient.accio.reindexa.confirmacio"/>" href="<c:url value="/modal/expedient/${expedientId}/reindexa"/>"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="expedient.info.accio.reindexa"/></a></li>
-							</c:if>
 							<c:if test="${expedient.permisLogManage}">
 								<li><a href="<c:url value="/modal/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
 							</c:if>
