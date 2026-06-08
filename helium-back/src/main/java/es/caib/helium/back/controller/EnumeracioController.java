@@ -50,10 +50,10 @@ import es.caib.helium.logic.intf.service.EnumeracioService;
 @Controller(value = "enumeracioControllerV3")
 @RequestMapping("/enumeracio")
 public class EnumeracioController extends BaseDissenyController {
-	
+
 	@Autowired
 	private EnumeracioService enumeracioService;
-	
+
 	/** Accés al llistat d'enumeracions de l'entorn des del menú de disseny. */
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
@@ -66,7 +66,7 @@ public class EnumeracioController extends BaseDissenyController {
 			return "redirect:";
 		}
 	}
-	
+
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
@@ -83,12 +83,12 @@ public class EnumeracioController extends BaseDissenyController {
 						true, // incloure globals
 						paginacioParams.getFiltre(),
 						paginacioParams));
-	}	
-	
+	}
+
 	/** Formulari per crear una nova enumeració. */
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
 	public String nova(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
 			ExpedientTipusEnumeracioCommand command = new ExpedientTipusEnumeracioCommand();
@@ -99,10 +99,10 @@ public class EnumeracioController extends BaseDissenyController {
 			return "redirect:";
 		}
 	}
-	
+
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
 	public String novaPost(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@Validated(ExpedientTipusEnumeracioCommand.Creacio.class) ExpedientTipusEnumeracioCommand command,
 			BindingResult bindingResult, Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
@@ -110,25 +110,25 @@ public class EnumeracioController extends BaseDissenyController {
 				if (bindingResult.hasErrors()) {
 					return "expedientTipusEnumeracioForm";
 				} else {
-				
+
 					EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);
 					EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-					
+
 					enumeracioService.create(
-							entornActual.getId(), 
-							null, //expedientTipusId 
+							entornActual.getId(),
+							null, //expedientTipusId
 							dto);
-					
+
 		    		MissatgesHelper.success(
-							request, 
+							request,
 							getMessage(
-									request, 
+									request,
 									"expedient.tipus.enumeracio.controller.creat"));
 				}
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, 
+				MissatgesHelper.error(request,
 						getMessage(
-								request, 
+								request,
 								"expedient.tipus.enumeracio.controller.creat.error",
 								new Object[] {ex.getLocalizedMessage()}),
 						ex);
@@ -139,11 +139,11 @@ public class EnumeracioController extends BaseDissenyController {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
 		}
 		return modalUrlTancar(true);
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.GET)
 	public String modificar(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long id,
 			Model model) {
 		if (SessionHelper.getSessionManager(request).getPotDissenyarEntorn()) {
@@ -155,12 +155,12 @@ public class EnumeracioController extends BaseDissenyController {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
 			return "redirect:";
 		}
-		
+
 	}
 
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long id,
 			@Validated(ExpedientTipusEnumeracioCommand.Modificacio.class) ExpedientTipusEnumeracioCommand command,
 			BindingResult bindingResult, Model model) {
@@ -171,17 +171,17 @@ public class EnumeracioController extends BaseDissenyController {
 				} else {
 					EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);
 					enumeracioService.update(dto);
-					
+
 		    		MissatgesHelper.success(
-							request, 
+							request,
 							getMessage(
-									request, 
+									request,
 									"expedient.tipus.enumeracio.controller.modificat"));
 				}
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, 
+				MissatgesHelper.error(request,
 						getMessage(
-								request, 
+								request,
 								"expedient.tipus.enumeracio.controller.creat.error",
 								new Object[] {ex.getLocalizedMessage()}),
 						ex);
@@ -191,11 +191,11 @@ public class EnumeracioController extends BaseDissenyController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.permis.disseny.entorn"));
 			return "redirect:";
-		}		
+		}
 		return modalUrlTancar(true);
-	}	
+	}
 
-	
+
 	/** Mètode per esborrar una versió específica des del disseny de la definició de procés. */
 	@RequestMapping(value = "/{enumeracioId}/delete", method = RequestMethod.GET)
 	public String delete(
@@ -215,17 +215,17 @@ public class EnumeracioController extends BaseDissenyController {
 		} else {
 			return "redirect:";
 		}
-	}	
-	
-	
+	}
+
+
 	// VALORS
-	
+
 	@RequestMapping(value = "/{enumeracioId}/valors", method = RequestMethod.GET)
 	public String valors(
 			HttpServletRequest request,
 			@PathVariable Long enumeracioId,
 			Model model) {
-		
+
 		ompleDadesModel(request, enumeracioId, model, true);
 
 		return "expedientTipusEnumeracioValors";
@@ -234,23 +234,23 @@ public class EnumeracioController extends BaseDissenyController {
 	@RequestMapping(value = "/{enumeracioId}/valor/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse valorsDatatable(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long enumeracioId,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(
-				request, 
-				null, 
+				request,
+				null,
 				enumeracioService.valorFindPerDatatable(
-						enumeracioId, 
-						paginacioParams.getFiltre(), 
+						enumeracioId,
+						paginacioParams.getFiltre(),
 						paginacioParams));
 	}
-	
+
 	@RequestMapping(value = "/{enumeracioId}/valor/{id}/moure/{posicio}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean valorMoure(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long enumeracioId,
 			@PathVariable Long id,
 			@PathVariable int posicio,
@@ -260,22 +260,22 @@ public class EnumeracioController extends BaseDissenyController {
 
 	@RequestMapping(value = "/{enumeracioId}/valor/{id}/update", method = RequestMethod.GET)
 	public String valorModificar(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long enumeracioId,
 			@PathVariable Long id,
 			Model model) {
 		ExpedientTipusEnumeracioValorDto dto = enumeracioService.valorFindAmbId(id);
 		ExpedientTipusEnumeracioValorCommand command = ConversioTipus.convertir(dto, ExpedientTipusEnumeracioValorCommand.class);
-		ompleDadesModel(request, enumeracioId, model, false);		
+		ompleDadesModel(request, enumeracioId, model, false);
 		model.addAttribute("expedientTipusEnumeracioValorCommand", command);
 		model.addAttribute("mostraUpdate", true);
 		//model.addAttribute("inUse", enumeracioService.valorInUse(id));
 		return "expedientTipusEnumeracioValors";
 	}
-	
+
 	@RequestMapping(value = "/{enumeracioId}/valor/{id}/update", method = RequestMethod.POST)
 	public String valorModificaPost(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long enumeracioId,
 			@PathVariable Long id,
 			@Validated(ExpedientTipusEnumeracioValorCommand.Modificacio.class) ExpedientTipusEnumeracioValorCommand command,
@@ -284,35 +284,35 @@ public class EnumeracioController extends BaseDissenyController {
 		ompleDadesModel(request, enumeracioId, model, false);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
-			model.addAttribute("mostraUpdate", true);	
+			model.addAttribute("mostraUpdate", true);
 			return "expedientTipusEnumeracioValors";
-		} else {		
-		
+		} else {
+
 			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);
 			//Conservam l´ordre anteriro
 			ExpedientTipusEnumeracioValorDto dto_antic = enumeracioService.valorFindAmbId(id);
 			dto.setOrdre(dto_antic.getOrdre());
-			
+
 			enumeracioService.valorUpdate(dto);
-			
+
 			MissatgesHelper.success(
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.enumeracio.valors.controller.modificat"));				
-			
+							"expedient.tipus.enumeracio.valors.controller.modificat"));
+
 			return "expedientTipusEnumeracioValors";
 		}
 	}
-	
+
 	@RequestMapping(value = "/{enumeracioId}/valor/{id}/delete", method = RequestMethod.GET)
 	public String valorDelete(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long enumeracioId,
 			@PathVariable Long id,
 			Model model) {
 		try {
-			
+
 			if(enumeracioService.valorInUse(id)) {
 				ompleDadesModel(request, enumeracioId, model, true);
 				MissatgesHelper.error(
@@ -322,9 +322,9 @@ public class EnumeracioController extends BaseDissenyController {
 								"expedient.tipus.enumeracio.valors.controller.eliminat.us"));
 				return "expedientTipusEnumeracioValors";
 			}
-			
+
 			enumeracioService.valorDelete(id);
-			
+
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -338,17 +338,17 @@ public class EnumeracioController extends BaseDissenyController {
 							"expedient.tipus.enumeracio.valors.controller.eliminat.error"));
 			logger.error("S'ha produit un error al intentar eliminar el valor del enumerat amb id '" + id + "'", e);
 		}
-		
+
 		ompleDadesModel(request, enumeracioId, model, true);
 		return "expedientTipusEnumeracioValors";
 	}
-	
+
 	@RequestMapping(value = "/{enumeracioId}/valor/new", method = RequestMethod.POST)
 	public String valorNouPost(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long enumeracioId,
 			@Validated(ExpedientTipusEnumeracioValorCommand.Creacio.class) ExpedientTipusEnumeracioValorCommand command,
-			BindingResult bindingResult, 
+			BindingResult bindingResult,
 			Model model) {
 
 		if (bindingResult.hasErrors()) {
@@ -357,12 +357,12 @@ public class EnumeracioController extends BaseDissenyController {
 			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
         	return "expedientTipusEnumeracioValors";
 		} else {
-		
+
 			ExpedientTipusEnumeracioValorDto dto = ExpedientTipusEnumeracioValorCommand.asExpedientTipusEnumeracioValorDto(command);
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			
+
 			enumeracioService.valorsCreate(null, enumeracioId, entornActual.getId(), dto);
-			
+
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -371,7 +371,7 @@ public class EnumeracioController extends BaseDissenyController {
         	return valors(request, enumeracioId, model);
 		}
 	}
-	
+
 	@RequestMapping(value = "/{enumeracioId}/valor/importar", method = RequestMethod.POST)
 	public String valorImportar(
 			HttpServletRequest request,
@@ -381,9 +381,9 @@ public class EnumeracioController extends BaseDissenyController {
 			Model model) {
 
 		try {
-			
+
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			
+
 			if (multipartFile.getBytes() == null || multipartFile.getBytes().length == 0) {
 				MissatgesHelper.error(
 						request,
@@ -414,7 +414,7 @@ public class EnumeracioController extends BaseDissenyController {
 											request,
 											"expedient.tipus.enumeracio.valors.importats.duplicat",
 											new Object[] {codi}));
-			        	
+
 		        		valorsCodis.add(codi);
 			        	valors.add(enumeracioValors);
 					}
@@ -427,7 +427,7 @@ public class EnumeracioController extends BaseDissenyController {
 						getMessage(
 								request,
 								"expedient.tipus.enumeracio.valors.importats"));
-				
+
 				if (eliminarValorsAntics) {
 					List<String> valorsEnUs = new ArrayList<String>();
 					for (ExpedientTipusEnumeracioValorDto valor : enumeracioService.valorsFind(enumeracioId)) {
@@ -463,9 +463,9 @@ public class EnumeracioController extends BaseDissenyController {
 							"expedient.tipus.enumeracio.valors.importats.error", new Object[] {ex.getMessage()}));
         }
     	return valors(request, enumeracioId, model);
-	}	
-	
-	
+	}
+
+
 	@RequestMapping(value = "/{enumeracioId}/valor/exportar", method = RequestMethod.GET)
 	@ResponseBody
 	public void exportar(
@@ -476,18 +476,18 @@ public class EnumeracioController extends BaseDissenyController {
         	try {
     			EnumeracioDto enumeracio = enumeracioService.findAmbId(null, enumeracioId);
         		List<ExpedientTipusEnumeracioValorDto> enumeracioValors = enumeracioService.valorsFind(enumeracioId);
-        		
+
         		String estatsString = "";
         		for(ExpedientTipusEnumeracioValorDto enumeracioValor: enumeracioValors){
         			estatsString +=
         					enumeracioValor.getCodi()+";"+enumeracioValor.getNom()+";"+enumeracioValor.getOrdre()+"\n";
         		}
-        		
+
         		MissatgesHelper.success(
-    					request, 
+    					request,
     					getMessage(
-    							request, 
-    							"expedient.tipus.enumeracio.valors.exportats"));        			
+    							request,
+    							"expedient.tipus.enumeracio.valors.exportats"));
 
         		response.setHeader("Pragma", "");
         		response.setHeader("Expires", "");
@@ -501,31 +501,31 @@ public class EnumeracioController extends BaseDissenyController {
         		MissatgesHelper.error(
         				request,
         				getMessage(
-        						request, 
+        						request,
         						"expedient.tipus.enumeracio.valors.exportats.error",
         						new Object[]{e.getLocalizedMessage()}));
         		throw(e);
-        	}        
+        	}
 	}
-	
+
 	private boolean valorExisteix(Long expedientTipusId, Long enumeracioId, String codi) {
 		ExpedientTipusEnumeracioValorDto valor = enumeracioService.valorFindAmbCodi(expedientTipusId, enumeracioId, codi);
 		return valor != null;
 	}
-	
+
 	private void ompleDadesModel(
 			HttpServletRequest request,
 			Long enumeracioId,
 			Model model,
 			boolean ficaCommand) {
-		
+
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		
+
 		if (entornActual != null) {
-						
+
 			EnumeracioDto enumeracio = enumeracioService.findAmbId(null, enumeracioId);
 			model.addAttribute("enumeracio", enumeracio);
-			
+
 			if (ficaCommand) {
 				ExpedientTipusEnumeracioValorCommand command = new ExpedientTipusEnumeracioValorCommand();
 				command.setEnumeracioId(enumeracioId);

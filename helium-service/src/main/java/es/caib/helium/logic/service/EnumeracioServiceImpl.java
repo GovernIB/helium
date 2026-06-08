@@ -12,6 +12,9 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.logic.helper.*;
+import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -27,19 +30,6 @@ import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.EnumeracioService;
-import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.persistence.entity.Enumeracio;
-import es.caib.helium.persistence.entity.EnumeracioValors;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.repository.EntornRepository;
-import es.caib.helium.persistence.repository.EnumeracioRepository;
-import es.caib.helium.persistence.repository.EnumeracioValorsRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusRepository;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
 
 /**
  * Implementació del servei per a gestionar enumeracions.
@@ -59,6 +49,8 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
 	private EnumeracioValorsRepository enumeracioValorsRepository;
+	@Resource
+	private CampRepository campRepository;
 
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
@@ -68,6 +60,8 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private MessageHelper messageHelper;
+	@Resource
+	private ExpedientDadaHelper expedientDadaHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -554,8 +548,11 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		if (valor == null)
 			throw new NoTrobatException(EnumeracioValors.class, valorId);
 		Long enumeracioId = valor.getEnumeracio().getId();
-		BigDecimal count = enumeracioValorsRepository.countValueUsage(enumeracioId, valor.getCodi()).get(0);
-		return count.compareTo(BigDecimal.ZERO) > 0;
+		for(Camp camp : campRepository.findByEnumeracioId(enumeracioId)) {
+			Integer count = expedientDadaHelper.countValueInUse(camp.getExpedientTipus().getId(), camp.getCodi(), valor.getCodi());
+			if(count > 0) return true;
+		}
+		return false;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(EnumeracioServiceImpl.class);

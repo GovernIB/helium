@@ -1412,6 +1412,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		return anotacioHelper.processarMapeigAnotacioExpedient(expedientTipusId, anotacioId);
 	}
 
+	@Override
+	@Transactional
+	public List<AnotacioDto> findByDistribucioIdAndClauAcces(String identificador, String clauAcces) {
+		return conversioTipusHelper.convertirList(
+			anotacioRepository.findByDistribucioIdAndDistribucioClauAcces(identificador, clauAcces),
+			AnotacioDto.class);
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);
 }

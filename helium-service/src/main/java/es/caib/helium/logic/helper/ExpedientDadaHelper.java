@@ -464,6 +464,19 @@ public class ExpedientDadaHelper {
 		return jdbcTemplate.queryForList(query.toString(), args.toArray());
 	}
 
+	public Integer countValueInUse(Long expedientTipusId, String campCodi, String value) {
+		List<Object> args = new ArrayList<Object>();
+		StringBuilder query = new StringBuilder("SELECT COUNT(d.ID) FROM HEL_EXPEDIENT_DADES d ");
+
+		query.append(" WHERE  d.EXPEDIENT_TIPUS_ID = ? ");
+		args.add(expedientTipusId);
+		//query.append(" AND JSON_EXISTS(d.DADES, '$.").append(campCodi).append(".v')");
+		query.append(" AND JSON_VALUE(d.DADES, '$.").append(campCodi).append(".v') = ?");
+		args.add(value);
+
+		return jdbcTemplate.queryForObject(query.toString(), args.toArray(), Integer.class);
+	}
+
 	public void deleteByExpedient(Long expedientId) {
 		expedientDadesRepository.deleteByExpedientId(expedientId);
 	}

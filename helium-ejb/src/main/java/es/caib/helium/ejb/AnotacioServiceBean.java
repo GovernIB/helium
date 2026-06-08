@@ -172,4 +172,10 @@ public class AnotacioServiceBean extends AbstractServiceEjb<AnotacioService> imp
 		return delegateService.processarMapeigAnotacioExpedient(expedientTipusId, anotacioId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<AnotacioDto> findByDistribucioIdAndClauAcces(String identificador, String clauAcces) {
+		return delegateService.findByDistribucioIdAndClauAcces(identificador, clauAcces);
+	}
+
 }

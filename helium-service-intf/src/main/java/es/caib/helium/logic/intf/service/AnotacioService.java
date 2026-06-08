@@ -15,11 +15,11 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 
 /**
- * Servei per a la consulta i gestió d'anotacions de distribució. Poden veure anotacions i realitzar accions 
+ * Servei per a la consulta i gestió d'anotacions de distribució. Poden veure anotacions i realitzar accions
  * sobre anotacions  els usuaris administradors d'Helium o els que tinguin el permís de relacionar sobre
  * el tipus d'expedient. Poden veure anotacions de registre els usuaris amb permís de lectura sobre
  * el tipus d'expedient des de la pipella d'anotacions de l'expedient.
- * 
+ *
  */
 public interface AnotacioService {
 
@@ -29,15 +29,15 @@ public interface AnotacioService {
 			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams);
-	
+
 	/** Mètode per consultar el llistat d'identificadors de les anotacions a partir d'un filtre. */
 	public List<Long> findIdsAmbFiltre(
-			Long entornId, 
+			Long entornId,
 			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions,
 			AnotacioFiltreDto filtreDto);
 
 	/** Mètode per consultar una anotació per identificador.
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */
@@ -45,40 +45,40 @@ public interface AnotacioService {
 
 	/** Mètode per rebutjar una petició d'anotació de registre passant l'identificador i les observacions.
 	 * Aquest mètode s'encarrega de canviar l'estat i notificar el canvi a Distribució.
-	 * 
+	 *
 	 * @param anotacioId
 	 * @param observacions
 	 */
 	public void rebutjar(Long anotacioId, String observacions);
 
 	/** Mètode per actualitzar la relació amb el tipus d'expedient i l'expedient des de l'acció de guardar al formulari d'acceptar.
-	 * 
+	 *
 	 * @param anotacioId
 	 * @param expedientTipusId
 	 * @param expedientId
 	 */
-	public AnotacioDto updateExpedient(Long anotacioId, Long expedientTipusId, Long expedientId);	
-	
+	public AnotacioDto updateExpedient(Long anotacioId, Long expedientTipusId, Long expedientId);
+
 	/** Mètode per incorporar la informació d'una anotació de registre a un expedient existent.
 	 * @param anotacioId
 	 * @param expedientTipusId
 	 * @param expedientId
 	 * @param associarInteressats Indica si incloure els interessats als interessats de l'expedient.
-	 * @param comprovarPermis Indica si comprovar o no permisos de l'usuari actual ja que pot ser que la 
+	 * @param comprovarPermis Indica si comprovar o no permisos de l'usuari actual ja que pot ser que la
 	 * 			incorporació sigui automàtica des de la recepció de l'anotació.
 	 * @param reprocessar Indica si reprocessar el mapeig després de processar l'anotació.
 	 */
 	public AnotacioDto incorporarReprocessarExpedient(
-			Long anotacioId, 
-			Long expedientTipusId, 
-			Long expedientId, 
+			Long anotacioId,
+			Long expedientTipusId,
+			Long expedientId,
 			boolean associarInteressats,
 			boolean comprovarPermis,
 			boolean reprocessar);
-	
+
 	/**
 	 * Esborra una petició d'anotació de registre de Distribucio
-	 * 
+	 *
 	 * @param anotacioId
 	 *            Atribut id de l'anotació.
 	 * @throws NoTrobatException
@@ -88,49 +88,49 @@ public interface AnotacioService {
 	 */
 	public void delete(
 			Long anotacioId) throws NoTrobatException, PermisDenegatException;
-	
+
 	/** Mètode per reprocessar una anotació que està en estat d'error de processament.
-	 * 
+	 *
 	 * @param anotacioId
 	 * @return Throwable Llença excepció si no es té permís, no es troba l'anotació o hi ha algun
 	 * error en el reprocessament.
-	 * 
+	 *
 	 */
 	public Throwable reprocessar(
 			Long anotacioId);
 
 	/** Mètode per marcar com a pendent una anotació en estat de processament error.
-	 * 
+	 *
 	 * @param anotacioId
-	 * @return 
+	 * @return
 	 * @throws Exception Llença excepció si no es té permís, no es troba l'anotació o hi ha algun
 	 * error en la operació.
-	 * 
+	 *
 	 */
 	public AnotacioDto marcarPendent(
 			Long anotacioId) throws Exception;
-	
+
 	/** Mètode per consultar una anotació que està en estat comunicada i que hagi esgotat els reintents.
-	 * 
+	 *
 	 * @param anotacioId
-	 * @return 
+	 * @return
 	 * @throws Exception Llença excepció si no es té permís, no es troba l'anotació o hi ha algun
 	 * error en el reprocessament.
-	 * 
+	 *
 	 */
 	public AnotacioDto reintentarConsulta(
 			Long anotacioId) throws Exception;
 
 
 	/** Mètode per consultar les firmes d'un annex
-	 * 
+	 *
 	 * @param annexId
 	 * @return
 	 */
 	public List<ArxiuFirmaDto> getAnnexFirmes(Long annexId);
-	
+
 	/** Reintenta el processament d'un annex per incorporar-lo a Helium.
-	 * 
+	 *
 	 * @param anotacioId
 	 * @param annexId
 	 * @throws Llença excepció en cas de no anar bé.
@@ -151,7 +151,7 @@ public interface AnotacioService {
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId);
 
 	/** Reintenta el processament dels annexos d'una anotació per incorporar-los a Helium.
-	 * 
+	 *
 	 * @param anotacioId
 	 * @throws Llença excepció en cas de no anar bé.
 	 * @return Retorna excepció en cas d'error.
@@ -159,26 +159,26 @@ public interface AnotacioService {
 	public Exception reintentarTraspasAnotacio(Long anotacioId);
 
 	/** Mètode per obtenir el contingut d'un annex (en la seva versió imprimible) per a la seva descàrrega
-	 * 
+	 *
 	 * @param annexId
 	 */
 	public ArxiuDto getAnnexContingutVersioImprimible(Long annexId);
 
 	/** Mètode per obtenir el contingut d'un annex per a la seva descàrrega
-	 * 
+	 *
 	 * @param annexId
 	 */
 	public ArxiuDto getAnnexContingutVersioOriginal(Long annexId);
 
-	/** Mètode enviar manualment l'avís per per email que ha arribat o s'ha processat una anotació. 
-	 * 
+	/** Mètode enviar manualment l'avís per per email que ha arribat o s'ha processat una anotació.
+	 *
 	 * @param annexId Identificador de l'anotació.
 	 * @return Retorna la llista de persones avisades per les quals s'ha programat l'avís.
 	 */
 	public List<String>[] emailAnotacio(long anotacioId);
 
 	/** Mètode per invocar el reprocessamnet del mapeig d'anotaicons.
-	 * 
+	 *
 	 * @param expedientId
 	 * @param anotacioId
 	 * @param reprocessarMapeigVariables
@@ -188,10 +188,10 @@ public interface AnotacioService {
 	 * @return
 	 */
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(
-			Long expedientId, 
+			Long expedientId,
 			Long anotacioId,
-			boolean reprocessarMapeigVariables, 
-			boolean reprocessarMapeigDocuments, 
+			boolean reprocessarMapeigVariables,
+			boolean reprocessarMapeigDocuments,
 			boolean reprocessarMapeigAdjunts,
 			boolean reprocessarMapeigInteressats);
 
@@ -201,4 +201,6 @@ public interface AnotacioService {
 	 * @throws Exception
 	 */
 	public AnotacioMapeigResultatDto processarMapeigAnotacioExpedient(Long expedientTipusId, Long anotacioId);
+
+    List<AnotacioDto> findByDistribucioIdAndClauAcces(String identificador, String clauAcces);
 }
