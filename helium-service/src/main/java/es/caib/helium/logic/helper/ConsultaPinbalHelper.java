@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.helium.commons.dto.PeticioPinbalEstatEnum;
 import es.caib.helium.commons.dto.ScspRespostaPinbal;
-import es.caib.helium.logic.intf.dto.engine.WNode.WNodeType;
 import es.caib.helium.logic.intf.dto.engine.WToken;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.PeticioPinbal;
@@ -50,13 +49,11 @@ public class ConsultaPinbalHelper {
 				// Segons el resultat de la resposta avança l'expedient
 				if (pi.getTokenId() != null) {
 					WToken token = workflowEngineApi.getTokenById(pi.getTokenId().toString());
-					if (token!=null) {
-						if (token.getToken().getNode().getNodeType().equals(WNodeType.State)) {
-							if (pi.getTransicioOK() != null && token.getToken().getNode().getLeavingTransition(pi.getTransicioOK()) != null) {
-								workflowEngineApi.signalToken(pi.getTokenId().longValue(), pi.getTransicioOK());
-							} else {
-								workflowEngineApi.signalToken(pi.getTokenId(), null);
-							}
+					if (token!=null && token.isReceiveTask()) {
+						if (pi.getTransicioOK() != null && token.getSortides().contains(pi.getTransicioOK())) {
+							workflowEngineApi.signalToken(pi.getTokenId().longValue(), pi.getTransicioOK());
+						} else {
+							workflowEngineApi.signalToken(pi.getTokenId(), null);
 						}
 					}
 				}

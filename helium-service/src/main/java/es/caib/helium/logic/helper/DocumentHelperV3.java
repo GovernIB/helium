@@ -768,7 +768,7 @@ public class DocumentHelperV3 {
 			WTaskInstance task,
 			String documentCodi) {
 		DocumentStore documentStore = null;
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), documentCodi);
+		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getId()), task.getProcessInstanceId(), documentCodi);
 		if (documentStoreId != null) {
 			documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
 		}
@@ -2421,7 +2421,7 @@ public class DocumentHelperV3 {
 		dto.setPortafirmesActiu(document.isPortafirmesActiu());
 		Long documentStoreId;
 		documentStoreId = getDocumentStoreIdDeVariableJbpm(
-				String.valueOf(task.getTask().getId()),
+				String.valueOf(task.getId()),
 				readonly ? task.getProcessInstanceId() : null, // Si és readonly no es troba a la tasca però sí es pot llegir del procés
 					document.getCodi());
 		if (documentStoreId != null) {

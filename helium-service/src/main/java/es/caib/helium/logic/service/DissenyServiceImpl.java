@@ -256,7 +256,7 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProcesVersioDto dto = new DefinicioProcesVersioDto();
 		dto.setId(definicioProces.getId());
 		dto.setVersio(definicioProces.getVersio());
-		dto.setEtiqueta(pi.getProcessInstance().getProcessDefinition().getName() + " v." + definicioProces.getVersio());
+		dto.setEtiqueta(definicioProces.getIdPerMostrar() + " v." + definicioProces.getVersio());
 
 		return dto;
 	}

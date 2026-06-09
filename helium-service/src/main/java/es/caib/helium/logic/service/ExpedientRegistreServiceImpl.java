@@ -306,8 +306,8 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 		String tokenName = null;
 		String processInstanceId = null;
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
-		if (token != null && token.getToken() != null) {
-			tokenName = token.getToken().getFullName();
+		if (token != null) {
+			tokenName = token.getName();
 			processInstanceId = token.getProcessInstanceId();
 
 			// Entram per primera vegada
@@ -319,7 +319,8 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 				if (!parentProcessInstanceId.equals(token.getProcessInstanceId())){
 					// Entram en un nou subproces
 					if (!processos.containsKey(processInstanceId)) {
-						processos.put(processInstanceId, token.getToken().getProcessInstance().getSuperProcessToken().getFullName());
+						//TODO: revisar quan es faci la retroacció
+						processos.put(processInstanceId, token.getSuperRootTokenId());
 
 						if (parentProcessInstanceId.equals(piId)){
 							// Añadimos una nueva línea para indicar la llamada al subproceso
@@ -330,10 +331,10 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 							dto.setEstat(ExpedientLogEstat.IGNORAR.name());
 							dto.setAccioTipus(ExpedientLogAccioTipus.PROCES_LLAMAR_SUBPROCES.name());
 							String titol = null;
-							if (token.getToken().getProcessInstance().getKey() == null)
-								titol = token.getToken().getProcessInstance().getProcessDefinition().getName() + " " + log.getProcessInstanceId();
+							if (token.getProcessInstanceKey() == null)
+								titol = token.getProcessDefinitionName() + " " + log.getProcessInstanceId();
 							else
-								titol = token.getToken().getProcessInstance().getKey();
+								titol = token.getProcessInstanceKey();
 							dto.setAccioParams(titol);
 							dto.setTargetId(log.getTargetId());
 							dto.setTargetTasca(false);

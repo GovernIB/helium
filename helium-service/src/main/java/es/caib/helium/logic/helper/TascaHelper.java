@@ -186,6 +186,8 @@ public class TascaHelper {
 				titol,
 				task.getDescriptionWithFields());
 	}
+	
+	
 
 	private DadesCacheTasca getDadesCacheTasca(WTaskInstance task) {
 		return  new DadesCacheTasca(
@@ -503,8 +505,8 @@ public class TascaHelper {
 			dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
 			if (tasca.isFinalitzacioSegonPla() &&
 				tascaSegonPlaHelper.isTasquesSegonPlaLoaded() &&
-				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(task.getTask().getId())) {
-				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(task.getTask().getId());
+				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(task.getId())) {
+				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(task.getId());
 				dto.setMarcadaFinalitzar(infoSegonPla.getMarcadaFinalitzar());
 				dto.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
 				dto.setErrorFinalitzacio(infoSegonPla.getError());

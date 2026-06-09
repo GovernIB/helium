@@ -82,14 +82,9 @@ public class ComandaHelper {
 	private void createTasca(String taskId, String nom, String expedientNumero, WTaskInstance task, TascaEstat estat) throws UniformInterfaceException, InterruptedException, ExecutionException, MalformedURLException {
 		List<String> usuaris = new ArrayList<String>();
 
-		if(task.getTask().getPooledActors() != null)
-			usuaris.addAll(task.getPooledActors());
+		usuaris.addAll(task.getPooledActors());
 
-		List<String> grups = new ArrayList<String>();
-		if(task.getTask().getRols() != null) {
-			for(String rol : task.getTask().getRols().split(","))
-				grups.add(rol);
-		}
+		List<String> grups = new ArrayList<>(task.getRols());
 
 		Tasca tasca = new Tasca()
 							.appCodi("HEL")
@@ -122,16 +117,9 @@ public class ComandaHelper {
 	}
 
 	private void updateTasca(Tasca tasca, String taskId, String expedientNumero, WTaskInstance task, TascaEstat estat) throws MalformedURLException, UniformInterfaceException, InterruptedException, ExecutionException {
-		List<String> usuaris = new ArrayList<String>();
+		List<String> usuaris = new ArrayList<>(task.getPooledActors());
 
-		if(task.getTask().getPooledActors() != null)
-			usuaris.addAll(task.getPooledActors());
-
-		List<String> grups = new ArrayList<String>();
-		if(task.getTask().getRols() != null) {
-			for(String rol : task.getTask().getRols().split(","))
-				grups.add(rol);
-		}
+		List<String> grups = new ArrayList<>(task.getRols());
 
 		tasca.setAppCodi("HEL");
 		tasca.setEntornCodi(ENTORN);

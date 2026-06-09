@@ -202,7 +202,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 					expedientId,
 					token.getProcessInstanceId(),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
-					token.getFullName(),
+					token.getName(),
 					nodeNameVell,
 					nodeName);
 		}

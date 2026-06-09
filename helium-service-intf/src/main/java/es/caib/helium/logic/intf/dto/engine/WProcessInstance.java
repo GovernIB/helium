@@ -3,20 +3,23 @@ package es.caib.helium.logic.intf.dto.engine;
 
 import java.util.Date;
 
-import org.slf4j.Logger;
+import lombok.Data;
 
-public interface WProcessInstance {
+/** Classe per per representar la informació general d'una instància de procés dins d'un workflow engine.
+ * 
+ */
+@Data
+public class WProcessInstance {
 
-	public String getId();
-	public String getProcessDefinitionId();
-	public String getProcessDefinitionName();
-	public String getParentProcessInstanceId();
-	public Date getStartTime();
-	public Date getEndTime();
-	public String getDescription();
-	public Long getExpedientId();
-	public WProcessInstance getProcessInstance();
-	public WProcessDefinition getProcessDefinition();
-	public String getKey();
-	public WToken getSuperProcessToken();	
+	private String id;
+	private String key;
+	private String processDefinitionId;
+	private String processDefinitionName;
+	private String processDefinitionKey;
+	private Integer processDefinitionVersion;
+	private String parentProcessInstanceId;
+	private String rootProcessInstanceId;
+	private Date startTime;
+	private String description;
+	private boolean isSuspended;
 }

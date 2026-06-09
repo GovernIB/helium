@@ -6,7 +6,6 @@ package es.caib.helium.back.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,6 @@ import es.caib.helium.logic.intf.service.ConsultaPinbalService;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 
 /**
  * Controlador base per al llistat d'expedients.

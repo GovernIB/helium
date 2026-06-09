@@ -166,7 +166,7 @@ public class ExpedientLoggerHelper {
 				WMessageLog mlog = (WMessageLog)plog;
 				if (mlog.getMessage().startsWith(MESSAGE_LOGINFO_PREFIX)) {
 
-					String objId = plog.getToken().getProcessInstance().getId();
+					String objId = plog.getToken().getProcessInstanceId();
 					LogObjectDto lobj = LogObjectDtos.get(objId);
 
 					if (lobj == null) {
@@ -181,7 +181,7 @@ public class ExpedientLoggerHelper {
 								//objId.toString(),
 								li.name(),
 								LogObjectDto.LOG_OBJECT_INFO,
-								plog.getToken().getProcessInstance().getId(),
+								plog.getToken().getProcessInstanceId(),
 								plog.getToken().getId());
 
 						try{
@@ -232,7 +232,7 @@ public class ExpedientLoggerHelper {
 							plog.getId(),
 							taskInstance.getTaskName(),
 							LogObjectDto.LOG_OBJECT_TASK,
-							plog.getToken().getProcessInstance().getId(),
+							plog.getToken().getProcessInstanceId(),
 							plog.getToken().getId());
 					LogObjectDtos.put(objId, lobj);
 				}
@@ -313,7 +313,7 @@ public class ExpedientLoggerHelper {
 										plog.getId(),
 										variableInstance.getVariableName(),
 										(taskInstanceId != null) ? LogObjectDto.LOG_OBJECT_VARTASCA : LogObjectDto.LOG_OBJECT_VARPROCES,
-										plog.getToken().getProcessInstance().getId(),
+										plog.getToken().getProcessInstanceId(),
 										plog.getToken().getId());
 								if (taskInstanceId != null) {
 									lobj.setTaskInstanceId(taskInstanceId);
@@ -359,7 +359,7 @@ public class ExpedientLoggerHelper {
 //							plog.getId(),
 //							tokenName,
 //							LogObjectDto.LOG_OBJECT_TOKEN,
-//							plog.getToken().getProcessInstance().getId(),
+//							plog.getToken().getProcessInstanceId(),
 //							plog.getToken().getId());
 //					LogObjectDtos.put(objId, lobj);
 //				}
@@ -373,7 +373,7 @@ public class ExpedientLoggerHelper {
 //					lobj.setValorInicial(trlog.getSourceNode().getName());
 //				}
 			} else if (plog instanceof ProcessInstanceHistoryLog) {// || plog instanceof ProcessInstanceEndLog) {
-				String objId = plog.getToken().getProcessInstance().getId();
+				String objId = plog.getToken().getProcessInstanceId();
 				LogObjectDto lobj = LogObjectDtos.get(objId);
 				if (lobj == null) {
 					lobj = new LogObjectDto(
@@ -381,7 +381,7 @@ public class ExpedientLoggerHelper {
 							plog.getId(),
 							objId.toString(),
 							LogObjectDto.LOG_OBJECT_PROCES,
-							plog.getToken().getProcessInstance().getId(),
+							plog.getToken().getProcessInstanceId(),
 							plog.getToken().getId());
 					LogObjectDtos.put(objId, lobj);
 				}
@@ -399,7 +399,7 @@ public class ExpedientLoggerHelper {
 //							plog.getId(),
 //							((ActionLog)plog).getAction().getName(),
 //							LogObjectDto.LOG_OBJECT_ACTION,
-//							plog.getToken().getProcessInstance().getId(),
+//							plog.getToken().getProcessInstanceId(),
 //							plog.getToken().getId());
 //					LogObjectDtos.put(objId, lobj);
 //				}
@@ -436,7 +436,7 @@ public class ExpedientLoggerHelper {
 				incloure = true;
 				if (/*retrocedirPerTasques  && */elog.isTargetTasca()) {
 					WToken jbpmTokenRetroces = getTokenByJbpmLogId(elog.getJbpmLogId());
-					if (jbpmTokenRetroces != null) tokenRetroces = jbpmTokenRetroces.getToken();
+					if (jbpmTokenRetroces != null) tokenRetroces = jbpmTokenRetroces;
 				}
 			}
 			// Obtenim els logs a retrocedir
@@ -447,15 +447,14 @@ public class ExpedientLoggerHelper {
 							 && tokenRetroces != null) {
 						 // Si la tasca seleccionada es del token arrel, llavors
 						 // totes les tasques posteriors s'han de incloure
-						 if (tokenRetroces.isRoot() && tokenRetroces.getProcessInstance().getSuperProcessToken() == null) { //processos.get(tokenRetroces.getProcessInstance().getId()) == null) {
+						 if (tokenRetroces.isRoot() && tokenRetroces.getSuperRootTokenId() == null) { //processos.get(tokenRetroces.getProcessInstance().getId()) == null) {
 							 incloure = true;
 						 } else {
 							WToken tokenActual = null;
 							WToken jbpmTokenActual = getTokenByJbpmLogId(elog.getJbpmLogId());
 							if (jbpmTokenActual != null) {
-								tokenActual = jbpmTokenActual.getToken();
 
-								if ((tokenActual.isRoot() && tokenActual.getProcessInstance().getSuperProcessToken() == null)
+								if ((tokenActual.isRoot() && tokenActual.getSuperRootTokenId() == null)
 										|| tokenActual.equals(tokenRetroces)) {
 									// Incloem el token arrel "/" i els tokens iguals al token de la tasca seleccionada
 									incloure = true;
@@ -499,7 +498,7 @@ public class ExpedientLoggerHelper {
 	private WToken getTokenPare(WToken token) {
 		WToken t = token.getParent();
 		if (t == null) {
-			t = token.getProcessInstance().getSuperProcessToken();
+			t = token.getSuperToken();
 		}
 		return t;
 	}
@@ -1422,7 +1421,7 @@ public class ExpedientLoggerHelper {
 	private List<CampTasca> getCampsPerTaskInstance(WTaskInstance taskInstance) {
 		String processDefinitionId = taskInstance.getProcessDefinitionId();
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-				taskInstance.getTask().getTaskName(),
+				taskInstance.getTaskName(),
 				processDefinitionId);
 		return tasca.getCamps();
 	}

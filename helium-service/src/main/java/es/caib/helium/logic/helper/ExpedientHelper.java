@@ -1249,7 +1249,7 @@ public class ExpedientHelper {
 				piexp.getId(),
 				token.getProcessInstanceId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),
-				token.getFullName(),
+				token.getName(),
 				nodeNameVell,
 				nodeName);
 	}
@@ -1506,7 +1506,7 @@ public class ExpedientHelper {
 		InstanciaProcesDto dto = new InstanciaProcesDto();
 		dto.setId(processInstanceId);
 		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
-		if (pi.getProcessInstance() == null)
+		if (pi == null)
 			return null;
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
 		if (pi.getDescription() != null && pi.getDescription().length() > 0)
