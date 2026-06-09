@@ -204,8 +204,8 @@ public class VariableHelper {
 					// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
 					try {
 						if (camp != null && (CampTipusDto.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
-							List<Object> registreValors = (List)varsInstanciaProces.get(var);
-							varAmbContingut = !registreValors.isEmpty();
+							Object[] registreValors = (Object[])varsInstanciaProces.get(var);
+							varAmbContingut = registreValors.length > 0;
 						}
 					} catch(Exception e) {
 						dto.setError(messageHelper.getMessage(
@@ -279,8 +279,8 @@ public class VariableHelper {
 			// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
 			try {
 				if (camp != null && (CampTipusDto.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
-					List<Object> registreValors = (List)valor;
-					varAmbContingut = !registreValors.isEmpty();
+					Object[] registreValors = (Object[])valor;
+					varAmbContingut = registreValors.length > 0;
 				}
 			} catch(Exception e) {
 				dto.setError(messageHelper.getMessage(
@@ -903,23 +903,23 @@ public class VariableHelper {
 				if (!camp.isMultiple() || forsarSimple) {
 					if (CampTipusDto.REGISTRE.equals(camp.getTipus())) {
 						List<ExpedientDadaDto> registreDades = new ArrayList<ExpedientDadaDto>();
-						List<Object> valorsRegistres = (List)varValor;
+						Object[] valorsRegistres = (Object[])varValor;
 						// Construeix el map per als valors addicionals dels parámetres del domini
 						Map<String, Object> valorsAddicionalsConsulta = new HashMap<String, Object>();
 						if (valorsRegistres != null)
 							for (int j = 0; j < camp.getRegistreMembres().size(); j++) {
-								if (j < valorsRegistres.size()) {
+								if (j < valorsRegistres.length) {
 									valorsAddicionalsConsulta.put(
 											camp.getRegistreMembres().get(j).getMembre().getCodi(),
-											valorsRegistres.get(j));
+											valorsRegistres[j]);
 								}
 							}
 						int index = 0;
 						// Consulta el valor per cada dada del registre
 						for (CampRegistre campRegistre: camp.getRegistreMembres()) {
 							Object valorsRegistre = null;
-							if (valorsRegistres != null && valorsRegistres.size()>index) {
-								valorsRegistre = valorsRegistres.get(index);
+							if (valorsRegistres != null && valorsRegistres.length>index) {
+								valorsRegistre = valorsRegistres[index];
 							}
 							ExpedientDadaDto dtoRegistre = getDadaPerVariableJbpm(
 									campRegistre.getMembre(),

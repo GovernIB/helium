@@ -334,7 +334,7 @@ public class TascaFormHelper {
 					} else {
 						if (camp.isCampMultiple()) {
 							//valorRegistre = ((List)valor).toArray();
-							valorRegistre = Array.newInstance(registre.getClass(), ((List)valor).size());
+							valorRegistre = Array.newInstance(registre.getClass(), ((Object[])valor).length);
 
 
 							List<Method> setters = new ArrayList<Method>();
@@ -346,10 +346,10 @@ public class TascaFormHelper {
 							}
 
 							int filaIndex = 0;
-							for(Object fila : (List)valor) {
+							for(Object fila : (Object[])valor) {
 								Object nRegistre = registre.getClass().newInstance();
 								int i = 0;
-								for(Object col : (List)fila) {
+								for(Object col : (Object[])fila) {
 									Method setter = setters.get(i++);
 									setter.invoke(nRegistre, col);
 								}
@@ -382,9 +382,9 @@ public class TascaFormHelper {
 										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1),
 										campRegistre.getJavaClass());
 								Object valorReg = null;
-								List<Object> lvalue = (List<Object>)valor;
-								if (lvalue.size() > i)
-									valorReg = lvalue.get(i++);
+								Object[] lvalue = (Object[])valor;
+								if (lvalue.length > i)
+									valorReg = lvalue[i++];
 								metodeSet.invoke(valorRegistre, valorReg);
 							}
 						}
@@ -485,18 +485,18 @@ public class TascaFormHelper {
 				try {
 					valorRegistre = camp.getVarValor();
 					// En al cas de que el camp a emplenar els valor sigui tipus registre, calcularem el seu contingut a valorRegistre:
-//					Object registre = registres.get(camp.getVarCodi());
-//					if (camp.isCampMultiple()) {
-//						valorRegistre = Array.newInstance(registre.getClass(), camp.isRequired() ? 1 : 0);
-//						if (camp.isRequired() && !camp.isReadOnly())
-//							((Object[])valorRegistre)[0] = registre;
-//					} else {
-//						valorRegistre = registre;
-//					}
+					Object registre = registres.get(camp.getVarCodi());
+					if (camp.isCampMultiple()) {
+						valorRegistre = Array.newInstance(registre.getClass(), camp.isRequired() ? 1 : 0);
+						if (camp.isRequired() && !camp.isReadOnly())
+							((Object[])valorRegistre)[0] = registre;
+					} else {
+						valorRegistre = registre;
+					}
 					setSimpleProperty(
 							command,
 							camp.getVarCodi(),
-							camp.getVarValor());
+							valorRegistre);
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut afegir el camp tipus registre al command (" +
 							"campCodi=" + camp.getVarCodi() + ", " +
@@ -678,6 +678,7 @@ public class TascaFormHelper {
 			if (!tascaDada.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				if (tascaDada.getCampTipus() != null)  {
 					if (isCampMultiple(tascaDada, esConsultaPerTipus)) {
+						//propertyClass = Array.newInstance(Object.class, 1).getClass();
 						propertyClass = Array.newInstance(Object.class, 1).getClass();
 					} else {
 						propertyClass = tascaDada.getJavaClass();

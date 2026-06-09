@@ -17,7 +17,9 @@ import javax.annotation.Resource;
 import javax.persistence.Column;
 import javax.persistence.EntityManagerFactory;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import es.caib.helium.commons.dto.*;
+import es.caib.helium.logic.config.ObjectArrayDeserializer;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -72,6 +74,10 @@ public class ExpedientDadaHelper {
 	static {
 		mapper = new ObjectMapper();
 		typeRef = new TypeReference<HashMap<String,DadesValor>>() {};
+
+		SimpleModule module = new SimpleModule();
+		module.addDeserializer(Object.class, new ObjectArrayDeserializer());
+		mapper.registerModule(module);
 	}
 
 	public List<Camp> findCampsDisponiblesOrdenatsPerCodi(ExpedientTipus expedientTipus, DefinicioProces definicioProces) {
