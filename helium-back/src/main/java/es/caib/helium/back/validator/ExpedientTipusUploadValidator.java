@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import es.caib.helium.commons.dto.CampTipusDto;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import es.caib.helium.back.command.ExpedientTipusExportarCommand;
@@ -51,24 +50,7 @@ public class ExpedientTipusUploadValidator implements ConstraintValidator<Expedi
 				.addConstraintViolation();
 				valid = false;
 			}
-			InputStream is = new ByteArrayInputStream(command.getFile().getBytes());
-			ObjectInputStream input = new ObjectInputStream(is) {
-				@Override
-				protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-					String className = desc.getName();
-					if (className.startsWith(OLD_PREFIX1)) {
-						String newClassName = NEW_PREFIX1 +
-							className.substring(OLD_PREFIX1.length());
-						return Class.forName(newClassName);
-					} else if (className.startsWith(OLD_PREFIX2)) {
-						String newClassName = NEW_PREFIX2 +
-							className.substring(OLD_PREFIX2.length());
-						return Class.forName(newClassName);
-					}
-					return super.resolveClass(desc);
-				}
-			};
-			Object deserialitzat = input.readObject();
+			Object deserialitzat = deserializeExpedientTipusExportacio(command.getFile().getBytes());
 			if (deserialitzat instanceof ExpedientTipusExportacio) {
 				exportacio = (ExpedientTipusExportacio) deserialitzat;
 			} else {
@@ -123,6 +105,27 @@ public class ExpedientTipusUploadValidator implements ConstraintValidator<Expedi
 			context.disableDefaultConstraintViolation();
 
 		return valid;
+	}
+
+	public static Object deserializeExpedientTipusExportacio(byte[] bytes) throws IOException, ClassNotFoundException {
+		InputStream is = new ByteArrayInputStream(bytes);
+		ObjectInputStream input = new ObjectInputStream(is) {
+			@Override
+			protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+				String className = desc.getName();
+				if (className.startsWith(OLD_PREFIX1)) {
+					String newClassName = NEW_PREFIX1 +
+						className.substring(OLD_PREFIX1.length());
+					return Class.forName(newClassName);
+				} else if (className.startsWith(OLD_PREFIX2)) {
+					String newClassName = NEW_PREFIX2 +
+						className.substring(OLD_PREFIX2.length());
+					return Class.forName(newClassName);
+				}
+				return super.resolveClass(desc);
+			}
+		};
+		return input.readObject();
 	}
 
 }

@@ -2,8 +2,6 @@ package es.caib.helium.back.validator;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -97,9 +95,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 				.addConstraintViolation();
 				valid = false;
 			}
-			InputStream is = new ByteArrayInputStream(command.getFile().getBytes());
-	    	ObjectInputStream input = new ObjectInputStream(is);
-	    	Object deserialitzat = input.readObject();
+		    Object deserialitzat = ExpedientTipusUploadValidator.deserializeExpedientTipusExportacio(command.getFile().getBytes());
 	    	if (deserialitzat instanceof ExpedientTipusExportacio) {
 	    		exportacio = (ExpedientTipusExportacio) deserialitzat;
 	    	} else {

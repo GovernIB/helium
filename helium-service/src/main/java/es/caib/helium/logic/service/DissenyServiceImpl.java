@@ -159,8 +159,12 @@ public class DissenyServiceImpl implements DissenyService {
 					"defincioProcesId = " + definicioProcesId + ")");
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		List<String> accions = workflowEngineApi.listActions(definicioProces.getJbpmId());
-		Collections.sort(accions);
-		return accions;
+		if (accions != null) {
+			Collections.sort(accions);
+			return accions;
+		} else {
+			return new ArrayList<>();
+		}
 	}
 
     @Override
