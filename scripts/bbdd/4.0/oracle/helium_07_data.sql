@@ -17,13 +17,6 @@ Insert into HEL_PINBAL_SERVEI (ID,CODI,NOM,DOC_PERMES_DNI,DOC_PERMES_NIF,DOC_PER
 Insert into HEL_PINBAL_SERVEI (ID,CODI,NOM,DOC_PERMES_DNI,DOC_PERMES_NIF,DOC_PERMES_CIF,DOC_PERMES_NIE,DOC_PERMES_PAS,CREATEDDATE, ACTIU) values ('16','SVDRRCCDEFUNCIONWS01','Servei de consulta de defunció','1','1','1','1','1',sysdate, 1);
 Insert into HEL_PINBAL_SERVEI (ID,CODI,NOM,DOC_PERMES_DNI,DOC_PERMES_NIF,DOC_PERMES_CIF,DOC_PERMES_NIE,DOC_PERMES_PAS,CREATEDDATE, ACTIU) values ('17','SVDBECAWS01','Servei de consulta de condició de becat','1','1','1','1','1',sysdate, 1);
 
--- Classes pels permisos
-INSERT INTO HEL_ACL_CLASS (ID, CLASS) VALUES (10, 'es.caib.helium.persist.entity.Entorn');  
-INSERT INTO HEL_ACL_CLASS (ID, CLASS) VALUES (30, 'es.caib.helium.persist.entity.ExpedientTipus');  
-INSERT INTO HEL_ACL_CLASS (ID, CLASS) VALUES (50, 'es.caib.helium.persist.entity.Estat');  
-INSERT INTO HEL_ACL_CLASS (ID, CLASS) VALUES (70, 'es.caib.helium.persist.entity.ExpedientTipusUnitatOrganitzativa');  
-
-
 -- Dades de permisos i paràmetres
 INSERT INTO HEL_PERMIS ( CODI, DESCRIPCIO ) VALUES ( 
 'HEL_ADMIN', 'Administrador');
