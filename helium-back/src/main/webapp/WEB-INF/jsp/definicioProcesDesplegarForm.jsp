@@ -28,17 +28,17 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 </head>
-<body>		
+<body>
 	<form:form id="desplegar-form" cssClass="form-horizontal" action="desplegar" enctype="multipart/form-data" method="post" modelAttribute="command" style="min-height: 500px;">
 
 		<div class="inlineLabels">
-		
+
 			<script type="text/javascript">
 				// <![CDATA[
 				$(document).ready( function() {
@@ -46,21 +46,21 @@
 					$('#accio').change(function() {
 						actualitzaControls();
 					})
-				}); 	
-				
+				});
+
 				function actualitzaControls() {
 					$("#actualitzarExpedientsActius,#etiqueta").prop('disabled', $("#accio").val() != "PROCES_DESPLEGAR");
 				}
 				// ]]>
-			</script>			
+			</script>
 		</div>
-		
+
 		<input type="hidden" name="entornId" id="entornId" value="${command.entornId}" />
-		<input type="hidden" name="id" id="id" value="${command.id}" />		
+		<input type="hidden" name="id" id="id" value="${command.id}" />
 		<div class="form-group">
 			<label class="control-label col-xs-4 obligatori" for="file"><spring:message code="definicio.proces.desplegar.form.file"/></label>
 			<div class="col-xs-8">
-				<input type="file" name="file" id="file" accept="application/bpmn+bpmn2+xml+par+zip, .bpmn, .bpmn2, .xml, .zip, .par" />
+				<input type="file" name="file" id="file" accept="application/bpmn+bpmn2+xml+par+zip, .bpmn, .bpmn.xml, .zip, .jar" />
 				<p class="comment col-xs-8"><spring:message code="definicio.proces.desplegar.form.file.comment"></spring:message></p>
 				<c:set var="fileErrors"><form:errors path="file"/></c:set>
 				<c:if test="${not empty fileErrors}">
@@ -74,7 +74,7 @@
 		<hel:inputSelect emptyOption="${potDissenyarEntorn}" name="expedientTipusId" textKey="definicio.proces.desplegar.form.tipusExpedient" placeholderKey="definicio.proces.desplegar.form.tipusExpedient.placeholder" optionItems="${expedientsTipus}" optionValueAttribute="id" optionTextAttribute="nom"/>
 		<hel:inputText name="etiqueta" textKey="definicio.proces.desplegar.form.etiqueta" />
 		<hel:inputCheckbox name="actualitzarExpedientsActius" textKey="definicio.proces.desplegar.form.actualitzarExpedientsActius" />
-		
+
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.cancelar"/>

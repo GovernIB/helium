@@ -3,6 +3,7 @@
  */
 package es.caib.helium.ejb;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -301,7 +302,7 @@ public class ExpedientServiceBean extends AbstractServiceEjb<ExpedientService> i
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto getImatgeDefinicioProces(
 			Long id,
-			String processInstanceId) {
+			String processInstanceId) throws IOException {
 		return delegateService.getImatgeDefinicioProces(
 				id,
 				processInstanceId);

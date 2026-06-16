@@ -59,6 +59,7 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.validation.ValidationException;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -1179,7 +1180,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Transactional(readOnly = true)
 	public ArxiuDto getImatgeDefinicioProces(
 			Long id,
-			String processInstanceId) {
+			String processInstanceId) throws IOException {
 		logger.debug("Consulta de la imatge de la definició de procés (" +
 				"id=" + id + ", " +
 				"processInstanceId=" + processInstanceId + ")");

@@ -3,6 +3,7 @@
  */
 package es.caib.helium.logic.intf.service;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.TramitacioException;
+import org.springframework.security.acls.model.NotFoundException;
 
 
 /**
@@ -429,7 +431,7 @@ public interface ExpedientService {
 	 */
 	public ArxiuDto getImatgeDefinicioProces(
 			Long id,
-			String processInstanceId) throws NoTrobatException;
+			String processInstanceId) throws IOException, NoTrobatException;
 
 	/**
 	 * Retorna la llista de persones que han fet alguna tasca de

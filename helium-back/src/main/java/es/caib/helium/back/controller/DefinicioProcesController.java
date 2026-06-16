@@ -733,7 +733,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         			}
             	}
         	} catch (Exception e) {
-        		logger.error("Error: (" + e.getClass() + ") " + e.getLocalizedMessage() );
+        		logger.error("Error: (" + e.getClass() + ") ", e );
         		MissatgesHelper.error(request,
         				getMessage(
         						request,

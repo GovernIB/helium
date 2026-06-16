@@ -4,10 +4,7 @@
 package es.caib.helium.logic.service;
 
 import java.beans.IntrospectionException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -184,9 +181,9 @@ public class DissenyServiceImpl implements DissenyService {
 		List<ParellaCodiValorDto> parametres = new ArrayList<ParellaCodiValorDto>();
 
 		String recurs = expedientHelper.handlerToResource(handler);
-		byte[] handlerContingut = getRecursContingut(definicioProcesId, recurs);
 
 		try {
+			byte[] handlerContingut = getRecursContingut(definicioProcesId, recurs);
 			ClassPool cp = ClassPool.getDefault();
 			CtClass ctClass = cp.makeClass(new ByteArrayInputStream(handlerContingut));
 			CtField[] declaredFields = ctClass.getDeclaredFields();
@@ -635,7 +632,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	public byte[] getDeploymentResource(
 			Long definicioProcesId,
-			String resourceName) {
+			String resourceName) throws IOException {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 
 		if (definicioProces == null)
@@ -902,14 +899,14 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public byte[] getRecursContingut(Long definicioProcesId, String nom) {
+	public byte[] getRecursContingut(Long definicioProcesId, String nom) throws IOException {
 		return this.getRecursContingut(
 				definicioProcesRepository.findById(definicioProcesId).orElse(null).getJbpmId(),
 				nom);
 
 	}
 
-	private byte[] getRecursContingut(String processDefinitionId, String nom) {
+	private byte[] getRecursContingut(String processDefinitionId, String nom) throws IOException {
 		return workflowEngineApi.getResourceBytes(
 				processDefinitionId,
 				nom);
@@ -1283,21 +1280,41 @@ public class DissenyServiceImpl implements DissenyService {
 			String fitxer,
 			byte[] contingut) {
 		DefinicioProcesExportacio exportacio = new DefinicioProcesExportacio();
-
-		// Comprova el nom de l'arxiu
-		if (! (fitxer.endsWith(".bpmn") || fitxer.endsWith(".bpmn2") || fitxer.endsWith(".xml")
-				|| fitxer.endsWith(".zip") || fitxer.endsWith(".par"))){
+		boolean isBpmn = fitxer.endsWith(".bpmn") || fitxer.endsWith(".bpmn20.xml");
+		boolean isJar = fitxer.endsWith(".bar") || fitxer.endsWith(".jar") || fitxer.endsWith(".zip");
+		if (!(isBpmn || isJar)) {
 			throw new RuntimeException(
 					messageHelper.getMessage("definicio.proces.actualitzar.error.arxiuNom", new Object[] {fitxer}));
 		}
 		// Obrir el contingut i comprovar que és correcte
 		WProcessDefinition processDefinition = null;
-		if (fitxer.endsWith(".bpmn") || fitxer.endsWith(".bpmn2") || fitxer.endsWith(".xml")){
+		if (isBpmn) {
 			try {
 				processDefinition = workflowEngineApi.parseProcess(contingut);
-			} catch (Exception e) {
+			} catch (Exception ex) {
 				throw new DeploymentException(
-						messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
+					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"),
+					ex);
+			}
+		} else {
+			try {
+				try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(contingut))) {
+					ZipEntry entry;
+					while ((entry = zis.getNextEntry()) != null) {
+						if (
+							entry.getName().equals("process-definition.bpmn") ||
+								entry.getName().equals("process-definition.bpmn20.xml") ||
+								entry.getName().equals("process_definition.bpmn") ||
+								entry.getName().equals("process_definition.bpmn20.xml")) {
+							processDefinition = workflowEngineApi.parseProcess(zis.readAllBytes());
+							break;
+						}
+					}
+				}
+			} catch (Exception ex) {
+				throw new DeploymentException(
+					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"),
+					ex);
 			}
 		}
 		exportacio.setNomDeploy(fitxer);
@@ -1306,7 +1323,6 @@ public class DissenyServiceImpl implements DissenyService {
 		dto.setJbpmKey(processDefinition.getKey());
 		dto.setJbpmName(processDefinition.getName());
 		exportacio.setDefinicioProcesDto(dto);
-
 		return exportacio;
 	}
 

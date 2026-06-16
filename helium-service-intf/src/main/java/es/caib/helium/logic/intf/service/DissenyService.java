@@ -3,6 +3,7 @@
  */
 package es.caib.helium.logic.intf.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,7 @@ import es.caib.helium.commons.dto.handlers.HandlerDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
+import org.springframework.security.acls.model.NotFoundException;
 
 
 /**
@@ -154,7 +156,7 @@ public interface DissenyService {
 			Long entornId,
 			Long expedientTipusId) throws NoTrobatException;
 
-	public byte[] getDeploymentResource(Long id, String recursForm) throws NoTrobatException;
+	public byte[] getDeploymentResource(Long id, String recursForm) throws NoTrobatException, IOException;
 
 	public ExpedientTipusDto getExpedientTipusById(Long id) throws NoTrobatException;
 
@@ -234,7 +236,7 @@ public interface DissenyService {
 	/** Retorna el contingut d'un recurs de la definició de procés. */
 	public byte[] getRecursContingut(
 			Long definicioProcesId,
-			String nom);
+			String nom) throws IOException;
 
 	/** Retorna el contingut del .par de la definició de procés. */
 	public byte[] getParContingut(Long definicioProcesId);

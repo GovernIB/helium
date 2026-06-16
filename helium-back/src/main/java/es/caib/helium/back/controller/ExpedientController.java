@@ -3,6 +3,7 @@
  */
 package es.caib.helium.back.controller;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -320,7 +321,7 @@ public class ExpedientController extends BaseExpedientController {
 	public String imatgeProces(
 			HttpServletRequest request,
 			@PathVariable(value = "expedientId") Long expedientId,
-			Model model) {
+			Model model) throws IOException {
 		ArxiuDto imatge = expedientService.getImatgeDefinicioProces(
 				expedientId,
 				null);

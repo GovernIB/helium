@@ -63,11 +63,13 @@ public interface WorkflowEngineApi {
 	 *
 	 * @param nomArxiu
 	 * @param contingut
+	 * @param isJar
 	 * @return
 	 */
 	public WProcessDefinition desplegar(
             String nomArxiu,
-            byte[] contingut);
+            byte[] contingut,
+            boolean isJar);
 
 	/**
 	 * Retorna el flux en format BPMN del desplegament.
@@ -113,7 +115,7 @@ public interface WorkflowEngineApi {
 	 */
 	public byte[] getResourceBytes(
             String deploymentId,
-            String resourceName);
+            String resourceName) throws IOException;
 
 	/**
 	 * Actualitza els recursos de tipus acció, sense canviar la versió d'un desplagament

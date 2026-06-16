@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
 
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
@@ -45,8 +46,8 @@ import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.dto.engine.WToken;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 
-/** Implementació de l'API del WorkflowEngine pel motor BPMN 2.0. Flowable
- *
+/**
+ * Implementació de l'API del WorkflowEngine pel motor BPMN 2.0. Flowable
  */
 @Component
 public class FlowableEngineImpl implements WorkflowEngineApi {
@@ -55,17 +56,26 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	private ProcessEngine processEngine;
 
 	@Override
-	public WProcessDefinition desplegar(String nomArxiu, byte[] contingut) {
-		Deployment deployment = processEngine
-			.getRepositoryService()
-			.createDeployment()
-			.addInputStream(nomArxiu, new ByteArrayInputStream(contingut))
-			.deploy();
-		ProcessDefinition pd = processEngine
-		        .getRepositoryService()
-	                .createProcessDefinitionQuery()
-	                .deploymentId(deployment.getId())
-	                .singleResult();
+	public WProcessDefinition desplegar(String nomArxiu, byte[] contingut, boolean isJar) {
+		Deployment deployment;
+		if (isJar) {
+			deployment = processEngine.
+				getRepositoryService().
+				createDeployment().
+				addZipInputStream(new ZipInputStream(new ByteArrayInputStream(contingut))).
+				deploy();
+		} else {
+			deployment = processEngine.
+				getRepositoryService().
+				createDeployment().
+				addInputStream(nomArxiu, new ByteArrayInputStream(contingut)).
+				deploy();
+		}
+		ProcessDefinition pd = processEngine.
+			getRepositoryService().
+			createProcessDefinitionQuery().
+			deploymentId(deployment.getId()).
+			singleResult();
 		WProcessDefinition ret = toWProcessDefinition(pd);
 		return ret;
 	}
@@ -85,24 +95,33 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public void esborrarDesplegament(String deploymentId) {
-		ProcessDefinition wpd = processEngine
-									.getRepositoryService()
-									.getProcessDefinition(deploymentId);
-		processEngine
-			.getRepositoryService()
-			.deleteDeployment(wpd.getDeploymentId());
+		ProcessDefinition wpd = processEngine.
+			getRepositoryService().
+			getProcessDefinition(deploymentId);
+		processEngine.
+			getRepositoryService().
+			deleteDeployment(wpd.getDeploymentId());
 	}
 
 	@Override
 	public Set<String> getResourceNames(String deploymentId) {
-		// TODO Auto-generated method stub
-		return new HashSet<>();
+		ProcessDefinition wpd = processEngine.
+			getRepositoryService().
+			getProcessDefinition(deploymentId);
+		List<String> names = processEngine.
+			getRepositoryService().
+			getDeploymentResourceNames(wpd.getDeploymentId());
+		return new HashSet<>(names);
 	}
 
 	@Override
-	public byte[] getResourceBytes(String deploymentId, String resourceName) {
-		// TODO Auto-generated method stub
-		return null;
+	public byte[] getResourceBytes(String deploymentId, String resourceName) throws IOException {
+		ProcessDefinition wpd = processEngine.
+			getRepositoryService().
+			getProcessDefinition(deploymentId);
+		InputStream is = processEngine.getRepositoryService().
+			getResourceAsStream(wpd.getDeploymentId(), resourceName);
+		return is.readAllBytes();
 	}
 
 	@Override
@@ -161,7 +180,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 
-	
+
 	@Override
 	public List<String> getTaskNamesFromDeployedProcessDefinition(String processKey, Integer version) {
 		ProcessDefinition processDefinition =
@@ -854,7 +873,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	/// Mètodes per conviertir objectes Flowable a dades genèriques
-	
+
 	/** Converteix l'objecte ProcessDefintion a WProcessDefinition.
 	 *
 	 * @param pd
@@ -912,7 +931,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			if (e instanceof ExecutionEntityImpl) {
 				ExecutionEntityImpl fe = (ExecutionEntityImpl) e;
 				wt.setProcessInstanceKey(fe.getProcessInstanceBusinessKey());
-				wt.setStart(fe.getStartTime());	
+				wt.setStart(fe.getStartTime());
 				wt.setRoot(fe.isMultiInstanceRoot());
 				if (fe.getParent() != null && !fe.equals(fe.getParent())) {
 					wt.setParent(toWToken(fe.getParent()));
@@ -934,11 +953,11 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 					}
 				}
 			}
-			
+
 		}
 		return wt;
 	}
-	
+
 	/** Converteix l'objecte Task a WTaskInstance.
 	 *
 	 * @param e
@@ -959,7 +978,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			wt.setActorId(t.getAssignee());
 			wt.setProcessInstanceId(t.getProcessInstanceId());
 			wt.setProcessDefinitionId(t.getProcessDefinitionId());
-			
+
 
 			wt.setSuspended(t.isSuspended());
 			if (t instanceof TaskEntityImpl) {
@@ -971,7 +990,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 					} else if (identityLink.getGroupId() != null) {
 						wt.getRols().add(identityLink.getGroupId());
 					}
-				}			
+				}
 			}
 		}
 		return wt;

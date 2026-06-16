@@ -563,11 +563,12 @@ public class DefinicioProcesHelper {
 			byte[] contingutDeploy,
 			Entorn entorn,
 			ExpedientTipus expedientTipus) {
-
-		DefinicioProces definicio  = null;
+		DefinicioProces definicio = null;
+		boolean isJar = nomDeploy.endsWith(".bar") || nomDeploy.endsWith(".jar") || nomDeploy.endsWith(".zip");
 		WProcessDefinition dpd = workflowEngineApi.desplegar(
 				nomDeploy,
-				contingutDeploy);
+				contingutDeploy,
+				isJar);
 		if (dpd != null) {
 			// Crea la nova definició de procés
 			definicio = new DefinicioProces(
@@ -588,7 +589,6 @@ public class DefinicioProcesHelper {
 						nomTasca,
 						TipusTasca.ESTAT);
 				String prefixRecursBo = "forms/" + nomTasca;
-
 				//TODO HELIUM2 desplegar recursos a partir del contingut
 				for (String resourceName: workflowEngineApi.getResourceNames(dpd.getId())) {
 					if (resourceName.startsWith(prefixRecursBo)) {
@@ -604,7 +604,6 @@ public class DefinicioProcesHelper {
 		} else
 			throw new DeploymentException(
 					messageHelper.getMessage("exportar.validacio.definicio.deploy.error"));
-
 		return definicio;
 	}
 

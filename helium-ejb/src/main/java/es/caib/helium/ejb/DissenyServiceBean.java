@@ -1,5 +1,6 @@
 package es.caib.helium.ejb;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -138,7 +139,7 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public byte[] getDeploymentResource(Long id, String recursForm) {
+	public byte[] getDeploymentResource(Long id, String recursForm) throws IOException {
 		return delegateService.getDeploymentResource(id, recursForm);
 	}
 
@@ -259,7 +260,7 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public byte[] getRecursContingut(Long definicioProcesId, String nom) {
+	public byte[] getRecursContingut(Long definicioProcesId, String nom) throws IOException {
 		return delegateService.getRecursContingut(definicioProcesId, nom);
 	}
 
