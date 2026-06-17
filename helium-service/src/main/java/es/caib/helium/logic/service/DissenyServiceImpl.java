@@ -129,7 +129,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private ServeiPinbalRepository serveiPinbalRepository;
 	@Resource
-	private RecursHelper recursHelper;
+	private ExpedientTipusRecursHelper expedientTipusRecursHelper;
 	@Resource
 	private RecursRepository recursRepository;
 
@@ -207,7 +207,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	public List<ParellaCodiValorDto> findHandlerRecursParams(Long expedientTipusId, String nomClasse) {
 		try {
-			return recursHelper.getHandlerParameters(
+			return expedientTipusRecursHelper.getHandlerParameters(
 				expedientTipusId,
 				null,
 				nomClasse).stream().
@@ -1227,7 +1227,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional
     public List<String> updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
 		try {
-			List<Recurs> recursosCreats = recursHelper.deploy(expedientTipusId, null, contingut);
+			List<Recurs> recursosCreats = expedientTipusRecursHelper.deploy(expedientTipusId, null, contingut);
 			return recursosCreats.stream().
 				map(r -> {
 					String prefix;

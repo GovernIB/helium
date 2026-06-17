@@ -39,7 +39,10 @@ import static org.mockito.Mockito.*;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @ExtendWith(MockitoExtension.class)
-public class RecursHelperTest {
+public class ExpedientTipusRecursHelperTest {
+
+	private static final String HANDLER_RESOURCE_CLASS = "es.caib.helium.test.handler.TestHandler";
+	private static final String LOGO_RESOURCE_PATH = "es/caib/logo.svg";
 
 	@Mock
 	private ExpedientTipusRepository expedientTipusRepository;
@@ -48,14 +51,14 @@ public class RecursHelperTest {
 	@Mock
 	private RecursRepository recursRepository;
 
-	private RecursHelper recursHelper;
+	private ExpedientTipusRecursHelper expedientTipusRecursHelper;
 
 	private final Long expedientTipusId = 1L;
 	private final Long definicioProcesId = 2L;
 
 	@BeforeEach
 	public void setUp() {
-		recursHelper = new RecursHelper(expedientTipusRepository, definicioProcesRepository, recursRepository);
+		expedientTipusRecursHelper = new ExpedientTipusRecursHelper(expedientTipusRepository, definicioProcesRepository, recursRepository);
 	}
 
 	// --------------------------------------------------
@@ -73,7 +76,7 @@ public class RecursHelperTest {
 		when(recursRepository.save(any())).
 			thenAnswer(invocation -> invocation.getArgument(0));
 		byte[] jar = createFakeJar("file1.txt", "file2.txt");
-		recursHelper.deploy(expedientTipusId, definicioProcesId, jar);
+		expedientTipusRecursHelper.deploy(expedientTipusId, definicioProcesId, jar);
 		verify(recursRepository, times(2)).save(any(Recurs.class));
 	}
 
@@ -84,7 +87,7 @@ public class RecursHelperTest {
 			thenReturn(Optional.empty());
 		byte[] jar = new byte[] { 1, 2, 3 };
 		assertThrows(EntityNotFoundException.class, () ->
-			recursHelper.deploy(expedientTipusId, 2L, jar)
+			expedientTipusRecursHelper.deploy(expedientTipusId, 2L, jar)
 		);
 		verifyNoInteractions(recursRepository);
 	}
@@ -100,19 +103,18 @@ public class RecursHelperTest {
 		when(recursRepository.save(any())).
 			thenAnswer(invocation -> invocation.getArgument(0));
 		byte[] jar = createFakeJar("file.txt");
-		recursHelper.deploy(expedientTipusId, definicioProcesId, jar);
+		expedientTipusRecursHelper.deploy(expedientTipusId, definicioProcesId, jar);
 		verify(recursRepository).save(any(Recurs.class));
 	}
 
 	@Test
 	public void shouldLoadRealJarSuccessfully() throws IOException {
-		String handlerClass = "com.sample.handler.ProvaHandler";
-		String handlerResource = handlerClass.replace(".", "/") + ".class";
+		String handlerResource = HANDLER_RESOURCE_CLASS.replace(".", "/") + ".class";
 		when(expedientTipusRepository.findById(any())).
 			thenReturn(Optional.of(new ExpedientTipus()));
 		when(recursRepository.save(any())).
 			thenAnswer(invocation -> invocation.getArgument(0));
-		recursHelper.deploy(
+		expedientTipusRecursHelper.deploy(
 			expedientTipusId,
 			definicioProcesId,
 			loadRecursosJarFile());
@@ -120,11 +122,11 @@ public class RecursHelperTest {
 		verify(recursRepository, times(2)).save(captor.capture());
 		List<Recurs> savedRecursos = captor.getAllValues();
 		assertEquals(2, savedRecursos.size());
-		assertEquals(handlerResource, savedRecursos.get(0).getNom());
-		assertTrue(savedRecursos.get(0).isClasse());
-		assertTrue(savedRecursos.get(0).isHandler());
-		assertEquals("es/caib/logo.svg", savedRecursos.get(1).getNom());
-		assertFalse(savedRecursos.get(1).isClasse());
+		assertEquals(LOGO_RESOURCE_PATH, savedRecursos.get(0).getNom());
+		assertFalse(savedRecursos.get(0).isClasse());
+		assertEquals(handlerResource, savedRecursos.get(1).getNom());
+		assertTrue(savedRecursos.get(1).isClasse());
+		assertTrue(savedRecursos.get(1).isHandler());
 	}
 
 	// --------------------------------------------------
@@ -141,7 +143,7 @@ public class RecursHelperTest {
 			className.replace('.', '/') + ".class",
 			true)).
 			thenReturn(Optional.of(bytes));
-		Class<?> clazz = recursHelper.loadClass(expedientTipusId, definicioProcesId, className, Object.class);
+		Class<?> clazz = expedientTipusRecursHelper.loadClass(expedientTipusId, definicioProcesId, className, Object.class);
 		assertNotNull(clazz);
 		assertEquals(className, clazz.getName());
 	}
@@ -158,7 +160,7 @@ public class RecursHelperTest {
 			thenReturn(Optional.of(bytes));
 		// String.class no és assignable
 		assertThrows(ClassCastException.class, () ->
-			recursHelper.loadClass(expedientTipusId, definicioProcesId, className, String.class)
+			expedientTipusRecursHelper.loadClass(expedientTipusId, definicioProcesId, className, String.class)
 		);
 	}
 
@@ -176,7 +178,7 @@ public class RecursHelperTest {
 			className.replace('.', '/') + ".class",
 			true)).
 			thenReturn(Optional.of(bytes));
-		Object instance = recursHelper.loadClassAndCreateInstance(expedientTipusId, definicioProcesId, className, Object.class);
+		Object instance = expedientTipusRecursHelper.loadClassAndCreateInstance(expedientTipusId, definicioProcesId, className, Object.class);
 		assertNotNull(instance);
 		assertEquals(className, instance.getClass().getName());
 	}
@@ -191,7 +193,7 @@ public class RecursHelperTest {
 		when(recursRepository.findContingutByExpedientTipusIdAndDefinicioProcesIdAndNameAndClasse(
 			any(), any(), eq("test.txt"), any())).
 			thenReturn(Optional.of(data));
-		byte[] result = recursHelper.loadResource(1L, 2L, "test.txt");
+		byte[] result = expedientTipusRecursHelper.loadResource(1L, 2L, "test.txt");
 		assertArrayEquals(data, result);
 	}
 
@@ -200,7 +202,7 @@ public class RecursHelperTest {
 		when(recursRepository.findContingutByExpedientTipusIdAndDefinicioProcesIdAndNameAndClasse(
 			any(), any(), any(), any())).
 			thenReturn(Optional.empty());
-		byte[] result = recursHelper.loadResource(1L, 2L, "missing.txt");
+		byte[] result = expedientTipusRecursHelper.loadResource(1L, 2L, "missing.txt");
 		assertNull(result);
 	}
 
@@ -210,17 +212,16 @@ public class RecursHelperTest {
 
 	@Test
 	void shouldGetHandlerParameters() throws Exception {
-		String className = "com.sample.handler.ProvaHandler";
-		String resourceName = className.replace('.', '/') + ".class";
+		String resourceName = HANDLER_RESOURCE_CLASS.replace('.', '/') + ".class";
 		byte[] bytes = getResourceBytesFromJarFile(resourceName);
 		when(recursRepository.findContingutByExpedientTipusIdAndDefinicioProcesIdAndNameAndClasse(
 			expedientTipusId,
 			definicioProcesId,
-			className.replace('.', '/') + ".class",
+			HANDLER_RESOURCE_CLASS.replace('.', '/') + ".class",
 			true)).
 			thenReturn(Optional.of(bytes));
-		List<RecursHelper.HandlerParameter> params = recursHelper.getHandlerParameters(
-			expedientTipusId, definicioProcesId, className);
+		List<ExpedientTipusRecursHelper.HandlerParameter> params = expedientTipusRecursHelper.getHandlerParameters(
+			expedientTipusId, definicioProcesId, HANDLER_RESOURCE_CLASS);
 		assertEquals(1, params.size());
 		assertEquals("variable1", params.get(0).getName());
 	}
@@ -231,8 +232,7 @@ public class RecursHelperTest {
 
 	@Test
 	void shouldCreateHandlerInstanceAndSetValues() throws Exception {
-		String className = "com.sample.handler.ProvaHandler";
-		String resourceName = className.replace('.', '/') + ".class";
+		String resourceName = HANDLER_RESOURCE_CLASS.replace('.', '/') + ".class";
 		byte[] bytes = getResourceBytesFromJarFile(resourceName);
 		when(recursRepository.findContingutByExpedientTipusIdAndDefinicioProcesIdAndNameAndClasse(
 			expedientTipusId,
@@ -246,13 +246,13 @@ public class RecursHelperTest {
 		expedient.setTipus(tipus);
 		Map<String, String> values = new HashMap<>();
 		values.put("variable1", "valor-prova");
-		HeliumActionHandler handler = recursHelper.createHandlerInstance(
+		HeliumActionHandler handler = expedientTipusRecursHelper.createHandlerInstance(
 			expedient,
 			definicioProcesId,
-			className,
+			HANDLER_RESOURCE_CLASS,
 			values);
 		assertNotNull(handler);
-		assertEquals(className, handler.getClass().getName());
+		assertEquals(HANDLER_RESOURCE_CLASS, handler.getClass().getName());
 		Field variable1Field = handler.getClass().getDeclaredField("variable1");
 		variable1Field.setAccessible(true);
 		assertEquals("valor-prova", variable1Field.get(handler));

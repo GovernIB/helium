@@ -189,7 +189,7 @@ public class ExpedientHelper {
 	@Resource
 	private AlertaHelper alertaHelper;
 	@Resource
-	private RecursHelper recursHelper;
+	private ExpedientTipusRecursHelper expedientTipusRecursHelper;
 	@Resource
 	private ExpedientInteressatHelper expedientInteressatHelper;
 	@Resource
@@ -2412,7 +2412,7 @@ public class ExpedientHelper {
 		} else {
 			if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
 				try {
-					HeliumActionHandler handler = recursHelper.createHandlerInstance(
+					HeliumActionHandler handler = expedientTipusRecursHelper.createHandlerInstance(
 						expedient,
 						null,
 						accio.getHandlerClasse(),

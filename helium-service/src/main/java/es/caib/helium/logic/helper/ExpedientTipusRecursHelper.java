@@ -35,7 +35,7 @@ import java.util.jar.JarInputStream;
  */
 @Component
 @RequiredArgsConstructor
-public class RecursHelper {
+public class ExpedientTipusRecursHelper {
 
 	private final ExpedientTipusRepository expedientTipusRepository;
 	private final DefinicioProcesRepository definicioProcesRepository;

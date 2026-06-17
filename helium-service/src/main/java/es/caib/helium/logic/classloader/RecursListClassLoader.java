@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Implementació de ClassLoader que carrega els recursos de la taula de base de dades.
+ * Implementació de ClassLoader que carrega els recursos d'una llista de classes.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */

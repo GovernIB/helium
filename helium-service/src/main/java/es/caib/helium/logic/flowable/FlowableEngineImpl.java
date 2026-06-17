@@ -26,7 +26,6 @@ import org.flowable.common.engine.api.io.InputStreamProvider;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.common.engine.impl.util.io.BytesStreamSource;
 import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.RuntimeService;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.repository.Deployment;
