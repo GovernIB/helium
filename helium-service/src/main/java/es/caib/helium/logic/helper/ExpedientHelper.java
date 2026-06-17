@@ -1975,7 +1975,7 @@ public class ExpedientHelper {
 		}
 		//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
 		WProcessInstance processInstance = null;
-		if(expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
+		if (expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
 			processInstance = workflowEngineApi.startProcessInstanceById(
 					IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
 					definicioProces.getJbpmId(),

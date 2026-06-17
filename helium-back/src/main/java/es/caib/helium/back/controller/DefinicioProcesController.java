@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Controlador per al manteniment de les definicions de procés. Controla les pipelles del
@@ -775,7 +776,13 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					model.addAttribute("definicioProces", definicioProces);
 			}
 			// Select dels tipus d'expedient de l'entorn
-			model.addAttribute("expedientsTipus", expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId()));
+			List<ExpedientTipusDto> expedientsTipus = expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId());
+			// Retorna només els que son de tipus FLUX.
+			model.addAttribute(
+				"expedientsTipus",
+				expedientsTipus.stream().
+					filter(et -> ExpedientTipusTipusEnumDto.FLOW.equals(et.getTipus())).
+					collect(Collectors.toList()));
 		}
 
 		// Select de les accions jbpm

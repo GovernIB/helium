@@ -26,6 +26,7 @@ import org.flowable.common.engine.api.io.InputStreamProvider;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.common.engine.impl.util.io.BytesStreamSource;
 import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.RuntimeService;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.repository.Deployment;
@@ -245,10 +246,9 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public List<WProcessInstance> getProcessInstanceTree(String rootProcessInstanceId) {
-		
 		List<WProcessInstance> wPis = new ArrayList<>();
-		wPis.add(this.getProcessInstance(rootProcessInstanceId));
-		this.getProcessInstanceTreeRecursively(rootProcessInstanceId, wPis);
+		wPis.add(getProcessInstance(rootProcessInstanceId));
+		getProcessInstanceTreeRecursively(rootProcessInstanceId, wPis);
 		return wPis;
 	}
 
@@ -278,17 +278,16 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public WProcessInstance getRootProcessInstance(String processInstanceId) {
 		HistoricProcessInstance pi;
-		do{
+		do {
 			pi = processEngine
-					.getHistoryService()
-					.createHistoricProcessInstanceQuery()
-						.processInstanceId(processInstanceId)
-						.singleResult();
+				.getHistoryService()
+				.createHistoricProcessInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.singleResult();
 			processInstanceId = pi.getSuperProcessInstanceId();
-		} while(processInstanceId != null);
+		} while (processInstanceId != null);
 		return toWProcessInstance(pi);
 	}
-
 
 	@Override
 	public List<String> findRootProcessInstances(String actorId, List<String> processInstanceIds, boolean nomesMeves,
@@ -304,19 +303,19 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public WProcessInstance startProcessInstanceById(String actorId, String processDefinitionId,
-			Map<String, Object> variables) {
-		ProcessInstance processInstance = null;
+	public WProcessInstance startProcessInstanceById(
+		String actorId,
+		String processDefinitionId,
+		Map<String, Object> variables) {
 		try {
 			Authentication.setAuthenticatedUserId(actorId);
-			processInstance =
-					processEngine
-					.getRuntimeService()
-						.startProcessInstanceById(processDefinitionId, variables);
+			ProcessInstance processInstance = processEngine.
+				getRuntimeService().
+				startProcessInstanceById(processDefinitionId, variables);
+			return toWProcessInstance(processInstance);
 		} finally {
-		    Authentication.setAuthenticatedUserId(null);
+			Authentication.setAuthenticatedUserId(null);
 		}
-		return toWProcessInstance(processInstance);
 	}
 
 	@Override
@@ -954,7 +953,6 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		}
 		return wpi;
 	}
-
 
 	/** Converteix l'objecte Execution a WToken.
 	 *
