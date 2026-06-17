@@ -23,8 +23,10 @@ import org.flowable.bpmn.model.SequenceFlow;
 import org.flowable.bpmn.model.SubProcess;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.common.engine.api.io.InputStreamProvider;
+import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.common.engine.impl.util.io.BytesStreamSource;
 import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
@@ -243,26 +245,24 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public List<WProcessInstance> getProcessInstanceTree(String rootProcessInstanceId) {
-		List<Execution> executions =  processEngine
-				.getRuntimeService()
-			    .createExecutionQuery()
-			    .rootProcessInstanceId(rootProcessInstanceId)
-			    .list();
-		Set<String> processInstanceIds = new HashSet<>();
-		for (Execution ex : executions) {
-			if (!processInstanceIds.contains(ex.getProcessInstanceId())) {
-				processInstanceIds.add(ex.getProcessInstanceId());
-			}
-		}
-		List<ProcessInstance> pis = processEngine
-				.getRuntimeService()
-				.createProcessInstanceQuery()
-				.processInstanceIds(processInstanceIds).list();
+		
 		List<WProcessInstance> wPis = new ArrayList<>();
-		for (ProcessInstance pi : pis) {
-			wPis.add(toWProcessInstance(pi));
-		}
+		wPis.add(this.getProcessInstance(rootProcessInstanceId));
+		this.getProcessInstanceTreeRecursively(rootProcessInstanceId, wPis);
 		return wPis;
+	}
+
+	private void getProcessInstanceTreeRecursively(String rootProcessInstanceId, List<WProcessInstance> wPis) {
+		List<HistoricProcessInstance> subprocessos =
+				this.processEngine
+						.getHistoryService()
+							.createHistoricProcessInstanceQuery()
+								.superProcessInstanceId(rootProcessInstanceId)
+									.list();
+		for (HistoricProcessInstance pi : subprocessos) {
+			wPis.add(toWProcessInstance(pi));
+			this.getProcessInstanceTreeRecursively(pi.getId(), wPis);
+		}
 	}
 
 	@Override
@@ -277,9 +277,18 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WProcessInstance getRootProcessInstance(String processInstanceId) {
-		// TODO Auto-generated method stub
-		return null;
+		HistoricProcessInstance pi;
+		do{
+			pi = processEngine
+					.getHistoryService()
+					.createHistoricProcessInstanceQuery()
+						.processInstanceId(processInstanceId)
+						.singleResult();
+			processInstanceId = pi.getSuperProcessInstanceId();
+		} while(processInstanceId != null);
+		return toWProcessInstance(pi);
 	}
+
 
 	@Override
 	public List<String> findRootProcessInstances(String actorId, List<String> processInstanceIds, boolean nomesMeves,
@@ -297,8 +306,17 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public WProcessInstance startProcessInstanceById(String actorId, String processDefinitionId,
 			Map<String, Object> variables) {
-		// TODO Auto-generated method stub
-		return null;
+		ProcessInstance processInstance = null;
+		try {
+			Authentication.setAuthenticatedUserId(actorId);
+			processInstance =
+					processEngine
+					.getRuntimeService()
+						.startProcessInstanceById(processDefinitionId, variables);
+		} finally {
+		    Authentication.setAuthenticatedUserId(null);
+		}
+		return toWProcessInstance(processInstance);
 	}
 
 	@Override
@@ -653,7 +671,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public List<Object[]> getTasquesSegonPlaPendents() {
 		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<Object[]>();
 	}
 
 	@Override
@@ -914,6 +932,29 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		}
 		return wpi;
 	}
+
+	/** Converteix l'objecte HistoricProcessInstance a WProcessInstance.
+	 *
+	 * @param pd
+	 * @return
+	 */
+	private WProcessInstance toWProcessInstance(HistoricProcessInstance pi) {
+		WProcessInstance wpi = null;
+		if (pi != null) {
+			wpi = new WProcessInstance();
+			wpi.setId(pi.getId());
+			wpi.setKey(pi.getBusinessKey());
+			wpi.setProcessDefinitionId(pi.getProcessDefinitionId());
+			wpi.setProcessDefinitionKey(pi.getProcessDefinitionKey());
+			wpi.setProcessDefinitionName(pi.getProcessDefinitionName());
+			wpi.setProcessDefinitionVersion(pi.getProcessDefinitionVersion());
+			wpi.setParentProcessInstanceId(pi.getSuperProcessInstanceId());
+			wpi.setStartTime(pi.getStartTime());
+			wpi.setDescription(pi.getDescription());
+		}
+		return wpi;
+	}
+
 
 	/** Converteix l'objecte Execution a WToken.
 	 *

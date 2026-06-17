@@ -15,10 +15,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.persistence.EntityNotFoundException;
 
-import es.caib.helium.commons.config.PropertyConfig;
-import es.caib.helium.disseny.handler.HeliumActionHandler;
-import es.caib.helium.logic.bpmn.HeliumActionHandlerPredefinitFactory;
-import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -39,6 +35,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dto.AccioTipusEnumDto;
 import es.caib.helium.commons.dto.AnotacioMapeigResultatDto;
@@ -64,10 +61,15 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.disseny.handler.HeliumActionHandler;
+import es.caib.helium.logic.bpmn.HeliumActionHandlerPredefinitFactory;
+import es.caib.helium.logic.bpmn.HeliumApiFactory;
+import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.dto.engine.WToken;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.common.ThreadLocalInfo;
 import es.caib.helium.persistence.entity.Accio;
 import es.caib.helium.persistence.entity.Alerta;
@@ -107,14 +109,13 @@ import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRe
 import es.caib.helium.persistence.repository.RegistreRepository;
 import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import javassist.ClassPool;
 import javassist.CtClass;
+import liquibase.repackaged.org.apache.commons.text.StringSubstitutor;
 
 /**
  * Helper per a gestionar els expedients.
@@ -1551,31 +1552,19 @@ public class ExpedientHelper {
 		} else {
 			seq = seq + increment;
 		}
-//		if (expressio != null) {
-//			try {
-//				final Map<String, Object> context = new HashMap<String, Object>();
-//				context.put("entorn_cod", expedientTipus.getEntorn().getCodi());
-//				context.put("tipexp_cod", expedientTipus.getCodi());
-//				context.put("any", any);
-//				context.put("seq", seq);
-//				ExpressionEvaluator evaluator = new ExpressionEvaluatorImpl();
-//				String resultat = (String)evaluator.evaluate(
-//						expressio,
-//						String.class,
-//						new VariableResolver() {
-//							public Object resolveVariable(String name)
-//									throws ELException {
-//								return context.get(name);
-//							}
-//						},
-//						null);
-//				return resultat;
-//			} catch (Exception ex) {
-//				return "#invalid expression#";
-//			}
-//		} else {
+		if (expressio != null) {
+			final Map<String, Object> context = new HashMap<String, Object>();
+			context.put("entorn_cod", expedientTipus.getEntorn().getCodi());
+			context.put("tipexp_cod", expedientTipus.getCodi());
+			context.put("any", any);
+			context.put("seq", seq);
+			String resultat = StringSubstitutor.replace(
+					expressio,
+					context);
+			return resultat;
+		} else {
 			return Long.valueOf(seq).toString();
-//		}
+		}
 	}
 
 	private Camp getCampExpedient(String campCodi) {

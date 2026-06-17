@@ -6,26 +6,28 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.TriggerContext;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.PeriodicTrigger;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.intf.service.MonitorTasquesService;
 import es.caib.helium.logic.intf.service.TascaProgramadaService;
 
 /** Configura les tasques en segon pla. */
-//@Configuration
-//@EnableScheduling
+@Configuration
+@EnableScheduling
 public class TascaProgramadaConfig implements SchedulingConfigurer {
 
 	public static final String comprovarExecucionsMassives = "comprovarExecucionsMassives";
