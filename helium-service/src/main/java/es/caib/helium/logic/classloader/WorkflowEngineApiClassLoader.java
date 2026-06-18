@@ -31,8 +31,13 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 
 	@Override
 	protected byte[] loadResourceBytes(String name, Boolean isClass) throws IOException {
-		// Si el recurs no es troba ja es llença una exception des del mètode getResourceBytes
-		return workflowEngineApi.getResourceBytes(deploymentId, name);
+		try {
+			// Si el recurs no es troba ja es llença una exception des del mètode getResourceBytes
+			return workflowEngineApi.getResourceBytes(deploymentId, name);
+		} catch (Exception ex) {
+			throw new IOException("Resource " + name + " not found (" +
+				"deploymentId=" + deploymentId + ")");
+		}
 	}
 
 }

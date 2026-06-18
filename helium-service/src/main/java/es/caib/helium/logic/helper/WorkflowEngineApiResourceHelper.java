@@ -3,7 +3,6 @@ package es.caib.helium.logic.helper;
 import es.caib.helium.disseny.handler.HeliumActionHandler;
 import es.caib.helium.logic.classloader.WorkflowEngineApiClassLoader;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
@@ -112,10 +111,10 @@ public class WorkflowEngineApiResourceHelper {
 	 * @throws IntrospectionException
 	 *            si es produeix algun error obtenint els paràmetres.
 	 */
-	public List<HandlerParameter> getHandlerParameters(
+	public List<ExpedientTipusRecursHelper.HandlerParameter> getHandlerParameters(
 		String deploymentId,
 		String className) throws ClassNotFoundException, IntrospectionException {
-		List<HandlerParameter> params = new ArrayList<>();
+		List<ExpedientTipusRecursHelper.HandlerParameter> params = new ArrayList<>();
 		Class<? extends HeliumActionHandler> handlerClass = loadClass(
 			deploymentId,
 			className,
@@ -123,7 +122,7 @@ public class WorkflowEngineApiResourceHelper {
 		BeanInfo info = Introspector.getBeanInfo(handlerClass);
 		for (PropertyDescriptor pd: info.getPropertyDescriptors()) {
 			if (pd.getWriteMethod() != null) {
-				params.add(new HandlerParameter(pd.getName(), pd.getPropertyType()));
+				params.add(new ExpedientTipusRecursHelper.HandlerParameter(pd.getName(), pd.getPropertyType()));
 			}
 		}
 		return params;
@@ -158,13 +157,6 @@ public class WorkflowEngineApiResourceHelper {
 
 	private ClassLoader getRepositoryClassLoader(String deploymentId) {
 		return new WorkflowEngineApiClassLoader(workflowEngineApi, deploymentId);
-	}
-
-	@Getter
-	@RequiredArgsConstructor
-	public static class HandlerParameter {
-		private final String name;
-		private final Class<?> type;
 	}
 
 }
