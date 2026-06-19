@@ -11,14 +11,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,9 +31,8 @@ import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dto.AnotacioEstatEnumDto;
-import es.caib.helium.commons.dto.DocumentEnviamentEstatEnumDto;
-import es.caib.helium.commons.dto.DocumentNotificacioTipusEnumDto;
 import es.caib.helium.commons.dto.EmailTipusEnumDto;
 import es.caib.helium.commons.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.commons.dto.IntegracioParametreDto;
@@ -45,8 +41,16 @@ import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
 import es.caib.helium.commons.dto.procediment.ProgresActualitzacioDto;
 import es.caib.helium.commons.exception.ExecucioMassivaException;
 import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.logic.helper.ConsultaPinbalHelper;
+import es.caib.helium.logic.helper.DistribucioHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.EmailHelper;
+import es.caib.helium.logic.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientService;
@@ -58,22 +62,12 @@ import es.caib.helium.persistence.entity.Anotacio;
 import es.caib.helium.persistence.entity.AnotacioEmail;
 import es.caib.helium.persistence.entity.ExecucioMassiva.ExecucioMassivaTipus;
 import es.caib.helium.persistence.entity.ExecucioMassivaExpedient;
-import es.caib.helium.persistence.entity.Notificacio;
 import es.caib.helium.persistence.entity.PeticioPinbal;
 import es.caib.helium.persistence.repository.AnotacioEmailRepository;
 import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.ExecucioMassivaExpedientRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
-import es.caib.helium.persistence.repository.NotificacioRepository;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;
-import es.caib.helium.logic.helper.ConsultaPinbalHelper;
-import es.caib.helium.logic.helper.DistribucioHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.EmailHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.helper.NotificacioHelper;
-import es.caib.helium.logic.helper.PluginHelper;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -83,21 +77,10 @@ import es.caib.helium.logic.helper.PluginHelper;
 @Service("tascaProgramadaServiceV3")
 public class TascaProgramadaServiceImpl implements TascaProgramadaService, ArxiuPluginListener {
 
-	/** Referència al mateix service per fer crides transaccionals. */
-	private TascaProgramadaService self;
-	@Autowired
-	private ApplicationContext applicationContext;
-	@PostConstruct
-	public void postContruct() {
-		self = applicationContext.getBean(TascaProgramadaService.class);
-	}
-
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
-	@Resource
-	private NotificacioRepository notificacioRepository;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
 	@Autowired
@@ -180,33 +163,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 			}
 		}
 	}
-
-
-	/**************************/
-
-	/*** ACTUALITZAR ESTAT NOTIFICACIONS ***/
-	@Override
-//	#1164 Comentam aquesta tasca programada, ja que ara les notificacions es faran amb Notib,
-//	i no és necessari fer una consulta activa, ja que notib ens avisarà en cas de canvi.
-//	@Scheduled(fixedDelayString = "${app.notificacions.comprovar.estat}")
-	public void comprovarEstatNotificacions() {
-		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatAndTipusOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto.ENVIAT, DocumentNotificacioTipusEnumDto.ELECTRONICA);
-		for (Notificacio notificacio: notificacionsPendentsRevisar) {
-			self.actualitzarEstatNotificacions(notificacio.getId());
-		}
-	}
-
-
-	@Override
-	@Transactional
-	public void actualitzarEstatNotificacions(Long notificacioId) {
-		Notificacio notificacio = notificacioRepository.findById(notificacioId).orElse(null);
-		if (notificacio == null)
-			throw new NoTrobatException(Notificacio.class, notificacioId);
-
-		notificacioHelper.obtenirJustificantNotificacio(notificacio);
-	}
-	/**************************/
 
 
 	/** Classe runable per guardar un annex a l'Arxiu en un thread independent.

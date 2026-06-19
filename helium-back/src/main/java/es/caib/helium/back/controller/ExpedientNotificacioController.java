@@ -31,14 +31,10 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.ModalHelper;
 import es.caib.helium.back.helper.ObjectTypeEditorHelper;
-import es.caib.helium.back.mvc.ArxiuView;
-import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.DadesNotificacioDto;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.DocumentStoreDto;
 import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.commons.dto.NotificacioDto;
-import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.logic.intf.service.DocumentService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientService;
@@ -58,77 +54,6 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 	private ExpedientDocumentService expedientDocumentService;
 	@Autowired
 	private DocumentService documentService;
-	
-	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/info", method = RequestMethod.GET)
-	public String notificacioInfo(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable Long notificacioId,
-			Model model) {		
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		NotificacioDto notificacio = expedientService.findNotificacioPerId(notificacioId, expedient.isArxiuActiu());
-		
-		model.addAttribute("expedient",expedient);
-		model.addAttribute("notificacio",notificacio);
-		
-		return "notificacioInfo";
-	}
-	
-	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/error", method = RequestMethod.GET)
-	public String notificacioError(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable Long notificacioId,
-			Model model) {		
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		NotificacioDto notificacio = expedientService.findNotificacioPerId(notificacioId, expedient.isArxiuActiu());
-		
-		model.addAttribute("notificacio",notificacio);
-		
-		return "notificacioError";
-	}
-	
-	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/processar", method = RequestMethod.GET)
-	public String notificacioProcessar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable Long notificacioId,
-			Model model) {		
-		expedientService.findAmbIdAmbPermis(expedientId);
-		expedientService.notificacioReprocessar(notificacioId);
-		MissatgesHelper.success(
-				request,
-				getMessage(
-						request,
-						"expedient.notificacio.reprocessada"));
-		
-		model.addAttribute("pipellaActiva", "notificacions");
-		return "redirect:/expedient/" + expedientId;
-	}
-	
-	@RequestMapping(value="/{expedientId}/notificacio/{notificacioId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar")
-	public String desacarregar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable Long notificacioId,
-			@PathVariable String processInstanceId,
-			@PathVariable Long documentStoreId,
-			Model model) {
-		try {
-			ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
-					expedientId,
-					processInstanceId,
-					documentStoreId);
-			if (arxiu != null) {
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
-			}
-		} catch (SistemaExternException e) {
-			MissatgesHelper.error(request, e.getPublicMessage(), e);
- 			modalUrlTancar(true);
-		}
-		return "arxiuView";
-	}
 	
 	// Notificacions NOTIB
 	

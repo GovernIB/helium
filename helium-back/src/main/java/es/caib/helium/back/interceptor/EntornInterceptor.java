@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndViewDefiningException;
 
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
+import es.caib.helium.back.helper.UsuariActualHelper;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.UsuariPreferenciesDto;
@@ -62,7 +63,8 @@ public class EntornInterceptor implements HandlerInterceptor {
 			List<EntornDto> entorns = entornService.findActiusAmbPermisAcces();
 			request.setAttribute("entorns", entorns);
 			// Nova implementació
-			if (entorns.size() == 0) {
+			if (entorns.size() == 0 
+					&& !UsuariActualHelper.isAdministrador()) {
 				if (request.getServletPath().startsWith("")) {
 		            ModelAndView mav = new ModelAndView("entornNoDisponible");
 		            throw new ModelAndViewDefiningException(mav);
@@ -107,11 +109,11 @@ public class EntornInterceptor implements HandlerInterceptor {
 										break;
 									}
 								}
-								if (entornActual == null) {
+								if (entornActual == null && !entorns.isEmpty()) {
 									entornActual = entorns.get(0);
 									setEntornActual(request, entornActual);
 								}
-							} else {
+							} else if ( !entorns.isEmpty()) {
 								entornActual = entorns.get(0);
 								setEntornActual(request, entornActual);
 							}
@@ -127,7 +129,7 @@ public class EntornInterceptor implements HandlerInterceptor {
 									// Si no el troba símplement no el selecciona
 								}
 							}
-						} else {
+						} else if (!entorns.isEmpty()) {
 							entornActual = entorns.get(0);
 							setEntornActual(request, entornActual);
 						}

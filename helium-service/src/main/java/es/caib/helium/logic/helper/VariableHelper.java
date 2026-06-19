@@ -373,8 +373,10 @@ public class VariableHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "0");
 		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
-		Map<String, Object> varsInstanciaTasca = workflowEngineApi.getTaskInstanceVariables(
-				task.getId());
+		Map<String, Object> varsInstanciaTasca = new HashMap<>();
+		//TODO: trobar els valors de les variables per la tasca en el servei de dades.
+//		workflowEngineApi.getTaskInstanceVariables(
+//				task.getId());
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
 		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "2");
 		// Només es mostraran les variables donades d'alta al formulari

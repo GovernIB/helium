@@ -17,27 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.helium.commons.dto.DadesEnviamentDto;
 import es.caib.helium.commons.dto.DadesNotificacioDto;
-import es.caib.helium.commons.dto.DocumentEnviamentEstatEnumDto;
 import es.caib.helium.commons.dto.DocumentNotificacioDto;
 import es.caib.helium.commons.dto.DocumentStoreDto;
 import es.caib.helium.commons.dto.EnviamentTipusEnumDto;
-import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.commons.dto.NotificacioDto;
 import es.caib.helium.commons.dto.NotificacioEstatEnumDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
-import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import es.caib.helium.persistence.entity.DocumentNotificacio;
 import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.Notificacio;
 import es.caib.helium.persistence.entity.UnitatOrganitzativa;
 import es.caib.helium.persistence.repository.DocumentNotificacioRepository;
 import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
-import es.caib.helium.persistence.repository.NotificacioRepository;
 
 /**
  * Helper per a les notificacions a la safata telemàtica de SISTRA i pel NOTIB.
@@ -47,8 +41,6 @@ import es.caib.helium.persistence.repository.NotificacioRepository;
 @Component
 public class NotificacioHelper {
 
-	@Resource
-	NotificacioRepository notificacioRepository;
 	@Resource
 	DocumentNotificacioRepository documentNotificacioRepository;
 	@Resource
@@ -69,76 +61,6 @@ public class NotificacioHelper {
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
-
-
-	// Notificació SISTRA
-	//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public Notificacio create(
-			ExpedientDto expedient,
-			NotificacioDto notificacioDto) {
-		Notificacio notificacio = conversioTipusHelper.convertir(notificacioDto, Notificacio.class);
-		notificacio.setExpedient(expedientRepository.getReferenceById(expedient.getId()));
-		notificacio.setDocument(documentStoreRepository.getReferenceById(notificacioDto.getDocument().getId()));
-
-		List<DocumentStore> annexos = new ArrayList<DocumentStore>();
-		for (DocumentNotificacioDto annex: notificacioDto.getAnnexos()) {
-			annexos.add(documentStoreRepository.getReferenceById(annex.getId()));
-		}
-		notificacio.setAnnexos(annexos);
-
-		return notificacioRepository.save(notificacio);
-	}
-
-	public List<Notificacio> findNotificacionsPerExpedientId(Long expedientId) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-
-		return notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient);
-	}
-
-	public void obtenirJustificantNotificacio(Notificacio notificacio) {
-		try {
-			RespostaJustificantRecepcio resposta = pluginHelper.tramitacioObtenirJustificant(notificacio.getRegistreNumero());
-			if (resposta != null && resposta.isOk()) {
-				if (resposta.getData() != null) {
-					notificacio.setEstat(DocumentEnviamentEstatEnumDto.PROCESSAT_OK);
-				} else {
-					notificacio.setEstat(DocumentEnviamentEstatEnumDto.ENVIAT);
-				}
-				notificacio.setDataRecepcio(resposta.getData());
-				notificacio.setError(null);
-			} else {
-				notificacio.setError(resposta.getErrorDescripcio());
-				notificacio.setEstat(DocumentEnviamentEstatEnumDto.PROCESSAT_ERROR);
-			}
-		} catch (Exception ex) {
-			logger.error(
-					"Error actualitzant estat notificacio " + notificacio.getRegistreNumero(),
-					ex);
-			notificacio.setError(ex.getMessage());
-			notificacio.setEstat(DocumentEnviamentEstatEnumDto.PROCESSAT_ERROR);
-		}
-	}
-
-	public boolean delete(
-			String numero,
-			String clave,
-			Long codigo) {
-		Notificacio notificacio = notificacioRepository.findByRegistreNumeroAndRdsCodiAndRdsClau(
-				numero,
-				codigo,
-				clave);
-		if (notificacio != null) {
-			notificacioRepository.delete(notificacio);
-			return true;
-		}
-		return false;
-	}
 
 	// Notificació NOTIB
 	//////////////////////////////////////////////////////////////////////////////////////////////////////

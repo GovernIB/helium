@@ -18,7 +18,6 @@ import java.util.zip.ZipOutputStream;
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
-import es.caib.comanda.model.management.TascaEstat;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -34,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.codahale.metrics.MetricRegistry;
 
+import es.caib.comanda.model.management.TascaEstat;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
 import es.caib.helium.commons.dto.AreaDto;
@@ -42,7 +42,6 @@ import es.caib.helium.commons.dto.CampTascaDto;
 import es.caib.helium.commons.dto.CarrecDto;
 import es.caib.helium.commons.dto.DadesConsultaPinbalDto;
 import es.caib.helium.commons.dto.DadesDocumentDto;
-import es.caib.helium.commons.dto.DadesNotificacioDto;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
 import es.caib.helium.commons.dto.DocumentDissenyDto;
 import es.caib.helium.commons.dto.DocumentDto;
@@ -60,7 +59,6 @@ import es.caib.helium.commons.dto.FestiuDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.dto.InteressatDto;
 import es.caib.helium.commons.dto.InteressatTipusEnumDto;
-import es.caib.helium.commons.dto.NotificacioDto;
 import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.commons.dto.NtiOrigenEnumDto;
 import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
@@ -69,16 +67,10 @@ import es.caib.helium.commons.dto.PeticioPinbalEstatEnum;
 import es.caib.helium.commons.dto.PortafirmesFluxBlocDto;
 import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
 import es.caib.helium.commons.dto.ReassignacioDto;
-import es.caib.helium.commons.dto.ReferenciaNotificacio;
-import es.caib.helium.commons.dto.ReferenciaRDSJustificanteDto;
-import es.caib.helium.commons.dto.RegistreAnnexDto;
 import es.caib.helium.commons.dto.RegistreAnotacioDto;
 import es.caib.helium.commons.dto.RegistreIdDto;
-import es.caib.helium.commons.dto.RegistreNotificacioDto;
 import es.caib.helium.commons.dto.RespostaJustificantDetallRecepcioDto;
 import es.caib.helium.commons.dto.RespostaJustificantRecepcioDto;
-import es.caib.helium.commons.dto.RespostaNotificacio;
-import es.caib.helium.commons.dto.RespostaNotificacio.NotificacioEstat;
 import es.caib.helium.commons.dto.ScspAtributosPinbal;
 import es.caib.helium.commons.dto.ScspConfirmacioPeticioPinbal;
 import es.caib.helium.commons.dto.ScspJustificantPinbal;
@@ -100,29 +92,23 @@ import es.caib.helium.commons.utils.StringUtilsHelium;
 import es.caib.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
 import es.caib.helium.integracio.plugins.pinbal.Funcionari;
 import es.caib.helium.integracio.plugins.pinbal.Titular;
-import es.caib.helium.integracio.plugins.registre.DadesAssumpte;
-import es.caib.helium.integracio.plugins.registre.DadesExpedient;
-import es.caib.helium.integracio.plugins.registre.DadesInteressat;
-import es.caib.helium.integracio.plugins.registre.DadesNotificacio;
-import es.caib.helium.integracio.plugins.registre.DadesOficina;
-import es.caib.helium.integracio.plugins.registre.DocumentRegistre;
-import es.caib.helium.integracio.plugins.registre.RegistreNotificacio;
-import es.caib.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
 import es.caib.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
 import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
+import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
+import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.common.ThreadLocalInfo;
 import es.caib.helium.persistence.entity.Alerta;
 import es.caib.helium.persistence.entity.Area;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentNotificacio;
 import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.Domini;
 import es.caib.helium.persistence.entity.Entorn;
@@ -164,9 +150,6 @@ import es.caib.helium.persistence.repository.TascaRepository;
 import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import es.caib.helium.persistence.repository.TerminiRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
-import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.security.ExtendedPermission;
 
 
 /**
@@ -253,8 +236,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private PluginHelper pluginHelper;
 	@Resource
 	private MailHelper mailHelper;
-	@Resource
-	private NotificacioHelper notificacioElectronicaHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 
@@ -1029,7 +1010,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public void createDadesTasca(Long taskId) {
+	public void createDadesTasca(String taskId) {
 		tascaHelper.createDadesTasca(taskId);
 	}
 
@@ -2532,123 +2513,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public RegistreIdDto notificacioCrear(
-			RegistreNotificacioDto notificacio,
-			Long expedientId,
-			boolean crearExpedient) {
-		Expedient expedient = expedientRepository.getReferenceById(expedientId);
-		if (expedient == null)
-			throw new NoTrobatException(Expedient.class, expedientId);
-
-		RegistreNotificacio registreNotificacio = new RegistreNotificacio();
-		DadesOficina dadesOficina = new DadesOficina();
-		dadesOficina.setOrganCodi(notificacio.getOrganCodi());
-		dadesOficina.setOficinaCodi(notificacio.getOficinaCodi());
-		registreNotificacio.setDadesOficina(dadesOficina);
-		DadesInteressat dadesInteressat = new DadesInteressat();
-		dadesInteressat.setAutenticat(true);
-		dadesInteressat.setEntitatCodi(notificacio.getEntitatCodi());
-		dadesInteressat.setNomAmbCognoms(notificacio.getInteressatNomAmbCognoms());
-		dadesInteressat.setNom(notificacio.getInteressatNom());
-		dadesInteressat.setCognom1(notificacio.getInteressatCognom1());
-		dadesInteressat.setCognom2(notificacio.getInteressatCognom2());
-		dadesInteressat.setMunicipiCodi(notificacio.getInteressatMunicipiCodi());
-		dadesInteressat.setMunicipiNom(notificacio.getInteressatMunicipiNom());
-		dadesInteressat.setProvinciaCodi(notificacio.getInteressatProvinciaCodi());
-		dadesInteressat.setProvinciaNom(notificacio.getInteressatProvinciaNom());
-		dadesInteressat.setPaisCodi(notificacio.getInteressatPaisCodi());
-		dadesInteressat.setPaisNom(notificacio.getInteressatPaisNom());
-		dadesInteressat.setNif(notificacio.getInteressatNif());
-		dadesInteressat.setEmail(notificacio.getInteressatEmail());
-		dadesInteressat.setMobil(notificacio.getInteressatMobil());
-		registreNotificacio.setDadesInteressat(dadesInteressat);
-		DadesExpedient dadesExpedient = new DadesExpedient();
-		dadesExpedient.setIdentificador(notificacio.getExpedientIdentificador());
-		dadesExpedient.setClau(notificacio.getExpedientClau());
-		dadesExpedient.setUnitatAdministrativa(notificacio.getExpedientUnitatAdministrativa());
-		registreNotificacio.setDadesExpedient(dadesExpedient);
-		DadesAssumpte dadesAssumpte = new DadesAssumpte();
-		String idiomaExtracte = notificacio.getAssumpteIdiomaCodi();
-		dadesAssumpte.setAssumpte(notificacio.getAssumpteExtracte());
-		dadesAssumpte.setIdiomaCodi(
-				(idiomaExtracte != null) ? idiomaExtracte : "ca");
-		dadesAssumpte.setTipus(
-				notificacio.getAssumpteTipus());
-		dadesAssumpte.setRegistreNumero(
-				notificacio.getAssumpteRegistreNumero());
-		dadesAssumpte.setRegistreAny(
-				notificacio.getAssumpteRegistreAny());
-		DadesNotificacio dadesNotificacio = new DadesNotificacio();
-		dadesNotificacio.setJustificantRecepcio(notificacio.isNotificacioJustificantRecepcio());
-		dadesNotificacio.setAvisTitol(notificacio.getNotificacioAvisTitol());
-		dadesNotificacio.setAvisText(notificacio.getNotificacioAvisText());
-		dadesNotificacio.setAvisTextSms(notificacio.getNotificacioAvisTextSms());
-		dadesNotificacio.setOficiTitol(notificacio.getNotificacioOficiTitol());
-		dadesNotificacio.setOficiText(notificacio.getNotificacioOficiText());
-		dadesNotificacio.setIdiomaCodi(notificacio.getAssumpteIdiomaCodi());
-		dadesNotificacio.setTipus(notificacio.getAssumpteTipus());
-		dadesNotificacio.setAssumpte(notificacio.getAssumpteExtracte());
-		dadesNotificacio.setUnitatAdministrativa(notificacio.getUnitatAdministrativa());
-		dadesNotificacio.setRegistreNumero(notificacio.getAssumpteRegistreNumero());
-		dadesNotificacio.setRegistreAny(notificacio.getAssumpteRegistreAny());
-		registreNotificacio.setDadesNotificacio(dadesNotificacio);
-		if (notificacio.getAnnexos() != null) {
-			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
-			for (RegistreAnnexDto annex: notificacio.getAnnexos()) {
-				DocumentRegistre document = new DocumentRegistre();
-				document.setNom(annex.getNom());
-				document.setIdiomaCodi((annex.getIdiomaCodi() != null) ? annex.getIdiomaCodi() : "ca");
-				document.setData(annex.getData());
-				document.setArxiuNom(annex.getArxiuNom());
-				document.setArxiuContingut(annex.getArxiuContingut());
-				documents.add(document);
-			}
-			registreNotificacio.setDocuments(documents);
-		}
-
-		logger.info("###===> INICIANT MÈTODES PER A REGISTRAR NOTIFICACIÓ.");
-
-		RespostaAnotacioRegistre respostaPlugin = pluginHelper.tramitacioRegistrarNotificacio(
-			registreNotificacio,
-			expedient,
-			crearExpedient);
-
-		logger.info("###===> Resposta registre notificacio plugin: ");
-		logger.info("###========> Numero: " + respostaPlugin.getNumero());
-		logger.info("###========> Data: " + respostaPlugin.getData());
-
-		if (respostaPlugin.getReferenciaRDSJustificante() != null) {
-			logger.info("###========> Just.Codi: " + respostaPlugin.getReferenciaRDSJustificante().getCodigo());
-			logger.info("###========> Just.Clau: " + respostaPlugin.getReferenciaRDSJustificante().getClave());
-		}
-
-
-		if (respostaPlugin.isOk()) {
-			RegistreIdDto resposta = new RegistreIdDto();
-			resposta.setNumero(respostaPlugin.getNumero());
-			resposta.setData(respostaPlugin.getData());
-			ReferenciaRDSJustificanteDto referenciaRDSJustificante = new ReferenciaRDSJustificanteDto();
-			referenciaRDSJustificante.setClave(respostaPlugin.getReferenciaRDSJustificante().getClave());
-			referenciaRDSJustificante.setCodigo(respostaPlugin.getReferenciaRDSJustificante().getCodigo());
-			resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);
-			return resposta;
-		} else {
-			throw new SistemaExternException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(),
-					expedient.getEntorn().getNom(),
-					expedient.getId(),
-					expedient.getTitol(),
-					expedient.getNumero(),
-					expedient.getTipus().getId(),
-					expedient.getTipus().getCodi(),
-					expedient.getTipus().getNom(),
-					"(Registre data de justificant)",
-					"[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
-		}
-	}
-
-	@Override
 	public RespostaJustificantRecepcioDto notificacioElectronicaJustificant(
 			String registreNumero) {
 		RespostaJustificantRecepcio resposta = pluginHelper.tramitacioObtenirJustificant(
@@ -2694,58 +2558,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		}
 	}
 
-	@Override
-	public void notificacioGuardar(
-			ExpedientDto expedient,
-			NotificacioDto notificacio) {
-		logger.debug("Guardant una notificació de l'expedient (" +
-				"expedientId=" + expedient.getId() + ", " +
-				"numero=" + notificacio.getRegistreNumero() + ", " +
-				"data=" + notificacio.getEnviamentData() + ", " +
-				"RDSClave=" + notificacio.getRdsClau() + ", " +
-				"RDSCodigo=" + notificacio.getRdsCodi() + ")");
-		notificacioElectronicaHelper.create(
-				expedient,
-				notificacio);
-	}
-
-	@Override
-	public boolean notificacioEsborrar(
-			String numero,
-			String clave,
-			Long codigo) {
-		logger.debug("Esborrar una notificació de l'expedient (" +
-				"numero=" + numero + ", " +
-				"RDSClave=" + clave + ", " +
-				"RDSCodigo=" + codigo + ")");
-		return notificacioElectronicaHelper.delete(
-				numero,
-				clave,
-				codigo);
-	}
-
-	@Override
-	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dadesNotificacio) {
-		Expedient expedient = expedientRepository.getReferenceById(dadesNotificacio.getExpedientId());
-
-		// Notifica i guarda la informació
-		DocumentNotificacio notificacio = notificacioElectronicaHelper.altaNotificacio(expedient, dadesNotificacio);
-
-		// Transforma la informació a una resposta
-		RespostaNotificacio resposta = new RespostaNotificacio();
-		resposta.setEstat(NotificacioEstat.valueOf(notificacio.getEstat().name()));
-		resposta.setIdentificador(notificacio.getEnviamentIdentificador());
-		List<ReferenciaNotificacio> referencies = new ArrayList<ReferenciaNotificacio>();
-		// TODO: obtenir totes les referencies per cada enviament
-		//for (notificacio.getEnviaments)
-		ReferenciaNotificacio referencia = new ReferenciaNotificacio();
-		referencia.setTitularNif(notificacio.getTitularNif());
-		referencia.setReferencia(notificacio.getEnviamentReferencia());
-		referencies.add(referencia);
-		resposta.setReferencies(referencies);
-
-		return resposta;
-	}
 
 	@Override
 	public Integer portasignaturesEnviar(
@@ -3258,7 +3070,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public void setErrorTascaSegonPla(String taskId, Exception ex) {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+			Map<String, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 			if (map.containsKey(taskId)) {
 				map.get(taskId).setError((ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
 			}
@@ -3273,7 +3085,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public void addMissatgeExecucioTascaSegonPla(String taskId, String[] message) {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+			Map<String, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 			if (map.containsKey(taskId)) {
 				map.get(taskId).addMessage(message);
 			}
@@ -3284,7 +3096,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public boolean isTascaEnSegonPla(String taskId) {
 		boolean result = false;
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+			Map<String, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 			result = map.containsKey(taskId);
 		}
 

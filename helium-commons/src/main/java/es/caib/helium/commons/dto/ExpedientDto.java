@@ -90,7 +90,6 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	private String errorArxiu;
 	
 	private List<InteressatDto> interessats;
-	private List<NotificacioDto> notificacions;
 	
 	private boolean errorsIntegracions;
 
@@ -124,12 +123,6 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	}
 	public void setId(Long id) {
 		this.id = id;
-	}
-	public List<NotificacioDto> getNotificacions() {
-		return notificacions;
-	}
-	public void setNotificacions(List<NotificacioDto> notificacions) {
-		this.notificacions = notificacions;
 	}
 	public String getProcessInstanceId() {
 		return processInstanceId;

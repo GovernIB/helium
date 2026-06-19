@@ -333,7 +333,7 @@ public class TascaLlistatController extends BaseController {
 	@RequestMapping(value = "/actualitzaEstatsSegonPla", method = RequestMethod.POST)
     public Object actualitzaEstatsSegonPla(@RequestParam("tasquesSegonPlaIds[]") String[] tasquesSegonPlaIds){
 		@SuppressWarnings("unchecked")
-		Map<Long,Object>result = tascaService.obtenirEstatsPerIds((List<String>)Arrays.asList(tasquesSegonPlaIds));
+		Map<String,Object>result = tascaService.obtenirEstatsPerIds((List<String>)Arrays.asList(tasquesSegonPlaIds));
         return result;
 	}
 

@@ -34,7 +34,6 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
 
@@ -96,7 +95,6 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private String errorArxiu;
 	private boolean errorsIntegracions;
 	private List<Interessat> interessats;
-	private List<Notificacio> notificacions;
 	private Estat estat;
 	private ExpedientTipus tipus;
 	private Entorn entorn;
@@ -537,13 +535,6 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 			resultat = resultat.trim();
 		}
 		return resultat;
-	}
-	@OneToMany(mappedBy="expedient", cascade=CascadeType.REMOVE)
-	public List<Notificacio> getNotificacions() {
-		return notificacions;
-	}
-	public void setNotificacions(List<Notificacio> notificacions) {
-		this.notificacions = notificacions;
 	}
 	public void setAlertes(Set<Alerta> alertes) {
 		this.alertes = alertes;

@@ -19,11 +19,9 @@ import es.caib.helium.commons.dto.ExpedientDocumentDto;
 import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientFinalitzarDto;
 import es.caib.helium.commons.dto.FirmaResultatDto;
-import es.caib.helium.commons.dto.NotificacioDto;
 import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.commons.dto.NtiOrigenEnumDto;
 import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
-import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.PortafirmesSimpleTipusEnumDto;
@@ -489,10 +487,6 @@ public interface ExpedientDocumentService {
 			DadesNotificacioDto dadesNotificacioDto, 
 			Long interessatsIds, 
 			Long representantId);
-
-	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
-			String filtre, 
-			PaginacioParamsDto paginacioParams);
 
 	/** Mètode per obtenir una firma en concret d'un arxiu
 	 * 

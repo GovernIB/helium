@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.security.acls.model.NotFoundException;
+
 import es.caib.helium.commons.dto.AccioDto;
 import es.caib.helium.commons.dto.AlertaDto;
 import es.caib.helium.commons.dto.ArxiuDetallDto;
@@ -28,7 +30,6 @@ import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.dto.MostrarAnulatsDto;
-import es.caib.helium.commons.dto.NotificacioDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
@@ -38,7 +39,6 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.TramitacioException;
-import org.springframework.security.acls.model.NotFoundException;
 
 
 /**
@@ -982,11 +982,7 @@ public interface ExpedientService {
 
 	public Long findIdAmbProcessInstanceId(String processInstanceId);
 
-	public List<NotificacioDto> findNotificacionsPerExpedientId(Long expedientId) throws NoTrobatException;
-
 	public List<DadesNotificacioDto> findNotificacionsNotibPerExpedientId(Long expedientId) throws NoTrobatException;
-
-	public NotificacioDto findNotificacioPerId(Long notificacioId, boolean arxiuActiu) throws NoTrobatException;
 
 	/**
 	 * Mètode per consulta els ids de les instàncies de procés per a una definició de procés
@@ -1007,8 +1003,6 @@ public interface ExpedientService {
 	 * @return
 	 */
 	public long countAmbDefinicioProcesId(Long definicioProcesId);
-
-	public void notificacioReprocessar(Long notificacioId) throws NoTrobatException;
 
 	/**
 	 * Executa el handler associat a una variable de tipus acció amb les seves dades.

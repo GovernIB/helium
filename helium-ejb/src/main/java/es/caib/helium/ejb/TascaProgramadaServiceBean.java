@@ -3,12 +3,11 @@ package es.caib.helium.ejb;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import es.caib.helium.ejb.base.AbstractServiceEjb;
-import lombok.experimental.Delegate;
-
 import es.caib.helium.commons.exception.ExecucioMassivaException;
 import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
 import es.caib.helium.logic.intf.service.TascaProgramadaService;
+import lombok.experimental.Delegate;
 
 @Stateless
 public class TascaProgramadaServiceBean extends AbstractServiceEjb<TascaProgramadaService> implements TascaProgramadaService {
@@ -24,18 +23,6 @@ public class TascaProgramadaServiceBean extends AbstractServiceEjb<TascaPrograma
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void comprovarExecucionsMassives() {
 		delegateService.comprovarExecucionsMassives();
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void actualitzarEstatNotificacions(Long notificacioId) throws NoTrobatException {
-		delegateService.actualitzarEstatNotificacions(notificacioId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void comprovarEstatNotificacions() throws NoTrobatException {
-		delegateService.comprovarEstatNotificacions();
 	}
 
 	@Override

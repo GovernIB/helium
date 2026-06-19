@@ -3,39 +3,30 @@
  */
 package es.caib.helium.logic.service;
 
-import com.google.common.collect.Lists;
-import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
-import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
-import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
-import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
-import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
-import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
-import es.caib.helium.commons.constants.ExpedientCamps;
-import es.caib.helium.commons.dto.*;
-import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
-import es.caib.helium.commons.dto.ExpedientDto.IniciadorTipusDto;
-import es.caib.helium.commons.dto.ExpedientErrorDto.ErrorTipusDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDto;
-import es.caib.helium.commons.exception.*;
-import es.caib.helium.commons.utils.EntornActual;
-import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.logic.helper.*;
-import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
-import es.caib.helium.logic.intf.service.*;
-import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.persistence.entity.*;
-import es.caib.helium.persistence.entity.Alerta.AlertaPrioritat;
-import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
-import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
-import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogAccioTipus;
-import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogEstat;
-import es.caib.helium.persistence.repository.*;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.ExpedientMetadades;
-import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.validation.ValidationException;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,18 +45,155 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-import javax.validation.ValidationException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.Function;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import com.google.common.collect.Lists;
+
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
+import es.caib.helium.commons.constants.ExpedientCamps;
+import es.caib.helium.commons.dto.AccioDto;
+import es.caib.helium.commons.dto.AlertaDto;
+import es.caib.helium.commons.dto.AnotacioAnnexEstatEnumDto;
+import es.caib.helium.commons.dto.AnotacioMapeigResultatDto;
+import es.caib.helium.commons.dto.ArxiuContingutDto;
+import es.caib.helium.commons.dto.ArxiuContingutTipusEnumDto;
+import es.caib.helium.commons.dto.ArxiuDetallDto;
+import es.caib.helium.commons.dto.ArxiuDto;
+import es.caib.helium.commons.dto.CampDto;
+import es.caib.helium.commons.dto.DadaIndexadaDto;
+import es.caib.helium.commons.dto.DadesDocumentDto;
+import es.caib.helium.commons.dto.DadesNotificacioDto;
+import es.caib.helium.commons.dto.DefinicioProcesDto;
+import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
+import es.caib.helium.commons.dto.DocumentDto;
+import es.caib.helium.commons.dto.DocumentStoreBackupDto;
+import es.caib.helium.commons.dto.EntornDto;
+import es.caib.helium.commons.dto.EstatDto;
+import es.caib.helium.commons.dto.ExpedientConsultaDissenyDto;
+import es.caib.helium.commons.dto.ExpedientDocumentDto;
+import es.caib.helium.commons.dto.ExpedientDto;
+import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
+import es.caib.helium.commons.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.commons.dto.ExpedientErrorDto;
+import es.caib.helium.commons.dto.ExpedientErrorDto.ErrorTipusDto;
+import es.caib.helium.commons.dto.ExpedientTascaDto;
+import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
+import es.caib.helium.commons.dto.InstanciaProcesDto;
+import es.caib.helium.commons.dto.IntegracioAccioTipusEnumDto;
+import es.caib.helium.commons.dto.IntegracioParametreDto;
+import es.caib.helium.commons.dto.MostrarAnulatsDto;
+import es.caib.helium.commons.dto.NtiExpedienteEstadoEnumDto;
+import es.caib.helium.commons.dto.PaginaDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDto;
+import es.caib.helium.commons.dto.PersonaDto;
+import es.caib.helium.commons.dto.PortafirmesEstatEnum;
+import es.caib.helium.commons.dto.RespostaValidacioSignaturaDto;
+import es.caib.helium.commons.dto.TascaDadaDto;
+import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.commons.exception.PermisDenegatException;
+import es.caib.helium.commons.exception.SistemaExternException;
+import es.caib.helium.commons.exception.TramitacioException;
+import es.caib.helium.commons.exception.TramitacioValidacioException;
+import es.caib.helium.commons.utils.EntornActual;
+import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.logic.helper.AlertaHelper;
+import es.caib.helium.logic.helper.ConsultaHelper;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DistribucioHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExpedientDadaHelper;
+import es.caib.helium.logic.helper.ExpedientDocumentHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientLoggerHelper;
+import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PermisosHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.TascaHelper;
+import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.VariableHelper;
+import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
+import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
+import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.logic.intf.service.AnotacioService;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
+import es.caib.helium.logic.intf.service.ParametreService;
+import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.persistence.entity.Accio;
+import es.caib.helium.persistence.entity.Alerta;
+import es.caib.helium.persistence.entity.Alerta.AlertaPrioritat;
+import es.caib.helium.persistence.entity.Anotacio;
+import es.caib.helium.persistence.entity.AnotacioAnnex;
+import es.caib.helium.persistence.entity.AnotacioEmail;
+import es.caib.helium.persistence.entity.Camp;
+import es.caib.helium.persistence.entity.Consulta;
+import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
+import es.caib.helium.persistence.entity.DefinicioProces;
+import es.caib.helium.persistence.entity.Document;
+import es.caib.helium.persistence.entity.DocumentNotificacio;
+import es.caib.helium.persistence.entity.DocumentStore;
+import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
+import es.caib.helium.persistence.entity.Entorn;
+import es.caib.helium.persistence.entity.Estat;
+import es.caib.helium.persistence.entity.ExecucioMassivaExpedient;
+import es.caib.helium.persistence.entity.Expedient;
+import es.caib.helium.persistence.entity.ExpedientLog;
+import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogAccioTipus;
+import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogEstat;
+import es.caib.helium.persistence.entity.ExpedientTipus;
+import es.caib.helium.persistence.entity.ExpedientTipusUnitatOrganitzativa;
+import es.caib.helium.persistence.entity.Parametre;
+import es.caib.helium.persistence.entity.Portasignatures;
+import es.caib.helium.persistence.entity.Registre;
+import es.caib.helium.persistence.entity.Termini;
+import es.caib.helium.persistence.entity.TerminiIniciat;
+import es.caib.helium.persistence.entity.UnitatOrganitzativa;
+import es.caib.helium.persistence.repository.AccioRepository;
+import es.caib.helium.persistence.repository.AlertaRepository;
+import es.caib.helium.persistence.repository.AnotacioEmailRepository;
+import es.caib.helium.persistence.repository.AnotacioRepository;
+import es.caib.helium.persistence.repository.CampRepository;
+import es.caib.helium.persistence.repository.ConsultaRepository;
+import es.caib.helium.persistence.repository.DefinicioProcesRepository;
+import es.caib.helium.persistence.repository.DocumentNotificacioRepository;
+import es.caib.helium.persistence.repository.DocumentRepository;
+import es.caib.helium.persistence.repository.DocumentStoreRepository;
+import es.caib.helium.persistence.repository.EnumeracioRepository;
+import es.caib.helium.persistence.repository.EstatAccioEntradaRepository;
+import es.caib.helium.persistence.repository.EstatAccioSortidaRepository;
+import es.caib.helium.persistence.repository.EstatRepository;
+import es.caib.helium.persistence.repository.ExecucioMassivaExpedientRepository;
+import es.caib.helium.persistence.repository.ExpedientHeliumRepository;
+import es.caib.helium.persistence.repository.ExpedientLoggerRepository;
+import es.caib.helium.persistence.repository.ExpedientRepository;
+import es.caib.helium.persistence.repository.ExpedientTipusRepository;
+import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRepository;
+import es.caib.helium.persistence.repository.ParametreRepository;
+import es.caib.helium.persistence.repository.PeticioPinbalRepository;
+import es.caib.helium.persistence.repository.PortasignaturesRepository;
+import es.caib.helium.persistence.repository.RegistreRepository;
+import es.caib.helium.persistence.repository.TerminiIniciatRepository;
+import es.caib.helium.persistence.repository.TerminiRepository;
+import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
+import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.ExpedientMetadades;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -116,8 +244,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
-	@Resource
-	private NotificacioRepository notificacioRepository;
 	@Resource
 	private DocumentNotificacioRepository documentNotificacioRepository;
 	@Resource
@@ -494,10 +620,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	//				throw new ValidacioException("Aquest expedient no es pot esborrar perquè conté documents firmats");
 	//			}
 			}
-			for (Notificacio notificacio : notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
-				notificacioRepository.delete(notificacio);
-			}
-
 	//		List<PeticioPinbal> pets = peticioPinbalRepository.findByExpedientId(expedient.getId());
 	//		if (pets!=null) {
 	//			for (PeticioPinbal p: pets) {
@@ -3260,28 +3382,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		llistaExpedientIds.removeAll(removeList);
 	}
 
-
-	/*
-	 * Notificacions d'expedient
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public List<NotificacioDto> findNotificacionsPerExpedientId(Long expedientId) {
-		List<NotificacioDto> notificacions =  conversioTipusHelper.convertirList(
-				notificacioHelper.findNotificacionsPerExpedientId(expedientId),
-				NotificacioDto.class);
-		Expedient expedient = expedientRepository.findById(expedientId).orElse(null);
-		for (NotificacioDto notificacio: notificacions) {
-			ExpedientDocumentDto document = documentHelper.findDocumentPerDocumentStoreId(
-					notificacio.getDocument().getProcessInstanceId(),
-					notificacio.getDocument().getId(),
-					expedient.isArxiuActiu());
-			notificacio.getDocument().setDocumentNom(document.getDocumentNom());
-		}
-
-		return notificacions;
-	}
-
 	@Override
 	@Transactional(readOnly = true)
 	public List<DadesNotificacioDto> findNotificacionsNotibPerExpedientId(Long expedientId) throws NoTrobatException {
@@ -3293,45 +3393,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			notificaionsDto.add(notificaicoDto);
 		}
 		return notificaionsDto;
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public NotificacioDto findNotificacioPerId(Long notificacioId, boolean arxiuActiu) {
-		NotificacioDto notificacio =  conversioTipusHelper.convertir(notificacioRepository.findById(notificacioId).orElse(null), NotificacioDto.class);
-
-		if (notificacio.getDocument() != null) {
-			ExpedientDocumentDto document = documentHelper.findDocumentPerDocumentStoreId(
-					notificacio.getDocument().getProcessInstanceId(),
-					notificacio.getDocument().getId(),
-					arxiuActiu);
-			notificacio.getDocument().setDocumentNom(document.getDocumentNom());
-			notificacio.getDocument().setArxiuExtensio(document.getArxiuExtensio());
-			notificacio.getDocument().setDataCreacio(document.getDataCreacio());
-			notificacio.getDocument().setDataDocument(document.getDataDocument());
-		}
-
-		if (notificacio.getAnnexos() != null) {
-			for(DocumentNotificacioDto annex: notificacio.getAnnexos()) {
-				ExpedientDocumentDto document = documentHelper.findDocumentPerDocumentStoreId(
-						annex.getProcessInstanceId(),
-						annex.getId(),
-						arxiuActiu);
-				annex.setDocumentNom(document.getDocumentNom());
-				annex.setArxiuExtensio(document.getArxiuExtensio());
-				annex.setDataCreacio(document.getDataCreacio());
-				annex.setDataDocument(document.getDataDocument());
-			}
-		}
-
-		return notificacio;
-	}
-
-	@Override
-	@Transactional
-	public void notificacioReprocessar(Long notificacioId) {
-		Notificacio notificacio = notificacioRepository.findById(notificacioId).orElse(null);
-		notificacioHelper.obtenirJustificantNotificacio(notificacio);
 	}
 
 	/**

@@ -18,9 +18,6 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import es.caib.helium.commons.config.PropertyConfig;
-import es.caib.helium.commons.utils.GlobalProperties;
-import es.caib.helium.logic.helper.*;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +35,7 @@ import com.google.common.base.Strings;
 import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dto.AnotacioAnnexEstatEnumDto;
 import es.caib.helium.commons.dto.AnotacioDto;
 import es.caib.helium.commons.dto.ArxiuDetallDto;
@@ -60,11 +58,9 @@ import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
 import es.caib.helium.commons.dto.FirmaResultatDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.dto.InteressatTipusEnumDto;
-import es.caib.helium.commons.dto.NotificacioDto;
 import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.commons.dto.NtiOrigenEnumDto;
 import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
-import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDto;
@@ -86,8 +82,19 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.PdfUtils;
 import es.caib.helium.commons.utils.StringUtilsHelium;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.ExpedientDocumentHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientLoggerHelper;
+import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.TascaHelper;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -116,7 +123,6 @@ import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.EstatRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.InteressatRepository;
-import es.caib.helium.persistence.repository.NotificacioRepository;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;
 import es.caib.helium.persistence.repository.PortasignaturesRepository;
 import es.caib.helium.persistence.repository.RegistreRepository;
@@ -152,8 +158,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private InteressatRepository interessatRepository;
 	@Resource
 	private PaginacioHelper paginacioHelper;
-	@Resource
-	private NotificacioRepository notificacioRepository;
 	@Resource
 	private AnotacioRepository anotacioRepository;
 	@Resource
@@ -463,29 +467,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 		return documentStoreId;
 	}
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		logger.debug("Consultant notificacions per la datatable (" +
-				"filtre=" + filtre + ", " +
-				"paginacioParams=" + paginacioParams + ")");
-		PaginaDto<NotificacioDto> pagina = paginacioHelper.toPaginaDto(
-				notificacioRepository.findByFiltrePaginat(
-						filtre == null || "".equals(filtre),
-						filtre,
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				NotificacioDto.class);
-		return pagina;
-	}
-
 
 	@Override
 	@Transactional

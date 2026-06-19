@@ -11,11 +11,7 @@ public interface TascaProgramadaService {
 	public void updatePeticionsAsincronesPinbal() throws ExecucioMassivaException;
 	
 	public void comprovarExecucionsMassives() throws NoTrobatException, ExecucioMassivaException;
-	
-	public void comprovarEstatNotificacions() throws NoTrobatException;
-	
-	public void actualitzarEstatNotificacions(Long notificacioId) throws NoTrobatException;
-	
+		
 	/** Tasca programada per comprovar les anotacions pendents de consultar periòdicament a DISTRIBUCIO. */
 	public void comprovarAnotacionsPendents();
 	

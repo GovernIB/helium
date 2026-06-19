@@ -277,14 +277,6 @@ public class TascaHelper {
 					"taskId=" + taskId + ")");
 			throw new NoTrobatException(WTaskInstance.class, taskId);
 		}
-//		JbpmProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(
-//				task.getProcessInstanceId());
-//		if (!expedient.getProcessInstanceId().equals(rootProcessInstance.getId())) {
-//			logger.debug("La tasca no pertany a l'expedient (" +
-//					"id=" + taskId + ", " +
-//					"expedientId=" + expedient.getId() + ")");
-//			throw new NoTrobatException(WTaskInstance.class, taskId);
-//		}
 		return task;
 	}
 
@@ -381,9 +373,8 @@ public class TascaHelper {
 		return titol;
 	}
 
-	public void createDadesTasca(Long taskId) {
-		String taskIdStr = String.valueOf(taskId);
-		WTaskInstance task = workflowEngineApi.getTaskById(taskIdStr);
+	public void createDadesTasca(String taskId) {
+		WTaskInstance task = workflowEngineApi.getTaskById(taskId);
 		setTascaCache(task, null);
 	}
 

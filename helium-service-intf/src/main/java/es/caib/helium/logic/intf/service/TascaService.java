@@ -460,7 +460,7 @@ public interface TascaService {
 	
 	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio);
 
-	public Map<Long, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds);
+	public Map<String, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds);
 	
 	/**
 	 * Retorna si la TaskInstance està registrada en segon pla

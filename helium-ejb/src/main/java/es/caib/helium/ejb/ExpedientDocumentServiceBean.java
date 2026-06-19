@@ -10,9 +10,6 @@ import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import es.caib.helium.ejb.base.AbstractServiceEjb;
-import lombok.experimental.Delegate;
-
 import es.caib.helium.commons.dto.ArxiuDetallDto;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.ArxiuFirmaDto;
@@ -25,11 +22,9 @@ import es.caib.helium.commons.dto.ExpedientDocumentDto;
 import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientFinalitzarDto;
 import es.caib.helium.commons.dto.FirmaResultatDto;
-import es.caib.helium.commons.dto.NotificacioDto;
 import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.commons.dto.NtiOrigenEnumDto;
 import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
-import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.PortafirmesSimpleTipusEnumDto;
@@ -40,7 +35,9 @@ import es.caib.helium.commons.dto.document.DocumentDetallDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
+import lombok.experimental.Delegate;
 
 /**
  * EJB que implementa la interfície del servei ExpedientDocumentService.
@@ -381,17 +378,7 @@ public class ExpedientDocumentServiceBean extends AbstractServiceEjb<ExpedientDo
 			Long representantId) {
 		return delegateService.notificarDocument(expedientId, documentStoreId, documentsDinsZip, dadesNotificacioDto, interessatsId, representantId);
 	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<NotificacioDto> findNotificacionsPerDatatable(
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		return delegateService.findNotificacionsPerDatatable(
-				filtre,
-				paginacioParams);
-	}
-
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuFirmaDto getArxiuFirma(Long expedientId, Long documentStoreId, int firmaIndex) {

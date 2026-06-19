@@ -17,7 +17,6 @@ import java.util.Properties;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +38,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Component;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dto.ArxiuDetallDto;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.ArxiuFirmaDetallDto;
@@ -72,8 +72,6 @@ import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
 import es.caib.helium.commons.dto.RegistreAnnexDto;
 import es.caib.helium.commons.dto.RegistreAnotacioDto;
 import es.caib.helium.commons.dto.RegistreIdDto;
-import es.caib.helium.commons.dto.RegistreNotificacioDto;
-import es.caib.helium.commons.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
 import es.caib.helium.commons.dto.ScspRespostaPinbal;
 import es.caib.helium.commons.dto.TramitDocumentDto;
 import es.caib.helium.commons.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
@@ -118,9 +116,7 @@ import es.caib.helium.integracio.plugins.procediment.Procediment;
 import es.caib.helium.integracio.plugins.procediment.ProcedimentPlugin;
 import es.caib.helium.integracio.plugins.procediment.UnitatAdministrativa;
 import es.caib.helium.integracio.plugins.registre.DadesAssumpte;
-import es.caib.helium.integracio.plugins.registre.DadesExpedient;
 import es.caib.helium.integracio.plugins.registre.DadesInteressat;
-import es.caib.helium.integracio.plugins.registre.DadesNotificacio;
 import es.caib.helium.integracio.plugins.registre.DadesOficina;
 import es.caib.helium.integracio.plugins.registre.DadesRepresentat;
 import es.caib.helium.integracio.plugins.registre.DocumentRegistre;
@@ -136,8 +132,6 @@ import es.caib.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
 import es.caib.helium.integracio.plugins.registre.RespostaConsultaRegistre;
 import es.caib.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
 import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-import es.caib.helium.integracio.plugins.registre.TramitSubsanacio;
-import es.caib.helium.integracio.plugins.registre.TramitSubsanacioParametre;
 import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import es.caib.helium.integracio.plugins.signatura.SignaturaPlugin;
 import es.caib.helium.integracio.plugins.signatura.SignaturaPluginException;
@@ -212,8 +206,6 @@ public class PluginHelper {
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
 	private DocumentHelperV3 documentHelperV3;
-	@Resource
-	private NotificacioHelper notificacioElectronicaHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
@@ -1194,99 +1186,7 @@ public class PluginHelper {
 					ex);
 		}
 	}
-
-	public RegistreIdDto registreNotificacio(
-			RegistreNotificacioDto notificacio,
-			Expedient expedient) {
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"organCodi",
-						notificacio.getOrganCodi()),
-				new IntegracioParametreDto(
-						"oficinaCodi",
-						notificacio.getOficinaCodi()),
-				new IntegracioParametreDto(
-						"entitatCodi",
-						notificacio.getEntitatCodi()),
-				new IntegracioParametreDto(
-						"unitatAdministrativa",
-						notificacio.getUnitatAdministrativa()),
-				new IntegracioParametreDto(
-						"interessatNif",
-						notificacio.getInteressatNif()),
-				new IntegracioParametreDto(
-						"assumpteExtracte",
-						notificacio.getAssumpteExtracte())
-		};
-		long t0 = System.currentTimeMillis();
-		try {
-			RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarNotificacio(
-					toRegistreNotificacio(notificacio));
-			if (!resposta.isOk()) {
-				String errorDescripcio = "No s'han pogut registrar la notificació (" +
-						getDescripcioErrorRegistre(notificacio) +
-						"errorCodi=" + resposta.getErrorCodi() + ", " +
-						"errorDescripcio=" + resposta.getErrorDescripcio() + ")";
-				monitorIntegracioHelper.addAccioError(
-						MonitorIntegracioHelper.INTCODI_REGISTRE,
-						"Notificació",
-						IntegracioAccioTipusEnumDto.ENVIAMENT,
-						System.currentTimeMillis() - t0,
-						errorDescripcio,
-						parametres);
-				throw new SistemaExternException(
-						expedient.getEntorn().getId(),
-						expedient.getEntorn().getCodi(),
-						expedient.getEntorn().getNom(),
-						expedient.getId(),
-						expedient.getTitol(),
-						expedient.getNumero(),
-						expedient.getTipus().getId(),
-						expedient.getTipus().getCodi(),
-						expedient.getTipus().getNom(),
-						"(Registre de notificació)",
-						errorDescripcio);
-			} else {
-				monitorIntegracioHelper.addAccioOk(
-						MonitorIntegracioHelper.INTCODI_REGISTRE,
-						"Notificació",
-						IntegracioAccioTipusEnumDto.ENVIAMENT,
-						System.currentTimeMillis() - t0,
-						parametres);
-				RegistreIdDto registreId = new RegistreIdDto();
-				registreId.setNumero(resposta.getNumero());
-				registreId.setData(resposta.getData());
-				return registreId;
-			}
-		} catch (RegistrePluginException ex) {
-			String errorDescripcio = "No s'ha pogut registrar la notificació (" +
-					getDescripcioErrorRegistre(notificacio) + ")";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_REGISTRE,
-					"Notificació",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			logger.error(
-					errorDescripcio,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(),
-					expedient.getEntorn().getNom(),
-					expedient.getId(),
-					expedient.getTitol(),
-					expedient.getNumero(),
-					expedient.getTipus().getId(),
-					expedient.getTipus().getCodi(),
-					expedient.getTipus().getNom(),
-					MonitorIntegracioHelper.INTCODI_REGISTRE,
-					"(Registre de notificacio: " + errorDescripcio + ")",
-					ex);
-		}
-	}
+	
 	public Date registreDataJustificantRecepcio(
 			String numeroRegistre,
 			Expedient expedient) {
@@ -3694,81 +3594,6 @@ public class PluginHelper {
 			registreAssentamentInteressat.setRepresentant(toRegistreAssentamentInteressat(interessat.getRepresentant()));
 		}
 		return registreAssentamentInteressat;
-	}
-
-	private RegistreNotificacio toRegistreNotificacio(
-			RegistreNotificacioDto notificacio) {
-		RegistreNotificacio registreNotificacio = new RegistreNotificacio();
-		DadesExpedient dadesExpedient = new DadesExpedient();
-		dadesExpedient.setIdentificador(notificacio.getExpedientIdentificador());
-		dadesExpedient.setClau(notificacio.getExpedientClau());
-		dadesExpedient.setUnitatAdministrativa(notificacio.getExpedientUnitatAdministrativa());
-		registreNotificacio.setDadesExpedient(dadesExpedient);
-		DadesOficina dadesOficina = new DadesOficina();
-		dadesOficina.setOrganCodi(notificacio.getOrganCodi());
-		dadesOficina.setOficinaCodi(notificacio.getOficinaCodi());
-		registreNotificacio.setDadesOficina(dadesOficina);
-		DadesInteressat dadesInteressat = new DadesInteressat();
-		dadesInteressat.setEntitatCodi(notificacio.getEntitatCodi());
-		dadesInteressat.setAutenticat(notificacio.isInteressatAutenticat());
-		dadesInteressat.setNif(notificacio.getInteressatNif());
-		dadesInteressat.setNomAmbCognoms(notificacio.getInteressatNomAmbCognoms());
-		dadesInteressat.setPaisCodi(notificacio.getInteressatPaisCodi());
-		dadesInteressat.setPaisNom(notificacio.getInteressatPaisNom());
-		dadesInteressat.setProvinciaCodi(notificacio.getInteressatProvinciaCodi());
-		dadesInteressat.setProvinciaNom(notificacio.getInteressatProvinciaNom());
-		dadesInteressat.setMunicipiCodi(notificacio.getInteressatMunicipiCodi());
-		dadesInteressat.setMunicipiNom(notificacio.getInteressatMunicipiNom());
-		registreNotificacio.setDadesInteressat(dadesInteressat);
-		DadesRepresentat dadesRepresentat = new DadesRepresentat();
-		dadesRepresentat.setNif(notificacio.getRepresentatNif());
-		dadesRepresentat.setNomAmbCognoms(notificacio.getRepresentatNomAmbCognoms());
-		registreNotificacio.setDadesRepresentat(dadesRepresentat);
-		DadesNotificacio dadesNotificacio = new DadesNotificacio();
-		dadesNotificacio.setJustificantRecepcio(notificacio.isNotificacioJustificantRecepcio());
-		dadesNotificacio.setAvisTitol(notificacio.getNotificacioAvisTitol());
-		dadesNotificacio.setAvisText(notificacio.getNotificacioAvisText());
-		dadesNotificacio.setAvisTextSms(notificacio.getNotificacioAvisTextSms());
-		dadesNotificacio.setOficiTitol(notificacio.getNotificacioOficiTitol());
-		dadesNotificacio.setOficiText(notificacio.getNotificacioOficiText());
-		dadesNotificacio.setIdiomaCodi(notificacio.getAssumpteIdiomaCodi());
-		dadesNotificacio.setTipus(notificacio.getAssumpteTipus());
-		dadesNotificacio.setAssumpte(notificacio.getAssumpteExtracte());
-		dadesNotificacio.setUnitatAdministrativa(notificacio.getUnitatAdministrativa());
-		dadesNotificacio.setRegistreNumero(notificacio.getAssumpteRegistreNumero());
-		dadesNotificacio.setRegistreAny(notificacio.getAssumpteRegistreAny());
-		if (notificacio.getTramitSubsanacioIdentificador() != null) {
-			TramitSubsanacio tramitSubsanacio = new TramitSubsanacio();
-			tramitSubsanacio.setIdentificador(notificacio.getTramitSubsanacioIdentificador());
-			tramitSubsanacio.setVersio(notificacio.getTramitSubsanacioVersio());
-			tramitSubsanacio.setDescripcio(notificacio.getTramitSubsanacioDescripcio());
-			if (notificacio.getTramitSubsanacioParametres() != null) {
-				List<TramitSubsanacioParametre> parametres = new ArrayList<TramitSubsanacioParametre>();
-				for (RegistreNotificacioTramitSubsanacioParametreDto param: notificacio.getTramitSubsanacioParametres()) {
-					TramitSubsanacioParametre p = new TramitSubsanacioParametre();
-					p.setParametre(param.getParametre());
-					p.setValor(param.getValor());
-					parametres.add(p);
-				}
-				tramitSubsanacio.setParametres(parametres);
-			}
-			dadesNotificacio.setOficiTramitSubsanacio(tramitSubsanacio);
-		}
-		registreNotificacio.setDadesNotificacio(dadesNotificacio);
-		if (notificacio.getAnnexos() != null) {
-			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
-			for (RegistreAnnexDto annex: notificacio.getAnnexos()) {
-				DocumentRegistre document = new DocumentRegistre();
-				document.setNom(annex.getNom());
-				document.setData(annex.getData());
-				document.setIdiomaCodi(annex.getIdiomaCodi());
-				document.setArxiuNom(annex.getArxiuNom());
-				document.setArxiuContingut(annex.getArxiuContingut());
-				documents.add(document);
-			}
-			registreNotificacio.setDocuments(documents);
-		}
-		return registreNotificacio;
 	}
 
 	private es.caib.plugins.arxiu.api.Expedient toArxiuExpedient(

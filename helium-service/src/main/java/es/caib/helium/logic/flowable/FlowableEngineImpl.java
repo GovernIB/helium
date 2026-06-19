@@ -373,8 +373,12 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WTaskInstance getTaskById(String taskId) {
-		// TODO Auto-generated method stub
-		return null;
+		Task task = this.processEngine
+							.getTaskService()
+								.createTaskQuery()
+									.taskId(taskId)
+									.singleResult();
+		return toWTaskInstance(task);
 	}
 
 	@Override
@@ -540,6 +544,48 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public Map<String, Object> evaluateScript(String processInstanceId, String script, Set<String> outputNames) {
+		
+//		Map<String, Object> variables = 
+//				this.processEngine.getRuntimeService().getVariables(processInstanceId);
+//		Map<String, Object> bindings = new HashMap<>();
+//		bindings.put(
+//			    "execution",
+//			    new ExecutionWrapper(
+//			        runtimeService,
+//			        processInstanceId));
+		
+//		ScriptEngine engine =
+//			    new ScriptEngineManager()
+//			        .getEngineByName("groovy");
+		
+//		GroovyScriptEngine engine = new GroovyScriptEngine("file:src/main/resources/");
+//		engine.loadScriptByName("");
+//		engine.run("", "");
+//				
+//		try {
+//			//engine.eval(script);
+//		} catch (ScriptException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+        //ExpressionManager expressionManager = CommandContextUtil.getProcessEngineConfiguration().getExpressionManager(); //nulpoiner peruqè no és execució real
+        
+//        ExpressionManager expressionManager =
+//        	    ((ProcessEngineConfigurationImpl)
+//        	        processEngine.getProcessEngineConfiguration())
+//        	            .getExpressionManager();
+        
+//        ProcessEngineConfigurationImpl cfg =
+//        	    (ProcessEngineConfigurationImpl)
+//        	        ((ServiceImpl) this.processEngine.getRuntimeService())
+//        	            .getCommandExecutor();
+        
+//        Expression expression = expressionManager.createExpression(script);
+//        expression.getValue(new MapDelegateVariableContainer());
+
+		//org.flowable.common.engine.impl.el.ExpressionManager expressionManager ;
+		//this.processEngine.getProcessEngineConfiguration().getsc
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -747,7 +793,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 										.createTaskQuery()
 											.processInstanceId(processInstanceId).list();
 		List<WTaskInstance> wTask = new ArrayList<>();
-		for(Task task : tasks) {
+		for(Task task : tasks) {;
 			wTask.add(toWTaskInstance(task));
 		}
 		return wTask;
@@ -1006,8 +1052,8 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		if (t != null) {
 			wt = new WTaskInstance();
 			wt.setId(t.getId());
-			wt.setTaskName(t.getName());
-			wt.setDescription(t.getDescription());
+			wt.setTaskName(t.getTaskDefinitionKey());
+			wt.setDescription(t.getName());
 			wt.setCreateTime(t.getCreateTime());
 			wt.setStartTime(t.getClaimTime());
 			wt.setEndTime(null); // No es poden consultar les tasques acabades, s'ha de mirar l'històric

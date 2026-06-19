@@ -1319,12 +1319,11 @@ public class TascaServiceImpl implements TascaService {
 	 * s'actualitzaran les dades.
 	 * Si no, es crea una entrada al Map per aquesta tasca que s'ha d'executar en segón pla.
 	 */
-	private void checkFinalitzarSegonPla(String id, Date marcadaFinalitzar) {
-		Long taskId = Long.parseLong(id);
+	private void checkFinalitzarSegonPla(String taskId, Date marcadaFinalitzar) {
 		if (!tascaSegonPlaHelper.isTasquesSegonPlaLoaded())
 			tascaSegonPlaHelper.loadTasquesSegonPla();
 
-		Map<Long,InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+		Map<String,InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 		if (map.containsKey(taskId)) {
 			InfoSegonPla infoSegonPla = map.get(taskId);
 			infoSegonPla.setMarcadaFinalitzar(marcadaFinalitzar);
@@ -1536,9 +1535,9 @@ public class TascaServiceImpl implements TascaService {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && tascaSegonPlaHelper.getTasquesSegonPla().size() > 0) {
 //			for (Map.Entry<Long, InfoSegonPla> entry : TascaSegonPlaHelper.getTasquesSegonPla().entrySet()) {
 //			for (Long key : TascaSegonPlaHelper.getTasquesSegonPla().keySet()) {
-			Iterator<Map.Entry<Long, InfoSegonPla>> iter = tascaSegonPlaHelper.getTasquesSegonPla().entrySet().iterator();
+			Iterator<Map.Entry<String, InfoSegonPla>> iter = tascaSegonPlaHelper.getTasquesSegonPla().entrySet().iterator();
 			while (iter.hasNext()) {
-			    Map.Entry<Long, InfoSegonPla> entry = iter.next();
+			    Map.Entry<String, InfoSegonPla> entry = iter.next();
 				String tascaId = entry.getKey().toString();
 				InfoSegonPla infoSegonPla = entry.getValue();
 				if (infoSegonPla.getMarcadaFinalitzar() != null &&
@@ -1603,7 +1602,7 @@ public class TascaServiceImpl implements TascaService {
 			tascaSegonPlaHelper.loadTasquesSegonPla();
 			if(tasquesSegonPlaIds.size() > 0) {
 				for(Object[] taskResult: tasquesSegonPlaIds) {
-					tascaSegonPlaHelper.afegirTasca((Long)taskResult[0], (Date)taskResult[1], (Date)taskResult[2], (String)taskResult[3]);
+					tascaSegonPlaHelper.afegirTasca((String)taskResult[0], (Date)taskResult[1], (Date)taskResult[2], (String)taskResult[3]);
 				}
 			}
 		}
@@ -1681,10 +1680,9 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Override
-	public Map<Long,Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds){
-		Map<Long,Object> result = new LinkedHashMap<Long, Object>();
-		for (String id: tasquesSegonPlaIds) {
-			Long taskId = Long.parseLong(id);
+	public Map<String,Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds){
+		Map<String,Object> result = new LinkedHashMap<String, Object>();
+		for (String taskId: tasquesSegonPlaIds) {
 			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(taskId)) {
 				result.put(taskId, tascaSegonPlaHelper.getTasquesSegonPla().get(taskId));
 			}
@@ -1695,9 +1693,8 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	public boolean isEnSegonPla(String tascaSegonPlaId){
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			Long taskId = Long.parseLong(tascaSegonPlaId);
-			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(taskId)) {
-				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(taskId);
+			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaSegonPlaId)) {
+				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaSegonPlaId);
 				if (!infoSegonPla.isCompletada() &&
 					infoSegonPla.getError() == null &&
 					(infoSegonPla.getMarcadaFinalitzar() !=null || infoSegonPla.getIniciFinalitzacio() != null)) {
@@ -1714,10 +1711,9 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Override
-	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId) {
+	public List<String[]> getMissatgesExecucioSegonPla(String taskId) {
 		List<String[]> result = new ArrayList<String[]>();
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			Long taskId = Long.parseLong(tascaSegonPlaId);
 			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(taskId)) {
 				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(taskId);
 				result = infoSegonPla.getMessages();

@@ -7,16 +7,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.codahale.metrics.MetricRegistry;
+import org.springframework.security.acls.model.NotFoundException;
 
+import com.codahale.metrics.MetricRegistry;
 import com.sun.star.plugin.PluginException;
+
 import es.caib.comanda.model.management.TascaEstat;
 import es.caib.helium.commons.dto.AreaDto;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.CampTascaDto;
 import es.caib.helium.commons.dto.CarrecDto;
 import es.caib.helium.commons.dto.DadesConsultaPinbalDto;
-import es.caib.helium.commons.dto.DadesNotificacioDto;
 import es.caib.helium.commons.dto.DefinicioProcesDto;
 import es.caib.helium.commons.dto.DocumentDissenyDto;
 import es.caib.helium.commons.dto.DocumentDto;
@@ -31,7 +32,6 @@ import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.FestiuDto;
 import es.caib.helium.commons.dto.InteressatDto;
-import es.caib.helium.commons.dto.NotificacioDto;
 import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.commons.dto.NtiOrigenEnumDto;
 import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
@@ -39,10 +39,8 @@ import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.ReassignacioDto;
 import es.caib.helium.commons.dto.RegistreAnotacioDto;
 import es.caib.helium.commons.dto.RegistreIdDto;
-import es.caib.helium.commons.dto.RegistreNotificacioDto;
 import es.caib.helium.commons.dto.RespostaJustificantDetallRecepcioDto;
 import es.caib.helium.commons.dto.RespostaJustificantRecepcioDto;
-import es.caib.helium.commons.dto.RespostaNotificacio;
 import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.dto.TerminiDto;
 import es.caib.helium.commons.dto.TerminiIniciatDto;
@@ -55,7 +53,6 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.registre.RegistreAnotacio;
-import org.springframework.security.acls.model.NotFoundException;
 
 
 /**
@@ -92,7 +89,7 @@ public interface Jbpm3HeliumService {
 	 *
 	 * @param id
 	 */
-	public void createDadesTasca(Long id);
+	public void createDadesTasca(String taskId);
 
 	/**
 	 * Obté l'expedient donat l'entorn, el tipus d'expedient i el seu número.
@@ -875,35 +872,11 @@ public interface Jbpm3HeliumService {
 			String entitatCodi,
 			Long expedientId) throws SistemaExternException, NoTrobatException;
 
-	/**
-	 *
-	 * @param notificacio
-	 * @return
-	 * @throws PluginException
-	 */
-	public RegistreIdDto notificacioCrear(
-			RegistreNotificacioDto notificacio,
-			Long expedientId,
-			boolean crearExpedient) throws SistemaExternException, NoTrobatException;
-
-	public void notificacioGuardar(
-			ExpedientDto expedient,
-			NotificacioDto notificacio);
-
-	public boolean notificacioEsborrar(
-			String numero,
-			String clave,
-			Long codigo);
-
 	public RespostaJustificantRecepcioDto notificacioElectronicaJustificant(
 			String registreNumero) throws Exception;
 
 	public RespostaJustificantDetallRecepcioDto notificacioElectronicaJustificantDetall(
 			String registreNumero) throws Exception;
-
-	public RespostaNotificacio altaNotificacio(
-			DadesNotificacioDto notificacio) throws SistemaExternException, NoTrobatException;
-
 
 	/** PINBAL **/
 	public Object consultaPinbal(

@@ -12,9 +12,6 @@ import java.util.Set;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
-import es.caib.helium.ejb.base.AbstractServiceEjb;
-import lombok.experimental.Delegate;
-
 import es.caib.helium.commons.dto.AccioDto;
 import es.caib.helium.commons.dto.AlertaDto;
 import es.caib.helium.commons.dto.ArxiuDetallDto;
@@ -34,7 +31,6 @@ import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.dto.MostrarAnulatsDto;
-import es.caib.helium.commons.dto.NotificacioDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
@@ -42,7 +38,9 @@ import es.caib.helium.commons.dto.RespostaValidacioSignaturaDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
+import es.caib.helium.ejb.base.AbstractServiceEjb;
 import es.caib.helium.logic.intf.service.ExpedientService;
+import lombok.experimental.Delegate;
 
 /**
  * EJB que implementa la interfície del servei ExpedientService.
@@ -667,26 +665,8 @@ public class ExpedientServiceBean extends AbstractServiceEjb<ExpedientService> i
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<NotificacioDto> findNotificacionsPerExpedientId(Long expedientId) throws NoTrobatException {
-		return delegateService.findNotificacionsPerExpedientId(expedientId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DadesNotificacioDto> findNotificacionsNotibPerExpedientId(Long expedientId) throws NoTrobatException {
 		return delegateService.findNotificacionsNotibPerExpedientId(expedientId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public NotificacioDto findNotificacioPerId(Long notificacioId, boolean arxiuActiu) throws NoTrobatException {
-		return delegateService.findNotificacioPerId(notificacioId, arxiuActiu);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void notificacioReprocessar(Long notificacioId) throws NoTrobatException {
-		delegateService.notificacioReprocessar(notificacioId);
 	}
 
 	@Override

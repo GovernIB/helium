@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class UsuariActualHelper {
 
 	/** Consulta si l'usuari actual és administrador d'Helium */
-	public boolean isAdministrador() {
+	public static boolean isAdministrador() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		return isAdministrador(auth);
 	}

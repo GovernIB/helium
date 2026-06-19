@@ -397,7 +397,7 @@ public class TascaServiceBean extends AbstractServiceEjb<TascaService> implement
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Map<Long, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds) {
+	public Map<String, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds) {
 		return delegateService.obtenirEstatsPerIds(tasquesSegonPlaIds);
 	}
 
