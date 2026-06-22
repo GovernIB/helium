@@ -41,7 +41,7 @@ public class RecursRepositoryClassLoader extends RecursClassLoader {
 	}
 
 	@Override
-	protected byte[] loadResourceBytes(String name, Boolean isClass) throws IOException {
+	protected byte[] loadResourceBytes(String name, boolean isClass) throws IOException {
 		Optional<byte[]> contingut = recursRepository.findContingutByExpedientTipusIdAndDefinicioProcesIdAndNameAndClasse(
 			expedientTipusId,
 			definicioProcesId,

@@ -118,11 +118,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public byte[] getResourceBytes(String deploymentId, String resourceName) throws IOException {
-		ProcessDefinition wpd = processEngine.
-			getRepositoryService().
-			getProcessDefinition(deploymentId);
-		InputStream is = processEngine.getRepositoryService().
-			getResourceAsStream(wpd.getDeploymentId(), resourceName);
+		InputStream is = processEngine.getRepositoryService().getResourceAsStream(deploymentId, resourceName);
 		return is.readAllBytes();
 	}
 
@@ -544,8 +540,8 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public Map<String, Object> evaluateScript(String processInstanceId, String script, Set<String> outputNames) {
-		
-//		Map<String, Object> variables = 
+
+//		Map<String, Object> variables =
 //				this.processEngine.getRuntimeService().getVariables(processInstanceId);
 //		Map<String, Object> bindings = new HashMap<>();
 //		bindings.put(
@@ -553,34 +549,34 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 //			    new ExecutionWrapper(
 //			        runtimeService,
 //			        processInstanceId));
-		
+
 //		ScriptEngine engine =
 //			    new ScriptEngineManager()
 //			        .getEngineByName("groovy");
-		
+
 //		GroovyScriptEngine engine = new GroovyScriptEngine("file:src/main/resources/");
 //		engine.loadScriptByName("");
 //		engine.run("", "");
-//				
+//
 //		try {
 //			//engine.eval(script);
 //		} catch (ScriptException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-		
+
         //ExpressionManager expressionManager = CommandContextUtil.getProcessEngineConfiguration().getExpressionManager(); //nulpoiner peruqè no és execució real
-        
+
 //        ExpressionManager expressionManager =
 //        	    ((ProcessEngineConfigurationImpl)
 //        	        processEngine.getProcessEngineConfiguration())
 //        	            .getExpressionManager();
-        
+
 //        ProcessEngineConfigurationImpl cfg =
 //        	    (ProcessEngineConfigurationImpl)
 //        	        ((ServiceImpl) this.processEngine.getRuntimeService())
 //        	            .getCommandExecutor();
-        
+
 //        Expression expression = expressionManager.createExpression(script);
 //        expression.getValue(new MapDelegateVariableContainer());
 

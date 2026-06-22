@@ -29,7 +29,7 @@ public class RecursListClassLoader extends RecursClassLoader {
 	}
 
 	@Override
-	protected byte[] loadResourceBytes(String name, Boolean isClass) throws IOException {
+	protected byte[] loadResourceBytes(String name, boolean isClass) throws IOException {
 		Optional<Recurs> recurs = recursos.stream().filter(r -> r.getNom().equals(name)).findFirst();
 		if (recurs.isPresent()) {
 			return recurs.get().getContingut();

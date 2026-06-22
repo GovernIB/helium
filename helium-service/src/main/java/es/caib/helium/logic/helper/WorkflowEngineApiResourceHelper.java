@@ -156,7 +156,9 @@ public class WorkflowEngineApiResourceHelper {
 	}
 
 	private ClassLoader getRepositoryClassLoader(String deploymentId) {
-		return new WorkflowEngineApiClassLoader(workflowEngineApi, deploymentId);
+		WorkflowEngineApiClassLoader classLoader = new WorkflowEngineApiClassLoader(workflowEngineApi);
+		WorkflowEngineApiClassLoader.setDeploymentId(deploymentId);
+		return classLoader;
 	}
 
 }

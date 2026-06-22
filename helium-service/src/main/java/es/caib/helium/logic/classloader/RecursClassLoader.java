@@ -1,6 +1,5 @@
 package es.caib.helium.logic.classloader;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,10 +65,10 @@ public abstract class RecursClassLoader extends ClassLoader {
 	public InputStream getResourceAsStream(String name) {
 		Objects.requireNonNull(name);
 		try {
-			byte[] bytes = loadResourceBytes(name, null);
+			byte[] bytes = loadResourceBytes(name, false);
 			return new ByteArrayInputStream(bytes);
 		} catch (IOException ex) {
-			return null;
+			return super.getResourceAsStream(name);
 		}
 	}
 
@@ -77,6 +76,6 @@ public abstract class RecursClassLoader extends ClassLoader {
 		return loadResourceBytes(className.replace('.', '/') + ".class", true);
 	}
 
-	protected abstract byte[] loadResourceBytes(String name, Boolean isClass) throws IOException;
+	protected abstract byte[] loadResourceBytes(String name, boolean isClass) throws IOException;
 
 }

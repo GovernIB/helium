@@ -1,6 +1,5 @@
 package es.caib.helium.disseny.api;
 
-import es.caib.helium.disseny.exception.HeliumHandlerException;
 import es.caib.helium.disseny.model.DocumentInfo;
 import es.caib.helium.disseny.model.ExpedientInfo;
 
