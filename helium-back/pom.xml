@@ -410,6 +410,7 @@
 				<directory>src/main/resources</directory>
 				<includes>
 					<include>banner.txt</include>
+					<include>application.properties</include>
 				</includes>
 				<filtering>true</filtering>
 			</resource>
