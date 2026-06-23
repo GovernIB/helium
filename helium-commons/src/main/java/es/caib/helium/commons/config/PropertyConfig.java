@@ -60,6 +60,9 @@ public class PropertyConfig {
 
 	public static final String PROP_ANOTACIONS_CONSULTA_NUM_THREADS = PROPERTY_PREFIX + "anotacions.consulta.num.threads";
 
+	/** Número de reintents per provar la consulta d'una anotació pendent */
+	public static final String PROP_ANOTACIONS_CONSULTA_NUM_INTENTS = PROPERTY_PREFIX + "anotacions.consulta.num.intents";
+
 	public static final String PROP_PERSONES_PLUGIN_CLASS = PROPERTY_PREFIX + "persones.plugin.class";
 	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_CODE = PROPERTY_PREFIX + "persones.plugin.jdbc.filter.code";
 	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_NAME = PROPERTY_PREFIX + "persones.plugin.jdbc.filter.name";

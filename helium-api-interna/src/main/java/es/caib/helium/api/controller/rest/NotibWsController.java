@@ -1,19 +1,16 @@
 package es.caib.helium.api.controller.rest;
 
-import es.caib.helium.commons.dto.IntegracioAccioEstatEnumDto;
-import es.caib.helium.commons.dto.IntegracioAccioTipusEnumDto;
-import es.caib.helium.commons.dto.IntegracioParametreDto;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.intf.service.AdminService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.notib.client.domini.NotificacioCanviClient;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -23,8 +20,6 @@ import java.util.List;
 	description = "API REST d'integració amb Notib.")
 public class NotibWsController {
 
-	@Autowired
-	private AdminService adminService;
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
 
@@ -36,22 +31,6 @@ public class NotibWsController {
 	@PostMapping("/notificaCanvi")
 	public void enviarContingutPost(@RequestBody NotificacioCanviClient notificacioCanvi) {
 
-		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
-		parametres.add(new IntegracioParametreDto("identificador", notificacioCanvi.getIdentificador()));
-		parametres.add(new IntegracioParametreDto("referenciaEnviament", notificacioCanvi.getReferenciaEnviament()));
-
-		long t0 = System.currentTimeMillis();
-		String accio = "Notificació de canvi d'estat";
-		adminService.monitorAddAccio(
-			MonitorIntegracioHelper.INTCODI_NOTIB,
-			accio,
-			IntegracioAccioTipusEnumDto.RECEPCIO,
-			IntegracioAccioEstatEnumDto.OK,
-			System.currentTimeMillis() - t0,
-			null,
-			null,
-			parametres);
-
 		try {
 			// Processa el canvi d'estat
 			expedientDocumentService.notificacioActualitzarEstat(
@@ -62,5 +41,4 @@ public class NotibWsController {
 			log.error(errMsg, e);
 		}
 	}
-
 }

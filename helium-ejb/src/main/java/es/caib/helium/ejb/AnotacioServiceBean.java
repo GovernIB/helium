@@ -7,7 +7,7 @@ import javax.ejb.Stateless;
 
 import es.caib.helium.ejb.base.AbstractServiceEjb;
 import lombok.experimental.Delegate;
-
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import es.caib.helium.commons.dto.AnotacioDto;
 import es.caib.helium.commons.dto.AnotacioFiltreDto;
 import es.caib.helium.commons.dto.AnotacioListDto;
@@ -178,4 +178,10 @@ public class AnotacioServiceBean extends AbstractServiceEjb<AnotacioService> imp
 		return delegateService.findByDistribucioIdAndClauAcces(identificador, clauAcces);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void comunicarAnotacionsPendents(List<AnotacioRegistreId> anotacionsDistribucio) {
+		delegateService.comunicarAnotacionsPendents(anotacionsDistribucio);
+	}
+	
 }

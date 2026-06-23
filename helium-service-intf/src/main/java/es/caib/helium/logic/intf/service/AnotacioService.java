@@ -2,6 +2,7 @@ package es.caib.helium.logic.intf.service;
 
 import java.util.List;
 
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import es.caib.helium.commons.dto.AnotacioDto;
 import es.caib.helium.commons.dto.AnotacioFiltreDto;
 import es.caib.helium.commons.dto.AnotacioListDto;
@@ -203,4 +204,10 @@ public interface AnotacioService {
 	public AnotacioMapeigResultatDto processarMapeigAnotacioExpedient(Long expedientTipusId, Long anotacioId);
 
     List<AnotacioDto> findByDistribucioIdAndClauAcces(String identificador, String clauAcces);
+
+    /** Mètode per tractar la comuniació d'anotacions pendents. 
+     * 
+     * @param anotacionsDistribucio Llistat d'identificadors d'anotacions.
+     */
+	public void comunicarAnotacionsPendents(List<AnotacioRegistreId> anotacionsDistribucio);
 }

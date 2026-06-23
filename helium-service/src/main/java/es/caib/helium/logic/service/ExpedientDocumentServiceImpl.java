@@ -57,6 +57,8 @@ import es.caib.helium.commons.dto.ExpedientFinalitzarDto;
 import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
 import es.caib.helium.commons.dto.FirmaResultatDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
+import es.caib.helium.commons.dto.IntegracioAccioTipusEnumDto;
+import es.caib.helium.commons.dto.IntegracioParametreDto;
 import es.caib.helium.commons.dto.InteressatTipusEnumDto;
 import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.commons.dto.NtiOrigenEnumDto;
@@ -91,6 +93,7 @@ import es.caib.helium.logic.helper.ExpedientDocumentHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientLoggerHelper;
 import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
 import es.caib.helium.logic.helper.NotificacioHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.helper.PluginHelper;
@@ -190,6 +193,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private ReglaHelper reglaHelper;
 	@Resource
 	private ExpedientDocumentHelper expedientDocumentHelper;
+	@Resource
+	private MonitorIntegracioHelper monitorIntegracioHelper;
 
 	@PostConstruct
 	public void postContruct() {
@@ -2224,20 +2229,45 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			String identificador,
 			String referencia) {
 
-		DocumentNotificacio notificacio = documentNotificacioRepository.findByEnviamentIdentificadorAndEnviamentReferencia(
-				identificador,
-				referencia);
-		if (notificacio == null) {
-			throw new NoTrobatException(DocumentNotificacio.class);
-		}
+		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
+		parametres.add(new IntegracioParametreDto("identificador", identificador));
+		parametres.add(new IntegracioParametreDto("referenciaEnviament", referencia));
 
+		long t0 = System.currentTimeMillis();
+		String accio = "Notificació de canvi d'estat";
 		try {
-			pluginHelper.notificacioActualitzarEstatEnviament(notificacio);
-			pluginHelper.notificacioActualitzarEstat(notificacio);
-		} catch (Exception ex) {
-			String errorDescripcio = "Error al accedir al plugin de notificacions";
-			logger.error(errorDescripcio, ex);
-			throw new RuntimeException(ex);
+			DocumentNotificacio notificacio = documentNotificacioRepository.findByEnviamentIdentificadorAndEnviamentReferencia(
+					identificador,
+					referencia);
+			if (notificacio == null) {
+				throw new NoTrobatException(DocumentNotificacio.class);
+			}
+	
+			try {
+				pluginHelper.notificacioActualitzarEstatEnviament(notificacio);
+				pluginHelper.notificacioActualitzarEstat(notificacio);
+
+				monitorIntegracioHelper.addAccioOk(
+						MonitorIntegracioHelper.INTCODI_NOTIB, 
+						accio, 
+						IntegracioAccioTipusEnumDto.RECEPCIO, 
+						System.currentTimeMillis() - t0, 
+						parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			} catch (Exception ex) {
+				String errorDescripcio = "Error al accedir al plugin de notificacions";
+				logger.error(errorDescripcio, ex);
+				throw new RuntimeException(ex);
+			}
+		} catch(Throwable ex) {
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_NOTIB, 
+					accio, 
+					IntegracioAccioTipusEnumDto.RECEPCIO, 
+					System.currentTimeMillis() - t0, 
+					"Error actualitzant l'estat de les notificacions",
+					ex,
+					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+
 		}
 	}
 

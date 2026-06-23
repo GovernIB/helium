@@ -261,12 +261,6 @@
 					<artifactId>tomcat-embed-jasper</artifactId>
 					<scope>provided</scope>
 				</dependency>
-				<dependency>
-					<groupId>${project.groupId}</groupId>
-					<artifactId>helium-service</artifactId>
-					<version>${project.version}</version>
-					<scope>provided</scope>
-				</dependency>
 			</dependencies>
 			<build>
 				<plugins>

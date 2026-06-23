@@ -256,7 +256,9 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
                 	Long value = null;
                 	try {
                 		String strProperty = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_MASSIU_PERIODE_NOVES);
-                		value = Long.valueOf(strProperty);
+                		if (strProperty != null && !strProperty.isBlank()) {
+                			value = Long.valueOf(strProperty);
+                		}
                 	} catch (Exception e) {
 						logger.warn("Error consultant la propietat per la propera execució de comprovar execucions massives: " + e.getMessage());
 					}

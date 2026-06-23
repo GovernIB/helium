@@ -1,7 +1,6 @@
 package es.caib.helium.api.controller.rest;
 
 import es.caib.helium.commons.dto.*;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
 import es.caib.helium.logic.intf.service.AdminService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.portafib.callback.beans.v1.PortaFIBEvent;
@@ -69,7 +68,7 @@ public class PortaFIBCallbackRest {
 				break;
 			default:
 				String errorDescripcio = "No es reconeix el codi d'estat (" + estat + ")";
-				adminService.monitorAddAccio(MonitorIntegracioHelper.INTCODI_PFIRMA, accioDescripcio,
+				adminService.monitorAddAccio("PFIRMA", accioDescripcio,
 					IntegracioAccioTipusEnumDto.RECEPCIO, IntegracioAccioEstatEnumDto.ERROR,
 					System.currentTimeMillis() - t0, errorDescripcio, null, parametres);
 				return new ResponseEntity<String>(errorDescripcio, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -121,7 +120,7 @@ public class PortaFIBCallbackRest {
 					+ ", resposta=" + resposta + "): " + ex.getMessage());
 				String errorDescripcio = "El procés petició callback del portasignatures no ha finalitzat correctament";
 				parametres.add(new IntegracioParametreDto("processamentOk", processamentOk));
-				adminService.monitorAddAccio(MonitorIntegracioHelper.INTCODI_PFIRMA, accioDescripcio,
+				adminService.monitorAddAccio("PFIRMA", accioDescripcio,
 					IntegracioAccioTipusEnumDto.RECEPCIO, IntegracioAccioEstatEnumDto.ERROR,
 					System.currentTimeMillis() - t0, errorDescripcio, ex, parametres);
 				return new ResponseEntity<String>(errorDescripcio, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -132,7 +131,7 @@ public class PortaFIBCallbackRest {
 			parametres.add(new IntegracioParametreDto("advertencia", warnMsg));
 			log.warn(warnMsg);
 		}
-		adminService.monitorAddAccio(MonitorIntegracioHelper.INTCODI_PFIRMA, accioDescripcio,
+		adminService.monitorAddAccio("PFIRMA", accioDescripcio,
 			IntegracioAccioTipusEnumDto.RECEPCIO, IntegracioAccioEstatEnumDto.OK, System.currentTimeMillis() - t0,
 			null, null, parametres);
 		return new ResponseEntity<String>("OK", HttpStatus.OK);
@@ -149,7 +148,7 @@ public class PortaFIBCallbackRest {
 		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
 
 		adminService.monitorAddAccio(
-			MonitorIntegracioHelper.INTCODI_PFIRMA,
+			"PFIRMA",
 			accioDescripcio,
 			IntegracioAccioTipusEnumDto.RECEPCIO,
 			IntegracioAccioEstatEnumDto.OK,

@@ -45,6 +45,11 @@ public class EjbClientConfig {
 	public LocalStatelessSessionProxyFactoryBean expedientDocumentService() {
 		return getLocalEjbFactoyBean(ExpedientDocumentService.class);
 	}
+	@Bean
+	@ConditionalOnWarDeployment
+	public LocalStatelessSessionProxyFactoryBean anotacioService() {
+		return getLocalEjbFactoyBean(AnotacioService.class);
+	}
 
 	private LocalStatelessSessionProxyFactoryBean getLocalEjbFactoyBean(Class<?> serviceClass) {
 		String jndiName = jndiServiceName(serviceClass, false);

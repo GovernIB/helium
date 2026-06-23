@@ -14,16 +14,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +46,8 @@ import es.caib.distribucio.core.api.exception.SistemaExternException;
 import es.caib.distribucio.rest.client.integracio.domini.Annex;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
+import es.caib.distribucio.rest.client.integracio.domini.Estat;
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dto.AnotacioDto;
 import es.caib.helium.commons.dto.AnotacioEstatEnumDto;
 import es.caib.helium.commons.dto.AnotacioFiltreDto;
@@ -62,10 +67,30 @@ import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.logic.helper.ExceptionHelper;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.logic.helper.AlertaHelper;
+import es.caib.helium.logic.helper.AnotacioHelper;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DistribucioHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.EmailHelper;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExpedientDadaHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientLoggerHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PermisosHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.VariableHelper;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.entity.Anotacio;
 import es.caib.helium.persistence.entity.AnotacioAnnex;
 import es.caib.helium.persistence.entity.AnotacioEmail;
@@ -84,25 +109,6 @@ import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRe
 import es.caib.helium.persistence.repository.InteressatRepository;
 import es.caib.helium.persistence.repository.MapeigSistraRepository;
 import es.caib.helium.persistence.repository.UsuariPreferenciesRepository;
-import es.caib.helium.logic.helper.AlertaHelper;
-import es.caib.helium.logic.helper.AnotacioHelper;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DistribucioHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.EmailHelper;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExpedientDadaHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientLoggerHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.helper.VariableHelper;
-import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.plugins.arxiu.api.Document;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 
@@ -114,6 +120,11 @@ import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 @Service
 public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener {
 
+	/** Referència a la classe per poder cridar mètodes amb transaccions. */
+	private AnotacioService self;
+	@Autowired
+	private ApplicationContext applicationContext;
+	
 	@Resource
 	private EntornHelper entornHelper;
 	@Autowired
@@ -184,6 +195,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 
 
 	private static Boolean consultaDinamica = Boolean.TRUE;
+	
+	@PostConstruct
+	public void postContruct() {
+		self = applicationContext.getBean(AnotacioService.class);
+	}
+
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1418,6 +1436,161 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		return conversioTipusHelper.convertirList(
 			anotacioRepository.findByDistribucioIdAndDistribucioClauAcces(identificador, clauAcces),
 			AnotacioDto.class);
+	}
+
+	private class ComunicarEstat {
+		private es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs;
+		private es.caib.distribucio.rest.client.integracio.domini.Estat estat;
+		private String missatge;
+		
+		public ComunicarEstat(es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs2,
+				Estat estatDistribucio, String msg) {
+			this.idWs=idWs2;
+			this.estat=estatDistribucio;
+			this.missatge=msg;
+		}
+		public es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId getIdWs() {
+			return idWs;
+		}
+		public es.caib.distribucio.rest.client.integracio.domini.Estat getEstat() {
+			return estat;
+		}
+		public String getMissatge() {
+			return missatge;
+		}	
+	}
+
+	@Override
+	public void comunicarAnotacionsPendents(List<AnotacioRegistreId> ids) {
+
+		monitorIntegracioHelper.addAccioOk(
+				MonitorIntegracioHelper.INTCODI_DISTRIBUCIO, 
+				"Rebuda petició de " + (ids != null ? ids.size() : "null") + " anotacions de registre de Distribucio", 
+				IntegracioAccioTipusEnumDto.RECEPCIO,
+				0, 
+				new IntegracioParametreDto("ids", ToStringBuilder.reflectionToString(ids)));
+
+		es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs;
+		List<AnotacioDto> anotacions;
+		AnotacioDto anotacio;
+		// Iteram damunt totes les anotacions rebudes
+		es.caib.distribucio.rest.client.integracio.domini.Estat estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
+		List<ComunicarEstat> comunicarEstats = new ArrayList<ComunicarEstat>();
+		for (AnotacioRegistreId id : ids) {
+			idWs = new es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId();
+			idWs.setClauAcces(id.getClauAcces());
+			idWs.setIndetificador(id.getIndetificador());
+			try {
+				anotacio = null;
+				logger.info("Processant la peticio d'anotació amb id " + id.getIndetificador());
+
+				// Comprova si ja està a BBDD, si ja està comunica l'estat a distribució sense més processament
+				anotacions = self.findByDistribucioIdAndClauAcces(id.getIndetificador(), id.getClauAcces());
+				if (!anotacions.isEmpty()) {
+					if (anotacions.size() > 1)
+						logger.warn("S'han trobat " + anotacions.size() + " peticions d'anotació per l'identificador de Distribucio " + id.getIndetificador());
+					anotacio = anotacions.get(0);
+				}
+				if (anotacio == null) {
+					
+					// Guarda la informació mínima a la taula d'anotacions per a que la tasca en segon pla la consulti i processi
+					distribucioHelper.encuarAnotacio(idWs);
+					logger.info("Anotació " + id.getIndetificador() + " encuada com a pendent de consulta");
+					
+				} else {
+					String msg = null;
+					// Si ja existeix primer es mira si ja està processada.
+					if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat())) {
+						// Comunica l'estat de processada a Distribucio
+						estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA;
+						msg = "La petició ja s'ha processat anteriorment.";
+						if (anotacio.getExpedient() != null) {
+							msg += " L'anotació ha estat processada a l'expedient " + anotacio.getExpedient().getIdentificador();
+						}
+						// guarda el missatge a enviar
+						comunicarEstats.add(new ComunicarEstat(
+								idWs, 
+								estatDistribucio, 
+								msg));
+
+						// Mira si l'anotació està en un estat pendent de que es processi per Helium (comunicada amb reintents sense esgotar o pendent automàtic)
+					} else if (this.anotacioPendentProcessHelium(anotacio)){
+						// No fa res, el processament ja comunicarà el resultat
+					} else {
+						// Posa l'anotació com a comunicada per a que es torni a consultar i processar
+						distribucioHelper.resetConsulta(anotacio.getId(), null);
+					}
+				}
+			} catch (Exception e) {
+				logger.error("Error rebent la petició d'anotació de registre amb id=" + id.getIndetificador() + " : " + e.getMessage() + ". Es comunica l'error a Distribucio", e);
+				try {
+					distribucioHelper.canviEstat(
+							idWs, 
+							es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
+							"Error rebent l'anotació amb id " + id.getIndetificador() + ": " + e.getMessage());
+				} catch(Exception ed) {
+					logger.error("Error comunicant l'error de recepció a Distribucio de la petició amb id : " + id.getIndetificador() + ": " + ed.getMessage(), ed);
+				}
+			}
+			Thread thread = new ComunicarEstatsThread("Comunicar " + comunicarEstats.size(), comunicarEstats);
+			thread.start();	
+			logger.info("Fi del processament de comunicació de " + ids.size() + "anotacions de registre de Distribucio. Es comunicaran " + comunicarEstats.size());		
+		}
+	}
+
+	private void comunicarEstats(List<ComunicarEstat> comunicarEstats) {
+		for(ComunicarEstat comunicarEstat: comunicarEstats) {
+			try {
+				logger.info("Comunicant l'estat " + comunicarEstat.getEstat() + " de l'anotació " + comunicarEstat.getIdWs().getIndetificador() + " a DISTRIBUCIO.");
+				if(comunicarEstat.getEstat()!=null)
+					// Comunica l'estat actual
+					distribucioHelper.canviEstat(
+							comunicarEstat.getIdWs(),
+							comunicarEstat.getEstat(),
+							comunicarEstat.getMissatge());
+			} catch(Exception e) {
+				logger.error("Error comunicant l'estat a Distribucio de la petició amb id : " + comunicarEstat.getIdWs() + ": " + comunicarEstat.getEstat(), comunicarEstat.getMissatge());
+			}
+		}
+	}
+
+	private class ComunicarEstatsThread extends Thread {
+		private List<ComunicarEstat> comunicarEstats;
+		
+		public ComunicarEstatsThread(String name, List<ComunicarEstat> comunicarEstats) {
+			super(name);
+			this.comunicarEstats = comunicarEstats;
+		}
+		
+		@Override
+		public void run() {
+			comunicarEstats(this.comunicarEstats);
+		}	
+	}
+
+	/** Comprova si l'anotació està en un estat en què Helium la processarà automàticament:
+	 * - En pendent automàtic.
+	 * - Comunicada amb reintents pendents.
+	 * @param anotacio
+	 * @return
+	 */
+	private boolean anotacioPendentProcessHelium(AnotacioDto anotacio) {
+		return AnotacioEstatEnumDto.PENDENT_AUTO.equals(anotacio.getEstat())
+					|| (AnotacioEstatEnumDto.COMUNICADA.equals(anotacio.getEstat())
+						&& anotacio.getConsultaIntents() < this.getMaxConsultaIntents());
+	}
+
+	private int getMaxConsultaIntents() {
+		int maxConsultaIntents;
+		String valStr = null;
+		try {
+			valStr = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ANOTACIONS_CONSULTA_NUM_INTENTS, "5");
+			maxConsultaIntents = Integer.valueOf(valStr);
+		} catch(Exception e) {
+			maxConsultaIntents = 5;
+			logger.error("Valor enter per la propietat app.anotacions.pendents.comprovar.intents no és correcte: \"" + valStr + "\". Es posarà per el valor " + maxConsultaIntents);
+		}
+		return maxConsultaIntents;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);
