@@ -24,6 +24,7 @@ import java.util.zip.ZipInputStream;
 import javax.annotation.Resource;
 
 import es.caib.helium.commons.dto.*;
+import es.caib.helium.commons.exception.*;
 import es.caib.helium.persistence.repository.*;
 import org.apache.commons.lang.StringUtils;
 import org.flowable.engine.repository.ProcessDefinition;
@@ -42,7 +43,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.caib.distribucio.core.api.exception.SistemaExternException;
 import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
@@ -52,11 +52,6 @@ import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
 import es.caib.helium.commons.dto.MapeigSistraDto.TipusMapeig;
 import es.caib.helium.commons.dto.regles.EstatAccioDto;
 import es.caib.helium.commons.dto.regles.EstatReglaDto;
-import es.caib.helium.commons.exception.DeploymentException;
-import es.caib.helium.commons.exception.ExportException;
-import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.exportacio.AccioExportacio;
 import es.caib.helium.commons.exportacio.AgrupacioExportacio;
 import es.caib.helium.commons.exportacio.CampExportacio;

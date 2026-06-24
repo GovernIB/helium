@@ -129,9 +129,9 @@ import es.caib.helium.persistence.repository.InteressatRepository;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;
 import es.caib.helium.persistence.repository.PortasignaturesRepository;
 import es.caib.helium.persistence.repository.RegistreRepository;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.DocumentMetadades;
-import es.caib.plugins.arxiu.api.Firma;
+import es.caib.pluginsib.arxiu.api.ContingutArxiu;
+import es.caib.pluginsib.arxiu.api.DocumentMetadades;
+import es.caib.pluginsib.arxiu.api.Firma;
 
 
 /**
@@ -1408,7 +1408,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		ArxiuDto arxiu = new ArxiuDto();
 		String arxiuNom = documentStore.getArxiuNom();
 		if (documentStore.getArxiuContingut() == null && documentStore.getArxiuUuid() != null) {
-			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentOriginal(documentStore.getArxiuUuid(), null);
+			es.caib.pluginsib.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentOriginal(documentStore.getArxiuUuid(), null);
 			if (documentArxiu != null && documentArxiu.getContingut() != null) {
 				arxiu.setContingut(documentArxiu.getContingut().getContingut());
 				arxiu.setTipusMime(documentArxiu.getContingut().getTipusMime());
@@ -1960,7 +1960,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			if (StringUtils.isEmpty(documentStore.getArxiuUuid()))
 				throw new ValidacioException("El document no té UUID d'Arxiu per consultar el detall");
 			arxiuDetall = new ArxiuDetallDto();
-			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+			es.caib.pluginsib.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,
 					false,
@@ -2199,7 +2199,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 		ArxiuFirmaDto arxiuFirma = null;
 		if (expedient.isArxiuActiu()) {
-			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+			es.caib.pluginsib.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,
 					true,
@@ -2242,16 +2242,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			if (notificacio == null) {
 				throw new NoTrobatException(DocumentNotificacio.class);
 			}
-	
+
 			try {
 				pluginHelper.notificacioActualitzarEstatEnviament(notificacio);
 				pluginHelper.notificacioActualitzarEstat(notificacio);
 
 				monitorIntegracioHelper.addAccioOk(
-						MonitorIntegracioHelper.INTCODI_NOTIB, 
-						accio, 
-						IntegracioAccioTipusEnumDto.RECEPCIO, 
-						System.currentTimeMillis() - t0, 
+						MonitorIntegracioHelper.INTCODI_NOTIB,
+						accio,
+						IntegracioAccioTipusEnumDto.RECEPCIO,
+						System.currentTimeMillis() - t0,
 						parametres.toArray(new IntegracioParametreDto[parametres.size()]));
 			} catch (Exception ex) {
 				String errorDescripcio = "Error al accedir al plugin de notificacions";
@@ -2260,10 +2260,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			}
 		} catch(Throwable ex) {
 			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_NOTIB, 
-					accio, 
-					IntegracioAccioTipusEnumDto.RECEPCIO, 
-					System.currentTimeMillis() - t0, 
+					MonitorIntegracioHelper.INTCODI_NOTIB,
+					accio,
+					IntegracioAccioTipusEnumDto.RECEPCIO,
+					System.currentTimeMillis() - t0,
 					"Error actualitzant l'estat de les notificacions",
 					ex,
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
@@ -2358,7 +2358,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					documentStore,
 					arxiu);
 			documentStore.setArxiuUuid(contingutArxiu.getIdentificador());
-			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+			es.caib.pluginsib.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 					contingutArxiu.getIdentificador(),
 					null,
 					false,

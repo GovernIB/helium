@@ -156,27 +156,27 @@ import es.caib.helium.persistence.entity.Portasignatures.Transicio;
 import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.PortasignaturesRepository;
-import es.caib.plugins.arxiu.api.ConsultaFiltre;
-import es.caib.plugins.arxiu.api.ConsultaOperacio;
-import es.caib.plugins.arxiu.api.ConsultaResultat;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.ContingutOrigen;
-import es.caib.plugins.arxiu.api.DocumentContingut;
-import es.caib.plugins.arxiu.api.DocumentEstat;
-import es.caib.plugins.arxiu.api.DocumentEstatElaboracio;
-import es.caib.plugins.arxiu.api.DocumentExtensio;
-import es.caib.plugins.arxiu.api.DocumentFormat;
-import es.caib.plugins.arxiu.api.DocumentMetadades;
-import es.caib.plugins.arxiu.api.DocumentTipus;
-import es.caib.plugins.arxiu.api.ExpedientEstat;
-import es.caib.plugins.arxiu.api.ExpedientMetadades;
-import es.caib.plugins.arxiu.api.Firma;
-import es.caib.plugins.arxiu.api.FirmaPerfil;
-import es.caib.plugins.arxiu.api.FirmaTipus;
-import es.caib.plugins.arxiu.api.IArxiuPlugin;
-import es.caib.plugins.arxiu.api.SerieDocumentalNotFoundException;
-import es.caib.plugins.arxiu.caib.ArxiuCaibException;
-import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
+import es.caib.pluginsib.arxiu.api.ConsultaFiltre;
+import es.caib.pluginsib.arxiu.api.ConsultaOperacio;
+import es.caib.pluginsib.arxiu.api.ConsultaResultat;
+import es.caib.pluginsib.arxiu.api.ContingutArxiu;
+import es.caib.pluginsib.arxiu.api.ContingutOrigen;
+import es.caib.pluginsib.arxiu.api.DocumentContingut;
+import es.caib.pluginsib.arxiu.api.DocumentEstat;
+import es.caib.pluginsib.arxiu.api.DocumentEstatElaboracio;
+import es.caib.pluginsib.arxiu.api.DocumentExtensio;
+import es.caib.pluginsib.arxiu.api.DocumentFormat;
+import es.caib.pluginsib.arxiu.api.DocumentMetadades;
+import es.caib.pluginsib.arxiu.api.DocumentTipus;
+import es.caib.pluginsib.arxiu.api.ExpedientEstat;
+import es.caib.pluginsib.arxiu.api.ExpedientMetadades;
+import es.caib.pluginsib.arxiu.api.Firma;
+import es.caib.pluginsib.arxiu.api.FirmaPerfil;
+import es.caib.pluginsib.arxiu.api.FirmaTipus;
+import es.caib.pluginsib.arxiu.api.IArxiuPlugin;
+import es.caib.pluginsib.arxiu.api.SerieDocumentalNotFoundException;
+import es.caib.pluginsib.arxiu.caib.ArxiuCaibException;
+import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
 
 
 /**
@@ -1186,7 +1186,7 @@ public class PluginHelper {
 					ex);
 		}
 	}
-	
+
 	public Date registreDataJustificantRecepcio(
 			String numeroRegistre,
 			Expedient expedient) {
@@ -2351,7 +2351,7 @@ public class PluginHelper {
 		}
 	}
 
-	public es.caib.plugins.arxiu.api.Expedient arxiuExpedientInfo(
+	public es.caib.pluginsib.arxiu.api.Expedient arxiuExpedientInfo(
 			String arxiuUuid) {
 		String accioDescripcio = "Consulta d'informació de l'expedient";
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
@@ -2361,7 +2361,7 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			es.caib.plugins.arxiu.api.Expedient exp = getArxiuPlugin().expedientDetalls(arxiuUuid, null);
+			es.caib.pluginsib.arxiu.api.Expedient exp = getArxiuPlugin().expedientDetalls(arxiuUuid, null);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,
@@ -2385,7 +2385,7 @@ public class PluginHelper {
 
 	public boolean arxiuExisteixExpedient(String arxiuUuid) {
 		try {
-			es.caib.plugins.arxiu.api.Expedient exp = getArxiuPlugin().expedientDetalls(arxiuUuid, null);
+			es.caib.pluginsib.arxiu.api.Expedient exp = getArxiuPlugin().expedientDetalls(arxiuUuid, null);
 			return exp != null;
 		} catch (Exception ex) {
 			return false;
@@ -2621,7 +2621,7 @@ public class PluginHelper {
 			//DocumentExtensio ext = getExtensioPerArxiu(FilenameUtils.getExtension(arxiu.getNom()));
 			//new MimetypesFileTypeMap().getContentType(arxiu.getNom());
 			arxiu.setTipusMime(this.getContentType(arxiu.getNom()));
-			es.caib.plugins.arxiu.api.Document document = toArxiuDocument(
+			es.caib.pluginsib.arxiu.api.Document document = toArxiuDocument(
 					documentStore.getArxiuUuid(),
 					documentNom,
 					documentDescripcio,
@@ -2670,7 +2670,7 @@ public class PluginHelper {
 	public List<ArxiuDetallDto> versions(String arxiuUuid, boolean expedientTancat){
 		List<ArxiuDetallDto> versionsDocument = new ArrayList<ArxiuDetallDto>();
 		List<ContingutArxiu> contingutArxiusVersions = getArxiuPlugin().documentVersions(arxiuUuid);
-		es.caib.plugins.arxiu.api.Document documentInfo = null;
+		es.caib.pluginsib.arxiu.api.Document documentInfo = null;
 		for(ContingutArxiu contingutArxiuVersio: contingutArxiusVersions) {
 			if(!expedientTancat) {
 				documentInfo = this.arxiuDocumentInfo(arxiuUuid,
@@ -2703,7 +2703,7 @@ public class PluginHelper {
 		return getArxiuPlugin().documentExportarEni(uuId);
 	}
 
-	public es.caib.plugins.arxiu.api.Document arxiuDocumentInfo(
+	public es.caib.pluginsib.arxiu.api.Document arxiuDocumentInfo(
 			String arxiuUuid,
 			String versio,
 			boolean ambContingut,
@@ -2722,7 +2722,7 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			es.caib.plugins.arxiu.api.Document documentDetalls = getArxiuPlugin().documentDetalls(
+			es.caib.pluginsib.arxiu.api.Document documentDetalls = getArxiuPlugin().documentDetalls(
 					arxiuUuid,
 					versio,
 					ambContingut);
@@ -2768,7 +2768,7 @@ public class PluginHelper {
 		}
 	}
 
-	public es.caib.plugins.arxiu.api.Document arxiuDocumentOriginal(
+	public es.caib.pluginsib.arxiu.api.Document arxiuDocumentOriginal(
 			String arxiuUuid,
 			String versio) {
 		String accioDescripcio = "Consulta l'original d'un document amb contingut";
@@ -2782,7 +2782,7 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			es.caib.plugins.arxiu.api.Document documentDetalls = getArxiuPlugin().documentDetalls(
+			es.caib.pluginsib.arxiu.api.Document documentDetalls = getArxiuPlugin().documentDetalls(
 					arxiuUuid,
 					versio,
 					true);
@@ -3596,7 +3596,7 @@ public class PluginHelper {
 		return registreAssentamentInteressat;
 	}
 
-	private es.caib.plugins.arxiu.api.Expedient toArxiuExpedient(
+	private es.caib.pluginsib.arxiu.api.Expedient toArxiuExpedient(
 			String nom,
 			List<String> ntiOrgans,
 			Date ntiDataObertura,
@@ -3605,7 +3605,7 @@ public class PluginHelper {
 			List<String> ntiInteressats,
 			String serieDocumental,
 			String arxiuUuid) {
-		es.caib.plugins.arxiu.api.Expedient expedient = new es.caib.plugins.arxiu.api.Expedient();
+		es.caib.pluginsib.arxiu.api.Expedient expedient = new es.caib.pluginsib.arxiu.api.Expedient();
 		expedient.setNom(this.treureCaractersEstranys(nom));
 		expedient.setIdentificador(arxiuUuid);
 		ExpedientMetadades metadades = new ExpedientMetadades();
@@ -3632,7 +3632,7 @@ public class PluginHelper {
 	private static List<NtiTipoFirmaEnumDto> TIPUS_FIRMES_ATTACHED = Arrays.asList(NtiTipoFirmaEnumDto.CADES_ATT, NtiTipoFirmaEnumDto.PADES, NtiTipoFirmaEnumDto.XADES_ENV);
 
 	/** Mètode per obtenir un objecte Document per crear o actualitzar a l'arxiu. */
-	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
+	private es.caib.pluginsib.arxiu.api.Document toArxiuDocument(
 			String identificador,
 			String nom,
 			String descripcio,
@@ -3714,7 +3714,7 @@ public class PluginHelper {
 	}
 
 	/**  Mètode per obtenir un objecte Document per crear o actualitzar a l'arxiu. Aquest mètode rep la llista de firmes. */
-	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
+	private es.caib.pluginsib.arxiu.api.Document toArxiuDocument(
 			String identificador,
 			String nom,
 			String descripcio,
@@ -3731,7 +3731,7 @@ public class PluginHelper {
 			String ntiIdDocumentOrigen,
 			DocumentExtensio extensio,
 			DocumentEstat estat) {
-		es.caib.plugins.arxiu.api.Document document = new es.caib.plugins.arxiu.api.Document();
+		es.caib.pluginsib.arxiu.api.Document document = new es.caib.pluginsib.arxiu.api.Document();
 		document.setNom(nom);
 		document.setDescripcio(descripcio);
 		document.setIdentificador(identificador);

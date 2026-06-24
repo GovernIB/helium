@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import es.caib.helium.commons.config.PropertyConfig;
+import es.caib.helium.commons.exception.SistemaExternException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -45,7 +46,6 @@ import es.caib.distribucio.backoffice.utils.sistra.formulario.Campo;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Elemento;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Formulario;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Valor;
-import es.caib.distribucio.core.api.exception.SistemaExternException;
 import es.caib.distribucio.rest.client.integracio.BackofficeIntegracioRestClient;
 import es.caib.distribucio.rest.client.integracio.BackofficeIntegracioRestClientFactory;
 import es.caib.distribucio.rest.client.integracio.domini.Annex;
@@ -105,7 +105,7 @@ import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.MapeigSistraRepository;
-import es.caib.plugins.arxiu.api.Document;
+import es.caib.pluginsib.arxiu.api.Document;
 
 /**
  * Mètodes comuns per cridar WebService de Distribucio
@@ -217,9 +217,9 @@ public class DistribucioHelper {
 			es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId anotacioRegistreId,
 			Estat estat,
 			String observacions) throws SistemaExternException {
-		String accioDescripcio = "Canvi d'estat de l'anotació de Distribució amb id de consulta \"" + (anotacioRegistreId != null ? anotacioRegistreId.getIndetificador() : "null") + "\" a " + estat;
+		String accioDescripcio = "Canvi d'estat de l'anotació de Distribució amb id de consulta \"" + (anotacioRegistreId != null ? anotacioRegistreId.getIdentificador() : "null") + "\" a " + estat;
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto("anotacioRegistreId", (anotacioRegistreId != null ? anotacioRegistreId.getIndetificador() : "null")),
+				new IntegracioParametreDto("anotacioRegistreId", (anotacioRegistreId != null ? anotacioRegistreId.getIdentificador() : "null")),
 				new IntegracioParametreDto("estat", estat),
 				new IntegracioParametreDto("observacions", observacions)
 		};
@@ -257,9 +257,9 @@ public class DistribucioHelper {
 			es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs)  throws SistemaExternException{
 		AnotacioRegistreEntrada anotacioRegistreEntrada = null;
 
-		String accioDescripcio = "Consulta de la informació de l'anotació de Distribució amb id de consulta \"" + (idWs != null ? idWs.getIndetificador() : "null") + "\"";
+		String accioDescripcio = "Consulta de la informació de l'anotació de Distribució amb id de consulta \"" + (idWs != null ? idWs.getIdentificador() : "null") + "\"";
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto("idWs", (idWs != null ? idWs.getIndetificador() : "null"))
+				new IntegracioParametreDto("idWs", (idWs != null ? idWs.getIdentificador() : "null"))
 		};
 		long t0 = System.currentTimeMillis();
 		try {
@@ -312,7 +312,7 @@ public class DistribucioHelper {
 		}
 		// Crea l'anotació
 		Anotacio anotacioEntity = Anotacio.getBuilder(
-				idWs.getIndetificador(),
+				idWs.getIdentificador(),
 				idWs.getClauAcces(),
 				new Date(),
 				AnotacioEstatEnumDto.PENDENT,
@@ -766,14 +766,14 @@ public class DistribucioHelper {
 
 		Date data = new Date();
 		Anotacio anotacioEntity = Anotacio.getBuilder(
-						idWs.getIndetificador(),
+						idWs.getIdentificador(),
 						idWs.getClauAcces(),
 						data, // dataRecepcio
 						AnotacioEstatEnumDto.COMUNICADA,
 						null, // assumpteTipusCodi
 						data, // data
 						null, // entitatCodi
-						idWs.getIndetificador(),
+						idWs.getIdentificador(),
 						null, // idiomaCodi
 						null, // llibreCodi
 						null, // oficinaCodi
@@ -827,7 +827,7 @@ public class DistribucioHelper {
 				}
 				if (rebutjar) {
 					//vol dir q és un duplicat i s'ha de rebutjar
-					String motiuRebuig = "L'anotació " + idWs.getIndetificador() + " es rebutja automàticament des d'Helium "
+					String motiuRebuig = "L'anotació " + idWs.getIdentificador() + " es rebutja automàticament des d'Helium "
 							+ "ja hi ha una anotació amb el mateix número en estat PROCESSADA/PENDENT rebuda el " + anotacio.getDataRecepcio()
 							+ (expedientAnotacioIdemNum!=null ? " per l'expedient " + expedientAnotacioIdemNum.getNumero() : "") ;
 					this.rebutjar(anotacio, motiuRebuig);
@@ -900,7 +900,7 @@ public class DistribucioHelper {
 								backofficeUtils);
 						anotacio.setExpedient(expedient);
 					} catch (Throwable e) {
-						String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
+						String errorProcessament = "Error processant l'anotació " + idWs.getIdentificador() + ":" + e;
 						String traçaCompleta = ExceptionUtils.getStackTrace(e);
 						// Crida sense fer referència al bean per no crear una nova transacció
 						this.updateErrorProcessament(anotacio.getId(), errorProcessament.concat(traçaCompleta) );
@@ -912,7 +912,7 @@ public class DistribucioHelper {
 									es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
 									errorProcessament);
 						} catch(Exception ed) {
-							logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+							logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIdentificador() + ": " + ed.getMessage(), ed);
 						}
 						throw new Exception(errorProcessament + ": "
 								+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
@@ -947,7 +947,7 @@ public class DistribucioHelper {
 							backofficeUtils);
 				} catch (Exception e) {
 					String traçaCompleta = ExceptionUtils.getStackTrace(e);
-					String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIndetificador() + " a l'expedient:" + traçaCompleta;
+					String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIdentificador() + " a l'expedient:" + traçaCompleta;
 					this.canviEstatErrorAnotacio(errorProcessament, anotacio, idWs, e);
 					throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
 							+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
@@ -1002,7 +1002,7 @@ public class DistribucioHelper {
 					logger.warn(errMsg, e);
 				}
 			}
-			logger.info("Fi el processament de l anotacio de registre amb id de Distribucio =" + (idWs != null ? idWs.getIndetificador() : ""));
+			logger.info("Fi el processament de l anotacio de registre amb id de Distribucio =" + (idWs != null ? idWs.getIdentificador() : ""));
 		} finally {
 			this.setProcessant(anotacio.getId(), false);
 		}
@@ -1019,7 +1019,7 @@ public class DistribucioHelper {
 					es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
 					errorProcessament);
 		} catch(Exception ed) {
-			logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+			logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIdentificador() + ": " + ed.getMessage(), ed);
 		}
 	}
 
@@ -1033,7 +1033,7 @@ public class DistribucioHelper {
 		try {
 			AnotacioRegistreId anotacioRegistreId = new AnotacioRegistreId();
 			anotacioRegistreId.setClauAcces(anotacio.getDistribucioClauAcces());
-			anotacioRegistreId.setIndetificador(anotacio.getDistribucioId());
+			anotacioRegistreId.setIdentificador(anotacio.getDistribucioId());
 			anotacioRepository.save(anotacio);
 			this.canviEstat(anotacioRegistreId,
 							Estat.REBUTJADA,
@@ -1070,11 +1070,11 @@ public class DistribucioHelper {
 
 
 			AnotacioRegistreId idWs = new AnotacioRegistreId();
-			idWs.setIndetificador(anotacio.getIdentificador());
+			idWs.setIdentificador(anotacio.getIdentificador());
 			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
 			try {
 				// Processa i comunica l'estat de processada
-				logger.debug("Rerocessant l'anotació " + idWs.getIndetificador() + ".");
+				logger.debug("Rerocessant l'anotació " + idWs.getIdentificador() + ".");
 				anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
 				anotacio.setErrorProcessament(null);
 				// Torna a consultar si està relacionat amb un tipus d'expedient i/o expedient
@@ -1082,7 +1082,7 @@ public class DistribucioHelper {
 				// Reprocessa l'anotació
 				this.processarAnotacio(idWs, anotacio, backofficeUtils);//aquí ja es comunica l'error i el canvi d'estat a Distribució
 			} catch (Throwable e) {
-				String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
+				String errorProcessament = "Error processant l'anotació " + idWs.getIdentificador() + ":" + e;
 				String traçaCompleta = ExceptionUtils.getStackTrace(e);
 				anotacio.setErrorProcessament(errorProcessament.concat(traçaCompleta));
 				anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
@@ -1337,7 +1337,7 @@ public class DistribucioHelper {
 					contingut = anotacioAnnex.getContingut();
 				} else if (anotacioAnnex.getUuid() != null){
 					// Recupera el contingut de l'Arxiu
-					es.caib.plugins.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
+					es.caib.pluginsib.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
 							anotacioAnnex.getUuid(),
 							null,
 							true,

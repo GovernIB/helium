@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import es.caib.helium.commons.exception.SistemaExternException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.Query;
@@ -42,7 +43,6 @@ import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
-import es.caib.distribucio.core.api.exception.SistemaExternException;
 import es.caib.distribucio.rest.client.integracio.domini.Annex;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
@@ -109,8 +109,8 @@ import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRe
 import es.caib.helium.persistence.repository.InteressatRepository;
 import es.caib.helium.persistence.repository.MapeigSistraRepository;
 import es.caib.helium.persistence.repository.UsuariPreferenciesRepository;
-import es.caib.plugins.arxiu.api.Document;
-import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
+import es.caib.pluginsib.arxiu.api.Document;
+import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
 
 /**
  * Implementació del servei per a gestionar anotacions de distribució.
@@ -124,7 +124,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private AnotacioService self;
 	@Autowired
 	private ApplicationContext applicationContext;
-	
+
 	@Resource
 	private EntornHelper entornHelper;
 	@Autowired
@@ -195,13 +195,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 
 
 	private static Boolean consultaDinamica = Boolean.TRUE;
-	
+
 	@PostConstruct
 	public void postContruct() {
 		self = applicationContext.getBean(AnotacioService.class);
 	}
 
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -871,7 +871,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		// Es comunica l'estat a Distribucio
 		try {
 			AnotacioRegistreId idWs = new AnotacioRegistreId();
-			idWs.setIndetificador(anotacio.getIdentificador());
+			idWs.setIdentificador(anotacio.getIdentificador());
 			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
 
 			distribucioHelper.canviEstat(
@@ -1004,7 +1004,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		ArxiuDto arxiu = new ArxiuDto();
 		if (annex.getContingut() == null) {
 			// Recupera el contingut de l'Arxiu (versió imprimible)
-			es.caib.plugins.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
+			es.caib.pluginsib.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
 					annex.getUuid(),
 					null,
 					true,
@@ -1069,7 +1069,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		this.comprovaPermisLectura(annex.getAnotacio());
 
 		// Recupera el contingut de l'Arxiu
-		es.caib.plugins.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
+		es.caib.pluginsib.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
 				annex.getUuid(),
 				null,
 				true,
@@ -1137,7 +1137,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			// Consulta el nom real a l'Arxiu
 			String annexAnotacioNomArxiu = null;
 			try {
-				es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+				es.caib.pluginsib.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 						annexUuid,
 						null,
 						false,
@@ -1151,7 +1151,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			}
 
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			es.caib.pluginsib.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			// Posarà els annexos en la carpeta de l'anotació
 			backofficeUtils.setCarpeta(ArxiuConversioHelper.revisarContingutNom(anotacio.getIdentificador().replace("/", "_")));
@@ -1228,7 +1228,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 
 		if (expedient.isArxiuActiu()) {
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			es.caib.pluginsib.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			// Posarà els annexos en la carpeta de l'anotació
 			backofficeUtils.setCarpeta(ArxiuConversioHelper.revisarContingutNom(anotacio.getIdentificador().replace("/", "_")));
@@ -1246,7 +1246,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					annexAnotacio.setUuid(annex.getUuid());
 					annexAnotacio.setTitol(annex.getTitol());
 					// Consulta el nom real a l'Arxiu
-					es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+					es.caib.pluginsib.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 							annex.getUuid(),
 							null,
 							false,
@@ -1442,7 +1442,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		private es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs;
 		private es.caib.distribucio.rest.client.integracio.domini.Estat estat;
 		private String missatge;
-		
+
 		public ComunicarEstat(es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs2,
 				Estat estatDistribucio, String msg) {
 			this.idWs=idWs2;
@@ -1457,17 +1457,17 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		}
 		public String getMissatge() {
 			return missatge;
-		}	
+		}
 	}
 
 	@Override
 	public void comunicarAnotacionsPendents(List<AnotacioRegistreId> ids) {
 
 		monitorIntegracioHelper.addAccioOk(
-				MonitorIntegracioHelper.INTCODI_DISTRIBUCIO, 
-				"Rebuda petició de " + (ids != null ? ids.size() : "null") + " anotacions de registre de Distribucio", 
+				MonitorIntegracioHelper.INTCODI_DISTRIBUCIO,
+				"Rebuda petició de " + (ids != null ? ids.size() : "null") + " anotacions de registre de Distribucio",
 				IntegracioAccioTipusEnumDto.RECEPCIO,
-				0, 
+				0,
 				new IntegracioParametreDto("ids", ToStringBuilder.reflectionToString(ids)));
 
 		es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs;
@@ -1479,24 +1479,24 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		for (AnotacioRegistreId id : ids) {
 			idWs = new es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId();
 			idWs.setClauAcces(id.getClauAcces());
-			idWs.setIndetificador(id.getIndetificador());
+			idWs.setIdentificador(id.getIdentificador());
 			try {
 				anotacio = null;
-				logger.info("Processant la peticio d'anotació amb id " + id.getIndetificador());
+				logger.info("Processant la peticio d'anotació amb id " + id.getIdentificador());
 
 				// Comprova si ja està a BBDD, si ja està comunica l'estat a distribució sense més processament
-				anotacions = self.findByDistribucioIdAndClauAcces(id.getIndetificador(), id.getClauAcces());
+				anotacions = self.findByDistribucioIdAndClauAcces(id.getIdentificador(), id.getClauAcces());
 				if (!anotacions.isEmpty()) {
 					if (anotacions.size() > 1)
-						logger.warn("S'han trobat " + anotacions.size() + " peticions d'anotació per l'identificador de Distribucio " + id.getIndetificador());
+						logger.warn("S'han trobat " + anotacions.size() + " peticions d'anotació per l'identificador de Distribucio " + id.getIdentificador());
 					anotacio = anotacions.get(0);
 				}
 				if (anotacio == null) {
-					
+
 					// Guarda la informació mínima a la taula d'anotacions per a que la tasca en segon pla la consulti i processi
 					distribucioHelper.encuarAnotacio(idWs);
-					logger.info("Anotació " + id.getIndetificador() + " encuada com a pendent de consulta");
-					
+					logger.info("Anotació " + id.getIdentificador() + " encuada com a pendent de consulta");
+
 				} else {
 					String msg = null;
 					// Si ja existeix primer es mira si ja està processada.
@@ -1509,8 +1509,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						}
 						// guarda el missatge a enviar
 						comunicarEstats.add(new ComunicarEstat(
-								idWs, 
-								estatDistribucio, 
+								idWs,
+								estatDistribucio,
 								msg));
 
 						// Mira si l'anotació està en un estat pendent de que es processi per Helium (comunicada amb reintents sense esgotar o pendent automàtic)
@@ -1522,26 +1522,26 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					}
 				}
 			} catch (Exception e) {
-				logger.error("Error rebent la petició d'anotació de registre amb id=" + id.getIndetificador() + " : " + e.getMessage() + ". Es comunica l'error a Distribucio", e);
+				logger.error("Error rebent la petició d'anotació de registre amb id=" + id.getIdentificador() + " : " + e.getMessage() + ". Es comunica l'error a Distribucio", e);
 				try {
 					distribucioHelper.canviEstat(
-							idWs, 
+							idWs,
 							es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
-							"Error rebent l'anotació amb id " + id.getIndetificador() + ": " + e.getMessage());
+							"Error rebent l'anotació amb id " + id.getIdentificador() + ": " + e.getMessage());
 				} catch(Exception ed) {
-					logger.error("Error comunicant l'error de recepció a Distribucio de la petició amb id : " + id.getIndetificador() + ": " + ed.getMessage(), ed);
+					logger.error("Error comunicant l'error de recepció a Distribucio de la petició amb id : " + id.getIdentificador() + ": " + ed.getMessage(), ed);
 				}
 			}
 			Thread thread = new ComunicarEstatsThread("Comunicar " + comunicarEstats.size(), comunicarEstats);
-			thread.start();	
-			logger.info("Fi del processament de comunicació de " + ids.size() + "anotacions de registre de Distribucio. Es comunicaran " + comunicarEstats.size());		
+			thread.start();
+			logger.info("Fi del processament de comunicació de " + ids.size() + "anotacions de registre de Distribucio. Es comunicaran " + comunicarEstats.size());
 		}
 	}
 
 	private void comunicarEstats(List<ComunicarEstat> comunicarEstats) {
 		for(ComunicarEstat comunicarEstat: comunicarEstats) {
 			try {
-				logger.info("Comunicant l'estat " + comunicarEstat.getEstat() + " de l'anotació " + comunicarEstat.getIdWs().getIndetificador() + " a DISTRIBUCIO.");
+				logger.info("Comunicant l'estat " + comunicarEstat.getEstat() + " de l'anotació " + comunicarEstat.getIdWs().getIdentificador() + " a DISTRIBUCIO.");
 				if(comunicarEstat.getEstat()!=null)
 					// Comunica l'estat actual
 					distribucioHelper.canviEstat(
@@ -1556,16 +1556,16 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 
 	private class ComunicarEstatsThread extends Thread {
 		private List<ComunicarEstat> comunicarEstats;
-		
+
 		public ComunicarEstatsThread(String name, List<ComunicarEstat> comunicarEstats) {
 			super(name);
 			this.comunicarEstats = comunicarEstats;
 		}
-		
+
 		@Override
 		public void run() {
 			comunicarEstats(this.comunicarEstats);
-		}	
+		}
 	}
 
 	/** Comprova si l'anotació està en un estat en què Helium la processarà automàticament:
