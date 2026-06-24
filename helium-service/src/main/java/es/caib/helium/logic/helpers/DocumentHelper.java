@@ -18,8 +18,8 @@ import es.caib.helium.persistence.common.jbpm.JbpmVars;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
 import es.caib.helium.persistence.repository.*;
-import es.caib.plugins.arxiu.api.FirmaPerfil;
-import es.caib.plugins.arxiu.api.FirmaTipus;
+import es.caib.pluginsib.arxiu.api.FirmaPerfil;
+import es.caib.pluginsib.arxiu.api.FirmaTipus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
@@ -273,7 +273,7 @@ public class DocumentHelper {
 						documentNom,
 						documentDescripcio,
 						pdfFirmat);
-				es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+				es.caib.pluginsib.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 						documentStore.getArxiuUuid(),
 						null,
 						false,
@@ -484,7 +484,7 @@ public class DocumentHelper {
 
 	public void actualitzarNtiFirma(
 			DocumentStore documentStore,
-			es.caib.plugins.arxiu.api.Document arxiuDocument) {
+			es.caib.pluginsib.arxiu.api.Document arxiuDocument) {
 		documentHelperV3.actualitzarNtiFirma(documentStore, arxiuDocument);
 	}
 

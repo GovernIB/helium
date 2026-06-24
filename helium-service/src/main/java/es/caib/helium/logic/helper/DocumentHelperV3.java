@@ -45,7 +45,6 @@ import org.springframework.stereotype.Component;
 import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
 
-import es.caib.distribucio.core.api.service.ws.backoffice.NtiEstadoElaboracion;
 import es.caib.helium.commons.dto.AnotacioAnnexEstatEnumDto;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.ArxiuFirmaDto;
@@ -104,13 +103,13 @@ import es.caib.helium.persistence.repository.PeticioPinbalRepository;
 import es.caib.helium.persistence.repository.PortasignaturesRepository;
 import es.caib.helium.persistence.repository.RegistreRepository;
 import es.caib.helium.persistence.repository.TascaRepository;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.DocumentEstat;
-import es.caib.plugins.arxiu.api.Firma;
-import es.caib.plugins.arxiu.api.FirmaPerfil;
-import es.caib.plugins.arxiu.api.FirmaTipus;
-import es.caib.plugins.arxiu.caib.ArxiuCaibException;
-import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
+import es.caib.pluginsib.arxiu.api.ContingutArxiu;
+import es.caib.pluginsib.arxiu.api.DocumentEstat;
+import es.caib.pluginsib.arxiu.api.Firma;
+import es.caib.pluginsib.arxiu.api.FirmaPerfil;
+import es.caib.pluginsib.arxiu.api.FirmaTipus;
+import es.caib.pluginsib.arxiu.caib.ArxiuCaibException;
+import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
 
 /**
  * Helper per a gestionar els documents dels expedients
@@ -242,7 +241,7 @@ public class DocumentHelperV3 {
 		if (expedient.isArxiuActiu()) {
 
 			// #1697 Es revisa que no retorni contingut null i es reintenta
-			es.caib.plugins.arxiu.api.Document documentArxiu = null;
+			es.caib.pluginsib.arxiu.api.Document documentArxiu = null;
 			int intents = 0;
 			byte[] arxiuContingut = documentStore.getArxiuContingut();
 			resposta.setNom(documentStore.getArxiuNom());
@@ -420,7 +419,7 @@ public class DocumentHelperV3 {
 		if (expedient.isArxiuActiu()) {
 
 			// #1697 Es revisa que no retorni contingut null i es reintenta
-			es.caib.plugins.arxiu.api.Document documentArxiu = null;
+			es.caib.pluginsib.arxiu.api.Document documentArxiu = null;
 			int intents = 0;
 			byte[] arxiuContingut = documentStore.getArxiuContingut();
 			resposta.setNom(documentStore.getArxiuNom());
@@ -1696,7 +1695,7 @@ public class DocumentHelperV3 {
 								   (!(perNotificar && documentStore.isSignat())
 										   || documentStore.getArxiuUuid() == null
 										   || ! documentStore.getArxiuNom().toLowerCase().endsWith(".pdf"));
-					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+					es.caib.pluginsib.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 							documentStore.getArxiuUuid(),
 							null,
 							ambContingut,
@@ -1946,7 +1945,7 @@ public class DocumentHelperV3 {
 	@SuppressWarnings("incomplete-switch")
 	public void actualitzarNtiFirma(
 			DocumentStore documentStore,
-			es.caib.plugins.arxiu.api.Document arxiuDocument) {
+			es.caib.pluginsib.arxiu.api.Document arxiuDocument) {
 		NtiTipoFirmaEnumDto arxiuTipoFirma = null;
 		String arxiuCsv = null;
 		String arxiuCsvRegulacio = null;
@@ -2171,7 +2170,7 @@ public class DocumentHelperV3 {
 			// Guardar firma a l'Arxiu
 
 			ArxiuDto arxiuFirmat = new ArxiuDto();
-			es.caib.plugins.arxiu.api.Document documentArxiu = null;
+			es.caib.pluginsib.arxiu.api.Document documentArxiu = null;
 
 			if (documentStore.getArxiuUuid() != null) {
 				// Consulta l'arxiu per si ja està definitiu no intentar guardar sobre el mateix
@@ -2797,7 +2796,7 @@ public class DocumentHelperV3 {
 		}
 
 		List<ArxiuFirmaDto> firmes = null;
-		es.caib.plugins.arxiu.api.Document documentArxiu = null;
+		es.caib.pluginsib.arxiu.api.Document documentArxiu = null;
 		if (ambFirma) {
 			// Obté les firmes del plugin de validació a partir del contingut
 			if (arxiuUuid == null) {
@@ -3220,7 +3219,7 @@ public class DocumentHelperV3 {
 		dsDto.setDocumentError(ds.getDocumentError());
 		dsDto.setDocumentValid(ds.isDocumentValid());
 		dsDto.setNtiDefGenCsv(ds.getNtiDefinicionGenCsv());
-		dsDto.setNtiEstatElaboracio(ds.getNtiEstadoElaboracion()!=null ? ds.getNtiEstadoElaboracion().toString() : NtiEstadoElaboracion.ORIGINAL.toString() );
+		dsDto.setNtiEstatElaboracio(ds.getNtiEstadoElaboracion()!=null ? ds.getNtiEstadoElaboracion().toString() : NtiEstadoElaboracionEnumDto.ORIGINAL.toString() );
 		dsDto.setNtiIdDocOrigen(ds.getNtiIdDocumentoOrigen()!=null ? ds.getNtiIdDocumentoOrigen().toString() : null);
 		dsDto.setNtiIdentificador(ds.getNtiIdentificador());
 		dsDto.setNtiNomFormat(ds.getNtiNombreFormato()!=null ? ds.getNtiNombreFormato().toString() : null);
@@ -3305,7 +3304,7 @@ public class DocumentHelperV3 {
 			if (documentsExpedientDto!=null) {
 				for (ExpedientDocumentDto ed: documentsExpedientDto) {
 					if (ed.getArxiuUuid()!=null && !"".equals(ed.getArxiuUuid())) {
-						es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+						es.caib.pluginsib.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 								ed.getArxiuUuid(),
 								null,
 								false,

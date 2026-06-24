@@ -8,10 +8,10 @@ import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.repository.*;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.Firma;
-import es.caib.plugins.arxiu.api.FirmaTipus;
-import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
+import es.caib.pluginsib.arxiu.api.ContingutArxiu;
+import es.caib.pluginsib.arxiu.api.Firma;
+import es.caib.pluginsib.arxiu.api.FirmaTipus;
+import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,7 +171,7 @@ public class ExpedientDocumentHelper {
 		documentStore = documentStoreRepository.save(documentStore);
 
 		List<ArxiuFirmaDto> firmes = null;
-		es.caib.plugins.arxiu.api.Document documentArxiu = null;
+		es.caib.pluginsib.arxiu.api.Document documentArxiu = null;
 		if (ambFirma) {
 				// Valida firmes
 				firmes = validaFirmaDocument(
@@ -636,7 +636,7 @@ public class ExpedientDocumentHelper {
 
 	public void actualitzarNtiFirma(
 		DocumentStore documentStore,
-		es.caib.plugins.arxiu.api.Document arxiuDocument) {
+		es.caib.pluginsib.arxiu.api.Document arxiuDocument) {
 		NtiTipoFirmaEnumDto arxiuTipoFirma = null;
 		String arxiuCsv = null;
 		String arxiuCsvRegulacio = null;

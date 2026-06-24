@@ -185,7 +185,7 @@ public class PropertyConfig {
 	public static final String PROP_DOMINI_TIMEOUT = PROPERTY_PREFIX + "domini.timeout";
 	public static final String PROP_DOMINI_DESPLEGAMENT_TOMCAT = PROPERTY_PREFIX + "domini.desplegament.tomcat";
 
-	public static final String PROP_BASE_PREFIX_PLUGIN_ARXIU = PROPERTY_PREFIX;
+	public static final String PROP_BASE_PREFIX_PLUGIN_ARXIU = PROPERTY_PREFIX + "plugins.arxiu.";
 	public static final String PROP_BASE_PREFIX_PLUGIN_VALIDATESIGNATURE = PROPERTY_PREFIX;
 	public static final String PROP_BASE_PREFIX_PLUGIN_PERSONES = PROPERTY_PREFIX + "plugin.persones.";
 	public static final String PROP_BASE_PREFIX_SIGNATURA_PLUGIN = PROPERTY_PREFIX + "signatura.plugin.";

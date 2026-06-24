@@ -3632,7 +3632,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		ArxiuDto arxiu = new ArxiuDto();
 		arxiu.setNom(documentStore.getArxiuNom());
 		if (documentStore.getArxiuContingut() == null && documentStore.getArxiuUuid() != null) {
-			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentOriginal(documentStore.getArxiuUuid(), null);
+			es.caib.pluginsib.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentOriginal(documentStore.getArxiuUuid(), null);
 			if (documentArxiu != null && documentArxiu.getContingut() != null) {
 				arxiu.setContingut(documentArxiu.getContingut().getContingut());
 				arxiu.setTipusMime(documentArxiu.getContingut().getTipusMime());

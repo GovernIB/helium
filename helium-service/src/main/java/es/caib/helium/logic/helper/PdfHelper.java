@@ -41,7 +41,7 @@ import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.persistence.entity.Expedient;
-import es.caib.plugins.arxiu.api.DocumentEstat;
+import es.caib.pluginsib.arxiu.api.DocumentEstat;
 
 @Component
 public class PdfHelper {
@@ -203,7 +203,7 @@ public class PdfHelper {
 			if (documentsExpedientDto!=null) {
 				for (ExpedientDocumentDto ed: documentsExpedientDto) {
 					if (ed.getArxiuUuid()!=null && !"".equals(ed.getArxiuUuid())) {
-						es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+						es.caib.pluginsib.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 								ed.getArxiuUuid(),
 								null,
 								false,

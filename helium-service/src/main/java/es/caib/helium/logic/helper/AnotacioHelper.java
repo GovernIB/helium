@@ -71,7 +71,7 @@ import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRe
 import es.caib.helium.persistence.repository.InteressatRepository;
 import es.caib.helium.persistence.repository.MapeigSistraRepository;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
+import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 
 
@@ -231,7 +231,7 @@ public class AnotacioHelper {
 		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
 
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			es.caib.pluginsib.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			// Posarà  els annexos en la carpeta de l'anotació
 			backofficeUtils.setCarpeta(ArxiuConversioHelper.revisarContingutNom(anotacio.getIdentificador().replace("/", "_")));
 			// S'enregistraran els events al monitor d'integració
@@ -240,7 +240,7 @@ public class AnotacioHelper {
 			es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
 			try {
 				idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-				idWs.setIndetificador(anotacio.getDistribucioId());
+				idWs.setIdentificador(anotacio.getDistribucioId());
 				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
 
 			} catch(Exception e) {
@@ -310,7 +310,7 @@ public class AnotacioHelper {
 			// Notifica el nou estat a Distribucio
 			AnotacioRegistreId anotacioRegistreId = new AnotacioRegistreId();
 			anotacioRegistreId.setClauAcces(anotacio.getDistribucioClauAcces());
-			anotacioRegistreId.setIndetificador(anotacio.getDistribucioId());
+			anotacioRegistreId.setIdentificador(anotacio.getDistribucioId());
 			distribucioHelper.canviEstat(
 					anotacioRegistreId,
 					Estat.PROCESSADA,

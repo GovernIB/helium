@@ -109,10 +109,10 @@ import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRe
 import es.caib.helium.persistence.repository.RegistreRepository;
 import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.DocumentEstat;
-import es.caib.plugins.arxiu.api.ExpedientEstat;
-import es.caib.plugins.arxiu.api.ExpedientMetadades;
+import es.caib.pluginsib.arxiu.api.ContingutArxiu;
+import es.caib.pluginsib.arxiu.api.DocumentEstat;
+import es.caib.pluginsib.arxiu.api.ExpedientEstat;
+import es.caib.pluginsib.arxiu.api.ExpedientMetadades;
 import javassist.ClassPool;
 import javassist.CtClass;
 import liquibase.repackaged.org.apache.commons.text.StringSubstitutor;
@@ -884,7 +884,7 @@ public class ExpedientHelper {
 	 * 			Expedient amb la propietat isArxiuActiu a true.
 	 */
 	private void tancarExpedientArxiu(Expedient expedient, boolean firmaDocumentsServidor) {
-		es.caib.plugins.arxiu.api.Expedient arxiuExpedient = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+		es.caib.pluginsib.arxiu.api.Expedient arxiuExpedient = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 		if (!ExpedientEstat.OBERT.equals(arxiuExpedient.getMetadades().getEstat())) {
 			logger.debug("L'expedient " + expedient.getIdentificador() + " amb UUID " + expedient.getArxiuUuid() +
 						" no està obert a l'Arxiu, té l'estat " + arxiuExpedient.getMetadades().getEstat());
@@ -921,8 +921,8 @@ public class ExpedientHelper {
 		if (expedient.isArxiuActiu()
 			&& expedient.getArxiuUuid() != null
 			&& pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
-			if(expedientArxiu.getExpedientMetadades().getEstat() == es.caib.plugins.arxiu.api.ExpedientEstat.TANCAT) {
+			es.caib.pluginsib.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			if(expedientArxiu.getExpedientMetadades().getEstat() == es.caib.pluginsib.arxiu.api.ExpedientEstat.TANCAT) {
 				throw new ValidacioException("No es pot desfer la finalització d'aquest expedient perquè es troba tancat al arxiu");
 			}
 		}
@@ -1139,7 +1139,7 @@ public class ExpedientHelper {
 				documentStoreRepository.findByProcessInstanceId(procesInstance.getId()))
 			{
 				if (!documentStore.isSignat()) {
-					es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+					es.caib.pluginsib.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 							documentStore.getArxiuUuid(),
 							null,
 							false,
@@ -1184,7 +1184,7 @@ public class ExpedientHelper {
 
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
 
-		es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+		es.caib.pluginsib.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 				documentStore.getArxiuUuid(),
 				null,
 				false,

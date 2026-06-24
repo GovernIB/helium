@@ -191,9 +191,9 @@ import es.caib.helium.persistence.repository.RegistreRepository;
 import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import es.caib.helium.persistence.repository.TerminiRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.ExpedientMetadades;
-import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
+import es.caib.pluginsib.arxiu.api.ContingutArxiu;
+import es.caib.pluginsib.arxiu.api.ExpedientMetadades;
+import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -1575,8 +1575,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						ExtendedPermission.ADMINISTRATION});
 		if (expedient.isArxiuActiu()
 			&& expedient.getArxiuUuid() != null) {
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
-			return expedientArxiu.getExpedientMetadades().getEstat() == es.caib.plugins.arxiu.api.ExpedientEstat.OBERT;
+			es.caib.pluginsib.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			return expedientArxiu.getExpedientMetadades().getEstat() == es.caib.pluginsib.arxiu.api.ExpedientEstat.OBERT;
 		}
 		return true;
 	}
@@ -3117,7 +3117,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		if (expedient.isArxiuActiu()
 				&& expedient.getArxiuUuid() != null) {
 			arxiuDetall = new ArxiuDetallDto();
-			es.caib.plugins.arxiu.api.Expedient arxiuExpedient = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			es.caib.pluginsib.arxiu.api.Expedient arxiuExpedient = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			List<ContingutArxiu> continguts = arxiuExpedient.getContinguts();
 			arxiuDetall.setIdentificador(arxiuExpedient.getIdentificador());
 			arxiuDetall.setNom(arxiuExpedient.getNom());
@@ -3634,7 +3634,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					|| expedient.getNtiSerieDocumental() == null)) {
 			// Consulta la informació de l'expedient i actualitza l'expedient
 			expedient.setNtiVersion(ExpedientHelper.VERSIO_NTI);
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			es.caib.pluginsib.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			expedient.setNtiIdentificador(
 					expedientArxiu.getMetadades().getIdentificador());
 			expedient.setNtiVersion(expedientArxiu.getMetadades().getVersioNti());
@@ -3672,7 +3672,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 							null);
 					// Recupera l'identificador de l'arxiu
 					if (documentStore.getArxiuUuid() != null) {
-						es.caib.plugins.arxiu.api.Document documentArxiuInfo = pluginHelper.arxiuDocumentInfo(
+						es.caib.pluginsib.arxiu.api.Document documentArxiuInfo = pluginHelper.arxiuDocumentInfo(
 								documentStore.getArxiuUuid(),
 								null,
 								false,
@@ -3703,7 +3703,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				for(Anotacio anotacio: anotacions) {
 
 					// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
-					es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+					es.caib.pluginsib.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 					// Posarà els annexos en la carpeta de l'anotació
 					backofficeUtils.setCarpeta(ArxiuConversioHelper.revisarContingutNom(anotacio.getIdentificador().replace("/", "_")));
@@ -3714,7 +3714,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					try {
 						es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
 						idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-						idWs.setIndetificador(anotacio.getDistribucioId());
+						idWs.setIdentificador(anotacio.getDistribucioId());
 						anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
 
 					} catch(Exception e) {

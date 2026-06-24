@@ -153,7 +153,7 @@
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
 			<artifactId>distribucio-rest-client</artifactId>
-			<version>0.9.50</version>
+			<version>1.0.7</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jersey-client</artifactId>
