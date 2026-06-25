@@ -46,9 +46,9 @@ div.procesDocument:hover {
 					<c:if test="${proces.documentsPinbal==false}">
 					<div id="dataTables_new">
 						<div id="nou_document_${proces.id}" class="nou_document">
-							<a class="btn btn-default" 
-								href="../../expedient/${expedientId}/proces/${proces.id}/document/new" 
-								data-rdt-link-modal="true" 
+							<a class="btn btn-default"
+								href='<c:url value="/modal/expedient/${expedientId}/proces/${proces.id}/document/new"/>'
+								data-rdt-link-modal="true"
 								data-rdt-link-callback="recargarPanel(${proces.id});"
 								data-rdt-link-modal-min-height="180">
 								<span class="fa fa-plus"></span>
@@ -66,8 +66,8 @@ div.procesDocument:hover {
 							<ul class="dropdown-menu">
 								<li>
 									<a	id="a_nou_document_${proces.id}"
-										href="../../expedient/${expedientId}/proces/${proces.id}/document/new" 
-										data-rdt-link-modal="true" 
+										href='<c:url value="/modal/expedient/${expedientId}/proces/${proces.id}/document/new"/>'
+										data-rdt-link-modal="true"
 										data-rdt-link-callback="recargarPanel(${proces.id});"
 										data-rdt-link-modal-min-height="180">
 										<span class="fa fa-file-text-o"></span>
@@ -77,8 +77,8 @@ div.procesDocument:hover {
 								<c:if test="${expedient.tipus.pinbalActiu}">
 									<li>
 										<a	id="a_nou_document_${proces.id}"
-											href="../../expedient/${expedientId}/proces/${proces.id}/documentPinbal/new" 
-											data-rdt-link-modal="true" 
+											href='<c:url value="/modal/expedient/${expedientId}/proces/${proces.id}/documentPinbal/new"/>'
+											data-rdt-link-modal="true"
 											data-rdt-link-callback="recargarPanel(${proces.id});"
 											data-rdt-link-modal-min-height="280">
 											<span class="fa fa-file-text-o"></span>

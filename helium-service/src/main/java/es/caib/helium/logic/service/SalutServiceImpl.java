@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.config.BaseConfig;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,7 +57,7 @@ public class SalutServiceImpl implements SalutService {
 
 	@Autowired
 	private Environment env;
-	
+
 	private final JdbcTemplate jdbcTemplate;
 
 	@Resource
@@ -89,7 +90,7 @@ public class SalutServiceImpl implements SalutService {
 			new ContextInfo()
 				.codi("BACK")
 				.nom("Backoffice")
-				.path(baseUrl + "/helium")
+				.path(baseUrl + BaseConfig.BACK_CONTEXT_PREFIX)
 				.manuals(Lists.newArrayList(
 					new Manual().nom("Manual d'usuari").path("https://github.com/GovernIB/helium/blob/helium-3.3/doc/pdf/Helium_manual_usuari.pdf"),
 					new Manual().nom("Manual de disseny").path("https://github.com/GovernIB/helium/blob/helium-3.3/doc/pdf/manual_disseny.pdf"))
@@ -97,8 +98,8 @@ public class SalutServiceImpl implements SalutService {
 			new ContextInfo()
 				.codi("EXT")
 				.nom("API externa")
-				.path(baseUrl + "/helium/rest")
-				.api(baseUrl + "/helium/rest")
+				.path(baseUrl + BaseConfig.BACK_CONTEXT_PREFIX + "/rest")
+				.api(baseUrl + BaseConfig.BACK_CONTEXT_PREFIX + "/rest")
 		);
 	}
 

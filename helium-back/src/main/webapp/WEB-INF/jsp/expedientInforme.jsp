@@ -26,11 +26,11 @@
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
-	
+
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-	
+
 	<style>
 		#filtresCollapsable .controls{ width: 100% !important;}
 		#filtresCollapsable {padding-top: 20px;}
@@ -39,8 +39,8 @@
 		#taulaDades {display: block;overflow-x: auto;border-left: 0 none;border-right: 0 none;border-bottom: 0 none;}
 		.col-xs-13 {margin-left: -5px;margin-right: -15px;}
 		.form-group {padding-right: 	15px;margin-left: 	10px !important;margin-bottom:	15px;}
-		.form-group input, .form-group textarea {width: 100%;}		
-		.form-group li > .select2-container {width: 100%;padding-right: 20px;}		
+		.form-group input, .form-group textarea {width: 100%;}
+		.form-group li > .select2-container {width: 100%;padding-right: 20px;}
 		.form-group .select2-container {width: calc(100% + 14px);}
 		.condensed {margin-bottom: 0px;}
 		.form-group.registre {padding-right: 1px;}
@@ -67,7 +67,7 @@
 		.col-md-6.btn-group {width: 53.5%;}
 	</style>
 <script>
-$(document).ready(function() {	
+$(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
 		ajaxSourceUrl: "<c:url value="/informe/${expedientInformeCommand.consultaId}/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
@@ -139,7 +139,7 @@ function actualizarBotonesFiltros(id) {
 	$('#nomesTasquesPersonalsCheck').attr('disabled', false);
 	$('#nomesTasquesGrupCheck').attr('disabled', false);
 
-	var nomesMeves = ($('#nomesMevesCheck').hasClass('active') && id == null) || (!$('#nomesMevesCheck').hasClass('active') && id == 'nomesMevesCheck') || ($('#nomesMevesCheck').hasClass('active') && id != 'nomesMevesCheck'); 
+	var nomesMeves = ($('#nomesMevesCheck').hasClass('active') && id == null) || (!$('#nomesMevesCheck').hasClass('active') && id == 'nomesMevesCheck') || ($('#nomesMevesCheck').hasClass('active') && id != 'nomesMevesCheck');
 	var nomesTasquesPersonals = ($('#nomesTasquesPersonalsCheck').hasClass('active') && id == null) || (!$('#nomesTasquesPersonalsCheck').hasClass('active') && id == 'nomesTasquesPersonalsCheck') || ($('#nomesTasquesPersonalsCheck').hasClass('active') && id != 'nomesTasquesPersonalsCheck');
 	var nomesTasquesGrup = ($('#nomesTasquesGrupCheck').hasClass('active') && id == null) || (!$('#nomesTasquesGrupCheck').hasClass('active') && id == 'nomesTasquesGrupCheck') || ($('#nomesTasquesGrupCheck').hasClass('active') && id != 'nomesTasquesGrupCheck');
 
@@ -156,7 +156,7 @@ function actualizarBotonesFiltros(id) {
 }
 </script>
 </head>
-<body>		
+<body>
 	<form:form method="post" action="informe" cssClass="well form-horizontal form-tasca" modelAttribute="expedientInformeCommand">
 		<form:hidden path="consultaId"/>
 		<div class="control-group fila_reducida">
@@ -166,15 +166,15 @@ function actualizarBotonesFiltros(id) {
 				<c:set var="required" value="${false}" scope="request"/>
 				<c:import url="campsFiltre.jsp"/>
 			</c:forEach>
-		</div>		
+		</div>
 		<div class="row">
 			<div class="col-md-12">
 				<form:hidden path="nomesAlertes"/>
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
-				
+
 				<button style="display:none" type="submit" name="accio" value="filtrar"></button>
-				
+
 				<div class="row">
 					<div class="col-md-6">
 						<div class="btn-group">
@@ -194,14 +194,14 @@ function actualizarBotonesFiltros(id) {
 			</div>
 		</div>
 	</form:form>
-				
+
 	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-button-template="tableButtonsTemplate" data-rdt-filtre-form-id="expedientInformeCommand" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr class="panel-heading clicable proces" data-toggle="collapse">
 				<th data-rdt-property="expedient.id" width="4%" data-rdt-sortable="false"></th>
 				<th data-rdt-property="expedient.id" data-rdt-template="cellPendentsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="2%">
 					<script id="cellPendentsTemplate" type="text/x-jsrender">
-						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>						
+						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>
 					</script>
 				</th>
 				<th data-rdt-property="expedient.identificador" data-rdt-sorting="desc" data-visible=true><spring:message code="expedient.llistat.columna.expedient"/></th>
@@ -226,7 +226,7 @@ function actualizarBotonesFiltros(id) {
 										<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}" data-error-detall="{{:errorFull}}" data-error-pid="{{:processInstanceId}}"><span class="fa fa-exclamation-circle"></span> </span>
 									{{else}}
 										<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}"><span class="fa fa-exclamation-circle"></span> </span>
-									{{/if}}						
+									{{/if}}
 								{{/if}}
 							</div>
 						</script>
@@ -240,13 +240,13 @@ function actualizarBotonesFiltros(id) {
 				<th data-rdt-property="anulat" data-rdt-visible="false"></th>
 				<th data-rdt-property="processInstanceId" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>
-				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>		
+				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
-				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>		
+				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
-				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>			
+				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>
 				<th data-rdt-property="id" data-rdt-context="true" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">
@@ -286,9 +286,9 @@ function actualizarBotonesFiltros(id) {
 					<span class="fa fa-file-text-o"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
 				</a>
 			</c:if>
-		</div>			
+		</div>
 	</script>
-	
+
 	<script type="text/javascript">
 		function recarregarTaula(tableId, correcte) {
 			if (correcte) {
@@ -296,7 +296,7 @@ function actualizarBotonesFiltros(id) {
 				$("#"+tableId).dataTable().fnDraw();
 			}
 		}
-	
+
 		function refrescarAlertas(e) {
 			$.ajax({
 				url: "<c:url value="/nodeco/missatges"/>",
@@ -307,7 +307,7 @@ function actualizarBotonesFiltros(id) {
 				}
 			});
 		}
-		
+
 		$("#tableButtonsTemplate a").heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false,

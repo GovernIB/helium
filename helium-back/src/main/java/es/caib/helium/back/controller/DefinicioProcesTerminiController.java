@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import es.caib.helium.commons.config.BaseConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,12 +36,12 @@ import es.caib.helium.commons.dto.TerminiDto;
 
 /**
  * Controlador per a la pipella de terminis de la definició de procés.
- * 
+ *
  */
 @Controller(value = "definicioProcesTerminiControllerV3")
 @RequestMapping("/definicioProces")
 public class DefinicioProcesTerminiController extends BaseDefinicioProcesController {
-	
+
 	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> populateValorTerminis() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -49,12 +50,12 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 		}
 		return resposta;
 	}
-	
+
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/terminis")
 	public String documents(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioDefinicioProcesPerPipelles(
@@ -69,7 +70,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		return "expedientTipusTermini";
 	}
@@ -78,8 +79,8 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(
@@ -89,14 +90,14 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 						null,
 						definicioProcesId,
 						paginacioParams.getFiltre(),
-						paginacioParams));		
+						paginacioParams));
 	}
-	
+
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/new", method = RequestMethod.GET)
 	public String nou(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
 		ExpedientTipusTerminiCommand command = new ExpedientTipusTerminiCommand();
@@ -104,12 +105,12 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 		model.addAttribute("expedientTipusTerminiCommand", command);
 		return "expedientTipusTerminiForm";
 	}
-	
+
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/new", method = RequestMethod.POST)
 	public String nouPost(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@Validated(ExpedientTipusTerminiCommand.Creacio.class) ExpedientTipusTerminiCommand command,
 			BindingResult bindingResult,
 			Model model) {
@@ -122,22 +123,22 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
     				definicioProcesId,
     				ConversioTipus.convertir(
     						command,
-    						TerminiDto.class));    		
+    						TerminiDto.class));
     		MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.tipus.termini.controller.creat"));
-			return modalUrlTancar(false);	
-			
+			return modalUrlTancar(false);
+
         }
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/{id}/update", method = RequestMethod.GET)
 	public String modificar(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
 		TerminiDto dto = terminiService.findAmbId(null, id);
@@ -151,8 +152,8 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@Validated(ExpedientTipusTerminiCommand.Modificacio.class) ExpedientTipusTerminiCommand command,
 			BindingResult bindingResult,
@@ -165,25 +166,25 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
     						command,
     						TerminiDto.class));
         	MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.tipus.termini.controller.modificat"));
 			return modalUrlTancar(false);
         }
 	}
-	
+
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean borrar(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
 		try {
 			terminiService.delete(id);
-			
+
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -192,7 +193,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			return true;
 		} catch (Exception e) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					getMessage(request, "expedient.tipus.termini.controller.eliminat"),
 					e);
 			return false;

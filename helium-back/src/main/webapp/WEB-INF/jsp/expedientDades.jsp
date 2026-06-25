@@ -44,9 +44,9 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 			<c:if test="${expedient.permisDataManagement}">
 				<div class="btnNovaDada right">
 					<a id=""
-						class="btn btn-default" 
-						href="../../expedient/${expedient.id}/proces/${proces.id}/dada/new" 
-						data-rdt-link-modal="true" 
+						class="btn btn-default"
+						href='<c:url value="/modal/expedient/${expedient.id}/proces/${proces.id}/dada/new" />'
+						data-rdt-link-modal="true"
 						data-rdt-link-callback="reestructura(${proces.id});"
 						data-rdt-link-modal-min-height="350">
 						<span class="fa fa-plus"></span>
@@ -198,7 +198,7 @@ function updateBadges() {
 
 function updatePanell() {
 	updateBadges();
-	
+
 	$('.var-delete', panell).heliumEvalLink({
 		refrescarAlertes: true,
 		refrescarPagina: false,

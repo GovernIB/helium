@@ -50,7 +50,7 @@
 	<div class=var_botons>
 		<a 	class="var-edit"
 			data-rdt-link-modal="true"
-			href="<c:url value="../../expedient/${expedientId}/proces/${procesId}/dada/${dada.varCodi}/update"/>" 
+			href="<c:url value="/modal/expedient/${expedientId}/proces/${procesId}/dada/${dada.varCodi}/update"/>"
 			data-rdt-link-callback="reestructura(${procesId});"
 			data-rdt-link-modal-min-height="300"
 			title="<spring:message code='expedient.dada.modificar'/>">
@@ -59,7 +59,7 @@
 		<a 	class="var-delete"
 			data-rdt-link-confirm="<spring:message code="expedient.info.confirm.dada.esborrar"/>"
 			data-rdt-link-ajax="true"
-			href="<c:url value="../../expedient/${expedientId}/proces/${procesId}/dada/${dada.varCodi}/delete"/>" 
+			href="<c:url value="/modal/expedient/${expedientId}/proces/${procesId}/dada/${dada.varCodi}/delete"/>"
 			data-rdt-link-callback="reestructura(${procesId});"
 			title="<spring:message code='expedient.dada.esborrar'/>">
 			<span class="fa fa-trash-o"></span>

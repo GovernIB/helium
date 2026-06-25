@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import es.caib.helium.commons.config.BaseConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -43,7 +44,7 @@ import es.caib.helium.commons.dto.handlers.HandlerDto;
 
 /**
  * Controlador per a la pipella d'accions de la definició de procés.
- * 
+ *
  */
 @Controller(value = "definicioProcesAccioControllerV3")
 @RequestMapping("/definicioProces")
@@ -52,8 +53,8 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accions")
 	public String accions(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioDefinicioProcesPerPipelles(
@@ -68,17 +69,17 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		return "expedientTipusAccio";
 	}
-	
+
 	@RequestMapping(value="/{jbmpKey}/{definicioProcesId}/accio/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(
@@ -89,13 +90,13 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 						definicioProcesId,
 						paginacioParams.getFiltre(),
 						paginacioParams));
-	}	
-			
+	}
+
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/new", method = RequestMethod.GET)
 	public String nova(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			Model model) {
 		ExpedientTipusAccioCommand command = new ExpedientTipusAccioCommand();
 		command.setDefinicioProcesId(definicioProcesId);
@@ -105,14 +106,14 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 				request,
 				definicioProcesId,
 				command, model);
-		
+
 		return "expedientTipusAccioForm";
 	}
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/new", method = RequestMethod.POST)
 	public String novaPost(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@Validated(ExpedientTipusAccioCommand.Creacio.class) ExpedientTipusAccioCommand command,
 			BindingResult bindingResult,
 			Model model) {
@@ -127,21 +128,21 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
         	accioService.create(
     				null,
     				definicioProcesId,
-        			ExpedientTipusAccioCommand.asAccioDto(command));    		
+        			ExpedientTipusAccioCommand.asAccioDto(command));
     		MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.tipus.accio.controller.creat"));
-			return modalUrlTancar(false);			
+			return modalUrlTancar(false);
         }
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/{id}/update", method = RequestMethod.GET)
 	public String modificar(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
 		AccioDto dto = accioService.findAmbId(null, id);
@@ -157,7 +158,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 				command.setHandlerPredefinit(dto.getHandlerClasse());
 				break;
 			default:
-				break;		
+				break;
 		}
 
 		if (dto.getHandlerDades() != null) {
@@ -165,31 +166,31 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 				command.setHandlerDades(
 						(Map<String, String>) new ObjectMapper()
 							.readValue(
-									dto.getHandlerDades(), 
+									dto.getHandlerDades(),
 									new TypeReference<Map<String, String>>(){}));
 			} catch (Exception e) {
 				MissatgesHelper.error(
-						request, 
+						request,
 						"Error recuperant les dades JSON del handler: " + e.getMessage(),
 						e);
 			}
 		}
-		
+
 		model.addAttribute("expedientTipusAccioCommand", command);
 
 		this.omplirModelFormulariAccio(
 				request,
 				definicioProcesId,
-				command, 
+				command,
 				model);
-		
+
 		return "expedientTipusAccioForm";
 	}
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@Validated(ExpedientTipusAccioCommand.Modificacio.class) ExpedientTipusAccioCommand command,
 			BindingResult bindingResult,
@@ -204,26 +205,26 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
         	accioService.update(
         			ExpedientTipusAccioCommand.asAccioDto(command));
     		MissatgesHelper.success(
-					request, 
+					request,
 					getMessage(
-							request, 
+							request,
 							"expedient.tipus.accio.controller.modificat"));
 			return modalUrlTancar(false);
         }
 	}
-	
+
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean delete(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
-		
+
 		try {
 			accioService.delete(id);
-			
+
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -241,7 +242,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			return false;
 		}
 	}
-	
+
 	private void omplirModelFormulariAccio(
 			HttpServletRequest request,
 			Long definicioProcesId,
@@ -251,7 +252,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 		// Per estats
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(
-				entornActual.getId(), 
+				entornActual.getId(),
 				definicioProcesId);
 		model.addAttribute("perEstats", false);
 		command.setPerEstats(false);
@@ -266,40 +267,40 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 		model.addAttribute("tipus", tipusOpcions);
 
 		// Accions
-		model.addAttribute("definicionsProces", 
+		model.addAttribute("definicionsProces",
 				Arrays.asList(new String[] {definicioProces.getJbpmKey()}));
 		model.addAttribute("accions",
 				this.getAccions(definicioProcesId, command.getJbpmAction()));
 		// Handlers propis
-		model.addAttribute("handlersPropis", 
+		model.addAttribute("handlersPropis",
 				this.getHandlersPropis(definicioProcesId, command.getHandlerPropi()));
-		
+
 		// Grups de handlers predefinits
 		List<ParellaCodiValorDto> handlersPredefinititsGrups = new ArrayList<ParellaCodiValorDto>();
 		for (HandlerAgrupacioEnum agrupacio : HandlerAgrupacioEnum.values()) {
 			handlersPredefinititsGrups.add(new ParellaCodiValorDto(agrupacio.toString(), getMessage(request, "handler.agrupacio.enum." + agrupacio)));
 		}
-		model.addAttribute("handlersPredefinititsGrups", 
+		model.addAttribute("handlersPredefinititsGrups",
 				handlersPredefinititsGrups);
 
-		model.addAttribute("handlersPredefinitsJson", 
+		model.addAttribute("handlersPredefinitsJson",
 				this.getHandlersPredefinitsJson());
 
-		model.addAttribute("dadesHandlerJson", 
+		model.addAttribute("dadesHandlerJson",
 				command.getHandlerDadesJson());
 
 		// Variables del tipus d'expedient
-		model.addAttribute("variables", 
+		model.addAttribute("variables",
 				dissenyService.findCampsOrdenatsPerCodi(
 							definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null,
 							definicioProces.getId(),
 							true // amb herencia
 						));
 	}
-	
-	
+
+
 	/** Consulta la llista d'accions per la definició de procés.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @param definicioCodi
 	 * @param jbpmAction
@@ -312,7 +313,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 		for (String accio : accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
 		}
-		if (jbpmAction != null 
+		if (jbpmAction != null
 				&& !jbpmAction.isEmpty()
 				&&	!accions.contains(jbpmAction)) {
 			ret.add(0, new ParellaCodiValorDto(
@@ -321,9 +322,9 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 		}
 		return ret;
 	}
-	
+
 	/** Consulta la llista de handlers propis de la definició de procés.
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @param definicioCodi
 	 * @param handlerPropi
@@ -336,7 +337,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 		for (String accio : accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
 		}
-		if (handlerPropi != null 
+		if (handlerPropi != null
 				&& !handlerPropi.isEmpty()
 				&&	!accions.contains(handlerPropi)) {
 			ret.add(0, new ParellaCodiValorDto(
@@ -345,17 +346,17 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 		}
 		return ret;
 	}
-	
-	/** Consulta els handlers predefinits 
-	 * 
+
+	/** Consulta els handlers predefinits
+	 *
 	 * @return
 	 */
 	private String getHandlersPredefinitsJson() {
-		String handlersJson = "[]";		
+		String handlersJson = "[]";
 		try {
 			List<HandlerDto> handlers = dissenyService.getHandlersPredefinits();
 			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-			handlersJson = ow.writeValueAsString(handlers);		
+			handlersJson = ow.writeValueAsString(handlers);
 		} catch(Exception e) {
 			logger.error("Error llegint els handlers predefinits: " + e.getMessage(), e);
 		}

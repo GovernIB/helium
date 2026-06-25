@@ -4,6 +4,7 @@
 package es.caib.helium.back.controller;
 
 import es.caib.helium.back.helper.*;
+import es.caib.helium.commons.config.BaseConfig;
 import es.caib.helium.commons.dto.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,7 +39,7 @@ public class DefinicioProcesEditorController extends BaseDefinicioProcesControll
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		return "definicioProcesEditor";
 	}
