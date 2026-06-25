@@ -198,7 +198,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	    for (FlowElement element : process.getFlowElements()) {
 	        if (element instanceof UserTask) {
 	            UserTask userTask = (UserTask) element;
-	        	taskNames.add(userTask.getName());
+	        	taskNames.add(userTask.getId());
 	        }
 	    }
 		return taskNames;
