@@ -62,16 +62,6 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		}
 	}
 
-	public List<DadesPersona> findAll() throws PersonesPluginException {
-		try {
-			String likeFilter = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_LIKE);
-			String filter = new String(likeFilter).replace("*###*", "*");
-			return findPersonesLdap(filter);
-		} catch (Exception ex) {
-			throw new PersonesPluginException("No s'ha pogut trobar cap persona", ex);
-		}
-	}
-
 	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException {
 		List<String> roles = new ArrayList<String>();
 

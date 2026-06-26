@@ -125,15 +125,6 @@ public class AplicacioServiceBean extends AbstractServiceEjb<AplicacioService> i
 	 */
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
-	public List<PersonaDto> findPersonesAll() {
-		return delegateService.findPersonesAll();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
 	public void clearExpedient() {
 		delegateService.clearExpedient();
 	}

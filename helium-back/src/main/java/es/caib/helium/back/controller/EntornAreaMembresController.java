@@ -23,7 +23,6 @@ import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.commons.dto.AreaMembreDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.EntornAreaMembreService;
 import es.caib.helium.logic.intf.service.EntornCarrecService;
 import es.caib.helium.logic.intf.service.EntornService;
@@ -37,8 +36,6 @@ import es.caib.helium.logic.intf.service.EntornService;
 @RequestMapping("/entorn-area")
 public class EntornAreaMembresController extends BaseController {
 
-	@Autowired
-	private AplicacioService aplicacioService;
 	@Autowired
 	private EntornCarrecService entornCarrecService;
 	@Autowired
@@ -120,7 +117,6 @@ public class EntornAreaMembresController extends BaseController {
 
 	private String prepararModel(HttpServletRequest request,Long entornAreaId, Model model, EntornDto entornActual) {
 
-		model.addAttribute("persones", aplicacioService.findPersonesAll());
 		model.addAttribute("entornCarrecs", entornCarrecService.findCarrecsByEntornAndArea(entornActual.getId(), entornAreaId));
 		return "";
 	}

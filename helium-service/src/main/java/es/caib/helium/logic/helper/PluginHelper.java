@@ -355,45 +355,6 @@ public class PluginHelper {
 		}
 	}
 
-	public List<PersonaDto> personaFindAll() {
-		long t0 = System.currentTimeMillis();
-		try {
-			List<DadesPersona> persones = getPersonesPlugin().findAll();
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_PERSONA,
-					"Consulta de tots els usuaris",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0);
-			if (persones == null)
-				return new ArrayList<PersonaDto>();
-			return conversioTipusHelper.convertirList(persones, PersonaDto.class);
-		} catch (PersonesPluginException ex) {
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_PERSONA,
-					"Consulta de tots els usuaris ",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					"El plugin ha retornat una excepció",
-					ex);
-			logger.error(
-					"No s'han pogut consultar totes les persones",
-					ex);
-			throw new SistemaExternException(
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					MonitorIntegracioHelper.INTCODI_PERSONA,
-					"No s'han pogut consultar totes les persones",
-					ex);
-		}
-	}
-
 	/** Consulta les darreres peticions dels documents del procés i retorna només les que
 	 * estiguin en un estat pendent de processar o processat i rebutjat.
 	 */
@@ -4253,6 +4214,7 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					personesPlugin = (PersonesPlugin)clazz.newInstance();
 				} catch (Exception ex) {
+					logger.error("XXX Error instanciant el plugin de persones: " + ex.toString(), ex);
 					throw tractarExcepcioEnSistemaExtern(
 							MonitorIntegracioHelper.INTCODI_PERSONA,
 							"Error al crear la instància del plugin de persones (" +
@@ -4260,6 +4222,7 @@ public class PluginHelper {
 							ex);
 				}
 			} else {
+				logger.error("XXX No està configurada la classe per al plugin de persones");
 				throw tractarExcepcioEnSistemaExtern(
 						MonitorIntegracioHelper.INTCODI_PERSONA,
 						"No està configurada la classe per al plugin de persones",
