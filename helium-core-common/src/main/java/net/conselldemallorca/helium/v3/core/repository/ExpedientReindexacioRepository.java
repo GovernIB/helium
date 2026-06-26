@@ -45,8 +45,9 @@ public interface ExpedientReindexacioRepository extends JpaRepository<ExpedientR
 	 * List<Object[] {expedientTipusId, errors, pendents>
 	 */
 	@Query("select e.tipus.id, " +
-			"		sum(case when e.reindexarError = true then 1 else 0 end), " +
-			"		sum(case when e.reindexarData is not null then 1 else 0 end) " +
+			"		sum(case when e.reindexarError = true then 1 else 0 end), " + // Expedients amb error
+			"		sum(case when e.reindexarData is not null then 1 else 0 end), " + // Expedients pendents
+			"		sum(case when e.reindexarError = true then 0 else 1 end) " + // Expedients sense error
 			"from Expedient e " +
 			"where (:esNulEntornId = true or e.tipus.entorn.id = :entornId) " +
 			"		and e.anulat = false " + 

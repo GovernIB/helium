@@ -16,11 +16,11 @@ import javax.persistence.TableGenerator;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import es.caib.comanda.ms.estadistica.model.DiaSetmanaEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import net.conselldemallorca.helium.v3.core.api.dto.comanda.DiaSetmanaEnum;
 
 @AllArgsConstructor
 @Builder
@@ -79,4 +79,5 @@ public class ExplotacioTemps implements Serializable, GenericEntity<Long> {
 		this.trimestre = this.mes / 3;
 		this.anualitat = c.get(Calendar.YEAR);
 	}
+	
 }

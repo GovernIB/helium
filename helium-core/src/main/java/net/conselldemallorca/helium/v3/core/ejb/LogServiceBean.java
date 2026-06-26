@@ -9,9 +9,9 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.ApiException;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.FitxerContingut;
-import net.conselldemallorca.helium.v3.core.api.dto.comanda.FitxerInfo;
+import es.caib.comanda.ms.log.model.FitxerContingut;
+import es.caib.comanda.ms.log.model.FitxerInfo;
+import es.caib.comanda.service.management.ApiException;
 import net.conselldemallorca.helium.v3.core.api.service.LogService;
 
 @Stateless
@@ -29,7 +29,7 @@ public class LogServiceBean implements LogService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_COM"})
-	public FitxerContingut llegitUltimesLinies(String nomFitxer, Long nLinies)
+	public List<String> llegitUltimesLinies(String nomFitxer, Long nLinies)
 			throws ApiException {
 		return delegate.llegitUltimesLinies(nomFitxer, nLinies);
 	}

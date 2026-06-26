@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hyperic.sigar.CpuPerc;
 import org.hyperic.sigar.Sigar;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ import es.caib.comanda.ms.salut.model.MissatgeSalut;
 import es.caib.comanda.ms.salut.model.SalutInfo;
 import es.caib.comanda.ms.salut.model.SalutNivell;
 import es.caib.comanda.ms.salut.model.SubsistemaInfo;
+import es.caib.comanda.ms.salut.model.SubsistemaSalut;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Avis;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -50,6 +52,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.service.SalutService;
 import net.conselldemallorca.helium.v3.core.repository.AvisRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 
 @Service
 public class SalutServiceImpl implements SalutService {
@@ -58,13 +61,12 @@ public class SalutServiceImpl implements SalutService {
 	
 	private String baseUrl = GlobalProperties.getInstance().getProperty("app.base.url");
 	
-//	@Autowired
-//	private PluginHelper pluginHelper;
-	
 	@Resource
 	private AvisRepository avisRepository;
 	@Resource
 	private MonitorIntegracioHelper monitorIntegracioHelper;
+	@Autowired
+	private ExpedientReindexacioRepository expedientReindexacioRepository;
 	private Date lastCheckout;
 	
 	
@@ -85,7 +87,9 @@ public class SalutServiceImpl implements SalutService {
 
 	@Override
 	public List<SubsistemaInfo> getSubsistemes() {
-		return Lists.newArrayList(new SubsistemaInfo("AWE", "Alta web"));
+		return Lists.newArrayList(
+			new SubsistemaInfo("LCN", "Lucene")
+		);
 	}
 
 	@Override
@@ -94,17 +98,17 @@ public class SalutServiceImpl implements SalutService {
 			ContextInfo.builder()
 				.codi("BACK")
 				.nom("Backoffice")
-				.path(baseUrl + "/helium")
+				.path(baseUrl)
 				.manuals(Lists.newArrayList(
 						Manual.builder().nom("Manual d'usuari").path("https://github.com/GovernIB/helium/blob/helium-3.3/doc/pdf/Helium_manual_usuari.pdf").build(),
 						Manual.builder().nom("Manual de disseny").path("https://github.com/GovernIB/helium/blob/helium-3.3/doc/pdf/manual_disseny.pdf").build())
 						)
 				.build(),
 			ContextInfo.builder()
-				.codi("EXT")
-				.nom("API externa")
-				.path(baseUrl + "/helium/rest")
-				.api(baseUrl + "/helium/rest")
+				.codi("INT")
+				.nom("API Interna")
+				.path(baseUrl.substring(0, baseUrl.lastIndexOf("/")) + "/heliumapi/interna")
+				.api(baseUrl.substring(0, baseUrl.lastIndexOf("/")) + "/heliumapi/interna")
 				.build()
 		);
 	}
@@ -116,6 +120,9 @@ public class SalutServiceImpl implements SalutService {
 		List<IntegracioSalut> integracions = checkIntegracions();		// Integracions
 		List<DetallSalut> altres = checkAltres();						// Altres
 		List<MissatgeSalut> missatges = checkMissatges();				// Missatges
+		List<SubsistemaSalut> subsistemes = checkSubsistemes();
+		
+		
 		EstatSalutEnum estatGlobalSubsistemes = EstatSalutEnum.UP;
 
 		if (EstatSalutEnum.UP.equals(estatSalut.getEstat()) && !EstatSalutEnum.UP.equals(estatGlobalSubsistemes)) {
@@ -124,16 +131,18 @@ public class SalutServiceImpl implements SalutService {
 				.latencia(estatSalut.getLatencia())
 				.build();
 		}
-
+		
+		
+		
 		return SalutInfo.builder()
 				.codi("HEL")
 				.versio(versio)
 				.data(new Date())
-				.estat(estatSalut)
-				.bd(salutDatabase)
+				.estatGlobal(estatSalut)
+				.estatBaseDeDades(salutDatabase)
 				.integracions(integracions)
-				.subsistemes(null)
-				.altres(altres)
+				.subsistemes(subsistemes)
+//				.altres(altres)
 				.missatges(missatges)
 				.build();
 	}
@@ -491,6 +500,25 @@ public class SalutServiceImpl implements SalutService {
 			return SalutNivell.ERROR;
 		}
 		return null;
+	}
+	
+	private List<SubsistemaSalut> checkSubsistemes() {
+		// Consulta les dades de tots els expedients de tots els entorns
+		List<Object[]> dades = expedientReindexacioRepository.getDades(true, null);
+		Object[] stats = dades.get(0);
+		Long totalErrors	= (Long) stats[0];
+		Long totalOk		= (Long) stats[2];
+		
+		List<SubsistemaSalut> subsistemes = new ArrayList<SubsistemaSalut>();
+		SubsistemaSalut luceneStats = SubsistemaSalut
+				.builder()
+				.codi("LCN")
+				.estat(EstatSalutEnum.UP)
+				.totalError(totalErrors)
+				.totalOk(totalOk)
+				.build();
+		subsistemes.add(luceneStats);
+		return subsistemes;
 	}
 	
 	private static final Log logger = LogFactory.getLog(SalutServiceImpl.class);

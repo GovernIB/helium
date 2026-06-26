@@ -2,7 +2,6 @@ package net.conselldemallorca.helium.v3.core.api.dto.comanda;
 
 import java.util.Date;
 
-import es.caib.comanda.ms.estadistica.model.DiaSetmanaEnum;
 import lombok.Getter;
 import lombok.Setter;
 

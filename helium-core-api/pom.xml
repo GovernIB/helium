@@ -65,9 +65,8 @@
 		</dependency>
 		<dependency>
 			<groupId>es.caib.comanda</groupId>
-			<artifactId>comanda-lib</artifactId>
-			<version>0.1.0</version>
-		    <classifier>java7</classifier>
+			<artifactId>comanda-api-legacy</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 	<build>

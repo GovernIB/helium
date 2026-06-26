@@ -17,11 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.Builder;
 import lombok.Getter;
+import net.conselldemallorca.helium.core.model.service.UpdateService;
 
 public abstract class ComandaBaseController {
 	
 	@Autowired
 	private ServletContext servletContext;
+	@Autowired
+	private UpdateService updateService;
+	
 	private ManifestInfo manifestInfo;
 	
 	private static DateFormat isoDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -42,13 +46,13 @@ public abstract class ComandaBaseController {
 			manifestAtributsMap.put(key.toString(), manifestAtributs.get(key));
 		}
 		if (!manifestAtributsMap.isEmpty()) {
-			Object version = manifestAtributsMap.get("Implementation-Version");
+			String version = updateService.getVersioActual();
 			Object buildDate = manifestAtributsMap.get("Build-Timestamp");
 			Object buildJDK = manifestAtributsMap.get("Build-Jdk-Spec");
 			Object buildScmBranch = manifestAtributsMap.get("Implementation-SCM-Branch");
 			Object buildScmRevision = manifestAtributsMap.get("Implementation-SCM-Revision");
 			manifestInfo = ManifestInfo.builder()
-				.version(version != null ? version.toString() : null)
+				.version(version)
 				.buildDate(buildDate != null ? getDate(buildDate.toString()) : null)
 				.buildJDK(buildJDK != null ? buildJDK.toString() : null)
 				.buildScmBranch(buildScmBranch != null ? buildScmBranch.toString() : null)
