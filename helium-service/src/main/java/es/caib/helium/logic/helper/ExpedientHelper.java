@@ -1240,6 +1240,7 @@ public class ExpedientHelper {
 		String nodeNameVell = token.getNodeName();
 		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
 				token.getProcessInstanceId());
+
 		workflowEngineApi.tokenRedirect(
 				Long.valueOf(tokenId),
 				nodeName,

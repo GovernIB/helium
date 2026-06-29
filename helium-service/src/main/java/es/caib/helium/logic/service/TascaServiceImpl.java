@@ -1099,9 +1099,10 @@ public class TascaServiceImpl implements TascaService {
 				task.getProcessDefinitionId());
 		Map<String, Object> variablesProcessades = new HashMap<String, Object>(variables);
 		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variablesProcessades);
-		task = workflowEngineApi.startTaskInstance(taskId);
+		//task = workflowEngineApi.startTaskInstance(taskId);
+		task = workflowEngineApi.getTaskById(taskId);
 		workflowEngineApi.setTaskInstanceVariables(taskId, variablesProcessades, false);
-
+		this.expedientDadaHelper.setDades(expedient, task.getProcessInstanceId(), taskId, variablesProcessades);
 		if (task.getStartTime() == null) {
 			Registre registre = new Registre(
 					new Date(),
@@ -1634,7 +1635,7 @@ public class TascaServiceImpl implements TascaService {
 
         workflowEngineApi.marcarIniciFinalitzacioSegonPla(tascaId, iniciFinalitzacio);
 
-        
+
         completarTasca(
                 tascaId,
                 task,

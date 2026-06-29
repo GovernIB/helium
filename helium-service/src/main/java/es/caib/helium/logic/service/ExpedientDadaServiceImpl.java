@@ -547,28 +547,12 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				valorBody = new ArrayList<List<String>>();
 				for (ExpedientDadaDto fila : dadesRegistrePerTaula) {
 					List<String> valorFila = new ArrayList<String>();
-					if(dadaExp.isCampMultiple()) {
 						if(fila.getVarValor() != null) {
-							for(Object row : (Object[])fila.getVarValor()) {
-								String valor = null;
+							for(ExpedientDadaDto row : fila.getRegistreDades()) {
 								if(row != null)
-									valorFila.add(row.toString());
-//								List<String> valorFila = new ArrayList<String>();
-//								if(row instanceof List) {
-//									for(Object v : (List)row)
-//										valorFila.add(v != null? v.toString() : null);
-//								}
+									valorFila.add(row.getText());
 							}
 						}
-					} else {
-						// valorBody = new ArrayList<List<String>>();
-						//List<String> valorFila = new ArrayList<String>();
-						if(fila.getVarValor() != null) {
-							for(Object v : (Object[])fila.getVarValor()) {
-								valorFila.add(v != null? v.toString() : null);
-							}
-						}
-					}
 					valorBody.add(valorFila);
 				}
 			}
@@ -576,11 +560,12 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		} else if (dadaExp.isCampMultiple()) {
 			valorMultiple = new ArrayList<String>();
 			if(dadaExp.getVarValor() != null) {
-				for(Object col : ((Object[]) dadaExp.getVarValor()))
-					valorMultiple.add(col.toString());
+				for(ExpedientDadaDto fila : dadaExp.getMultipleDades())
+					valorMultiple.add(fila.getText());
 			}
 		} else {
 			valorSimple = dadaExp.getText();
+			//valorSimple = dadaExp.getText();
 		}
 		return DadaValorDto.builder()
 				.registre(dadaExp.isCampTipusRegistre())
