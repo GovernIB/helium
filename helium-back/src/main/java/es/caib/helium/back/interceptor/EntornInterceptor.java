@@ -1,6 +1,7 @@
 package es.caib.helium.back.interceptor;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.ModelAndViewDefiningException;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
 import es.caib.helium.back.helper.UsuariActualHelper;
+import es.caib.helium.commons.dto.ConsultaDto;
 import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.UsuariPreferenciesDto;
@@ -199,6 +201,9 @@ public class EntornInterceptor implements HandlerInterceptor {
 					List<ExpedientTipusDto> accessiblesConConsultasActivas = new ArrayList<ExpedientTipusDto>();
 					for (ExpedientTipusDto expedientTipus: accessibles) {
 						if (!expedientTipus.getConsultes().isEmpty()) {
+							// Ordena les consultes per l'ordre
+							expedientTipus.getConsultes().stream()
+											.sorted(Comparator.comparing(ConsultaDto::getOrdre));
 							accessiblesConConsultasActivas.add(expedientTipus);
 						}
 					}
