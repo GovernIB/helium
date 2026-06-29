@@ -4,7 +4,8 @@
 package net.conselldemallorca.helium.webapp.mvc.interceptor;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -14,18 +15,17 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.ModelAndViewDefiningException;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import freemarker.template.utility.DateUtil;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
@@ -207,6 +207,14 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					List<ExpedientTipusDto> accessiblesConConsultasActivas = new ArrayList<ExpedientTipusDto>();
 					for (ExpedientTipusDto expedientTipus: accessibles) {
 						if (!expedientTipus.getConsultes().isEmpty()) {
+							// Ordena les consultes per l'ordre
+							Collections.sort(
+									expedientTipus.getConsultes(),
+									new Comparator<ConsultaDto>() {
+										public int compare(ConsultaDto c1, ConsultaDto c2) {
+											return Integer.compare(c1.getOrdre(), c2.getOrdre());
+										}
+									});
 							accessiblesConConsultasActivas.add(expedientTipus);
 						}
 					}

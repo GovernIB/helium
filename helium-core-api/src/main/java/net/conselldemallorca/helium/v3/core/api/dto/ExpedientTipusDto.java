@@ -358,13 +358,6 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setPermisUOCount(int permisUOCount) {
 		this.permisUOCount = permisUOCount;
 	}
-	public List<ConsultaDto> getConsultesSort() {
-		if (consultes == null)
-			consultes = new ArrayList<ConsultaDto>();
-		Collections.sort(consultes);
-		return consultes;
-	}
-
 	public String getFormextUrl() {
 		return formextUrl;
 	}

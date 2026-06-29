@@ -537,7 +537,7 @@
 												<c:if test="${empty expedientTipusActual or expedientTipusActual.id == expedientTipus.id}">
 													<c:if test="${consultaStatus.index == 0}"><li class="divider"></li></c:if>	
 													<li class="nav-header">${expedientTipus.nom}</li>
-													<c:forEach var="consulta" items="${expedientTipus.consultesSort}">
+													<c:forEach var="consulta" items="${expedientTipus.consultes}">
 														<%--li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe?consultaId=${consulta.id}"></c:url>">${consulta.nom}</a></li--%>
 														<li class="nav-consulta-tipus"><a href="<c:url value="/v3/expedient/consulta/${consulta.id}"></c:url>">${consulta.nom}</a></li>
 													</c:forEach>
