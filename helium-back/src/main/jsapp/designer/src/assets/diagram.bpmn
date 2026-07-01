@@ -4,6 +4,7 @@
                   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:flowable="http://flowable.org/bpmn"
                   id="Definitions_1"
                   targetNamespace="es.caib.helium.test3">
   <bpmn:process id="procesSimple3" name="Procés Simple 3" isExecutable="true">

@@ -6,7 +6,15 @@ import {
 } from '@bpmn-io/properties-panel';
 import { useService } from 'bpmn-js-properties-panel';
 
-const getTypeValue = (businessObject) => {
+type BpmnElement = {
+    businessObject: any;
+};
+
+type PropertiesEntryProps = {
+    element: BpmnElement;
+};
+
+const getTypeValue = (businessObject: any) => {
     const classValue = businessObject.get('flowable:class');
     const expressionValue = businessObject.get('flowable:expression');
     const delegateExpressionValue = businessObject.get('flowable:delegateExpression');
@@ -19,8 +27,8 @@ const getTypeValue = (businessObject) => {
             : undefined;
 };
 
-export const createJavaPropertiesGroup = (element) => {
-    const entries = [
+export const createJavaPropertiesGroup = (element: BpmnElement) => {
+    const entries: any[] = [
         {
             id: 'flowable-java-group-type',
             component: FlowableJavaTypeField,
@@ -56,7 +64,7 @@ export const createJavaPropertiesGroup = (element) => {
     };
 };
 
-const FlowableJavaTypeField = (props) => {
+const FlowableJavaTypeField = (props: PropertiesEntryProps) => {
     const { element } = props;
     const modeling = useService('modeling');
     return SelectEntry({
@@ -64,15 +72,17 @@ const FlowableJavaTypeField = (props) => {
         id: 'flowable-java-type',
         label: 'Type',
         getValue: () => getTypeValue(element.businessObject),
-        setValue: (value) => {
+        setValue: (value: string | undefined) => {
             const valueChanged = getTypeValue(element.businessObject) !== value;
-            const updates = {};
+            const updates: Record<string, string | undefined> = {};
             if (valueChanged) {
                 updates['flowable:class'] = undefined;
                 updates['flowable:expression'] = undefined;
                 updates['flowable:delegateExpression'] = undefined;
             }
-            updates['flowable:' + value] = '';
+            if (value) {
+                updates['flowable:' + value] = '';
+            }
             modeling.updateProperties(element, updates);
         },
         getOptions: () => [
@@ -84,7 +94,7 @@ const FlowableJavaTypeField = (props) => {
     });
 };
 
-const FlowableJavaClassField = (props) => {
+const FlowableJavaClassField = (props: PropertiesEntryProps) => {
     const { element } = props;
     const modeling = useService('modeling');
     const debounce = useService('debounceInput');
@@ -95,7 +105,7 @@ const FlowableJavaClassField = (props) => {
         getValue: () => {
             return element.businessObject.get('flowable:class');
         },
-        setValue: (value) => {
+        setValue: (value: string) => {
             modeling.updateProperties(element, {
                 'flowable:class': value,
             });
@@ -104,7 +114,7 @@ const FlowableJavaClassField = (props) => {
     });
 };
 
-const FlowableJavaExpressionField = (props) => {
+const FlowableJavaExpressionField = (props: PropertiesEntryProps) => {
     const { element } = props;
     const modeling = useService('modeling');
     const debounce = useService('debounceInput');
@@ -113,7 +123,7 @@ const FlowableJavaExpressionField = (props) => {
         id: 'flowable-java-expression',
         label: 'Expression',
         getValue: () => element.businessObject.get('flowable:expression') || '',
-        setValue: (value) => {
+        setValue: (value: string) => {
             modeling.updateProperties(element, {
                 'flowable:expression': value,
             });
@@ -122,7 +132,7 @@ const FlowableJavaExpressionField = (props) => {
     });
 };
 
-const FlowableJavaDelegateExpressionField = (props) => {
+const FlowableJavaDelegateExpressionField = (props: PropertiesEntryProps) => {
     const { element } = props;
     const modeling = useService('modeling');
     const debounce = useService('debounceInput');
@@ -131,7 +141,7 @@ const FlowableJavaDelegateExpressionField = (props) => {
         id: 'flowable-java-delegate-expression',
         label: 'Delegate expression',
         getValue: () => element.businessObject.get('flowable:delegateExpression') || '',
-        setValue: (value) => {
+        setValue: (value: string) => {
             modeling.updateProperties(element, {
                 'flowable:delegateExpression': value,
             });
