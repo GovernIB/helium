@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_1"
+                  targetNamespace="es.caib.helium.test3">
+  <bpmn:process id="procesSimple3" name="Procés Simple 3" isExecutable="true">
+    <bpmn:startEvent id="start" name="Inici"/>
+    <bpmn:userTask id="tascaTest" name="Tasca de prova"/>
+    <bpmn:endEvent id="end" name="Fi"/>
+    <bpmn:sequenceFlow id="flux1" sourceRef="start" targetRef="tascaTest"/>
+    <bpmn:sequenceFlow id="flux2" sourceRef="tascaTest" targetRef="end"/>
+    <bpmn:serviceTask id="Activity_1xe4c1y" flowable:class="es.limit.prova.Handler">
+      <bpmn:extensionElements>
+        <flowable:field name="var1">
+          <flowable:string>1234</flowable:string>
+        </flowable:field>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="procesSimple3">
+      <bpmndi:BPMNShape id="StartEvent_di" bpmnElement="start">
+        <dc:Bounds x="150" y="100" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_di" bpmnElement="tascaTest">
+        <dc:Bounds x="250" y="80" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_di" bpmnElement="end">
+        <dc:Bounds x="400" y="100" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15ar8jb_di" bpmnElement="Activity_1xe4c1y">
+        <dc:Bounds x="570" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow1_di" bpmnElement="flux1">
+        <di:waypoint x="186" y="118"/>
+        <di:waypoint x="250" y="118"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow2_di" bpmnElement="flux2">
+        <di:waypoint x="350" y="118"/>
+        <di:waypoint x="400" y="118"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

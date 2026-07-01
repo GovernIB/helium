@@ -25,3 +25,5 @@
 target/
 /activemq-data/
 .vite/
+helium-back/src/main/jsapp/designer/node_modules/
+helium-back/src/main/jsapp/designer/dist/

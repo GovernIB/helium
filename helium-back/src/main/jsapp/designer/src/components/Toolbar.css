@@ -1,0 +1,50 @@
+.toolbar {
+	position: absolute;
+	top: 20px;
+	right: 360px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #d9d9d9;
+	padding: 4px;
+	gap: 6px;
+}
+.toolbara {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	z-index: 10;
+	display: flex;
+	gap: 8px;
+}
+
+.grup {
+	display: flex;
+}
+
+.grup button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+}
+
+.grup button:hover {
+	background: #f0f0f0;
+}
+
+.grup button:active {
+	background: #e6e6e6;
+}
+
+.separator {
+	width: 1px;
+	height: 24px;
+	background: #d0d0d0;
+}

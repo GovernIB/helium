@@ -1,0 +1,48 @@
+{
+    "name": "Flowable",
+    "uri": "http://flowable.org/bpmn",
+    "prefix": "flowable",
+    "xml": {
+        "tagAlias": "lowerCase"
+    },
+    "types": [
+        {
+            "name": "ServiceTaskDelegateExpression",
+            "superClass": ["bpmn:ServiceTask"],
+            "properties": [
+                {
+                    "name": "flowable:class",
+                    "type": "String"
+                },
+                {
+                    "name": "flowable:expression",
+                    "type": "String"
+                },
+                {
+                    "name": "flowable:delegateExpression",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "field",
+            "superClass": ["bpmn:BaseElement"],
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "String",
+                    "required": true,
+                    "isAttr": true
+                },
+                {
+                    "name": "string",
+                    "type": "String"
+                },
+                {
+                    "name": "expression",
+                    "type": "String"
+                }
+            ]
+        }
+    ]
+}
