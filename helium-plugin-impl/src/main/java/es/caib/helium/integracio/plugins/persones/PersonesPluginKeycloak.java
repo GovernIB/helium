@@ -68,11 +68,6 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 	}
 
 	@Override
-	public List<DadesPersona> findAll() throws PersonesPluginException {
-		return findLikeNomSencer("");
-	}
-
-	@Override
 	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException {
 		try {
 			RolesInfo rolesInfo = getRolesByUsername(codi);

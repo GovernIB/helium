@@ -433,14 +433,19 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WTaskInstance reassignTaskInstance(String taskId, String expression, Long entornId) {
-		// TODO Auto-generated method stub
-		return null;
+		if(expression.startsWith("user(")) {
+			String user = expression.replace("user(", "").replace(")", "");
+			this.processEngine.getTaskService().setAssignee(taskId, user);
+		} else if(expression.startsWith("grup(")) {
+			String group = expression.replace("grup(", "").replace(")", "");
+			this.processEngine.getTaskService().addCandidateGroup(taskId, group);
+		}
+		return this.getTaskById(taskId);
 	}
 
 	@Override
 	public void setTaskInstanceActorId(String taskInstanceId, String actorId) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -488,7 +493,8 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public void setTaskInstanceVariables(String taskId, Map<String, Object> variables, boolean deleteFirst) {
 		// TODO Auto-generated method stub
-
+		// Task task = processEngine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+		processEngine.getTaskService().setVariables(taskId, variables);
 	}
 
 	@Override

@@ -71,20 +71,6 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 		}
 	}
 
-	public List<DadesPersona> findAll() throws PersonesPluginException {
-		try {
-			String query = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_JDBC_FILTER_NAME);
-			Map<String, Object> parametres = new HashMap<String, Object>();
-			parametres.put("nom", "");
-			List<DadesPersona> resultat = consultaSql(query, parametres);
-			if (resultat.size() > 0)
-				return resultat;
-			return null;
-		} catch (Exception ex) {
-			throw new PersonesPluginException("No s'ha pogut trobar cap persona", ex);
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException {
 		List<String> rols = new ArrayList<String>();

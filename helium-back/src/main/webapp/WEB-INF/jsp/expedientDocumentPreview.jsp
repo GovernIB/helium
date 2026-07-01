@@ -53,7 +53,7 @@
 </style>
 <script type="text/javascript">
 // <![CDATA[
-	
+
 	$(function() {
     var expedientId = '${expedientId}';
     var documentId = '${documentStoreId}';
@@ -61,7 +61,7 @@
 
     $.ajax({
         type: 'GET',
-        url: 'modal/expedient/' + expedientId + '/document/' + documentId + '/returnFitxer',
+        url: '<c:url value="/modal/expedient/" />' + expedientId + '/document/' + documentId + '/returnFitxer',
         success: function(json) {
             if (json.error) {
                 $('#viewer').prepend('<div class="alert alert-danger">' + json.errorMsg + '</div>');
@@ -80,12 +80,12 @@
         }
 	    });
 	});
-	
-	
+
+
 // ]]>
 </script>
 </head>
-<body>	
+<body>
 	<div id="viewer">
 		<div id="spinner">
 			<div class="contingut-carregant">

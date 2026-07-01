@@ -8,12 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -302,14 +297,20 @@ public class TascaFormHelper {
 						}
 					// Camps senzills
 					} else {
-						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
-							if (valor != null) {
-								valor = crearTermini(valor);
-							} else {
-								valor = new String[3];
-							}
-						} else if (camp.getCampTipus().equals(CampTipusDto.STRING) && valor == null) {
-							valor = "";
+						switch (camp.getCampTipus()) {
+							case TERMINI:
+								if (valor != null) {
+									valor = crearTermini(valor);
+								} else {
+									valor = new String[3];
+								}
+								break;
+							case PRICE:
+								valor = (valor != null)? BigDecimal.valueOf((Double) valor) : null;
+								break;
+							case DATE:
+								valor = (valor != null)? new Date((Long) valor) : null;
+								break;
 						}
 						setSimpleProperty(
 								command,

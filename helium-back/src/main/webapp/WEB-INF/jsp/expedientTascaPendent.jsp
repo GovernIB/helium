@@ -30,7 +30,7 @@
 		<c:if test="${not tasca.completed and tasca.tascaTramitacioMassiva}">
 			<span class="<c:if test="${tasca.assignadaUsuariActual}">tramitar_massivament</c:if> label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span>
 		</c:if>
-	</div> 
+	</div>
 </td>
 <td class="datacol">${tasca.responsableString}</td>
 <td class="datacol"><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
@@ -53,16 +53,16 @@
 					<li><a data-rdt-link-ajax=true data-rdt-link-callback="alliberar(${tasca.id});" href="<c:url value="../expedient/${expedient.id}/tasca/${tasca.id}/alliberar"/>" class="icon" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 				</c:if>
 				<c:if test="${tasca.open}">
-					<c:if test="${expedient.permisReassignment}"><li><a href="<c:url value="../expedient/${expedient.id}/tasca/${tasca.id}/reassignar"/>" class="icon" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li></c:if>
+					<c:if test="${expedient.permisReassignment}"><li><a href="<c:url value="/modal/expedient/${expedient.id}/tasca/${tasca.id}/reassignar"/>" class="icon" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li></c:if>
 				</c:if>
 				<c:if test="${tasca.open and not tasca.suspended}">
-					<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="../expedient/${expedient.id}/tasca/${tasca.id}/suspendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li></c:if>
+					<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="/expedient/${expedient.id}/tasca/${tasca.id}/suspendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li></c:if>
 				</c:if>
 				<c:if test="${tasca.suspended}">
-					<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="../expedient/${expedient.id}/tasca/${tasca.id}/reprendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li></c:if>
+					<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="/expedient/${expedient.id}/tasca/${tasca.id}/reprendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li></c:if>
 				</c:if>
 				<c:if test="${not tasca.completed and not tasca.cancelled}">
-					<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="../expedient/${expedient.id}/tasca/${tasca.id}/cancelar"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li></c:if>
+					<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="/expedient/${expedient.id}/tasca/${tasca.id}/cancelar"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li></c:if>
 				</c:if>
 			</ul>
 			<script type="text/javascript">

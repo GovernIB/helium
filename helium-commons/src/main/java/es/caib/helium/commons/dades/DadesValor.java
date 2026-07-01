@@ -1,53 +1,36 @@
 package es.caib.helium.commons.dades;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Objecte per mapejar el JSON del valor d'una dada del servei de dades.
- * 
+ *
  */
+
+
+@Getter
+@Setter
 public class DadesValor {
 
 	/** Valor contingut de l'objecte, pot ser un valor simple o una llista. */
 	private Object v;
 	/** Tipus de la dada. */
-	private String t;
+	private DadaTipusEnum t;
 	/** Valor de caché opcional pel cas dels dominis. */
 	private Object cache;
 
 	public DadesValor() {
 	}
-	
-	public DadesValor(Object v, String t) {
+
+	public DadesValor(Object v, DadaTipusEnum t) {
 		this.v = v;
 		this.t = t;
 	}
 
-	public DadesValor(Object v, String t, Object cache) {
+	public DadesValor(Object v, DadaTipusEnum t, Object cache) {
 		this.v = v;
 		this.t = t;
-		this.cache = cache;
-	}
-
-	public Object getV() {
-		return v;
-	}
-
-	public void setV(Object v) {
-		this.v = v;
-	}
-
-	public String getT() {
-		return t;
-	}
-
-	public void setT(String t) {
-		this.t = t;
-	}
-
-	public Object getCache() {
-		return cache;
-	}
-
-	public void setCache(Object cache) {
 		this.cache = cache;
 	}
 }

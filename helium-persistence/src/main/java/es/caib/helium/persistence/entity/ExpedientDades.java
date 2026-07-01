@@ -1,5 +1,8 @@
 package es.caib.helium.persistence.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -18,15 +21,17 @@ import javax.persistence.UniqueConstraint;
 /**
  * Classe tipus entity que mapeja la taula de dades d'expedients que conté la columna CLOB amb el JSON de les
  * dades dels expedients per expedient, procés i tasca.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Getter
+@Setter
 @Entity
 @Table(
 		name= "hel_expedient_dades",
 		uniqueConstraints={
 					@UniqueConstraint(
-							name="hel_expeident_dades_uk", 
+							name="hel_expeident_dades_uk",
 							columnNames={"expedient_tipus_id", "expedient_id"})
 					}
 )
@@ -37,7 +42,7 @@ public class ExpedientDades implements Serializable, GenericEntity<Long> {
 	@TableGenerator(name="gen_exdades", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
 	@Column(name="id")
 	private Long id;
-	
+
 	@ManyToOne(optional = false)
 	@JoinColumn(
 			name = "expedient_tipus_id",
@@ -56,54 +61,11 @@ public class ExpedientDades implements Serializable, GenericEntity<Long> {
 	@Column(name="task_id")
 	private String taskId;
 
-	/** Columna on es guarda el JSON amb les dades. */ 
+	/** Columna on es guarda el JSON amb les dades. */
 	@Lob
     @Column(name = "DADES", columnDefinition = "CLOB")
     private String dades;
 
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public ExpedientTipus getExpedientTipus() {
-		return expedientTipus;
-	}
-	public void setExpedientTipus(ExpedientTipus expedientTipus) {
-		this.expedientTipus = expedientTipus;
-	}
-	public Expedient getExpedient() {
-		return expedient;
-	}
-	public void setExpedient(Expedient expedient) {
-		this.expedient = expedient;
-	}
-	public boolean getPrincipal() {
-		return principal != null? principal.booleanValue() : false;
-	}
-	public void setPrincipal(Boolean principal) {
-		this.principal = principal;
-	}
-	public String getProcessId() {
-		return processId;
-	}
-	public void setProcessId(String processId) {
-		this.processId = processId;
-	}
-	public String getTaskId() {
-		return taskId;
-	}
-	public void setTaskId(String taskId) {
-		this.taskId = taskId;
-	}
-	public String getDades() {
-		return dades;
-	}
-	public void setDades(String dades) {
-		this.dades = dades;
-	}
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

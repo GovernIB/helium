@@ -21,12 +21,16 @@ public interface ExpedientDadesRepository extends JpaRepository<ExpedientDades, 
 	public ExpedientDades findByExpedientAndTaskId(Expedient expedient, String taskId);
 
 	/** Obté les dades d'un expedient per un procés concret. */
-	public ExpedientDades findByExpedientAndProcessId(Expedient expedient, String processId);
+	public ExpedientDades findByExpedientAndProcessIdAndTaskIdIsNull(Expedient expedient, String processId);
 
 	/** Obté les dades d'un expedient sense procés ni tasca. */
-	public ExpedientDades findByExpedient(Expedient expedient);
+	public List<ExpedientDades> findByExpedient(Expedient expedient);
+
+	/** Obté les dades principals d'un expedient. */
+	public ExpedientDades findByExpedientAndPrincipal(Expedient expedient, boolean principal);
 
 	public List<ExpedientDades> findByExpedientIdIn(List<Long> llistaExpedientIds);
 
 	public void deleteByExpedientId(Long expedientId);
+
 }

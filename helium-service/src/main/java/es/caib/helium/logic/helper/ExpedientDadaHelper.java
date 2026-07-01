@@ -6,22 +6,21 @@ package es.caib.helium.logic.helper;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
 import javax.persistence.Column;
-import javax.persistence.EntityManagerFactory;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import es.caib.helium.commons.dades.DadaTipusEnum;
 import es.caib.helium.commons.dto.*;
 import es.caib.helium.logic.config.ObjectArrayDeserializer;
+import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.repository.ExpedientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,11 +30,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dades.DadesValor;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.ExpedientDades;
-import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.repository.CampRepository;
 import es.caib.helium.persistence.repository.ExpedientDadesRepository;
 
@@ -45,39 +39,32 @@ import es.caib.helium.persistence.repository.ExpedientDadesRepository;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
+@RequiredArgsConstructor
 public class ExpedientDadaHelper {
 
 	public static final String CLAU_EXPEDIENT_ID = "EXPEDIENT_ID";
 
-	@Resource
-	private ExpedientDadesRepository expedientDadesRepository;
-	@Resource
-	private CampRepository campRepository;
-	@Resource
-	private ExpedientRepository expedientRepository;
-	@Resource
-	private ExpedientHelper expedientHelper;
-	@Resource(name = "permisosHelperV3")
-	private PermisosHelper permisosHelper;
-	@Resource
-	private VariableHelper variableHelper;
-
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
-
-	@Autowired
-	private EntityManagerFactory entityManagerFactory;
+	private final ExpedientDadesRepository expedientDadesRepository;
+	private final CampRepository campRepository;
+	private final ExpedientRepository expedientRepository;
+	private final VariableHelper variableHelper;
+	private final JdbcTemplate jdbcTemplate;
 
 	// Objectes estàtics per fer la conversió JSON/Map
-	private static ObjectMapper mapper;
-    private static TypeReference<HashMap<String,DadesValor>> typeRef;
+	private final static ObjectMapper mapper;
+    private final static TypeReference<HashMap<String,DadesValor>> typeRef;
+	private final static SimpleDateFormat dateFormatter;
+
 	static {
 		mapper = new ObjectMapper();
 		typeRef = new TypeReference<HashMap<String,DadesValor>>() {};
-
+		dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+		mapper.setDateFormat(dateFormatter);
 		SimpleModule module = new SimpleModule();
 		module.addDeserializer(Object.class, new ObjectArrayDeserializer());
 		mapper.registerModule(module);
+
+		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 	}
 
 	public List<Camp> findCampsDisponiblesOrdenatsPerCodi(ExpedientTipus expedientTipus, DefinicioProces definicioProces) {
@@ -132,12 +119,12 @@ public class ExpedientDadaHelper {
 
 	/** Estableix el valor per una dada de l'expedient
 	 *
-	 * @param expedientId
-	 * @param processInstanceId
-	 * @param varCodi
-	 * @param varValor
+	 * @param expedient Expedient
+	 * @param processId Id del process instance
+	 * @param taskId Id del task instance
+	 * @param varCodi Codi del camp a desar
+	 * @param varValor Valor de la variable a desar
 	 */
-	@Transactional
 	public void setDada(Expedient expedient, String processId, String taskId, String varCodi, Object varValor) {
 
 		// Recupera les dades per l'expedient segons el context de tasca, procés i expedient
@@ -148,10 +135,11 @@ public class ExpedientDadaHelper {
 			expedientDadesEntity.setExpedientTipus(expedient.getTipus());
 			expedientDadesEntity.setProcessId(processId);
 			expedientDadesEntity.setTaskId(taskId);
+			expedientDadesEntity.setPrincipal(processId == null && taskId == null);
 			expedientDadesRepository.save(expedientDadesEntity);
 		}
 		// Fixa el valor de la dada
-		this.optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processId, varCodi, varValor);
+		// this.optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processId, varCodi, varValor);
 
 		try {
 			Map<String, DadesValor> dades;
@@ -160,7 +148,41 @@ public class ExpedientDadaHelper {
 			} else {
 				dades = new HashMap<String, DadesValor>();
 			}
-			dades.put(varCodi, new DadesValor(varValor, "s"));
+			dades.put(varCodi, varValor != null ? new DadesValor(valorPerJson(varValor), DadaTipusEnum.getTipusByClass(varValor.getClass())) : null);
+			expedientDadesEntity.setDades(MapToDades(dades));
+		} catch(Exception e) {
+			throw new RuntimeException("Error fixant valor json a les dades per conversió de les dades.", e);
+		}
+	}
+
+	/** Estableix els valors per dades de l'expedient
+	 *
+	 * @param expedient Expedient
+	 * @param processId Id del process instance
+	 * @param taskId Id del task instance
+	 * @param variablesProcessades Map de variables i valors que es volen desar
+	 */
+	public void setDades(Expedient expedient, String processId, String taskId, Map<String, Object> variablesProcessades) {
+		// Recupera les dades per l'expedient segons el context de tasca, procés i expedient
+		ExpedientDades expedientDadesEntity = this.getDades(expedient, processId, taskId);
+		if (expedientDadesEntity == null) {
+			expedientDadesEntity = new ExpedientDades();
+			expedientDadesEntity.setExpedient(expedient);
+			expedientDadesEntity.setExpedientTipus(expedient.getTipus());
+			expedientDadesEntity.setProcessId(processId);
+			expedientDadesEntity.setTaskId(taskId);
+			expedientDadesEntity.setPrincipal(processId == null && taskId == null);
+			expedientDadesRepository.save(expedientDadesEntity);
+		}
+		// Fixa el valor de la dada
+		// this.optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processId, varCodi, varValor);
+
+		try {
+			Map<String, DadesValor> dades = new HashMap<String, DadesValor>();
+			for(String varCodi :  variablesProcessades.keySet()) {
+				Object varValor = variablesProcessades.get(varCodi);
+				dades.put(varCodi, new DadesValor(valorPerJson(varValor), DadaTipusEnum.getTipusByClass(varValor.getClass())));
+			}
 			expedientDadesEntity.setDades(MapToDades(dades));
 		} catch(Exception e) {
 			throw new RuntimeException("Error fixant valor json a les dades per conversió de les dades.", e);
@@ -169,9 +191,10 @@ public class ExpedientDadaHelper {
 
 	/** Obté el valor per una dada de l'expedient
 	 *
-	 * @param expedientId
-	 * @param processInstanceId
-	 * @param varCodi
+	 * @param expedient Expedient
+	 * @param processId Id del process instance
+	 * @param taskId Id del task instance
+	 * @param varCodi Codi del camp
 	 */
 	@Transactional
 	public Object getDada(Expedient expedient, String processId, String taskId, String varCodi) {
@@ -188,7 +211,9 @@ public class ExpedientDadaHelper {
 			if (expedientDadesEntity.getDades() != null) {
 				dades = DadesToMap(expedientDadesEntity.getDades());
 				if (dades.containsKey(varCodi)) {
-					valor = dades.get(varCodi).getV();
+					DadesValor dada = dades.get(varCodi);
+					if(dada != null)
+						valor = parseData(dada.getV(), dada.getT());
 				}
 			}
 		} catch(Exception e) {
@@ -217,7 +242,7 @@ public class ExpedientDadaHelper {
 			if (expedientDadesEntity.getDades() != null) {
 				Map<String, DadesValor> dades = DadesToMap(expedientDadesEntity.getDades());
 				for (String varCodi : dades.keySet()) {
-					valors.put(varCodi, dades.get(varCodi).getV());
+					valors.put(varCodi, parseData(dades.get(varCodi).getV(), dades.get(varCodi).getT()));
 				}
 			}
 		} catch(Exception e) {
@@ -226,15 +251,12 @@ public class ExpedientDadaHelper {
 		return valors;
 	}
 
-
 	private String MapToDades(Map<String, DadesValor> dades) throws Exception {
-		String json = mapper.writeValueAsString(dades);
-		return json;
+		return mapper.writeValueAsString(dades);
 	}
 
 	private Map<String, DadesValor> DadesToMap(String dades) throws Exception {
-	    HashMap<String,DadesValor> map = mapper.readValue(dades, typeRef);
-	    return map;
+	    return mapper.readValue(dades, typeRef);
 	}
 
 	/** Consulta les dades segons la tasca, procés i expedient. */
@@ -243,9 +265,9 @@ public class ExpedientDadaHelper {
 		if (taskId != null) {
 			expedientDades = expedientDadesRepository.findByExpedientAndTaskId(expedient, taskId);
 		} else if (processId != null) {
-			expedientDades = expedientDadesRepository.findByExpedientAndProcessId(expedient, processId);
+			expedientDades = expedientDadesRepository.findByExpedientAndProcessIdAndTaskIdIsNull(expedient, processId);
 		} else {
-			expedientDades = expedientDadesRepository.findByExpedient(expedient);
+			expedientDades = expedientDadesRepository.findByExpedientAndPrincipal(expedient, true);
 		}
 		return expedientDades;
 	}
@@ -356,7 +378,9 @@ public class ExpedientDadaHelper {
 					} else {
 						di = new DadaIndexadaDto(k, k);
 					}
+
 					Object value = row.get(k);
+
 					di.setValor(value);
 					di.addValorIndex(value != null? value.toString() : null);
 					dadesExpedient.put(di.getCampCodi(), di);
@@ -367,7 +391,6 @@ public class ExpedientDadaHelper {
 
 		return resposta;
 	}
-
 
 	private List<Map<String, Object>> queryDadesExpedients(
 		Long entornId,
@@ -401,7 +424,7 @@ public class ExpedientDadaHelper {
 					.collect(Collectors.toList())));
 		}
 		query.append(" FROM HEL_EXPEDIENT_DADES d, HEL_EXPEDIENT expedient ");
-		query.append(" WHERE expedient.ID = d.EXPEDIENT_ID ");
+		query.append(" WHERE expedient.ID = d.EXPEDIENT_ID AND d.principal = 1 "); // Sempre cercam a les dades principals del expedient
 		query.append(" AND expedient.ENTORN_ID = ? ");
 		args.add(entornId);
 
@@ -487,50 +510,6 @@ public class ExpedientDadaHelper {
 		expedientDadesRepository.deleteByExpedientId(expedientId);
 	}
 
-	private String getComText(
-			CampTipusDto tipus,
-			String valor,
-			String valorDomini) {
-		if (valor == null)
-			return null;
-		try {
-			String text = null;
-			if (tipus.equals(CampTipusDto.INTEGER)) {
-				text = new DecimalFormat("#").format(Long.valueOf(valor));
-			} else if (tipus.equals(CampTipusDto.FLOAT)) {
-				text = new DecimalFormat("#.##########").format(Double.valueOf(valor));
-			} else if (tipus.equals(CampTipusDto.PRICE)) {
-				text = new DecimalFormat("#,##0.00").format(new BigDecimal(valor));
-			} else if (tipus.equals(CampTipusDto.DATE)) {
-				// text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
-				text = valor;
-			} else if (tipus.equals(CampTipusDto.BOOLEAN)) {
-				text = Boolean.valueOf(valor) ? "Si" : "No";
-			} else if (tipus.equals(CampTipusDto.SELECCIO)) {
-				text = valorDomini;
-			} else if (tipus.equals(CampTipusDto.SUGGEST)) {
-				text = valorDomini;
-			} else if (tipus.equals(CampTipusDto.TERMINI)) {
-				//if (valor instanceof Termini) {
-					//text = ((Termini)valor).toString();
-				//} else {
-					String termtxt = (String)valor;
-					String[] parts = termtxt.split("/");
-					TerminiDto t = new TerminiDto();
-					t.setAnys((parts.length >= 0) ? new Integer(parts[0]).intValue() : 0);
-					t.setMesos((parts.length >= 1) ? new Integer(parts[1]).intValue() : 0);
-					t.setDies((parts.length >= 2) ? new Integer(parts[2]).intValue() : 0);
-					text = t.toString();
-				//}
-			} else {
-				text = valor.toString();
-			}
-			return text;
-		} catch (Exception ex) {
-			return valor.toString();
-		}
-	}
-
 	/**
 	 * Retorna el nom de la columna del camp d'una entitat especificada
 	 * @param fieldName
@@ -607,6 +586,30 @@ public class ExpedientDadaHelper {
 					break;
 			}
 		}
+	}
+
+	private Object parseData(Object value, DadaTipusEnum tipus) {
+		if(value == null) return null;
+		if (tipus == DadaTipusEnum.d) {
+			try {
+				return dateFormatter.parse((String) value);
+			} catch (ParseException e) {
+				return value;
+			}
+		}
+		if (tipus == DadaTipusEnum.p) {
+			return BigDecimal.valueOf((Double) value);
+		}
+		return value;
+	}
+
+	private Object valorPerJson(Object valor) {
+		if (valor == null) return null;
+		if (valor instanceof Termini) {
+			Termini term = (Termini) valor;
+			return term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
+		}
+		return valor;
 	}
 
 }

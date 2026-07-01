@@ -2634,6 +2634,21 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.build();
 	}
 
+	public ExpedientDocumentDto findExpedientDocumentByDocumentStoreId(Long expedientId, Long documentStoreId) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+			expedientId,
+			true,
+			false,
+			false,
+			false);
+		DocumentStore ds = documentStoreRepository.getReferenceById(documentStoreId);
+		Document document = documentRepository.findByExpedientTipusAndCodi(
+			expedient.getTipus().getId(),
+			ds.getCodi(),
+			expedient.getTipus().getExpedientTipusPare() != null);
+		return crearDtoPerDocumentExpedient(document, ds, expedient.isArxiuActiu());
+	}
+
 	private List<ExpedientDocumentDto> findExpedientDocumentsByExpedient(Long expedientId, String processInstanceId) {
 		List<ExpedientDocumentDto> resultat = new ArrayList<ExpedientDocumentDto>();
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -2652,29 +2667,20 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 
 		for(DocumentStore ds : documentStoreList) {
+			ExpedientDocumentDto expedientDocument = null;
 			for(Document d : documentsTipusExpedient) {
 				if(d.getCodi().equals(ds.getCodi())) {
-					resultat.add(crearDtoPerDocumentExpedient(d, ds, expedient.isArxiuActiu()));
+					expedientDocument = crearDtoPerDocumentExpedient(d, ds, expedient.isArxiuActiu());
 					break;
 				}
 			}
+			if(expedientDocument != null) {
+				resultat.add(expedientDocument);
+			} else {
+				resultat.add(crearDtoPerDocumentExpedient(null, ds, expedient.isArxiuActiu()));
+			}
 		}
 		return resultat;
-	}
-
-	public ExpedientDocumentDto findExpedientDocumentByDocumentStoreId(Long expedientId, Long documentStoreId) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-			expedientId,
-			true,
-			false,
-			false,
-			false);
-		DocumentStore ds = documentStoreRepository.getReferenceById(documentStoreId);
-		Document document = documentRepository.findByExpedientTipusAndCodi(
-			expedient.getTipus().getId(),
-			ds.getCodi(),
-			expedient.getTipus().getExpedientTipusPare() != null);
-		return crearDtoPerDocumentExpedient(document, ds, expedient.isArxiuActiu());
 	}
 
 	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
@@ -2688,16 +2694,23 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		dto.setDataDocument(documentStore.getDataDocument());
 		dto.setArxiuNom(calcularArxiuNom(documentStore, false));
 		dto.setProcessInstanceId(documentStore.getProcessInstanceId());
-		dto.setDocumentId(document.getId());
-		dto.setDocumentCodi(document.getCodi());
-		dto.setDocumentNom(document.getNom());
-		dto.setPortafirmesActiu(document.isPortafirmesActiu());
-		dto.setPlantilla(document.isPlantilla());
-		dto.setSignat(documentStore.isSignat());
+		if(document != null) {
+			dto.setDocumentId(document.getId());
+			dto.setDocumentCodi(document.getCodi());
+			dto.setDocumentNom(document.getNom());
+			dto.setPortafirmesActiu(document.isPortafirmesActiu());
+			dto.setPlantilla(document.isPlantilla());
+			dto.setSignat(documentStore.isSignat());
+		} else {
+			dto.setAdjunt(documentStore.isAdjunt());
+			dto.setAdjuntId(null);
+			dto.setAdjuntTitol(documentStore.getAdjuntTitol());
+		}
 		if (documentStore.isSignat()) {
 			this.setSignautraUrlVerificacio(dto, documentStore, arxiuActiu);
 		} else {
-			dto.setCustodiaCodi(document.getCustodiaCodi());
+			if(document != null)
+				dto.setCustodiaCodi(document.getCustodiaCodi());
 		}
 		dto.setRegistrat(documentStore.isRegistrat());
 		if (documentStore.isRegistrat()) {

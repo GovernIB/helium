@@ -33,13 +33,6 @@ public interface PersonesPlugin {
 	public DadesPersona findAmbCodi(String codi) throws PersonesPluginException;
 
 	/**
-	 * Retorna totes les persones
-	 * 
-	 * @return totes les persones
-	 */
-	public List<DadesPersona> findAll() throws PersonesPluginException;
-
-	/**
 	 * Retorna els rols d'una persona amb el codi especificat
 	 * 
 	 * @param codi el codi de la persona

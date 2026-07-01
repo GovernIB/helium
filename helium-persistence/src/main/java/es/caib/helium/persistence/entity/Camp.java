@@ -414,44 +414,45 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		}
 	}
 
+
+
 	public static String getComText(
 			CampTipusDto tipus,
 			Object valor,
 			String valorDomini) {
 		if (valor == null)
 			return null;
+
 		try {
-			String text = null;
-			if (tipus.equals(CampTipusDto.INTEGER)) {
-				text = new DecimalFormat("#").format((Long)valor);
-			} else if (tipus.equals(CampTipusDto.FLOAT)) {
-				text = new DecimalFormat("#.##########").format((Double)valor);
-			} else if (tipus.equals(CampTipusDto.PRICE)) {
-				text = new DecimalFormat("#,##0.00").format((BigDecimal)valor);
-			} else if (tipus.equals(CampTipusDto.DATE)) {
-				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
-			} else if (tipus.equals(CampTipusDto.BOOLEAN)) {
-				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
-			} else if (tipus.equals(CampTipusDto.SELECCIO)) {
-				text = valorDomini;
-			} else if (tipus.equals(CampTipusDto.SUGGEST)) {
-				text = valorDomini;
-			} else if (tipus.equals(CampTipusDto.TERMINI)) {
-				if (valor instanceof Termini) {
-					text = ((Termini)valor).toString();
-				} else {
-					String termtxt = (String)valor;
-					String[] parts = termtxt.split("/");
+			switch (tipus) {
+				case INTEGER:
+					return new DecimalFormat("#").format((Long) valor);
+				case FLOAT:
+					return new DecimalFormat("#.##########").format((Double) valor);
+				case PRICE:
+					return new DecimalFormat("#,##0.00").format((BigDecimal) valor);
+				case DATE:
+					return new SimpleDateFormat("dd/MM/yyyy").format(new Date((Long) valor));
+				case BOOLEAN:
+					return Boolean.valueOf(valor.toString()) ? "Si" : "No";
+				case TERMINI:
+					//if (valor instanceof Termini) {
+					//text = ((Termini)valor).toString();
+					//} else {
+					String strValor = valor.toString();
+					String[] parts = strValor.split("/");
 					TerminiDto t = new TerminiDto();
 					t.setAnys((parts.length >= 0) ? new Integer(parts[0]).intValue() : 0);
 					t.setMesos((parts.length >= 1) ? new Integer(parts[1]).intValue() : 0);
 					t.setDies((parts.length >= 2) ? new Integer(parts[2]).intValue() : 0);
-					text = t.toString();
-				}
-			} else {
-				text = valor.toString();
+					return t.toString();
+				//}
+				case SELECCIO:
+				case SUGGEST:
+					return valorDomini;
+				default:
+					return valor.toString();
 			}
-			return text;
 		} catch (Exception ex) {
 			return valor.toString();
 		}

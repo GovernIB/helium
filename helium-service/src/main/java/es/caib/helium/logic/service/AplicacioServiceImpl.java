@@ -149,11 +149,6 @@ public class AplicacioServiceImpl implements AplicacioService {
 	}
 
 	@Override
-	public List<PersonaDto> findPersonesAll() {
-		return pluginHelper.personaFindAll();
-	}
-
-	@Override
 	public void clearExpedient() {
 		ThreadLocalInfo.setExpedient(null);
 	}

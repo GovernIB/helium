@@ -32,7 +32,7 @@
 	#contingut-dades .campOcult label {color: #FFF; }
 	#contingut-dades .var_botons {float: right;color: #428bca;}
 	#contingut-dades .var_botons span {display: block;padding-top: 5px;}
-	#contingut-dades .var_botons span:hover {color: #3071a9}	
+	#contingut-dades .var_botons span:hover {color: #3071a9}
 	#contingut-dades .var_registre .obligatori {
 	  	background-position: right 7px;
 	  	padding-right: 15px;
@@ -117,12 +117,12 @@
 						</c:when>
 					</c:choose>
 					<c:if test="${condicioValor}">
-						
+
 						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto') and dada.campTipus == 'TEXTAREA' and posicioActual != '0'}">
 							</tr>
 							<c:set var="posicioActual" value="0"/>
 						</c:if>
-					
+
 						<c:if test="${posicioActual == 0}"><tr class="taulaFila"></c:if>
 						<c:set var="dadaTipusRegistre" value="${false}"/>
 						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto')}">
@@ -143,19 +143,19 @@
 							<c:when test="${fn:endsWith(dada['class'].name, 'DocumentDto')}">
 								<%@ include file="expedientTaulaDocument.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada['class'].name, 'TerminiDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'TerminiDto')}">
 								<%@ include file="expedientTaulaTermini.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada['class'].name, 'ExpedientLogDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'ExpedientLogDto')}">
 								<%@ include file="expedientTaulaLog.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada['class'].name, 'ExpedientTascaDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'ExpedientTascaDto')}">
 								<%@ include file="expedientTaulaTasca.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada['class'].name, 'TokenDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'TokenDto')}">
 								<%@ include file="expedientTaulaToken.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada['class'].name, 'AccioDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'AccioDto')}">
 								<%@ include file="expedientTaulaAccio.jsp" %>
 							</c:when>
 							<c:otherwise>[Tipus desconegut]</c:otherwise>
@@ -175,7 +175,7 @@
 </div>
 
 <script type="text/javascript">
-// <![CDATA[			
+// <![CDATA[
 $(document).ready(function() {
 	$('#${grupId}-dades').on('shown.bs.collapse', function() {
 		$('#${grupId}-titol .icona-collapse').toggleClass('fa-chevron-down');
@@ -189,9 +189,9 @@ $(document).ready(function() {
 	$('#${grupId}-dades address').find('a').attr('target', 'BLANK');
 
 	$('[title]').tooltip({container: 'body'});
-	
+
 	$(".linkNti").heliumEvalLink();
-	
+
 	$("table tr:last").each(function(){
 		var cols = $(this).find("td").size();
 		if (cols == 0)
@@ -207,10 +207,10 @@ var panell;
 function previsualitzaDocument(expedientId, documentId, anchorElement, extensio) {
 
 	var taula = $(anchorElement).closest('div');
-	var viewer = $(taula).find('.viewer');	
+	var viewer = $(taula).find('.viewer');
 	var iconesPrevis = $("a[name^='previsDocLink']");
 	var hemAcabat = false;
-	
+
 	if ($(anchorElement).find("i[class*='fa-search']").length>0) {
 		//Estam obrint una previsualització
 		$("a[name^='previsDocLink']", taula).each(function() {
@@ -237,24 +237,24 @@ function previsualitzaDocument(expedientId, documentId, anchorElement, extensio)
 			}
 		});
 	}
-	
+
 	if (hemAcabat) return false;
 
 	var contenidor = $(viewer).find(".viewer-iframe");
 	$(contenidor).hide();
 	//var urlViewer = '<c:url value="/webjars/pdf-js/2.13.216/web/viewer.html"/>';
-	
+
 	$(viewer).find('.carregantPrevisDocErr').remove();
-	
+
 	if (extensio=='pdf') {
 		$(viewer).prepend('<div class="carregantPrevisDoc">Obtenint document per la previsualització <span class="fa fa-circle-o-notch fa-spin"></span></div>');
 	} else {
 		$(viewer).prepend('<div class="carregantPrevisDoc">Obtenint i convertint document per la previsualització <span class="fa fa-circle-o-notch fa-spin"></span></div>');
 	}
-	
+
     $.ajax({
         type: 'GET',
-        url: '/helium/modal/expedient/'+expedientId+'/document/'+documentId+'/returnFitxer',
+        url: '<c:url value="/modal/expedient"/>/'+expedientId+'/document/'+documentId+'/returnFitxer',
         responseType: 'arraybuffer',
         success: function(json) {
         	$(viewer).find('.carregantPrevisDoc').remove();

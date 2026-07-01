@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import es.caib.helium.commons.config.BaseConfig;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,12 +54,12 @@ import es.caib.helium.logic.intf.service.PortafirmesFluxService;
 /**
  * Controlador per a la pipella de variables del disseny de les definicions de
  * procés.
- * 
+ *
  */
 @Controller(value = "definicioProcesDocumentControllerV3")
 @RequestMapping("/definicioProces")
 public class DefinicioProcesDocumentController extends BaseDefinicioProcesController {
-	
+
 	@Autowired
 	private DefinicioProcesService definicioProcesService;
 	@Autowired
@@ -68,9 +69,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/documents")
 	public String documents(
-			HttpServletRequest request, 
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioDefinicioProcesPerPipelles(request, jbmpKey, definicioProcesId, model, "documents");
@@ -81,37 +82,37 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		model.addAttribute("jbpmKey", jbmpKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
-		
+
 		return "expedientTipusDocument";
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/document/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
-			HttpServletRequest request, 
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(
-				request, 
-				null, 
+				request,
+				null,
 				documentService.findPerDatatable(
 							null,
-							definicioProcesId, 
-							paginacioParams.getFiltre(), 
+							definicioProcesId,
+							paginacioParams.getFiltre(),
 							paginacioParams));
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/document/new", method = RequestMethod.GET)
 	public String nou(
-			HttpServletRequest request, 
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			Model model) {
 		ExpedientTipusDocumentCommand command = new ExpedientTipusDocumentCommand();
 		command.setDefinicioProcesId(definicioProcesId);
@@ -122,7 +123,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/document/new", method = RequestMethod.POST)
 	public String nouPost(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable String jbmpKey, @PathVariable Long definicioProcesId,
 			@RequestParam(value = "arxiuContingut_multipartFile", required = false) final CommonsMultipartFile arxiuContingut,
 			@Validated(ExpedientTipusDocumentCommand.Creacio.class) ExpedientTipusDocumentCommand command,
@@ -140,9 +141,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 						definicioProcesId,
 						dto);
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"expedient.tipus.document.controller.creat"));
 				return modalUrlTancar(false);
 			}
@@ -154,9 +155,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/document/{id}/update", method = RequestMethod.GET)
 	public String modificar(
-			HttpServletRequest request, 
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
 		DocumentDto dto = documentService.findAmbId(null, id);
@@ -173,8 +174,8 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/document/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
-			HttpServletRequest request, 
-			@PathVariable String jbmpKey, @PathVariable Long definicioProcesId, 
+			HttpServletRequest request,
+			@PathVariable String jbmpKey, @PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@RequestParam(value = "arxiuContingut_multipartFile", required = false) final CommonsMultipartFile arxiuContingut,
 			@RequestParam(value = "arxiuContingut_deleted", required = false) final boolean eliminarContingut,
@@ -198,9 +199,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 						ExpedientTipusDocumentCommand.asDocumentDto(command),
 						actualitzarContingut);
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"expedient.tipus.document.controller.modificat"));
 				return modalUrlTancar(false);
 			}
@@ -213,8 +214,8 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/document/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean delete(
-			HttpServletRequest request, 
-			@PathVariable String jbmpKey, @PathVariable Long definicioProcesId, 
+			HttpServletRequest request,
+			@PathVariable String jbmpKey, @PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
 		try {
@@ -236,12 +237,12 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			return false;
 		}
 	}
-	
+
 	@RequestMapping(value="/{jbmpKey}/{definicioProcesId}/document/{id}/download", method = RequestMethod.GET)
 	public String documentDownload(
-			HttpServletRequest request, 
-			@PathVariable String jbmpKey, 
-			@PathVariable Long definicioProcesId, 
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
 		ArxiuDto arxiu = documentService.getArxiu(id);
@@ -251,7 +252,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		}
 		return "arxiuView";
 	}
-	
+
 	private void omplirModelComu(
 			HttpServletRequest request,
 			Long definicioProcesId,
@@ -266,7 +267,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		ntiHelper.omplirEstadoElaboracion(model);
 		ntiHelper.omplirTipoDocumental(model);
 		ntiHelper.omplirServeisPinbal(model);
-		
+
 		model.addAttribute(
 				"fluxtipEnumOptions",
 				EnumHelper.getOptionsForEnum(
@@ -277,24 +278,24 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 				EnumHelper.getOptionsForEnum(
 						PortafirmesSimpleTipusEnumDto.class
 						,"enum.document.tipus.portafirmes.sequencia."));
-		
+
 	}
-	
+
 	/// Mètodes per l'edició de fluxos del portasignatures
-	
+
 	@RequestMapping(value = "/{definicioProcesId}/document/flux/plantilles", method = RequestMethod.GET)
 	@ResponseBody
 	public List<PortafirmesFluxRespostaDto> portasigPlantillesDisponibles(
-			HttpServletRequest request, 
-			@PathVariable Long definicioProcesId, 
-			Model model) {		
+			HttpServletRequest request,
+			@PathVariable Long definicioProcesId,
+			Model model) {
 		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(null, definicioProcesId, null);
 		return resposta;
 	}
 
 
 	/** Mètode Ajax per iniciar l'edició d'un flux de firma i retornar la URL a carregar per a poder-lo editar des d'Helium.
-	 * 
+	 *
 	 * @param request
 	 * @param plantillaId
 	 * @param expedientTipusId
@@ -307,7 +308,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 	public PortafirmesIniciFluxRespostaDto portasigIniciarTransaccio(
 			HttpServletRequest request,
 			@RequestParam(value = "plantillaId", required = false) String plantillaId,
-			@PathVariable Long definicioProcesId, 
+			@PathVariable Long definicioProcesId,
 			Model model) throws UnsupportedEncodingException {
 		String urlReturn;
 		PortafirmesIniciFluxRespostaDto transaccioResponse = null;
@@ -330,31 +331,31 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		}
 		return transaccioResponse;
 	}
-	
+
 	@RequestMapping(value = "/{definicioProcesId}/document/flux/esborrar/{plantillaId}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean portasigEsborrarPlantilla(
 			HttpServletRequest request,
 			@PathVariable String plantillaId,
 			Model model) {
-		
+
 		return portafirmesFluxService.esborrarPlantilla(plantillaId);
 	}
-	
-	
+
+
 	@RequestMapping(value = "/{definicioProcesId}/document/tancarTransaccio/{idTransaccio}", method = RequestMethod.GET)
 	@ResponseBody
 	public void portasigTancarTransaccio(
-			HttpServletRequest request, 
-			@PathVariable String idTransaccio, 
+			HttpServletRequest request,
+			@PathVariable String idTransaccio,
 			Model model) {
 		portafirmesFluxService.tancarTransaccio(idTransaccio);
 	}
-	
+
 	@RequestMapping(value = "/{definicioProcesId}/document/flux/returnurl/{transactionId}", method = RequestMethod.GET)
 	public String portasigTransaccioEstat(
-			HttpServletRequest request, 
-			@PathVariable String transactionId, 
+			HttpServletRequest request,
+			@PathVariable String transactionId,
 			Model model) {
 		PortafirmesFluxRespostaDto resposta = portafirmesFluxService.recuperarFluxFirma(transactionId);
 
@@ -380,7 +381,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		return "portafirmesModalTancar";
 	}
 
-	
+
 	private static final Log logger = LogFactory.getLog(DefinicioProcesDocumentController.class);
 
 }

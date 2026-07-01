@@ -13,9 +13,7 @@ public class ObjectArrayDeserializer extends JsonDeserializer<Object> {
 	@Override
 	public Object deserialize(JsonParser p, DeserializationContext ctxt)
 		throws IOException {
-
 		JsonNode node = p.getCodec().readTree(p);
-
 		return convert(node);
 	}
 

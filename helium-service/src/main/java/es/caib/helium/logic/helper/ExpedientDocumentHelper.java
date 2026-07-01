@@ -245,7 +245,7 @@ public class ExpedientDocumentHelper {
 
 		create(
 			documentStore,
-			documentCodi,
+			documentStore.getCodi(), //documentCodi,
 			expedient,
 			processInstanceId,
 			taskInstanceId);
