@@ -5,12 +5,19 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 
 /**
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@JsonIdentityInfo(
+		  generator = ObjectIdGenerators.PropertyGenerator.class, 
+		  property = "id"
+		)
 public class InteressatDto {
 	
 	private Long id;
