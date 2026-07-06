@@ -498,6 +498,7 @@
 								</a>
 							</li>
 						{{/if}}
+						<li><a data-toggle="modal" data-maximized="true" href="${expedient.id}/document/{{:id}}/preview"><span class="fa fa-search fa-fw"/>&nbsp;<spring:message code="passarelafirma.form.conversio.boto.previsualitzar" /></a></li>
 					</ul>
 				</div>
 			{{/if}}

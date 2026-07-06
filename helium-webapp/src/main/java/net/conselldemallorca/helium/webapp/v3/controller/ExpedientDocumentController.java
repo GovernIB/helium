@@ -906,20 +906,29 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
-
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("documentStoreId", documentStoreId);
 		model.addAttribute("processInstanceId", processInstanceId);
 		
 		String documentNom = null;
-		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
-				expedientId,
-				processInstanceId,
-				documentStoreId);
-		if (document.isAdjunt()) {
-			documentNom = document.getAdjuntTitol();
+		if(processInstanceId != null) {
+			ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+					expedientId,
+					processInstanceId,
+					documentStoreId);
+			
+			if (document.isAdjunt()) {
+				documentNom = document.getAdjuntTitol();
+			} else {
+				documentNom = document.getDocumentNom();
+			}
 		} else {
-			documentNom = document.getDocumentNom();
+			DocumentDto document = expedientDocumentService.findDocumentAmbId(documentStoreId);
+			if (document.isAdjunt()) {
+				documentNom = document.getAdjuntTitol();
+			} else {
+				documentNom = document.getDocumentNom();
+			}
 		}
 		
 		model.addAttribute("documentNom", documentNom);
