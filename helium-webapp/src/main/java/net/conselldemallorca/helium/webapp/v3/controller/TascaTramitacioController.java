@@ -71,6 +71,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.TascaNoDisponibleException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
@@ -202,14 +203,18 @@ public class TascaTramitacioController extends BaseTascaController {
 					model,
 					null,
 					null);
+		} catch (NoTrobatException ex) {
+			MissatgesHelper.warning(request, getMessage(request, "error.tascaService.noTrobada"));
+		} catch (TascaNoDisponibleException ex) {
+			MissatgesHelper.warning(request, ex.getMessage());
 		} catch (Exception ex) {
-			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.finalitzada"));
-			if (ModalHelper.isModal(request)) {
-				return modalUrlTancar(false);
-			} else {
-				return "v3/entitatNoDisponible";
-			}
-		    
+			MissatgesHelper.error(request, ex.getMessage(), ex);
+		}
+		
+		if (ModalHelper.isModal(request)) {
+			return modalUrlTancar(false);
+		} else {
+			return "v3/entitatNoDisponible";
 		}
 	}
 
