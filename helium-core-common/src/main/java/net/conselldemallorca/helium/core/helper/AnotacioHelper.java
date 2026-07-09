@@ -166,6 +166,12 @@ public class AnotacioHelper {
 		if(anotacio==null) {
 			anotacio = anotacioRepository.findOne(anotacioId);
 		}
+		
+		if(anotacio.getExpedient() != null)
+			throw new RuntimeException("No es pot incorporar l'anotació " + 
+					anotacioId + " a l'expedient " + expedientId + " i tipus d'expedient " + 
+					expedientTipusId + " perquè ja està asociada a un expedient.");
+		
 		// Comprova els permisos
 		if (comprovarPermis)
 			this.comprovaPermisAccio(anotacio);
