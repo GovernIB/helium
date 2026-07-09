@@ -349,7 +349,7 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 			}
 		}
 
-		if (piId == null || log.getProcessInstanceId().equals(Long.parseLong(piId))) {
+		if (piId == null || log.getProcessInstanceId().equals(piId)) {
 			ExpedientLogDto dto = new ExpedientLogDto();
 			dto.setId(log.getId());
 			dto.setData(log.getData());

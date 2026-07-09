@@ -3684,17 +3684,4 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		return usuarisAmbPermis.toArray(new String[usuarisAmbPermis.size()]);
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public void refreshComandaTasca(String taskId, TascaEstat estat) {
-		try {
-			WTaskInstance task = workflowEngineApi.getTaskById(taskId);
-			Tasca tasca = tascaHelper.findTascaByJbpmTaskId(taskId);
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-			comandaHelper.upsertTasca(taskId, tasca.getNom(), expedient.getNumero(), task, estat);
-		} catch(Exception e) {
-			logger.error("Error inesperat refrescant dades de comanda per la tasca amb ID: " + taskId, e);
-		}
-	}
-
 }

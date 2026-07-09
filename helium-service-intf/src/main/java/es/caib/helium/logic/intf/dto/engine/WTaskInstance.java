@@ -7,7 +7,7 @@ import java.util.Set;
 import lombok.Data;
 
 /** Classe per per representar la informació general d'una instància de taska dins d'un workflow engine.
- * 
+ *
  */
 @Data
 public class WTaskInstance {
@@ -16,14 +16,16 @@ public class WTaskInstance {
 	private Set<String> pooledActors = new HashSet<>();
 	private Set<String> rols = new HashSet<>();
 	private String taskName;
+	private String name;
 	private String description;
 	private Date createTime;
 	private Date startTime;
+	private Date claimTime;
 	private Date endTime;
 	private Date dueDate;
 	private int priority;
 	private String actorId;
-	
+
 	private String processInstanceId;
 	private String processDefinitionId;
 
@@ -31,18 +33,19 @@ public class WTaskInstance {
 	private boolean isCancelled;
 
 	public boolean isOpen() {
-		return !this.isSuspended() && !this.isCancelled();
+		//return !this.isSuspended() && !this.isCancelled();
+		return !this.isCancelled() && endTime == null;
 	}
 	public boolean isCompleted() {
 		return false; //TODO: revisar
 	}
-	
+
 	public boolean isAgafada() {
 		return this.getActorId() != null; //TODO: revisar
 	}
-	
+
 	// Mètodes per la caché, revisar si són necessaris
-	
+
 	private static final String DESCRIPTION_FIELD_SEPARATOR = "@#@";
 
 	public void setCacheActiu() {
@@ -87,7 +90,7 @@ public class WTaskInstance {
 			this.setDescription(newFieldText + getDescriptionWithFields());
 		}
 	}
-	
+
 	//TODO: mirar com establir la transició seleccionada
 	public String getSelectedOutcome() {
 		// TODO Auto-generated method stub
@@ -139,7 +142,7 @@ public class WTaskInstance {
 	private String FieldFromDescription(String string);
 	private WTaskInstance Task;
 	private WProcessInstance ProcessInstance;
-	
+
 //	private Object TaskInstance;
 
 	// TODO: Mirar que fer amb això:
@@ -148,6 +151,6 @@ public class WTaskInstance {
 //	}
 //	default private void setCacheActiu() {};
 //	default private void setCacheInactiu() {};
-	
+
 	*/
 }

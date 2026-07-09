@@ -49,6 +49,7 @@
 	<c:if test="${expedient.permisDataManagement}">
 	<div class=var_botons>
 		<a 	class="var-edit"
+			id="dada_${dada.varCodi}"
 			data-rdt-link-modal="true"
 			href="<c:url value="/modal/expedient/${expedientId}/proces/${procesId}/dada/${dada.varCodi}/update"/>"
 			data-rdt-link-callback="reestructura(${procesId});"

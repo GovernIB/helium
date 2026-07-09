@@ -1469,10 +1469,4 @@ public interface Jbpm3HeliumService {
 	public String[] filtrarUsuarisAmbPermisComu(
 			Long expedientId,
 			String usuaris[]);
-
-	/**
-	 * Refresca o crea la tasca a comanda
-	 */
-	public void refreshComandaTasca(String taskId, TascaEstat estat);
-
 }

@@ -54,6 +54,7 @@ import lombok.RequiredArgsConstructor;
 public class SalutServiceImpl implements SalutService {
 
 	private static final int MAX_CONNECTION_RETRY = 3;
+	private final String APP_CODI = "HEL2";
 
 	@Autowired
 	private Environment env;
@@ -119,7 +120,7 @@ public class SalutServiceImpl implements SalutService {
 		}
 
 		return new SalutInfo()
-				.codi("HEL")
+				.codi(APP_CODI)
 				.versio(versio)
 				.data(DatesUtils.toOffsetDateTime(lastCheckout))
 				.estatGlobal(estatSalut)

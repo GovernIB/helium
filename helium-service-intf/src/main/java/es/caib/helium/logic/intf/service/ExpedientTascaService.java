@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.logic.intf.service;
 
@@ -13,14 +13,14 @@ import es.caib.helium.commons.exception.ValidacioException;
 
 /**
  * Servei encarregat de gestionar les tasques dels expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientTascaService {
 
 	/**
 	 * Retorna el llistat de tasques d'una instància de procés.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param processInstanceId
@@ -37,7 +37,7 @@ public interface ExpedientTascaService {
 
 	/**
 	 * Retorna la llista de tasques pendents de l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @return La llista de tasques pendents.
@@ -53,7 +53,7 @@ public interface ExpedientTascaService {
 
 	/**
 	 * Cancel·la una tasca de l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param expedientId
@@ -69,7 +69,7 @@ public interface ExpedientTascaService {
 
 	/**
 	 * Suspen la tramitació una tasca de l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param expedientId
@@ -85,7 +85,7 @@ public interface ExpedientTascaService {
 
 	/**
 	 * Repren la tramitació d'una tasca suspesa de l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param expedientId
@@ -101,7 +101,7 @@ public interface ExpedientTascaService {
 
 	/**
 	 * Canvia el responsable d'una tasca de l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param expedientId

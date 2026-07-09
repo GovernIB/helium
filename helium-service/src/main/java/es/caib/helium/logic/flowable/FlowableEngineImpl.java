@@ -4,15 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
+import es.caib.helium.commons.dto.PersonaDto;
+import es.caib.helium.logic.helper.PluginHelper;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.bpmn.model.CallActivity;
@@ -23,17 +20,29 @@ import org.flowable.bpmn.model.SequenceFlow;
 import org.flowable.bpmn.model.SubProcess;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.common.engine.api.io.InputStreamProvider;
+import org.flowable.common.engine.impl.db.SuspensionState;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.common.engine.impl.util.io.BytesStreamSource;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.impl.TaskServiceImpl;
+import org.flowable.engine.impl.cmd.AddIdentityLinkCmd;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.entitylink.api.history.HistoricEntityLink;
+import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.identitylink.api.IdentityLinkType;
+import org.flowable.identitylink.service.IdentityLinkService;
+import org.flowable.identitylink.service.impl.persistence.entity.IdentityLinkEntity;
+import org.flowable.identitylink.service.impl.persistence.entity.IdentityLinkEntityImpl;
 import org.flowable.task.api.Task;
+import org.flowable.task.api.TaskInfo;
+import org.flowable.task.api.history.HistoricTaskInstance;
+import org.flowable.task.service.impl.persistence.entity.HistoricTaskInstanceEntityImpl;
+import org.flowable.task.service.impl.persistence.entity.TaskEntity;
 import org.flowable.task.service.impl.persistence.entity.TaskEntityImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -56,6 +65,9 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Autowired
 	private ProcessEngine processEngine;
+
+	@Autowired
+	private PluginHelper pluginHelper;
 
 	@Override
 	public WProcessDefinition desplegar(String nomArxiu, byte[] contingut, boolean isJar) {
@@ -242,7 +254,9 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public List<WProcessInstance> getProcessInstanceTree(String rootProcessInstanceId) {
 		List<WProcessInstance> wPis = new ArrayList<>();
-		wPis.add(getProcessInstance(rootProcessInstanceId));
+		WProcessInstance processInstance = getProcessInstance(rootProcessInstanceId);
+		if(processInstance != null)
+			wPis.add(processInstance);
 		getProcessInstanceTreeRecursively(rootProcessInstanceId, wPis);
 		return wPis;
 	}
@@ -267,6 +281,15 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 									.createProcessInstanceQuery()
 									.processInstanceId(processInstanceId)
 									.singleResult();
+
+		if(pi == null) {
+			HistoricProcessInstance hpi = processEngine.getHistoryService()
+				.createHistoricProcessInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.singleResult();
+			return toWProcessInstance(hpi);
+		}
+
 		return toWProcessInstance(pi);
 	}
 
@@ -315,7 +338,17 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public void signalProcessInstance(String processInstanceId, String transitionName) {
-		// TODO Auto-generated method stub
+		try {
+			List<Task> tasks = processEngine
+										.getTaskService()
+										.createTaskQuery()
+										.processInstanceId(processInstanceId)
+										.list();
+
+			processEngine.getTaskService().bulkSaveTasks(tasks);
+		} finally {
+
+		}
 
 	}
 
@@ -369,18 +402,30 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WTaskInstance getTaskById(String taskId) {
-		Task task = this.processEngine
+		TaskEntityImpl task = (TaskEntityImpl) this.processEngine
 							.getTaskService()
 								.createTaskQuery()
 									.taskId(taskId)
+									.includeIdentityLinks()
 									.singleResult();
+
+		if(task.getIdentityLinkCount() > 0 && task.getQueryIdentityLinks().isEmpty()) {
+			task.setQueryIdentityLinks(null);
+			task.getIdentityLinks();
+		}
+
 		return toWTaskInstance(task);
 	}
 
 	@Override
 	public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Task> tasks = this.processEngine
+			.getTaskService()
+			.createTaskQuery()
+			.processInstanceId(processInstanceId)
+			.includeIdentityLinks()
+			.list();
+		return tasks.stream().map(FlowableEngineImpl::toWTaskInstance).collect(Collectors.toList());
 	}
 
 	@Override
@@ -391,14 +436,18 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WTaskInstance takeTaskInstance(String taskId, String actorId) {
-		// TODO Auto-generated method stub
-		return null;
+		processEngine
+			.getTaskService()
+			.setAssignee(taskId, actorId);
+		return getTaskById(taskId);
 	}
 
 	@Override
 	public WTaskInstance releaseTaskInstance(String taskId) {
-		// TODO Auto-generated method stub
-		return null;
+		processEngine
+			.getTaskService()
+			.unclaim(taskId);
+		return getTaskById(taskId);
 	}
 
 	@Override
@@ -415,30 +464,96 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WTaskInstance cancelTaskInstance(String taskId) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+//			processEngine
+//				.getTaskService()
+//				.deleteTask(taskId);
+//			TaskEntityImpl task = (TaskEntityImpl)processEngine
+//				.getTaskService()
+//				.createTaskQuery()
+//				.taskId(taskId)
+//				.includeIdentityLinks()
+//				.singleResult();
+//			WTaskInstance task = getTaskById(taskId);
+
+//			TaskEntityImpl task = (TaskEntityImpl)processEngine
+//				.getTaskService()
+//					.complete(taskId);
+
+//			task.setCanceled(true);
+//			processEngine
+//				.getTaskService()
+//				.saveTask(task);
+			Map<String, Object> variables = new HashMap<>();
+			variables.put("canceled", true);
+
+			processEngine
+				.getTaskService()
+				.complete(taskId, variables, true);
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+//		((TaskServiceImpl)processEngine.getTaskService()).can
+
+//		processEngine.getRuntimeService().suspendProcessInstanceById(task.getProcessInstanceId());
+
+//		processEngine
+//			.getRuntimeService()
+//			.deleteProcessInstance(task.getProcessInstanceId(), "Tasca cancelada per l'usuari");
+
+		return getTaskById(taskId);
 	}
 
 	@Override
 	public WTaskInstance suspendTaskInstance(String taskId) {
-		// TODO Auto-generated method stub
-		return null;
+		Task task = processEngine
+			.getTaskService()
+			.createTaskQuery()
+			.taskId(taskId)
+			.singleResult();
+		((TaskEntityImpl)task).setSuspensionState(SuspensionState.SUSPENDED.getStateCode());
+		processEngine.getTaskService().saveTask(task);
+		return getTaskById(taskId);
 	}
 
 	@Override
 	public WTaskInstance resumeTaskInstance(String taskId) {
-		// TODO Auto-generated method stub
-		return null;
+		Task task = processEngine
+			.getTaskService()
+			.createTaskQuery()
+			.taskId(taskId)
+			.singleResult();
+		((TaskEntityImpl)task).setSuspensionState(SuspensionState.ACTIVE.getStateCode());
+		processEngine.getTaskService().saveTask(task);
+		return getTaskById(taskId);
 	}
 
 	@Override
 	public WTaskInstance reassignTaskInstance(String taskId, String expression, Long entornId) {
+
+		// Esborra els candidats anteriors
+		((TaskServiceImpl) processEngine.getTaskService())
+			.getCommandExecutor()
+			.execute(new AddCandidatesToTaskCmd(taskId));
+
 		if(expression.startsWith("user(")) {
 			String user = expression.replace("user(", "").replace(")", "");
-			this.processEngine.getTaskService().setAssignee(taskId, user);
-		} else if(expression.startsWith("grup(")) {
-			String group = expression.replace("grup(", "").replace(")", "");
-			this.processEngine.getTaskService().addCandidateGroup(taskId, group);
+			processEngine.getTaskService().setAssignee(taskId, user);
+		} else if(expression.startsWith("group(")) {
+			String group = expression.replace("group(", "").replace(")", "");
+			List<PersonaDto> persones = pluginHelper.personaFindAmbGrup(group);
+
+			((TaskServiceImpl) processEngine.getTaskService())
+				.getCommandExecutor()
+				.execute(new AddCandidatesToTaskCmd(
+					taskId,
+					persones
+						.stream()
+						.map(PersonaDto::getCodi).toArray(String[]::new),
+					group
+				));
 		}
 		return this.getTaskById(taskId);
 	}
@@ -521,8 +636,19 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public Map<String, WToken> getAllTokens(String processInstanceId) {
-		// TODO Auto-generated method stub
-		return null;
+		List<WToken> tokens = processEngine
+								.getRuntimeService()
+								.createExecutionQuery()
+								.processInstanceId(processInstanceId)
+								.list()
+								.stream()
+								.map(execution -> toWToken(execution))
+								.collect(Collectors.toList());
+		Map<String, WToken> resposta = new HashMap<String, WToken>();
+		for(WToken t : tokens)
+			resposta.put(t.getId(), t);
+
+		return resposta;
 	}
 
 	@Override
@@ -790,13 +916,27 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public List<WTaskInstance> findTaskInstancesForProcessInstance(String processInstanceId) {
+		List<WTaskInstance> wTask = new ArrayList<>();
 		List<Task> tasks = processEngine
 									.getTaskService()
 										.createTaskQuery()
-											.processInstanceId(processInstanceId).list();
-		List<WTaskInstance> wTask = new ArrayList<>();
-		for(Task task : tasks) {;
-			wTask.add(toWTaskInstance(task));
+										.includeIdentityLinks()
+										.processInstanceId(processInstanceId).list();
+
+		// Comprovam que no estiguin a historic
+		if(tasks.isEmpty()) {
+			List<HistoricTaskInstance> htasks = processEngine
+								.getHistoryService()
+								.createHistoricTaskInstanceQuery()
+								.processInstanceId(processInstanceId)
+								.list();
+			for (HistoricTaskInstance task : htasks) {
+				wTask.add(toWTaskInstance(task));
+			}
+		} else {
+			for (Task task : tasks) {
+				wTask.add(toWTaskInstance(task));
+			}
 		}
 		return wTask;
 	}
@@ -843,12 +983,13 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	/** Mètode per modificar la descripció d'una tasca. */
 	@Override
 	public void describeTaskInstance(String id, String titol, Object descriptionWithFields) {
-		processEngine
-			.getTaskService()
-				.createTaskQuery()
-				.taskId(id)
-				.singleResult()
-					.setDescription(String.valueOf(descriptionWithFields));
+		Task task = processEngine
+						.getTaskService()
+						.createTaskQuery()
+						.taskId(id)
+						.singleResult();
+		if(task != null)
+			task.setDescription(String.valueOf(descriptionWithFields));
 	}
 
 	@Override
@@ -943,7 +1084,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	 * @param pd
 	 * @return
 	 */
-	private WProcessDefinition toWProcessDefinition(ProcessDefinition pd) {
+	public static WProcessDefinition toWProcessDefinition(ProcessDefinition pd) {
 		WProcessDefinition wpd = null;
 		if (pd != null) {
 			wpd = new WProcessDefinition();
@@ -960,7 +1101,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	 * @param pd
 	 * @return
 	 */
-	private WProcessInstance toWProcessInstance(ProcessInstance pi) {
+	public static WProcessInstance toWProcessInstance(ProcessInstance pi) {
 		WProcessInstance wpi = null;
 		if (pi != null) {
 			wpi = new WProcessInstance();
@@ -984,7 +1125,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	 * @param pd
 	 * @return
 	 */
-	private WProcessInstance toWProcessInstance(HistoricProcessInstance pi) {
+	public static WProcessInstance toWProcessInstance(HistoricProcessInstance pi) {
 		WProcessInstance wpi = null;
 		if (pi != null) {
 			wpi = new WProcessInstance();
@@ -1006,7 +1147,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	 * @param e
 	 * @return
 	 */
-	private WToken toWToken(Execution e) {
+	public static WToken toWToken(Execution e) {
 		WToken wt = null;
 		if (e != null) {
 			wt = new WToken();
@@ -1046,10 +1187,54 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	/** Converteix l'objecte Task a WTaskInstance.
 	 *
-	 * @param e
+	 * @param t Task
 	 * @return
 	 */
-	private WTaskInstance toWTaskInstance(Task t) {
+	public static WTaskInstance toWTaskInstance(Task t) {
+		WTaskInstance wt = null;
+		if (t != null) {
+			wt = new WTaskInstance();
+			wt.setId(t.getId());
+			wt.setTaskName(t.getTaskDefinitionKey());
+			wt.setName(t.getName());
+			wt.setDescription(t.getDescription());
+			wt.setCreateTime(t.getCreateTime());
+			wt.setStartTime(t.getCreateTime());
+			wt.setClaimTime(t.getClaimTime());
+			wt.setEndTime(null); // No es poden consultar les tasques acabades, s'ha de mirar l'històric
+			wt.setDueDate(t.getDueDate());
+			wt.setPriority(t.getPriority());
+			wt.setActorId(t.getAssignee());
+			wt.setProcessInstanceId(t.getProcessInstanceId());
+			wt.setProcessDefinitionId(t.getProcessDefinitionId());
+
+			wt.setSuspended(t.isSuspended());
+			if(t instanceof TaskEntityImpl)
+				wt.setCancelled(((TaskEntityImpl)t).isCanceled());
+
+
+			wt.setSuspended(t.isSuspended());
+			if (t instanceof TaskEntityImpl) {
+				TaskEntityImpl ft = (TaskEntityImpl) t;
+				wt.setCancelled(ft.isCanceled());
+				for (var identityLink : ft.getIdentityLinks()) {
+					if (identityLink.getUserId() != null) {
+						wt.getPooledActors().add(identityLink.getUserId());
+					} else if (identityLink.getGroupId() != null) {
+						wt.getRols().add(identityLink.getGroupId());
+					}
+				}
+			}
+		}
+		return wt;
+	}
+
+	/** Converteix l'objecte Task a WTaskInstance.
+	 *
+	 * @param t Task
+	 * @return
+	 */
+	public static WTaskInstance toWTaskInstance(HistoricTaskInstance t) {
 		WTaskInstance wt = null;
 		if (t != null) {
 			wt = new WTaskInstance();
@@ -1058,26 +1243,12 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			wt.setDescription(t.getName());
 			wt.setCreateTime(t.getCreateTime());
 			wt.setStartTime(t.getClaimTime());
-			wt.setEndTime(null); // No es poden consultar les tasques acabades, s'ha de mirar l'històric
+			wt.setEndTime(t.getEndTime());
 			wt.setDueDate(t.getDueDate());
 			wt.setPriority(t.getPriority());
 			wt.setActorId(t.getAssignee());
 			wt.setProcessInstanceId(t.getProcessInstanceId());
 			wt.setProcessDefinitionId(t.getProcessDefinitionId());
-
-
-			wt.setSuspended(t.isSuspended());
-			if (t instanceof TaskEntityImpl) {
-				TaskEntityImpl ft = (TaskEntityImpl) t;
-				wt.setCancelled(ft.isCanceled());
-				for (var identityLink : ft.getQueryIdentityLinks()) {
-					if (IdentityLinkType.CANDIDATE.equals(identityLink.getType())) {
-						wt.getPooledActors().add(identityLink.getUserId());
-					} else if (identityLink.getGroupId() != null) {
-						wt.getRols().add(identityLink.getGroupId());
-					}
-				}
-			}
 		}
 		return wt;
 	}

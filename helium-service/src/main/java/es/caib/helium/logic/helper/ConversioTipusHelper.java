@@ -11,53 +11,14 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import es.caib.helium.commons.dto.*;
+import es.caib.helium.persistence.entity.*;
 import org.springframework.stereotype.Component;
 
-import es.caib.helium.commons.dto.CampAgrupacioDto;
-import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.CampRegistreDto;
-import es.caib.helium.commons.dto.CampTascaDto;
-import es.caib.helium.commons.dto.CampTipusDto;
-import es.caib.helium.commons.dto.ConsultaCampDto;
-import es.caib.helium.commons.dto.ConsultaDto;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.DocumentFinalitzarDto;
-import es.caib.helium.commons.dto.DocumentListDto;
-import es.caib.helium.commons.dto.DocumentTascaDto;
-import es.caib.helium.commons.dto.DominiDto;
-import es.caib.helium.commons.dto.EntornDto;
-import es.caib.helium.commons.dto.EnumeracioDto;
-import es.caib.helium.commons.dto.EstatDto;
-import es.caib.helium.commons.dto.ExpedientDocumentDto;
-import es.caib.helium.commons.dto.ExpedientTipusDto;
-import es.caib.helium.commons.dto.FirmaTascaDto;
-import es.caib.helium.commons.dto.PersonaDto;
-import es.caib.helium.commons.dto.PortafirmesEstatEnum;
-import es.caib.helium.commons.dto.PortasignaturesDto;
-import es.caib.helium.commons.dto.SequenciaAnyDto;
-import es.caib.helium.commons.dto.SequenciaDefaultAnyDto;
 import es.caib.helium.commons.dto.regles.EstatReglaDto;
 import es.caib.helium.integracio.plugins.notificacio.InteressatTipusEnum;
 import es.caib.helium.integracio.plugins.notificacio.Persona;
-import es.caib.helium.persistence.entity.AnotacioAnnex;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.CampRegistre;
-import es.caib.helium.persistence.entity.CampTasca;
-import es.caib.helium.persistence.entity.Consulta;
-import es.caib.helium.persistence.entity.ConsultaCamp;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentStore;
-import es.caib.helium.persistence.entity.DocumentTasca;
-import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.persistence.entity.Enumeracio;
-import es.caib.helium.persistence.entity.Estat;
-import es.caib.helium.persistence.entity.EstatRegla;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.FirmaTasca;
-import es.caib.helium.persistence.entity.Portasignatures;
 import es.caib.helium.persistence.entity.Portasignatures.Transicio;
-import es.caib.helium.persistence.entity.SequenciaAny;
-import es.caib.helium.persistence.entity.SequenciaDefaultAny;
 import ma.glasnost.orika.CustomConverter;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -557,6 +518,38 @@ public class ConversioTipusHelper {
 		.field("documentCodi", "codi")
 		.byDefault()
 		.register();
+
+		mapperFactory.getConverterFactory().registerConverter(
+			new CustomConverter<ExpedientTasca, ExpedientTascaDto>() {
+				@Override
+				public ExpedientTascaDto convert(ExpedientTasca source, Type<? extends ExpedientTascaDto> destinationClass, MappingContext mappingContext) {
+					ExpedientTascaDto target = new ExpedientTascaDto();
+
+					target.setId(source.getTaskId());
+					target.setTitol(source.getName());
+					target.setJbpmName(source.getTaskCode());
+					target.setExpedientId(source.getExpedient().getId());
+					target.setExpedientIdentificador(source.getExpedient().getNumeroDefault());
+					target.setExpedientNumero(source.getExpedient().getNumero());
+					target.setExpedientTipusId(source.getExpedient().getTipus().getId());
+					target.setExpedientTipusNom(source.getExpedient().getTipus().getNom());
+					target.setPriority(source.getPriority());
+					target.setUnitatOrganitzativaCodiNom(
+						source.getExpedient().getUnitatOrganitzativa() != null?
+							source.getExpedient().getUnitatOrganitzativa().getCodiAndNom()
+							: null);
+					target.setCreateTime(source.getCreateTime());
+					target.setDueDate(source.getDueDate());
+					target.setAgafada(source.getAssignee() != null);
+					target.setCancelled(source.getCancelled());
+					target.setAssignee(source.getAssignee());
+					target.setSuspended(source.getSuspended());
+					target.setOpen(source.getOpen());
+					target.setCompleted(source.getCompleted());
+					target.setPooledActors(source.getPooledActors());
+					return target;
+				}
+			});
 
 		// Converteix la entity Portasignatures a PortasignaturesDto
 		mapperFactory.getConverterFactory().registerConverter(

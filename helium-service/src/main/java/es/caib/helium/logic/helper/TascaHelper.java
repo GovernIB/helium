@@ -9,9 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -32,17 +35,6 @@ import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.common.jbpm.DominiCodiDescripcio;
 import es.caib.helium.persistence.common.jbpm.JbpmVars;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.CampTasca;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.DocumentTasca;
-import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.FirmaTasca;
-import es.caib.helium.persistence.entity.Tasca;
-import es.caib.helium.persistence.repository.CampTascaRepository;
-import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.persistence.repository.TascaRepository;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
 
 /**
@@ -57,6 +49,10 @@ public class TascaHelper {
 	private TascaRepository tascaRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
+	@Resource
+	private ExpedientTascaRepository expedientTascaRepository;
+	@Resource
+	private TascaCandidateRepository tascaCandidateRepository;
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
@@ -77,9 +73,6 @@ public class TascaHelper {
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 	@Resource
 	private MessageHelper messageHelper;
-	@Resource
-	private ComandaHelper comandaHelper;
-
 
 
 	public WTaskInstance getTascaComprovacionsTramitacio(
@@ -186,8 +179,8 @@ public class TascaHelper {
 				titol,
 				task.getDescriptionWithFields());
 	}
-	
-	
+
+
 
 	private DadesCacheTasca getDadesCacheTasca(WTaskInstance task) {
 		return  new DadesCacheTasca(
@@ -602,7 +595,7 @@ public class TascaHelper {
 	 * @param personaCodi
 	 * @return
 	 */
-	private PersonaDto findPersonaOrDefault(String personaCodi) {
+	public PersonaDto findPersonaOrDefault(String personaCodi) {
 		PersonaDto persona;
 		try {
 			persona = pluginHelper.personaFindAmbCodi(personaCodi);
@@ -757,6 +750,95 @@ public class TascaHelper {
 		return participants;
 	}
 
+	/// Crea o actualitza la tasca d'expedient a base de dades
+	/// @param taskInstanceId Identificador de la tasca
+	///
+	public void refreshExpedientTasca(String taskInstanceId) {
+		if(taskInstanceId == null)
+			return;
+		try {
+			WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
+			ExpedientTasca tasca = expedientTascaRepository.findByTaskId(taskInstanceId);
+			Long duration = (task.getStartTime() != null && task.getEndTime() != null)?
+				task.getEndTime().getTime() - task.getStartTime().getTime()
+				: null;
+
+			String groupId = (task.getRols() != null && !task.getRols().isEmpty())? task.getRols().stream().findFirst().orElse(null) : null;
+			if (tasca != null) {
+				tasca.setName(tasca.getName());
+				tasca.setTaskCode(tasca.getTaskCode());
+				tasca.setDescription(tasca.getDescription());
+				tasca.setOwner(task.getActorId());
+				tasca.setAssignee(task.getActorId());
+				tasca.setGroupId(groupId);
+				tasca.setStartTime(task.getStartTime());
+				tasca.setClaimTime(task.getClaimTime());
+				tasca.setEndTime(task.getEndTime());
+				tasca.setDueDate(task.getDueDate());
+				tasca.setDuration(duration);
+				tasca.setPriority(task.getPriority());
+				tasca.setOpen(task.isOpen());
+				tasca.setCancelled(task.isCancelled());
+				tasca.setSuspended(task.isSuspended());
+				tasca.setCompleted(task.isCompleted());
+			} else {
+				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+				tasca = ExpedientTasca
+					.builder()
+					.taskId(task.getId())
+					.taskCode(task.getTaskName())
+					.expedient(expedient)
+					.name(task.getName())
+					.description(task.getDescription())
+					.owner(task.getActorId())
+					.groupId(groupId)
+					.assignee(task.getActorId())
+					.createTime(task.getCreateTime())
+					.startTime(task.getStartTime())
+					.claimTime(task.getClaimTime())
+					.endTime(task.getEndTime())
+					.dueDate(task.getDueDate())
+					.duration(duration)
+					.priority(task.getPriority())
+					.open(task.isOpen())
+					.cancelled(task.isCancelled())
+					.suspended(task.isSuspended())
+					.completed(task.isCompleted())
+					.build();
+			}
+
+			tasca = expedientTascaRepository.save(tasca);
+			List<TascaCandidate> candidats = tascaCandidateRepository.findByTasca(tasca);
+			Set<String> candidatsExistents = candidats
+				.stream()
+				.map(TascaCandidate::getUserId)
+				.collect(Collectors.toSet());
+
+			if (task.getPooledActors() != null && !task.getPooledActors().isEmpty()) {
+				ExpedientTasca finalTasca = tasca;
+				tascaCandidateRepository
+					.saveAll(task.getPooledActors()
+						.stream()
+						.filter(u -> !candidatsExistents.contains(u))
+						.map(u -> TascaCandidate
+							.builder()
+							.tasca(finalTasca)
+							.tipus("user")
+							.userId(u)
+							.build())
+						.collect(Collectors.toList()));
+				tascaCandidateRepository.deleteAll(
+					candidats
+						.stream()
+						.filter(c -> !task.getPooledActors().contains(c.getUserId()))
+						.collect(Collectors.toList())
+				);
+			}
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaHelper.class);
 

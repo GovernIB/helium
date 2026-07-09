@@ -5,6 +5,8 @@ package es.caib.helium.back.config;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -125,21 +127,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				"/public/**"
 		};
 		registry.addInterceptor(modalInterceptor).excludePathPatterns(excludedPathPatterns);
-	}
-
-	@Bean
-	public MappingJackson2HttpMessageConverter jsonConverter() {
-		ObjectMapper mapper = new ObjectMapper();
-		//mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
-		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-		converter.setObjectMapper(mapper);
-		return converter;
-	}
-
-	@Override
-	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-		converters.add(jsonConverter());
 	}
 
 	/** Configura el firewall per permetre caràcters codificats com el % ja que aquests s'usen en la codificació

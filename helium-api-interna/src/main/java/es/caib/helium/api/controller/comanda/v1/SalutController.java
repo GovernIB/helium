@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.*;
 	description = "API REST de consulta de salut de Helium per mostrar a l'aplicació Comanda.")
 public class SalutController {
 
+	private final String APP_CODI = "HEL2";
+
 	@Autowired
 	private SalutService salutService;
 	@Autowired
@@ -57,7 +59,7 @@ public class SalutController {
 	public AppInfo appInfo() {
 		ManifestInfo manifestInfo = getManifestInfo();
 		return new AppInfo()
-			.codi("HEL")
+			.codi(APP_CODI)
 			.nom("Helium")
 			.data(DatesUtils.toOffsetDateTime(manifestInfo.getBuildDate()))
 			.versio(manifestInfo.getVersion())

@@ -421,6 +421,7 @@
 			</c:otherwise>
 		</c:choose>
 	</form:form>
+
 	<table
 		id="taulaDades"
 		class="table table-striped table-bordered table-hover"
@@ -457,7 +458,7 @@
 								<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 							{{/if}}
  							{{if !completed && tascaTramitacioMassiva && assignadaUsuariActual}}
-								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: $('td').unbind('click');window.location='../tasca/{{:id}}/massiva';"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
+								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: $('td').unbind('click');window.location='<c:url value="/tasca/{{:id}}/massiva"/>';"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
 							{{/if}}
 
 							{{if errorFinalitzacio != null || marcadaFinalitzar != null || iniciFinalitzacio != null}}
@@ -501,31 +502,31 @@
  							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								{{if open && !suspended && assignee == "${dadesPersona.codi}" && assignadaUsuariActual}}
-									<li><a id="tramitar-tasca-{{:id}}" class="consultar-tasca" href="<c:url value="../tasca/{{:id}}"/>" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-external-link"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+									<li><a id="tramitar-tasca-{{:id}}" class="consultar-tasca" href="<c:url value="/modal/tasca/{{:id}}"/>" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-external-link"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 									{{if tascaTramitacioMassiva}}
-										<li><a href="../tasca/{{:id}}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
+										<li><a href="<c:url value="/tasca/{{:id}}/massiva"/>"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 									{{/if}}
 								{{/if}}
 								{{if open && !suspended && !agafada && responsables != null && assignadaUsuariActual}}
- 										<li><a href="../expedient/{{:expedientId}}/tasca/{{:id}}/agafar" class="tasca-accio-agafar" data-tasca-id="{{:id}}" data-rdt-link-ajax="true" data-rdt-link-callback="agafar({{:id}});"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
+ 										<li><a href="<c:url value="/expedient/{{:expedientId}}/tasca/{{:id}}/agafar"/>" class="tasca-accio-agafar" data-tasca-id="{{:id}}" data-rdt-link-ajax="true" data-rdt-link-callback="agafar({{:id}});"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
 									{{/if}}
 								{{if open && !suspended && agafada && (assignadaUsuariActual || permisTaskAssign)}}
-									<li><a href="<c:url value="../expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
+									<li><a href="<c:url value="/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}}
 								{{if permisRead}}
-								<li><a href="../expedient/{{:expedientId}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar.expedient"/></a></li>
+								<li><a href="<c:url value="/expedient/{{:expedientId}}"/>" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar.expedient"/></a></li>
 								{{/if}}
 								{{if permisTaskAssign && open}}
-									<li><a href="../expedient/{{:expedientId}}/tasca/{{:id}}/reassignar" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span>&nbsp;<spring:message code="tasca.llistat.accio.reassignar"/></a></li>
+									<li><a href="<c:url value="/modal/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar"/>" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span>&nbsp;<spring:message code="tasca.llistat.accio.reassignar"/></a></li>
 								{{/if}}
 								{{if permisTaskManagement && open && !suspended}}
-									<li><a href="../expedient/{{:expedientId}}/tasca/{{:id}}/suspendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
+									<li><a href="<c:url value="/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre"/>" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
 								{{/if}}
 								{{if permisTaskManagement && suspended}}
-									<li><a href="../expedient/{{:expedientId}}/tasca/{{:id}}/reprendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
+									<li><a href="<c:url value="/expedient/{{:expedientId}}/tasca/{{:id}}/reprendre"/>" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
 								{{/if}}
 								{{if permisTaskManagement && !completed && !cancelled}}
-									<li><a href="../expedient/{{:expedientId}}/tasca/{{:id}}/cancelar" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
+									<li><a href="<c:url value="/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar"/>" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
 								{{/if}}
  							</ul>
  						</div>
@@ -563,7 +564,7 @@
 						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
   						<ul class="dropdown-menu">
 							<li id="liTramitacioMassiva" class="disabled"><a href="<c:url value="tasca//massiva"/>"><spring:message code="expedient.llistat.tramitacio.massiva"/></a></li>
-  							<li id="liReassignment"><a id="botoReassignment" class="btn" href="tasca/massivaReassignacioTasca" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
+  							<li id="liReassignment"><a id="botoReassignment" class="btn" href="<c:url value="/modal/tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
   							<li><a id="botoAgafar" href="<c:url value="tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
 							<li><a id="botoAllibrerar" href="<c:url value="tasca/seleccioAlliberar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.alliberar.seleccionats"/></a></li>
   						</ul>
@@ -573,8 +574,8 @@
 						<a id="botoNetejarSeleccio" class="btn btn-default" onclick="marcarTotesVisibles(false)" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 						<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
  						<ul class="dropdown-menu">
-							<li><a href="<c:url value="/tasca/massivaTramitacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/></a></li>
-							<li id="liReassignment"><a id="botoReassignment" class="btn" href="<c:url value="/tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
+							<li><a href="<c:url value="/modal/tasca/massivaTramitacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/></a></li>
+							<li id="liReassignment"><a id="botoReassignment" class="btn" href="<c:url value="/modal/tasca/massivaReassignacioTasca"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/></a></li>
  							<li><a id="botoAgafar" href="<c:url value="/tasca/seleccioAgafar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.agafar.seleccionats"/></a></li>
 							<li><a id="botoAllibrerar" href="<c:url value="/tasca/seleccioAlliberar"/>" data-rdt-link-ajax="true"><spring:message code="tasca.llistat.alliberar.seleccionats"/></a></li>
  						</ul>

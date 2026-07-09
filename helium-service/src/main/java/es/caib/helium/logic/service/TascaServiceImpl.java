@@ -4,22 +4,19 @@
 package es.caib.helium.logic.service;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.dto.*;
+import es.caib.helium.logic.helper.*;
+import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.acls.model.Permission;
@@ -35,47 +32,14 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import es.caib.comanda.model.management.TascaEstat;
-import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.CampTipusDto;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.commons.dto.ExpedientTascaDto;
-import es.caib.helium.commons.dto.FormulariExternDto;
-import es.caib.helium.commons.dto.PaginaDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.dto.ParellaCodiValorDto;
-import es.caib.helium.commons.dto.SeleccioOpcioDto;
-import es.caib.helium.commons.dto.TascaDadaDto;
-import es.caib.helium.commons.dto.TascaDocumentDto;
-import es.caib.helium.commons.dto.TascaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.TramitacioHandlerException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.logic.helper.ComandaHelper;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExpedientDadaHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientLoggerHelper;
-import es.caib.helium.logic.helper.ExpedientRegistreHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.FormulariExternHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PaginacioHelper.Converter;
-import es.caib.helium.logic.helper.PermisosHelper;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.helper.TascaSegonPlaHelper;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
-import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.helper.VariableHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
@@ -83,36 +47,7 @@ import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.common.ThreadLocalInfo;
-import es.caib.helium.persistence.entity.Alerta;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.CampRegistre;
-import es.caib.helium.persistence.entity.CampTasca;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentStore;
-import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.persistence.entity.EnumeracioValors;
-import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.ExpedientLog;
 import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogAccioTipus;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.Registre;
-import es.caib.helium.persistence.entity.Tasca;
-import es.caib.helium.persistence.entity.TerminiIniciat;
-import es.caib.helium.persistence.repository.AlertaRepository;
-import es.caib.helium.persistence.repository.CampRepository;
-import es.caib.helium.persistence.repository.CampTascaRepository;
-import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.persistence.repository.DocumentRepository;
-import es.caib.helium.persistence.repository.EnumeracioValorsRepository;
-import es.caib.helium.persistence.repository.ExpedientHeliumRepository;
-import es.caib.helium.persistence.repository.ExpedientRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRepository;
-import es.caib.helium.persistence.repository.RegistreRepository;
-import es.caib.helium.persistence.repository.TascaRepository;
-import es.caib.helium.persistence.repository.TerminiIniciatRepository;
-import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 
 /**
  * Servei per gestionar terminis.
@@ -147,9 +82,7 @@ public class TascaServiceImpl implements TascaService {
 	@Resource
 	private DocumentRepository documentRepository;
 	@Resource
-	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
-	@Resource
-	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	private ExpedientTascaRepository expedientTascaRepository;
 
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
@@ -190,11 +123,9 @@ public class TascaServiceImpl implements TascaService {
 	@Autowired
 	private MetricRegistry metricRegistry;
 	@Resource
-	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
-	@Resource
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
-	private ComandaHelper comandaHelper;
+	private PluginHelper pluginHelper;
 
 
 	@Override
@@ -437,23 +368,12 @@ public class TascaServiceImpl implements TascaService {
 							"llistat.consulta",
 							entorn.getCodi()));
 			final Timer.Context contextTimerConsultaEntorn = timerConsultaEntorn.time();
-			List<WTaskInstance> paginaTasks = null;
+			Page<ExpedientTasca> page = null;
 			try {
-//				// Comprova l'accés al tipus d'expedient
-//				if (expedientTipusId != null) {
-//					ExpedientTipus expTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
-//							expedientTipusId);
-//					if(expTipus.isProcedimentComu()) {
-//						List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
-//						unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
-//					}
-//				} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
-//					List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
-//					unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
-//				}
 				// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 				// a damunt el tipexp es filtra per l'usuari actual.
-				if (nomesTasquesMeves || expedientTipusId == null || !expedientTipusHelper.comprovarPermisSupervisio(expedientTipusId)) {
+				//if (nomesTasquesMeves || expedientTipusId == null || !expedientTipusHelper.comprovarPermisSupervisio(expedientTipusId)) {
+				if (responsable == null && (nomesTasquesMeves || expedientTipusId == null || !expedientTipusHelper.comprovarPermisSupervisio(expedientTipusId))) {
 					responsable = SecurityContextHolder.getContext().getAuthentication().getName();
 				}
 				if (tramitacioMassivaTascaId != null) {
@@ -479,26 +399,48 @@ public class TascaServiceImpl implements TascaService {
 				}
 				boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 				boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
-				paginaTasks = workflowEngineApi.tascaFindByFiltrePaginat(
-						//unitatsPerTipusComu,
-						entornId,
-						responsable,
-						tasca,
-						titol,
-						null,
-						expedient,
-						null, //expedientNumero,
-						expedientTipusId,
-						dataCreacioInici,
-						dataCreacioFi,
-						prioritat,
-						dataLimitInici,
-						dataLimitFi,
-						mostrarAssignadesUsuari,
-						mostrarAssignadesGrup,
-						true,
-						usuariActualHelper.isAdministrador(),
-						paginacioParams);
+
+				for(PaginacioParamsDto.OrdreDto order : paginacioParams.getOrdres()) {
+					switch (order.getCamp()) {
+					case "responsableString":
+						order.setCamp("assignee");
+						break;
+					case "expedientIdentificador":
+						order.setCamp("expedient.numeroDefault");
+						break;
+					case "unitatOrganitzativaCodiNom":
+						order.setCamp("expedient.unitatOrganitzativa");
+						break;
+					case "expedientTipusNom":
+						order.setCamp("expedient.tipus.nom");
+						break;
+					}
+				}
+
+				page = expedientTascaRepository.tascaFindByFiltrePaginat(
+					entornId,
+					responsable,
+					responsable == null,
+					tasca,
+					tasca == null,
+					titol,
+					titol == null,
+					expedient,
+					expedient == null,
+					expedientTipusId,
+					expedientTipusId == null,
+					dataCreacioInici,
+					dataCreacioInici == null,
+					dataCreacioFi,
+					dataCreacioFi == null,
+					dataLimitInici,
+					dataLimitInici == null,
+					dataLimitFi,
+					dataLimitFi == null,
+					mostrarAssignadesUsuari,
+					mostrarAssignadesGrup,
+					usuariActualHelper.isAdministrador(),
+					paginacioHelper.toSpringDataPageable(paginacioParams));
 			} finally {
 				contextTimerConsultaTotal.stop();
 				contextTimerConsultaEntorn.stop();
@@ -515,19 +457,58 @@ public class TascaServiceImpl implements TascaService {
 							entorn.getCodi()));
 			final Timer.Context contextTimerConversioEntorn = timerConversioEntorn.time();
 			try {
-				return paginacioHelper.toPaginaDto(
-						paginaTasks,
-						paginaTasks.size(),
-						paginacioParams,
-						new Converter<WTaskInstance, ExpedientTascaDto>() {
-							public ExpedientTascaDto convert(WTaskInstance task) {
-								return tascaHelper.toExpedientTascaDto(
-										task,
-										null,
-										false,
-										true);
+				List<ExpedientTascaDto> resultat = conversioTipusHelper.convertirList(
+																		page.getContent(),
+																		ExpedientTascaDto.class);
+
+				String usuariActual = usuariActualHelper.getUsuariActual();
+				resultat.forEach(et -> {
+					et.setAssignadaUsuariActual(
+						et.getAssignee() != null && usuariActualHelper.getUsuariActual().equals(et.getAssignee()));
+
+					if (et.getAssignee() != null) {
+						et.setResponsable(
+							tascaHelper.findPersonaOrDefault(et.getAssignee()));
+
+						if (usuariActual != null)
+							et.setAssignadaUsuariActual(et.getAssignee().equals(usuariActual));
+					} else if (et.getPooledActors() != null && !et.getPooledActors().isEmpty()) {
+						List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+						for (String pooledActor: et.getPooledActors()) {
+							PersonaDto persona = tascaHelper.findPersonaOrDefault(pooledActor);
+							if (persona != null) {
+								if (usuariActual.equals(pooledActor))
+									et.setAssignadaUsuariActual(true);
+								responsables.add(persona);
 							}
-						});
+						}
+						Collections.sort(
+							responsables,
+							new Comparator<PersonaDto>() {
+								public int compare(PersonaDto p1, PersonaDto p2) {
+									return p1.getNom().compareToIgnoreCase(p2.getNom());
+								}
+							});
+						et.setResponsables(responsables);
+					}
+
+					if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded() &&
+						tascaSegonPlaHelper.getTasquesSegonPla().containsKey(et.getId())) {
+						InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(et.getId());
+						et.setMarcadaFinalitzar(infoSegonPla.getMarcadaFinalitzar());
+						et.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
+						et.setErrorFinalitzacio(infoSegonPla.getError());
+					}
+
+					permisosHelper.omplirControlPermisosSegonsUsuariActual(
+						et.getExpedientTipusId(),
+						et,
+						ExpedientTipus.class);
+				});
+				return paginacioHelper.toPaginaDto(
+					resultat,
+					page.getSize(),
+					paginacioParams);
 			} finally {
 				contextTimerConversioTotal.stop();
 				contextTimerConversioEntorn.stop();
@@ -842,10 +823,10 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional
 	public ExpedientTascaDto agafar(
-			String id) {
-		logger.debug("Agafant tasca (id=" + id + ")");
+			String taskInstanceid) {
+		logger.debug("Agafant tasca (id=" + taskInstanceid + ")");
 		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
+				taskInstanceid,
 				false,
 				true);
 		//	Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
@@ -856,17 +837,17 @@ public class TascaServiceImpl implements TascaService {
 		Set<String> pooledActors = task.getPooledActors();
 		if (!pooledActors.contains(auth.getName())) {
 			logger.debug("L'usuari no s'ha trobat com a pooledActor de la tasca (" +
-					"id=" + id + ", " +
+					"id=" + taskInstanceid + ", " +
 					"personaCodi=" + auth.getName() + ")");
-			throw new NoTrobatException(WTaskInstance.class,id);
+			throw new NoTrobatException(WTaskInstance.class,taskInstanceid);
 		}
-		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
+		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskInstanceid);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
-				id,
+				taskInstanceid,
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
-		workflowEngineApi.takeTaskInstance(id, auth.getName());
-		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
+		task = workflowEngineApi.takeTaskInstance(taskInstanceid, auth.getName());
+		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskInstanceid);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
 				task,
@@ -875,35 +856,33 @@ public class TascaServiceImpl implements TascaService {
 				false);
 		expedientRegistreHelper.crearRegistreIniciarTasca(
 				tasca.getExpedientId(),
-				id,
+				taskInstanceid,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Agafar tasca \"" + tasca.getTitol() + "\"");
-
-		comandaHelper.upsertTasca(id, tasca.getTitol(), tasca.getExpedientNumero(), task, TascaEstat.PENDENT);
-
+		tascaHelper.refreshExpedientTasca(taskInstanceid);
 		return tasca;
 	}
 
 	@Override
 	@Transactional
 	public ExpedientTascaDto alliberar(
-			String id) {
-		logger.debug("Alliberant tasca (id=" + id + ")");
+			String taskInstanceId) {
+		logger.debug("Alliberant tasca (id=" + taskInstanceId + ")");
 		// TODO contemplar el cas que no faci falta que l'usuari
 		// de la tasca sigui l'usuari actual
 		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
+				taskInstanceId,
 				false,
 				true);
 //		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
-				id);
+				taskInstanceId);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
-				id,
+				taskInstanceId,
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
-		workflowEngineApi.releaseTaskInstance(id);
-		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
+		task = workflowEngineApi.releaseTaskInstance(taskInstanceId);
+		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskInstanceId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
 				task,
@@ -912,12 +891,10 @@ public class TascaServiceImpl implements TascaService {
 				false);
 		expedientRegistreHelper.crearRegistreIniciarTasca(
 				tasca.getExpedientId(),
-				id,
+				taskInstanceId,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Amollar tasca \"" + tasca.getTitol() + "\"");
-
-		comandaHelper.upsertTasca(id, tasca.getTitol(), tasca.getExpedientNumero(), task, TascaEstat.PENDENT);
-
+		tascaHelper.refreshExpedientTasca(taskInstanceId);
 		return tasca;
 	}
 
@@ -1076,20 +1053,20 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional
 	public void guardar(
-			String taskId,
+			String taskInstanceId,
 			Map<String, Object> variables) {
 		logger.debug("Guardant les dades del formulari de la tasca (" +
-				"taskId=" + taskId + ", " +
+				"taskInstanceId=" + taskInstanceId + ", " +
 				"variables= "+variables+")");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuari = auth.getName();
 		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
-				taskId,
+				taskInstanceId,
 				true,
 				true);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				taskId,
+				taskInstanceId,
 				expedient.getId(),
 				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
 				null,
@@ -1099,10 +1076,10 @@ public class TascaServiceImpl implements TascaService {
 				task.getProcessDefinitionId());
 		Map<String, Object> variablesProcessades = new HashMap<String, Object>(variables);
 		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variablesProcessades);
-		//task = workflowEngineApi.startTaskInstance(taskId);
-		task = workflowEngineApi.getTaskById(taskId);
-		workflowEngineApi.setTaskInstanceVariables(taskId, variablesProcessades, false);
-		this.expedientDadaHelper.setDades(expedient, task.getProcessInstanceId(), taskId, variablesProcessades);
+		task = workflowEngineApi.getTaskById(taskInstanceId);
+		workflowEngineApi.setTaskInstanceVariables(taskInstanceId, variablesProcessades, false);
+		tascaHelper.refreshExpedientTasca(taskInstanceId);
+		this.expedientDadaHelper.setDades(expedient, task.getProcessInstanceId(), taskInstanceId, variablesProcessades);
 		if (task.getStartTime() == null) {
 			Registre registre = new Registre(
 					new Date(),
@@ -1110,32 +1087,30 @@ public class TascaServiceImpl implements TascaService {
 					usuari,
 					Registre.Accio.MODIFICAR,
 					Registre.Entitat.TASCA,
-					taskId);
+					taskInstanceId);
 //			registre.setMissatge("Iniciar tasca \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 			registre.setMissatge("Iniciar tasca \"" + task.getTaskName() + "\"");
 			registreRepository.save(registre);
 		}
-
-		comandaHelper.upsertTasca(taskId, tasca.getNom(), expedient.getNumero(), task, TascaEstat.INICIADA);
 	}
 
 	@Override
 	@Transactional
 	public void validar(
-			String tascaId,
+			String taskInstanceId,
 			Map<String, Object> variables) {
 		logger.debug("Validant el formulari de la tasca (" +
-				"tascaId=" + tascaId + ", " +
+				"tascaId=" + taskInstanceId + ", " +
 				"variables= "+variables+")");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuari = auth.getName();
 		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
-				tascaId,
+				taskInstanceId,
 				true,
 				true);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				tascaId,
+				taskInstanceId,
 				expedient.getId(),
 				ExpedientLogAccioTipus.TASCA_FORM_VALIDAR,
 				null,
@@ -1144,9 +1119,10 @@ public class TascaServiceImpl implements TascaService {
 				task.getTaskName(),
 				task.getProcessDefinitionId());
 		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);
-		workflowEngineApi.startTaskInstance(tascaId);
-		workflowEngineApi.setTaskInstanceVariables(tascaId, variables, false);
-		tascaHelper.validarTasca(tascaId);
+		workflowEngineApi.startTaskInstance(taskInstanceId);
+		workflowEngineApi.setTaskInstanceVariables(taskInstanceId, variables, false);
+		tascaHelper.refreshExpedientTasca(taskInstanceId);
+		tascaHelper.validarTasca(taskInstanceId);
 
 		Registre registre = new Registre(
 				new Date(),
@@ -1154,7 +1130,7 @@ public class TascaServiceImpl implements TascaService {
 				usuari,
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
-				tascaId);
+				taskInstanceId);
 //		registre.setMissatge("Validar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 		registre.setMissatge("Validar \"" + task.getTaskName() + "\"");
 		registreRepository.save(registre);
@@ -1230,25 +1206,25 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional
 	public void completar(
-			String tascaId,
+			String taskInstanceId,
 			String outcome) {
 		logger.debug("Completant la tasca (" +
-				"tascaId=" + tascaId + ", " +
+				"tascaId=" + taskInstanceId + ", " +
 				"variables=...)");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuari = auth.getName();
 		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
-				tascaId,
+				taskInstanceId,
 				true,
 				true);
 		if (!tascaHelper.isTascaValidada(task)) {
-			throw new ValidacioException("La tasca amb id '" + tascaId + "' no està validada");
+			throw new ValidacioException("La tasca amb id '" + taskInstanceId + "' no està validada");
 		}
 		if (!tascaHelper.isDocumentsComplet(task)) {
-			throw new ValidacioException("Falten documents per la tasca amb id '" + tascaId + "'.");
+			throw new ValidacioException("Falten documents per la tasca amb id '" + taskInstanceId + "'.");
 		}
 		if (!tascaHelper.isSignaturesComplet(task)) {
-			throw new ValidacioException("Falten signatures per la tasca amb id '" + tascaId + "'.");
+			throw new ValidacioException("Falten signatures per la tasca amb id '" + taskInstanceId + "'.");
 		}
 
 		//A partir d'aquí distingirem si la tasca s'ha d'executar en segon pla o no
@@ -1263,18 +1239,18 @@ public class TascaServiceImpl implements TascaService {
 			//recollim els rols del tipus de l'expedient
 			String rols = expedientTipusHelper.getRolsTipusExpedient(auth, expedient.getTipus());
 
-			workflowEngineApi.marcarFinalitzar(tascaId, marcadaFinalitzar, outcome, rols);
-			checkFinalitzarSegonPla(tascaId, marcadaFinalitzar);
-
+			workflowEngineApi.marcarFinalitzar(taskInstanceId, marcadaFinalitzar, outcome, rols);
+			checkFinalitzarSegonPla(taskInstanceId, marcadaFinalitzar);
+			tascaHelper.refreshExpedientTasca(taskInstanceId);
 			expedientLoggerHelper.afegirLogExpedientPerTasca(
-					tascaId,
+					taskInstanceId,
 					expedient.getId(),
 					ExpedientLogAccioTipus.TASCA_MARCAR_FINALITZAR,
 					outcome,
 					usuari);
 		} else {
 			completarTasca(
-					tascaId,
+					taskInstanceId,
 					task,
 					outcome,
 					usuari);
@@ -1611,8 +1587,8 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional
-	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio) {
-        WTaskInstance task = workflowEngineApi.getTaskById(tascaId);
+	public void completaTascaSegonPla(String taskInstanceId, Date iniciFinalitzacio) {
+        WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 
         Authentication orgAuth = SecurityContextHolder.getContext().getAuthentication();
         if (orgAuth == null) {
@@ -1633,11 +1609,11 @@ public class TascaServiceImpl implements TascaService {
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
-        workflowEngineApi.marcarIniciFinalitzacioSegonPla(tascaId, iniciFinalitzacio);
-
+        workflowEngineApi.marcarIniciFinalitzacioSegonPla(taskInstanceId, iniciFinalitzacio);
+		tascaHelper.refreshExpedientTasca(taskInstanceId);
 
         completarTasca(
-                tascaId,
+                taskInstanceId,
                 task,
                 task.getSelectedOutcome(),
                 task.getActorId());

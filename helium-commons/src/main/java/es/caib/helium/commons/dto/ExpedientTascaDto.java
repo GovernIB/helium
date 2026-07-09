@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * DTO amb informació d'una tasca de l'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<ExpedientTascaDto> {
@@ -44,12 +44,15 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private String titol;
 	private String jbpmName;
 	private String description;
+	private String owner;
 	private String assignee;
 	private Set<String> pooledActors;
 	private Date createTime;
 	private Date startTime;
+	private Date claimTime;
 	private Date endTime;
 	private Date dueDate;
+	private Long duration;
 	private int priority;
 	private boolean open;
 	private boolean completed;
@@ -67,7 +70,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private boolean tascaDelegable;
 	private boolean tascaTramitacioMassiva;
 	private boolean tascaFinalitzacioSegonPla;
-	
+
 	private Date marcadaFinalitzar;
 	private Date iniciFinalitzacio;
 	private String errorFinalitzacio;
@@ -100,12 +103,12 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private boolean ambRepro;
 	private boolean mostrarAgrupacions;
 	private boolean procedimentComu;
-	
+
 	private String unitatOrganitzativaCodiNom;
 
 
 	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-	
+
 	public boolean isAmbRepro() {
 		return ambRepro;
 	}
@@ -154,6 +157,12 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	public void setAssignee(String assignee) {
 		this.assignee = assignee;
 	}
+	public String getOwner() {
+		return owner;
+	}
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
 	public Set<String> getPooledActors() {
 		return pooledActors;
 	}
@@ -172,6 +181,8 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
+	public Date getClaimTime(){return claimTime;}
+	public void setClaimTime(Date claimTime) {this.claimTime = claimTime;}
 	public Date getEndTime() {
 		return endTime;
 	}
@@ -184,6 +195,9 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	public void setDueDate(Date dueDate) {
 		this.dueDate = dueDate;
 	}
+	public Long getDuration() {return this.duration;}
+	public Long setDuration(Long duration) {return this.duration = duration;}
+
 	public int getPriority() {
 		return priority;
 	}
@@ -477,7 +491,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	public String getExpedientIdentificadorEscaped() {
 		return StringEscapeUtils.escapeJavaScript(expedientIdentificador);
 	}
-	
+
 	private static final String PREFIX_TASCA_INICIAL = "TIE_";
 	public boolean isInicial() {
 		return id.startsWith(PREFIX_TASCA_INICIAL);
@@ -501,7 +515,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	public void setUnitatOrganitzativaCodiNom(String unitatOrganitzativaCodiNom) {
 		this.unitatOrganitzativaCodiNom = unitatOrganitzativaCodiNom;
 	}
-	
+
 	public boolean isProcedimentComu() {
 		return procedimentComu;
 	}

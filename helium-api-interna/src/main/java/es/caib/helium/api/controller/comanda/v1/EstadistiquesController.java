@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 	description = "API REST de consulta de les estadístiques de Helium per mostrar a l'aplicació Comanda.")
 public class EstadistiquesController {
 
+	private final String APP_CODI = "HEL2";
+
 	@Autowired
 	private EstadisticaService estadisticaService;
 
@@ -55,7 +57,7 @@ public class EstadistiquesController {
 		List<DimensioDesc> dimensions = estadisticaService.getDimensions();
 		List<IndicadorDesc> indicadors = estadisticaService.getIndicadors();
 		return new EstadistiquesInfo()
-			.codi("HEL")
+			.codi(APP_CODI)
 			.dimensions(dimensions)
 			.indicadors(indicadors);
 	}

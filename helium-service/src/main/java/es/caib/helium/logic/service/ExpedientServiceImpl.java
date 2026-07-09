@@ -27,11 +27,14 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.validation.ValidationException;
 
+import es.caib.comanda.model.management.TascaEstat;
+import es.caib.helium.logic.helper.*;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -102,29 +105,6 @@ import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.TramitacioValidacioException;
 import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.logic.helper.AlertaHelper;
-import es.caib.helium.logic.helper.ConsultaHelper;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DistribucioHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExceptionHelper;
-import es.caib.helium.logic.helper.ExpedientDadaHelper;
-import es.caib.helium.logic.helper.ExpedientDocumentHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientLoggerHelper;
-import es.caib.helium.logic.helper.ExpedientRegistreHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.helper.NotificacioHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.helper.VariableHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
@@ -194,6 +174,8 @@ import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 import es.caib.pluginsib.arxiu.api.ContingutArxiu;
 import es.caib.pluginsib.arxiu.api.ExpedientMetadades;
 import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -323,7 +305,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private ExpedientTipusService expedientTipusService;
 	@Resource
 	private Jbpm3HeliumService jbpm3HeliumService;
+	@Autowired
+	private ComandaHelper comandaHelper;
 
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 	@Autowired
 	private EntityManager entityManager;
 
@@ -481,6 +467,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			ExpedientDto dto = conversioTipusHelper.convertir(
 					expedient,
 					ExpedientDto.class);
+
+			eventPublisher.publishEvent(dto);
+
 			return dto;
 //		} catch (ExecucioHandlerException ex) {
 //			throw new TramitacioHandlerException(
@@ -652,9 +641,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					}
 				});
 			for (WProcessInstance pi : processInstancesTree) {
-				for (TerminiIniciat ti : terminiIniciatRepository.findByProcessInstanceId(pi.getId().toString()))
+				for (TerminiIniciat ti : terminiIniciatRepository.findByProcessInstanceId(pi.getId()))
 					terminiIniciatRepository.delete(ti);
-				workflowEngineApi.deleteProcessInstance(pi.getId().toString());
+				workflowEngineApi.deleteProcessInstance(pi.getId());
 				for (DocumentStore documentStore : documentStoreRepository.findByProcessInstanceId(pi.getId())) {
 					if (documentStore.isSignat() && documentStore.getReferenciaCustodia() != null) {
 						try {
@@ -3862,6 +3851,37 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Transactional(readOnly = true)
 	public List<Long> findIdsPerTipus(Long expedientTipusId) {
 		return expedientHelper.findIdsPerTipus(expedientTipusId);
+	}
+
+	@Transactional
+	private void updateTasquesExpedient(String processInstanceId, String expedientNumero) {
+		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesByProcessInstanceId(processInstanceId);
+		for(WTaskInstance task : tasks) {
+			try {
+				tascaHelper.refreshExpedientTasca(task.getId());
+				comandaHelper.upsertTasca(
+					task.getId(),
+					task.getName(),
+					expedientNumero,
+					task,
+					TascaEstat.PENDENT
+				);
+			} catch (Exception e) {
+				logger.error("Error processant tasques d'expedient iniciat", e);
+			}
+		}
+	}
+
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void handleExpedientSaveListener(ExpedientDto expedient) {
+		try {
+			if(expedient.getTipus().getTipus() == ExpedientTipusTipusEnumDto.FLOW
+				&& expedient.getProcessInstanceId() != null) {
+				updateTasquesExpedient(expedient.getProcessInstanceId(), expedient.getNumeroDefault());
+			}
+		} catch (Exception e) {
+			logger.error("Error capturant event AFTER_COMMIT d'expedient", e);
+		}
 	}
 
 	private static void addCurrentlyMigrating(Long expedientId) {

@@ -1,30 +1,42 @@
 package es.caib.helium.logic.config;
 
 import es.caib.helium.logic.classloader.WorkflowEngineApiClassLoader;
+import es.caib.helium.logic.flowable.FlowableTaskEventListener;
+import es.caib.helium.logic.helper.ComandaHelper;
+import es.caib.helium.logic.helper.TascaHelper;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTascaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.common.engine.api.delegate.event.*;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.RepositoryService;
+import org.flowable.engine.impl.TaskServiceImpl;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.flowable.spring.boot.EngineConfigurationConfigurer;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
 public class FlowableConfig implements EngineConfigurationConfigurer<SpringProcessEngineConfiguration> {
 
 	private final WorkflowEngineApi workflowEngineApi;
+	private final ComandaHelper comandaHelper;
+	private final TascaHelper tascaHelper;
 
 	@Override
 	public void configure(SpringProcessEngineConfiguration processEngineConfiguration) {
 		processEngineConfiguration.setClassLoader(
 			new WorkflowEngineApiClassLoader(workflowEngineApi));
 		processEngineConfiguration.setEventListeners(List.of(new CurrentDeploymentIdEventListener(processEngineConfiguration)));
+		List<FlowableEventListener> listeners = ((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().getEventListeners().stream().collect(Collectors.toList());
+		listeners.add(new FlowableTaskEventListener(processEngineConfiguration, comandaHelper, tascaHelper));
+		((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().setEventListeners(listeners);
 		processEngineConfiguration.setUseClassForNameClassLoading(false);
 	}
 
@@ -58,7 +70,5 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 			return false;
 		}
 	}
-
-
 
 }

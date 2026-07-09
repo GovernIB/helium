@@ -8,10 +8,14 @@ import java.util.concurrent.ExecutionException;
 
 import javax.ws.rs.core.MediaType;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
 import es.caib.comanda.model.management.Prioritat;
 import es.caib.comanda.model.management.Tasca;
 import es.caib.comanda.model.management.TascaEstat;
 import es.caib.helium.commons.config.PropertyConfig;
+import es.caib.helium.logic.config.JacksonObjectMapperProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,13 +49,16 @@ public class ComandaHelper {
 	private String HELIUM_BASE_URL;
 	@Value("${" + PropertyConfig.PROP_ENTORN_HELIUM + ":#{null}}")
 	private String ENTORN;
+	private final String APP_CODI = "HEL2";
+
+	private Client client;
 
 	private static final Logger logger = LoggerFactory.getLogger(ComandaHelper.class);
 
 	public Tasca getTasca(String tascaId) throws UniformInterfaceException, InterruptedException, ExecutionException {
 		ClientResponse response = getClient()
 								.resource(API_URL + "/v1/tasques/" + tascaId)
-								.queryParam("appCodi", "HEL")
+								.queryParam("appCodi", APP_CODI)
 								.queryParam("entornCodi", ENTORN)
 								.get(ClientResponse.class);
 
@@ -59,7 +66,7 @@ public class ComandaHelper {
 		 return response.getEntity(Tasca.class);
 		}
 
-		logger.error("[COMANDA] GET: " + response.toString());
+		logger.error("[COMANDA] GET: {}", response.toString());
 		return null;
 	}
 
@@ -87,7 +94,7 @@ public class ComandaHelper {
 		List<String> grups = new ArrayList<>(task.getRols());
 
 		Tasca tasca = new Tasca()
-							.appCodi("HEL")
+							.appCodi(APP_CODI)
 							.entornCodi(ENTORN)
 							.identificador(String.valueOf(taskId))
 							.tipus(task.getTaskName())
@@ -113,7 +120,7 @@ public class ComandaHelper {
 									.post(ClientResponse.class, tasca);
 
 		if(response.getStatus() != 200)
-			logger.error("[COMANDA] POST: " + response.toString());
+			logger.error("[COMANDA] POST: {}", response.toString());
 	}
 
 	private void updateTasca(Tasca tasca, String taskId, String expedientNumero, WTaskInstance task, TascaEstat estat) throws MalformedURLException, UniformInterfaceException, InterruptedException, ExecutionException {
@@ -121,7 +128,7 @@ public class ComandaHelper {
 
 		List<String> grups = new ArrayList<>(task.getRols());
 
-		tasca.setAppCodi("HEL");
+		tasca.setAppCodi(APP_CODI);
 		tasca.setEntornCodi(ENTORN);
 
 		tasca.setEstat(estat);
@@ -137,22 +144,26 @@ public class ComandaHelper {
 		tasca.setUsuarisAmbPermis(usuaris);
 		tasca.setGrupsAmbPermis(grups);
 
-
 		ClientResponse response = getClient()
 				.resource(API_URL + "/v1/tasques/" + tasca.getIdentificador())
-				.queryParam("appCodi", "HEL")
+				.queryParam("appCodi", APP_CODI)
 				.queryParam("entornCodi", ENTORN)
 				.type(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.put(ClientResponse.class, tasca);
 
 		if(response.getStatus() != 200)
-			logger.error("[COMANDA] PUT: " + response.toString());
+			logger.error("[COMANDA] PUT: {}", response.toString());
 	}
 
 	public Client getClient() {
-		Client client = Client.create();
-		client.addFilter(new HTTPBasicAuthFilter(API_USER, API_PASS));
+		if(client == null) {
+			ClientConfig clientConfig = new DefaultClientConfig();
+			clientConfig.getSingletons().add(new JacksonObjectMapperProvider());
+			clientConfig.getClasses().add(JacksonJsonProvider.class);
+			client = Client.create(clientConfig);
+			client.addFilter(new HTTPBasicAuthFilter(API_USER, API_PASS));
+		}
 		return client;
 	}
 

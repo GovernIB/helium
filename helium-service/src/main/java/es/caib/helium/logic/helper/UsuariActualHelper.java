@@ -160,15 +160,14 @@ public class UsuariActualHelper {
 	}
 
 	public static boolean isAdministrador(Authentication auth) {
-		boolean isAdministrador = false;
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(auth.getAuthorities());
 		for (GrantedAuthority grantedAuthority : authorities) {
-	        if ("ROLE_ADMIN".equals(grantedAuthority.getAuthority())) {
-	            isAdministrador = true;
-	            break;
+	        if ("ROLE_ADMIN".equals(grantedAuthority.getAuthority())
+				|| "HEL_ADMIN".equals(grantedAuthority.getAuthority())) {
+	            return true;
 	        }
 	    }
-		return isAdministrador;
+		return false;
 	}
 
 }

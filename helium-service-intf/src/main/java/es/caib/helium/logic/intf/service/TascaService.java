@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.logic.intf.service;
 
@@ -24,10 +24,12 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.SistemaExternTimeoutException;
 import es.caib.helium.commons.exception.ValidacioException;
 
+import javax.annotation.security.RolesAllowed;
+
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
  * de Helium.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface TascaService {
@@ -35,7 +37,7 @@ public interface TascaService {
 	/**
 	 * Consulta d'informació d'una tasca comprovant que pertany
 	 * a l'expedient especificat.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de la tasca que es vol consultar.
 	 * @param expedientId
@@ -53,7 +55,7 @@ public interface TascaService {
 
 	/**
 	 * Consulta d'informació d'una tasca per a tramitar-la.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de la tasca que es vol consultar.
 	 * @return La informació de la tasca.
@@ -67,7 +69,7 @@ public interface TascaService {
 
 	/**
 	 *  Consulta d'ids de tasques segons el filtre.
-	 * 
+	 *
 	 * @param entornId
 	 *            Atribut id de l'entorn l'expedient que es vol consultar.
 	 * @param expedientTipusId
@@ -115,15 +117,15 @@ public interface TascaService {
 			Date dataLimitFi,
 			Integer prioritat,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup, 
+			boolean nomesTasquesGrup,
 			boolean nomesTasquesMeves) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 *  Consulta de tasques segons el filtre amb paginació.
-	 * 
+	 *
 	 * @param entornId
 	 *            Atribut id de l'entorn l'expedient que es vol consultar.
-	 * @param tramitacioMassivaTascaId 
+	 * @param tramitacioMassivaTascaId
 	 *            Atribut id de la tasca que es vol tramitar massivament.
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
@@ -175,14 +177,14 @@ public interface TascaService {
 			Date dataLimitFi,
 			Integer prioritat,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup, 
+			boolean nomesTasquesGrup,
 			boolean nomesTasquesMeves,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna els camps i les dades de la tasca per a la construcció
 	 * del formulari.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de la tasca que es vol consultar.
 	 * @return Les dades de la tasca.
@@ -196,7 +198,7 @@ public interface TascaService {
 
 	/**
 	 * Retorna els documents de la tasca.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de la tasca que es vol consultar.
 	 * @return Els documents de la tasca.
@@ -211,7 +213,7 @@ public interface TascaService {
 	/**
 	 * Retorna la llista de possibles valors per a un camp de tipus
 	 * selecció d'una tasca.
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param processInstanceId
@@ -246,7 +248,7 @@ public interface TascaService {
 
 	/**
 	 * Agafa una tasca assignada a l'usuari autenticat com a tasca de grup.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de la tasca.
 	 * @return la tasca agafada.
@@ -261,7 +263,7 @@ public interface TascaService {
 
 	/**
 	 * Allibera una tasca assignada a aquest usuari.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de la tasca.
 	 * @return la tasca agafada.
@@ -275,7 +277,7 @@ public interface TascaService {
 
 	/**
 	 * Guarda les variables del formulari de la tasca.
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param variables
@@ -292,7 +294,7 @@ public interface TascaService {
 
 	/**
 	 * Valida el formulari de la tasca.
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param variables
@@ -309,10 +311,10 @@ public interface TascaService {
 
 	/**
 	 * Restaura (tornar enrere validació) el formulari de la tasca.
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca.
-	 * @param expedientId 
+	 * @param expedientId
 	 * @return la tasca restaurada.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
@@ -325,7 +327,7 @@ public interface TascaService {
 
 	/**
 	 * Completa la tasca.
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param outcome
@@ -341,10 +343,10 @@ public interface TascaService {
 	public void completar(
 			String tascaId,
 			String outcome) throws NoTrobatException, ValidacioException;
-	
+
 	/**
 	 * Completa la tasca des de l'execució massiva.
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param outcome
@@ -364,7 +366,7 @@ public interface TascaService {
 	/**
 	 * Cancel·la la delegació d'una tasca. Aquesta acció només la podrà fer
 	 * l'usuari que ha creat la delegació.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de la tasca.
 	 * @param accio
@@ -381,26 +383,26 @@ public interface TascaService {
 	/**
 	 * Inicia un formulari extern i retorna les dades per a obrir
 	 * una finestra amb el formulari.
-	 * 
+	 *
 	 * @param id
 	 *            Atribut id de la tasca.
 	 * @return
 	 */
 	public FormulariExternDto formulariExternObrir(
 			String tascaId);
-	
+
 	public FormulariExternDto formulariExternObrirTascaInicial(
 			String tascaIniciId,
 			Long expedientTipusId,
 			Long definicioProcesId);
 
 	public List<TascaDadaDto> findDadesPerTascaDto(Long expedientTipusId, ExpedientTascaDto tasca);
-	
+
 	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids);
 
 	/**
 	 * Retorna l'arxiu corresponent a un document de la tasca.
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca que es vol consultar.
 	 * @param documentCodi
@@ -414,19 +416,19 @@ public interface TascaService {
 	public ArxiuDto getArxiuPerDocumentCodi(
 			String tascaId,
 			String documentCodi);
-	
+
 	public DocumentDto getDocumentPerDocumentCodi(String tascaId, String documentCodi);
-	
+
 	public TascaDocumentDto findDocument(String tascaId, Long docId, Long expedientTipusId);
 
 	public Long guardarDocumentTasca(
-			Long entornId, 
-			String taskInstanceId, 
-			String documentCodi, 
-			Date documentData, 
-			String arxiuNom, 
+			Long entornId,
+			String taskInstanceId,
+			String documentCodi,
+			Date documentData,
+			String arxiuNom,
 			byte[] arxiuContingut,
-			String arxiuContentType, 
+			String arxiuContentType,
 			boolean ambFirma,
 			boolean firmaSeparada,
 			byte[] firmaContingut,
@@ -441,7 +443,7 @@ public interface TascaService {
 	public boolean hasFormulari(String tascaId);
 
 	public boolean hasDocuments(String tascaId);
-	
+
 	public boolean hasDocumentsNotReadOnly(String id);
 
 	public boolean hasSignatures(String tascaId);
@@ -451,34 +453,34 @@ public interface TascaService {
 	public boolean isDocumentsComplet(String tascaId);
 
 	public boolean isSignaturesComplet(String tascaId);
-	
+
 	public void comprovarTasquesSegonPla();
-	
+
 	public void carregaTasquesSegonPla();
-	
+
 	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio);
-	
+
 	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio);
 
 	public Map<String, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds);
-	
+
 	/**
 	 * Retorna si la TaskInstance està registrada en segon pla
 	 * en execució o per ser executada
-	 * 
+	 *
 	 * @param tascaId
 	 *            Atribut id de la tasca que es vol consultar.
 	 * @return Retorna si està registrada en segón pla o no
-	 */ 
+	 */
 	public boolean isEnSegonPla(String tascaSegonPlaId);
-	
+
 	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId);
-	
+
 	public void updateVariable(Long expedientId, String taskId, String codiVariable, Object valor) throws Exception;
-	
+
 	/**
 	 * Retiorna la tasca de la ID especificada.
-	 * 
+	 *
 	 * @param id
 	 * @return
 	 */

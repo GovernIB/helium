@@ -1977,11 +1977,14 @@ public class ExpedientHelper {
 		//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
 		WProcessInstance processInstance = null;
 		if (expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
+			if(variables == null)
+				variables = new HashMap<String, Object>();
+			variables.put("__expedient_numero__", expedient.getNumeroDefault());
 			processInstance = workflowEngineApi.startProcessInstanceById(
 					IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
 					definicioProces.getJbpmId(),
 					variables);
-			expedient.setProcessInstanceId(processInstance.getId().toString());
+			expedient.setProcessInstanceId(processInstance.getId());
 		}
 
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
@@ -1995,7 +1998,7 @@ public class ExpedientHelper {
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 		if(expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
 			ExpedientLog log = expedientLoggerHelper.afegirLogExpedientPerProces(
-					processInstance.getId().toString(),
+					processInstance.getId(),
 					ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
 					null);
 			log.setEstat(ExpedientLogEstat.IGNORAR);
