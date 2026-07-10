@@ -710,8 +710,23 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					if (titol.length() == 0)
 						titol = exp.getNumeroDefault();
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC) {
-					titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " "
-							+ expedient.getExecucioMassiva().getParam1();
+					if(expedient.getProcessInstanceId() != null) {
+						try {
+							exp = expedientHelper.findExpedientByProcessInstanceId(expedient.getProcessInstanceId());
+							if (exp.getNumero() != null)
+								titol = "[" + exp.getNumero() + "]";
+							if (exp.getTitol() != null)
+								titol += (titol.length() > 0 ? " " : "") + exp.getTitol();
+							if (titol.length() == 0)
+								titol = exp.getNumeroDefault();
+						} catch(Exception ex) {
+							logger.error("Error recuperant expedient apartir de processInstanceId: " + expedient.getProcessInstanceId(), ex);
+						}
+					}
+					if(titol.trim().isEmpty()) {
+						titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " "
+								+ expedient.getExecucioMassiva().getParam1();
+					}
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {
 					DefinicioProces dp = definicioProcesRepository.findOne(expedient.getDefinicioProcesId());
 					String idPerMostrar = dp != null ? dp.getIdPerMostrar() : expedient.getAuxText();
