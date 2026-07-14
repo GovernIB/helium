@@ -6,6 +6,7 @@
 		<pattern>/ico*</pattern>
 		<pattern>/font*</pattern>
 		<pattern>/dwr*</pattern>
+		<pattern>/designer*</pattern>
 		<pattern>/spring_security_login*</pattern>
 		<pattern>/ws*</pattern>
 		<pattern>/tasca/formIframe*</pattern>

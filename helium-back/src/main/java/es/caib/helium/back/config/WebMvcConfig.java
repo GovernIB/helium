@@ -3,31 +3,23 @@
  */
 package es.caib.helium.back.config;
 
-import java.util.List;
-
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.resource.PathResourceResolver;
 import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opensymphony.module.sitemesh.filter.PageFilter;
 
 import es.caib.helium.back.interceptor.AjaxInterceptor;
@@ -39,6 +31,8 @@ import es.caib.helium.back.interceptor.PersonaInterceptor;
 import es.caib.helium.back.interceptor.PropertiesInterceptor;
 import es.caib.helium.back.mvc.ArxiuView;
 import es.caib.helium.back.mvc.SerialitzarView;
+
+import java.io.IOException;
 
 /**
  * Configuració dels interceptors de peticions.
@@ -65,6 +59,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Autowired
 	private PropertiesInterceptor globalPropertiesInterceptor;
 
+	@Bean
+	public FilterRegistrationBean<PageFilter> sitemeshFilter() {
+		FilterRegistrationBean<PageFilter> registrationBean = new FilterRegistrationBean<>();
+		registrationBean.setFilter(new PageFilter());
+		registrationBean.addUrlPatterns("/*");
+		registrationBean.setOrder(2);
+		return registrationBean;
+	}
+
 	@Override
 	public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
 		configurer
@@ -74,13 +77,28 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			.useRegisteredExtensionsOnly(false); //.useJaf(true)
 	}
 
-	@Bean
-	public FilterRegistrationBean<PageFilter> sitemeshFilter() {
-		FilterRegistrationBean<PageFilter> registrationBean = new FilterRegistrationBean<>();
-		registrationBean.setFilter(new PageFilter());
-		registrationBean.addUrlPatterns("/*");
-		registrationBean.setOrder(2);
-		return registrationBean;
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		// ResourceHandler per a que totes les peticions desconegudes passin per l'index.html
+		registry.
+			addResourceHandler(getJsAppStaticFolder(), getJsAppStaticFolder() + "/**").
+			addResourceLocations("classpath:/static" + getJsAppStaticFolder() + "/").
+			resourceChain(true).
+			addResolver(new PathResourceResolver() {
+				@Override
+				protected Resource getResource(String resourcePath, Resource location) throws IOException {
+					Resource requestedResource = location.createRelative(resourcePath);
+					if (requestedResource.exists() && requestedResource.isReadable()) {
+						return requestedResource;
+					} else {
+						return new ClassPathResource("static" + getJsAppStaticFolder() + "/index.html");
+					}
+				}
+			});
+	}
+
+	protected String getJsAppStaticFolder() {
+		return "/designer";
 	}
 
 	@Override
