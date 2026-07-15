@@ -1209,7 +1209,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 				} catch(Exception e) {}
 				
 				createOrUpdateDocumentField(document, new Field(clauIndex, jsonValue, Field.Store.YES, Field.Index.ANALYZED), update);
-			} else if (checkMultiple && camp.isMultiple()) {
+			} else if ((checkMultiple && camp.isMultiple() && valor instanceof Object[]) || valor instanceof Object[]) {
 				Object[] valors = (Object[]) valor;
 				for (Object o : valors) {
 					updateDocumentCamp(document, definicioProces, camp, o, textDominis, false, isUpdate, campsActualitzats);
