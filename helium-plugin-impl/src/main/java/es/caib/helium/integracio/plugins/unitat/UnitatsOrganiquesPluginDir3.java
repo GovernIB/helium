@@ -92,39 +92,15 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 	@Override
 	public UnitatOrganitzativaDto unitatsOrganitzativesFindByCodi(
 			String codi) throws SistemaExternException{
-
-//		String accioDescripcio = "Consulta d'unitat organitzativa donat el seu codi";
-//		long t0 = System.currentTimeMillis();
 		try {
 			UnitatOrganitzativaDto unitatOrganitzativa = null;
 			UnidadRest unidad = getUnitatsOrganitzativesRestClient().obtenerUnidad(codi, null, null, null);
-
-//			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-//					new IntegracioParametreDto(
-//							"codi",
-//							codi)
-//			};
-//			monitorIntegracioHelper.addAccioOk(
-//					MonitorIntegracioHelper.INTCODI_UNITATS,
-//					accioDescripcio,
-//					IntegracioAccioTipusEnumDto.ENVIAMENT,
-//					System.currentTimeMillis() - t0,
-//					parametres);
 			if (unidad!=null) {
 				unitatOrganitzativa = toUnitatOrganitzativa(unidad);
 			}
 			return unitatOrganitzativa;
-
-
 		} catch (Exception ex) {
 			String errorDescripcio = "Error al accedir al plugin d'unitats organitzatives";
-//			monitorIntegracioHelper.addAccioError(
-//					MonitorIntegracioHelper.INTCODI_UNITATS,
-//					accioDescripcio,
-//					IntegracioAccioTipusEnumDto.ENVIAMENT,
-//					System.currentTimeMillis() - t0,
-//					errorDescripcio,
-//					ex);
 			throw new SistemaExternException(
 					errorDescripcio +" (" +
 					"codi=" + codi + ")",

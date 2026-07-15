@@ -974,8 +974,19 @@ public class ExpedientHelper {
 			expedient.setNtiActiu(true);
 		}
 
-		// Migra a l'Arxiu o actualitzar en el seu cas
-		pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
+		boolean crearActualitzar = true;
+		if (expedient.getArxiuUuid() != null) {
+			es.caib.pluginsib.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			// Si existeix i no està obert llavors no crea ni actualitza
+			if (expedientArxiu != null
+				&& !ExpedientEstat.OBERT.equals(expedientArxiu.getMetadades().getEstat()) ) {
+				crearActualitzar = false;
+			}
+		}
+		if (crearActualitzar) {
+			// Migra a l'Arxiu o actualitzar en el seu cas
+			pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
+		}
 		// Si no posam a true ara, el prostprocessar no pujará els fitxers a l'arxiu
 		expedient.setArxiuActiu(true);
 

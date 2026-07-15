@@ -31,6 +31,7 @@ public class CampDto extends HeretableDto implements Serializable {
 	private boolean multiple;
 	private boolean ocult;
 	private boolean ignored;
+	private boolean indexable;
 
 
 	private DefinicioProcesDto definicioProces;
@@ -235,6 +236,12 @@ public class CampDto extends HeretableDto implements Serializable {
 	}
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
+	}
+	public boolean isIndexable() {
+		return indexable;
+	}
+	public void setIndexable(boolean indexable) {
+		this.indexable = indexable;
 	}
 	public EnumeracioDto getEnumeracio() {
 		return enumeracio;

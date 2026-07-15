@@ -1788,8 +1788,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.dataDocument(document.getDataDocument())
 				.arxiuUuid(document.getArxiuUuid())
 				.ntiCsv(document.getNtiCsv())
-				.nti(expedient.isNtiActiu() && expedient.getArxiuUuid() == null)
-				.arxiu(expedient.isNtiActiu() && expedient.getArxiuUuid() != null)
+				.nti(expedient.isNtiActiu() && !expedient.isArxiuActiu())
+				.arxiu(expedient.isNtiActiu() && expedient.isArxiuActiu())
 				.signat(document.isSignat())
 				.registrat(document.isRegistrat())
 				.deAnotacio(document.getAnotacioId() != null)
@@ -2324,10 +2324,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		try {
 			// Fa validacions prèvies
 			if (!expedient.isArxiuActiu())
-				throw new ValidacioException("Aquest docment no es pot migrar perquè l'expedient no té activada la intagració amb l'arxiu");
+				throw new ValidacioException("Aquest document no es pot migrar perquè l'expedient no té activada la intagració amb l'arxiu");
 
 			if (expedient.getArxiuUuid() == null || expedient.getArxiuUuid().isEmpty())
-				throw new ValidacioException("Aquest no està integrat a l'arxiu");
+				throw new ValidacioException("L'expedient del document no està integrat a l'arxiu");
 
 			// Valida que els documents siguin convertibles
 			if(!PdfUtils.isArxiuConvertiblePdf(documentStore.getArxiuNom()))

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -8,11 +8,11 @@ import java.util.Date;
 
 /**
  * DTO amb informació d'un document d'una tasca.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class TascaDocumentDto {
-	
+
 	private Long id;
 	private Long documentStoreId;
 	private String varCodi;
@@ -28,7 +28,7 @@ public class TascaDocumentDto {
 	private Date dataDocument;
 
 	private boolean signat = false;
-	
+
 	private Long signaturaPortasignaturesId;
 	private String signaturaUrlVerificacio;
 	private String ntiCsv;
@@ -41,22 +41,22 @@ public class TascaDocumentDto {
 	private String registreOficinaNom;
 	private boolean registreEntrada = true;
 	private boolean adjuntarAuto;
-	
-	private boolean arxiuContingutDefinit;	
-	private boolean plantilla;	
+
+	private boolean arxiuContingutDefinit;
+	private boolean plantilla;
 	private String arxiuNom;
-	private String error;	
-	private String urlVerificacioCustodia;	
-	private String extensionsPermeses;	
+	private String error;
+	private String urlVerificacioCustodia;
+	private String extensionsPermeses;
 	private boolean generarNomesTasca;
-	
+
 	private boolean portafirmesActiu;
 	private PortasignaturesDto psignaActual;
 
-	
-	
+	private boolean documentValid;
+
 	public TascaDocumentDto() {}
-	
+
 	public boolean isAdjuntarAuto() {
 		return adjuntarAuto;
 	}
@@ -238,6 +238,14 @@ public class TascaDocumentDto {
 		this.portafirmesActiu = portafirmesActiu;
 	}
 
+	public boolean isDocumentValid() {
+		return documentValid;
+	}
+
+	public void setDocumentValid(boolean documentValid) {
+		this.documentValid = documentValid;
+	}
+
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)
 			return null;
@@ -262,7 +270,7 @@ public class TascaDocumentDto {
 
 	public String getExtensionsPermeses() {
 		if (extensionsPermeses == null || extensionsPermeses.isEmpty())
-			return null;		
+			return null;
 		StringBuffer exts = new StringBuffer();
 		for (String ext : extensionsPermeses.split(","))
 			exts.append("."+ext+",");

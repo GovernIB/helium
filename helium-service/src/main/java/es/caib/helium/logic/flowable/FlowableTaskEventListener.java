@@ -115,6 +115,7 @@ public class FlowableTaskEventListener extends AbstractFlowableEventListener {
 				taskId,
 				currentTask.getName(),
 				expedientNumero,
+				null,
 				taskInstance,
 				estat
 			);

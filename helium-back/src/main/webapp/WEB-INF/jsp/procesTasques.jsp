@@ -34,7 +34,7 @@ div.procesTasca:hover {
 .tasca_options {min-width: 110px;}
 .tasca_options i, .options a {
 	padding-right: 2px;
-	padding-left: 2px;			
+	padding-left: 2px;
 }
 .dataTable_tasca {
 	border: 0 none;
@@ -152,15 +152,13 @@ div.procesTasca:hover {
 				<c:set var="procesFirst" value="${false}"/>
 				<script type="text/javascript">
 					$('#panel_tasca_${proces.id} .icon').heliumEvalLink({
-						//refrescarAlertes: true,
-						refrescarPagina: true //,
-						//alertesRefreshUrl: "<c:url value="/nodeco/missatges"/>"
-					});	
+						refrescarPagina: false
+					});
 					$('#dropdown-menu-context-${proces.id} a').heliumEvalLink({
 						refrescarAlertes: true,
 						refrescarPagina: true,
 						alertesRefreshUrl: "<c:url value="/nodeco/missatges"/>"
-					});						
+					});
 					$(document).ready(function() {
 						$('#${proces.id}-titol-tasques').click( function() {
 							var icona = $(this).find('.icona-collapse');
@@ -174,7 +172,7 @@ div.procesTasca:hover {
 	</c:when>
 	<c:otherwise>
 		<div class="panel-body-no">
-			<div class="well well-small"><spring:message code='expedient.tasca.expedient.cap' /></div>	
+			<div class="well well-small"><spring:message code='expedient.tasca.expedient.cap' /></div>
 		</div>
 	</c:otherwise>
 </c:choose>

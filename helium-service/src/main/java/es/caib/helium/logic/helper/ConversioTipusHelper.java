@@ -100,6 +100,7 @@ public class ConversioTipusHelper {
 						target.setMultiple(source.isMultiple());
 						target.setOcult(source.isOcult());
 						target.setIgnored(source.isIgnored());
+						target.setIndexable(source.isIndexable());
 
 						if (source.getExpedientTipus() != null) {
 							target.setExpedientTipus(convertir(source.getExpedientTipus(), ExpedientTipusDto.class));
@@ -240,6 +241,7 @@ public class ConversioTipusHelper {
 								consulte.setId(consulta.getId());
 								consulte.setNom(consulta.getNom());
 								consulte.setCodi(consulta.getCodi());
+								consulte.setOrdre(consulta.getOrdre());
 								target.getConsultes().add(consulte);
 							}
 						}

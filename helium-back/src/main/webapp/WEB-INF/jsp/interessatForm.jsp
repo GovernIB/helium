@@ -41,7 +41,7 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 
 <style type="text/css">
@@ -72,7 +72,7 @@ function ajustarTipus(tipus) {
   	}
 }
 
-	
+
 function adaptarVisibilitat(tipus){
 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
 		let nif="NIF";
@@ -87,28 +87,28 @@ function adaptarVisibilitat(tipus){
 			 $('.personajuridica').addClass('hidden');
 			 $('.administracio').addClass('hidden');
 			 $('.personafisica').removeClass('hidden');
-			 $('#tipusDocIdent option[value="'+altres_de_persona_fisica+'"]').prop('disabled',false); 
-			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',false); 
-			 $('#tipusDocIdent option[value="'+cif+'"]').prop('disabled',true); 
-			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true); 
+			 $('#tipusDocIdent option[value="'+altres_de_persona_fisica+'"]').prop('disabled',false);
+			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',false);
+			 $('#tipusDocIdent option[value="'+cif+'"]').prop('disabled',true);
+			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true);
 			 $('#documentIdent').prop("readonly", false);
 		} else if (tipus == 'JURIDICA'){
 			 $('.visibilitatCodi').removeClass('hidden');
 			 $('.personafisica').addClass('hidden');
 			 $('.administracio').addClass('hidden');
-			 $('.personajuridica').removeClass('hidden');	
-			 $('#tipusDocIdent option[value="'+cif+'"]').prop('disabled',false); 
-			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true); 
-			 $('#tipusDocIdent option[value="'+altres_de_persona_fisica+'"]').prop('disabled',true); 
-			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',true); 
+			 $('.personajuridica').removeClass('hidden');
+			 $('#tipusDocIdent option[value="'+cif+'"]').prop('disabled',false);
+			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true);
+			 $('#tipusDocIdent option[value="'+altres_de_persona_fisica+'"]').prop('disabled',true);
+			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',true);
 			 $('#documentIdent').prop("readonly", false);
 		}else if (tipus == 'ADMINISTRACIO'){
 			 $('.visibilitatCodi').removeClass('hidden');
 			 $('.personafisica').addClass('hidden');
 			 $('.personajuridica').addClass('hidden');
 			 $('.administracio').removeClass('hidden');
-			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',false); 
-	 	 	 $('#tipusDocIdent').val(codi_origen);	
+			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',false);
+	 	 	 $('#tipusDocIdent').val(codi_origen);
 	 	 	 $('#tipusDocIdent').prop("readonly", true);
 		}
 		 $('#cifOrganGestor').val($('#dir3Codi').val()).change();
@@ -139,7 +139,7 @@ $(document).ready(function() {
 	var munOrgan = '';
 
 	adaptarVisibilitat($("#tipusHiddenId").val());
-	
+
 	$('#refresh_admins').on('click', function(e) {
 		$('#carregant').show();
 		$.ajax({
@@ -162,7 +162,7 @@ $(document).ready(function() {
 					var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
 					organGestorRef.select2("destroy");
 					organGestorRef.select2(select2Options);
-					
+
 					if (organActual)
 						organGestorRef.val(organActual);
 					organGestorRef.change();
@@ -170,15 +170,15 @@ $(document).ready(function() {
 			error: function(data) {
 				$('.alert.alert-danger').remove();
 				webutilAlertaError(data.responseJSON.error);
-			}, 
+			},
 			complete: function() {
 				$('#carregant').hide();
 				$('.div-dades-carregant', window.parent.document).hide();
 			}
 		});
 	});
-	
-	
+
+
 	$('.select2element').select2({
 		width: 'resolve',
 		theme: "bootstrap",
@@ -195,7 +195,7 @@ $(document).ready(function() {
  			tipusInt = 1;
 			$('#tipusDocIdent').val("NIF");
 			$('#tipusDocIdent').prop("readonly", false);
-		
+
  		} else if (this.value == '<%=es.caib.helium.commons.dto.InteressatTipusEnumDto.JURIDICA%>') {
  			tipusInt = 2;
  			$('#tipusDocIdent').val("NIF");
@@ -207,8 +207,8 @@ $(document).ready(function() {
 		$('#tipusDocIdent').select2("destroy");
  	 	$('#tipusDocIdent').select2(select2Options);
 	});
-	
- 	
+
+
  	$('select#canalNotif').change(function() {
  		if ($(this).val() == '01') { //DIRECCION_POSTAL("01", "Direcció Postal")
  			$('select#pais').prop("required", true);
@@ -227,10 +227,10 @@ $(document).ready(function() {
  		}
  	});
 
- 	
+
 	$('select#pais').change(function() {
  		if ($(this).val() == '724') {
-			$('#provincia').prop('disabled',false); 
+			$('#provincia').prop('disabled',false);
  	 		if ($('select#tipus').val() != '<%=es.caib.helium.commons.dto.InteressatTipusEnumDto.ADMINISTRACIO%>') {
 				$('#provincia').change();
  	 			$('#provincia').prop("readonly", false);
@@ -246,10 +246,10 @@ $(document).ready(function() {
 			$('#provincia').prop("readonly", true);
 			$('#municipi').val("");
 			$('#municipi').prop("readonly", true);
-			$('#provincia').prop('disabled',true); 
+			$('#provincia').prop('disabled',true);
 		}
  	});
-	
+
 	$('select#provincia').change(function(valor) {
  		if ($(this).val() != '') {
  			var municipiActual = $('#municipi').val();
@@ -278,7 +278,7 @@ $(document).ready(function() {
 						selMunicipi.val(munOrgan);
 						selMunicipi.change();
 					}
-					
+
 					if (municipiActual)
 						selMunicipi.val(municipiActual);
 					else
@@ -296,7 +296,7 @@ $(document).ready(function() {
  	 		$('#municipi').select2(select2Options);
  	 	}
  	});
-	
+
  	$('select#provincia_filter').change(function(valor) {
  		if ($(this).val() != '') {
  			var municipiActual = $('#municipi').val();
@@ -325,7 +325,7 @@ $(document).ready(function() {
 						selMunicipi.val(munOrgan);
 						selMunicipi.change();
 					}
-					
+
 					if (municipiActual)
 						selMunicipi.val(municipiActual);
 					else
@@ -352,12 +352,12 @@ $(document).ready(function() {
  	 		});
  	 	}
  	});
- 	
+
  	$('select#cifOrganGestor').change(function() {
  	 	 		munOrgan = '';
  	 	 		const cifOrganGest = $(this).val();
  	 	 	 	if ( cifOrganGest && cifOrganGest != "") {
- 	 	 	 		
+
  	 	 	 		let optionSelected = $("option:selected", this);
  	 	 	 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
  	 	 	 		$('#carregant').show();
@@ -375,24 +375,26 @@ $(document).ready(function() {
  	 						$('#documentIdent').val(data.nifCif);
  	 						$('#documentIdent').prop("readonly", true);
 
+							$('#raoSocial').val(data.denominacio).change();
+
  	 						$('#provincia').val(data.codiProvincia);
  	 						$('#provincia').prop("readonly", true);
  	 						$('#provincia').select2("destroy");
  	 			 	 		$('#provincia').select2(select2Options);
- 	 						
+
  	 			 	 		$('#municipi').val(data.localitat);
  	 						$('#municipi').prop("readonly", true);
  	 			 	 		munOrgan = data.localitat;
  	 			 	 		$('#municipi').select2("destroy");
 	 			 	 		$('#municipi').select2(select2Options);
- 	 			 	 		
+
  	 						$('#pais').val(data.codiPais);
  	 						$('#pais').prop("readonly", true);
  	 						$('#pais').change();
  	 						$('#pais').select2("destroy");
  	 			 	 		$('#pais').select2(select2Options);
 
- 	 			 	 		
+
  	 			 	 		$('#codiPostal').val(data.codiPostal);
  	 						$('#codiPostal').prop("readonly", true);
 
@@ -412,24 +414,26 @@ $(document).ready(function() {
  	 						$('#documentIdent').val(null);
  	 						$('#documentIdent').prop("readonly", true);
 
+							$('#raoSocial').val(null).change();
+
  	 						$('#provincia').val(null);
  	 						$('#provincia').prop("readonly", true);
  	 						$('#provincia').select2("destroy");
  	 			 	 		$('#provincia').select2(select2Options);
- 	 						
+
  	 			 	 		$('#municipi').val(null);
  	 						$('#municipi').prop("readonly", true);
  	 			 	 		munOrgan = null;
  	 			 	 		$('#municipi').select2("destroy");
 	 			 	 		$('#municipi').select2(select2Options);
- 	 			 	 		
+
  	 						$('#pais').val(null);
  	 						$('#pais').prop("readonly", true);
  	 						$('#pais').change();
  	 						$('#pais').select2("destroy");
  	 			 	 		$('#pais').select2(select2Options);
 
- 	 			 	 		
+
  	 			 	 		$('#codiPostal').val(null);
  	 						$('#codiPostal').prop("readonly", true);
 
@@ -443,33 +447,33 @@ $(document).ready(function() {
  	 	 	 	} else {
  	 	 	 		netejar();
  	 	 	 	}
- 	 	 	});	
+ 	 	 	});
 	$('input[type=checkbox][name=entregaDeh]').on('change', function() {
 		if($(this).prop("checked") == true){
 			$('#entregaDehObligatDiv').removeClass('hidden');
-			
+
 			$("label[for='email']").addClass('obligatori');
 		} else {
 			$('#entregaDehObligatDiv').addClass('hidden');
-			$("label[for='email']").removeClass('obligatori');				
+			$("label[for='email']").removeClass('obligatori');
 		}
-	});			
-	
+	});
+
 	$('input[type=checkbox][name=entregaDehObligat]').on('change', function() {
 		if($(this).prop("checked") == true){
 			$('#entregaDeh').attr('disabled', 'disabled');
 		} else {
 			$('#entregaDeh').removeAttr('disabled');
 		}
-	});		
+	});
 
-	
+
 	var select2Options = {theme: 'bootstrap'};
 	$('select[name=entregaTipus').select2("destroy");
 	$('select[name=entregaTipus').select2(select2Options);
-		
+
 	$('input[type=checkbox][name=entregaDeh').trigger('change');
-	$('input[type=checkbox][name=entregaDehObligat').trigger('change');	
+	$('input[type=checkbox][name=entregaDehObligat').trigger('change');
 
 	// Per inicialitzar el codi buit a partir de les dades de l'interessat
 	$('#documentIdent,#dir3Codi').change(function(){
@@ -482,7 +486,7 @@ $(document).ready(function() {
 		}
 	})
 	$('#tipus').change();
-	
+
 	$('#toggle-administracio-filter').on('click', function() {
 		$("#administracio-filter").toggleClass('in');
 	})
@@ -519,7 +523,7 @@ $(document).ready(function() {
 								</div>
 							</div>
 						</div>
-						
+
 					</div>
 					<div class="row mb-1">
 						<div class="col-xs-6">
@@ -603,44 +607,44 @@ $(document).ready(function() {
 <form:form cssClass="form-horizontal" action="${formAction}"  method="post" modelAttribute="interessatCommand">
 	<form:hidden id="id" path="id"/>
 	<form:hidden id="es_representant" path="es_representant"/>
-	
+
 	<div id="carregant" style="display: none; width: 10%;text-align: center;width: 97%;height: 100%;background: #a9a9a940;position: fixed;padding: 20%;z-index: 99;">
 		<span class="fa fa-spinner fa-pulse fa-2x fa-fw"></span>
 	</div>
-	
-	<div class="tipusInteressats">	
+
+	<div class="tipusInteressats">
 		<div class="row">
 			<div class="col-xs-10">
-			<hel:inputRadio 
+			<hel:inputRadio
 				name="tipus"
-				labelSize="3" 
-				textKey="interessat.form.camp.tipus" 
-				optionItems="${interessatTipusOptions}" 
-				optionValueAttribute="value" 
+				labelSize="3"
+				textKey="interessat.form.camp.tipus"
+				optionItems="${interessatTipusOptions}"
+				optionValueAttribute="value"
 				optionTextKeyAttribute="text"/>
 			</div>
 		</div>
 		<form:hidden id="tipusHiddenId" path="tipus"/>
 	</div>
-	
+
 	<div class="hidden visibilitatCodi">
 		<div class="row" style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
 				<hel:inputText required="true" name="codi" textKey="interessat.form.camp.codi" labelSize="2" />
 			</div>
 		</div>
-	
+
 	<div class="row hidden administracio" >
 		<div class="col-xs-11">
-			<hel:inputSelect 
-				required="true" 
+			<hel:inputSelect
+				required="true"
 				name="cifOrganGestor"
-				optionItems="${organs}" 
+				optionItems="${organs}"
 				optionValueAttribute="codi"
-				optionTextAttribute="valor" 
-				textKey="interessat.form.camp.suggest.administracio" 
+				optionTextAttribute="valor"
+				textKey="interessat.form.camp.suggest.administracio"
 				emptyOption="true"
-				labelSize="2" 
+				labelSize="2"
 				inline="false"/>
 		</div>
 		<div class="col-xs-1">
@@ -648,8 +652,8 @@ $(document).ready(function() {
 				<i class="fa fa-bars"></i>
 			</span>
 		</div>
-	</div>	
-	
+	</div>
+
 
 		<div class="row hidden personafisica nom" style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12" >
@@ -662,26 +666,26 @@ $(document).ready(function() {
 			</div>
 			<div class="col-xs-6">
 				<hel:inputText name="llinatge2" textKey="interessat.form.camp.llinatge2" labelSize="3" required="false"/>
-			</div>	
+			</div>
 		</div>
-	
+
 		<div class="row hidden personajuridica raoSocial" style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
 				<hel:inputText name="raoSocial" textKey="interessat.form.camp.raosocial" labelSize="2" required="true"/>
-			</div>	
+			</div>
 		</div>
-		
+
 		<div class="row hidden personajuridica personafisica administracio tipusdocument">
 			<div class="col-xs-6">
-				<hel:inputSelect 
+				<hel:inputSelect
 					readonly="false"
-					required="true" 
+					required="true"
 					name="tipusDocIdent"
-					optionItems="${interessatTipusDocuments}" 
+					optionItems="${interessatTipusDocuments}"
 					optionValueAttribute="valor"
-					optionTextAttribute="codi" 
-					textKey="interessat.form.camp.tipus.document" 
-					labelSize="3" 
+					optionTextAttribute="codi"
+					textKey="interessat.form.camp.tipus.document"
+					labelSize="3"
 					inline="false"/>
 			</div>
 			<div class="col-xs-6">
@@ -689,63 +693,63 @@ $(document).ready(function() {
 			</div>
 		</div>
 
-	
+
 		<div class="row emailTelefon personafisica personajuridica administracio">
 			<div class="col-xs-6">
-				<hel:inputText name="email" textKey="interessat.form.camp.email" labelSize="3"/>		
+				<hel:inputText name="email" textKey="interessat.form.camp.email" labelSize="3"/>
 			</div>
 			<div class="col-xs-6">
 				<hel:inputText name="telefon" textKey="interessat.form.camp.telefon" labelSize="3"/>
 			</div>
 		</div>
-		
+
 		<div class="row paisProvincia personafisica personajuridica administracio">
 			<div class="col-xs-6">
-				<hel:inputSelect 
+				<hel:inputSelect
 					readonly="false"
 					emptyOption="true"
 					name="pais"
-					optionItems="${paisos}" 
+					optionItems="${paisos}"
 					optionValueAttribute="codi"
-					optionTextAttribute="nom" 
-					textKey="interessat.form.camp.pais" 
-					labelSize="3" 
+					optionTextAttribute="nom"
+					textKey="interessat.form.camp.pais"
+					labelSize="3"
 					inline="false"/>
 			</div>
 			<div class="col-xs-6">
-			<hel:inputSelect 
+			<hel:inputSelect
 					readonly="false"
 					emptyOption="true"
-					required="false" 
+					required="false"
 					name="provincia"
-					optionItems="${provincies}" 
+					optionItems="${provincies}"
 					optionValueAttribute="codi"
-					optionTextAttribute="nom" 
-					textKey="interessat.form.camp.provincia" 
-					labelSize="3" 
+					optionTextAttribute="nom"
+					textKey="interessat.form.camp.provincia"
+					labelSize="3"
 					inline="false"/>
 			</div>
 		</div>
-			
+
 		<div class="row localitatCodipostal personafisica personajuridica administracio">
 			<div class="col-xs-6">
-			<hel:inputSelect 
+			<hel:inputSelect
 					readonly="false"
 					emptyOption="true"
-					required="false" 
+					required="false"
 					name="municipi"
-					optionItems="${municipis}" 
+					optionItems="${municipis}"
 					optionValueAttribute="codi"
-					optionTextAttribute="nom" 
-					textKey="interessat.form.camp.municipi" 
-					labelSize="3" 
+					optionTextAttribute="nom"
+					textKey="interessat.form.camp.municipi"
+					labelSize="3"
 					inline="false"/>
 			</div>
 			<div class="col-xs-6">
-				<hel:inputText name="codiPostal" textKey="interessat.form.camp.codipostal" labelSize="3" required="false"/>	
+				<hel:inputText name="codiPostal" textKey="interessat.form.camp.codipostal" labelSize="3" required="false"/>
 			</div>
 		</div>
-		
+
 		<div class="row">
 			<div class="hidden" style="float: right;">
 				<hel:inputCheckbox name="entregaPostal" textKey="interessat.form.camp.entregaPostal" labelSize="11"></hel:inputCheckbox>
@@ -762,40 +766,40 @@ $(document).ready(function() {
 				optionItems="${NotificaDomiciliConcretTipus}" optionValueAttribute="valor"
 				optionTextAttribute="codi" textKey="interessat.form.camp.entregatipus" labelSize="2" disabled="true"/>
 			</div>-->
-			
+
 			<div class="col-xs-6 personafisica personajuridica administracio hidden">
-				<hel:inputTextarea name="direccio" textKey="interessat.form.camp.direccio" labelSize="3" /> 					
+				<hel:inputTextarea name="direccio" textKey="interessat.form.camp.direccio" labelSize="3" />
 			</div>
 			<div class="col-xs-6">
-				<hel:inputSelect 
+				<hel:inputSelect
 					name="canalNotif"
-					optionItems="${interessatCanalsNotif}" 
+					optionItems="${interessatCanalsNotif}"
 					optionValueAttribute="valor"
-					optionTextAttribute="codi" 
-					textKey="interessat.form.camp.canal.notif" 
-					labelSize="3" 
+					optionTextAttribute="codi"
+					textKey="interessat.form.camp.canal.notif"
+					labelSize="3"
 					inline="false"/>
 			</div>
 		</div>
-		
+
 		<div id="direCodi" class="row  personafisica personajuridica hidden"  style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
-					<hel:inputText required="false" name="codiDire" textKey="interessat.form.camp.codi.dire" labelSize="2" /> 
+					<hel:inputText required="false" name="codiDire" textKey="interessat.form.camp.codi.dire" labelSize="2" />
 			</div>
 		</div>
-		
+
 		<div id="dir3CodiDiv" class="row administracio hidden"  style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
-					<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" labelSize="2" /> 
+					<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" labelSize="2" />
 			</div>
 		</div>
-		
+
 		<div id="observacions" class="row"  style="margin-right:-14px ; margin-left:-59px">
-			
+
 			<div class="col-xs-12">
-				<hel:inputTextarea name="observacions" textKey="interessat.form.camp.observacions" labelSize="2" /> 					
+				<hel:inputTextarea name="observacions" textKey="interessat.form.camp.observacions" labelSize="2" />
 			</div>
-			
+
 			<!--  <div class="row">
 				<div class="col-xs-6">
 					<hel:inputTextarea name="linia1" textKey="interessat.form.camp.linia1"  required="true"/>
@@ -809,7 +813,7 @@ $(document).ready(function() {
 			<div class="col-xs-8" style="float: right;">
 				<hel:inputCheckbox name="entregaDeh" textKey="interessat.form.camp.entregadeh" labelSize="11"></hel:inputCheckbox>
 			</div>
-		</div>		
+		</div>
 
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">

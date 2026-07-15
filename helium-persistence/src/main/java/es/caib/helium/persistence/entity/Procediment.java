@@ -21,9 +21,9 @@ import es.caib.helium.commons.dto.procediment.ProcedimentEstatEnumDto;
 import es.caib.helium.commons.dto.procediment.ProcedimentTipusEnumDto;
 
 /**
- * Classe del model de dades que representa 
+ * Classe del model de dades que representa
  * els procediments.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
@@ -38,29 +38,29 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 
 	@Column(name = "codi", length = 64, nullable = false)
 	private String codi;
-	
+
 	@Column(name = "nom", length = 256)
 	private String nom;
-	
+
 	@Column(name = "codisia", length = 64)
 	private String codiSia;
-	
-	@Column(name = "tipus", length = 20) 
+
+	@Column(name = "tipus", length = 20)
 	@Enumerated(EnumType.STRING)
 	private ProcedimentTipusEnumDto tipus; // Procediment, Servei
-	
-	@Column(name = "estat", length = 20) 
+
+	@Column(name = "estat", length = 20)
 	@Enumerated(EnumType.STRING)
 	private ProcedimentEstatEnumDto estat; // Vigente, Extinguido
-	
-	@ManyToOne(optional = false, fetch = FetchType.LAZY) 
+
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "unitat_organitzativa_id")
 	@ForeignKey(name = "hel_procediment_unitat_fk")
-	private UnitatOrganitzativa unitatOrganitzativa;	
-	
-	@Column(name = "comu") 
+	private UnitatOrganitzativa unitatOrganitzativa;
+
+	@Column(name = "comu")
 	private boolean comu;
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -117,14 +117,13 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 		this.unitatOrganitzativa = unitatOrganitzativa;
 	}
 
-//	public ProcedimentTipusEnumDto getTipus() {
-//		return tipus;
-//	}
-//	public void setTipus(ProcedimentTipusEnumDto tipus) {
-//		this.tipus = tipus;
-//	}
-	
-	
+	public ProcedimentTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(ProcedimentTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
+
 	public boolean isComu() {
 		return comu;
 	}
@@ -132,10 +131,10 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 		this.comu = comu;
 	}
 	public void update(
-			String codi, 
-			String nom, 
-			String codiSia, 
-			ProcedimentEstatEnumDto estat, 
+			String codi,
+			String nom,
+			String codiSia,
+			ProcedimentEstatEnumDto estat,
 			boolean comu,
 			UnitatOrganitzativa unitatOrganitzativa) {
 		this.codi = codi;
@@ -145,32 +144,32 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 		this.comu = comu;
 		this.unitatOrganitzativa = unitatOrganitzativa;
 	}
-	
+
 
 
 	public static Builder getBuilder(
-			String codi, 
-			String nom, 
-			String codiSia, 
-			ProcedimentEstatEnumDto estat, 
+			String codi,
+			String nom,
+			String codiSia,
+			ProcedimentEstatEnumDto estat,
 			boolean comu,
 			UnitatOrganitzativa unitatOrganitzativa) {
 		return new Builder(
-				codi, 
-				nom, 
-				codiSia, 
+				codi,
+				nom,
+				codiSia,
 				estat,
 				comu,
 				unitatOrganitzativa);
 	}
-	
+
 	public static class Builder {
 		Procediment built;
 		Builder(
-				String codi, 
-				String nom, 
-				String codiSia, 
-				ProcedimentEstatEnumDto estat, 
+				String codi,
+				String nom,
+				String codiSia,
+				ProcedimentEstatEnumDto estat,
 				boolean comu,
 				UnitatOrganitzativa unitatOrganitzativa) {
 			built = new Procediment();
@@ -181,12 +180,12 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 			built.comu = comu;
 			built.unitatOrganitzativa = unitatOrganitzativa;
 		}
-		
-//		public Builder tipus(ProcedimentTipusEnumDto tipus) {
-//			built.tipus = tipus;
-//			return this;
-//		}
-		
+
+		public Builder tipus(ProcedimentTipusEnumDto tipus) {
+			built.tipus = tipus;
+			return this;
+		}
+
 		public Procediment built() {
 			return built;
 		}

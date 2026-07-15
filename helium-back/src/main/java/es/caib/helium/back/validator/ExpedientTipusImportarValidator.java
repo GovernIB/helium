@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import es.caib.helium.back.command.ExpedientTipusExportarCommand;
@@ -158,12 +160,24 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
     		Set<String> dominisGlobals = new HashSet<String>();
     		for (DominiDto d : dominiService.findGlobals(entornActual.getId()))
     			dominisGlobals.add(d.getCodi());
-    		List<DefinicioProcesDto> definicionsProcesGlobals = dissenyService.findByEntornAndExpedientTipusOpcional(entornActual.getId(), command.getId());
 
-    		Map<String, List<String>> accinsGlobals = new HashMap<String, List<String>>();
+			// Consulta les accions de les definicions de procés globals sense tipus d'expedient de l'entorn
+    		List<DefinicioProcesDto> definicionsProcesGlobals = dissenyService.findByEntornAndExpedientTipusOpcional(entornActual.getId(), command.getId());
+			Map<String, List<String>> accionsGlobals = new HashMap<String, List<String>>();
 
     		for(DefinicioProcesDto dp : definicionsProcesGlobals) {
-    			accinsGlobals.put(dp.getJbpmKey(), dissenyService.findAccionsJbpmOrdenades(dp.getId()));
+				if (dp.getExpedientTipus() == null || dp.getExpedientTipus().getId() == command.getId()) {
+					try {
+						accionsGlobals.put(dp.getJbpmKey(), dissenyService.findAccionsJbpmOrdenades(dp.getId()));
+					} catch(Exception e) {
+						// #2033 Es controla l'error consultant les accions de les defincions de procés
+						String errMsg = "Error consultant les accions de la definició de procés " + dp.getJbpmKey();
+						logger.error(errMsg, e);
+						context.buildConstraintViolationWithTemplate(errMsg)
+							.addNode("codi")
+							.addConstraintViolation();
+					}
+				}
     		}
 
     		Set<String> enumeracionsTe = new HashSet<String>();
@@ -298,8 +312,8 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 					// Comprova que la definició de procés també s'exporti
 					if (!( command.getAccions().contains(camp.getJbpmAction())
 						|| (	camp.getDefprocJbpmKey() != null &&
-								accinsGlobals.containsKey(camp.getDefprocJbpmKey()) &&
-								accinsGlobals.get(camp.getDefprocJbpmKey()).contains(camp.getJbpmAction()))
+								accionsGlobals.containsKey(camp.getDefprocJbpmKey()) &&
+								accionsGlobals.get(camp.getDefprocJbpmKey()).contains(camp.getJbpmAction()))
 						|| (camp.getDefprocJbpmKey() != null &&
 							accionsDefinicio.containsKey(camp.getDefprocJbpmKey()) &&
 							accionsDefinicio.get(camp.getDefprocJbpmKey()).contains(camp.getJbpmAction())))) {
@@ -755,21 +769,6 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 		return valid;
 	}
 
-//	private boolean accioExistsInDefProces(CampExportacio camp, ExpedientTipusExportarCommand command) {
-//		List<DefinicioProcesExportacio> definicions = command.getExportacio().getDefinicions();
-//		if(camp.getDefprocJbpmKey() == null)
-//			return false;
-//		for(DefinicioProcesExportacio def : definicions) {
-//			if(def.getDefinicioProcesDto().getJbpmId().equals(camp.getDefprocJbpmKey())) {
-//				for(AccioExportacio acc : def.getAccions()) {
-//					if(acc.getJbpmAction().equals(camp.getJbpmAction()))
-//						return true;
-//				}
-//			}
-//		}
-//
-//		return false;
-//	}
-
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientTipusImportarValidator.class);
 
 }

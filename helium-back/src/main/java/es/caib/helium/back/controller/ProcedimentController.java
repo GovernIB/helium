@@ -37,13 +37,13 @@ import es.caib.helium.logic.intf.service.ProcedimentService;
 
 /**
  * Controlador per al manteniment dels procediments.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
 @RequestMapping("/procediment")
 public class ProcedimentController extends BaseController{
-	
+
 
 	@Autowired
 	private ProcedimentService procedimentService;
@@ -53,25 +53,25 @@ public class ProcedimentController extends BaseController{
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			Model model) {
-		
+
 		ProcedimentFiltreCommand procedimentFiltreCommand = getFiltreCommand(request);
 		model.addAttribute("procedimentFiltreCommand", procedimentFiltreCommand);
 		this.modelEstats(model);
 		this.modelTipus(model);
-		
+
 		return "procedimentLlistat";
-	}	
-	
+	}
+
 	@RequestMapping(method = RequestMethod.POST)
 	public String post(
-			HttpServletRequest request, 
-			@Valid ProcedimentFiltreCommand filtreCommand, 
-			BindingResult bindingResult, 
-			@RequestParam(value = "accio", required = false) String accio, 
+			HttpServletRequest request,
+			@Valid ProcedimentFiltreCommand filtreCommand,
+			BindingResult bindingResult,
+			@RequestParam(value = "accio", required = false) String accio,
 			Model model) {
-		
+
 		if ("netejar".equals(accio)) {
 			SessionHelper.removeAttribute(
 					request,
@@ -85,47 +85,47 @@ public class ProcedimentController extends BaseController{
 			}
 		}
 		return "redirect:procediment";
-		
-	}	
+
+	}
 
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse datatable(
 			HttpServletRequest request) {
-		
+
 		ProcedimentFiltreCommand procedimentFiltreCommand = getFiltreCommand(request);
-		
+
 		return DatatablesHelper.getDatatableResponse(
-				request, 
+				request,
 				procedimentService.findAmbFiltre(
-						ProcedimentFiltreCommand.asDto(procedimentFiltreCommand), 
+						ProcedimentFiltreCommand.asDto(procedimentFiltreCommand),
 						DatatablesHelper.getPaginacioDtoFromRequest(request)));
 	}
-	
+
 	private ProcedimentFiltreCommand getFiltreCommand(
 			HttpServletRequest request) {
 		ProcedimentFiltreCommand procedimentFiltreCommand = (ProcedimentFiltreCommand) SessionHelper.getAttribute(
-				request, 
+				request,
 				SESSION_ATTRIBUTE_FILTRE);
 		if (procedimentFiltreCommand == null) {
 			procedimentFiltreCommand = new ProcedimentFiltreCommand();
 			SessionHelper.setAttribute(
-					request, 
-					SESSION_ATTRIBUTE_FILTRE, 
+					request,
+					SESSION_ATTRIBUTE_FILTRE,
 					procedimentFiltreCommand);
 		}
-		
+
 		return procedimentFiltreCommand;
 	}
-	
-	
+
+
 	/** Posa els valors de l'enumeració estats en el model */
 	private void modelEstats(Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 		for(ProcedimentEstatEnumDto estat : ProcedimentEstatEnumDto.values())
 			opcions.add(new ParellaCodiValorDto(
 					estat.name(),
-					MessageHelper.getInstance().getMessage("procediment.estat.enum." + estat.name())));		
+					MessageHelper.getInstance().getMessage("procediment.estat.enum." + estat.name())));
 
 		model.addAttribute("estats", opcions);
 	}
@@ -135,22 +135,22 @@ public class ProcedimentController extends BaseController{
 		for(ProcedimentTipusEnumDto tipus : ProcedimentTipusEnumDto.values())
 			opcions.add(new ParellaCodiValorDto(
 					tipus.name(),
-					MessageHelper.getInstance().getMessage("procediment.tipus.enum." + tipus.name())));		
+					MessageHelper.getInstance().getMessage("procediment.tipus.enum." + tipus.name())));
 
 		model.addAttribute("tipus", opcions);
 	}
 
 	// Mètode per actualitzar procediments
-	
+
 	@RequestMapping(value = "/actualitzar")
 	public String actualitzar(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			Model model) throws Exception {
-		
+
 		model.addAttribute("isUpdatingProcediments", procedimentService.isUpdatingProcediments());
 		return "procedimentActualitzacioForm";
 	}
-	
+
 	@RequestMapping(value = "/actualitzar", method = RequestMethod.POST)
 	public String actualitzacioAutomaticaPost(
 			HttpServletRequest request,
@@ -170,15 +170,15 @@ public class ProcedimentController extends BaseController{
 				"procedimentActualitzacioForm",
 				"procediment.controller.actualitzar.ok");
 	}
-	
+
 	@RequestMapping(value = "/servei/actualitzar")
 	public String actualitzarServei(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			Model model) throws Exception {
 		model.addAttribute("isUpdatingProcediments", procedimentService.isUpdatingServeis());
 		return "procedimentServeiActualitzacioForm";
 	}
-	
+
 	@RequestMapping(value = "/servei/actualitzar", method = RequestMethod.POST)
 	public String actualitzacioAutomaticaServisPost(
 			HttpServletRequest request,
@@ -197,31 +197,31 @@ public class ProcedimentController extends BaseController{
 				"procedimentActualitzacioForm",
 				"procediment.controller.actualitzar.servei.ok");
 	}
-	
+
 	@RequestMapping(value = "/servei/actualitzar/progres", method = RequestMethod.GET)
 	@ResponseBody
 	public ProgresActualitzacioDto getProgresServeiActualitzacio(
 			HttpServletRequest request,
 			@RequestParam(value = "index", required = false) Integer index) {
 		return this.getCopiaProgres(
-					procedimentService.getProgresServisActualitzacio(), 
+					procedimentService.getProgresServisActualitzacio(),
 					index);
 	}
-	
+
 	@RequestMapping(value = "/actualitzar/progres", method = RequestMethod.GET)
 	@ResponseBody
 	public ProgresActualitzacioDto getProgresActualitzacio(
 			HttpServletRequest request,
 			@RequestParam(value = "index", required = false) Integer index) {
 		return this.getCopiaProgres(
-					procedimentService.getProgresActualitzacio(), 
+					procedimentService.getProgresActualitzacio(),
 					index);
 	}
 
 
 	/** Mètode per retornar una còpia amb una subllista de informació en comptes de retornar tota
 	 * la informació de progrés.
-	 * 
+	 *
 	 * @param progres Objecte amb la informació del progrés.
 	 * @param index Índex a partir de la cual es retorna la llista.
 	 * @return
@@ -252,7 +252,7 @@ public class ProcedimentController extends BaseController{
 			} else {
 				ret.setInfo(infoList);
 			}
-			
+
 		} else {
 			ret.addInfo("No hi ha cap procés actualment");
 			ret.setFinished(true);
@@ -260,9 +260,9 @@ public class ProcedimentController extends BaseController{
 
 		return ret;
 	}
-	
-	
-	
+
+
+
 	@RequestMapping(value = "/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public List<Map<String, String>> procedimentsSuggest(
@@ -280,12 +280,12 @@ public class ProcedimentController extends BaseController{
 		if (procediments != null && !procediments.isEmpty() && textDecoded!=null) {
 			for (ProcedimentDto procediment: procediments) {
 				Map<String, String> procedimentJson = new HashMap<String, String>();
-				
+
 				String codiSia = procediment.getCodiSia();
 	            String tipusText = ProcedimentTipusEnumDto.PROCEDIMENT.equals(procediment.getTipus()) ? "(Procediment)" : "(Servei)";
 	            String nomProcediment = procediment.getNom().replace("\"", "\\\"");
 	            String nomFormatat = codiSia + " " + tipusText + " - " + nomProcediment;
-	            
+
 	            procedimentJson.put("codi", codiSia);
 	            procedimentJson.put("nom", nomFormatat);
 				resposta.add(procedimentJson);
@@ -298,7 +298,7 @@ public class ProcedimentController extends BaseController{
 		}
 		return resposta;
 	}
-	
+
 	@RequestMapping(value = "/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public Map<String, String> procedimentsSuggestInici(
@@ -310,8 +310,11 @@ public class ProcedimentController extends BaseController{
 		if (procediment != null) {
 			Map<String, String> procedimentJson = new HashMap<String, String>();
 			procedimentJson.put("codi", procediment.getCodiSia());
-			procedimentJson.put("nom", procediment.getCodiNom().replace("\"", "\\\""));
 
+			String nomProcediment = procediment.getNom().replace("\"", "\\\"");
+			String tipusText = ProcedimentTipusEnumDto.PROCEDIMENT.equals(procediment.getTipus()) ? "(Procediment)" : "(Servei)";
+			String nomFormatat = procediment.getCodiSia() + " " + tipusText + " - " + nomProcediment;
+			procedimentJson.put("nom", nomFormatat);
 			return procedimentJson;
 		} else {
 			Map<String, String> procedimentJson = new HashMap<String, String>();

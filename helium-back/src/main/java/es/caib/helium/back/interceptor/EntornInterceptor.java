@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,7 +66,7 @@ public class EntornInterceptor implements HandlerInterceptor {
 			List<EntornDto> entorns = entornService.findActiusAmbPermisAcces();
 			request.setAttribute("entorns", entorns);
 			// Nova implementació
-			if (entorns.size() == 0 
+			if (entorns.size() == 0
 					&& !UsuariActualHelper.isAdministrador()) {
 				if (request.getServletPath().startsWith("")) {
 		            ModelAndView mav = new ModelAndView("entornNoDisponible");
@@ -202,8 +203,10 @@ public class EntornInterceptor implements HandlerInterceptor {
 					for (ExpedientTipusDto expedientTipus: accessibles) {
 						if (!expedientTipus.getConsultes().isEmpty()) {
 							// Ordena les consultes per l'ordre
-							expedientTipus.getConsultes().stream()
-											.sorted(Comparator.comparing(ConsultaDto::getOrdre));
+							expedientTipus.setConsultes(
+								expedientTipus.getConsultes().stream()
+											.sorted(Comparator.comparing(ConsultaDto::getOrdre))
+											.collect(Collectors.toList()));
 							accessiblesConConsultasActivas.add(expedientTipus);
 						}
 					}

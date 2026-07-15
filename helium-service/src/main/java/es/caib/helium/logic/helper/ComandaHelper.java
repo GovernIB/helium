@@ -70,14 +70,15 @@ public class ComandaHelper {
 		return null;
 	}
 
-	public void upsertTasca(String taskId, String nom, String expedientNumero, WTaskInstance task, TascaEstat estat) {
+	public void upsertTasca(String taskId, String nom, String expedientNumero, String tipusExpedientNom, WTaskInstance task, TascaEstat estat) {
 		try {
+			String descripcio = String.format("[%s] %s", expedientNumero, tipusExpedientNom);
 			Tasca tasca = getTasca(taskId);
 			if(tasca == null) {
-				createTasca(taskId, nom, expedientNumero, task, estat);
+				createTasca(taskId, nom, expedientNumero, descripcio, task, estat);
 				return;
 			}
-			updateTasca(tasca, taskId, expedientNumero, task, estat);
+			updateTasca(tasca, taskId, expedientNumero, descripcio, task, estat);
 		} catch(Exception e) {
 			logger.error(
 					"Error inesperat a la creació/actualització de la tasca amb id '" + taskId + "' del expedient " + expedientNumero,
@@ -86,7 +87,7 @@ public class ComandaHelper {
 	}
 
 
-	private void createTasca(String taskId, String nom, String expedientNumero, WTaskInstance task, TascaEstat estat) throws UniformInterfaceException, InterruptedException, ExecutionException, MalformedURLException {
+	private void createTasca(String taskId, String nom, String expedientNumero, String descripcio, WTaskInstance task, TascaEstat estat) throws UniformInterfaceException, InterruptedException, ExecutionException, MalformedURLException {
 		List<String> usuaris = new ArrayList<String>();
 
 		usuaris.addAll(task.getPooledActors());
@@ -99,7 +100,7 @@ public class ComandaHelper {
 							.identificador(String.valueOf(taskId))
 							.tipus(task.getTaskName())
 							.nom(nom)
-							.descripcio(task.getDescription())
+							.descripcio(descripcio)
 							.estat(estat)
 							.estatDescripcio(null)
 							.numeroExpedient(expedientNumero)
@@ -123,7 +124,7 @@ public class ComandaHelper {
 			logger.error("[COMANDA] POST: {}", response.toString());
 	}
 
-	private void updateTasca(Tasca tasca, String taskId, String expedientNumero, WTaskInstance task, TascaEstat estat) throws MalformedURLException, UniformInterfaceException, InterruptedException, ExecutionException {
+	private void updateTasca(Tasca tasca, String taskId, String expedientNumero, String descripcio, WTaskInstance task, TascaEstat estat) throws MalformedURLException, UniformInterfaceException, InterruptedException, ExecutionException {
 		List<String> usuaris = new ArrayList<>(task.getPooledActors());
 
 		List<String> grups = new ArrayList<>(task.getRols());
@@ -133,6 +134,7 @@ public class ComandaHelper {
 
 		tasca.setEstat(estat);
 		tasca.setEstatDescripcio(null);
+		tasca.descripcio(descripcio);
 		tasca.setNumeroExpedient(expedientNumero);
 		tasca.setPrioritat(Prioritat.NORMAL);
 		tasca.setDataInici(DatesUtils.toOffsetDateTime(task.getStartTime()));
@@ -162,6 +164,10 @@ public class ComandaHelper {
 			clientConfig.getSingletons().add(new JacksonObjectMapperProvider());
 			clientConfig.getClasses().add(JacksonJsonProvider.class);
 			client = Client.create(clientConfig);
+			// Temps de connnexió en ms
+			client.setConnectTimeout(5000);
+			// Temps de lectura en ms
+			client.setReadTimeout(30000);
 			client.addFilter(new HTTPBasicAuthFilter(API_USER, API_PASS));
 		}
 		return client;

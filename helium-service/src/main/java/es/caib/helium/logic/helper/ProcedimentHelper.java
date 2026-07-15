@@ -123,7 +123,7 @@ public class ProcedimentHelper {
 						ProcedimentEstatEnumDto.VIGENT,
 						procedimentRolsac.isComu(),
 						unitatOrganitzativa)
-//						.tipus(procedimentRolsac.getTipus())
+						.tipus(procedimentRolsac.getTipus())
 						.built();
 				procedimentRepository.save(procediment);
 				info.setText("Nou procediment creat");

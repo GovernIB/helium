@@ -378,20 +378,6 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 				arrel,
 				provincia,
 				municipi);
-//		return conversioTipusHelper.convertirList(
-//				unitatOrganitzativaRepository.findByFiltre(
-//						pareCodi,
-//						Strings.isNullOrEmpty(pareCodi),
-//						provincia,
-//						Strings.isNullOrEmpty(provincia),
-//						municipi,
-//						Strings.isNullOrEmpty(municipi),
-//						nif,
-//						Strings.isNullOrEmpty(nif),
-//						nom,
-//						Strings.isNullOrEmpty(nom),
-//						arrel != null? arrel : false),
-//				UnitatOrganitzativaDto.class);
 	}
 
 	@Override
@@ -417,6 +403,6 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 		return unitatDto;
 	}
 
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CarrecServiceImpl.class);
 }

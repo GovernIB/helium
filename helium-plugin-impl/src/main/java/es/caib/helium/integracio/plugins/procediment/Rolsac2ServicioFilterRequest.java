@@ -2,6 +2,7 @@ package es.caib.helium.integracio.plugins.procediment;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,69 +10,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Rolsac2ServicioFilterRequest {
-	
-    public Object idTramite;
-	public Object plataforma;
-	public Object version;
-	public Object vigente;
-	public Object codigoMateria;
-	public Object codigoTramiteTelematico;
-	public Object parametros;
-	public Object versionTramiteTelematico;
-	public Object estadoUA;
-
-	private String codigoUA;
 	private String codigoUADir3;
-	// ids separados por comas
-	private String codigos;
-	// Compara con codigo, nombre, estado, tipo, codigoSia, estadoSia y
-	// codigoDir3Sia
-	private String textos;
-	private String titulo;
-	private String codigo;
 
-	/**
-	 * Possibles valors:
-	 * <ul>
-	 * <li>'D' = Definitivo</li>
-	 * <li>'M' = Modificado</li>
-	 * <li>'T' = Todos (publicado o modificado)</li>
-	 * <li>'A' = Ambos (publicado y modificado)</li>
-	 * </ul>
-	 */
-	private String estadoWF;
-
-	/*
-	 * Possibles valors: 0/1 1 = procedimientos comunes
-	 */
-	private Integer comun;
-	private String codigoSia;
-	private String codigoPlantilla;
-	private String codigoPlataforma;
-
-	/**
-	 * Possibles valors:
-	 * <ul>
-	 * <li>'PV' = Pendent validació</li>
-	 * <li>'M' = En modificació</li>
-	 * <li>'P' ='Publicat</li>
-	 * <li>'PT' = Pendent tancar</li>
-	 * <li>'T' = Tancat</li>
-	 * </ul>
-	 */
-	private String estado;
-	/**
-	 * Possibles valors:
-	 * <ul>
-	 * <li>'PV' = Pendent validació</li>
-	 * <li>'M' = En modificació</li>
-	 * <li>'P' ='Publicat</li>
-	 * <li>'PT' = Pendent tancar</li>
-	 * <li>'T' = Tancat</li>
-	 * </ul>
-	 */
-	private String estados;
 	/**
 	 * Possibles valors:
 	 * <ul>
@@ -89,23 +31,6 @@ public class Rolsac2ServicioFilterRequest {
 	 * Possibles valors: 0/1
 	 */
 	private Integer buscarEnDescendientesUA;
-	/**
-	 * Data amb format "DD/MM/YYYY"
-	 */
-	private String fechaActualizacionSia;
-	private List<Long> codigosNormativas;
-    private List<Long> codigosPublicosObjetivos;
-    private List<Long> codigosMaterias;
-	/**
-	 * Data amb format "DD/MM/YYYY"
-	 */
-	private String fechaPublicacionDesde;
-	/**
-	 * Data amb format "DD/MM/YYYY"
-	 */
-	private String fechaPublicacionHasta;
-	private Long idEntidad;
-	
 	private Rolsac2FiltrePaginacio filtroPaginacion;
 	private Rolsac2FiltreOrden orden;
 }

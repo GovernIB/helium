@@ -382,8 +382,20 @@
 					$('th', this).each(function() {
 						var index = $(this).index();
 						var propName = $(this).data('rdt-property');
+                        var propTipus = $(this).data('tipus');
 						var propIndex = aProps.indexOf(propName);
-						if (propIndex === 0 && propName == 'id') {
+
+                        var content = aData[propIndex];
+                        if(propTipus == 'REGISTRE' && content && content.length > 0) {
+                            var jsonContent = JSON.parse(content);
+                            var numFiles = (Array.isArray(jsonContent) ? jsonContent[0] : jsonContent).v?.length || 0;
+                            var el = $("td:eq(" + index + ")", nRow);
+                            var btn = $(`<button onclick="showRegistre(this)" class="btn btn-default"><span class="fa fa-table"/><span> ${numFiles} files</span></button>`);
+                            btn.attr('data-content', content);
+                            el.html(btn);
+                        }
+
+                        if (propIndex === 0 && propName == 'id') {
 							$(nRow).data('id', aData[propIndex]);
 						}
 						$('[data-rdt-content]', this).each(function() {

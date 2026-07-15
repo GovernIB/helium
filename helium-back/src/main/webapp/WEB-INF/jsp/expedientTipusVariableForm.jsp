@@ -20,7 +20,7 @@
 	</c:when>
 	<c:otherwise>
 		<c:set var="titol"><spring:message code="expedient.tipus.camp.form.titol.visualitzar"/></c:set>
-		<c:set var="formAction">none</c:set>		
+		<c:set var="formAction">none</c:set>
 	</c:otherwise>
 </c:choose>
 <html>
@@ -33,12 +33,12 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
-<body>		
+<body>
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="campCommand">
-		<div>        
+		<div>
 			<input type="hidden" name="id" value="${campCommand.id}"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.camp.form.camp.codi" />
 			<hel:inputSelect required="true" emptyOption="true" name="tipus" textKey="expedient.tipus.camp.form.camp.tipus" placeholderKey="expedient.tipus.camp.form.camp.tipus" optionItems="${tipusCamp}" optionValueAttribute="codi" optionTextAttribute="valor"/>
@@ -49,7 +49,12 @@
 			<hel:inputCheckbox name="ocult" textKey="expedient.tipus.camp.form.camp.ocult" />
 			<hel:inputCheckbox name="ignored" textKey="expedient.tipus.camp.form.camp.ignored" />
 		</div>
-		
+
+		<fieldset id="dadesRegistre" class="dades registre" style="display:none;">
+			<legend><spring:message code="expedient.tipus.camp.form.fieldset.registre"></spring:message></legend>
+			<hel:inputCheckbox name="indexable" textKey="expedient.tipus.camp.form.camp.registre.reindexar" />
+		</fieldset>
+
 		<fieldset id="dadesConsulta" class="dades consulta" style="display:none;">
 			<legend><spring:message code="expedient.tipus.camp.form.fieldset.consulta"></spring:message></legend>
 			<hel:inputSelect emptyOption="true" name="enumeracioId" textKey="expedient.tipus.camp.form.camp.enumeracio" placeholderKey="expedient.tipus.camp.form.camp.enumeracio" optionItems="${enumeracions}" optionValueAttribute="id" optionTextAttribute="nom"/>
@@ -71,7 +76,7 @@
 			</div>
 			<hel:inputCheckbox name="dominiCacheText" textKey="expedient.tipus.camp.form.camp.dominiCacheText" />
 		</fieldset>
-		
+
 		<fieldset id="dadesAccio" class="dades accio" style="display:none;">
 			<legend><spring:message code="expedient.tipus.camp.form.fieldset.accio"></spring:message></legend>
 			<c:choose>
@@ -93,7 +98,7 @@
 			<hel:inputCheckbox name="terminiNomesDies" textKey="expedient.tipus.camp.form.camp.nomesDies" />
 		</fieldset>
 
-		
+
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			<c:if test="${!heretat}">
@@ -111,44 +116,44 @@
 				</c:choose>
 			</c:if>
 		</div>
-		
+
 	<script type="text/javascript">
 		// <![CDATA[
 		$(document).ready(function() {
-			
+
 			canviTipus();
 			canviTermini();
 			$('#tipus').change(function() {
 				canviTipus();
 				canviTermini();
 			});
-			
+
 			canviDadesConsulta();
 			$('#enumeracioId').change(function() {
 				$('#dominiId').val('').trigger('change.select2');
 				$('#dominiIntern').prop('checked', false);
 				$('#consultaId').val('').trigger('change.select2');
 				canviDadesConsulta();
-			});	
+			});
 			$('#dominiId').change(function() {
 				$('#enumeracioId').val('').trigger('change.select2');
 				$('#dominiIntern').prop('checked', false);
 				$('#consultaId').val('').trigger('change.select2');
 				canviDadesConsulta();
-			});	
+			});
 			$('#dominiIntern').change(function() {
 				$('#enumeracioId').val('').trigger('change.select2');
 				$('#dominiId').val('').trigger('change.select2');
 				$('#consultaId').val('').trigger('change.select2');
 				canviDadesConsulta();
-			});	
+			});
 			$('#consultaId').change(function() {
 				$('#enumeracioId').val('').trigger('change.select2');
 				$('#dominiId').val('').trigger('change.select2');
 				$('#dominiIntern').prop('checked', false);
 				canviDadesConsulta();
-			});	
-			
+			});
+
 			// Canvi en la selecció de la definicion
 			$('#defprocJbpmKey').change(function() {
 				refrescaAccions();
@@ -177,18 +182,20 @@
 				enable('div .dades.accio');
 			} else if (tipus == "TERMINI") {
 				enable('div .dades.termini');
-			}			
+			} else if (tipus == "REGISTRE") {
+				enable('div .dades.registre');
+			}
 		}
-		
+
 		function canviDadesConsulta() {
 			disable('div .parametres');
 			if ($('#dominiId').val() != '' || $('#dominiIntern').is(':checked')) {
 				enable('div .parametres.domini');
 			} else if ($('#consultaId').val() != '') {
 				enable('div .parametres.consulta');
-			}					
+			}
 		}
-		
+
 		function refrescaAccions() {
 			var definicioProcesId = $("#defprocJbpmKey").val();
 			var jbpmActionActual = $('#jbpmAction').val();
@@ -216,8 +223,8 @@
 			} else {
 				$('#jbpmAction').val('').change();
 			}
-		}	
-		
+		}
+
 		function canviTermini() {
 			var tipus = $('#tipus').val();
 
@@ -229,7 +236,7 @@
 		}
 
 		// ]]>
-	</script>			
+	</script>
 
 	</form:form>
 </body>

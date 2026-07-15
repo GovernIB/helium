@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -52,7 +52,7 @@ import es.caib.helium.logic.intf.service.UnitatOrganitzativaService;
 
 /**
  * Controlador per a la pàgina d'informació de l'termini.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -84,7 +84,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		model.addAttribute("expedientId", expedientId);	
+		model.addAttribute("expedientId", expedientId);
 		return "interessatLlistat";
 	}
 
@@ -104,7 +104,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		model.addAttribute(
 				"existeixenRepresentantsExpedient",
 				representantsExpedient!=null && !representantsExpedient.isEmpty()
-				);		
+				);
 		for(InteressatDto interessat: expedientInteressatService.findByExpedient(expedientId)) {
 			if(!interessat.getEs_representant() && interessat.getRepresentant()!=null) {
 				representantInteressat = expedientInteressatService.findOne(interessat.getRepresentant().getId());
@@ -117,7 +117,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		}
 		mapeigOrdenacions.put("fullNom", new String[] {"nom", "llinatge1", "llinatge2", "raoSocial"});
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request, null, mapeigOrdenacions);
-		
+
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
@@ -126,7 +126,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 						paginacioParams.getFiltre(),
 						paginacioParams));
 	}
-	
+
 	/** Mètode per obtenir el detall d'un interessat. Es consulta quan s'expandeix la seva fila a la taula d'interessats. */
 	@RequestMapping(value="/{expedientId}/interessat/{interessatId}/detall", method = RequestMethod.GET)
 	public String detall(
@@ -134,16 +134,16 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long interessatId,
 			Model model) {
-		model.addAttribute("expedientId", expedientId);	
+		model.addAttribute("expedientId", expedientId);
 		InteressatDto interessat = expedientInteressatService.findOne(
 				interessatId);
-		
+
 		this.populateDadesInteressat(interessat);
 		if(interessat.getRepresentant()!=null) {
 			this.populateDadesInteressat(interessat.getRepresentant());
 		}
 		model.addAttribute(
-				"interessatCanalsNotif", 
+				"interessatCanalsNotif",
 				this.populateCanalsNotif(request)
 				);
 		model.addAttribute("interessat", interessat);
@@ -158,7 +158,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		InteressatCommand interessatCommand= new InteressatCommand();
-		populateModel(request, model, null);
+		populateModel(request, model, null, null);
 		interessatCommand.setPais(CODI_PAIS_ESPANYA);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(interessatCommand);
@@ -196,7 +196,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
         	}
         }
     	if (error) {
-    		populateModel(request, model, null);
+    		populateModel(request, model, null, command.getDir3Codi());
     		return "interessatForm";
     	} else {
         	return modalUrlTancar(false);
@@ -216,7 +216,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		if(dto.getPais()==null) {
 			dto.setPais(CODI_PAIS_ESPANYA);
 		}
-		populateModel(request, model, dto.getProvincia());
+		populateModel(request, model, dto.getProvincia(), dto.getDir3Codi());
 		model.addAttribute("tipus",dto.getTipus());
 		model.addAttribute("es_representant",dto.getEs_representant());
 		//posem el valor de l'enum tal com apareix al llistat
@@ -252,7 +252,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
             			ConversioTipus.convertir(
         						command,
         						InteressatDto.class));
-            	
+
     	        if(es_representant) {
     	        	if (resultat.isPropagatArxiu()) {
     	        		MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.modificat") );
@@ -269,28 +269,28 @@ public class ExpedientInteressatController extends BaseExpedientController {
         	} catch(Exception ex) {
         		String errMsg = getMessage(request, "interessat.controller.modificar.error", new Object[] {ex.toString()});
         		MissatgesHelper.error(request, errMsg, ex);
-        		error = true; 		
+        		error = true;
         	}
         }
         if (error) {
-    		populateModel(request, model, command.getProvincia());
+    		populateModel(request, model, command.getProvincia(), command.getDir3Codi());
         	command.setEs_representant(es_representant);
         	if (command.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(command.getTipus())) {
     			this.populateUOsCommand(command);
         	}
         	return "interessatForm";
         } else {
-			return modalUrlTancar(false);        	
+			return modalUrlTancar(false);
         }
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/new", method = RequestMethod.GET)
 	public String newRepresentantGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
 		InteressatCommand interessatCommand= new InteressatCommand();
-		populateModel(request, model, null);
+		populateModel(request, model, null, null);
 		interessatCommand.setPais(CODI_PAIS_ESPANYA);
 		interessatCommand.setEs_representant(true);
 		model.addAttribute("expedientId", expedientId);
@@ -298,7 +298,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		model.addAttribute("es_representant",true);
 		return "interessatForm";
 	}
-		
+
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/new", method = RequestMethod.POST)
 	public String newRepresentant(
 			HttpServletRequest request,
@@ -329,13 +329,13 @@ public class ExpedientInteressatController extends BaseExpedientController {
         	}
         }
         if (error) {
-    		populateModel(request, model, command.getProvincia());
+    		populateModel(request, model, command.getProvincia(), command.getDir3Codi());
         	return "interessatForm";
         } else {
   			return modalUrlTancar(false);
         }
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/search", method = RequestMethod.GET)
 	public String searchRepresentantGet(
 			HttpServletRequest request,
@@ -351,7 +351,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		model.addAttribute(
 				"existeixenRepresentantsExpedient",
 				representantsExpedient!=null && !representantsExpedient.isEmpty()
-				);	
+				);
 		interessatCommand.setEs_representant(true);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("interessatId", interessatId);
@@ -359,7 +359,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		model.addAttribute("es_representant",true);
 		return "interessatCercarRepresentant";
 	}
-		
+
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/search", method = RequestMethod.POST)
 	public String searchRepresentant(
 			HttpServletRequest request,
@@ -384,7 +384,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
   			return modalUrlTancar(false);
         }
 	}
-	
+
 	@ModelAttribute("interessatTipusDocuments")
 	public List<ParellaCodiValorDto> populateTipusDocuments(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -396,7 +396,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.CODI_ORIGEN"), InteressatDocumentTipusEnumDto.CODI_ORIGEN));
 		return resposta;
 	}
-	
+
 	@ModelAttribute("interessatCanalsNotif")
 	public List<ParellaCodiValorDto> populateCanalsNotif(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -405,8 +405,8 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		resposta.add(new ParellaCodiValorDto(CanalNotifEnumDto.DIRECCION_POSTAL.getName(),CanalNotifEnumDto.DIRECCION_POSTAL.getValue()));
 		return resposta;
 	}
-	
-	
+
+
 	@ModelAttribute("NotificaDomiciliConcretTipus")
 	public List<ParellaCodiValorDto> populateDomiciliTipus(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -416,7 +416,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "domiciliconcret.tipus.enum.SENSE_NORMALITZAR"), NotificaDomiciliConcretTipusEnumDto.SENSE_NORMALITZAR));
 		return resposta;
 	}
-	
+
 	@ModelAttribute("serveiTipusEstats")
 	public List<ParellaCodiValorDto> populateServeiEstats(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -438,7 +438,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 				MissatgesHelper.success(request, getMessage(request, "interessat.controller.esborrat"));
 			} else {
 				MissatgesHelper.warning(request, getMessage(request, "interessat.controller.esborrat.err"));
-			}						
+			}
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "interessat.controller.esborrar.error", new Object[] {ex.getMessage()});
 			logger.error(errMsg, ex);
@@ -446,7 +446,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		}
 		return "redirect:/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/interessat/{representantId}/deleteRepresentant", method = RequestMethod.GET)
 	public String deleteRepresentant(
 			HttpServletRequest request,
@@ -465,7 +465,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 		return "redirect:/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}
 
-	private void populateModel(HttpServletRequest request, Model model, String provincia) {
+	private void populateModel(HttpServletRequest request, Model model, String provincia, String codi) {
 		model.addAttribute(
 				"interessatTipusOptions",
 				EnumHelper.getOptionsForEnum(
@@ -476,7 +476,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 				this.populateTipusDocuments(request)
 				);
 		model.addAttribute(
-				"interessatCanalsNotif", 
+				"interessatCanalsNotif",
 				this.populateCanalsNotif(request)
 				);
 		try {
@@ -496,23 +496,34 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.provincies.error"));
 		}
 		try {
+			boolean conteCodi = false;
 			List<ParellaCodiValorDto> organs = new ArrayList<ParellaCodiValorDto>();
 			for (UnitatOrganitzativaDto uo : unitatOrganitzativaService.findAll()) {
 				ParellaCodiValorDto pcv = new ParellaCodiValorDto(uo.getCodi(), uo.getCodi() + " - " + uo.getDenominacio());
 				organs.add(pcv);
+				if (codi != null && codi.equals(uo.getCodi())) {
+					conteCodi = true;
+				}
 			}
 			model.addAttribute("organs", organs);
-			
+			if (codi != null && !conteCodi) {
+				// Afegeix la unitat externa si es troba
+				UnitatOrganitzativaDto unitat = unitatOrganitzativaService.findByCodiExterna(codi);
+				if (unitat != null) {
+					organs.add(new ParellaCodiValorDto(unitat.getCodi(), unitat.getCodi() + " - " + unitat.getDenominacio()));
+				}
+			}
+
 		} catch (Exception e) {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.unitats.error"));
 		}
-		
+
 		try {
 			model.addAttribute("nivells", unitatOrganitzativaService.nivellAdministracioFindAll());
 		} catch (Exception e) {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.nivells.error"));
 		}
-		
+
 		if (provincia != null) {
 			try {
 				model.addAttribute("municipis", dadesExternesService.findMunicipisPerProvincia(provincia));
@@ -521,7 +532,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			}
 		}
 	}
-	
+
 	@RequestMapping(value = "/municipis/{codiProvincia}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Object> getMunicipisByCodiProvincia(
@@ -538,7 +549,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@RequestMapping(value = "/organ/{codi}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Object> getByCodi(
@@ -549,7 +560,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			UnitatOrganitzativaDto unitat = unitatOrganitzativaService.findByCodi(codi);
 			if(unitat == null)
 				unitat = unitatOrganitzativaService.findByCodiExterna(codi);
-			
+
 			return new ResponseEntity<Object>(unitat, HttpStatus.OK);
 		} catch(Exception e) {
 			Map<String, Object> errorResponse = new HashMap<String, Object>();
@@ -559,7 +570,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@RequestMapping(value = "/organs", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Object> getUnitatsOrganitzativesByFiltre(
@@ -586,10 +597,10 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
-	
+
+
+
+
 	private void populateDadesInteressat(InteressatDto interessat) {
 		if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessat.getTipus())){
 			UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(interessat.getDir3Codi());
@@ -637,7 +648,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			}
 		}
 	}
-	
+
 	private void populateUOsCommand(InteressatCommand command) {
 		UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(command.getCodi());
 		if(uo!=null) {
@@ -648,7 +659,7 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			command.setCodiPostal(uo.getCodiPostal());
 			String codiProvinciaDosDigits = null;
 			if(uo.getCodiProvincia()!=null && !uo.getCodiProvincia().isEmpty()) {
-				codiProvinciaDosDigits = String.format("%02d", Long.valueOf(uo.getCodiProvincia()));//Fa falta que sigui de dos digits pq busqui bé els municipis	
+				codiProvinciaDosDigits = String.format("%02d", Long.valueOf(uo.getCodiProvincia()));//Fa falta que sigui de dos digits pq busqui bé els municipis
 			} else {
 				if(this.provincies==null || this.provincies.isEmpty()) {
 					this.provincies=dadesExternesService.findProvinciesPerComunitat(CODI_COMUNITAT_ILLES_BALEARS);
@@ -661,9 +672,9 @@ public class ExpedientInteressatController extends BaseExpedientController {
 			command.setMunicipi(uo.getLocalitat());
 		}
 	}
-	
-	
-	
+
+
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientInteressatController.class);
 
 }

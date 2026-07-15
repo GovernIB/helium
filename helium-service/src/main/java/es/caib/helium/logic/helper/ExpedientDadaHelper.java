@@ -10,10 +10,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.Column;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import es.caib.helium.commons.dades.DadaTipusEnum;
 import es.caib.helium.commons.dto.*;
@@ -21,6 +23,7 @@ import es.caib.helium.logic.config.ObjectArrayDeserializer;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +41,7 @@ import es.caib.helium.persistence.repository.ExpedientDadesRepository;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ExpedientDadaHelper {
@@ -135,7 +139,7 @@ public class ExpedientDadaHelper {
 			expedientDadesEntity.setExpedientTipus(expedient.getTipus());
 			expedientDadesEntity.setProcessId(processId);
 			expedientDadesEntity.setTaskId(taskId);
-			expedientDadesEntity.setPrincipal(processId == null && taskId == null);
+			expedientDadesEntity.setPrincipal(taskId == null);
 			expedientDadesRepository.save(expedientDadesEntity);
 		}
 		// Fixa el valor de la dada
@@ -171,7 +175,7 @@ public class ExpedientDadaHelper {
 			expedientDadesEntity.setExpedientTipus(expedient.getTipus());
 			expedientDadesEntity.setProcessId(processId);
 			expedientDadesEntity.setTaskId(taskId);
-			expedientDadesEntity.setPrincipal(processId == null && taskId == null);
+			expedientDadesEntity.setPrincipal(taskId == null);
 			expedientDadesRepository.save(expedientDadesEntity);
 		}
 		// Fixa el valor de la dada
@@ -381,8 +385,26 @@ public class ExpedientDadaHelper {
 
 					Object value = row.get(k);
 
+					String indexValor = value != null? value.toString() : null;
+					if (value != null &&
+						camp != null &&
+						camp.getTipus() == CampTipusDto.REGISTRE) {
+						try {
+							Object val = mapper.readValue(value.toString(), Object.class);
+							Map<String, Object> indexValMap = new HashMap<String, Object>();
+							indexValMap.put("v", val);
+							indexValMap.put("c", camp.getRegistreMembres()
+								.stream()
+								.map(m -> m.getMembre().getCodiEtiqueta())
+								.collect(Collectors.toList()));
+							value = mapper.writeValueAsString(indexValMap);
+						} catch (JsonProcessingException e) {
+							log.error("Error mapegant valor del camp ", e);
+						}
+					}
+
 					di.setValor(value);
-					di.addValorIndex(value != null? value.toString() : null);
+					di.addValorIndex(indexValor);
 					dadesExpedient.put(di.getCampCodi(), di);
 				}
 				resposta.add(dadesExpedient);
@@ -407,7 +429,7 @@ public class ExpedientDadaHelper {
 		StringBuilder query = new StringBuilder("SELECT * FROM ( SELECT rownum r__, t.* FROM ( ");
 		query.append(" SELECT expedient.ID as " + CLAU_EXPEDIENT_ID);
 
-		if(informeCamps != null) {
+		if(informeCamps != null && !informeCamps.isEmpty()) {
 			query.append(", ");
 			// Afegim les columnes del select a la query
 			query.append(String.join(
@@ -418,6 +440,8 @@ public class ExpedientDadaHelper {
 						if (ic.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 							String colName = getColumnName(ic.getCodi().replace(ExpedientCamps.EXPEDIENT_PREFIX, ""), Expedient.class);
 							return "expedient." + colName;
+						} else if(ic.getTipus() == CampTipusDto.REGISTRE || ic.isMultiple()) {
+							return "JSON_QUERY(d.DADES, '$." + ic.getCodi() + ".v') as " + ic.getCodi();
 						}
 						return "JSON_VALUE(d.DADES, '$." + ic.getCodi() + ".v') as " + ic.getCodi();
 					})
@@ -554,13 +578,36 @@ public class ExpedientDadaHelper {
 
 			switch(f.getTipus()) {
 				case BOOLEAN:
-					query.append(" AND " + campNom + " = ? ");
+					query
+						.append(" AND ")
+						.append(campNom)
+						.append(" = ? ");
 					args.add(filtreVal.toString());
 					break;
 				case TEXTAREA:
 				case STRING:
-					query.append(" AND " + campNom + " like ? ");
-					args.add("%" + filtreVal + "%");
+					if(filtreVal instanceof Object[]) {
+						Stream<Object> vals = Arrays
+												.stream(((Object[]) filtreVal))
+												.filter(Objects::nonNull);
+						if(vals.findAny().isEmpty())
+							break;
+
+						query
+							.append(" AND ")
+							.append(campNom)
+							.append(" in (")
+							.append(vals.map(o -> "?")
+									.collect(Collectors.joining(", ")))
+							.append(")");
+						args.addAll(vals.collect(Collectors.toList()));
+					} else {
+						query
+							.append(" AND ")
+							.append(campNom)
+							.append(" like ? ");
+						args.add("%" + filtreVal + "%");
+					}
 					break;
 				case DATE:
 				case INTEGER:
@@ -569,11 +616,11 @@ public class ExpedientDadaHelper {
 					if(filtreVal instanceof Object[]) {
 						Object[] frange = (Object[])filtreVal;
 						if(frange[0] != null) {
-							query.append(" AND " + campNom + " >= ? ");
+							query.append(" AND ").append(campNom).append(" >= ? ");
 							args.add(frange[0]);
 						}
 						if(frange[1] != null) {
-							query.append(" AND " + campNom + " <= ? ");
+							query.append(" AND ").append(campNom).append(" <= ? ");
 							args.add(frange[1]);
 						}
 						break;
@@ -581,7 +628,7 @@ public class ExpedientDadaHelper {
 				case SELECCIO:
 				case SUGGEST:
 				default:
-					query.append(" AND " + campNom + " = ? ");
+					query.append(" AND ").append(campNom).append(" = ? ");
 					args.add(filtreVal);
 					break;
 			}

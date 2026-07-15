@@ -5688,7 +5688,7 @@ public class PluginHelper {
 
 	public UnitatOrganitzativaDto findByCodi(
 			String codi) {
-//		String accioDescripcio = "Consulta la unitat organitzativa donat el codi";
+		String accioDescripcio = "Consulta d'unitat organitzativa " + codi;
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"codi",
@@ -5698,13 +5698,20 @@ public class PluginHelper {
 		long t0 = System.currentTimeMillis();
 		try {
 			UnitatOrganitzativaDto unitatDto = getUnitatsOrganitzativesPlugin().unitatsOrganitzativesFindByCodi(codi);
-			return unitatDto;
 
+			monitorIntegracioHelper.addAccioOk(
+				MonitorIntegracioHelper.INTCODI_UNITATS,
+				accioDescripcio,
+				IntegracioAccioTipusEnumDto.ENVIAMENT,
+				System.currentTimeMillis() - t0,
+				parametres);
+
+			return unitatDto;
 		} catch (Exception ex) {
-			String errorDescripcio = "Error al accedir al plugin d'unitats organitzatives";
+			String errorDescripcio = "Error consultant l'unitat organitzativa per codi " + codi;
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_UNITATS,
-					"Consulta d'unitats organitzatives amb pare",
+				accioDescripcio,
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					errorDescripcio,

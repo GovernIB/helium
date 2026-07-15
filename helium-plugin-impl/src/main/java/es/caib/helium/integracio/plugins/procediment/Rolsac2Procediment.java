@@ -2,11 +2,13 @@ package es.caib.helium.integracio.plugins.procediment;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Rolsac2Procediment {
 	private Rolsac2Inicio iniciacion;
 	private String tipo;

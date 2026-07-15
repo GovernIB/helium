@@ -374,8 +374,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				anotacio = anotacioRepository.findById(anotacioId).orElse(null);
 				ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId).orElse(null);
 				if (expedientTipus.isDistribucioSistra()) {
+					// Si el tipus no integra amb l'Arxiu llavors s'obtindran els documents amb contingut
+					boolean ambContingut = !expedientTipus.isArxiuActiu();
 					// Extreu documents i variables segons el mapeig sistra
-					boolean ambContingut = true; //!expedientTipus.isArxiuActiu();
 					resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 
 					for(DadesDocumentDto dd : resultatMapeig.getDocuments()) {
@@ -386,9 +387,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						dd.setUuid(null);
 					}
 
-					if (variables == null)
-						variables = new HashMap<String, Object>();
-					variables.putAll(resultatMapeig.getDades());
+					if (variables == null) {
+						variables = new HashMap<String, Object>(resultatMapeig.getDades());
+					} else {
+						// Si ja hi ha variabls només s'afegeixen les del mapeig que no hi siguin
+						for (String varCodi : resultatMapeig.getDades().keySet()) {
+							if ( ! variables.containsKey(varCodi)) {
+								variables.put(varCodi, resultatMapeig.getDades().get(varCodi));
+							}
+						}
+					}
 					if (documents == null)
 						documents = new ArrayList<DadesDocumentDto>();
 					documents.addAll(resultatMapeig.getDocuments());
@@ -1610,7 +1618,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			entityManager.flush();
 			entityManager.clear();
 		} catch (Exception ex) {
-			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
+			String errorDescripcio = "Error sincronitzant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			if (esborrarExpSiError && expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
 				logger.info("Es procedeix a esborrar l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.");
 				try{
@@ -1703,8 +1711,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			this.migrarDocumentsArxiu(id, esborrarExpSiError);
 			this.finalitzaArxiuMigrat(id);
 		} catch(TramitacioException ex) {
-			this.undoSincronitzacioArxiu(id);
-			this.undoSincronitzacioDocumentsArxiu(documentsEstatAnterior);
+			if (esborrarExpSiError) {
+				this.undoSincronitzacioArxiu(id);
+				this.undoSincronitzacioDocumentsArxiu(documentsEstatAnterior);
+			}
 			throw ex;
 		} finally {
 			deleteCurrentlyMigrating(id);
@@ -2933,7 +2943,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			throw new NoTrobatException(Consulta.class,consultaId);
 		}
 
-		List<TascaDadaDto> campsConsulta = consultaHelper.findCampsPerCampsConsulta(
+		List<TascaDadaDto> campsConsulta_ = consultaHelper.findCampsPerCampsConsulta(
 				consulta,
 				TipusConsultaCamp.INFORME);
 
@@ -3854,7 +3864,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	}
 
 	@Transactional
-	private void updateTasquesExpedient(String processInstanceId, String expedientNumero) {
+	private void updateTasquesExpedient(String processInstanceId, String expedientNumero, String tipusExpedientNom) {
 		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesByProcessInstanceId(processInstanceId);
 		for(WTaskInstance task : tasks) {
 			try {
@@ -3863,6 +3873,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					task.getId(),
 					task.getName(),
 					expedientNumero,
+					tipusExpedientNom,
 					task,
 					TascaEstat.PENDENT
 				);
@@ -3877,7 +3888,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		try {
 			if(expedient.getTipus().getTipus() == ExpedientTipusTipusEnumDto.FLOW
 				&& expedient.getProcessInstanceId() != null) {
-				updateTasquesExpedient(expedient.getProcessInstanceId(), expedient.getNumeroDefault());
+				updateTasquesExpedient(expedient.getProcessInstanceId(), expedient.getNumeroDefault(), expedient.getTipus().getNom());
 			}
 		} catch (Exception e) {
 			logger.error("Error capturant event AFTER_COMMIT d'expedient", e);

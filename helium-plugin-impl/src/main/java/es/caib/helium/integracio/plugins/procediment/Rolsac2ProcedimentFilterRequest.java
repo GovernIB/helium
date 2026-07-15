@@ -10,20 +10,19 @@ import lombok.Setter;
 @Setter
 @Builder
 public class Rolsac2ProcedimentFilterRequest implements Cloneable {
-	private String codigoUA;
+//	private String codigoUA;
 	private String codigoUADir3;
-	private String codigoPublicoObjetivo;
 	// ids separados por comas
-	private String codigos;
+//	private String codigos;
 	// Compara con codigo, nombre, estado, tipo, codigoSia, estadoSia y codigoDir3Sia
-	private String textos;
-	private String codigoFormaInicio;
-	private String titulo;
-	private String codigoTipoProcedimiento;
-	private String codigoSilencioAdministrativo;
-	private String codigoFinVia;
-	private String codigo;
-	
+//	private String textos;
+//	private String codigoFormaInicio;
+//	private String titulo;
+//	private String codigoTipoProcedimiento;
+//	private String codigoSilencioAdministrativo;
+//	private String codigoFinVia;
+//	private String codigo;
+
 	/**
 	 * Possibles valors:
 	 * <ul>
@@ -33,17 +32,17 @@ public class Rolsac2ProcedimentFilterRequest implements Cloneable {
 	 * <li>'A' = Ambos (publicado y modificado)</li>
 	 * </ul>
 	 */
-	private String estadoWF;
-	
+//	private String estadoWF;
+
 	/*
 	 * Possibles valors: 0/1
 	 * 1 = procedimientos comunes
 	 */
-	private Integer comun;
-	private String codigoSia;
-	private String codigoTram;
-	private String codigoPlantilla;
-	private String codigoPlataforma;
+//	private Integer comun;
+//	private String codigoSia;
+//	private String codigoTram;
+//	private String codigoPlantilla;
+//	private String codigoPlataforma;
 	/**
 	 * Possibles valors:
 	 * <ul>
@@ -51,10 +50,10 @@ public class Rolsac2ProcedimentFilterRequest implements Cloneable {
 	 * <li>'N'= No</li>
 	 * </ul>
 	 */
-	private String tramiteVigente;
-	private String canalPresentacion;
-	
-	
+//	private String tramiteVigente;
+//	private String canalPresentacion;
+
+
 	/**
 	 * Possibles valors:
 	 * <ul>
@@ -65,8 +64,8 @@ public class Rolsac2ProcedimentFilterRequest implements Cloneable {
 	 * <li>'T'	= Tancat</li>
 	 * </ul>
 	 */
-	private String estado;
-	private Boolean esPdu;
+//	private String estado;
+//	private Boolean esPdu;
 	/**
 	 * Possibles valors:
 	 * <ul>
@@ -77,7 +76,7 @@ public class Rolsac2ProcedimentFilterRequest implements Cloneable {
 	 * <li>'T'	= Tancat</li>
 	 * </ul>
 	 */
-	private String estados;
+//	private String estados;
 	/**
 	 * Possibles valors:
 	 * <ul>
@@ -99,24 +98,23 @@ public class Rolsac2ProcedimentFilterRequest implements Cloneable {
 	/**
 	 * Data amb format "DD/MM/YYYY"
 	 */
-	private String fechaActualizacionSia;
-	private List<Long> codigosNormativas;
-    private List<Long> codigosPublicosObjetivos;
-    private List<Long> codigosMaterias;
-    private Long codigoMateria;
+//	private String fechaActualizacionSia;
+//	private List<Long> codigosNormativas;
+//    private List<Long> codigosMaterias;
+//    private Long codigoMateria;
 	/**
 	 * Data amb format "DD/MM/YYYY"
 	 */
-	private String fechaPublicacionDesde;
+//	private String fechaPublicacionDesde;
 	/**
 	 * Data amb format "DD/MM/YYYY"
 	 */
-	private String fechaPublicacionHasta;
+//	private String fechaPublicacionHasta;
 	/*
 	 * Possibles valors: 0/1
 	 * 1 = telematico
 	 */
-	private Integer telematico;
+//	private Integer telematico;
 	/**
 	 * Possibles valors:
 	 * <ul>
@@ -125,7 +123,7 @@ public class Rolsac2ProcedimentFilterRequest implements Cloneable {
 	 * <li>null no filtra por campo</li>
 	 * <ul>
 	 */
-	private Integer disponibleFuncionarioHabilitado;
+//	private Integer disponibleFuncionarioHabilitado;
 	/**
 	 * Possibles valors:
 	 * <ul>
@@ -134,11 +132,11 @@ public class Rolsac2ProcedimentFilterRequest implements Cloneable {
 	 * <li>null no filtra por campo</li>
 	 * <ul>
 	 */
-	private Integer disponibleApoderadoHabilitado;
-	Long idEntidad;
+//	private Integer disponibleApoderadoHabilitado;
+//	Long idEntidad;
 	Rolsac2FiltrePaginacio filtroPaginacion;
 	Rolsac2FiltreOrden orden;
-	
+
 	@Override
 	public Rolsac2ProcedimentFilterRequest clone() throws CloneNotSupportedException {
 		return (Rolsac2ProcedimentFilterRequest) super.clone();

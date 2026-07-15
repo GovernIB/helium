@@ -112,6 +112,7 @@ public class CampServiceImpl implements CampService {
 		entity.setMultiple(camp.isMultiple());
 		entity.setOcult(camp.isOcult());
 		entity.setIgnored(camp.isIgnored());
+		entity.setIndexable(camp.isIndexable());
 		CampAgrupacio agrupacio = null;
 		if (camp.getAgrupacio() != null)
 			agrupacio = campAgrupacioRepository.findById(camp.getAgrupacio().getId()).orElse(null);

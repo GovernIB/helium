@@ -2,14 +2,16 @@ package es.caib.helium.integracio.plugins.procediment;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
 /** Classe per rebre el JSON sobre la consutla de procediments de Rolsac2.
- * 
+ *
  */
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Rolsac2UAResponse {
 	private Integer tiempo;
 	private Integer itemsReturned;
@@ -22,6 +24,6 @@ public class Rolsac2UAResponse {
 	private String dateDownload;
 	private String status;
 	private Integer resultadoLong;
-	
+
 	private List<Rolsac2UnitatAdministrativa> items;
 }

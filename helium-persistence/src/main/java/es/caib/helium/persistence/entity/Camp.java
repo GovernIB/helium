@@ -81,6 +81,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private boolean multiple;
 	private boolean ocult;
 	private boolean ignored;
+	private boolean indexable;
 	private boolean terminiNomesDies;
 	private Consulta consulta;
 	private Domini domini;
@@ -235,6 +236,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
+	}
+
+	@Column(name="indexable")
+	public boolean isIndexable() {
+		return indexable;
+	}
+	public void setIndexable(boolean indexable) {
+		this.indexable = indexable;
 	}
 
 	@Column(name="termini_nomes_dies")

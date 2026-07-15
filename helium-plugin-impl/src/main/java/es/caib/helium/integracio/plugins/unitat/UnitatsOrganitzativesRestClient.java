@@ -20,17 +20,17 @@ public class UnitatsOrganitzativesRestClient extends RestClientBaseUnitats{
     private static final String OBTENER_UNIDAD = "obtenerUnidad";
     private static final String OBTENER_NIVELLS = "nivelesAdministracion";
 
-	
-	
+
+
 	protected String baseUrl;
 	protected String username;
 	protected String password;
-	
-	
+
+
 
 	protected boolean autenticacioBasic = true;
 	protected String cercaUrl;
-	
+
 	public UnitatsOrganitzativesRestClient() {}
 	public UnitatsOrganitzativesRestClient(
 			String baseUrl,
@@ -56,7 +56,7 @@ public class UnitatsOrganitzativesRestClient extends RestClientBaseUnitats{
 	public void setCercaUrl(String cercaUrl) {
 		this.cercaUrl = cercaUrl;
 	}
-	
+
 	public List<UnidadRest> obtenerArbolUnidades(String codigo, String fechaActualizacion, String fechaSincronizacion, Boolean denominacioCooficial) {
 		try {
 			String dadaAct = null;
@@ -91,23 +91,14 @@ public class UnitatsOrganitzativesRestClient extends RestClientBaseUnitats{
 			throw new RuntimeException(ex);
 		}
 	}
-	
-	
+
+
 	public UnidadRest obtenerUnidad(String codigo, String fechaActualizacion, String fechaSincronizacion, Boolean denominacioCooficial) {
 		try {
-			String dadaAct = null;
-			String dadaSin = null;
-
-			if (fechaActualizacion != null) {
-				dadaAct = "fechaActualizacion=" + fechaActualizacion;
-			}
-			if (fechaSincronizacion != null) {
-				dadaSin = "fechaSincronizacion=" + fechaSincronizacion;
-			}
-
-			String urlGet = baseUrl + OBTENER_UNIDAD + "?codigo=" + codigo + "&"
-					+ (dadaAct != null ? (dadaAct + "&") : "") + (dadaSin != null ? (dadaSin + "&") : "")
-					+ "denominacionCooficial=" + denominacioCooficial;
+			String urlGet = baseUrl + OBTENER_UNIDAD + "?codigo=" + codigo
+				+ (fechaActualizacion != null ?  "&fechaActualizacion=" + fechaActualizacion : "")
+				+ (fechaSincronizacion != null ?  "&fechaSincronizacion=" + fechaSincronizacion : "")
+				+ (denominacioCooficial != null ?  "&denominacionCooficial=" + denominacioCooficial : "");
 
 			Client jerseyClient = generarIAuthenticarClient(baseUrl + OBTENER_UNIDAD);
 			jerseyClient.addFilter(new HTTPBasicAuthFilter(username, password));
@@ -125,16 +116,16 @@ public class UnitatsOrganitzativesRestClient extends RestClientBaseUnitats{
 			}
 			throw new RuntimeException(ex);
 		}
-	}	
+	}
 
-	
+
 	public List<Nodo> cercaUnitats(
-			String codi, 
-			String denominacio, 
+			String codi,
+			String denominacio,
 			String nivellAdministracio,
-			Long comunitatAutonoma, 
+			Long comunitatAutonoma,
 			Boolean ambOficines,
-			Boolean esUnitatArrel, 
+			Boolean esUnitatArrel,
 			String provincia,
 			String municipi) {
 		try {
@@ -146,7 +137,7 @@ public class UnitatsOrganitzativesRestClient extends RestClientBaseUnitats{
 					+ (esUnitatArrel != null && esUnitatArrel ? "true" : "false") + "&provincia="
 					+ (provincia != null ? provincia : "-1") + "&localidad=" + (municipi != null ? municipi : "-1")
 					+ "&vigentes=true";
-			
+
 			Client jerseyClient = generarClient();
 			// Client jerseyClient = generarIAuthenticarClient(baseUrl + OBTENER_UNIDAD);
 			// jerseyClient.addFilter(new HTTPBasicAuthFilter(username, password));
@@ -166,7 +157,7 @@ public class UnitatsOrganitzativesRestClient extends RestClientBaseUnitats{
 			throw new RuntimeException(ex);
 		}
 	}
-	
+
 	public List<NivellAdministracioDto> nivellAdministracioFindAll() throws Exception {
 		String catalogoUrlbase = baseUrl.replace("unidades", "catalogo");
 		String urlGet = catalogoUrlbase + OBTENER_NIVELLS;
@@ -178,14 +169,14 @@ public class UnitatsOrganitzativesRestClient extends RestClientBaseUnitats{
 			for (CodiValor catNivellAdministracio: catNivellsAdministracio) {
 				nivellsAdministracio.add(
 						new NivellAdministracioDto(
-							Long.valueOf(catNivellAdministracio.getId()), 
+							Long.valueOf(catNivellAdministracio.getId()),
 							catNivellAdministracio.getDescripcio())
 						);
 			}
 		}
 		return nivellsAdministracio;
 	}
-	
-	
-	
+
+
+
 }
