@@ -548,19 +548,19 @@ $(document).ready(function() {
 				url: '<c:url value="/v3/expedient/consulta/${consulta.id}/informeAsync"/>',
 				dataType: "json",
 				traditional: true,
-			  	data: {
-			  	}
+				data: {
+				}
 			})
-				.done(function( data ) {
-					informe = data;
-					actualitzarInfoDescarrega(informe);
-					consultarPeriodicament();		
-				})
-				.fail(function(jqXHR, textStatus) {
-				    console.log( "Error iniciant la generació de l'informe: " + textStatus );
-					$("#labelError").html(textStatus);
-					$("#divError").show();
-				});
+			.done(function( data ) {
+				informe = data;
+				actualitzarInfoDescarrega(informe);
+			})
+			.fail(function(jqXHR, textStatus) {
+				console.log( "Error iniciant la generació de l'informe: " + textStatus );
+				$("#labelError").html(textStatus);
+				$("#divError").show();
+			});
+			consultarPeriodicament();
 		}
 		
 		function consultarPeriodicament() {
