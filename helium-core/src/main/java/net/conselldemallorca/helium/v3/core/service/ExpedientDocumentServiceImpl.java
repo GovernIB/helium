@@ -13,14 +13,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.tika.mime.MimeType;
-import org.apache.tika.mime.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,6 +196,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private NotificacioHelper notificacioHelper;
 	@Resource
 	private ReglaHelper reglaHelper;
+	
+	private ConcurrentMap<String, Object> enviamentsInPorcess = new ConcurrentHashMap<String, Object>();
 	
 	@PostConstruct
 	public void postContruct() {
@@ -2263,20 +2265,36 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			String identificador, 
 			String referencia) {
 		
-		DocumentNotificacio notificacio = documentNotificacioRepository.findByEnviamentIdentificadorAndEnviamentReferencia(
-				identificador,
-				referencia);
-		if (notificacio == null) {
-			throw new NoTrobatException(DocumentNotificacio.class);
+		Object lock;
+		if(referencia != null) {
+			Object objVal = new Object();
+			lock = enviamentsInPorcess.putIfAbsent(referencia, objVal);
+			if(lock == null)
+				lock = objVal;
+		} else {
+			lock = new Object();
 		}
-		
-		try {
-			pluginHelper.notificacioActualitzarEstatEnviament(notificacio);
-			pluginHelper.notificacioActualitzarEstat(notificacio);
-		} catch (Exception ex) {
-			String errorDescripcio = "Error al accedir al plugin de notificacions";
-			logger.error(errorDescripcio, ex);
-			throw new RuntimeException(ex);
+		synchronized(lock) {
+			DocumentNotificacio notificacio = documentNotificacioRepository.findByEnviamentIdentificadorAndEnviamentReferencia(
+					identificador,
+					referencia);
+			if (notificacio == null) {
+				if(referencia != null)
+					enviamentsInPorcess.remove(referencia);
+				throw new NoTrobatException(DocumentNotificacio.class);
+			}
+			
+			try {
+				pluginHelper.notificacioActualitzarEstatEnviament(notificacio);
+				pluginHelper.notificacioActualitzarEstat(notificacio);
+			} catch (Exception ex) {
+				String errorDescripcio = "Error al accedir al plugin de notificacions";
+				logger.error(errorDescripcio, ex);
+				throw new RuntimeException(ex);
+			} finally {
+				if(referencia != null)
+					enviamentsInPorcess.remove(referencia);
+			}
 		}
 	}
 	
