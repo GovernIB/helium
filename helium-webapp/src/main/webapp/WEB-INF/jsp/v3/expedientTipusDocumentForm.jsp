@@ -194,6 +194,8 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			<!-- Portasignatures -->
 			<fieldset>
 				<legend><spring:message code="expedient.tipus.document.form.legend.enviament.portasignatures"></spring:message></legend>
+				
+				<hel:inputCheckbox name="portafirmesActiu" textKey="expedient.tipus.document.form.camp.portafirmes.actiu" info="expedient.tipus.document.form.camp.portafirmes.actiu.info" />
 				<hel:inputText name="tipusDocPortasignatures" textKey="expedient.tipus.document.form.camp.tipus_doc" comment="expedient.tipus.document.form.camp.tipus_doc.comment" />
 
 				<hel:inputSelect name="portafirmesFluxTipus" 
@@ -265,10 +267,6 @@ div.dropdown-menu.loading .rmodal_carrecs {
 							disabled="${bloquejarCamps}" required="true"/>
 				</div>
 				
-				<div id="div_portafirmesActiu" class="div_portafirmesActiu">
-					<hel:inputCheckbox name="portafirmesActiu" textKey="expedient.tipus.document.form.camp.portafirmes.actiu" info="expedient.tipus.document.form.camp.portafirmes.actiu.info" />
-				</div>
-				
 			</fieldset>
 			
 			<!-- Metadades NTI -->
@@ -330,15 +328,12 @@ div.dropdown-menu.loading .rmodal_carrecs {
 				if($(this).val() == 'SIMPLE') {
 					$('.flux_portafib').hide();
 					$('.flux_simple').show();
-					$('.div_portafirmesActiu').show();
 				} else if ( $(this).val() == 'FLUX') {
 					$('.flux_portafib').show();
 					$('.flux_simple').hide();
-					$('.div_portafirmesActiu').show();
 				} else {
 					$('.flux_portafib').hide();
 					$('.flux_simple').hide();
-					$('.div_portafirmesActiu').hide();
 					$('#portafirmesActiu').prop( "checked", false );
 				}
 			}).change();

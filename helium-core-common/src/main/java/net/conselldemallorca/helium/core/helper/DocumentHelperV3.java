@@ -2497,6 +2497,10 @@ public class DocumentHelperV3 {
 		dto.setAnotacioAnnexId(documentStore.getAnnexId());
 		dto.setReferenciaCustodia(documentStore.getReferenciaCustodia());
 		
+		// Segons tasca https://github.com/GovernIB/helium/issues/1899
+		// Tots els documents no definits al expedient s'han de poder enviar a portafirmes
+		dto.setPortafirmesActiu(true);
+		
 		return dto;
 	}
 

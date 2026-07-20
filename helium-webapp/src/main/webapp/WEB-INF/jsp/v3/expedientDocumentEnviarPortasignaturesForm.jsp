@@ -159,13 +159,24 @@ div.dropdown-menu.loading .rmodal_carrecs {
 							disabled="${bloquejarCamps}"/>
 				<hel:inputSelect name="annexos" multiple="true" textKey="expedient.document.enviar.portasignatures.camp.annexos" placeholderKey="expedient.document.enviar.portasignatures.camp.annexos.placeholder" optionItems="${annexos}" optionValueAttribute="id" optionTextAttribute="documentNom" labelSize="4"/>
 				<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesActiu}">
-				<input type="hidden" name="portafirmesFluxTipus" value="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus}"/> 
-					<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus eq 'FLUX'}">
+					<div class="row">
+						<div class="col-xs-10">
+							<hel:inputRadio 
+								name="portafirmesFluxTipus"
+								labelSize="3" 
+								textKey="expedient.tipus.document.form.camp.portafirmes.flux.tipus" 
+								optionItems="${portafirmesTipusOptions}" 
+								optionValueAttribute="value" 
+								optionTextKeyAttribute="key"/>
+						</div>
+					</div>
+	
+					<section id="tipusFlux" style="display: none;">
 						<label class="control-label success-label hidden col-xs-4"></label>
 						<hel:inputSelect name="portafirmesEnviarFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"  
 							icon="fa fa-external-link" iconAddicional="fa fa-eye" buttonMsg="${buttonTitle}"
 							placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit" required="true"/>
-
+	
 						<!-- Camp hidden on s'informarà des de portafirmesModalTancar en el cas de crear-se un flux temporal per part de l'usuari. -->
 						<hel:inputHidden name="portafirmesNouFluxId"/>
 												
@@ -173,8 +184,8 @@ div.dropdown-menu.loading .rmodal_carrecs {
 						<c:if test="${!nouFluxDeFirma}">
 							<p class="comment col-xs-8"><spring:message code="expedient.document.enviar.portasignatures.camp.flux.definit.comentari" /></p>
 						</c:if>
-					</c:if>
-					<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus eq 'SIMPLE'}">	
+					</section>
+					<section id="tipusSimple" style="display: none;">
 						<hel:inputSuggest 
 							inline="false" 
 							name="portafirmesResponsables" 
@@ -183,33 +194,32 @@ div.dropdown-menu.loading .rmodal_carrecs {
 							textKey="expedient.document.enviar.portasignatures.camp.responsables" 
 							placeholderKey="expedient.document.enviar.portasignatures.camp.responsables" 
 							multiple="true"/>
-
-					<!-- Botó i desplegable de responsables -->
-					<div class="form-group">
-						<label class="col-xs-4"><span id="portafirmesCarrecsSpin" class="fa fa-refresh fa-spin" style="display:none; float: right;"></span></label>
-						<div class="col-xs-8">
-							<table border="0" width="100%">
-								<tr>
-									<td>
-										<a class="btn btn-default btn-sm portafirmesCarrecsBtn" onclick="toggleCarrecs()" title="<spring:message code='expedient.document.enviar.portasignatures.camp.carrecs.info'/>"><i class="fa fa-star"></i></a>
-									</td>
-									<td style="width:100%;">
-										<div id="portafirmesCarrecsSelectDiv" class="" style="display: none;">
-											<select id="portafirmesCarrecsSelect" style="width: 100%;">
-												<option value"">&nbsp;</option>
-											</select>
-										</div>
-									</td>
-								</tr>
-							</table>		
+	
+						<!-- Botó i desplegable de responsables -->
+						<div class="form-group">
+							<label class="col-xs-4"><span id="portafirmesCarrecsSpin" class="fa fa-refresh fa-spin" style="display:none; float: right;"></span></label>
+							<div class="col-xs-8">
+								<table border="0" width="100%">
+									<tr>
+										<td>
+											<a class="btn btn-default btn-sm portafirmesCarrecsBtn" onclick="toggleCarrecs()" title="<spring:message code='expedient.document.enviar.portasignatures.camp.carrecs.info'/>"><i class="fa fa-star"></i></a>
+										</td>
+										<td style="width:100%;">
+											<div id="portafirmesCarrecsSelectDiv" class="" style="display: none;">
+												<select id="portafirmesCarrecsSelect" style="width: 100%;">
+													<option value"">&nbsp;</option>
+												</select>
+											</div>
+										</td>
+									</tr>
+								</table>		
+							</div>
 						</div>
-					</div>
-			
+				
 						<hel:inputSelect name="portafirmesSequenciaTipus" textKey="expedient.tipus.document.form.camp.portafirmes.sequencia.firma" 
 							optionItems="${portafirmesSequenciaTipusEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
 							disabled="${bloquejarCamps}"/>
-					</c:if>
-							
+					</section>
 				</c:if>
 			</div>
 			
@@ -272,7 +282,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 					$(".portafirmesEnviarFluxId_btn_addicional").removeClass('disabled');
 					// si el flux és visible el recarrega o actualitza
 					if ($(".portafirmesEnviarFluxId_btn_addicional").find('i').hasClass('fa-eye-slash')) {
-						recuperarFluxSeleccionat(portafirmesEnviarFluxId);						
+						recuperarFluxSeleccionat(portafirmesEnviarFluxId);
 					}
 				} else {
 					$(".portafirmesEnviarFluxId_btn_addicional").addClass('disabled');
@@ -294,10 +304,26 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			
 			// Obtenir plantilles
 			obtenirPlantilles();
+			
+			$('input[name=portafirmesFluxTipus]').on('change', function (e) {
+				toggleTipusFirmaSection();
+			});
+			toggleTipusFirmaSection();
 		});
-					
 		var mostrarCarrecs = false;
 		var carrecsCarregats = false;
+		
+		function toggleTipusFirmaSection() {
+			var tipusValue = $('input[name=portafirmesFluxTipus]:checked').val();
+			console.log(tipusValue);
+			if(tipusValue == 'SIMPLE') {
+				$('#tipusSimple').show();
+				$('#tipusFlux').hide();
+			} else if(tipusValue == 'FLUX') {
+				$('#tipusFlux').show();
+				$('#tipusSimple').hide();
+			}
+		}
 					
 		function toggleCarrecs() {
 			mostrarCarrecs = !mostrarCarrecs;

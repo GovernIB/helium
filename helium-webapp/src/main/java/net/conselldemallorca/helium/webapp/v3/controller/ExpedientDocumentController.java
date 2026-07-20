@@ -24,6 +24,7 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections.keyvalue.DefaultKeyValue;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -2491,6 +2492,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			potFirmar = false;
 		}
 		
+		List<DefaultKeyValue> psTipus = new ArrayList<DefaultKeyValue>();
+		for(PortafirmesTipusEnumDto enumVal : PortafirmesTipusEnumDto.values()) {
+			psTipus.add(new DefaultKeyValue(
+					"enum.document.tipus.portafirmes." + enumVal.name(), 
+					enumVal.name()));
+		}
+		
+		model.addAttribute("portafirmesTipusOptions", psTipus);
+		
 		if(expedientDocumentDto.getDocumentCodi()!=null) {
 
 			if (command != null) {
@@ -2520,6 +2530,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				command.setMotiu(getMessage(request, "expedient.document.firmaPassarela.camp.motiu.default", new Object[] {expedient.getNumero()}));
 				model.addAttribute("documentExpedientEnviarPortasignaturesCommand", command);
 			}
+		} else {
+			// Es adjunt
+			command.setPortafirmesFluxTipus(PortafirmesTipusEnumDto.FLUX);
+			command.setPortafirmesPrioritatTipus(PortafirmesPrioritatEnumDto.NORMAL);
+			command.setPortafirmesActiu(true);
+			command.setId(documentStoreId);
+			command.setMotiu(getMessage(request, "expedient.document.firmaPassarela.camp.motiu.default", new Object[] {expedient.getNumero()}));
+			model.addAttribute("documentExpedientEnviarPortasignaturesCommand", command);
 		}
 		model.addAttribute(
 				"fluxtipEnumOptions",

@@ -1140,6 +1140,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 			DocumentListDto document = toDocumentList(expedient, processInstanceId, null, dExp, dPsigna, documentFormProperties);
 			document.setNotificable(PdfUtils.isArxiuConvertiblePdf(dExp.getArxiuNom()));
+			
+			// Segons tasca https://github.com/GovernIB/helium/issues/1899
+			// Tots els documents no definits al expedient s'han de poder enviar a portafirmes
+			document.setPsActiu(true);
+			
 			documents.add(document);
 		}
 
