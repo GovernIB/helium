@@ -905,14 +905,24 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("processInstanceId", processInstanceId);
 
 		String documentNom = null;
-		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+		if(processInstanceId != null) {
+			ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
 				expedientId,
 				processInstanceId,
 				documentStoreId);
-		if (document.isAdjunt()) {
-			documentNom = document.getAdjuntTitol();
+
+			if (document.isAdjunt()) {
+				documentNom = document.getAdjuntTitol();
+			} else {
+				documentNom = document.getDocumentNom();
+			}
 		} else {
-			documentNom = document.getDocumentNom();
+			DocumentDto document = expedientDocumentService.findDocumentAmbId(documentStoreId);
+			if (document.isAdjunt()) {
+				documentNom = document.getAdjuntTitol();
+			} else {
+				documentNom = document.getDocumentNom();
+			}
 		}
 
 		model.addAttribute("documentNom", documentNom);

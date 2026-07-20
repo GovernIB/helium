@@ -704,12 +704,27 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					if (exp.getNumero() != null)
 						titol = "[" + exp.getNumero() + "]";
 					if (exp.getTitol() != null)
-						titol += (titol.length() > 0 ? " " : "") + exp.getTitol();
-					if (titol.length() == 0)
+						titol += (!titol.isEmpty() ? " " : "") + exp.getTitol();
+					if (titol.isEmpty())
 						titol = exp.getNumeroDefault();
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC) {
-					titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " "
+					if(expedient.getProcessInstanceId() != null) {
+						try {
+							exp = expedientHelper.findExpedientByProcessInstanceId(expedient.getProcessInstanceId());
+							if (exp.getNumero() != null)
+								titol = "[" + exp.getNumero() + "]";
+							if (exp.getTitol() != null)
+								titol += (!titol.isEmpty() ? " " : "") + exp.getTitol();
+							if (titol.isEmpty())
+								titol = exp.getNumeroDefault();
+						} catch(Exception ex) {
+							logger.error("Error recuperant expedient apartir de processInstanceId: " + expedient.getProcessInstanceId(), ex);
+						}
+					}
+					if(titol.trim().isEmpty()) {
+						titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " "
 							+ expedient.getExecucioMassiva().getParam1();
+					}
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {
 					DefinicioProces dp = definicioProcesRepository.findById(expedient.getDefinicioProcesId()).orElse(null);
 					String idPerMostrar = dp != null ? dp.getIdPerMostrar() : expedient.getAuxText();
@@ -785,8 +800,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		nomSencer = pluginHelper.personaFindAmbCodi(execucio.getUsuari()).getNomSencer();
 
 		mjson.put("usuari", nomSencer);
-		String ojson = JSONValue.toJSONString(mjson);
-		return ojson;
+		return JSONValue.toJSONString(mjson);
 	}
 
 	@Transactional(readOnly = true)

@@ -33,16 +33,19 @@ public class BaseWebSecurityConfig {
 
 	protected RequestMatcher[] publicRequestMatchers() {
 		return new RequestMatcher[] {
-				new AntPathRequestMatcher("/v1/salut"),
-				new AntPathRequestMatcher("/v1/salut/performance"),
-				new AntPathRequestMatcher("/swagger/**"),
 				new AntPathRequestMatcher("/"),
 				new AntPathRequestMatcher("/index.html"),
-				new AntPathRequestMatcher("/swagger-ui"),
-				new AntPathRequestMatcher("/swagger-ui/**/*"),
 				new AntPathRequestMatcher("/apidocs"),
 				new AntPathRequestMatcher("/apidocs/**/*"),
+				new AntPathRequestMatcher("/swagger-ui"),
+				new AntPathRequestMatcher("/swagger-ui/**/*"),
+				new AntPathRequestMatcher("/swagger/**"),
+				new AntPathRequestMatcher("/v1/salut"),
+				new AntPathRequestMatcher("/v1/salut/performance"),
 				new AntPathRequestMatcher("/rest/distribucio"),
+				new AntPathRequestMatcher("/rest/distribucio/*"),
+				new AntPathRequestMatcher("/rest/notib"),
+				new AntPathRequestMatcher("/rest/notib/*"),
 		};
 	}
 

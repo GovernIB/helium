@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 import com.google.common.collect.Lists;
 import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dto.*;
+import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -1647,17 +1648,19 @@ public class DocumentHelperV3 {
 				}
 				String codiDocument;
 				if (documentStore.isAdjunt()) {
-					dto.setAdjuntId(documentStore.getCodi().substring(JbpmVars.PREFIX_ADJUNT.length()));
+					dto.setAdjuntId(documentStore.getCodi());
 					dto.setCodi(dto.getAdjuntId());
 					dto.setDocumentCodi(dto.getAdjuntId());
 					dto.setDocumentNom(documentStore.getAdjuntTitol());
 					dto.setArxiuContingut(documentStore.getArxiuContingut());
 				} else {
-					codiDocument = documentStore.getCodi().substring(JbpmVars.PREFIX_DOCUMENT.length());
-//					JbpmProcessDefinition jpd = workflowEngineApi.findProcessDefinitionWithProcessInstanceId(documentStore.getProcessInstanceId());
-//					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
-//							jpd.getKey(),
-//							jpd.getVersion());
+					codiDocument = documentStore.getCodi();
+					WProcessDefinition jpd = workflowEngineApi.findProcessDefinitionWithProcessInstanceId(documentStore.getProcessInstanceId());
+					DefinicioProces definicioProces = null;
+					if(jpd != null)
+						definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
+																					jpd.getKey(),
+																					jpd.getVersion());
 					ExpedientTipus expedientTipus = expedient.getTipus();
 					Document doc;
 					if (expedientTipus.isAmbInfoPropia()) {
@@ -1667,7 +1670,7 @@ public class DocumentHelperV3 {
 								expedientTipus.getExpedientTipusPare() != null);
 					} else {
 						doc = documentRepository.findByDefinicioProcesAndCodi(
-								null, // definicioProces,
+								definicioProces,
 								codiDocument);
 					}
 					if (doc != null) {

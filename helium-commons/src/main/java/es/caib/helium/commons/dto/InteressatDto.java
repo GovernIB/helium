@@ -1,18 +1,24 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import es.caib.helium.commons.dto.DadesEnviamentDto.EntregaPostalTipus;
 
 /**
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@JsonIdentityInfo(
+	generator = ObjectIdGenerators.PropertyGenerator.class,
+	property = "id"
+)
 public class InteressatDto {
-	
+
 	private Long id;
 	private String codi;
 	//private String nif;
@@ -20,15 +26,15 @@ public class InteressatDto {
 
 	private String dir3Codi;
 	private String nom;
-	private String llinatge1;  
-	private String llinatge2;  
+	private String llinatge1;
+	private String llinatge2;
 
-	private String email;  
+	private String email;
 	private String telefon;
 	private Long expedientId;
 	private InteressatTipusEnumDto tipus;
 	private String tipusNom;
-	
+
 	private Boolean entregaPostal;
 	private EntregaPostalTipus entregaTipus;
 	private String linia1;
@@ -36,7 +42,7 @@ public class InteressatDto {
 	private String codiPostal;
 	private Boolean entregaDeh;
 	private Boolean entregaDehObligat;
-	
+
 	private String observacions;
 	private InteressatDocumentTipusEnumDto tipusDocIdent;
 	private String codiDire;
@@ -48,7 +54,7 @@ public class InteressatDto {
 	private String provincia;
     private List<InteressatDto> representat; //només existeix quan es_representant=true
     private InteressatDto representant; //només existeix quan es_representant=false
-    private String canalNotif; 
+    private String canalNotif;
     private boolean teRepresentant;
     private Long representant_id;
     private boolean existeixenRepresentantsExpedient;
@@ -70,7 +76,7 @@ public class InteressatDto {
 	public void setExpedientId(Long expedientId) {
 		this.expedientId = expedientId;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -119,7 +125,7 @@ public class InteressatDto {
 	}
 	public void setTelefon(String telefon) {
 		this.telefon = telefon;
-	} 
+	}
 
 	public Boolean getEntregaPostal() {
 		return entregaPostal != null ? entregaPostal : false;
@@ -176,7 +182,7 @@ public class InteressatDto {
 			fullNom.append(" ").append(raoSocial);
 		return fullNom.toString();
 	}
-	
+
 	public String getRepresentantFullNom() {
 		if(!isEs_representant()  &&  representant!=null) {
 			StringBuilder representantFullNom = new StringBuilder();
@@ -195,14 +201,14 @@ public class InteressatDto {
 		}
 		return null;
 	}
-	
+
 	public boolean isTeRepresentant() {
 		if(representant!=null)
 			return true;
 		else
 			return false;
 	}
-	
+
 	public boolean getTeRepresentant() {
 		if(representant!=null)
 			return true;
@@ -233,7 +239,7 @@ public class InteressatDto {
 		} else if(representant!=null) {//Si té representant indiquem quin és
 				fullInfo.append(" (Representat per ").append(representant.getDocumentIdent()).append(")");
 		}
-		return fullInfo.toString();		
+		return fullInfo.toString();
 	}
 	public String getDocumentIdent() {
 		return documentIdent;
@@ -301,7 +307,7 @@ public class InteressatDto {
 	public void setProvincia(String provincia) {
 		this.provincia = provincia;
 	}
-	
+
 	public List<InteressatDto> getRepresentat() {
 		return representat;
 	}
@@ -365,6 +371,6 @@ public class InteressatDto {
 	public void setPropagatArxiu(boolean propagatArxiu) {
 		this.propagatArxiu = propagatArxiu;
 	}
-	
+
 
 }

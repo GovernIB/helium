@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -313,17 +315,105 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Autowired
 	private EntityManager entityManager;
 
+	private final ConcurrentMap<Long, Object> anotaciosInPorcess = new ConcurrentHashMap<Long, Object>();
+
 	@PostConstruct
 	public void postContruct() {
 		self = applicationContext.getBean(ExpedientService.class);
 	}
 
+	@Override
+	public ExpedientDto create(
+		Long entornId,
+		String usuari,
+		Long expedientTipusId,
+		Long definicioProcesId,
+		Integer any,
+		String numero,
+		String unitatOrganitzativaCodi,
+		String titol,
+		String registreNumero,
+		Date registreData,
+		Long unitatAdministrativa,
+		String idioma,
+		boolean autenticat,
+		String tramitadorNif,
+		String tramitadorNom,
+		String interessatNif,
+		String interessatNom,
+		String representantNif,
+		String representantNom,
+		boolean avisosHabilitats,
+		String avisosEmail,
+		String avisosMobil,
+		boolean notificacioTelematicaHabilitada,
+		Map<String, Object> variables,
+		String transitionName,
+		IniciadorTipusDto iniciadorTipus,
+		String iniciadorCodi,
+		String responsableCodi,
+		List<DadesDocumentDto> documents,
+		List<DadesDocumentDto> adjunts,
+		Long anotacioId,
+		boolean anotacioInteressatsAssociar) throws Exception {
+		ExpedientDto expedientDto = null;
+		Object lock;
+		if(anotacioId != null) {
+			Object objVal = new Object();
+			lock = anotaciosInPorcess.putIfAbsent(anotacioId, objVal);
+			if(lock == null)
+				lock = objVal;
+		} else {
+			lock = new Object();
+		}
+		synchronized(lock) {
+			try {
+				expedientDto = createExpedient(
+					entornId,
+					usuari,
+					expedientTipusId,
+					definicioProcesId,
+					any,
+					numero,
+					unitatOrganitzativaCodi,
+					titol,
+					registreNumero,
+					registreData,
+					unitatAdministrativa,
+					idioma,
+					autenticat,
+					tramitadorNif,
+					tramitadorNom,
+					interessatNif,
+					interessatNom,
+					representantNif,
+					representantNom,
+					avisosHabilitats,
+					avisosEmail,
+					avisosMobil,
+					notificacioTelematicaHabilitada,
+					variables,
+					transitionName,
+					iniciadorTipus,
+					iniciadorCodi,
+					responsableCodi,
+					documents,
+					adjunts,
+					anotacioId,
+					anotacioInteressatsAssociar);
+			} finally {
+				if(anotacioId != null)
+					anotaciosInPorcess.remove(anotacioId);
+			}
+		}
+		return expedientDto;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	@Transactional
-	public ExpedientDto create(
+	public ExpedientDto createExpedient(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -479,26 +569,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			eventPublisher.publishEvent(dto);
 
 			return dto;
-//		} catch (ExecucioHandlerException ex) {
-//			throw new TramitacioHandlerException(
-//					(expedient != null) ? expedient.getEntorn().getId() : null,
-//					(expedient != null) ? expedient.getEntorn().getCodi() : null,
-//					(expedient != null) ? expedient.getEntorn().getNom() : null,
-//					(expedient != null) ? expedient.getId() : null,
-//					(expedient != null) ? expedient.getTitol() : null,
-//					(expedient != null) ? expedient.getNumero() : null,
-//					(expedient != null) ? expedient.getTipus().getId() : null,
-//					(expedient != null) ? expedient.getTipus().getCodi() : null,
-//					(expedient != null) ? expedient.getTipus().getNom() : null,
-//					ex.getProcessInstanceId(),
-//					ex.getTaskInstanceId(),
-//					ex.getTokenId(),
-//					ex.getClassName(),
-//					ex.getMethodName(),
-//					ex.getFileName(),
-//					ex.getLineNumber(),
-//					"",
-//					ex.getCause());
 		} catch (ValidationException ex) {
 			throw new TramitacioValidacioException("Error de validació en Handler: " +ex.getMessage(), ex);
 		}catch (Exception e) {

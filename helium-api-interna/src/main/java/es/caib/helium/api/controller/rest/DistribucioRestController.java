@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import es.caib.helium.logic.intf.service.AnotacioService;
@@ -16,7 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RestController("/rest/distribucio")
+@RestController
+@RequestMapping("/rest/distribucio")
 @Tag(name = "Integració distribució - HELIUM", description = "Recepció d'anotacions de registre")
 public class DistribucioRestController {
 
@@ -25,6 +24,11 @@ public class DistribucioRestController {
 
 	@Autowired
 	private AnotacioService anotacioService;
+
+	@GetMapping("/comunicarAnotacionsPendents")
+	public ResponseEntity<String> event() {
+		return new ResponseEntity<String>("OK", HttpStatus.OK);
+	}
 
 	@PostMapping("/comunicarAnotacionsPendents")
 	public ResponseEntity<String> event(@RequestBody List<AnotacioRegistreId> ids) {

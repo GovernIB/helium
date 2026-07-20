@@ -85,8 +85,6 @@ public class AnotacioHelper {
 	@Resource
 	private AnotacioRepository anotacioRepository;
 	@Resource
-	private AnotacioAnnexRepository anotacioAnnexRepository;
-	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
@@ -100,24 +98,10 @@ public class AnotacioHelper {
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private CampRepository campRepository;
-	@Resource
-	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
-	@Resource
-	private AnotacioEmailRepository anotacioEmailRepository;
-	@Resource
-	private EntornHelper entornHelper;
 	@Autowired
 	private DistribucioHelper distribucioHelper;
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelper;
-	@Resource
-	private ExceptionHelper exceptionHelper;
-	@Resource
-	private PaginacioHelper paginacioHelper;
-	@Resource
-	private MessageHelper messageHelper;
-	@Resource(name = "permisosHelperV3")
-	private PermisosHelper permisosHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
@@ -140,8 +124,6 @@ public class AnotacioHelper {
 	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
-	@Resource
-	private EmailHelper emailHelper;
 
 	@Transactional
 	public AnotacioDto incorporarReprocessarExpedient(
@@ -165,6 +147,12 @@ public class AnotacioHelper {
 		if(anotacio==null) {
 			anotacio = anotacioRepository.findById(anotacioId).orElse(null);
 		}
+
+		if(anotacio.getExpedient() != null)
+			throw new RuntimeException("No es pot incorporar l'anotació " +
+				anotacioId + " a l'expedient " + expedientId + " i tipus d'expedient " +
+				expedientTipusId + " perquè ja està asociada a un expedient.");
+
 		// Comprova els permisos
 		if (comprovarPermis)
 			this.comprovaPermisAccio(anotacio);

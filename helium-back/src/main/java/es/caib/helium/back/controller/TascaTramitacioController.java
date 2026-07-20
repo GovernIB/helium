@@ -20,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import es.caib.helium.commons.exception.*;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -78,13 +79,6 @@ import es.caib.helium.commons.dto.ReproDto;
 import es.caib.helium.commons.dto.StatusEnumDto;
 import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.dto.TascaDocumentDto;
-import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.commons.exception.SistemaExternConversioDocumentException;
-import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.commons.exception.TramitacioException;
-import es.caib.helium.commons.exception.TramitacioHandlerException;
-import es.caib.helium.commons.exception.TramitacioValidacioException;
-import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.DocumentService;
@@ -169,27 +163,10 @@ public class TascaTramitacioController extends BaseTascaController {
 		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
 		boolean bloquejarEdicioTasca = tascaService.isEnSegonPla(tascaId);
 		model.addAttribute("bloquejarEdicioTasca", bloquejarEdicioTasca);
-
 		model.addAttribute("reproId", reproId);
-//		Map<String,Object> variables = null;
-//		if (reproId != null) {
-//			variables = reproService.findValorsById(reproId);
-//			List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
-//			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-//			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-//			Object commandValidar = TascaFormHelper.getCommandForCamps(
-//					tascaDades,
-//					variables,
-//					campsAddicionals,
-//					campsAddicionalsClasses,
-//					false);
-//			model.addAttribute("command", commandValidar);
-//			SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, commandValidar);
-//		}
 
-		if (bloquejarEdicioTasca) {
+		if (bloquejarEdicioTasca)
 			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.bloquejada"));
-		}
 
 		try {
 			return mostrarInformacioTascaPerPipelles(
@@ -198,15 +175,18 @@ public class TascaTramitacioController extends BaseTascaController {
 					model,
 					null,
 					null);
+		} catch (NoTrobatException ex) {
+			MissatgesHelper.warning(request, getMessage(request, "error.tascaService.noTrobada"));
+		} catch (TascaNoDisponibleException ex) {
+			MissatgesHelper.warning(request, ex.getMessage());
 		} catch (Exception ex) {
-			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.finalitzada"));
-			if (ModalHelper.isModal(request)) {
-				return modalUrlTancar(false);
-			} else {
-				return "entitatNoDisponible";
-			}
-
+			MissatgesHelper.error(request, ex.getMessage(), ex);
 		}
+
+		if (ModalHelper.isModal(request))
+			return modalUrlTancar(false);
+
+		return "v3/entitatNoDisponible";
 	}
 
 	@RequestMapping(value = "/{tascaId}/{pipellaActiva}", method = RequestMethod.GET)
