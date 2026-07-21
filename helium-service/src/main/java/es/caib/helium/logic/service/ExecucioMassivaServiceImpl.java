@@ -1007,7 +1007,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	}
 
 	@Override
-	@Transactional
+	// Issue #2066 afegit un timeout (10min) per evitar bloquejar la resta de tasques en segon pla
+	@Transactional(timeout=600)
 	public void executarExecucioMassiva(Long ome_id) {
 		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findById(ome_id).orElse(null);
 		if (ome == null)
