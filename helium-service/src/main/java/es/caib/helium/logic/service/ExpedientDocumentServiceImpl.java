@@ -2705,6 +2705,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			dto.setAdjunt(documentStore.isAdjunt());
 			dto.setAdjuntId(null);
 			dto.setAdjuntTitol(documentStore.getAdjuntTitol());
+			// Si el document no pertany a un tipus del tipus d'expedient s'ha de permetre enviar a portafirmes
+			// https://github.com/GovernIB/helium/issues/1899
+			dto.setPortafirmesActiu(true);
 		}
 		if (documentStore.isSignat()) {
 			this.setSignautraUrlVerificacio(dto, documentStore, arxiuActiu);

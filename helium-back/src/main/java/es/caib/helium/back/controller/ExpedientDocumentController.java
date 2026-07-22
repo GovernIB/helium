@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import es.caib.helium.commons.dto.*;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -71,44 +72,8 @@ import es.caib.helium.back.helper.NtiHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.UrlHelper;
 import es.caib.helium.back.mvc.ArxiuView;
-import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.ArxiuFirmaDto;
-import es.caib.helium.commons.dto.ArxiuFirmaValidacioDetallDto;
 import es.caib.helium.commons.dto.DadesEnviamentDto.EntregaPostalTipus;
 import es.caib.helium.commons.dto.DadesEnviamentDto.EntregaPostalViaTipus;
-import es.caib.helium.commons.dto.DadesNotificacioDto;
-import es.caib.helium.commons.dto.DefinicioProcesDto;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.DocumentInfoDto;
-import es.caib.helium.commons.dto.DocumentStoreDto;
-import es.caib.helium.commons.dto.DocumentTipusFirmaEnumDto;
-import es.caib.helium.commons.dto.EnviamentTipusEnumDto;
-import es.caib.helium.commons.dto.ExpedientDocumentDto;
-import es.caib.helium.commons.dto.ExpedientDocumentPinbalDto;
-import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
-import es.caib.helium.commons.dto.FirmaResultatDto;
-import es.caib.helium.commons.dto.IdiomaEnumDto;
-import es.caib.helium.commons.dto.InstanciaProcesDto;
-import es.caib.helium.commons.dto.InteressatDto;
-import es.caib.helium.commons.dto.MunicipiDto;
-import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
-import es.caib.helium.commons.dto.NtiOrigenEnumDto;
-import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.dto.PaisDto;
-import es.caib.helium.commons.dto.ParellaCodiValorDto;
-import es.caib.helium.commons.dto.PersonaDto;
-import es.caib.helium.commons.dto.PortafirmesFluxRespostaDto;
-import es.caib.helium.commons.dto.PortafirmesIniciFluxRespostaDto;
-import es.caib.helium.commons.dto.PortafirmesPrioritatEnumDto;
-import es.caib.helium.commons.dto.PortafirmesSimpleTipusEnumDto;
-import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
-import es.caib.helium.commons.dto.PortasignaturesDto;
-import es.caib.helium.commons.dto.ProvinciaDto;
-import es.caib.helium.commons.dto.ServeiTipusEnumDto;
-import es.caib.helium.commons.dto.StatusEnumDto;
-import es.caib.helium.commons.dto.TokenDto;
 import es.caib.helium.commons.dto.document.DocumentDetallDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
@@ -2485,42 +2450,55 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				documentStoreId);
 
 		boolean potFirmar = true;
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		if (expedientDocumentDto.getArxiuUuid() == null && expedientDocumentDto.getCustodiaCodi() == null) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.document.firmaPassarela.validacio.custodia.codi"));
 			potFirmar = false;
 		}
 
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		if(expedientDocumentDto.getDocumentCodi()!=null) {
-
-			if (command != null) {
+		List<KeyValue> psTipus = new ArrayList<KeyValue>();
+		for(PortafirmesTipusEnumDto enumVal : PortafirmesTipusEnumDto.values()) {
+			psTipus.add(new KeyValue(
+				"enum.document.tipus.portafirmes." + enumVal.name(),
+				enumVal.name()));
+		}
+		model.addAttribute("portafirmesTipusOptions", psTipus);
+		if (command != null) {
+			if (expedientDocumentDto.getDocumentCodi() != null) {
 				DocumentDto documentDto = documentService.findAmbId(
-						expedient.getTipus().getId(),
-						expedientDocumentDto.getDocumentId());
+					expedient.getTipus().getId(),
+					expedientDocumentDto.getDocumentId());
 
 				command.setPortafirmesPrioritatTipus(PortafirmesPrioritatEnumDto.NORMAL);
 				command.setNom(documentDto.getDocumentNom());
 				command.setId(documentDto.getDocumentId());
 				command.setPortafirmesActiu(documentDto.isPortafirmesActiu());
-				if(documentDto.isPortafirmesActiu()) {
+				if (documentDto.isPortafirmesActiu()) {
 					command.setId(documentStoreId);
 					command.setPortafirmesFluxTipus(documentDto.getPortafirmesFluxTipus());
-					if(documentDto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX)) {
+					if (documentDto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX)) {
 						expedientDocumentDto.setPortafirmesFluxId(documentDto.getPortafirmesFluxId());
 						command.setPortafirmesEnviarFluxId(documentDto.getPortafirmesFluxId());
 						model.addAttribute("portafirmesFluxSeleccionat", documentDto.getPortafirmesFluxId());
 						model.addAttribute("portafirmesFluxId", documentDto.getPortafirmesFluxId());
 						model.addAttribute("nouFluxDeFirma", documentDto.getPortafirmesFluxId() == null);
-					}
-					else if(documentDto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.SIMPLE)) {
+					} else if (documentDto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.SIMPLE)) {
 						command.setPortafirmesResponsables(documentDto.getPortafirmesResponsables());
 						command.setPortafirmesSequenciaTipus(documentDto.getPortafirmesSequenciaTipus());
 					}
 				}
-				command.setMotiu(getMessage(request, "expedient.document.firmaPassarela.camp.motiu.default", new Object[] {expedient.getNumero()}));
-				model.addAttribute("documentExpedientEnviarPortasignaturesCommand", command);
+			} else {
+				// Es adjunt
+				command.setPortafirmesFluxTipus(PortafirmesTipusEnumDto.FLUX);
+				command.setPortafirmesPrioritatTipus(PortafirmesPrioritatEnumDto.NORMAL);
+				command.setPortafirmesActiu(true);
+				command.setId(documentStoreId);
 			}
+
+			command.setMotiu(getMessage(request, "expedient.document.firmaPassarela.camp.motiu.default", new Object[] {expedient.getNumero()}));
+			model.addAttribute("documentExpedientEnviarPortasignaturesCommand", command);
 		}
+
 		model.addAttribute(
 				"fluxtipEnumOptions",
 				EnumHelper.getOptionsForEnum(
