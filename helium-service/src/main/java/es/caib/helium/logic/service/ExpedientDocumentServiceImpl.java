@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
@@ -195,6 +197,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private ExpedientDocumentHelper expedientDocumentHelper;
 	@Resource
 	private MonitorIntegracioHelper monitorIntegracioHelper;
+
+	private ConcurrentMap<String, Object> enviamentsInPorcess = new ConcurrentHashMap<String, Object>();
 
 	@PostConstruct
 	public void postContruct() {
@@ -2229,37 +2233,47 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			String identificador,
 			String referencia) {
 
-		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
-		parametres.add(new IntegracioParametreDto("identificador", identificador));
-		parametres.add(new IntegracioParametreDto("referenciaEnviament", referencia));
+		Object lock;
+		if(referencia != null) {
+			Object objVal = new Object();
+			lock = enviamentsInPorcess.putIfAbsent(referencia, objVal);
+			if(lock == null)
+				lock = objVal;
+		} else {
+			lock = new Object();
+		}
+		synchronized(lock) {
+			List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
+			parametres.add(new IntegracioParametreDto("identificador", identificador));
+			parametres.add(new IntegracioParametreDto("referenciaEnviament", referencia));
 
-		long t0 = System.currentTimeMillis();
-		String accio = "Notificació de canvi d'estat";
-		try {
-			DocumentNotificacio notificacio = documentNotificacioRepository.findByEnviamentIdentificadorAndEnviamentReferencia(
+			long t0 = System.currentTimeMillis();
+			String accio = "Notificació de canvi d'estat";
+			try {
+				DocumentNotificacio notificacio = documentNotificacioRepository.findByEnviamentIdentificadorAndEnviamentReferencia(
 					identificador,
 					referencia);
-			if (notificacio == null) {
-				throw new NoTrobatException(DocumentNotificacio.class);
-			}
+				if (notificacio == null) {
+					throw new NoTrobatException(DocumentNotificacio.class);
+				}
 
-			try {
-				pluginHelper.notificacioActualitzarEstatEnviament(notificacio);
-				pluginHelper.notificacioActualitzarEstat(notificacio);
+				try {
+					pluginHelper.notificacioActualitzarEstatEnviament(notificacio);
+					pluginHelper.notificacioActualitzarEstat(notificacio);
 
-				monitorIntegracioHelper.addAccioOk(
+					monitorIntegracioHelper.addAccioOk(
 						MonitorIntegracioHelper.INTCODI_NOTIB,
 						accio,
 						IntegracioAccioTipusEnumDto.RECEPCIO,
 						System.currentTimeMillis() - t0,
 						parametres.toArray(new IntegracioParametreDto[parametres.size()]));
-			} catch (Exception ex) {
-				String errorDescripcio = "Error al accedir al plugin de notificacions";
-				logger.error(errorDescripcio, ex);
-				throw new RuntimeException(ex);
-			}
-		} catch(Throwable ex) {
-			monitorIntegracioHelper.addAccioError(
+				} catch (Exception ex) {
+					String errorDescripcio = "Error al accedir al plugin de notificacions";
+					logger.error(errorDescripcio, ex);
+					throw new RuntimeException(ex);
+				}
+			} catch (Throwable ex) {
+				monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_NOTIB,
 					accio,
 					IntegracioAccioTipusEnumDto.RECEPCIO,
@@ -2268,6 +2282,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					ex,
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
 
+			} finally {
+				if (referencia != null)
+					enviamentsInPorcess.remove(referencia);
+			}
 		}
 	}
 
