@@ -8,6 +8,7 @@ package es.caib.helium.commons.config;
 public class PropertyConfig {
 
 	private static final String PROPERTY_PREFIX = BaseConfig.BASE_PACKAGE + ".";
+	public static final String PROPERTY_PLUGIN_PREFIX = PROPERTY_PREFIX + "plugin.";
 
 	public static final String PROP_BASE_URL = PROPERTY_PREFIX + "base.url";
 	public static final String PROP_BASE_VERIFICACIO_URL = PROPERTY_PREFIX + "base.verificacio.url";
@@ -63,108 +64,110 @@ public class PropertyConfig {
 	/** Número de reintents per provar la consulta d'una anotació pendent */
 	public static final String PROP_ANOTACIONS_CONSULTA_NUM_INTENTS = PROPERTY_PREFIX + "anotacions.consulta.num.intents";
 
-	public static final String PROP_PERSONES_PLUGIN_CLASS = PROPERTY_PREFIX + "persones.plugin.class";
-	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_CODE = PROPERTY_PREFIX + "persones.plugin.jdbc.filter.code";
-	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_NAME = PROPERTY_PREFIX + "persones.plugin.jdbc.filter.name";
-	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_CODENAME = PROPERTY_PREFIX + "persones.plugin.jdbc.filter.codename";
-	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_ROLES = PROPERTY_PREFIX + "persones.plugin.jdbc.filter.roles";
-	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_GRUP = PROPERTY_PREFIX + "persones.plugin.jdbc.filter.grup";
-	public static final String PROP_PERSONES_PLUGIN_JDBC_JNDI_NAME = PROPERTY_PREFIX + "persones.plugin.jdbc.jndi.parameter";
-	public static final String PROP_PERSONES_PLUGIN_JDBC_NOM_LLINATGES_JUNT = PROPERTY_PREFIX + "persones.plugin.jdbc.nom.llinatges.junt";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_URL = PROPERTY_PREFIX + "persones.plugin.ldap.url";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_PRINCIPAL = PROPERTY_PREFIX + "persones.plugin.ldap.principal";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_CREDENTIALS = PROPERTY_PREFIX + "persones.plugin.ldap.credentials";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCHBASE = PROPERTY_PREFIX + "persones.plugin.ldap.searchbase";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCH_BASE = PROPERTY_PREFIX + "persones.plugin.ldap.search.base";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_ATTRIBUTES = PROPERTY_PREFIX + "persones.plugin.ldap.attributes";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_ATTRIBUTE_ROLE = PROPERTY_PREFIX + "persones.plugin.ldap.attribute.role";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_ATTRIBUTE_ROLE_NAME = PROPERTY_PREFIX + "persones.plugin.ldap.attribute.role.name";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_EMAIL_DOMINI = PROPERTY_PREFIX + "persones.plugin.ldap.email.domini";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_FILTER_USER = PROPERTY_PREFIX + "persones.plugin.ldap.filter.user";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_USER = PROPERTY_PREFIX + "persones.plugin.ldap.search.filter.user";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_GRUP = PROPERTY_PREFIX + "persones.plugin.ldap.search.filter.grup";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_LIKE = PROPERTY_PREFIX + "persones.plugin.ldap.search.filter.like";
-	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_USERLIKE = PROPERTY_PREFIX + "persones.plugin.ldap.search.filter.userlike";
-	public static final String PROP_PERSONES_PLUGIN_SYNC_ACTIU = PROPERTY_PREFIX + "persones.plugin.sync.actiu";
+	public static final String PROP_PERSONES_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "persones.class";
+	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_CODE = PROPERTY_PLUGIN_PREFIX + "persones.jdbc.filter.code";
+	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_NAME = PROPERTY_PLUGIN_PREFIX + "persones.jdbc.filter.name";
+	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_CODENAME = PROPERTY_PLUGIN_PREFIX + "persones.jdbc.filter.codename";
+	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_ROLES = PROPERTY_PLUGIN_PREFIX + "persones.jdbc.filter.roles";
+	public static final String PROP_PERSONES_PLUGIN_JDBC_FILTER_GRUP = PROPERTY_PLUGIN_PREFIX + "persones.jdbc.filter.grup";
+	public static final String PROP_PERSONES_PLUGIN_JDBC_JNDI_NAME = PROPERTY_PLUGIN_PREFIX + "persones.jdbc.jndi.parameter";
+	public static final String PROP_PERSONES_PLUGIN_JDBC_NOM_LLINATGES_JUNT = PROPERTY_PLUGIN_PREFIX + "persones.jdbc.nom.llinatges.junt";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_URL = PROPERTY_PLUGIN_PREFIX + "persones.ldap.url";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_PRINCIPAL = PROPERTY_PLUGIN_PREFIX + "persones.ldap.principal";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_CREDENTIALS = PROPERTY_PLUGIN_PREFIX + "persones.ldap.credentials";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCHBASE = PROPERTY_PLUGIN_PREFIX + "persones.ldap.searchbase";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCH_BASE = PROPERTY_PLUGIN_PREFIX + "persones.ldap.search.base";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_ATTRIBUTES = PROPERTY_PLUGIN_PREFIX + "persones.ldap.attributes";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_ATTRIBUTE_ROLE = PROPERTY_PLUGIN_PREFIX + "persones.ldap.attribute.role";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_ATTRIBUTE_ROLE_NAME = PROPERTY_PLUGIN_PREFIX + "persones.ldap.attribute.role.name";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_EMAIL_DOMINI = PROPERTY_PLUGIN_PREFIX + "persones.ldap.email.domini";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_FILTER_USER = PROPERTY_PLUGIN_PREFIX + "persones.ldap.filter.user";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_USER = PROPERTY_PLUGIN_PREFIX + "persones.ldap.search.filter.user";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_GRUP = PROPERTY_PLUGIN_PREFIX + "persones.ldap.search.filter.grup";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_LIKE = PROPERTY_PLUGIN_PREFIX + "persones.ldap.search.filter.like";
+	public static final String PROP_PERSONES_PLUGIN_LDAP_SEARCH_FILTER_USERLIKE = PROPERTY_PLUGIN_PREFIX + "persones.ldap.search.filter.userlike";
 
-	public static final String PROP_REGISTRE_PLUGIN_CLASS = PROPERTY_PREFIX + "registre.plugin.class";
-	public static final String PROP_REGISTRE_PLUGIN_RW3_CLASS = PROPERTY_PREFIX + "registre.plugin.rw3.class";
-	public static final String PROP_REGISTRE_PLUGIN_WS_URL = PROPERTY_PREFIX + "registre.plugin.ws.url";
-	public static final String PROP_REGISTRE_PLUGIN_WS_HOST = PROPERTY_PREFIX + "registre.plugin.ws.host";
-	public static final String PROP_REGISTRE_PLUGIN_WS_USUARI = PROPERTY_PREFIX + "registre.plugin.ws.usuari";
-	public static final String PROP_REGISTRE_PLUGIN_WS_PASSWORD = PROPERTY_PREFIX + "registre.plugin.ws.password";
+	public static final String PROP_PERSONES_PLUGIN_KEYCLOAK_CLIENT_ID = PROPERTY_PLUGIN_PREFIX + "persones.keycloak.client_id";
+	public static final String PROP_PERSONES_PLUGIN_KEYCLOAK_CLIENT_ID_FOR_USER_AUTENTICATION = PROPERTY_PLUGIN_PREFIX + "persones.keycloak.client_id_for_user_autentication";
+	public static final String PROP_PERSONES_PLUGIN_KEYCLOAK_REALM = PROPERTY_PLUGIN_PREFIX + "persones.keycloak.realm";
 
-	public static final String PROP_NOTIFICACIO_PLUGIN_CLASS = PROPERTY_PREFIX + "notificacio.plugin.class";
-	public static final String PROP_NOTIFICACIO_PLUGIN_URL = PROPERTY_PREFIX + "notificacio.plugin.url";
-	public static final String PROP_NOTIFICACIO_PLUGIN_USERNAME = PROPERTY_PREFIX + "notificacio.plugin.username";
-	public static final String PROP_NOTIFICACIO_PLUGIN_PASSWORD = PROPERTY_PREFIX + "notificacio.plugin.password";
+	public static final String PROP_PERSONES_PLUGIN_SYNC_ACTIU = PROPERTY_PLUGIN_PREFIX + "persones.sync.actiu";
 
-	public static final String PROP_PORTASIGNATURES_PLUGIN_CLASS = PROPERTY_PREFIX + "portasignatures.plugin.class";
-	public static final String PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_URL = PROPERTY_PREFIX + "portasignatures.plugin.portafib.url";
-	public static final String PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_USERNAME = PROPERTY_PREFIX + "portasignatures.plugin.portafib.username";
-	public static final String PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_PASSWORD = PROPERTY_PREFIX + "portasignatures.plugin.portafib.password";
-	public static final String PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_PERFIL = PROPERTY_PREFIX + "portasignatures.plugin.portafib.perfil";
-	public static final String PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_FIRMASIMPLEASYNC_URL = PROPERTY_PREFIX + "portasignatures.plugin.portafib.firmasimpleasync.url";
-	public static final String PROP_PORTASIGNATURES_PLUGIN_USUARI_ID = PROPERTY_PREFIX + "portasignatures.plugin.usuari.id";
+	public static final String PROP_REGISTRE_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "registre.class";
+	public static final String PROP_REGISTRE_PLUGIN_RW3_CLASS = PROPERTY_PLUGIN_PREFIX + "registre.rw3.class";
+	public static final String PROP_REGISTRE_PLUGIN_WS_URL = PROPERTY_PLUGIN_PREFIX + "registre.ws.url";
+	public static final String PROP_REGISTRE_PLUGIN_WS_HOST = PROPERTY_PLUGIN_PREFIX + "registre.ws.host";
+	public static final String PROP_REGISTRE_PLUGIN_WS_USUARI = PROPERTY_PLUGIN_PREFIX + "registre.ws.usuari";
+	public static final String PROP_REGISTRE_PLUGIN_WS_PASSWORD = PROPERTY_PLUGIN_PREFIX + "registre.ws.password";
 
-	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_URL = PROPERTY_PREFIX + "portafirmes.plugin.flux.firma.url";
-	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_USUARI = PROPERTY_PREFIX + "portafirmes.plugin.flux.firma.username";
-	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_PASSWORD = PROPERTY_PREFIX + "portafirmes.plugin.flux.firma.password";
-	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_URL = PROPERTY_PREFIX + "portafirmes.plugin.flux.entitatws.url";
-	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_USERNAME = PROPERTY_PREFIX + "portafirmes.plugin.flux.entitatws.username";
-	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_PASSWORD = PROPERTY_PREFIX + "portafirmes.plugin.flux.entitatws.password";
+	public static final String PROP_NOTIFICACIO_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "notificacio.class";
+	public static final String PROP_NOTIFICACIO_PLUGIN_URL = PROPERTY_PLUGIN_PREFIX + "notificacio.url";
+	public static final String PROP_NOTIFICACIO_PLUGIN_USERNAME = PROPERTY_PLUGIN_PREFIX + "notificacio.username";
+	public static final String PROP_NOTIFICACIO_PLUGIN_PASSWORD = PROPERTY_PLUGIN_PREFIX + "notificacio.password";
 
-	public static final String PROP_SIGNATURA_PLUGIN_CLASS = PROPERTY_PREFIX + "signatura.plugin.class";
-	public static final String PROP_SIGNATURA_PLUGIN_FILE_ATTACHED = PROPERTY_PREFIX + "signatura.plugin.file.attached";
+	public static final String PROP_PORTASIGNATURES_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "portasignatures.class";
+	public static final String PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_URL = PROPERTY_PLUGIN_PREFIX + "portasignatures.portafib.url";
+	public static final String PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_USERNAME = PROPERTY_PLUGIN_PREFIX + "portasignatures.portafib.username";
+	public static final String PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_PASSWORD = PROPERTY_PLUGIN_PREFIX + "portasignatures.portafib.password";
+	public static final String PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_PERFIL = PROPERTY_PLUGIN_PREFIX + "portasignatures.portafib.perfil";
+	public static final String PROP_PORTASIGNATURES_PLUGIN_PORTAFIB_FIRMASIMPLEASYNC_URL = PROPERTY_PLUGIN_PREFIX + "portasignatures.portafib.firmasimpleasync.url";
+	public static final String PROP_PORTASIGNATURES_PLUGIN_USUARI_ID = PROPERTY_PLUGIN_PREFIX + "portasignatures.usuari.id";
 
-	public static final String PROP_FIRMA_PLUGIN_CLASS = PROPERTY_PREFIX + "firma.plugin.class";
+	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_URL = PROPERTY_PLUGIN_PREFIX + "portafirmes.flux.firma.url";
+	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_USUARI = PROPERTY_PLUGIN_PREFIX + "portafirmes.flux.firma.username";
+	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_FIRMA_PASSWORD = PROPERTY_PLUGIN_PREFIX + "portafirmes.flux.firma.password";
+	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_URL = PROPERTY_PLUGIN_PREFIX + "portafirmes.flux.entitatws.url";
+	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_USERNAME = PROPERTY_PLUGIN_PREFIX + "portafirmes.flux.entitatws.username";
+	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_PASSWORD = PROPERTY_PLUGIN_PREFIX + "portafirmes.flux.entitatws.password";
+	public static final String PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_MOSTRAR_PERSONA_CARREC = PROPERTY_PLUGIN_PREFIX + "portafirmes.flux.entitatws.password";
 
-	public static final String PROP_CUSTODIA_PLUGIN_CLASS = PROPERTY_PREFIX + "custodia.plugin.class";
-	public static final String PROP_CUSTODIA_PLUGIN_CAIB_VERIFICACIO_BASEURL = PROPERTY_PREFIX + "custodia.plugin.caib.verificacio.baseurl";
+	public static final String PROP_SIGNATURA_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "signatura.class";
+	public static final String PROP_SIGNATURA_PLUGIN_FILE_ATTACHED = PROPERTY_PLUGIN_PREFIX + "signatura.file.attached";
 
-	public static final String PROP_DADESEXT_DIR3_PLUGIN_SERVICE_CLASS = PROPERTY_PREFIX + "dadesext.dir3.plugin.service.class";
-	public static final String PROP_DADESEXT_DIR3_PLUGIN_SERVICE_URL = PROPERTY_PREFIX + "dadesext.dir3.plugin.service.url";
-	public static final String PROP_DADESEXT_DIR3_PLUGIN_SERVICE_USERNAME = PROPERTY_PREFIX + "dadesext.dir3.plugin.service.username";
-	public static final String PROP_DADESEXT_DIR3_PLUGIN_SERVICE_PASSWORD = PROPERTY_PREFIX + "dadesext.dir3.plugin.service.password";
+	public static final String PROP_FIRMA_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "firma.class";
 
-	public static final String PROP_PROCEDIMENTS_PLUGIN_CLASS = PROPERTY_PREFIX + "procediments.plugin.class";
+	public static final String PROP_GESDOC_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "gesdoc.class";
+	public static final String PROP_GESDOC_PLUGIN_TIPUS_NOU = PROPERTY_PLUGIN_PREFIX + "gesdoc.tipus.nou";
+	public static final String PROP_GESDOC_PLUGIN_TIPUS_DIRECTE = PROPERTY_PLUGIN_PREFIX + "gesdoc.tipus.directe";
 
-	public static final String PROP_GESDOC_PLUGIN_CLASS = PROPERTY_PREFIX + "gesdoc.plugin.class";
-	public static final String PROP_GESDOC_PLUGIN_TIPUS_NOU = PROPERTY_PREFIX + "gesdoc.plugin.tipus.nou";
-	public static final String PROP_GESDOC_PLUGIN_TIPUS_DIRECTE = PROPERTY_PREFIX + "gesdoc.plugin.tipus.directe";
+	public static final String PROP_PROCEDIMENTS_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "procediments.class";
+	public static final String PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_URL = PROPERTY_PLUGIN_PREFIX + "procediments.rolsac.service.url";
+	public static final String PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_USERNAME = PROPERTY_PLUGIN_PREFIX + "procediments.rolsac.service.username";
+	public static final String PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_PASSWORD = PROPERTY_PLUGIN_PREFIX + "procediments.rolsac.service.password";
+	public static final String PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_TIMEOUT  = PROPERTY_PLUGIN_PREFIX + "procediments.rolsac.service.timeout";
 
-	public static final String PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_URL = PROPERTY_PREFIX + "plugins.procediments.rolsac.service.url";
-	public static final String PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_USERNAME = PROPERTY_PREFIX + "plugins.procediments.rolsac.service.username";
-	public static final String PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_PASSWORD = PROPERTY_PREFIX + "plugins.procediments.rolsac.service.password";
-	public static final String PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_TIMEOUT  = PROPERTY_PREFIX + "plugins.procediments.rolsac.service.timeout";
+	public static final String PROP_ARXIU_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "arxiu.class";
+	public static final String PROP_PLUGIN_ARXIU_CAIB_BASE_URL = PROPERTY_PLUGIN_PREFIX + "arxiu.caib.base.url";
 
-	public static final String PROP_ARXIU_PLUGIN_CLASS = PROPERTY_PREFIX + "arxiu.plugin.class";
-	public static final String PROP_PLUGIN_ARXIU_CAIB_BASE_URL = PROPERTY_PREFIX + "plugin.arxiu.caib.base.url";
-
-	public static final String PROP_PINBAL_PLUGIN_CLASS = PROPERTY_PREFIX + "pinbal.plugin.class";
-	public static final String PROP_PINBAL_PLUGIN_URL = PROPERTY_PREFIX + "pinbal.plugin.url";
-	public static final String PROP_PINBAL_PLUGIN_USERNAME = PROPERTY_PREFIX + "pinbal.plugin.username";
-	public static final String PROP_PINBAL_PLUGIN_PASSWORD = PROPERTY_PREFIX + "pinbal.plugin.password";
-	public static final String PROP_PINBAL_PLUGIN_ISJBOSS = PROPERTY_PREFIX + "pinbal.plugin.isJBoss";
+	public static final String PROP_PINBAL_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "pinbal.class";
+	public static final String PROP_PINBAL_PLUGIN_URL = PROPERTY_PLUGIN_PREFIX + "pinbal.url";
+	public static final String PROP_PINBAL_PLUGIN_USERNAME = PROPERTY_PLUGIN_PREFIX + "pinbal.username";
+	public static final String PROP_PINBAL_PLUGIN_PASSWORD = PROPERTY_PLUGIN_PREFIX + "pinbal.password";
+	public static final String PROP_PINBAL_PLUGIN_ISJBOSS = PROPERTY_PLUGIN_PREFIX + "pinbal.isJBoss";
 
 	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_URL = PROPERTY_PREFIX + "helium.distribucio.backofficeIntegracio.ws.url";
 	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_USERNAME = PROPERTY_PREFIX + "helium.distribucio.backofficeIntegracio.ws.username";
 	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_PASSWORD = PROPERTY_PREFIX + "helium.distribucio.backofficeIntegracio.ws.password";
 
-	public static final String PROP_VALIDATESIGNATURE_PLUGIN_CLASS = PROPERTY_PREFIX + "validatesignature.plugin.class";
-	public static final String PROP_PLUGINS_VALIDATESIGNATURE_AFIRMACXF_ENDPOINT = PROPERTY_PREFIX + "plugins.validatesignature.afirmacxf.endpoint";
+	public static final String PROP_VALIDATESIGNATURE_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "validatesignature.class";
+	public static final String PROP_PLUGINS_VALIDATESIGNATURE_AFIRMACXF_ENDPOINT = PROPERTY_PLUGIN_PREFIX + "validatesignature.afirmacxf.endpoint";
 
-	public static final String PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_CLASS = PROPERTY_PREFIX + "unitats.organiques.dir3.plugin.service.class";
-	public static final String PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_URL = PROPERTY_PREFIX + "unitats.organiques.dir3.plugin.service.url";
-	public static final String PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_USERNAME = PROPERTY_PREFIX + "unitats.organiques.dir3.plugin.service.username";
-	public static final String PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_PASSWORD = PROPERTY_PREFIX + "unitats.organiques.dir3.plugin.service.password";
-	public static final String PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_CERCA_URL = PROPERTY_PREFIX + "unitats.organiques.dir3.plugin.service.cerca.url";
+	public static final String PROP_DADESEXT_DIR3_PLUGIN_SERVICE_CLASS = PROPERTY_PLUGIN_PREFIX + "dadesext.dir3.service.class";
+	public static final String PROP_DADESEXT_DIR3_PLUGIN_SERVICE_URL = PROPERTY_PLUGIN_PREFIX + "dadesext.dir3.service.url";
+	public static final String PROP_DADESEXT_DIR3_PLUGIN_SERVICE_USERNAME = PROPERTY_PLUGIN_PREFIX + "dadesext.dir3.service.username";
+	public static final String PROP_DADESEXT_DIR3_PLUGIN_SERVICE_PASSWORD = PROPERTY_PLUGIN_PREFIX + "dadesext.dir3.service.password";
 
-	public static final String PROP_PLUGIN_PASSARELAFIRMA_CLASS = PROPERTY_PREFIX + "plugin.passarelafirma.class";
-	public static final String PROP_PLUGIN_PASSARELAFIRMA_1_SIGNATUREWEBAPIFIRMAWEBSIMPLE_ENDPOINT = PROPERTY_PREFIX + "plugin.passarelafirma.1.plugins.signatureweb.portafib.apifirmawebsimple.endpoint";
-	public static final String PROP_PLUGIN_FIRMA_PORTAFIB_PLUGINS_SIGNATURESERVER_PASSARELA_URL = PROPERTY_PREFIX + "plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_url";
+	public static final String PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_CLASS = PROPERTY_PLUGIN_PREFIX + "unitats.organiques.dir3.service.class";
+	public static final String PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_URL = PROPERTY_PLUGIN_PREFIX + "unitats.organiques.dir3.service.url";
+	public static final String PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_USERNAME = PROPERTY_PLUGIN_PREFIX + "unitats.organiques.dir3.service.username";
+	public static final String PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_PASSWORD = PROPERTY_PLUGIN_PREFIX + "unitats.organiques.dir3.service.password";
+	public static final String PROP_UNITATS_ORGANIQUES_DIR3_PLUGIN_SERVICE_CERCA_URL = PROPERTY_PLUGIN_PREFIX + "unitats.organiques.dir3.service.cerca.url";
 
-	public static final String PROP_TRAMITACIO_PLUGIN_CLASS = PROPERTY_PREFIX + "tramitacio.plugin.class";
+	public static final String PROP_PLUGIN_PASSARELAFIRMA_CLASS = PROPERTY_PLUGIN_PREFIX + "passarelafirma.class";
+	public static final String PROP_PLUGIN_PASSARELAFIRMA_1_SIGNATUREWEBAPIFIRMAWEBSIMPLE_ENDPOINT = PROPERTY_PLUGIN_PREFIX + "passarelafirma.1.signatureweb.portafib.apifirmawebsimple.endpoint";
+	public static final String PROP_PLUGIN_FIRMA_PORTAFIB_PLUGINS_SIGNATURESERVER_PASSARELA_URL = PROPERTY_PLUGIN_PREFIX + "firma.portafib.signatureserver.portafib.api_passarela_url";
+
+	public static final String PROP_TRAMITACIO_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "tramitacio.class";
 	public static final String PROP_BANTEL_ENTRADES_URL = PROPERTY_PREFIX + "bantel.entrades.url";
 
 	public static final String PROP_COMANDA_API_URL = PROPERTY_PREFIX + "comanda.api.url";
@@ -185,12 +188,12 @@ public class PropertyConfig {
 	public static final String PROP_DOMINI_TIMEOUT = PROPERTY_PREFIX + "domini.timeout";
 	public static final String PROP_DOMINI_DESPLEGAMENT_TOMCAT = PROPERTY_PREFIX + "domini.desplegament.tomcat";
 
-	public static final String PROP_BASE_PREFIX_PLUGIN_ARXIU = PROPERTY_PREFIX + "plugins.arxiu.";
-	public static final String PROP_BASE_PREFIX_PLUGIN_VALIDATESIGNATURE = PROPERTY_PREFIX;
-	public static final String PROP_BASE_PREFIX_PLUGIN_PERSONES = PROPERTY_PREFIX + "plugin.persones.";
-	public static final String PROP_BASE_PREFIX_SIGNATURA_PLUGIN = PROPERTY_PREFIX + "signatura.plugin.";
-	public static final String PROP_BASE_PREFIX_PLUGIN_FIRMA_PORTAFIB = PROPERTY_PREFIX + "plugin.firma.portafib.";
-	public static final String PROP_BASE_PREFIX_PLUGIN_PASSARELAFIRMA = PROPERTY_PREFIX + "plugin.passarelafirma.plugins.signatureweb.portafib.apifirmawebsimple.";
+	public static final String PROP_BASE_PREFIX_PLUGIN_ARXIU = PROPERTY_PLUGIN_PREFIX + "arxiu.";
+	public static final String PROP_BASE_PREFIX_PLUGIN_VALIDATESIGNATURE = PROPERTY_PLUGIN_PREFIX;
+	public static final String PROP_BASE_PREFIX_PLUGIN_PERSONES = PROPERTY_PLUGIN_PREFIX + "persones.";
+	public static final String PROP_BASE_PREFIX_SIGNATURA_PLUGIN = PROPERTY_PLUGIN_PREFIX + "signatura.";
+	public static final String PROP_BASE_PREFIX_PLUGIN_FIRMA_PORTAFIB = PROPERTY_PLUGIN_PREFIX + "firma.portafib.";
+	public static final String PROP_BASE_PREFIX_PLUGIN_PASSARELAFIRMA = PROPERTY_PLUGIN_PREFIX + "passarelafirma.signatureweb.portafib.apifirmawebsimple.";
 
 	public static final String PERSISTENCE_CONTAINER_TRANSACTIONS_DISABLED = PROPERTY_PREFIX + "persist.container-transactions-disabled";
 

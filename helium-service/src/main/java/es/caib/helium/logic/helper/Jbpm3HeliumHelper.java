@@ -2574,7 +2574,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String importancia,
 			Date dataLimit,
 			Long tokenId,
-			Long processInstanceId,
+			String processInstanceId,
 			String transicioOK,
 			String transicioKO,
 			String portafirmesFluxId) {

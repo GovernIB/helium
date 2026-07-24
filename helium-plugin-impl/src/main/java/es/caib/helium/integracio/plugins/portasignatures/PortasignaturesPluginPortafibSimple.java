@@ -831,21 +831,21 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 
 	private String getUrlUsuariEntitatWS() {
 		return GlobalProperties.getInstance().getProperty(
-				"plugin.portafirmes.plugin.flux.entiatws.url");
+			PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_URL);
 	}
 	private String getUsernameUsuariEntitatWS() {
 		return GlobalProperties.getInstance().getProperty(
-				"plugin.portafirmes.plugin.flux.entiatws.username");
+			PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_USERNAME);
 	}
 	private String getPasswordUsuariEntitatWS() {
 		return GlobalProperties.getInstance().getProperty(
-				"plugin.portafirmes.plugin.flux.entiatws.password");
+			PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_PASSWORD);
 	}
 	private boolean mostrarPersonaCarrec() {
 		boolean mostrarPersonaCarrec = false;
 		try {
 			mostrarPersonaCarrec = Boolean.parseBoolean(GlobalProperties.getInstance().getProperty(
-					"plugin.portafirmes.plugin.flux.entiatws.mostrar.persona.carrec"));
+				PropertyConfig.PROP_PORTAFIRMES_PLUGIN_FLUX_ENTITATWS_MOSTRAR_PERSONA_CARREC));
 		} catch(Exception e) {
 			logger.error("Error llegint la propietat booleana plugin.portafirmes.plugin.flux.entiatws.mostrar.persona.carrec: " + e.getMessage());
 		}

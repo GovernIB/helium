@@ -3120,9 +3120,7 @@ public class DocumentHelperV3 {
 	private String getPropertyNtiCsvDef() {
 		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_NTI_CSV_DEFINICIO);
 	}
-	private String getPropertyCustodiaVerificacioBaseUrl() {
-		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CUSTODIA_PLUGIN_CAIB_VERIFICACIO_BASEURL);
-	}
+
 	private String getPropertyArxiuVerificacioBaseUrl() {
 		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ARXIU_VERIFICACIO_BASEURL);
 	}

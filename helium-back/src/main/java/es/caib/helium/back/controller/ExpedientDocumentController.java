@@ -283,13 +283,17 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					expedientId,
 					expedient.getProcessInstanceId());
 			model.addAttribute("portasignaturesPendent", portasignaturesPendent);
+			boolean documentsPinbal = false;
 			for (InstanciaProcesDto instanciaProces : arbreProcessos) {
 				List<ExpedientDocumentDto> documentsInstancia = null;
 				if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
 					documentsInstancia = this.getDocumentsPerProces(expedient, instanciaProces, sort);
 				}
+				documentsPinbal = documentsPinbal || instanciaProces.isDocumentsPinbal();
 				documents.put(instanciaProces, documentsInstancia);
 			}
+			
+			model.addAttribute("documentsPinbal", documentsPinbal);
 			model.addAttribute("documents", documents);
 		}
 		return "expedientDocument";
@@ -2664,7 +2668,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				command.getPortafirmesPrioritatTipus() != null ? command.getPortafirmesPrioritatTipus().toString() : PortafirmesPrioritatEnumDto.NORMAL.toString(),
 				null, //dataLimit,
 				null,//tokenId
-				Long.valueOf(processInstanceId),
+				processInstanceId,
 				null, //transicioOK,
 				null, //transicioKO,
 				command.getPortafirmesSequenciaTipus(),

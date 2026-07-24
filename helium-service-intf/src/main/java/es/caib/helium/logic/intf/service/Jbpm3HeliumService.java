@@ -941,7 +941,7 @@ public interface Jbpm3HeliumService {
 			String importancia,
 			Date dataLimit,
 			Long tokenId,
-			Long processInstanceId,
+			String processInstanceId,
 			String transicioOK,
 			String transicioKO,
 			String portafirmesFluxId) throws SistemaExternException;
@@ -956,7 +956,6 @@ public interface Jbpm3HeliumService {
 	/**
 	 *
 	 * @param expedient
-	 * @param processInstanceId
 	 * @param dadesExpedient
 	 * @throws SistemaExternException
 	 */

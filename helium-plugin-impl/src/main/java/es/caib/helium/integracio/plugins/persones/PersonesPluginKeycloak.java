@@ -95,13 +95,13 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 		Set<UserRepresentation> usernamesClientPersons = null;
 		Set<UserRepresentation> usersRealm = null;
 		try {
-			String appClient = this.getPropertyRequired("pluginsib.userinformation.keycloak.client_id");
+			String appClient = this.getPropertyRequired(PropertyConfig.PROP_PERSONES_PLUGIN_KEYCLOAK_CLIENT_ID);
 			usernamesClientApp = this.getUsernamesByRolOfClient(rol, appClient);
 		} catch (Exception ex) {
 			log.warn("No s'han obtingut usuaris per client d'aplicació: " + ex.toString(), (this.isDebug() ? ex : null));
 		}
 		try {
-			String personsClient = this.getPropertyRequired("pluginsib.userinformation.keycloak.client_id_for_user_autentication");
+			String personsClient = this.getPropertyRequired(PropertyConfig.PROP_PERSONES_PLUGIN_KEYCLOAK_CLIENT_ID_FOR_USER_AUTENTICATION);
 			usernamesClientPersons = this.getUsernamesByRolOfClient(rol, personsClient);
 		} catch (Exception ex) {
 			log.warn("No s'han obtingut usuaris per client de persones: " + ex.toString(), (this.isDebug() ? ex : null));
@@ -140,7 +140,7 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 
 	private Set<UserRepresentation> getUsernamesByRolOfClient(String rol, String client) throws Exception {
 		Keycloak keycloak = this.getKeyCloakConnection();
-		ClientsResource clientsApi = keycloak.realm(this.getPropertyRequired("pluginsib.userinformation.keycloak.realm")).clients();
+		ClientsResource clientsApi = keycloak.realm(this.getPropertyRequired(PropertyConfig.PROP_PERSONES_PLUGIN_KEYCLOAK_REALM)).clients();
 		List<ClientRepresentation> crList = clientsApi.findByClientId(client);
 		if (crList == null || crList.isEmpty()) {
 			return null;

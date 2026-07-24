@@ -194,22 +194,22 @@ public class FirmaPluginPortafib implements FirmaPlugin {
 
 	private String getPropertyApiEndpoint() {
 		return GlobalProperties.getInstance().getProperty(
-			PROPERTIES_BASE + "plugins.signatureserver.portafib.api_passarela_url");
+			PROPERTIES_BASE + "signatureserver.portafib.api_passarela_url");
 	}
 
 	private String getPropertyApiUsername() {
 		return GlobalProperties.getInstance().getProperty(
-			PROPERTIES_BASE + "plugins.signatureserver.portafib.api_passarela_username");
+			PROPERTIES_BASE + "signatureserver.portafib.api_passarela_username");
 	}
 
 	private String getPropertyApiPassword() {
 		return GlobalProperties.getInstance().getProperty(
-			PROPERTIES_BASE + "plugins.signatureserver.portafib.api_passarela_password");
+			PROPERTIES_BASE + "signatureserver.portafib.api_passarela_password");
 	}
 
 	private String getPropertyApiPerfil() {
 		return GlobalProperties.getInstance().getProperty(
-			PROPERTIES_BASE + "plugins.signatureserver.portafib.api_passarela_perfil");
+			PROPERTIES_BASE + "signatureserver.portafib.api_passarela_perfil");
 	}
 
 	private static final Log logger = LogFactory.getLog(FirmaPluginPortafib.class);

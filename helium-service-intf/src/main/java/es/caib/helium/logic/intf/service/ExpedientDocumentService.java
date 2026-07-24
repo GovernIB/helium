@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.logic.intf.service;
 
@@ -36,20 +36,20 @@ import es.caib.helium.commons.exception.SistemaExternException;
 
 /**
  * Servei per a gestionar els documents d'un expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientDocumentService {
 
 	/**
 	 * Crea un nou document a dins la instància de procés.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
 	 *             atribut id de la instància de procés.
 	 * @param documentCodi
-	 *             codi de document dins el disseny de l'expedient. Si aquest paràmetre no està informat llavors es tractarà 
+	 *             codi de document dins el disseny de l'expedient. Si aquest paràmetre no està informat llavors es tractarà
 	 *             el document com un adjunt i s'aprofitarà el títol pel nou document i es tractarà com a tal.
 	 * @param data
 	 *             data del document.
@@ -92,7 +92,7 @@ public interface ExpedientDocumentService {
 
 	/**
 	 * Crea un nou document a dins la instància de procés.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
@@ -137,26 +137,26 @@ public interface ExpedientDocumentService {
 			String ntiIdOrigen) throws NoTrobatException;
 
 	/** Mètode per crear o actualitzar un document a un procés
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param documentCodi
 	 * @param data
 	 * @param arxiu
 	 * @param contingut
 	 * @param annexosPerNotificar
-	 * @return 
+	 * @return
 	 */
 	public Long guardarDocumentProces(
-			String processInstanceId, 
-			String documentCodi, 
-			Date data, 
+			String processInstanceId,
+			String documentCodi,
+			Date data,
 			String arxiu,
 			byte[] contingut,
 			List<ExpedientDocumentDto> annexosPerNotificar);
 
 	/**
 	 * Esborra un document d'una instància de procés.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
@@ -178,7 +178,7 @@ public interface ExpedientDocumentService {
 	/**
 	 * Retorna la llista de documents d'una instància de procés de
 	 * l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @param processInstanceId
@@ -200,14 +200,14 @@ public interface ExpedientDocumentService {
 	 * Perque sigui més reutilitzable, no filtra per document firmat o no firmat. Els retorna tots.
 	 */
 	public ExpedientFinalitzarDto findDocumentsFinalitzar(Long expedientId) throws Exception;
-	
+
 	public boolean validarFinalitzaExpedient(Long expedientId) throws Exception;
-	
+
 	public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Long nextEstatId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 	/**
 	 * Retorna un document d'una instància de procés de
 	 * l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @param processInstanceId
@@ -230,7 +230,7 @@ public interface ExpedientDocumentService {
 	/**
 	 * Retorna un document d'una instància de procés de
 	 * l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @param processInstanceId
@@ -251,7 +251,7 @@ public interface ExpedientDocumentService {
 
 	/**
 	 * Retorna l'arxiu del document.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
@@ -268,9 +268,9 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
-	
+
 	/** Retorna l'arxiu PDF del document, si no és un PDF el converteix primer.
-	 * 
+	 *
 	 * @param expedientId
 	 * @param processInstanceId
 	 * @param documentStoreId
@@ -280,7 +280,7 @@ public interface ExpedientDocumentService {
 
 	/**
 	 * Retorna l'arxiu del document de la versió indicada.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
@@ -300,11 +300,11 @@ public interface ExpedientDocumentService {
 			String processInstanceId,
 			Long documentStoreId,
 			String versio) throws NoTrobatException, PermisDenegatException;
-	
-	
+
+
 	/**
 	 * Retorna l'arxiu del document donat el seu documentStoreId.
-	 * 
+	 *
 	 * @param documentId
 	 * @return
 	 * @throws NoTrobatException
@@ -312,27 +312,27 @@ public interface ExpedientDocumentService {
 	public ArxiuDto arxiuFindAmbDocumentStoreId(
 			Long documentId) throws NoTrobatException;
 
-	/** 
-	 * Retorna el contingut original del document en cas d'estar integrat amb l'Arxiu. 
-	 * 
+	/**
+	 * Retorna el contingut original del document en cas d'estar integrat amb l'Arxiu.
+	 *
 	 * @param expedientId
 	 * @param documentStoreId
 	 * @return
 	 */
 	public ArxiuDto arxiuFindOriginal(
-			Long expedientId, 
+			Long expedientId,
 			Long documentStoreId) throws NoTrobatException;
 
 
 	/**
 	 * Consulta la llista de peticions al portafirmes en un estat pendent de processar a processat i rebutjat.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
 	 *             atribut id de la instància de procés.
 	 * @return Retorna una llista de peticions pendents o processades i rebutjades. En el cas que hi hagi més d'una anotació per document llavors retorna només la darrera.
-	 * 
+	 *
 	 * @throws NoTrobatException
 	 * @throws PermisDenegatException
 	 */
@@ -341,14 +341,14 @@ public interface ExpedientDocumentService {
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
 
 	/** Mètode per consultar la informació del portasignatures pel documentId.
-	 * 
+	 *
 	 * @param documentId
 	 * @return
 	 */
 	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId);
-	
+
 	/** Mètode per consultar la informació del portasignatures pel documentStoreId.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param documentStoreId
 	 * @return
@@ -361,7 +361,7 @@ public interface ExpedientDocumentService {
 
 	/**
 	 * Genera l'arxiu d'un document a partir de la seva plantilla.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
@@ -381,7 +381,7 @@ public interface ExpedientDocumentService {
 
 	/**
 	 * Comprovació d'extensió permesa d'un document.
-	 * 
+	 *
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
@@ -404,7 +404,7 @@ public interface ExpedientDocumentService {
 
 	/**
 	 * Genera l'arxiu d'un document per una tasca a partir de la seva plantilla.
-	 * 
+	 *
 	 * @param tascaId
 	 *             atribut id de la tasca.
 	 * @param documentCodi
@@ -421,7 +421,7 @@ public interface ExpedientDocumentService {
 
 	/**
 	 * Comprovació d'extensió permesa d'un document.
-	 * 
+	 *
 	 * @param tascaId
 	 *             atribut id de la tasca.
 	 * @param documentCodi
@@ -440,7 +440,7 @@ public interface ExpedientDocumentService {
 			String arxiuNom) throws NoTrobatException, PermisDenegatException;
 
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
-	
+
 	public ArxiuDto findArxiuAmbTokenPerMostrar(String token) throws NoTrobatException;
 
 	public ArxiuDto findArxiuAmbTokenPerSignar(String token) throws NoTrobatException;
@@ -451,7 +451,7 @@ public interface ExpedientDocumentService {
 
 	/**
 	 * Retorna la informació del document emmagatzemada a dins l'arxiu.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol actualitzar.
 	 * @param processInstanceId
@@ -464,14 +464,14 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId);
-	
+
 	public void notificacioActualitzarEstat(
-			String identificador, 
+			String identificador,
 			String referenciaEnviament);
 
 	/** Mètode per donar d'alta una notificació electrònica per un interessat. De moment crea
 	 * una notificació per un interessat amb la possibilitat d'afegir un representant com a destinatari.
-	 * 
+	 *
 	 * @param expedientId
 	 * @param documentStoreId
 	 * @param documentsDinsZip,
@@ -481,28 +481,28 @@ public interface ExpedientDocumentService {
 	 * @return
 	 */
 	public DadesNotificacioDto notificarDocument(
-			Long expedientId, 
-			Long documentStoreId, 
+			Long expedientId,
+			Long documentStoreId,
 			List<DocumentStoreDto> documentsDinsZip,
-			DadesNotificacioDto dadesNotificacioDto, 
-			Long interessatsIds, 
+			DadesNotificacioDto dadesNotificacioDto,
+			Long interessatsIds,
 			Long representantId);
 
 	/** Mètode per obtenir una firma en concret d'un arxiu
-	 * 
+	 *
 	 * @param expedientId
 	 * @param documentStoreId
 	 * @param firmaIndex
 	 * @return
 	 */
 	public ArxiuFirmaDto getArxiuFirma(
-			Long expedientId, 
-			Long documentStoreId, 
+			Long expedientId,
+			Long documentStoreId,
 			int firmaIndex);
 
 	/**
 	 * Migra el document a l'arxiu
-	 * 
+	 *
 	 * @param documentStoreId
 	 *            Atribut documentStoreId del document.
 	 * @throws NoTrobatException
@@ -513,7 +513,7 @@ public interface ExpedientDocumentService {
 	public void migrarArxiu(
 			Long expedientId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
-	
+
 	/**
 	 * Migra el document a l'arxiu
 	 * @param expedientId
@@ -529,19 +529,19 @@ public interface ExpedientDocumentService {
 	 * gurardar el document firmat i deixar una entrada en el registre.
 	 * @param documentStoreId
 	 * @param arxiuNom
-	 * @param processInstanceId 
-	 * @param expedientId 
+	 * @param processInstanceId
+	 * @param expedientId
 	 * @param contingutFirmat
 	 */
 	public void processarFirmaClient(
-			Long expedientId, 
-			String processInstanceId, 
+			Long expedientId,
+			String processInstanceId,
 			Long documentStoreId,
 			String arxiuNom,
 			byte[] contingutFirmat) throws PermisDenegatException;
 
 	/** Envia un document al portasignatures.
-	 * 
+	 *
 	 * @param document
 	 * @param annexos
 	 * @param personesPas
@@ -556,7 +556,7 @@ public interface ExpedientDocumentService {
 	 * @param portafirmesTipus
 	 * @param responsables
 	 * @param portafirmesFluxId
-	 * 
+	 *
 	 * @return Retorna l'identificador del document donat pel portasignatures.
 	 */
 	public void enviarPortasignatures(
@@ -566,11 +566,11 @@ public interface ExpedientDocumentService {
 			String importancia,
 			Date dataLimit,
 			Long tokenId,
-			Long processInstanceId,
+			String processInstanceId,
 			String transicioOK,
 			String transicioKO,
 			PortafirmesSimpleTipusEnumDto portafirmesTipus,
-			String[] responsables, 
+			String[] responsables,
 			String portafirmesFluxId,
 			PortafirmesTipusEnumDto fluxTipus) throws SistemaExternException;
 
@@ -585,35 +585,35 @@ public interface ExpedientDocumentService {
 
     public List<DocumentInfoDto> getDocumentsNoUtilitzatsPerEstats(Long expedientId);
 
-    /** 
+    /**
      * Mètode per iniciar una petició de firma per passarel·la web amb el Portafirmes.
-     * 
+     *
      * @param persona Persona que ha de firmar.
      * @param arxiu Informació de l'arxiu a firmar.
      * @param signId Identificador assigat a la firma.
      * @param motiu Motiu de la firma.
      * @param lloc Lloc de la firma.
      * @param urlRetorn URL on es retornarà a Helium després de firmar o cancel·lar.
-     * 
+     *
      * @return URL de retorn que s'ha de visualitzar per seguir amb la petició de firma delegada al Portafirmes.
      */
 	public String firmaSimpleWebStart(
-			PersonaDto persona, 
-			ArxiuDto arxiu, 
+			PersonaDto persona,
+			ArxiuDto arxiu,
 			String signId,
-			String motiu, 
+			String motiu,
 			String lloc,
 			String urlRetorn);
 
-	/** 
+	/**
 	 * Mètode per finalitzar la petició de firma de la passarel·la i obtenir-ne el resultat.
-	 * 
+	 *
 	 * @param transactionID Identificador de la petició de firma web.
-	 * 
+	 *
 	 * @return Retorna un objecte amb informació del resultat de la firma i el document firmat en cas que hagi anat bé.
 	 */
 	public FirmaResultatDto firmaSimpleWebEnd(String transactionID);
-	
+
 	/**
 	 * Genera un PDF amb una taula resum dels fitxers de l'expedient.
 	 * @param expedientId
@@ -639,12 +639,12 @@ public interface ExpedientDocumentService {
 	public void migrateDocument(Long expedientId, Long documentStoreId);
 
 	/** Mètode per firmar en servidor un document.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param documentStoreId
 	 * @param motiu
 	 * @param arxiuContingut
 	 */
 	public void firmaServidor(String processInstanceId, Long documentStoreId, String motiu, byte[] arxiuContingut);
-	
+
 }

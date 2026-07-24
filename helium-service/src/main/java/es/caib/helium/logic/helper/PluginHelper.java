@@ -1527,7 +1527,7 @@ public class PluginHelper {
 			String importancia,
 			Date dataLimit,
 			Long tokenId,
-			Long processInstanceId,
+			String processInstanceId,
 			String transicioOK,
 			String transicioKO,
 			PortafirmesSimpleTipusEnumDto portafirmesTipus,
@@ -1642,7 +1642,7 @@ public class PluginHelper {
 			portasignatures.setTransicioOK(transicioOK);
 			portasignatures.setTransicioKO(transicioKO);
 			portasignatures.setExpedient(expedient);
-			portasignatures.setProcessInstanceId(processInstanceId.toString());
+			portasignatures.setProcessInstanceId(processInstanceId);
 			portasignaturesRepository.save(portasignatures);
 
 			return resposta;

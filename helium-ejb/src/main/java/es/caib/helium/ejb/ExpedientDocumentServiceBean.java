@@ -378,7 +378,7 @@ public class ExpedientDocumentServiceBean extends AbstractServiceEjb<ExpedientDo
 			Long representantId) {
 		return delegateService.notificarDocument(expedientId, documentStoreId, documentsDinsZip, dadesNotificacioDto, interessatsId, representantId);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuFirmaDto getArxiuFirma(Long expedientId, Long documentStoreId, int firmaIndex) {
@@ -425,7 +425,7 @@ public class ExpedientDocumentServiceBean extends AbstractServiceEjb<ExpedientDo
 			String importancia,
 			Date dataLimit,
 			Long tokenId,
-			Long processInstanceId,
+			String processInstanceId,
 			String transicioOK,
 			String transicioKO,
 			PortafirmesSimpleTipusEnumDto portafirmesTipus,

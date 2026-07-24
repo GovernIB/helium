@@ -47,7 +47,7 @@ div.proces:hover {
 			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"></spring:message>
 		</a>
 	</div>
-	<div class="pull-left" style="padding-left: 5px; width: 70px;">	
+	<div class="pull-left" style="padding-left: 5px; width: 70px;">
 		<!-- Botó d'ordenació -->
 		<div id="sortDocuments" class="btn-group btn-group-justified" data-sort="default" title="<spring:message code="expedient.document.ordenar.default"/>">
 		  <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
@@ -79,14 +79,14 @@ div.proces:hover {
 	</div>
 	<div class="pull-left">
 		<c:if test="${expedient.tipus.notibActiu}">
-			<a class="btn btn-default" 
-				href="../../expedient/${expedientId}/document/notificarZip" "
+			<a class="btn btn-default"
+				href="<c:url value="/modal/expedient/${expedientId}/document/notificarZip"/>"
 				data-toggle="modal">
 					<span class="fa fa-paper-plane"></span>
 					<spring:message code="expedient.boto.notificar_zip"/>
 			</a>
-			
-			
+
+
 		</c:if>
 	</div>
 </div>
@@ -94,8 +94,8 @@ div.proces:hover {
 
 <c:import url="procesDocuments.jsp"/>
 <script type="text/javascript">
-// <![CDATA[			
-$(document).ready(function() {				
+// <![CDATA[
+$(document).ready(function() {
 	$('.procesDocument').click( function() {
 		var icona = $(this).find('.icona-collapse');
 		icona.toggleClass('fa-chevron-down');
@@ -112,18 +112,18 @@ $(document).ready(function() {
 		var docId = $(this).data('psigna');
 		$('#psigna_' + docId).modal();
 	});
-	
+
 	$('#searchDocuments').on('input', function(){
 		searchDocuments($('#searchDocuments').val());
 	});
-	
+
 	$('.documentsSortOption').click(function() {
 		$('#sortDocumentsMainIcon').empty().append($('.documentsSortIcon', this).clone());
 		sort = $(this).data('sort');
 		$('#sortDocuments').data('sort', sort);
 		sortDocuments(sort);
 	});
-	
+
 });
 function recargarPanel (processInstanceId, correcte) {
 	if (correcte) {
@@ -159,7 +159,7 @@ function searchDocuments(text) {
 			$('.cellDocument', $fila).each(function(){
 				$document = $(this);
 				if (text == ""
-						|| $('.nom_document', this).text().toLowerCase().includes(text.toLowerCase())) 
+						|| $('.nom_document', this).text().toLowerCase().includes(text.toLowerCase()))
 				{
 					hideFila = false;
 					$document.show();
