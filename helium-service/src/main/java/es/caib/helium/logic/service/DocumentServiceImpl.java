@@ -891,7 +891,7 @@ public class DocumentServiceImpl implements DocumentService {
 		return "consultes.pinbal.resultat.ok";
 	}
 
-	public ArxiuFirmaValidacioDetallDto validateFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
+	public ArxiuFirmaValidacioDetallDto validateFirmaDocument(String documentNom, byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
 			byte[] firmaContingut) throws Exception {
 			if(tipusFirma == DocumentTipusFirmaEnumDto.ADJUNT && !contentType.equals("application/pdf"))
 				return null;
@@ -904,7 +904,8 @@ public class DocumentServiceImpl implements DocumentService {
 						return null;
 			}
 
-			return pluginHelper.validaSignaturaObtenirDetalls(documentContingut, firmaContingut);
+			return pluginHelper.validaSignaturaObtenirDetalls(
+				documentNom, contentType, documentContingut, firmaContingut);
 	}
 
 	private void guardaPeticioPinbalSenseError(
@@ -938,7 +939,7 @@ public class DocumentServiceImpl implements DocumentService {
 		peticio.setTransicioKO(dadesConsultaPinbal.getTransicioKO());
 		peticioPinbalRepository.save(peticio);
 	}
-	
+
 	@Override
 	public byte[] removeSignaturesPdf(byte[] arxiuContingut) {
 		return documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(arxiuContingut);

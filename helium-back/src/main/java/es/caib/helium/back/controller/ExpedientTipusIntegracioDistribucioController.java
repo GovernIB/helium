@@ -174,6 +174,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			ReglaResponse response = client.add(
 					codiEntitat,
 					codiProcediment,
+					null,
 					tipusRegla,
 					backoffice,
 					presencial);
@@ -233,7 +234,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			ReglesRestClient client = this.getReglesRestClient();
 
 			// Invoca la consulta de la regla
-			Regla regla = client.consultarRegla(codiProcediment);
+			Regla regla = client.consultarRegla(codiProcediment, null);
 			if (regla != null) {
 				model.addAttribute("regla", regla);
 				if (!regla.isActiva()) {
@@ -272,7 +273,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			ReglesRestClient client = this.getReglesRestClient();
 
 			// Invoca la consulta de la regla
-			ReglaResponse response = client.canviEstat(codiProcediment, activa);
+			ReglaResponse response = client.canviEstat(codiProcediment, null, activa);
 
 			if (response.isCorrecte()) {
 				MissatgesHelper.success(

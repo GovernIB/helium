@@ -106,6 +106,7 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 					firmaContingut = IOUtils.toByteArray(command.getFirma().getInputStream());
 				}
 				ArxiuFirmaValidacioDetallDto firmaEstat = documentService.validateFirmaDocument(
+						command.getArxiu().getName(),
 						contingutArxiu,
 						arxiuContentType,
 						command.getTipusFirma(),

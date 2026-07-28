@@ -99,9 +99,9 @@ public class DocumentServiceBean extends AbstractServiceEjb<DocumentService> imp
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ArxiuFirmaValidacioDetallDto validateFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
+	public ArxiuFirmaValidacioDetallDto validateFirmaDocument(String documentNom, byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
 			byte[] firmaContingut) throws Exception {
-		return delegateService.validateFirmaDocument(documentContingut, contentType, tipusFirma, firmaContingut);
+		return delegateService.validateFirmaDocument(documentNom, documentContingut, contentType, tipusFirma, firmaContingut);
 	}
 
 	@Override

@@ -1087,6 +1087,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						firmaContingut = firma.getContingut();
 					}
 					ArxiuFirmaValidacioDetallDto firmaDetalls = pluginHelper.validaSignaturaObtenirDetalls(
+							document.getNom(),
+							document.getContingut().getTipusMime(),
 							documentContingut,
 							firmaContingut);
 					List<ArxiuFirmaDetallDto> detalls = firmaDetalls.getDetalls();

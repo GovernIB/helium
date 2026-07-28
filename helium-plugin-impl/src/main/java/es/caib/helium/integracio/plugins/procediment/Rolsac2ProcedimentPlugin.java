@@ -1,14 +1,16 @@
 package es.caib.helium.integracio.plugins.procediment;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.json.JSONConfiguration;
 import es.caib.helium.commons.config.PropertyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,7 @@ import es.caib.helium.integracio.plugins.procediment.Rolsac2FiltreOrden.Rolsac2T
 public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 
 	private Client jerseyClient;
+	private ObjectMapper mapper;
 
 	public Rolsac2ProcedimentPlugin() {
 		super();
@@ -161,7 +164,29 @@ public class Rolsac2ProcedimentPlugin implements ProcedimentPlugin {
 
 	private Client getJerseyClient() {
 		if (jerseyClient == null) {
-			jerseyClient = new Client();
+			mapper = new ObjectMapper();
+			mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+			mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+			// Crear el provider con el ObjectMapper personalizado
+			JacksonJsonProvider jacksonProvider = new JacksonJsonProvider(mapper);
+
+			// Crear la configuración del cliente
+			ClientConfig config = new DefaultClientConfig();
+
+			// Habilitar el mapeo POJO
+			config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
+
+			// Registrar el provider como singleton
+			Set<Object> singletons = new HashSet<>();
+			singletons.add(jacksonProvider);
+			config.getSingletons().addAll(singletons);
+
+			// Crear el cliente con la configuración
+			jerseyClient = Client.create(config);
+
 			if (getServiceTimeout() != null) {
 				jerseyClient.setConnectTimeout(getServiceTimeout());
 				jerseyClient.setReadTimeout(getServiceTimeout());

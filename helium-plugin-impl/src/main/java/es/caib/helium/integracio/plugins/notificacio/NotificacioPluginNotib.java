@@ -15,12 +15,12 @@ import es.caib.notib.client.NotificacioRestClientV2;
 import es.caib.notib.client.domini.Certificacio;
 import es.caib.notib.client.domini.DocumentV2;
 import es.caib.notib.client.domini.EntregaDeh;
-import es.caib.notib.client.domini.EntregaPostal;
-import es.caib.notib.client.domini.EntregaPostalViaTipusEnum;
+import es.caib.notib.client.domini.EntregaPostalV2;
+import es.caib.notib.client.domini.EntregaPostalVia;
 import es.caib.notib.client.domini.EnviamentReferenciaV2;
-import es.caib.notib.client.domini.EnviamentTipusEnum;
-import es.caib.notib.client.domini.NotificaDomiciliConcretTipusEnumDto;
-import es.caib.notib.client.domini.NotificaServeiTipusEnumDto;
+import es.caib.notib.client.domini.EnviamentTipus;
+import es.caib.notib.client.domini.NotificaDomiciliConcretTipus;
+import es.caib.notib.client.domini.ServeiTipus;
 import es.caib.notib.client.domini.NotificacioV2;
 import es.caib.notib.client.domini.RespostaAltaV2;
 import es.caib.notib.client.domini.RespostaConsultaEstatEnviamentV2;
@@ -55,7 +55,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 
 			NotificacioV2 notificacioNotib = new NotificacioV2();
 			notificacioNotib.setEmisorDir3Codi(notificacio.getEmisorDir3Codi());
-			notificacioNotib.setEnviamentTipus(notificacio.getEnviamentTipus() != null ? EnviamentTipusEnum.valueOf(notificacio.getEnviamentTipus().toString()) : null);
+			notificacioNotib.setEnviamentTipus(notificacio.getEnviamentTipus() != null ? EnviamentTipus.valueOf(notificacio.getEnviamentTipus().toString()) : null);
 			notificacioNotib.setConcepte(notificacio.getConcepte());
 			notificacioNotib.setDescripcio(notificacio.getDescripcio());
 			notificacioNotib.setEnviamentDataProgramada(notificacio.getEnviamentDataProgramada());
@@ -67,13 +67,13 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			notificacioNotib.setUsuariCodi(notificacio.getUsuariCodi());
 			notificacioNotib.setNumExpedient(notificacio.getNumExpedient());
 			if (notificacio.getIdioma() != null)
-				notificacioNotib.setIdioma(es.caib.notib.client.domini.IdiomaEnumDto.valueOf(notificacio.getIdioma().toString()));
+				notificacioNotib.setIdioma(es.caib.notib.client.domini.Idioma.valueOf(notificacio.getIdioma().toString()));
 
 			if (notificacio.getEnviaments() != null) {
 				for (Enviament enviament: notificacio.getEnviaments()) {
 
-					es.caib.notib.client.domini.Enviament enviamentNotib = new es.caib.notib.client.domini.Enviament();
-					enviamentNotib.setServeiTipus(enviament.getServeiTipusEnum() != null ? NotificaServeiTipusEnumDto.valueOf(enviament.getServeiTipusEnum().toString()) : null);
+					es.caib.notib.client.domini.EnviamentV2 enviamentNotib = new es.caib.notib.client.domini.EnviamentV2();
+					enviamentNotib.setServeiTipus(enviament.getServeiTipusEnum() != null ? ServeiTipus.valueOf(enviament.getServeiTipusEnum().toString()) : null);
 					enviamentNotib.setTitular(toPersonaNotib(enviament.getTitular()));
 					if (enviament.getDestinataris() != null) {
 						for (Persona destinatari : enviament.getDestinataris()) {
@@ -83,9 +83,9 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 					enviament.setEntregaPostalActiva(false);//Forcem false issue #1675
 					enviamentNotib.setEntregaPostalActiva(enviament.isEntregaPostalActiva());
 					if (enviament.isEntregaPostalActiva()) {
-						EntregaPostal entregaPostal = new EntregaPostal();
-						entregaPostal.setTipus(NotificaDomiciliConcretTipusEnumDto.valueOf(enviament.getEntregaPostalTipus().toString()));
-						entregaPostal.setViaTipus(enviament.getEntregaPostalViaTipus() != null ? EntregaPostalViaTipusEnum.valueOf(enviament.getEntregaPostalViaTipus().toString()) : null);
+						EntregaPostalV2 entregaPostal = new EntregaPostalV2();
+						entregaPostal.setTipus(NotificaDomiciliConcretTipus.valueOf(enviament.getEntregaPostalTipus().toString()));
+						entregaPostal.setViaTipus(enviament.getEntregaPostalViaTipus() != null ? EntregaPostalVia.valueOf(enviament.getEntregaPostalViaTipus().toString()) : null);
 						entregaPostal.setViaNom(enviament.getEntregaPostalViaNom());
 						entregaPostal.setNumeroCasa(enviament.getEntregaPostalNumeroCasa());
 						entregaPostal.setNumeroQualificador(enviament.getEntregaPostalNumeroQualificador());
@@ -355,14 +355,14 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 		return enviamentEstat;
 	}
 
-	private es.caib.notib.client.domini.Persona toPersonaNotib(
+	private es.caib.notib.client.domini.PersonaV2 toPersonaNotib(
 			Persona persona) {
-		es.caib.notib.client.domini.Persona p = null;
+		es.caib.notib.client.domini.PersonaV2 p = null;
 		if (persona != null) {
-			p = new es.caib.notib.client.domini.Persona();
+			p = new es.caib.notib.client.domini.PersonaV2();
 			p.setTelefon(persona.getTelefon());
 			p.setEmail(persona.getEmail());
-			p.setInteressatTipus(es.caib.notib.client.domini.InteressatTipusEnumDto.valueOf(persona.getTipus().name()));
+			p.setInteressatTipus(es.caib.notib.client.domini.InteressatTipus.valueOf(persona.getTipus().name()));
 			p.setNif(persona.getNif());
 			p.setNom(persona.getNom());
 			switch(persona.getTipus()){

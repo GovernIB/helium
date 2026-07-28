@@ -2887,6 +2887,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					command.getTipusFirma()
 					: DocumentTipusFirmaEnumDto.ADJUNT;
 			ArxiuFirmaValidacioDetallDto firmaEstat = documentService.validateFirmaDocument(
+										command.getArxiu().getName(),
 										command.getArxiu().getBytes(),
 										command.getArxiu().getContentType(),
 										command.isAmbFirma() ? command.getTipusFirma() : DocumentTipusFirmaEnumDto.ADJUNT,

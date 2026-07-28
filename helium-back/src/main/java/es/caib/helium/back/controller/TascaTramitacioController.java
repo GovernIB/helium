@@ -747,6 +747,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				// Valida la firma del document
 				try {
 					ArxiuFirmaValidacioDetallDto firmaEstat = documentService.validateFirmaDocument(
+							arxiu.getName(),
 							contingutArxiu,
 							arxiuContentType,
 							tipusFirma,

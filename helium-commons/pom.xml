@@ -153,7 +153,7 @@
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
 			<artifactId>distribucio-rest-client</artifactId>
-			<version>1.0.7</version>
+			<version>1.0.10</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jersey-client</artifactId>
@@ -165,18 +165,13 @@
         <dependency>
 			<groupId>es.caib.notib</groupId>
 			<artifactId>notib-client</artifactId>
-			<version>1.1.23.3</version>
+			<version>2.0.7</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jersey-client</artifactId>
 					<groupId>com.sun.jersey</groupId>
 				</exclusion>
 			</exclusions>
-        </dependency>
-        <dependency>
-			<groupId>es.caib.notib</groupId>
-			<artifactId>notib-client-intf</artifactId>
-			<version>1.1.23</version>
         </dependency>
   </dependencies>
 </project>

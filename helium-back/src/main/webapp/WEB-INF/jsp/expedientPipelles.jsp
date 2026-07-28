@@ -409,7 +409,7 @@ dd.subproc {
 						<dd>${expedient.titol}</dd>
 					</c:if>
 					<dt><spring:message code="expedient.info.camp.tipus"/></dt>
-					<dd>${expedient.tipus.nom}
+					<dd>${expedient.tipus.nom} - ${expedient.tipus.tipus}
 						<c:if test="${expedient.tipus.manualAjudaNom != null}">
 							<c:set var="arxiuUrl">/modal/expedient/${expedient.tipus.id}/documentDownload"</c:set>
 								<a id="descarregarZip"

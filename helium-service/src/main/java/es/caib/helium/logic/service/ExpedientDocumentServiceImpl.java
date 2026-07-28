@@ -270,7 +270,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 		if(isSignat || (firmaSeparada && firmaContingut != null)) {
 			ArxiuFirmaValidacioDetallDto firmaValidacio =
-				pluginHelper.validaSignaturaObtenirDetalls(arxiuContingut, firmaContingut);
+				pluginHelper.validaSignaturaObtenirDetalls(arxiuNom, arxiuContentType, arxiuContingut, firmaContingut);
 			isValid = firmaValidacio.isValid();
 			validationMessage = firmaValidacio.getMessage();
 		}
