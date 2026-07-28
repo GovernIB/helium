@@ -59,6 +59,14 @@ public class InteressatValidator implements ConstraintValidator<Interessat, Inte
 					addConstraintViolation();
 					valid = false;
 				}
+				if (command.getRaoSocial() == null || command.getRaoSocial().isEmpty()) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage("interessat.validacio.admin.raosocial.obligatori")).
+					addNode("cifOrganGestor").
+					addConstraintViolation();
+					valid = false;
+				}
+				
 				break;
 			case FISICA:
 			case JURIDICA:
