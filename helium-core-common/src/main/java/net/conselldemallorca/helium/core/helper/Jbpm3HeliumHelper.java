@@ -522,7 +522,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			return;
 		}
 		
-		if(interessat.getTipus() == InteressatTipusEnumDto.JURIDICA && (interessat.getRaoSocial() == null || interessat.getRaoSocial().isEmpty())) {
+		if((interessat.getTipus() == InteressatTipusEnumDto.JURIDICA 
+				|| interessat.getTipus() == InteressatTipusEnumDto.ADMINISTRACIO)
+					&& (interessat.getRaoSocial() == null || interessat.getRaoSocial().isEmpty())) {
 			interessat.setRaoSocial(interessat.getFullNom());
 			interessat.setNom(null);
 			interessat.setLlinatge1(null); 
