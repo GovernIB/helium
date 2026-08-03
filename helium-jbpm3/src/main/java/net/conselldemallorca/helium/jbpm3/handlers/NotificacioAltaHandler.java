@@ -356,6 +356,7 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 																	false);
 					dadesNotificacio.setDocumentArxiuNom(document.getSignatNom());
 					dadesNotificacio.setDocumentArxiuContingut(document.getSignatContingut());
+					dadesNotificacio.setDocumentArxiuUuid(document.getArxiuUuid());
 				} else {
 					document = Jbpm3HeliumBridge
 							.getInstanceService().getDocumentInfo(documentInfo.getId(),
@@ -368,7 +369,6 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 					dadesNotificacio.setDocumentArxiuNom(document.getArxiuNom());
 					dadesNotificacio.setDocumentArxiuContingut(document.getArxiuContingut());
 				}
-				dadesNotificacio.setDocumentArxiuUuid(document.getArxiuUuid());
 			}
 		} else {
 			throw new JbpmException("No s'ha informat cap document per notificar.");
