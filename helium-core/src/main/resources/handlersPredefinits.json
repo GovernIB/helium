@@ -285,6 +285,30 @@
     "varParamDesc" : "Variable que conté el codi del document a copiar"
   }],
   "agrupacio" : "DOCUMENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentFirmaServidorHandler",
+  "nom" : "Firmar un document en servidor",
+  "descripcio" : " Handler per a firmar un document amb un certificat emmagatzemat a un servidor.",
+  "parametres" : [ 
+  	{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a signar",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a copiar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a signar"
+  }, {
+	"codi": "motiu",
+    "nom" : "Motiu",
+    "obligatori" : false,
+    "param" : "motiu",
+    "paramDesc" : "Motiu pel qual es signa el document.",
+    "varParam" : null,
+    "varParamDesc" : null
+  }],
+  "agrupacio" : "DOCUMENTS"
  },  
  {
   "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentExpedientCopiarDestiHandler",
