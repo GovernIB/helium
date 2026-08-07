@@ -8,11 +8,14 @@ import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
@@ -42,6 +45,7 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 	public static final String CLAU_SESSIO_FORM_VALORS = "iniciexp_form_registres";
 	public static final String CLAU_SESSIO_ANOTACIO = "iniciexp_anotacio";
 	private static final String CLAU_SESSIO_PREFIX_REGISTRE = "ExpedientIniciarController_reg_";
+	protected static final int EXPEDIENT_TIMEOUT = 300;
 
 	@Autowired
 	protected TascaService tascaService;
@@ -71,8 +75,8 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 			Integer any,
 			Map<String, Object> valors,
 			AnotacioAcceptarCommand anotacioAcceptarCommand) throws Exception  {
-		
-		ExpedientDto iniciat = expedientService.create(
+		int timeOut = GlobalProperties.getInstance().getAsInt("app.expedient.creacio.timeout", EXPEDIENT_TIMEOUT);
+		Future<ExpedientDto> future = expedientService.create(
 				entornId,
 				null,
 				expedientTipusId,
@@ -88,6 +92,8 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 				null, null, null, null,
 				anotacioAcceptarCommand != null? anotacioAcceptarCommand.getId() : null,
 				anotacioAcceptarCommand != null? anotacioAcceptarCommand.isAssociarInteressats() : false);
+		
+		ExpedientDto iniciat = future.get(timeOut, TimeUnit.SECONDS);
 
 		if (iniciat.getErrorArxiu()==null) {
 			MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));

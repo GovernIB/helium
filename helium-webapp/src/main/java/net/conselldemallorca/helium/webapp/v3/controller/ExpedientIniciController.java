@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.AnotacioHelper;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -108,8 +110,9 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 			@RequestParam(value = "anotacioId", required = false) Long anotacioId, 
 			Model model,
 			AnotacioDto anotacio) throws Exception {
-		request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID, "TIE_" + System.currentTimeMillis());
+		int timeOut = GlobalProperties.getInstance().getAsInt("app.expedient.creacio.timeout", EXPEDIENT_TIMEOUT);
 		
+		request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID, "TIE_" + System.currentTimeMillis());
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		
@@ -167,6 +170,11 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 				MissatgesHelper.error(
 	        			request,
 	        			getMessage(request, "error.validacio.tasca") + " : " + ex.getPublicMessage());
+				logger.error("No s'ha pogut iniciar l'expedient", ex);
+			} catch (TimeoutException ex) {
+				MissatgesHelper.error(
+					request,
+					getMessage(request, "error.iniciar.expedient.timeout", new Object[]{timeOut}));
 				logger.error("No s'ha pogut iniciar l'expedient", ex);
 			} catch (Exception ex) {
 				MissatgesHelper.error(

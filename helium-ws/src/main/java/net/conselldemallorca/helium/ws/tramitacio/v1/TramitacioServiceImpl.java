@@ -156,7 +156,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					null,
 					null,
 					null,
-					false);
+					false).get();
 			logger.info("Expedient " + numero + " iniciat correctament");
 			return expedient.getProcessInstanceId();
 		} catch (Exception ex) {

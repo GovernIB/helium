@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -108,7 +110,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 		boolean success = false;
 		if ("iniciar".equals(accio)) {
 			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientInicioPasTitolCommand.getExpedientTipusId());
-			
+			int timeOut = GlobalProperties.getInstance().getAsInt("app.expedient.creacio.timeout", EXPEDIENT_TIMEOUT);
 			Validator validator = null;
 			try {
 				validator = new ExpedientInicioPasTitolValidator(expedientTipus, expedientService, expedientTipusService);
@@ -166,6 +168,10 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 						MissatgesHelper.error(
 								request,
 								getMessage(request, "error.iniciar.expedient") + " : " + appEx.getMessage());
+					} else if (ex instanceof TimeoutException) {
+						MissatgesHelper.error(
+								request,
+								getMessage(request, "error.iniciar.expedient.timeout", new Object[]{timeOut}));
 					} else {
 						MissatgesHelper.error(
 			        			request,

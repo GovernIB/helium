@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import org.springframework.security.acls.model.NotFoundException;
 
@@ -107,7 +108,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public ExpedientDto create(
+	public Future<ExpedientDto> create(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,

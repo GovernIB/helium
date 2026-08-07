@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -34,6 +35,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -339,8 +342,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		self = applicationContext.getBean(ExpedientService.class);
 	}
 	
+	@Async
 	@Override
-	public ExpedientDto create(
+	public Future<ExpedientDto> create(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -423,7 +427,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					anotaciosInPorcess.remove(anotacioId);
 			}
 		}
-		return expedientDto;
+		return new AsyncResult<ExpedientDto>(expedientDto);
 	}
 	
 	/**

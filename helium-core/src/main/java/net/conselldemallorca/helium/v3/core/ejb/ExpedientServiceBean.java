@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -59,7 +60,7 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientDto create(
+	public Future<ExpedientDto> create(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,

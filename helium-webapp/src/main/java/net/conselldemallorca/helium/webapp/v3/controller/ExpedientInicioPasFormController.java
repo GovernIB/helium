@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -175,6 +177,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
+		int timeOut = GlobalProperties.getInstance().getAsInt("app.expedient.creacio.timeout", EXPEDIENT_TIMEOUT);
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
@@ -245,6 +248,10 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.iniciar.expedient") + " : " + ((TramitacioHandlerException)ex).getPublicMessage());
+				} else if (ex instanceof TimeoutException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.iniciar.expedient.timeout", new Object[]{timeOut}));
 				} else {
 					MissatgesHelper.error(
 		        			request,
