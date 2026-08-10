@@ -1079,5 +1079,7 @@ public interface ExpedientService {
 	public void syncArxiu(Long id, boolean esborrarExpSiError);
 
 	public void syncDocumentsArxiu(Long id, boolean esborrarExpSiError);
+
+	public void syncTancamentArxiu(Long id, boolean esborrarExpSiError);
 	
 }

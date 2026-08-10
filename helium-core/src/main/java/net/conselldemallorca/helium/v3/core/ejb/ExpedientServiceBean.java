@@ -778,4 +778,9 @@ public class ExpedientServiceBean implements ExpedientService {
 	public void syncDocumentsArxiu(Long id, boolean esborrarExpSiError) {
 		delegate.syncDocumentsArxiu(id, esborrarExpSiError);
 	}
+
+	@Override
+	public void syncTancamentArxiu(Long id, boolean esborrarExpSiError) {
+		delegate.syncTancamentArxiu(id, esborrarExpSiError);		
+	}
 }

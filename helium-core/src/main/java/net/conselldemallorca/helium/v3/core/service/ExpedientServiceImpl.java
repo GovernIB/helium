@@ -1766,6 +1766,35 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 	}
 	
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void syncTancamentArxiu(Long expedientId, boolean esborrarExpSiError) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		try {
+			expedientHelper.tancarExpedientArxiu(expedient.getId(), esborrarExpSiError);
+		} catch (Exception ex) {
+			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
+			if (esborrarExpSiError && expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
+				logger.info("Es procedeix a esborrar l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.");
+				try{
+					pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+				} catch(Exception aex) {
+					logger.error("Error esborrant l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.", aex);
+				}
+			}
+			throw new TramitacioException(
+					expedient.getEntorn().getId(), 
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					errorDescripcio, 
+					ex);
+		}
+	}
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1784,7 +1813,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			addCurrentlyMigrating(id);
 			this.migrarArxiu(id, esborrarExpSiError);
 			this.migrarDocumentsArxiu(id, esborrarExpSiError);
-			this.finalitzaArxiuMigrat(id);
+			this.finalitzaArxiuMigrat(id, esborrarExpSiError);
 		} catch(TramitacioException ex) {
 			if (esborrarExpSiError) {
 				this.undoSincronitzacioArxiu(id);
@@ -1797,7 +1826,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	}
 	
 	@Transactional
-	private void finalitzaArxiuMigrat(Long id) {
+	private void finalitzaArxiuMigrat(Long id, boolean esborrarExpSiError) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				new Permission[] {
@@ -1806,8 +1835,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		try {
 			if(expedient.getDataFi() == null)
 				return;
-			
-			expedientHelper.tancarExpedientArxiu(id, true);
+			self.syncTancamentArxiu(expedient.getId(), esborrarExpSiError);
 		} catch(Exception ex) {
 			String errorDescripcio = "Error finalitzant l'expedient migrant " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			throw new TramitacioException(
