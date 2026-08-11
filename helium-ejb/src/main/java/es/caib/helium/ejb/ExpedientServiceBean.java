@@ -752,6 +752,12 @@ public class ExpedientServiceBean extends AbstractServiceEjb<ExpedientService> i
 	public void syncDocumentsArxiu(Long id, boolean esborrarExpSiError) {
 		delegateService.syncDocumentsArxiu(id, esborrarExpSiError);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void syncTancamentArxiu(Long id, boolean esborrarExpSiError) {
+		delegateService.syncTancamentArxiu(id, esborrarExpSiError);		
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

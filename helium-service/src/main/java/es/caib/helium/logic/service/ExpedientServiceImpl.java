@@ -29,8 +29,6 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.validation.ValidationException;
 
-import es.caib.comanda.model.management.TascaEstat;
-import es.caib.helium.logic.helper.*;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +47,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.google.common.collect.Lists;
 
+import es.caib.comanda.model.management.TascaEstat;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
@@ -107,6 +108,30 @@ import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.TramitacioValidacioException;
 import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.logic.helper.AlertaHelper;
+import es.caib.helium.logic.helper.ComandaHelper;
+import es.caib.helium.logic.helper.ConsultaHelper;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DistribucioHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExpedientDadaHelper;
+import es.caib.helium.logic.helper.ExpedientDocumentHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientLoggerHelper;
+import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PermisosHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.TascaHelper;
+import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.VariableHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
 import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
@@ -176,8 +201,6 @@ import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 import es.caib.pluginsib.arxiu.api.ContingutArxiu;
 import es.caib.pluginsib.arxiu.api.ExpedientMetadades;
 import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -1759,6 +1782,36 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					ex);
 		}
 	}
+	
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void syncTancamentArxiu(Long expedientId, boolean esborrarExpSiError) {
+		Expedient expedient = expedientRepository.findById(expedientId).orElseThrow();
+		try {
+			expedientHelper.tancarExpedientArxiu(expedient.getId(), esborrarExpSiError);
+		} catch (Exception ex) {
+			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
+			if (esborrarExpSiError && expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
+				logger.info("Es procedeix a esborrar l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.");
+				try{
+					pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+				} catch(Exception aex) {
+					logger.error("Error esborrant l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.", aex);
+				}
+			}
+			throw new TramitacioException(
+					expedient.getEntorn().getId(), 
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					errorDescripcio, 
+					ex);
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -1779,7 +1832,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			addCurrentlyMigrating(id);
 			this.migrarArxiu(id, esborrarExpSiError);
 			this.migrarDocumentsArxiu(id, esborrarExpSiError);
-			this.finalitzaArxiuMigrat(id);
+			this.finalitzaArxiuMigrat(id, esborrarExpSiError);
 		} catch(TramitacioException ex) {
 			if (esborrarExpSiError) {
 				this.undoSincronitzacioArxiu(id);
@@ -1791,38 +1844,29 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 	}
 
-	private void finalitzaArxiuMigrat(Long id) {
-		finalitzaArxiuMigratTransactional(id);
-	}
-
-	@Transactional(propagation=Propagation.REQUIRES_NEW)
-	private void finalitzaArxiuMigratTransactional(Long id) {
-		entityManager.flush();
-		entityManager.clear();
-		Expedient expedient = expedientRepository.getReferenceById(id);
+	private void finalitzaArxiuMigrat(Long id, boolean esborrarExpSiError) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
 		try {
 			if(expedient.getDataFi() == null)
 				return;
-
-			expedientHelper.tancarExpedientArxiu(id, true);
+			self.syncTancamentArxiu(expedient.getId(), esborrarExpSiError);
 		} catch(Exception ex) {
 			String errorDescripcio = "Error finalitzant l'expedient migrant " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
-			try {
-				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
-			} catch(Exception aex) {
-				logger.error("Error esborrant l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.", aex);
-			}
 			throw new TramitacioException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(),
-					expedient.getEntorn().getNom(),
-					expedient.getId(),
-					expedient.getTitol(),
-					expedient.getNumero(),
-					expedient.getTipus().getId(),
-					expedient.getTipus().getCodi(),
-					expedient.getTipus().getNom(),
-					errorDescripcio,
+					expedient.getEntorn().getId(), 
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					errorDescripcio, 
 					ex);
 		}
 	}
