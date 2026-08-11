@@ -1,20 +1,5 @@
 package es.caib.helium.back.helper;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import es.caib.helium.back.mvc.JasperReportsView;
-import es.caib.helium.commons.dto.FieldValue;
-import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.export.*;
-import net.sf.jasperreports.engine.export.oasis.JROdtExporter;
-import net.sf.jasperreports.engine.fill.AsynchronousFillHandle;
-import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +8,32 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Component;
+
+import com.codahale.metrics.Timer;
+
+import es.caib.helium.commons.dto.FieldValue;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRExporterParameter;
+import net.sf.jasperreports.engine.JRParameter;
+import net.sf.jasperreports.engine.JRVirtualizer;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.JRCsvExporter;
+import net.sf.jasperreports.engine.export.JRHtmlExporter;
+import net.sf.jasperreports.engine.export.JRRtfExporter;
+import net.sf.jasperreports.engine.export.JRXlsExporter;
+import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
+import net.sf.jasperreports.engine.export.JRXmlExporter;
+import net.sf.jasperreports.engine.export.oasis.JROdtExporter;
+import net.sf.jasperreports.engine.fill.AsynchronousFillHandle;
+import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
+
 /**
  * Vista per a generar un report amb Jasper Reports
  *
@@ -30,9 +41,6 @@ import java.util.Map;
  */
 @Component
 public class JasperReportsHelper {
-
-	@Autowired
-	private MetricRegistry metricRegistry;
 
 	/** Mapeig de les diferents consultes per identificador de sessió. */
 	private Map<String, JasperReportInfo> jasperInfo = new HashMap<String, JasperReportInfo>();
@@ -111,18 +119,6 @@ public class JasperReportsHelper {
 			// Fa una comporovació de que el procés no s'hagi cancel·lat
 			if (InformeHelper.Estat.CANCELLAT.equals(info.getEstat()))
 				return info;
-
-			// Inici mètriques
-			Timer.Context context = metricRegistry.timer(
-				MetricRegistry.name(
-					JasperReportsView.class,
-					"informe." + nomConsulta )).time();
-			ji.setContextConsulta(context);
-			Counter counter = metricRegistry.counter(
-				MetricRegistry.name(
-					JasperReportsView.class,
-					"informe." + nomConsulta + ".count"));
-			counter.inc();
 
 			// Comença a omlir el report
 			handle.startFill();

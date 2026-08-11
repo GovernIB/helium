@@ -10,15 +10,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jfree.util.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.View;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
-import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.logic.intf.service.AdminService;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRParameter;
@@ -61,9 +56,6 @@ public class JasperReportsView implements View {
 	private AdminService adminService;
 
 	@Autowired
-	private MetricRegistry metricRegistry;
-
-	@Autowired
 	public JasperReportsView(AdminService adminService) {
 		this.adminService = adminService;
 	}
@@ -76,33 +68,6 @@ public class JasperReportsView implements View {
 		response.setHeader(HEADER_PRAGMA, "");
 		response.setHeader(HEADER_EXPIRES, "");
 		response.setHeader(HEADER_CACHE_CONTROL, "");
-
-		// #1130 Per un error en les consultes d'INIPAR es posa una mètrica per saber el temps
-		// d'execució de les consultes.
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		final Timer timerTotal = metricRegistry.timer(
-				MetricRegistry.name(
-						JasperReportsView.class,
-						"informe" ));
-		final Timer.Context contextTotal = timerTotal.time();
-		Counter countTotal = metricRegistry.counter(
-				MetricRegistry.name(
-						JasperReportsView.class,
-						"informe.count"));
-		countTotal.inc();
-		final Timer timerEntorn = metricRegistry.timer(
-				MetricRegistry.name(
-						JasperReportsView.class,
-						"informe." + (String)model.get(MODEL_ATTRIBUTE_CONSULTA),
-						entorn.getCodi()));
-		final Timer.Context contextEntorn = timerEntorn.time();
-		Counter countEntorn = metricRegistry.counter(
-				MetricRegistry.name(
-						JasperReportsView.class,
-						"informe." + (String)model.get(MODEL_ATTRIBUTE_CONSULTA)+ ".count",
-						entorn.getCodi()));
-		countEntorn.inc();
-
 		try {
 			JRBeanCollectionDataSource datasource = null;
 			if (model.get(MODEL_ATTRIBUTE_REPORTDATA) != null)
@@ -235,9 +200,8 @@ public class JasperReportsView implements View {
 				}
 				adminService.mesuraTemporalCalcular("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA), "report", null, null, "REPORT");
 			}
-		} finally {
-			contextTotal.stop();
-			contextEntorn.stop();
+		} catch(Exception e) {
+			Log.error("Error generant el document informe de la consulta " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA) + e.getMessage(), e);
 		}
 	}
 
