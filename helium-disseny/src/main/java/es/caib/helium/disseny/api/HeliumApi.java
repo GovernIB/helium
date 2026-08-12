@@ -1,5 +1,8 @@
 package es.caib.helium.disseny.api;
 
+import es.caib.helium.commons.dto.TerminiIniciatDto;
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.disseny.model.DocumentInfo;
 import es.caib.helium.disseny.model.ExpedientInfo;
 
@@ -8,17 +11,17 @@ import java.util.List;
 
 public interface HeliumApi {
 
-	<T> T getVariable(String codi);
-	void setVariable(String codi, Object valor);
-	<T> T getVariableDefaultValue(String codi, T defaultValue);
-	Date getVariableDefaultValueAsDate(String codi, Object defaultValue);
-	Boolean getVariableDefaultValueAsBoolean(String codi, Object defaultValue);
+	public <T> T getVariable(String codi);
+	public void setVariable(String codi, Object valor);
+	public <T> T getVariableDefaultValue(String codi, T defaultValue);
+	public Date getVariableDefaultValueAsDate(String codi, Object defaultValue);
+	public Boolean getVariableDefaultValueAsBoolean(String codi, Object defaultValue);
 
-	ExpedientInfo getExpedientInfo();
+	public ExpedientInfo getExpedientInfo();
 
-	DocumentInfo getDocumentInfo(String documentCodi);
+	public DocumentInfo getDocumentInfo(String documentCodi);
 
-	void setDocument(
+	public void setDocument(
 		String documentCodi,
 		String arxiuNom,
 		byte[] arxiuContingut,
@@ -27,47 +30,47 @@ public interface HeliumApi {
 		boolean firmaSeparada,
 		byte[] firmaContingut);
 
-	void deleteDocument(String documentCodi);
+	public void deleteDocument(String documentCodi);
 
-	void alertaCrear(String usuariCodi, String text);
+	public void alertaCrear(String usuariCodi, String text);
 
-	void documentConsultar(
+	public void documentConsultar(
 		String documentCodi,
 		String varCsv,
 		String varUrl);
 
-	void documentAdjuntar(
+	public void documentAdjuntar(
 		String documentOrigen,
 		String titol,
 		Date data,
 		boolean concatenarTitol,
 		boolean esborrarDocument);
 
-	void expedientAturar(String motiu);
+	public void expedientAturar(String motiu);
 
-	void expedientEstatModificar(String codi);
+	public void expedientEstatModificar(String codi);
 
-	void expedientComentariModificar(String comentari);
+	public void expedientComentariModificar(String comentari);
 
-	void expedientConsultar(
+	public void expedientConsultar(
 		String varRegistreNumero,
 		String varTitol,
 		String varNumero,
 		String verDataInici);
 
-	void expedientFinalitzar();
+	public void expedientFinalitzar();
 
-	void expedientDesfinalitzar(boolean reprendre);
+	public void expedientDesfinalitzar(boolean reprendre);
 
-	void expedientGrupModificar(String grup);
+	public void expedientGrupModificar(String grup);
 
-	void expedientNumeroModificar(String numero);
+	public void expedientNumeroModificar(String numero);
 
-	void expedientResponsableModificar(String responsableCodi);
+	public void expedientResponsableModificar(String responsableCodi);
 
-	void expedientTitolModificar(String titol);
+	public void expedientTitolModificar(String titol);
 
-	void interessatCrear(
+	public void interessatCrear(
 		String codi,
 		String nom,
 		String tipusDocIdent,
@@ -90,7 +93,7 @@ public interface HeliumApi {
 		String municipi,
 		String canalNotif);
 
-	void interessatModificar(
+	public void interessatModificar(
 		String id,
 		String codi,
 		String nom,
@@ -114,9 +117,9 @@ public interface HeliumApi {
 		String municipi,
 		String canalNotif);
 
-	void interessatEliminar(String codi);
+	public void interessatEliminar(String codi);
 
-	Integer portasignaturesEnviar(
+	public Integer portasignaturesEnviar(
 		String documentCodi,
 		String personaCodi,
 		List<String> annexCodis,
@@ -132,7 +135,7 @@ public interface HeliumApi {
 		String transicioKO,
 		String portafirmesFluxId);
 
-	void enviarEmail(
+	public void enviarEmail(
 		List<String> recipients,
 		List<String> ccRecipients,
 		List<String> bccRecipients,
@@ -140,4 +143,8 @@ public interface HeliumApi {
 		String text,
 		List<String> attachments);
 
+	public WProcessInstance getProcessInstance();
+	public WTaskInstance getTaskInstance();
+
+	public TerminiIniciatDto getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi);
 }

@@ -28,7 +28,7 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
@@ -42,14 +42,14 @@
 		}
 	</style>
 </head>
-<body>		
+<body>
 	<form:form id="importar-form" cssClass="form-horizontal" action="importar" enctype="multipart/form-data" method="post" modelAttribute="command" style="min-height: 500px;">
 
 		<div class="inlineLabels">
-		
+
 			<script type="text/javascript">
 				// <![CDATA[
-				            
+
 				// Opcions comunes per totes les taules del document
 				$.extend( true, $.fn.dataTable.defaults, {
 				    columnDefs: [ {
@@ -62,20 +62,20 @@
 				    oLanguage: {
 					      sInfo: ""
 				    }
-				});				
-				
+				});
+
 				$(document).ready( function() {
 					// Quan se selecciona un fitxer es mostra el botó de carregar el contingut.
 					$('#file').change(function() {
 						window.parent.$('button[type="submit"]').attr('disabled', 'disabled');
 						$('progress').hide();
 						$('#importarOpcions').empty();
-						if ($(this).val() != "") 
-							$('#carregarButton').show().click();	
+						if ($(this).val() != "")
+							$('#carregarButton').show().click();
 					});
 					$('#carregarButton').click(function(e){
 						importarUpload();
-					})						
+					})
 					// Submit del formulari per Ajax
 					$('button[type="submit"]').click(function(e){
 						e.preventDefault();
@@ -83,28 +83,28 @@
 						importarFormPostSubmit();
 						return false;
 					})
-				}); 	
-				
-				/** Funció que fa el post del formulari d'importació per ajax per carregar 
+				});
+
+				/** Funció que fa el post del formulari d'importació per ajax per carregar
 				la part del contingut de les opcions mantenint la selecció del fitxer. */
 				function importarFormPostSubmit() {
-					
+
 					var $form = $('#importar-form');
-					// Neteja els errors en fer submit						
+					// Neteja els errors en fer submit
 					$('.has-error').removeClass('has-error');
 					$('p.help-block').remove();
 					// Adequa el botó de submit posat el el parent per webutil.modal.js
-					window.parent.$('button[type="submit"]').attr('disabled', 'disabled');
+					$('button[type="submit"]').attr('disabled', 'disabled');
 					//window.parent.$('#importarProcessant').css('visibility', 'visible');
-					window.parent.$('#importarIcon').hide();
-					window.parent.$('#importarProcessant').show();
+					$('#importarIcon').hide();
+					$('#importarProcessant').show();
 					// Completa les dades del formulari amb el contingut del fitxer per enviar dins del commmand
 					var formData = new FormData($form[0]);
 					// Fa el post per ajax per mantenir la selecció del fitxer
-					var url = $form.attr('action'); 
+					var url = $form.attr('action');
 				    $.ajax({
 				           	type: "POST",
-					        url: '<c:url value="/nodeco/definicioProces/importar"/>',  
+					        url: '<c:url value="/nodeco/definicioProces/importar"/>',
 				           	data: formData,
 				            processData: false,
 				            contentType: false,
@@ -124,7 +124,7 @@
 					        	$('#importarOpcions').html(data);
 					        	if (Boolean($('#importacioFinalitzada').val())) {
 						        	if (typeof $('#redireccioUrl').val() != 'undefined')
-						        		window.parent.location = $('#redireccioUrl').val();					        		
+						        		window.parent.location = $('#redireccioUrl').val();
 					        	} else {
 									webutilRefreshMissatges();
 									actualitzarOpcions();
@@ -145,9 +145,9 @@
 					});
 				}
 
-			    
+
 				/* Quan es carrega el contingut de les opcions es lliguen els events ajax. */
-				function actualitzarOpcions() {					
+				function actualitzarOpcions() {
 					$('table').DataTable();
 					// Event per seleccionar o des seleccionar totes les entrades
 					$('.checkAll').change(function(){
@@ -167,12 +167,12 @@
 						if (e.target.type != 'checkbox'){
 							var $checkbox =$('.check', this);
 							$checkbox.prop('checked', !$checkbox.is(':checked')).change();
-						  }						
+						  }
 					});
 					// si canvia un check comprova què fer amb el checkAll
 					$('.check').change(function() {
 						updateMarcador($(this).closest('.agrupacio'))
-					});					
+					});
 					// Per mostrar o ocultar el contingut de les taules
 					$('.agrupacio').on('show.bs.collapse', function () {
 						$(this).find('.fa-chevron-down').hide();
@@ -186,7 +186,7 @@
 					$('.agrupacio').each(function(){
 						if ($(this).find('.taula').length > 0)
 							updateMarcador($(this));
-					});		
+					});
 					// Expandeix els panells que continguin errors
 					$('.has-error').closest('.agrupacio').find('.clicable').click();
 
@@ -198,15 +198,15 @@
 					$('#definicions-taula').find('.check').change(function() {
 						$(this).closest('tr').find('select').attr('disabled', !$(this).is(':checked'));
 					})
-				} 				
-				
+				}
+
 				// Actualitza la icona del marcador de selecció del costat del títol de la agrupació
 				function updateMarcador( $agrupacio ) {
 					// amaga els marcadors
 					$agrupacio.find('.marcador').hide();
 					var total = $agrupacio.find('.check').length;
 					var marcats = $agrupacio.find('.check:checked').length;
-					
+
 					if (total == marcats && marcats > 0)
 						$agrupacio.find('.tots').show();
 					else if(marcats == 0)
@@ -215,21 +215,21 @@
 						$agrupacio.find('.algun').show();
 					$agrupacio.find('.marcats').text(marcats);
 					$agrupacio.find('.total').text(total);
-					// botó de checkall					
+					// botó de checkall
 					$agrupacio.find('.checkAll').prop('checked', total == marcats);
-				}	
-				
+				}
+
 				/** Carrega el fitxer al servidor i omple el contingut per seleccionar què importar. */
 				function importarUpload() {
-					
+
 					var formData = new FormData();
-		            formData.append('file', $('#file')[0].files[0]);		            
+		            formData.append('file', $('#file')[0].files[0]);
 					formData.append("entornId", $('#entornId').val());
 					formData.append("expedientTipusId", $('#expedientTipusId').val());
 					formData.append("id", $('#id').val());
-					
+
 				    $.ajax({
-				        url: '<c:url value="/nodeco/definicioProces/importar/upload"/>',  
+				        url: '<c:url value="/nodeco/definicioProces/importar/upload"/>',
 				        type: 'POST',
 				        // Form data
 				        data: formData,
@@ -267,7 +267,7 @@
 				        processData: false
 				    });
 				}
-				
+
 				/** Funció que va incrementant la barra de progrés de la càrrega dels fitxers. */
 				function progressHandlingFunction(e){
 				    if(e.lengthComputable){
@@ -275,9 +275,9 @@
 				    }
 				}
 				// ]]>
-			</script>			
+			</script>
 		</div>
-		
+
 		<input type="hidden" name="entornId" id="entornId" value="${command.entornId}" />
 		<input type="hidden" name="expedientTipusId" id="expedientTipusId" value="${command.expedientTipusId}" />
 		<input type="hidden" name="id" id="id" value="${command.id}" />
@@ -285,7 +285,7 @@
 		<c:if test="${command.id != null}">
 			<hel:inputCheckbox name="sobreEscriure" textKey="definicio.proces.importar.form.opcions.sobreEscriure" info="definicio.proces.importar.form.opcions.sobreEscriure.info" labelSize="6" />
 		</c:if>
-		
+
 		<h4>1 <spring:message code="definicio.proces.importar.form.carregar"/></h4>
 		<div class="row">
 			<div class="col-sm-6">
@@ -299,7 +299,7 @@
 				<progress style="display: none;"></progress>
 			</div>
 		</div>
-		
+
 		<h4>2 <spring:message code="definicio.proces.importar.form.seleccionar"/></h4>
 		<div id="carregant" style="display: none; width: 10%; text-align: center;">
 			<span class="fa fa-spinner fa-pulse fa-2x fa-fw"></span>
@@ -307,17 +307,17 @@
 		</div>
 		<div id="importarOpcions">
 		</div>
-		
+
 
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.cancelar"/>
 			</button>
 			<button id="importarButton" type="submit" class="btn btn-success right">
-				<span id="importarIcon" class="fa fa-sign-in fa-fw"></span> 
+				<span id="importarIcon" class="fa fa-sign-in fa-fw"></span>
 				<span id="importarProcessant" style="display:none;">
 					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>..."></span><span class="sr-only">&hellip;</span>
-				</span>			
+				</span>
 				<spring:message code="comu.importar"/>
 			</button>
 		</div>

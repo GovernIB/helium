@@ -44,7 +44,7 @@ import es.caib.helium.commons.exportacio.TascaExportacio;
 import es.caib.helium.commons.exportacio.TerminiExportacio;
 import es.caib.helium.commons.exportacio.ValidacioExportacio;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
+import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Accio;
 import es.caib.helium.persistence.entity.Camp;
@@ -841,7 +841,9 @@ public class DefinicioProcesHelper {
 						definicio,
 						DefinicioProcesDto.class));
 		exportacio.setNomDeploy("export.par");
-		Set<String> resourceNames = workflowEngineApi.getResourceNames(definicio.getJbpmId());
+
+		WProcessDefinition pd = workflowEngineApi.getProcessDefinition(definicio.getJbpmId());
+		Set<String> resourceNames = workflowEngineApi.getResourceNames(pd.getDeploymentId());
 		if (resourceNames != null && resourceNames.size() > 0) {
 			try {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -849,7 +851,7 @@ public class DefinicioProcesHelper {
 				byte[] data = new byte[1024];
 				for (String resource: resourceNames) {
 					byte[] bytes = workflowEngineApi.getResourceBytes(
-							definicio.getJbpmId(),
+							pd.getDeploymentId(),
 							resource);
 					if (bytes != null) {
 						InputStream is = new ByteArrayInputStream(bytes);

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -24,7 +24,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -40,11 +40,11 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 
 	@RequestMapping(value = "/{expedientId}/registre", method = RequestMethod.GET)
 	public String registre(
-			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
 			@RequestParam(value = "tipus_retroces", required = false) Integer tipus_retroces,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);		
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		boolean detall = tipus_retroces != null && tipus_retroces == 0;
 		model.addAttribute(
 				"tasques",
@@ -71,7 +71,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 	 * procesos es mostra una taula amb els canvis d'estat.
 	 * Si es demana el registre detallat llavors es comprova que l'usuari tingui permís per veure el registre
 	 * o que sigui administrador.
-	 * 
+	 *
 	 * @param request
 	 * @param expedientId
 	 * @param detall
@@ -80,11 +80,11 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 	 */
 	@RequestMapping(value = "/{expedientId}/estat", method = RequestMethod.GET)
 	public String estat(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@RequestParam(value = "detall", required = false, defaultValue = "false") Boolean detall,			
+			@RequestParam(value = "detall", required = false, defaultValue = "false") Boolean detall,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);		
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		model.addAttribute(
 				"expedient",
 				expedient);
@@ -146,7 +146,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 	public String logAccionsTasca(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long expedientId,
-			@RequestParam(value = "targetId", required = true) Long targetId,
+			@RequestParam(value = "targetId", required = true) String targetId,
 			ModelMap model) {
 		model.addAttribute(
 				"logs",
@@ -163,7 +163,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 	@RequestMapping(value = "scriptForm/{logId}")
 	public String logScript(
 			HttpServletRequest request,
-			@PathVariable Long logId, 
+			@PathVariable Long logId,
 			ModelMap model) {
 		model.addAttribute(
 				"log",

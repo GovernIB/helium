@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.helium.commons.dto.TokenDto;
 import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.logic.intf.dto.engine.WToken;
+import es.caib.helium.disseny.engine.WToken;
 import es.caib.helium.logic.intf.service.ExpedientTokenService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Expedient;

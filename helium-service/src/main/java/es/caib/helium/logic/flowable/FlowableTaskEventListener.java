@@ -1,13 +1,9 @@
 package es.caib.helium.logic.flowable;
 
 import es.caib.comanda.model.management.TascaEstat;
-import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.logic.helper.ComandaHelper;
 import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTascaService;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.common.engine.api.delegate.event.AbstractFlowableEventListener;
@@ -16,14 +12,8 @@ import org.flowable.common.engine.api.delegate.event.FlowableEntityEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEvent;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.runtime.ProcessInstance;
-import org.flowable.identitylink.api.IdentityLinkInfo;
 import org.flowable.identitylink.service.impl.persistence.entity.IdentityLinkEntity;
-import org.flowable.task.api.Task;
 import org.flowable.task.service.impl.persistence.entity.TaskEntity;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor

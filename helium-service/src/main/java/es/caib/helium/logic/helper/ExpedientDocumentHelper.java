@@ -3,9 +3,16 @@ package es.caib.helium.logic.helper;
 import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.dades.DocumentTipusEnum;
 import es.caib.helium.commons.dto.*;
+import es.caib.helium.commons.exception.SistemaExternConversioDocumentException;
+import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.OpenOfficeUtils;
+import es.caib.helium.commons.utils.PdfUtils;
+import es.caib.helium.disseny.engine.WProcessDefinition;
+import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.logic.utils.DocumentTokenUtils;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.repository.*;
 import es.caib.pluginsib.arxiu.api.ContingutArxiu;
@@ -14,10 +21,17 @@ import es.caib.pluginsib.arxiu.api.FirmaTipus;
 import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
 
+import javax.activation.MimetypesFileTypeMap;
+import java.io.ByteArrayOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,9 +56,20 @@ public class ExpedientDocumentHelper {
 	@Autowired
 	private DocumentRepository documentRepository;
 	@Autowired
+	private DefinicioProcesRepository definicioProcesRepository;
+	@Autowired
 	private ExpedientHelper expedientHelper;
 	@Autowired
 	private PluginHelper pluginHelper;
+	@Autowired
+	private PlantillaHelper plantillaHelper;
+	@Autowired
+	private OpenOfficeUtils openOfficeUtils;
+	@Autowired
+	private WorkflowEngineApi workflowEngineApi;
+
+	private DocumentTokenUtils documentTokenUtils;
+	private PdfUtils pdfUtils;
 
 	public List<DocumentStore> findByExpedient(Long expedientId) {
 		return expedientDocumentRepository.findDocumentStoreByExpedientId(expedientId);
@@ -506,7 +531,7 @@ public class ExpedientDocumentHelper {
 	/** Mètode per consultar els documents notificats tant directament com dins dels .zip que poden contenir altres documents.
 	 *
 	 * @param expedient
-	 * @return
+	 * @return List<Long>
 	 */
 	private List<Long> getDocumentsNotificats(Expedient expedient) {
 		List<Long> documentsNotificats = documentNotificacioRepository.getDocumentsNotificatsIdsPerExpedient(expedient);
@@ -713,4 +738,567 @@ public class ExpedientDocumentHelper {
 			PropertyConfig.PROP_NTI_CSV_DEFINICIO);
 	}
 
+	public ArxiuDto generarDocumentAmbPlantillaIConvertir(
+		Expedient expedient,
+		Document document,
+		String taskInstanceId,
+		String processInstanceId,
+		Date dataDocument) {
+			ArxiuDto resultat;
+			if (document.isPlantilla()) {
+				resultat = plantillaHelper.generarDocumentPlantilla(
+					expedient,
+					document,
+					taskInstanceId,
+					processInstanceId,
+					dataDocument);
+				if (isActiuConversioVista()) {
+					try {
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						openOfficeUtils.convertir(
+							resultat.getNom(),
+							resultat.getContingut(),
+							getExtensioVista(document),
+							baos);
+						resultat.setNom(
+							nomArxiuAmbExtensio(
+								resultat.getNom(),
+								getExtensioVista(document)));
+						resultat.setContingut(baos.toByteArray());
+					} catch (Exception ex) {
+						throw new SistemaExternConversioDocumentException(
+							expedient.getEntorn().getId(),
+							expedient.getEntorn().getCodi(),
+							expedient.getEntorn().getNom(),
+							expedient.getId(),
+							expedient.getTitol(),
+							expedient.getNumero(),
+							expedient.getTipus().getId(),
+							expedient.getTipus().getCodi(),
+							expedient.getTipus().getNom(),
+							ex);
+					}
+				}
+			} else {
+				resultat = new ArxiuDto(
+					document.getArxiuNom(),
+					document.getArxiuContingut());
+			}
+			if (resultat.getTipusMime() == null) {
+				resultat.setTipusMime(getContentType(resultat.getNom()));
+			}
+			return resultat;
+	}
+
+	public String getContentType(String arxiuNom) {
+		String fileContentDetect = new MimetypesFileTypeMap().getContentType(arxiuNom);
+		if (!fileContentDetect.equals(MimeTypes.OCTET_STREAM)) {
+			return fileContentDetect;
+		}
+		return MimeTypes.OCTET_STREAM;
+	}
+
+	private String getExtensioVista(Document document) {
+		String extensioVista = null;
+		if (isActiuConversioVista()) {
+			if (document.getConvertirExtensio() != null && !document.getConvertirExtensio().isEmpty()) {
+				extensioVista = document.getConvertirExtensio();
+			} else {
+				extensioVista = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_VISTA_EXTENSION);
+				if (extensioVista == null)
+					extensioVista = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_GENTASCA_EXTENSION);
+			}
+		}
+		return extensioVista;
+	}
+
+	private String nomArxiuAmbExtensio(String fileName, String extensio) {
+		if (extensio == null || extensio.isEmpty())
+			return fileName;
+		int indexPunt = fileName.lastIndexOf(".");
+		if (indexPunt != -1) {
+			String nom = fileName.substring(0, indexPunt);
+			return nom + "." + extensio;
+		} else {
+			return fileName + "." + extensio;
+		}
+	}
+
+	private boolean isActiuConversioVista() {
+		String actiuConversio = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_ACTIU);
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioVista = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_VISTA_ACTIU);
+		if (actiuConversioVista == null)
+			actiuConversioVista = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_GENTASCA_ACTIU);
+		return "true".equalsIgnoreCase(actiuConversioVista);
+	}
+
+	public void firmaServidor(String processInstanceId, Long documentStoreId, String motiu, byte[] bytes) {
+	}
+
+	public DocumentDto toDocumentDto(
+		Long documentStoreId,
+		boolean ambContingutOriginal,
+		boolean ambContingutSignat,
+		boolean ambContingutVista,
+		boolean perSignar,
+		boolean ambSegellSignatura
+	) {
+		if (documentStoreId != null) {
+			DocumentStore document = documentStoreRepository.getReferenceById(documentStoreId);
+			if (document != null) {
+				DocumentDto dto = new DocumentDto();
+				dto.setId(document.getId());
+				dto.setDataCreacio(document.getDataCreacio());
+				dto.setDataDocument(document.getDataDocument());
+				dto.setArxiuNom(document.getArxiuNom());
+				dto.setArxiuContingut(document.getArxiuContingut());
+				dto.setProcessInstanceId(document.getProcessInstanceId());
+				dto.setSignat(document.isSignat());
+				dto.setAdjunt(document.isAdjunt());
+				dto.setAdjuntTitol(document.getAdjuntTitol());
+				try {
+					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
+				} catch (Exception ex) {
+					log.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
+				}
+				String codiDocument;
+				if (document.isAdjunt()) {
+					dto.setAdjuntId(document.getCodi());
+					dto.setDocumentId(document.getId());
+				} else {
+					codiDocument = document.getCodi();
+					WProcessDefinition jpd = workflowEngineApi.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
+					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
+					ExpedientTipus expedientTipus = expedient.getTipus();
+					Document doc;
+					if (expedientTipus.isAmbInfoPropia())
+						doc = documentRepository.findByExpedientTipusAndCodi(
+							expedientTipus.getId(),
+							codiDocument,
+							expedientTipus.getExpedientTipusPare() != null);
+					else
+						doc = documentRepository.findByDefinicioProcesAndCodi(
+							definicioProces,
+							codiDocument);
+
+					if (doc != null) {
+						dto.setContentType(doc.getContentType());
+						dto.setCustodiaCodi(doc.getCustodiaCodi());
+						dto.setDocumentId(doc.getId());
+						dto.setDocumentCodi(doc.getCodi());
+						dto.setDocumentNom(doc.getNom());
+						dto.setTipusDocPortasignatures(doc.getTipusDocPortasignatures());
+						dto.setAdjuntarAuto(doc.isAdjuntarAuto());
+					}
+				}
+				if (ambContingutOriginal) {
+					dto.setArxiuContingut(
+						getContingutDocumentAmbFont(document));
+				}
+				if (ambContingutSignat && document.isSignat() && isSignaturaFileAttached()) {
+					dto.setSignatNom(
+						getNomArxiuAmbExtensio(
+							document.getArxiuNom(),
+							getExtensioArxiuSignat()));
+					byte[] signatura = null;
+					dto.setSignatContingut(signatura);
+				}
+				if (ambContingutVista) {
+					String arxiuOrigenNom;
+					byte[] arxiuOrigenContingut;
+					// Obtenim l'origen per a generar la vista o bé del document original
+					// o bé del document signat
+					if (document.isSignat() && isSignaturaFileAttached()) {
+						if (ambContingutSignat) {
+							arxiuOrigenNom = dto.getSignatNom();
+							arxiuOrigenContingut = dto.getSignatContingut();
+						} else {
+							arxiuOrigenNom = getNomArxiuAmbExtensio(
+								document.getArxiuNom(),
+								getExtensioArxiuSignat());
+							arxiuOrigenContingut = null;
+						}
+					} else {
+						arxiuOrigenNom = dto.getArxiuNom();
+						if (ambContingutOriginal) {
+							arxiuOrigenContingut = dto.getArxiuContingut();
+						} else {
+							if (document.getFont().equals(DocumentStore.DocumentFont.INTERNA)) {
+								arxiuOrigenContingut = document.getArxiuContingut();
+							} else {
+								arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
+									document.getReferenciaFont());
+							}
+						}
+					}
+					// Calculam l'extensió del document final de la vista
+					String extensioActual = null;
+					int indexPunt = arxiuOrigenNom.indexOf(".");
+					if (indexPunt != -1)
+						extensioActual = arxiuOrigenNom.substring(0, indexPunt);
+					String extensioDesti = extensioActual;
+					if (perSignar && isActiuConversioSignatura()) {
+						extensioDesti = getExtensioArxiuSignat();
+					} else if (document.isRegistrat()) {
+						extensioDesti = getExtensioArxiuRegistrat();
+					}
+					dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
+					if ("pdf".equalsIgnoreCase(extensioDesti)) {
+						// Si és un PDF podem estampar
+						try {
+							ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
+							DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+							String dataRegistre = null;
+							if (document.getRegistreData() != null)
+								dataRegistre = df.format(document.getRegistreData());
+							String numeroRegistre = document.getRegistreNumero();
+							getPdfUtils().estampar(
+								arxiuOrigenNom,
+								arxiuOrigenContingut,
+								(ambSegellSignatura) ? !document.isSignat() : false,
+								(ambSegellSignatura) ? getUrlComprovacioSignatura(dto.getTokenSignatura()): null,
+								document.isRegistrat(),
+								numeroRegistre,
+								dataRegistre,
+								document.getRegistreOficinaNom(),
+								document.isRegistreEntrada(),
+								vistaContingut,
+								extensioDesti);
+							dto.setVistaContingut(vistaContingut.toByteArray());
+						} catch (Exception ex) {
+							Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
+							String errorDescripcio = "No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'";
+							log.error(errorDescripcio, ex);
+							throw SistemaExternException.tractarSistemaExternException(
+								expedient.getEntorn().getId(),
+								expedient.getEntorn().getCodi(),
+								expedient.getEntorn().getNom(),
+								expedient.getId(),
+								expedient.getTitol(),
+								expedient.getNumero(),
+								expedient.getTipus().getId(),
+								expedient.getTipus().getCodi(),
+								expedient.getTipus().getNom(),
+								MonitorIntegracioHelper.INTCODI_PFIRMA,
+								"(PORTASIGNATURES. Enviar: " + errorDescripcio + ")",
+								ex);
+						}
+					} else {
+						// Si no és un pdf retornam la vista directament
+						dto.setVistaNom(arxiuOrigenNom);
+						dto.setVistaContingut(arxiuOrigenContingut);
+					}
+				}
+				if (document.isRegistrat()) {
+					dto.setRegistreData(document.getRegistreData());
+					dto.setRegistreNumero(document.getRegistreNumero());
+					dto.setRegistreOficinaCodi(document.getRegistreOficinaCodi());
+					dto.setRegistreOficinaNom(document.getRegistreOficinaNom());
+					dto.setRegistreEntrada(document.isRegistreEntrada());
+					dto.setRegistrat(true);
+				}
+				return dto;
+			}
+		}
+		return null;
+	}
+
+	private byte[] getContingutDocumentAmbFont(DocumentStore document) {
+		if (document.getFont().equals(DocumentStore.DocumentFont.INTERNA))
+			return document.getArxiuContingut();
+		else
+			return pluginHelper.gestioDocumentalObtenirDocument(
+				document.getReferenciaFont());
+	}
+
+	private String getNomArxiuAmbExtensio(
+		String arxiuNomOriginal,
+		String extensio) {
+		if (!isActiuConversioSignatura())
+			return arxiuNomOriginal;
+		if (extensio == null)
+			extensio = "";
+		int indexPunt = arxiuNomOriginal.lastIndexOf(".");
+		if (indexPunt != -1) {
+			return arxiuNomOriginal.substring(0, indexPunt) + "." + extensio;
+		} else {
+			return arxiuNomOriginal + "." + extensio;
+		}
+	}
+
+	private String getExtensioArxiuSignat() {
+		return (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_EXTENSION);
+	}
+
+	private String getExtensioArxiuRegistrat() {
+		return (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_REGISTRE_EXTENSION);
+	}
+
+	private boolean isSignaturaFileAttached() {
+		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_SIGNATURA_PLUGIN_FILE_ATTACHED));
+	}
+
+	private boolean isActiuConversioSignatura() {
+		String actiuConversio = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_ACTIU);
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioSignatura = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_ACTIU);
+		return "true".equalsIgnoreCase(actiuConversioSignatura);
+	}
+
+	private DocumentTokenUtils getDocumentTokenUtils() {
+		if (documentTokenUtils == null)
+			documentTokenUtils = new DocumentTokenUtils(
+				(String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ENCRIPTACIO_CLAU));
+		return documentTokenUtils;
+	}
+
+	private String getUrlComprovacioSignatura(String token) {
+			String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
+			if (baseUrl == null)
+				baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
+			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
+	}
+
+	private PdfUtils getPdfUtils() {
+		if (pdfUtils == null)
+			pdfUtils = new PdfUtils();
+		return pdfUtils;
+	}
+
+	private String calcularArxiuNomOriginal(
+		DocumentStore documentStore) {
+		String nomOriginal;
+		if (documentStore.isSignat() && isSignaturaFileAttached() && PdfUtils.isArxiuConvertiblePdf(documentStore.getArxiuNom())) {
+			nomOriginal = getNomArxiuAmbExtensio(
+				documentStore.getArxiuNom(),
+				getExtensioArxiuSignat());
+		} else {
+			nomOriginal = documentStore.getArxiuNom();
+		}
+		return nomOriginal;
+	}
+
+	private String calcularArxiuExtensioDesti(
+		String nomOriginal,
+		DocumentStore documentStore,
+		boolean perSignar) {
+		String extensioActual = null;
+		int indexPunt = nomOriginal.lastIndexOf(".");
+		if (indexPunt != -1)
+			extensioActual = nomOriginal.substring(indexPunt + 1);
+		String extensioDesti = extensioActual;
+		if (perSignar && isActiuConversioSignatura()) {
+			extensioDesti = getExtensioArxiuSignat();
+		} else if (documentStore.isRegistrat()) {
+			extensioDesti = getExtensioArxiuRegistrat();
+		}
+		return extensioDesti;
+	}
+
+	public ArxiuDto getArxiuPerDocumentStoreId(
+		Long documentStoreId,
+		boolean perSignar,
+		boolean ambSegellSignatura,
+		String versio) {
+		return getArxiuPerDocumentStoreId(
+			documentStoreId,
+			perSignar,
+			ambSegellSignatura,
+			versio,
+			false);
+	}
+	public ArxiuDto getArxiuPerDocumentStoreId(
+		Long documentStoreId,
+		boolean perSignar,
+		boolean ambSegellSignatura,
+		String versio,
+		boolean perNotificar) {
+		ArxiuDto resposta = new ArxiuDto();
+		DocumentStore documentStore = documentStoreRepository.getReferenceById(documentStoreId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+
+		// Obtenim el contingut de l'arxiu
+		byte[] arxiuOrigenContingut = null;
+
+		if (expedient.isArxiuActiu()) {
+
+			String arxiuNom = FilenameUtils.removeExtension(documentStore.getArxiuNom());
+			String arxiuExtensio = FilenameUtils.getExtension(documentStore.getArxiuNom());
+			// #1697 Es revisa que no retorni contingut null i es reintenta
+			es.caib.pluginsib.arxiu.api.Document documentArxiu = null;
+			int intents = 0;
+			byte[] arxiuContingut = documentStore.getArxiuContingut();
+			if(arxiuContingut==null && documentStore.getArxiuUuid()!=null) {
+				do {
+					if(documentStore.getArxiuUuid()!=null) {
+						documentArxiu = pluginHelper.arxiuDocumentInfo(
+							documentStore.getArxiuUuid(),
+							versio,
+							true,
+							documentStore.isSignat());
+					}
+					if (documentArxiu == null || documentArxiu.getContingut() == null) {
+						log.warn("La consulta del contingut pel document amb id=" + documentStore.getId() +
+							" ha retornat " + (documentArxiu == null ? "": "documentArxiu.contingut") + " null" );
+					}
+				} while (intents++ < 5
+					&& (documentArxiu == null
+					|| documentArxiu.getContingut() == null));
+
+				if (documentArxiu == null
+					|| documentArxiu.getContingut() == null )
+				{
+					throw new SistemaExternException(
+						MonitorIntegracioHelper.INTCODI_ARXIU,
+						"No s'ha pogut consultar el contingut a l'Arxiu pel document id=" + documentStore.getId() +
+							" amb uuid=" + documentStore.getArxiuUuid() + " i " + (documentStore.isAdjunt() ? "títol d'adjunt " + documentStore.getAdjuntTitol() : "codi de document " + documentStore.getCodiDocument()) +
+							" després de " + intents + "intents.",
+						null);
+				} else {
+					arxiuExtensio = FilenameUtils.getExtension(documentArxiu.getContingut().getArxiuNom());
+				}
+				resposta.setContingut(documentArxiu.getContingut().getContingut());
+				resposta.setTipusMime(
+					documentArxiu.getContingut().getTipusMime() != null ?
+						documentArxiu.getContingut().getTipusMime() :
+						getContentType(documentStore.getArxiuNom()));
+
+				// Construeix el nom de l'arxiu a partir del nom original i de l'extensió del document recuperat de l'Arxiu
+				String nom = arxiuNom + (arxiuExtensio != null && !arxiuExtensio.isEmpty() ? "." + arxiuExtensio : "") ;
+				if( arxiuExtensio == null || arxiuExtensio.trim().isEmpty()) {
+					MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+					try {
+						MimeType mimeType = allTypes.forName(resposta.getTipusMime());
+						nom += mimeType.getExtension();
+					} catch (MimeTypeException e) {
+						log.warn("No s'ha pogut determinar la extensió del fitxer " + nom);
+					}
+				}
+				resposta.setNom(nom);
+
+			} else {
+				resposta.setContingut(arxiuContingut);
+				resposta.setTipusMime(getContentType(documentStore.getArxiuNom()));
+				// Construeix el nom de l'arxiu a partir del nom original i de l'extensió del document recuperat de l'Arxiu
+				String nom = arxiuNom + (arxiuExtensio != null && !arxiuExtensio.isEmpty() ? "." + arxiuExtensio : "") ;
+				if( arxiuExtensio == null || arxiuExtensio.trim().isEmpty()) {
+					MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+					try {
+						MimeType mimeType = allTypes.forName(resposta.getTipusMime());
+						nom += mimeType.getExtension();
+					} catch (MimeTypeException e) {
+						log.warn("No s'ha pogut determinar la extensió del fitxer " + nom);
+					}
+				}
+				resposta.setNom(nom);
+			}
+
+			// Si els documents estan firmats amb PADES sempre tindran extensió PDF
+			boolean isFirmaPades = false;
+			if (documentStore.isSignat() && documentArxiu!= null && documentArxiu.getFirmes() != null) {
+				for (Firma firma: documentArxiu.getFirmes()) {
+					if (FirmaTipus.PADES.equals(firma.getTipus())) {
+						isFirmaPades = true;
+						break;
+					}
+				}
+			}
+			if (isFirmaPades) {
+				if (resposta.getNom() != null && !resposta.getNom().toLowerCase().endsWith(".pdf")) {
+					String nomDoc = resposta.getNom();
+					int indexPunt = nomDoc.lastIndexOf(".");
+					nomDoc =  (indexPunt != -1 ? nomDoc.substring(0, indexPunt) :  nomDoc) + ".pdf";
+					resposta.setNom(nomDoc);
+				}
+			}
+		} else {
+			if (documentStore.getFont().equals(DocumentStore.DocumentFont.INTERNA)) {
+				arxiuOrigenContingut = documentStore.getArxiuContingut();
+			} else {
+				arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
+					documentStore.getReferenciaFont());
+			}
+
+			// Calculam el nom de l'arxiu
+			String arxiuNomOriginal = calcularArxiuNomOriginal(documentStore);
+			String extensioDesti = calcularArxiuExtensioDesti(
+				arxiuNomOriginal,
+				documentStore,
+				perSignar);
+
+			// Només podem convertir a extensió de destí PDF
+			if ("pdf".equalsIgnoreCase(extensioDesti)) {
+
+				resposta.setNom(
+					getNomArxiuAmbExtensio(
+						documentStore.getArxiuNom(),
+						extensioDesti));
+
+				// Si és un PDF podem estampar
+				if (!perNotificar) {
+					try {
+						ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
+						DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+						String dataRegistre = null;
+						if (documentStore.getRegistreData() != null)
+							dataRegistre = df.format(documentStore.getRegistreData());
+						String numeroRegistre = documentStore.getRegistreNumero();
+						String urlComprovacioSignatura = null;
+						getPdfUtils().estampar(
+							arxiuNomOriginal,
+							arxiuOrigenContingut,
+							ambSegellSignatura && documentStore.getReferenciaCustodia() != null,
+							urlComprovacioSignatura,
+							documentStore.isRegistrat(),
+							numeroRegistre,
+							dataRegistre,
+							documentStore.getRegistreOficinaNom(),
+							documentStore.isRegistreEntrada(),
+							vistaContingut,
+							extensioDesti);
+						resposta.setContingut(vistaContingut.toByteArray());
+					} catch (SistemaExternConversioDocumentException ex) {
+						log.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + arxiuNomOriginal + "'", ex.getCause());
+						throw new SistemaExternConversioDocumentException(
+							expedient.getEntorn().getId(),
+							expedient.getEntorn().getCodi(),
+							expedient.getEntorn().getNom(),
+							expedient.getId(),
+							expedient.getTitol(),
+							expedient.getNumero(),
+							expedient.getTipus().getId(),
+							expedient.getTipus().getCodi(),
+							expedient.getTipus().getNom(),
+							ex);
+					} catch (Exception ex) {
+						throw SistemaExternException.tractarSistemaExternException(
+							expedient.getEntorn().getId(),
+							expedient.getEntorn().getCodi(),
+							expedient.getEntorn().getNom(),
+							expedient.getId(),
+							expedient.getTitol(),
+							expedient.getNumero(),
+							expedient.getTipus().getId(),
+							expedient.getTipus().getCodi(),
+							expedient.getTipus().getNom(),
+							MonitorIntegracioHelper.INTCODI_CONVDOC , //sistemaExtern
+							"No s'ha pogut generar la vista pel document (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")",
+							ex);
+					}
+				} else {
+					resposta.setContingut(arxiuOrigenContingut);
+				}
+			} else {
+				// Si no és un pdf retornam la vista directament
+				resposta.setNom(arxiuNomOriginal);
+				resposta.setContingut(arxiuOrigenContingut);
+			}
+			resposta.setTipusMime(getContentType(resposta.getNom()));
+		}
+		return resposta;
+	}
 }

@@ -1,4 +1,4 @@
-package es.caib.helium.logic.intf.dto.engine;
+package es.caib.helium.disseny.engine;
 
 
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.Date;
 import lombok.Data;
 
 /** Classe per per representar la informació general d'una instància de procés dins d'un workflow engine.
- * 
+ *
  */
 @Data
 public class WProcessInstance {

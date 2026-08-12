@@ -65,8 +65,8 @@ import es.caib.helium.disseny.handler.HeliumActionHandler;
 import es.caib.helium.logic.bpmn.HeliumActionHandlerPredefinitFactory;
 import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
-import es.caib.helium.logic.intf.dto.engine.WToken;
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WToken;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.security.ExtendedPermission;
@@ -1249,7 +1249,7 @@ public class ExpedientHelper {
 			boolean cancelTasks) {
 		WToken token = workflowEngineApi.getTokenById(tokenId);
 		String nodeNameVell = token.getNodeName();
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
+		Expedient piexp = findExpedientByProcessInstanceId(
 				token.getProcessInstanceId());
 
 		workflowEngineApi.tokenRedirect(
@@ -1286,14 +1286,7 @@ public class ExpedientHelper {
 	}
 
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
-		Expedient expedient = null;
-		es.caib.helium.commons.dto.ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
-				processInstanceId);
-		if (piexp != null) {
-			expedient = expedientRepository.findById(piexp.getId()).orElse(null);
-		} else {
-			expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
-		}
+		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
 		if (expedient == null) {
 			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
 			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
@@ -2445,7 +2438,7 @@ public class ExpedientHelper {
 						alertaHelper,
 						expedientInteressatHelper,
 						mailHelper));
-				} catch (ReflectiveOperationException ex) {
+				} catch (Exception ex) {
 					throw new RuntimeException(
 						"No s'ha pogut crear la instància del handler propi " + accio.getHandlerClasse() + " per l'acció (" +
 							"codi=" + accio.getCodi() + ", " +
@@ -2469,7 +2462,7 @@ public class ExpedientHelper {
 						alertaHelper,
 						expedientInteressatHelper,
 						mailHelper));
-				} catch (ReflectiveOperationException ex) {
+				} catch (Exception ex) {
 					throw new RuntimeException(
 						"No s'ha pogut crear la instància del handler predefinit " + accio.getHandlerClasse() + " per l'acció (" +
 							"codi=" + accio.getCodi() + ", " +

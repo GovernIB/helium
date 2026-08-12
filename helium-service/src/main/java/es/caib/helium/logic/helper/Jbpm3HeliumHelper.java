@@ -33,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.codahale.metrics.MetricRegistry;
 
-import es.caib.comanda.model.management.TascaEstat;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
 import es.caib.helium.commons.dto.AreaDto;
@@ -96,9 +95,9 @@ import es.caib.helium.integracio.plugins.registre.RespostaJustificantDetallRecep
 import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.disseny.engine.WProcessDefinition;
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;

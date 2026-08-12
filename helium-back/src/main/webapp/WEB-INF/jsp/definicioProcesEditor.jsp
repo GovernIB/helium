@@ -13,10 +13,13 @@
 
 <script src="<c:url value="/js/webutil.common.js"/>"></script>
 
+<!--
 <link rel="stylesheet" href="https://unpkg.com/bpmn-js@18.16.1/dist/assets/diagram-js.css" />
 <link rel="stylesheet" href="https://unpkg.com/bpmn-js@18.16.1/dist/assets/bpmn-js.css" />
 <link rel="stylesheet" href="https://unpkg.com/bpmn-js@18.16.1/dist/assets/bpmn-font/css/bpmn.css" />
 <script src="https://unpkg.com/bpmn-js@18.16.1/dist/bpmn-modeler.production.min.js"></script>
+-->
+
 
 <%
 InputStream is = getClass().getClassLoader().getResourceAsStream("static/designer/index.html");
@@ -27,6 +30,33 @@ String jsFile = js.find() ? js.group(1) : "";
 String cssFile = css.find() ? css.group(1) : "";
 %>
 
-<div id="react-root"></div>
-<script src="<%=jsFile%>"></script>
 <link rel="stylesheet" href="<%=cssFile%>">
+<div id="react-root"></div>
+
+<script>
+		const src = '<%=jsFile%>';
+		const already = document.querySelector('script[src="' + src + '"]');
+		if (!already) {
+			const script = document.createElement('script');
+			script.type = 'module';
+			script.src = src;
+			document.body.appendChild(script); // only runs once, ever
+		} else if (window.mountRootApp) {
+			window.mountRootApp(); // module already loaded, just remount
+		}
+	/*
+	//$(document).ready(function () {
+		// Aquest script es necessari per carregar el module de la app de react correctament i que no doni conflictes amb jquery
+		debugger;
+		const existing = document.querySelector(`script[src="<%=jsFile%>"]`);
+		if (existing) existing.remove();
+		//if (!existing) {
+		const script = document.createElement('script');
+		script.type = 'module';
+		script.src = '<%=jsFile%>';
+		//document.body.appendChild(script);
+		document.getElementById('react-root').appendChild(script);
+		//}
+	//});
+	*/
+</script>

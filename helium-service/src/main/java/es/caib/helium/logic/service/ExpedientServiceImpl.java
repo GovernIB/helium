@@ -133,8 +133,8 @@ import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.helper.VariableHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
@@ -2091,7 +2091,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		logger.debug("Canviant versió de la definició de procés (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"versio=" + versio + ")");
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
+		Expedient piexp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		expedientHelper.getExpedientComprovantPermisos(
 				piexp.getId(),
 				new Permission[] {

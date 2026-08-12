@@ -84,7 +84,7 @@ import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
+import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;

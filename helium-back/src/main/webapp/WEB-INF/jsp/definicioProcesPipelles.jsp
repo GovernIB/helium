@@ -288,7 +288,7 @@
 				$('#versions').val('${definicioProces.id}').change();
 				$('#versions').change(function() {
 					// adapta els enllaços
-					var definicioProcesId = $(this).val();
+					const definicioProcesId = $(this).val();
 					$('#contingut-detall').data('href', '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/detall');
 					$('#contingut-tasques').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/tasca');
 					$('#contingut-variables').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/variable');
@@ -302,6 +302,7 @@
 					$('#accioImportarDiv').remove();
 					$('#accioImportar').attr('href',  '<c:url value="/definicioProces/importar?definicioProcesId="/>'+definicioProcesId );
 					$('#accioEsborrar').attr('href',  '<c:url value="/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/delete' );
+					window.history.pushState(null, null, '<c:url value="/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId);
 					// recarrega la pestanya activa
 					carregaTab($('#definicioProces-pipelles li#'+$('.active').attr('id')+' a').attr('href'));
 				});

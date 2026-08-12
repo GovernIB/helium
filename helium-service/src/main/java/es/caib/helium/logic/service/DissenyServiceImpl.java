@@ -13,6 +13,8 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.dto.*;
+import es.caib.helium.disseny.engine.WExpedientDto;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.repository.*;
@@ -32,31 +34,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
-import es.caib.helium.commons.dto.AreaDto;
-import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.ConsultaCampDto;
-import es.caib.helium.commons.dto.ConsultaDto;
-import es.caib.helium.commons.dto.DefinicioProcesDto;
-import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
-import es.caib.helium.commons.dto.DefinicioProcesVersioDto;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.DominiDto;
-import es.caib.helium.commons.dto.EntornDto;
-import es.caib.helium.commons.dto.ExpedientDocumentPinbalDto;
-import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.commons.dto.ExpedientTipusDto;
-import es.caib.helium.commons.dto.PaginaDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.dto.ParellaCodiValorDto;
-import es.caib.helium.commons.dto.PermisDto;
 import es.caib.helium.commons.dto.handlers.HandlerDto;
 import es.caib.helium.commons.exception.DeploymentException;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WProcessDefinition;
+import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
@@ -883,8 +868,10 @@ public class DissenyServiceImpl implements DissenyService {
 	public Set<String> getRecursosNom(Long definicioProcesId) {
 		Set<String> resposta = null;
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
-		if (definicioProces != null)
-			resposta = workflowEngineApi.getResourceNames(definicioProces.getJbpmId());
+		if (definicioProces != null) {
+			WProcessDefinition processDefinition = workflowEngineApi.getProcessDefinition(definicioProces.getJbpmId());
+			resposta = workflowEngineApi.getResourceNames(processDefinition.getDeploymentId());
+		}
 		return resposta;
 	}
 
@@ -907,8 +894,9 @@ public class DissenyServiceImpl implements DissenyService {
 	}
 
 	private byte[] getRecursContingut(String processDefinitionId, String nom) throws IOException {
+		WProcessDefinition pd = workflowEngineApi.getProcessDefinition(processDefinitionId);
 		return workflowEngineApi.getResourceBytes(
-				processDefinitionId,
+				pd.getDeploymentId(),
 				nom);
 	}
 
@@ -1008,13 +996,13 @@ public class DissenyServiceImpl implements DissenyService {
 						expedientTipusId),
 						ExpedientTipusDto.class);
 
-		List<es.caib.helium.logic.intf.dto.WExpedientDto> afectats = workflowEngineApi.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		List<WExpedientDto> afectats = workflowEngineApi.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				expedientTipusId,
 				jbpmId);
 
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
 
-		for (es.caib.helium.logic.intf.dto.WExpedientDto pie : afectats) {
+		for (WExpedientDto pie : afectats) {
 			ExpedientDto exp = new ExpedientDto();
 			exp.setId(pie.getId());
 			exp.setTipus(expedientTipus);
@@ -1044,13 +1032,13 @@ public class DissenyServiceImpl implements DissenyService {
 
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 
-		List<es.caib.helium.logic.intf.dto.WExpedientDto> afectats = workflowEngineApi.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+		List<WExpedientDto> afectats = workflowEngineApi.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				expedientTipusId,
 				jbpmId);
 
 		List<Long> ids = new ArrayList<Long>();
 
-		for (es.caib.helium.logic.intf.dto.WExpedientDto pie : afectats) {
+		for (WExpedientDto pie : afectats) {
 			ids.add(pie.getId());
 		}
 

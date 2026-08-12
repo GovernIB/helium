@@ -52,7 +52,7 @@
 				<c:when test="${log.targetTasca and tipus_retroces != 0}">
 					${tasques[log.targetId].tascaNom}
 					<span class="right">
-						<a data-rdt-link-modal="true" class="icon a-modal-registre" href="<c:url value="../../expedient/logAccionsTasca?id=${expedient.id}&targetId=${log.targetId}"/>" ><i  class="fa fa-search"></i></a>
+						<a data-rdt-link-modal="true" class="icon a-modal-registre" href="<c:url value="/modal/expedient/logAccionsTasca?id=${expedient.id}&targetId=${log.targetId}"/>" ><i  class="fa fa-search"></i></a>
 					</span>
 				</c:when>
 				<c:otherwise>
@@ -72,7 +72,7 @@
 					<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_ESBORRAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
 					<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_ADJUNTAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
 					<c:when test="${log.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}">
-						<a data-rdt-link-modal="true" href="../../expedient/scriptForm/${log.id}" class="icon a-modal-registre scriptLink_${log.id}"><i class="fa fa-search"></i></a>
+						<a data-rdt-link-modal="true" href="<c:url value="/expedient/scriptForm/${log.id}"/>" class="icon a-modal-registre scriptLink_${log.id}"><i class="fa fa-search"></i></a>
 					</c:when>
 					<c:when test="${log.accioTipus == 'TASCA_REASSIGNAR'}"><spring:message code="expedient.log.info.abans"/>: ${fn:split(log.accioParams, "::")[0]}, <spring:message code="expedient.log.info.despres"/>: ${fn:split(log.accioParams, "::")[1]}</c:when>
 					<c:when test="${log.accioTipus == 'TASCA_ACCIO_EXECUTAR'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>
@@ -85,7 +85,7 @@
 					<c:when test="${log.accioTipus == 'EXPEDIENT_ATURAR'}"><spring:message code="expedient.log.info.missatges"/>: ${log.accioParams}</c:when>
 					<c:when test="${log.accioTipus == 'EXPEDIENT_ACCIO'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>
 					<c:when test="${log.accioTipus == 'EXPEDIENT_RETROCEDIR' or log.accioTipus == 'EXPEDIENT_RETROCEDIR_TASQUES'}">
-						<a data-rdt-link-modal="true" data-toggle="modal" href="<c:url value="../../expedient/logRetrocedit?id=${expedient.id}&logId=${log.id}"/>" class="icon a-modal-registre"><i class="fa fa-search"></i></a>
+						<a data-rdt-link-modal="true" data-toggle="modal" href="<c:url value="/expedient/logRetrocedit?id=${expedient.id}&logId=${log.id}"/>" class="icon a-modal-registre"><i class="fa fa-search"></i></a>
 					</c:when>
 					<c:when test="${log.accioTipus == 'ANOTACIO_RELACIONAR'}">
 						${log.accioParams}
@@ -103,22 +103,22 @@
 			<c:choose>
 				<c:when test="${log.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}"></c:when>
 				<c:when test="${log.accioTipus == 'PROCES_LLAMAR_SUBPROCES'}"></c:when>
-				<c:when test="${log.estat == 'NORMAL' && numBloquejos == 0}">										
+				<c:when test="${log.estat == 'NORMAL' && numBloquejos == 0}">
 					<c:if test="${expedient.permisLogManage}">
-						<a  class="icon retroces" 
+						<a  class="icon retroces"
 							data-rdt-link-confirm="<spring:message code='expedient.log.confirm.retrocedir'/>"
 							data-rdt-link-ajax=true
-							href='<c:url value="../../expedient/retrocedir">
+							href='<c:url value="/expedient/retrocedir">
 								<c:param name="id" value="${expedient.id}"/>
 								<c:param name="logId" value="${log.id}"/>
 								<c:param name="tipus_retroces" value="${tipus_retroces}"/>
 								<c:param name="retorn" value="r"/>
-								</c:url>' 
+								</c:url>'
 							data-rdt-link-callback="recargarPanelesLog(${tipus_retroces});">
 							<i class="fa fa-reply" alt="<spring:message code="expedient.log.retrocedir"/>" title="<spring:message code="expedient.log.retrocedir"/>" border="0"/>
 						</a>
 					</c:if>
-				</c:when>				
+				</c:when>
 				<c:otherwise></c:otherwise>
 			</c:choose>
 			<c:if test="${numBloquejos gt 0}">B</c:if>

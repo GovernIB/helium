@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -29,7 +29,7 @@ import es.caib.helium.persistence.common.TerminiStringUtil;
 /**
  * Objecte de domini que representa un termini de la definició
  * de procés
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
@@ -201,7 +201,7 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	public void setAlertaCompletat(boolean alertaCompletat) {
 		this.alertaCompletat = alertaCompletat;
 	}
-	
+
 	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_termini_fk")
@@ -211,7 +211,7 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	public void setDefinicioProces(DefinicioProces definicioProces) {
 		this.definicioProces = definicioProces;
 	}
-	
+
 	@ManyToOne(optional=true)
 	@JoinColumn(name="expedient_tipus_id")
 	@ForeignKey(name="hel_exptip_termini_fk")
@@ -274,6 +274,19 @@ public class Termini implements Serializable, GenericEntity<Long> {
 		} else if (!expedientTipus.equals(other.expedientTipus))
 			return false;
 		return true;
+	}
+
+	public static Termini valueFromString(String valorTermini) {
+		Termini termini = new Termini();
+		try {
+			String[] parts = valorTermini.split("/");
+			if (parts.length == 3) {
+				termini.setAnys(new Integer(parts[0]));
+				termini.setMesos(new Integer(parts[1]));
+				termini.setDies(new Integer(parts[2]));
+			}
+		} catch (Exception ex) {}
+		return termini;
 	}
 
 	private static final long serialVersionUID = 1L;

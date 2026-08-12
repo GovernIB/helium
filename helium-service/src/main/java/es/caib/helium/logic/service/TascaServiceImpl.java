@@ -5,12 +5,12 @@ package es.caib.helium.logic.service;
 
 import java.security.Principal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 import es.caib.helium.commons.dto.*;
 import es.caib.helium.logic.helper.*;
+import es.caib.helium.disseny.engine.WDelegationInfo;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.repository.*;
 import org.slf4j.Logger;
@@ -41,8 +41,8 @@ import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.security.ExtendedPermission;
@@ -1317,9 +1317,7 @@ public class TascaServiceImpl implements TascaService {
 			WTaskInstance task,
 			String outcome,
 			String usuari) {
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(
-				task.getProcessInstanceId());
-		Expedient expedient = expedientRepository.findById(piexp.getId()).orElse(null);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 
 		mesuresTemporalsHelper.tascaCompletarIniciar(expedient, tascaId, task.getTaskName());
 
@@ -1361,26 +1359,25 @@ public class TascaServiceImpl implements TascaService {
 		countTipexp.inc();
 		ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 		try {
-			/*
 			ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
 					tascaId,
-					expedientId,
+					expedient.getId(),
 					ExpedientLogAccioTipus.TASCA_COMPLETAR,
 					outcome,
 					usuari);
-			jbpmHelper.startTaskInstance(tascaId);
-			jbpmHelper.endTaskInstance(tascaId, outcome);
-			checkCompletarTasca(tascaId);
+			//workflowEngineApi.startTaskInstance(tascaId);
+			workflowEngineApi.endTaskInstance(tascaId, outcome);
+			// checkCompletarTasca(tascaId);
 			// Accions per a una tasca delegada
-			DelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
+			WDelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
 			if (delegationInfo != null) {
 				if (!tascaId.equals(delegationInfo.getSourceTaskId())) {
 					// Copia les variables de la tasca delegada a la original
-					jbpmHelper.setTaskInstanceVariables(
+					workflowEngineApi.setTaskInstanceVariables(
 							delegationInfo.getSourceTaskId(),
-							jbpmHelper.getTaskInstanceVariables(tascaId),
+							workflowEngineApi.getTaskInstanceVariables(tascaId),
 							false);
-					WTaskInstance taskOriginal = jbpmHelper.getTaskById(
+					WTaskInstance taskOriginal = workflowEngineApi.getTaskById(
 							delegationInfo.getSourceTaskId());
 					if (!delegationInfo.isSupervised()) {
 						// Si no es supervisada també finalitza la tasca original
@@ -1397,17 +1394,16 @@ public class TascaServiceImpl implements TascaService {
 					task.getProcessDefinitionId());
 			Registre registre = new Registre(
 					new Date(),
-					expedientId,
+					expedient.getId(),
 					usuari,
 					Registre.Accio.FINALITZAR,
 					Registre.Entitat.TASCA,
 					tascaId);
 
-			comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.FINALITZADA);
+			// comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.FINALITZADA);
 
 			registre.setMissatge("Finalitzar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 			registreRepository.save(registre);
-			*/
 //		} catch (ExecucioHandlerException ex) {
 //			throw new TramitacioHandlerException(
 //					(expedient != null) ? expedient.getEntorn().getId() : null,

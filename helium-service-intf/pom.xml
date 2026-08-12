@@ -18,6 +18,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-disseny</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
 			<scope>provided</scope>
@@ -72,5 +77,17 @@
 			<artifactId>comanda-api-utils</artifactId>
 			<version>${comanda.version}</version>
 		</dependency>
-  </dependencies>
+		<dependency>
+			<groupId>es.caib.helium</groupId>
+			<artifactId>helium-disseny</artifactId>
+			<version>4.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>es.caib.helium</groupId>
+			<artifactId>helium-disseny</artifactId>
+			<version>4.0</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 </project>

@@ -90,6 +90,52 @@ public class MailHelper {
         this.mailSender.send(mimeMessage);
 	}
 
+	public void send(
+		String fromAddress,
+		List<String> recipients,
+		List<String> ccRecipients,
+		List<String> bccRecipients,
+		String subject,
+		String text,
+		List<ArxiuDto> attachments) throws Exception {
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		mimeMessage.setFrom(new InternetAddress(fromAddress));
+		if (recipients != null) {
+			for (String recipient: recipients) {
+				mimeMessage.addRecipient(
+					Message.RecipientType.TO,
+					new InternetAddress(recipient));
+			}
+		}
+		if (ccRecipients != null) {
+			for (String recipient: ccRecipients) {
+				mimeMessage.addRecipient(
+					Message.RecipientType.CC,
+					new InternetAddress(recipient));
+			}
+		}
+		if (bccRecipients != null) {
+			for (String recipient: bccRecipients) {
+				mimeMessage.addRecipient(
+					Message.RecipientType.BCC,
+					new InternetAddress(recipient));
+			}
+		}
+		mimeMessage.setSubject(subject);
+		if (attachments != null) {
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+			for (ArxiuDto arxiu: attachments) {
+				helper.addAttachment(
+					arxiu.getNom(),
+					new ByteArrayResource(arxiu.getContingut()));
+			}
+			helper.setText(text);
+		} else {
+			mimeMessage.setText(text);
+		}
+		this.mailSender.send(mimeMessage);
+	}
+
 	private String getCorreuRemitent() {
 		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CORREU_REMITENT);
 	}

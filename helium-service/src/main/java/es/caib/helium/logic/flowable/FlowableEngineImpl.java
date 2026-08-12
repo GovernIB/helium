@@ -9,16 +9,11 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 import es.caib.helium.commons.dto.PersonaDto;
+import es.caib.helium.disseny.engine.*;
 import es.caib.helium.logic.helper.PluginHelper;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
-import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.bpmn.model.CallActivity;
-import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.*;
 import org.flowable.bpmn.model.Process;
-import org.flowable.bpmn.model.ReceiveTask;
-import org.flowable.bpmn.model.SequenceFlow;
-import org.flowable.bpmn.model.SubProcess;
-import org.flowable.bpmn.model.UserTask;
 import org.flowable.common.engine.api.io.InputStreamProvider;
 import org.flowable.common.engine.impl.db.SuspensionState;
 import org.flowable.common.engine.impl.identity.Authentication;
@@ -26,35 +21,18 @@ import org.flowable.common.engine.impl.util.io.BytesStreamSource;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.TaskServiceImpl;
-import org.flowable.engine.impl.cmd.AddIdentityLinkCmd;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
-import org.flowable.entitylink.api.history.HistoricEntityLink;
-import org.flowable.identitylink.api.IdentityLink;
-import org.flowable.identitylink.api.IdentityLinkType;
-import org.flowable.identitylink.service.IdentityLinkService;
-import org.flowable.identitylink.service.impl.persistence.entity.IdentityLinkEntity;
-import org.flowable.identitylink.service.impl.persistence.entity.IdentityLinkEntityImpl;
 import org.flowable.task.api.Task;
-import org.flowable.task.api.TaskInfo;
 import org.flowable.task.api.history.HistoricTaskInstance;
-import org.flowable.task.service.impl.persistence.entity.HistoricTaskInstanceEntityImpl;
-import org.flowable.task.service.impl.persistence.entity.TaskEntity;
 import org.flowable.task.service.impl.persistence.entity.TaskEntityImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.WExpedientDto;
-import es.caib.helium.logic.intf.dto.engine.WDeployment;
-import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
-import es.caib.helium.logic.intf.dto.engine.WProcessLog;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
-import es.caib.helium.logic.intf.dto.engine.WToken;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 
 /**
@@ -119,18 +97,15 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public Set<String> getResourceNames(String deploymentId) {
-		ProcessDefinition wpd = processEngine.
-			getRepositoryService().
-			getProcessDefinition(deploymentId);
 		List<String> names = processEngine.
 			getRepositoryService().
-			getDeploymentResourceNames(wpd.getDeploymentId());
+			getDeploymentResourceNames(deploymentId);
 		return new HashSet<>(names);
 	}
 
 	@Override
 	public byte[] getResourceBytes(String deploymentId, String resourceName) throws IOException {
-		InputStream is = processEngine.getRepositoryService().getResourceAsStream(deploymentId, resourceName);
+				InputStream is = processEngine.getRepositoryService().getResourceAsStream(deploymentId, resourceName);
 		return is.readAllBytes();
 	}
 
@@ -154,8 +129,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		            .createProcessDefinitionQuery()
 		            .processDefinitionId(processDefinitionId)
 		            .singleResult();
-		WProcessDefinition wpd = toWProcessDefinition(pd);
-		return wpd;
+		return toWProcessDefinition(pd);
 	}
 
 	@Override
@@ -236,12 +210,11 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public long countProcessInstancesWithProcessDefinitionId(String processDefinitionId) {
-		long count =processEngine
+		return processEngine
 					.getRuntimeService()
 						.createProcessInstanceQuery()
 						.processDefinitionId(processDefinitionId)
 						.count();
-		return count;
 	}
 
 	@Override
@@ -409,12 +382,22 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 									.includeIdentityLinks()
 									.singleResult();
 
-		if(task.getIdentityLinkCount() > 0 && task.getQueryIdentityLinks().isEmpty()) {
-			task.setQueryIdentityLinks(null);
-			task.getIdentityLinks();
+		if(task != null) {
+			if(task.getIdentityLinkCount() > 0 && task.getQueryIdentityLinks().isEmpty()) {
+				task.setQueryIdentityLinks(null);
+				task.getIdentityLinks();
+			}
+
+			return toWTaskInstance(task);
 		}
 
-		return toWTaskInstance(task);
+		HistoricTaskInstance htask = processEngine
+			.getHistoryService()
+			.createHistoricTaskInstanceQuery()
+			.taskId(taskId)
+			.includeIdentityLinks()
+			.singleResult();
+		return toWTaskInstance(htask);
 	}
 
 	@Override
@@ -458,7 +441,9 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public void endTaskInstance(String taskId, String outcome) {
-		// TODO Auto-generated method stub
+		processEngine
+			.getTaskService()
+			.complete(taskId);
 
 	}
 
@@ -583,8 +568,45 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public List<String> findTaskInstanceOutcomes(String taskInstanceId) {
-		// TODO Auto-generated method stub
-		return null;
+		TaskEntityImpl task = (TaskEntityImpl) this.processEngine
+			.getTaskService()
+			.createTaskQuery()
+			.taskId(taskInstanceId)
+			.singleResult();
+
+		String processDefinitionId;
+		String taskDefinitionKey;
+
+		if(task != null) {
+			processDefinitionId = task.getProcessDefinitionId();
+			taskDefinitionKey = task.getTaskDefinitionKey();
+		} else {
+			HistoricTaskInstance htask = processEngine
+				.getHistoryService()
+				.createHistoricTaskInstanceQuery()
+				.taskId(taskInstanceId)
+				.singleResult();
+			if(htask == null)
+				return new ArrayList<>();
+
+			processDefinitionId = htask.getProcessDefinitionId();
+			taskDefinitionKey =  htask.getTaskDefinitionKey();
+		}
+
+		List<String> outcomes = new ArrayList<String>();
+		BpmnModel model = processEngine.getRepositoryService().getBpmnModel(processDefinitionId);
+		FlowElement current = model.getMainProcess().getFlowElement(taskDefinitionKey);
+		if(current instanceof FlowNode) {
+			List<SequenceFlow> sequences = ((FlowNode) current).getOutgoingFlows();
+			if(sequences == null)
+				return outcomes;
+
+			for(SequenceFlow sequenceFlow : sequences) {
+				outcomes.add(sequenceFlow.getTargetRef());
+			}
+		}
+
+		return outcomes;
 	}
 
 	@Override
@@ -642,7 +664,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 								.processInstanceId(processInstanceId)
 								.list()
 								.stream()
-								.map(execution -> toWToken(execution))
+								.map(FlowableEngineImpl::toWToken)
 								.collect(Collectors.toList());
 		Map<String, WToken> resposta = new HashMap<String, WToken>();
 		for(WToken t : tokens)
@@ -860,7 +882,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public List<WExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(Long expedientTipusId,
-			Long processDefinitionId) {
+																					  Long processDefinitionId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1092,13 +1114,14 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			wpd.setKey(pd.getKey());
 			wpd.setName(pd.getName());
 			wpd.setVersion(pd.getVersion());
+			wpd.setDeploymentId(pd.getDeploymentId());
 		}
 		return wpd;
 	}
 
 	/** Converteix l'objecte ProcessInstance a WProcessInstance.
 	 *
-	 * @param pd
+	 * @param pi
 	 * @return
 	 */
 	public static WProcessInstance toWProcessInstance(ProcessInstance pi) {
@@ -1122,7 +1145,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	/** Converteix l'objecte HistoricProcessInstance a WProcessInstance.
 	 *
-	 * @param pd
+	 * @param pi
 	 * @return
 	 */
 	public static WProcessInstance toWProcessInstance(HistoricProcessInstance pi) {
@@ -1157,7 +1180,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			wt.setSuperRootTokenId(e.getSuperExecutionId());
 			if (e instanceof ExecutionEntityImpl) {
 				ExecutionEntityImpl fe = (ExecutionEntityImpl) e;
-				wt.setProcessInstanceKey(fe.getProcessInstanceBusinessKey());
+				wt.setProcessInstanceKey(fe.getProcessInstance() != null? fe.getProcessInstance().getBusinessKey() : null);
 				wt.setStart(fe.getStartTime());
 				wt.setRoot(fe.isMultiInstanceRoot());
 				if (fe.getParent() != null && !fe.equals(fe.getParent())) {

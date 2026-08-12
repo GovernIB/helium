@@ -100,7 +100,7 @@ import es.caib.helium.logic.helper.NotificacioHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.regles.ReglaHelper;

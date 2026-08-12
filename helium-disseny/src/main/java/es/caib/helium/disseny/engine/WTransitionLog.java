@@ -1,4 +1,4 @@
-package es.caib.helium.logic.intf.dto.engine;
+package es.caib.helium.disseny.engine;
 
 public interface WTransitionLog {
 

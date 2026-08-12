@@ -1,6 +1,8 @@
 package es.caib.helium.logic.bpmn;
 
 import es.caib.helium.disseny.api.HeliumApi;
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.disseny.exception.HeliumHandlerException;
 import es.caib.helium.disseny.model.DocumentInfo;
 import es.caib.helium.commons.dto.*;
@@ -580,6 +582,21 @@ public class HeliumApiImpl implements HeliumApi {
 		} catch (Exception ex) {
 			throw new HeliumHandlerException("No s'ha pogut enviar el correu", ex);
 		}
+	}
+
+	@Override
+	public WProcessInstance getProcessInstance() {
+		return null;
+	}
+
+	@Override
+	public WTaskInstance getTaskInstance() {
+		return null;
+	}
+
+	@Override
+	public TerminiIniciatDto getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi) {
+		return null;
 	}
 
 	private DocumentDto toPortafirmesDocumentDto(String documentCodi) {

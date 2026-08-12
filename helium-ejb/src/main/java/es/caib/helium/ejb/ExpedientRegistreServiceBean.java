@@ -86,10 +86,10 @@ public class ExpedientRegistreServiceBean extends AbstractServiceEjb<ExpedientRe
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
 			Long expedientId,
-			Long logId) throws NoTrobatException, PermisDenegatException {
+			String targetId) throws NoTrobatException, PermisDenegatException {
 		return delegateService.registreFindLogsTascaOrdenatsPerData(
 				expedientId,
-				logId);
+				targetId);
 	}
 
 	@Override

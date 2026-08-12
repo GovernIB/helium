@@ -1,4 +1,4 @@
-package es.caib.helium.logic.intf.dto.engine;
+package es.caib.helium.disseny.engine;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,7 +7,7 @@ import java.util.List;
 import lombok.Data;
 
 /** Classe per per representar la informació d'un token. En BPMN 2.0 i flowable l'equivalent al token és l'execució.
- * 
+ *
  */
 @Data
 public class WToken {
@@ -21,21 +21,21 @@ public class WToken {
 	private String processInstanceKey;
 	boolean root;
 	private String superRootTokenId;
-	
+
 	private WToken parent;
 	private WToken superToken;
 	private String processDefinitionId;
 	private String processDefinitionKey;
 	private String processDefinitionName;
-	private Integer processDefinitionversion;	
+	private Integer processDefinitionversion;
 
 	private String nodeName;
 	/** Per indicar si el token es troba en un node de tipus receiveTask per esperar un senyal. */
 	private boolean receiveTask;
-	
+
 	private List<String> sortides = new ArrayList<>();
 
-	
+
 //	String getId();
 //
 //	String getName();
@@ -72,5 +72,5 @@ public class WToken {
 //
 //	WToken getParent();
 //
-//	WNode getNode();	
+//	WNode getNode();
 }

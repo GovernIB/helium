@@ -7,13 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.WExpedientDto;
-import es.caib.helium.logic.intf.dto.engine.WDeployment;
-import es.caib.helium.logic.intf.dto.engine.WProcessDefinition;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
-import es.caib.helium.logic.intf.dto.engine.WProcessLog;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
-import es.caib.helium.logic.intf.dto.engine.WToken;
+import es.caib.helium.disseny.engine.*;
+
 
 /**
  * Interfície comú dels motors de workflow amb els mètodes necessaris per desplegar, consultar,
@@ -168,8 +163,8 @@ public interface WorkflowEngineApi {
 	/**
 	 * Obté els noms de les tasques d'una definició de procés donat el desplegament i el codi de definició de procés
 	 *
-	 * @param dpd
-	 * @param processDefinitionId
+	 * @param processKey
+	 * @param version
 	 * @return
 	 */
 	public List<String> getTaskNamesFromDeployedProcessDefinition(
@@ -763,7 +758,8 @@ public interface WorkflowEngineApi {
 
 	/** Mètode per obtenir una definició de procés a partir del contingut comprimit del mateix.
 	 *
-	 * @param zipInputStream
+	 * @param nomArxiu
+	 * @param contingut
 	 * @return
 	 * @throws Exception
 	 */

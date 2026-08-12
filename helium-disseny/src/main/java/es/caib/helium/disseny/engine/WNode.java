@@ -1,10 +1,10 @@
-package es.caib.helium.logic.intf.dto.engine;
+package es.caib.helium.disseny.engine;
 
 public interface WNode {
 
 	public enum WNodeType {
 		Join,
-		Fork, 
+		Fork,
 		State
 	};
 

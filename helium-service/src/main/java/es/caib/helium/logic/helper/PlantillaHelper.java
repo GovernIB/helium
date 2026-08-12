@@ -39,7 +39,7 @@ import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.exception.HeliumException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.common.jbpm.JbpmVars;
 import es.caib.helium.persistence.entity.Area;
@@ -91,7 +91,7 @@ import net.sf.jooreports.templates.DocumentTemplateFactory;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Component("PlantillaHelperV3")
+@Component
 public class PlantillaHelper {
 
 	@Resource

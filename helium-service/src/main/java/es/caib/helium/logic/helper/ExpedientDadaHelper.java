@@ -228,9 +228,9 @@ public class ExpedientDadaHelper {
 
 	/** Obté tots els valors de les variables l'expedient
 	 *
-	 * @param expedientId
-	 * @param processInstanceId
-	 * @param varCodi
+	 * @param expedient
+	 * @param processId
+	 * @param taskId
 	 */
 	@Transactional
 	public Map<String, Object> getDadesValors(Expedient expedient, String processId, String taskId) {

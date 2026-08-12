@@ -12,9 +12,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 //import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.persistence.entity.*;
-import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,7 +25,7 @@ import es.caib.helium.commons.dto.PrincipalTipusEnumDto;
 import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ParametreService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.repository.ExpedientRepository;

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.logic.intf.service;
 
@@ -18,14 +18,14 @@ import es.caib.helium.commons.exception.PermisDenegatException;
 /**
  * Servei encarregat de gestionar el registre d'accions realitzades
  * a damunt un expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientRegistreService {
 
 	/**
 	 * Consulta els logs d'un expedient ordenats per data.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param detall
@@ -39,10 +39,10 @@ public interface ExpedientRegistreService {
 	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
 			Long expedientId,
 			boolean detall) throws NoTrobatException, PermisDenegatException;
-	
+
 	/**
 	 * Consulta els canvis d'estat d'un expedient ordenats per data.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param detall
@@ -56,7 +56,7 @@ public interface ExpedientRegistreService {
 			boolean detall) throws NoTrobatException;
 	/**
 	 * Obté les tasques associades als logs de l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @return el llistat de tasques.
@@ -71,7 +71,7 @@ public interface ExpedientRegistreService {
 	/**
 	 * Fa un retrocés de l'expedient de totes les modificacions fetes a partir
 	 * del log especificat.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param logId
@@ -90,7 +90,7 @@ public interface ExpedientRegistreService {
 
 	/**
 	 * Elimina tots els logs associats a un expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @throws NoTrobatException
@@ -103,7 +103,7 @@ public interface ExpedientRegistreService {
 
 	/**
 	 * Retorna els logs associats a una tasca de l'expedient.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param logId
@@ -116,11 +116,11 @@ public interface ExpedientRegistreService {
 	 */
 	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
 			Long expedientId,
-			Long logId) throws NoTrobatException, PermisDenegatException;
+			String targetId) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Obté els logs associats a una acció de retrocés ordenats per data.
-	 * 
+	 *
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
 	 * @param logId
@@ -137,9 +137,7 @@ public interface ExpedientRegistreService {
 
 	/**
 	 * Retorna la informació d'un registre de log de l'expedient.
-	 * 
-	 * @param expedientId
-	 *            Atribut id de l'expedient.
+	 *
 	 * @param logId
 	 *            Atribut id del log d'expedient.
 	 * @return la informació del log.
@@ -149,7 +147,6 @@ public interface ExpedientRegistreService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientLogDto registreFindLogById(
-			//Long expedientId,
 			Long logId) throws NoTrobatException, PermisDenegatException;
 
 }

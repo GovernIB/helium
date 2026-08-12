@@ -161,7 +161,7 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 				handlerInstance.execute(heliumApi);
 			} catch (HeliumHandlerException ex) {
 				throw new RuntimeException(ex);
-			} catch (ReflectiveOperationException ex) {
+			} catch (Exception ex) {
 				throw new RuntimeException("Couldn't create instance of " + handlerClass.getName(), ex);
 			}
 		}

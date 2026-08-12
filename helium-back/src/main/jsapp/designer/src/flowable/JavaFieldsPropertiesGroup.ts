@@ -61,7 +61,6 @@ const getTypeValue = (businessObject: any) => {
 export const createJavaFieldsPropertiesGroup = (element: BpmnElement, modeling: Modeling) => {
     const moddle = element.businessObject.$model;
     const fields = getFlowableFields(element);
-    console.log('>>> fields', fields);
     return {
         id: 'flowable-fields-group',
         label: 'Flowable fields',

@@ -10,13 +10,14 @@ import {
     CamundaPlatformPropertiesProviderModule,
 } from 'bpmn-js-properties-panel';
 import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
-import initialDiagram from './assets/diagram.bpmn?raw';
 import Modal from './components/Modal';
 import Toolbar from './components/Toolbar';
 import FlowablePropertiesProviderModule from './flowable/FlowablePropertiesProviderModule';
 import flowableModdle from './flowable/flowable.json';
+import type {SaveXMLResult} from "bpmn-js/lib/BaseViewer";
 
 const App = () => {
+    const baseUrl = document.URL;
     const [modalOpen, setModalOpen] = React.useState(false);
     const [modalContent, setModalContent] = React.useState<string>();
     const canvasRef = React.useRef<HTMLDivElement | null>(null);
@@ -41,6 +42,23 @@ const App = () => {
             }
         });
     };
+
+    const save = () => {
+        modelerRef.current?.saveXML({ format: true }).then((response: SaveXMLResult) => {
+            fetch(`${baseUrl}/save`, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    xml: btoa(response.xml!)
+                }),
+            })
+            .then(console.log)
+            .catch(console.error);
+        });
+    }
+
     React.useEffect(() => {
         if (!canvasRef.current) return;
         const modeler = new BpmnJS({
@@ -60,18 +78,26 @@ const App = () => {
             },
         });
         modelerRef.current = modeler;
-        modelerRef.current.importXML(initialDiagram);
+
+        loadDiagram().finally();
         return () => {
             modeler.destroy();
         };
     }, []);
+
+    const loadDiagram = async () => {
+        const response = await fetch(`${baseUrl}/editorXml`)
+        const xml = await response.text();
+        modelerRef.current!.importXML(xml);
+    }
+
     return (
         <>
             <div style={{ display: 'flex' }}>
                 <div id="canvas" ref={canvasRef} style={{ flexGrow: 1, height: '100vh' }}></div>
                 <div id="properties" ref={propertiesRef} style={{ width: '340px' }}></div>
             </div>
-            <Toolbar showCode={showCode} download={download} />
+            <Toolbar showCode={showCode} download={download} save={save}/>
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Codi BPMN">
                 <pre style={{ whiteSpace: 'pre-wrap' }}>{modalContent}</pre>
             </Modal>

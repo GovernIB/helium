@@ -42,7 +42,7 @@ import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -343,32 +343,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Transactional(readOnly = true)
-	public DefinicioProcesExportacio exportar(
-			Long entornId,
-			Long definicioProcesId,
-			DefinicioProcesExportacioCommandDto command) {
-		logger.debug(
-				"Exportant la definició de proces (" +
-				"entornId=" + entornId + ", " +
-				"definicioProcesId = " + definicioProcesId + ", " +
-				"command = " + command + ")");
-		// Control d'accés
-		entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		// Obté l'objecte d'exportació
-		DefinicioProcesExportacio definicioExortacio =
-				definicioProcesHelper.getExportacio(
-						definicioProcesId,
-						command);
-		return definicioExortacio;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	@Transactional
 	public DefinicioProcesDto importar(
 			Long entornId,
@@ -400,6 +374,32 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		if (importat != null)
 			ret = conversioTipusHelper.convertir(importat, DefinicioProcesDto.class);
 		return ret;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public DefinicioProcesExportacio exportar(
+		Long entornId,
+		Long definicioProcesId,
+		DefinicioProcesExportacioCommandDto command) {
+		logger.debug(
+			"Exportant la definició de proces (" +
+				"entornId=" + entornId + ", " +
+				"definicioProcesId = " + definicioProcesId + ", " +
+				"command = " + command + ")");
+		// Control d'accés
+		entornHelper.getEntornComprovantPermisos(
+			entornId,
+			true);
+		// Obté l'objecte d'exportació
+		DefinicioProcesExportacio definicioExortacio =
+			definicioProcesHelper.getExportacio(
+				definicioProcesId,
+				command);
+		return definicioExortacio;
 	}
 
 	/**

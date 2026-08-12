@@ -38,7 +38,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-disseny</artifactId>
+			<artifactId>helium-bpmn</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

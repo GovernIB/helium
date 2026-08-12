@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.helium.commons.dto.PeticioPinbalEstatEnum;
 import es.caib.helium.commons.dto.ScspRespostaPinbal;
-import es.caib.helium.logic.intf.dto.engine.WToken;
+import es.caib.helium.disseny.engine.WToken;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.PeticioPinbal;
 import es.caib.helium.persistence.repository.PeticioPinbalRepository;

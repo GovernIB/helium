@@ -21,7 +21,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -54,7 +53,6 @@ import es.caib.helium.commons.dto.ExecucioMassivaDto;
 import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import es.caib.helium.commons.dto.ExecucioMassivaListDto;
 import es.caib.helium.commons.dto.ExpedientDocumentDto;
-import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.commons.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
@@ -70,9 +68,8 @@ import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.commons.utils.CsvHelper;
 import es.caib.helium.commons.utils.EntornActual;
-import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
@@ -2025,8 +2022,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			ome.setDataInici(new Date());
 			WTaskInstance tasca = tascaHelper.getTascaComprovacionsTramitacio(tascaId, false, false);
 			if (tasca != null && tasca.isOpen()) {
-				ExpedientDto piexp = jbpmHelper
-						.expedientFindByProcessInstanceId(tasca.getProcessInstanceId());
+				Expedient piexp = expedientHelper.findExpedientByProcessInstanceId(tasca.getProcessInstanceId());
 				expedientTascaService.reassignar(piexp.getId(), tasca.getId(), ome.getExecucioMassiva().getParam1());
 			}
 			if (tasca == null) {

@@ -26,8 +26,8 @@ import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
-import es.caib.helium.logic.intf.dto.engine.WToken;
+import es.caib.helium.disseny.engine.WTaskInstance;
+import es.caib.helium.disseny.engine.WToken;
 import es.caib.helium.logic.intf.service.ExpedientRegistreService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Expedient;
@@ -238,16 +238,16 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 	@Transactional(readOnly = true)
 	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
 			Long expedientId,
-			Long logId) throws NoTrobatException, PermisDenegatException {
+			String targetId) throws NoTrobatException, PermisDenegatException {
 		logger.debug("Consultant logs d'una tasca de l'expedient (" +
 				"expedientId=" + expedientId + ", " +
-				"logId=" + logId + ")");
+				"targetId=" + targetId + ")");
 		expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.LOG_READ,
 						ExtendedPermission.ADMINISTRATION});
-		List<ExpedientLog> logs = expedientLogRepository.findLogsTascaByIdOrdenatsPerData(String.valueOf(logId));
+		List<ExpedientLog> logs = expedientLogRepository.findLogsTascaByIdOrdenatsPerData(targetId);
 		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
 	}
 

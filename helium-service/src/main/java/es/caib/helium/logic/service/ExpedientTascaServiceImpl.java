@@ -4,16 +4,10 @@
 package es.caib.helium.logic.service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import es.caib.comanda.model.management.TascaEstat;
-import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.persistence.entity.*;
-import es.caib.helium.persistence.repository.ExpedientRepository;
-import es.caib.helium.persistence.repository.ExpedientTascaRepository;
-import es.caib.helium.persistence.repository.TascaCandidateRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -25,17 +19,15 @@ import es.caib.helium.commons.dto.ExpedientTascaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.ValidacioException;
-import es.caib.helium.logic.intf.dto.engine.WProcessInstance;
-import es.caib.helium.logic.intf.dto.engine.WTaskInstance;
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ExpedientTascaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogAccioTipus;
 import es.caib.helium.persistence.repository.RegistreRepository;
-import es.caib.helium.logic.helper.ComandaHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientLoggerHelper;
 import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
 import es.caib.helium.logic.security.ExtendedPermission;
 
 
