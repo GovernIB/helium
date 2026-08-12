@@ -86,12 +86,8 @@ public class GlobalProperties extends Properties {
 		else
 			return false;
 	}
-	
 	public int getAsInt(String key) {
 		return new Integer(getProperty(key)).intValue();
-	}
-	public int getAsInt(String key, int defaultValue) {
-		return new Integer(getProperty(key, Integer.toString(defaultValue))).intValue();
 	}
 	public long getAsLong(String key) {
 		return new Long(getProperty(key)).longValue();

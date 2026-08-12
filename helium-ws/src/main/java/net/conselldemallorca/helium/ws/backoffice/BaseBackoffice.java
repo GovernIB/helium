@@ -137,7 +137,7 @@ public abstract class BaseBackoffice {
 					getDocumentsInicials(expedientTipus, tramit),
 					getDocumentsAdjunts(expedientTipus, tramit),
 					null, // tramitId,
-					false).get();
+					false);
 			logger.info("S'ha creat un expedient del tipus " + expedientTipus.getCodi() + ": " + expedientNou.getIdentificador());
 		}
 		return candidats.size();

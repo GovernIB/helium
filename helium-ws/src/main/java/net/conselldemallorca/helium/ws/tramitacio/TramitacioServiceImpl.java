@@ -193,8 +193,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					null,
 					null,
 					null,
-					false)
-					.get();
+					false);
 			logger.info("Expedient " + numero + " iniciat correctament " + expLog);
 			return expedient.getProcessInstanceId();
 		} catch (Exception ex) {
