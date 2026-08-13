@@ -77,6 +77,7 @@ import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.ExceptionUtilsHelium;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -2125,12 +2126,13 @@ public class ExpedientHelper {
 						logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 					}
 				}
-				if (ex instanceof InterruptedException) {
-					throw new RuntimeException("La creació de l'expedient s'ha interromput després de." + timeout + " segons.");
+				logger.error("Error iniciant expedient (entorn=" + (entorn != null ? entorn.getCodi() : "") 
+						+ ", tipus=" + (expedientTipus != null ? expedientTipus.getCodi() : "") + "): " 
+						+ ex.getMessage(), ex);
+				if (timeout != null 
+						&& ExceptionUtilsHelium.isCausedBy(ex, InterruptedException.class)) {
+					throw new RuntimeException("La creació de l'expedient s'ha interromput després de superar el temps màxim de" + timeout + " segons.");
 				} else {
-					logger.error("Error iniciant expedient (entorn=" + (entorn != null ? entorn.getCodi() : "") 
-									+ ", tipus=" + (expedientTipus != null ? expedientTipus.getCodi() : "") + "): " 
-									+ ex.getMessage(), ex);
 					throw new RuntimeException(messageHelper.getMessage("error.proces.peticio") + ": "
 							+ ExceptionUtils.getRootCauseMessage(ex), ex);
 				}
