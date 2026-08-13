@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
 
@@ -89,7 +90,9 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.util.CsvHelper;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.core.util.ExceptionUtilsHelium;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.ThreadUtilsHelium;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -1011,207 +1014,215 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		return execucioMassivaExpedientId;
 	}
 
+	/** Mètode per executar una sola acció massiva. Té un timeout de 10' per evitar bloquejos en les accions
+	 * massives. 
+	 */
 	@Override
-	// Issue #2066 afegit un timeout (10min) per evitar bloquejar la resta de tasques en segon pla
-	@Transactional(timeout=600)
-	public void executarExecucioMassiva(Long ome_id) {
-		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
-		if (ome == null)
-			throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
-
-		ExecucioMassiva exm = ome.getExecucioMassiva();
-		ExecucioMassivaTipus tipus = exm.getTipus();
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(exm.getEntorn(), false);
-
-		Expedient expedient = null;
-		if (ome.getExpedient() != null) {
-			expedient = ome.getExpedient();
-		} else if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC
-				&& tipus != ExecucioMassivaTipus.PROPAGAR_PLANTILLES
-				&& tipus != ExecucioMassivaTipus.PROPAGAR_CONSULTES
-				&& tipus != ExecucioMassivaTipus.ALTA_MASSIVA
-				&& tipus != ExecucioMassivaTipus.ESBORRAR_ANOTACIONS
-				&& tipus != ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS
-				&& tipus != ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
-				&& tipus != ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
-				&& tipus != ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
-			expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
-		}
-
-		ExpedientTipus expedientTipus;
-		if (expedient == null && (tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC
-				|| tipus == ExecucioMassivaTipus.PROPAGAR_PLANTILLES
-				|| tipus == ExecucioMassivaTipus.PROPAGAR_CONSULTES
-				|| tipus == ExecucioMassivaTipus.ALTA_MASSIVA
-				|| tipus == ExecucioMassivaTipus.ESBORRAR_ANOTACIONS
-				|| tipus == ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS
-				|| tipus == ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
-				|| tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
-				|| tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS ))
-			expedientTipus = exm.getExpedientTipus();
-		else
-			expedientTipus = expedient.getTipus();
-
-		logger.debug("Executant la acció massiva (" + "expedientTipusId="
-				+ (expedientTipus != null ? expedientTipus.getId() : "") + ", " + "dataInici=" + ome.getDataInici()
-				+ ", " + "expedient=" + ome.getId() + ", " + "acció=" + exm.getTipus());
-
-		final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(ExecucioMassivaService.class, "executar"));
-		final Timer.Context contextTotal = timerTotal.time();
-		Counter countTotal = metricRegistry
-				.counter(MetricRegistry.name(ExecucioMassivaService.class, "executar.count"));
-		countTotal.inc();
-		final Timer timerEntorn = metricRegistry
-				.timer(MetricRegistry.name(ExecucioMassivaService.class, "executar", entorn.getCodi()));
-		final Timer.Context contextEntorn = timerEntorn.time();
-		Counter countEntorn = metricRegistry
-				.counter(MetricRegistry.name(ExecucioMassivaService.class, "executar.count", entorn.getCodi()));
-		countEntorn.inc();
-		final Timer timerTipexp = metricRegistry.timer(MetricRegistry.name(ExecucioMassivaService.class, "completar",
-				entorn.getCodi(), (expedientTipus != null ? expedientTipus.getCodi() : "")));
-		final Timer.Context contextTipexp = timerTipexp.time();
-		Counter countTipexp = metricRegistry.counter(MetricRegistry.name(ExecucioMassivaService.class,
-				"completar.count", entorn.getCodi(), (expedientTipus != null ? expedientTipus.getCodi() : "")));
-		countTipexp.inc();
+	@Transactional
+	public void executarExecucioMassiva(Long ome_id) throws InterruptedException {
+		
+		// Programa una interrupció de l'execució en 10 minuts (36000 segons)
+		int timeout = 36000; // 60x60x10
+		ScheduledExecutorService scheduler = ThreadUtilsHelium.setTimeout(timeout);
 		try {
-			Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
+			// Execució de l'acció massiva
+			ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
+			if (ome == null)
+				throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
 
-//			final String user = exm.getUsuari();
-//	        Principal principal = new Principal() {
-//				public String getName() {
-//					return user;
-//				}
-//			};
+			ExecucioMassiva exm = ome.getExecucioMassiva();
+			ExecucioMassivaTipus tipus = exm.getTipus();
+			Entorn entorn = entornHelper.getEntornComprovantPermisos(exm.getEntorn(), false);
 
-			Authentication authentication = new UsernamePasswordAuthenticationToken(
-					ome.getExecucioMassiva().getAuthenticationPrincipal(), "N/A", // ome.getExecucioMassiva().getAuthenticationCredentials(),
-					ome.getExecucioMassiva().getAuthenticationRoles());
-
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-
-			String expedient_s = null;
-			if (MesuresTemporalsHelper.isActiu())
-				expedient_s = (expedientTipus != null ? expedientTipus.getNom() : "");
-
-			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA) {
-				gestioTasca(ome);
-			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC) {
-				mesuresTemporalsHelper.mesuraIniciar("Actualitzar", "massiva", expedient_s);
-				actualitzarVersio(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Actualitzar", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {
-				mesuresTemporalsHelper.mesuraIniciar("Eliniar", "massiva", expedient_s);
-				eliminarVersio(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Actualitzar", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT) {
-				mesuresTemporalsHelper.mesuraIniciar("Executar script", "massiva", expedient_s);
-				executarScript(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Executar script", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO) {
-				mesuresTemporalsHelper.mesuraIniciar("Executar accio", "massiva", expedient_s);
-				executarAccio(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Executar accio", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.ATURAR_EXPEDIENT) {
-				mesuresTemporalsHelper.mesuraIniciar("Aturar expedient", "massiva", expedient_s);
-				aturarExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Aturar expedient", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_VARIABLE) {
-				mesuresTemporalsHelper.mesuraIniciar("Modificar variable", "massiva", expedient_s);
-				modificarVariable(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Modificar variable", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_DOCUMENT) {
-				mesuresTemporalsHelper.mesuraIniciar("Modificar document", "massiva", expedient_s);
-				modificarDocument(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Modificar document", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.REINDEXAR) {
-				mesuresTemporalsHelper.mesuraIniciar("Reindexar", "massiva", expedient_s);
-				reindexarExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Reindexar", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.BUIDARLOG) {
-				mesuresTemporalsHelper.mesuraIniciar("Buidar log", "massiva", expedient_s);
-				buidarLogExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Buidar log", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.REPRENDRE_EXPEDIENT) {
-				mesuresTemporalsHelper.mesuraIniciar("desfer fi process instance", "massiva", expedient_s);
-				reprendreExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("desfer fi process instance", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.FINALITZAR_EXPEDIENT) {
-				mesuresTemporalsHelper.mesuraIniciar("fi process instance", "massiva", expedient_s);
-				finalitzarExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("fi process instance", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.MIGRAR_EXPEDIENT) {
-				mesuresTemporalsHelper.mesuraIniciar("fi process instance", "massiva", expedient_s);
-				migrarExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("fi process instance", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.REPRENDRE) {
-				mesuresTemporalsHelper.mesuraIniciar("reprendre tramitació process instance", "massiva", expedient_s);
-				reprendreTramitacio(ome);
-				mesuresTemporalsHelper.mesuraCalcular("reprendre tramitació process instance", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.REASSIGNAR) {
-				mesuresTemporalsHelper.mesuraIniciar("Reassignar", "massiva", expedient_s);
-				// reassignarExpedient(ome);
-				reassignarTasca(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Reassignar", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.PROPAGAR_PLANTILLES) {
-				mesuresTemporalsHelper.mesuraIniciar("Propagar plantilles", "massiva", expedient_s);
-				propagarPlantilles(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Propagar plantilles", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.PROPAGAR_CONSULTES) {
-				mesuresTemporalsHelper.mesuraIniciar("Propagar consultes", "massiva", expedient_s);
-				propagarConsultes(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Propagar consultes", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.ALTA_MASSIVA) {
-				mesuresTemporalsHelper.mesuraIniciar("Alta massiva CSV", "massiva", expedient_s);
-				altaMassivaCsv(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Alta massiva CSV", "massiva", expedient_s);				
-			} else if (tipus == ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS) {
-				mesuresTemporalsHelper.mesuraIniciar("Reintentar consulta anotacions", "massiva", expedient_s);
-				reintentarConsultaAnotacions(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Reintentar consulta anotacions", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS) {
-				mesuresTemporalsHelper.mesuraIniciar("Reintentar processament anotacions", "massiva", expedient_s);
-				reintentarProcessamentAnotacions(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Reintentar processament anotacions", "massiva", expedient_s);		
-			} else if (tipus == ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS) {
-				mesuresTemporalsHelper.mesuraIniciar("Reintentar mapeig anotacions", "massiva", expedient_s);
-				reprocessarMapeigAnotacions(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Reintentar mapeig anotacions", "massiva", expedient_s);		
-			} else if (tipus == ExecucioMassivaTipus.ESBORRAR_ANOTACIONS) {
-				mesuresTemporalsHelper.mesuraIniciar("Esborrar anotacions", "massiva", expedient_s);
-				esborrarAnotacions(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Esborrar anotacions", "massiva", expedient_s);
-			} else if (tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
-				mesuresTemporalsHelper.mesuraIniciar("Reintentar processament només annexos anotacions", "massiva", expedient_s);
-				reintentarProcessamentAnotacionsNomesAnnexos(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Reintentar processament només annexos anotacions", "massiva", expedient_s);	
-			} else if (tipus == ExecucioMassivaTipus.ANULAR) {
-				mesuresTemporalsHelper.mesuraIniciar("Anular expedient", "massiva", expedient_s);
-				anularExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Anular expedient", "massiva", expedient_s);	
-			}
-			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
-		} catch (Exception ex) {
-			logger.error("Error al executar la acció massiva (expedientTipusId="
-					+ (expedientTipus != null ? expedientTipus.getId() : "") + ", dataInici=" + ome.getDataInici()
-					+ ", expedient=" + (expedient == null ? null : expedient.getId()) + ", acció=" + ome, ex);
-
-			Throwable excepcioRetorn = ex;
-			if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC && ExceptionUtils.getRootCause(ex) != null) {
-				excepcioRetorn = ExceptionUtils.getRootCause(ex);
+			Expedient expedient = null;
+			if (ome.getExpedient() != null) {
+				expedient = ome.getExpedient();
+			} else if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC
+					&& tipus != ExecucioMassivaTipus.PROPAGAR_PLANTILLES
+					&& tipus != ExecucioMassivaTipus.PROPAGAR_CONSULTES
+					&& tipus != ExecucioMassivaTipus.ALTA_MASSIVA
+					&& tipus != ExecucioMassivaTipus.ESBORRAR_ANOTACIONS
+					&& tipus != ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS
+					&& tipus != ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
+					&& tipus != ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
+					&& tipus != ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
+				expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 			}
 
-			TascaProgramadaServiceImpl.saveError(ome_id, excepcioRetorn, exm.getTipus());
-			throw new ExecucioMassivaException(entorn.getId(), entorn.getCodi(), entorn.getNom(),
-					expedient == null ? null : expedient.getId(), expedient == null ? null : expedient.getTitol(),
-					expedient == null ? null : expedient.getNumero(),
-					expedientTipus == null ? null : expedientTipus.getId(),
-					expedientTipus == null ? null : expedientTipus.getCodi(),
-					expedientTipus == null ? null : expedientTipus.getNom(), ome.getExecucioMassiva().getId(),
-					ome.getId(), "Error al executar la acció massiva", ex);
+			ExpedientTipus expedientTipus;
+			if (expedient == null && (tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC
+					|| tipus == ExecucioMassivaTipus.PROPAGAR_PLANTILLES
+					|| tipus == ExecucioMassivaTipus.PROPAGAR_CONSULTES
+					|| tipus == ExecucioMassivaTipus.ALTA_MASSIVA
+					|| tipus == ExecucioMassivaTipus.ESBORRAR_ANOTACIONS
+					|| tipus == ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS
+					|| tipus == ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
+					|| tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
+					|| tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS ))
+				expedientTipus = exm.getExpedientTipus();
+			else
+				expedientTipus = expedient.getTipus();
+
+			logger.debug("Executant la acció massiva (" + "expedientTipusId="
+					+ (expedientTipus != null ? expedientTipus.getId() : "") + ", " + "dataInici=" + ome.getDataInici()
+					+ ", " + "expedient=" + ome.getId() + ", " + "acció=" + exm.getTipus());
+
+			final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(ExecucioMassivaService.class, "executar"));
+			final Timer.Context contextTotal = timerTotal.time();
+			Counter countTotal = metricRegistry
+					.counter(MetricRegistry.name(ExecucioMassivaService.class, "executar.count"));
+			countTotal.inc();
+			final Timer timerEntorn = metricRegistry
+					.timer(MetricRegistry.name(ExecucioMassivaService.class, "executar", entorn.getCodi()));
+			final Timer.Context contextEntorn = timerEntorn.time();
+			Counter countEntorn = metricRegistry
+					.counter(MetricRegistry.name(ExecucioMassivaService.class, "executar.count", entorn.getCodi()));
+			countEntorn.inc();
+			final Timer timerTipexp = metricRegistry.timer(MetricRegistry.name(ExecucioMassivaService.class, "completar",
+					entorn.getCodi(), (expedientTipus != null ? expedientTipus.getCodi() : "")));
+			final Timer.Context contextTipexp = timerTipexp.time();
+			Counter countTipexp = metricRegistry.counter(MetricRegistry.name(ExecucioMassivaService.class,
+					"completar.count", entorn.getCodi(), (expedientTipus != null ? expedientTipus.getCodi() : "")));
+			countTipexp.inc();
+			try {
+				Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
+
+				Authentication authentication = new UsernamePasswordAuthenticationToken(
+						ome.getExecucioMassiva().getAuthenticationPrincipal(), "N/A", // ome.getExecucioMassiva().getAuthenticationCredentials(),
+						ome.getExecucioMassiva().getAuthenticationRoles());
+
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+
+				String expedient_s = null;
+				if (MesuresTemporalsHelper.isActiu())
+					expedient_s = (expedientTipus != null ? expedientTipus.getNom() : "");
+
+				if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA) {
+					gestioTasca(ome);
+				} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC) {
+					mesuresTemporalsHelper.mesuraIniciar("Actualitzar", "massiva", expedient_s);
+					actualitzarVersio(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Actualitzar", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {
+					mesuresTemporalsHelper.mesuraIniciar("Eliniar", "massiva", expedient_s);
+					eliminarVersio(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Actualitzar", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT) {
+					mesuresTemporalsHelper.mesuraIniciar("Executar script", "massiva", expedient_s);
+					executarScript(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Executar script", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO) {
+					mesuresTemporalsHelper.mesuraIniciar("Executar accio", "massiva", expedient_s);
+					executarAccio(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Executar accio", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.ATURAR_EXPEDIENT) {
+					mesuresTemporalsHelper.mesuraIniciar("Aturar expedient", "massiva", expedient_s);
+					aturarExpedient(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Aturar expedient", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.MODIFICAR_VARIABLE) {
+					mesuresTemporalsHelper.mesuraIniciar("Modificar variable", "massiva", expedient_s);
+					modificarVariable(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Modificar variable", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.MODIFICAR_DOCUMENT) {
+					mesuresTemporalsHelper.mesuraIniciar("Modificar document", "massiva", expedient_s);
+					modificarDocument(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Modificar document", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.REINDEXAR) {
+					mesuresTemporalsHelper.mesuraIniciar("Reindexar", "massiva", expedient_s);
+					reindexarExpedient(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Reindexar", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.BUIDARLOG) {
+					mesuresTemporalsHelper.mesuraIniciar("Buidar log", "massiva", expedient_s);
+					buidarLogExpedient(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Buidar log", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.REPRENDRE_EXPEDIENT) {
+					mesuresTemporalsHelper.mesuraIniciar("desfer fi process instance", "massiva", expedient_s);
+					reprendreExpedient(ome);
+					mesuresTemporalsHelper.mesuraCalcular("desfer fi process instance", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.FINALITZAR_EXPEDIENT) {
+					mesuresTemporalsHelper.mesuraIniciar("fi process instance", "massiva", expedient_s);
+					finalitzarExpedient(ome);
+					mesuresTemporalsHelper.mesuraCalcular("fi process instance", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.MIGRAR_EXPEDIENT) {
+					mesuresTemporalsHelper.mesuraIniciar("fi process instance", "massiva", expedient_s);
+					migrarExpedient(ome);
+					mesuresTemporalsHelper.mesuraCalcular("fi process instance", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.REPRENDRE) {
+					mesuresTemporalsHelper.mesuraIniciar("reprendre tramitació process instance", "massiva", expedient_s);
+					reprendreTramitacio(ome);
+					mesuresTemporalsHelper.mesuraCalcular("reprendre tramitació process instance", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.REASSIGNAR) {
+					mesuresTemporalsHelper.mesuraIniciar("Reassignar", "massiva", expedient_s);
+					// reassignarExpedient(ome);
+					reassignarTasca(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Reassignar", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.PROPAGAR_PLANTILLES) {
+					mesuresTemporalsHelper.mesuraIniciar("Propagar plantilles", "massiva", expedient_s);
+					propagarPlantilles(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Propagar plantilles", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.PROPAGAR_CONSULTES) {
+					mesuresTemporalsHelper.mesuraIniciar("Propagar consultes", "massiva", expedient_s);
+					propagarConsultes(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Propagar consultes", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.ALTA_MASSIVA) {
+					mesuresTemporalsHelper.mesuraIniciar("Alta massiva CSV", "massiva", expedient_s);
+					altaMassivaCsv(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Alta massiva CSV", "massiva", expedient_s);				
+				} else if (tipus == ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS) {
+					mesuresTemporalsHelper.mesuraIniciar("Reintentar consulta anotacions", "massiva", expedient_s);
+					reintentarConsultaAnotacions(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Reintentar consulta anotacions", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS) {
+					mesuresTemporalsHelper.mesuraIniciar("Reintentar processament anotacions", "massiva", expedient_s);
+					reintentarProcessamentAnotacions(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Reintentar processament anotacions", "massiva", expedient_s);		
+				} else if (tipus == ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS) {
+					mesuresTemporalsHelper.mesuraIniciar("Reintentar mapeig anotacions", "massiva", expedient_s);
+					reprocessarMapeigAnotacions(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Reintentar mapeig anotacions", "massiva", expedient_s);		
+				} else if (tipus == ExecucioMassivaTipus.ESBORRAR_ANOTACIONS) {
+					mesuresTemporalsHelper.mesuraIniciar("Esborrar anotacions", "massiva", expedient_s);
+					esborrarAnotacions(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Esborrar anotacions", "massiva", expedient_s);
+				} else if (tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
+					mesuresTemporalsHelper.mesuraIniciar("Reintentar processament només annexos anotacions", "massiva", expedient_s);
+					reintentarProcessamentAnotacionsNomesAnnexos(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Reintentar processament només annexos anotacions", "massiva", expedient_s);	
+				} else if (tipus == ExecucioMassivaTipus.ANULAR) {
+					mesuresTemporalsHelper.mesuraIniciar("Anular expedient", "massiva", expedient_s);
+					anularExpedient(ome);
+					mesuresTemporalsHelper.mesuraCalcular("Anular expedient", "massiva", expedient_s);	
+				}
+				SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
+			} catch (Throwable ex) {
+				logger.error("Error al executar la acció massiva (expedientTipusId="
+						+ (expedientTipus != null ? expedientTipus.getId() : "") + ", dataInici=" + ome.getDataInici()
+						+ ", expedient=" + (expedient == null ? null : expedient.getId()) + ", acció=" + ome, ex);
+
+				Throwable excepcioRetorn = ex;
+				if (ExceptionUtilsHelium.isCausedBy(ex, InterruptedException.class)) {
+					excepcioRetorn = new Exception("L'execució massiva s'ha interromput després de superar el temps màxim de 10 minuts.", ex);
+				} else {
+					excepcioRetorn = ex;
+					if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC && ExceptionUtils.getRootCause(ex) != null) {
+						excepcioRetorn = ExceptionUtils.getRootCause(ex);
+					}
+				}
+				TascaProgramadaServiceImpl.saveError(ome_id, excepcioRetorn, exm.getTipus());
+				throw new ExecucioMassivaException(entorn.getId(), entorn.getCodi(), entorn.getNom(),
+						expedient == null ? null : expedient.getId(), expedient == null ? null : expedient.getTitol(),
+						expedient == null ? null : expedient.getNumero(),
+						expedientTipus == null ? null : expedientTipus.getId(),
+						expedientTipus == null ? null : expedientTipus.getCodi(),
+						expedientTipus == null ? null : expedientTipus.getNom(), ome.getExecucioMassiva().getId(),
+						ome.getId(), "Error al executar la acció massiva", ex);
+			} finally {
+				contextTotal.stop();
+				contextEntorn.stop();
+				contextTipexp.stop();
+			}
 		} finally {
-			contextTotal.stop();
-			contextEntorn.stop();
-			contextTipexp.stop();
+			scheduler.shutdownNow();
 		}
 	}
 

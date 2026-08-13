@@ -11,9 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -80,6 +78,7 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExceptionUtilsHelium;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.ThreadUtilsHelium;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
@@ -1841,7 +1840,7 @@ public class ExpedientHelper {
 		Integer timeout = this.getTimeoutIniciProperty();
 		ScheduledExecutorService scheduler = null;
 		if (timeout != null) {
-			scheduler = this.setTimeoutIniciExpedient(timeout);			
+			scheduler = ThreadUtilsHelium.setTimeout(timeout);			
 		}
 		
 		// Inici de la creació de l'expedient
@@ -2146,26 +2145,6 @@ public class ExpedientHelper {
 		}
 		
 		return expedientPerRetornar;
-	}
-
-	/** Mètode per establir un timeout al thrad actual per evitar que la creacio d'un
-	 * expedient trigui més del compte i eviti l'execució d'altres creacions d'expedients.
-	 * @param timeout Valor en segons per establir el timout.
-	 * @return Retorna el ScheduledExecutor per poder fer una finalització.
-	 */
-	private ScheduledExecutorService setTimeoutIniciExpedient(int timeout) {
-		// Programa l'interrupció del thrad actual
-		final Thread currentThread = Thread.currentThread();
-		ScheduledExecutorService scheduler =
-		        Executors.newSingleThreadScheduledExecutor();
-		
-		scheduler.schedule(new Runnable() {
-		    @Override
-		    public void run() {
-		        currentThread.interrupt();
-		    }
-		}, timeout, TimeUnit.SECONDS);
-		return scheduler;
 	}
 	
 	/** Consulta la propietat amb el timeout d'inici d'expedient en segons. */
