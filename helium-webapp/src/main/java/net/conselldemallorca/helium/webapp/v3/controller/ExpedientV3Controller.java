@@ -305,7 +305,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			if (alerta.getDestinatari() != null && resposta.get(alerta.getDestinatari()) == null) {
 				PersonaDto persona = aplicacioService.findPersonaAmbCodi(alerta.getDestinatari());
 				if (persona != null)
-					resposta.put(persona.getCodi(), persona.getNomSencer());
+					resposta.put(persona.getCodi(), persona.getNomSencerCodi());
 			}
 		}
 		return resposta;

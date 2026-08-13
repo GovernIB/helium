@@ -4,7 +4,10 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -102,7 +105,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	
 	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
-	public String personaSuggest(
+	public List<Map<String, String>> personaSuggest(
 			@PathVariable String text,
 			Model model) {
 		String decodedToUTF8 = null;
@@ -112,13 +115,14 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			logger.error("No s'ha pogut consultar el text " + decodedToUTF8 + ": " + e.getMessage());
 		}
 		List<PersonaDto> lista = aplicacioService.findPersonaLikeNomSencer(decodedToUTF8);
-		String json = "[";
+		List<Map<String, String>> resposta = new ArrayList<Map<String, String>>();
 		for (PersonaDto persona: lista) {
-			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
+			Map<String, String> p = new HashMap<String, String>();
+			p.put("codi", persona.getCodi());
+			p.put("nom", persona.getNomSencerCodi());
+			resposta.add(p);
 		}
-		if (json.length() > 1) json = json.substring(0, json.length() - 1);
-		json += "]";
-		return json;
+		return resposta;
 	}
 
 	@RequestMapping(value = "/persona/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
@@ -134,7 +138,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 		}
 		PersonaDto persona = aplicacioService.findPersonaAmbCodi(textDecoded);
 		if (persona != null) {
-			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
+			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencerCodi() + "\"}";
 				}
 		return null;
 	}

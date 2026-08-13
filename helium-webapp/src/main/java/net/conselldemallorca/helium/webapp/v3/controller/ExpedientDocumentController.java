@@ -2751,7 +2751,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			} else {
 				// TODO: Substituir la crida del core 2.6
 				PersonaDto usuariActual = aplicacioService.findPersonaActual();
-				String motiu = "Petició de firma cancel·lada des d'Helium per l'usuari " + usuariActual.getCodi() + " " + usuariActual.getNomSencer(); 
+				String motiu = "Petició de firma cancel·lada des d'Helium per l'usuari " + usuariActual.getCodi() + " " + usuariActual.getNomSencerCodi(); 
 				pluginService.processarDocumentCallbackPortasignatures(
 							psignaPendentActual.getDocumentId(), 
 							true, 

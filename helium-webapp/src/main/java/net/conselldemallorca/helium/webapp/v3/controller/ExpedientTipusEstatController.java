@@ -827,7 +827,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		List<PersonaDto> lista = aplicacioService.findPersonaLikeCodiOrNomSencer(textDecoded);
 		String json = "[";
 		for (PersonaDto persona : lista) {
-			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
+			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencerCodi() + "\"},";
 		}
 		if (json.length() > 1)
 			json = json.substring(0, json.length() - 1);
@@ -847,7 +847,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		}
 		PersonaDto persona = aplicacioService.findPersonaAmbCodi(textDecoded);
 		if (persona != null) {
-			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
+			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencerCodi() + "\"}";
 		}
 		return null;
 	}

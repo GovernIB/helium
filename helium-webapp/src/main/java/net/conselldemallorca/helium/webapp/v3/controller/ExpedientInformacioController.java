@@ -158,7 +158,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		expedient.setResponsablePersona(personaResponsable);
 		if (personaResponsable != null) {
 			expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());
-			expedientEditarCommand.setResponsableNomSencer(personaResponsable.getNomSencer());
+			expedientEditarCommand.setResponsableNomSencer(personaResponsable.getNomSencerCodi());
 		}
 		// Estat finalitzat
 		if (expedient.getEstat() == null && expedient.getDataFi() != null) {

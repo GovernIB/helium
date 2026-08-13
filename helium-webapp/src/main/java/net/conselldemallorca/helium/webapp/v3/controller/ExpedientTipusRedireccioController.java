@@ -195,7 +195,7 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 
 		try {
 			for (PersonaDto p : expedientTipusService.personaFindAll(entornActual.getId(), expedientTipusId)) {
-				resposta.add(new ParellaCodiValorDto(p.getCodi(), p.getNomSencer()));
+				resposta.add(new ParellaCodiValorDto(p.getCodi(), p.getNomSencerCodi()));
 			}
 		} catch (Exception e) {
     		MissatgesHelper.error(

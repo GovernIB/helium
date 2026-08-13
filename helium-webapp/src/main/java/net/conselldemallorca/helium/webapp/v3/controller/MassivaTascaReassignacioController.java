@@ -4,9 +4,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -84,7 +87,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 
 	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
-	public String personaSuggest(
+	public List<Map<String, String>> personaSuggest(
 			@PathVariable String text,
 			Model model) {
 		String textDecoded = null;
@@ -94,13 +97,14 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
 		}
 		List<PersonaDto> lista = aplicacioService.findPersonaLikeNomSencer(textDecoded);
-		String json = "[";
+		List<Map<String, String>> resposta = new ArrayList<Map<String, String>>();
 		for (PersonaDto persona: lista) {
-			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
+			Map<String, String> p = new HashMap<String, String>();
+			p.put("codi", persona.getCodi());
+			p.put("nom", persona.getNomSencerCodi());
+			resposta.add(p);
 		}
-		if (json.length() > 1) json = json.substring(0, json.length() - 1);
-		json += "]";
-		return json;
+		return resposta;
 	}
 
 	@RequestMapping(value = "/persona/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
@@ -116,7 +120,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		}
 		PersonaDto persona = aplicacioService.findPersonaAmbCodi(textDecoded);
 		if (persona != null) {
-			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
+			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencerCodi() + "\"}";
 		}
 		return null;
 	}

@@ -134,7 +134,7 @@ public class AplicacioController extends BaseController {
 					persona.setCodi(codis[i]);
 					persona.setNomSencer(codis[i] + " (no trobat)");
 				}
-				json.append("{\"codi\":\"").append(persona.getCodi()).append("\", \"nom\":\"").append(persona.getNomSencer()).append("\"}");
+				json.append("{\"codi\":\"").append(persona.getCodi()).append("\", \"nom\":\"").append(persona.getNomSencerCodi()).append("\"}");
 				if (i < codis.length - 1) {
 					json.append(",");
 				}

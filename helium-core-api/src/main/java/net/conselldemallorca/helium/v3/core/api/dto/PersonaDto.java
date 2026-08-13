@@ -112,6 +112,21 @@ public class PersonaDto implements Serializable {
 		return nomSencer.toString();
 	}
 	
+	public String getNomSencerCodi() {
+		StringBuilder codiObfusc = new StringBuilder(" (");
+		if (codi == null || codi.isEmpty()) {
+			codiObfusc.append("****");
+		} else {
+			int lastIndex = codi.length() > 4? codi.length() - 4 : codi.length() / 2;
+			for(int i = 0; i < lastIndex; i++) {
+				codiObfusc.append("*");
+			}
+			codiObfusc.append(codi.substring(lastIndex));
+		}
+		codiObfusc.append(")");
+		return getNomSencer() + codiObfusc.toString();
+	}
+	
 	@Override
 	public String toString() {
 		return getNomSencer();
