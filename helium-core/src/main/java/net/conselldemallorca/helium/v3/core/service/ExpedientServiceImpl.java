@@ -374,6 +374,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			Long anotacioId,
 			boolean anotacioInteressatsAssociar) throws Exception {
 		ExpedientDto expedientDto = null;
+		// Evita crear un expedient per la mateixa anotació
 		Object lock;
 		if(anotacioId != null) {
 			Object objVal = new Object();

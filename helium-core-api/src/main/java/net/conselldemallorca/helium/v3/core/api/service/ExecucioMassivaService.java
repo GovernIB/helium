@@ -62,7 +62,7 @@ public interface ExecucioMassivaService {
 	
 	public Long getExecucionsMassivesActiva(Long ultimaExecucioMassiva);
 	
-	public void executarExecucioMassiva(Long ome_id) throws NoTrobatException, ValidacioException, ExecucioMassivaException;
+	public void executarExecucioMassiva(Long ome_id) throws NoTrobatException, ValidacioException, ExecucioMassivaException, InterruptedException;
 	
 	public void generaInformeError(Long ome_id, String error) throws NoTrobatException;
 	
