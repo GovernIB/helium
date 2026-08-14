@@ -1021,8 +1021,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	@Transactional
 	public void executarExecucioMassiva(Long ome_id) throws InterruptedException {
 		
-		// Programa una interrupció de l'execució en 10 minuts (36000 segons)
-		int timeout = 36000; // 60x60x10
+		// Programa una interrupció de l'execució en 10 minuts (600 segons)
+		int timeout = this.getTimeoutExecucioMassivaProperty();
 		ScheduledExecutorService scheduler = ThreadUtilsHelium.setTimeout(timeout);
 		try {
 			// Execució de l'acció massiva
@@ -1224,6 +1224,21 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		} finally {
 			scheduler.shutdownNow();
 		}
+	}
+
+	/** Consulta la propietat amb el timeout d'inici d'expedient en segons. */
+	private int getTimeoutExecucioMassivaProperty() {
+		// Per defecte 10 minuts (600 segons)
+		Integer timeout = 600;
+		String value = GlobalProperties.getInstance().getProperty("app.massiu.execucio.timeout");
+		if (value != null) {
+			try {
+				timeout = Integer.valueOf(value);
+			} catch(Exception e) {
+				logger.error("Error llegint la propietat integer app.massiu.execucio.timeout=" + value);
+			}
+		}
+		return timeout;
 	}
 
 	@Override
