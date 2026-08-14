@@ -85,7 +85,7 @@ public class ExecucioMassivaServiceBean extends AbstractServiceEjb<ExecucioMassi
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void executarExecucioMassiva(Long ome_id) {
+	public void executarExecucioMassiva(Long ome_id) throws InterruptedException {
 		delegateService.executarExecucioMassiva(ome_id);
 	}
 

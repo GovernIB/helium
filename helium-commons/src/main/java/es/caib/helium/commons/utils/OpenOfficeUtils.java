@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.artofsolving.jodconverter.DefaultDocumentFormatRegistry;
 import com.artofsolving.jodconverter.DocumentConverter;
+import com.artofsolving.jodconverter.DocumentFamily;
 import com.artofsolving.jodconverter.DocumentFormat;
 import com.artofsolving.jodconverter.DocumentFormatRegistry;
 import com.artofsolving.jodconverter.openoffice.connection.OpenOfficeConnection;
@@ -160,8 +161,16 @@ public class OpenOfficeUtils {
 	}
 
 	private DocumentFormatRegistry getDocumentFormatRegistry() {
-		if (documentFormatRegistry == null)
+		if (documentFormatRegistry == null) {
 			documentFormatRegistry = new DefaultDocumentFormatRegistry();
+			final DocumentFormat doc = new DocumentFormat(
+					"Microsoft Word 2007 XML", 
+					DocumentFamily.TEXT, 
+					"application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
+					"docx");
+			doc.setExportFilter(DocumentFamily.TEXT, "MS Word 97");
+			((DefaultDocumentFormatRegistry) documentFormatRegistry).addDocumentFormat(doc);
+		}
 		return documentFormatRegistry;
 	}
 

@@ -25,6 +25,8 @@ public class PropertyConfig {
 	public static final String PROP_ANOTACIONS_PENDENTS_COMPROVAR_INTENTS = PROPERTY_PREFIX + "anotacions.pendents.comprovar.intents";
 	public static final String PROP_MASSIU_PERIODE_EXECUCIONS = PROPERTY_PREFIX + "massiu.periode.execucions";
 	public static final String PROP_MASSIU_PERIODE_NOVES = PROPERTY_PREFIX + "massiu.periode.noves";
+	/** Timeout en segons per establir un màxim en les execucions massives. Si no s'informa són 10 minuts. */
+	public static final String PROP_MASSIU_EXECUCIO_TIMEOUT = PROPERTY_PREFIX + "massiu.execucio.timeout";
 	public static final String PROP_UNITATS_PROCEDIMENT_SYNC = PROPERTY_PREFIX + "unitats.procediments.sync";
 	public static final String PROP_WS_CLIENT_CHUNKED = PROPERTY_PREFIX + "ws.client.chunked";
 	public static final String PROP_CALENDARI_NOLABS = PROPERTY_PREFIX + "calendari.nolabs";

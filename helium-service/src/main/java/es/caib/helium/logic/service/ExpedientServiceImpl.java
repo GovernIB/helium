@@ -379,7 +379,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		List<DadesDocumentDto> adjunts,
 		Long anotacioId,
 		boolean anotacioInteressatsAssociar) throws Exception {
+		
 		ExpedientDto expedientDto = null;
+		
+		// Evita crear un expedient per la mateixa anotació
 		Object lock;
 		if(anotacioId != null) {
 			Object objVal = new Object();
@@ -1787,7 +1790,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	public void syncTancamentArxiu(Long expedientId, boolean esborrarExpSiError) {
 		Expedient expedient = expedientRepository.findById(expedientId).orElseThrow();
 		try {
-			expedientHelper.tancarExpedientArxiu(expedient.getId(), esborrarExpSiError);
+			expedientHelper.tancarExpedientArxiu(expedient.getId(), true);
 		} catch (Exception ex) {
 			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			if (esborrarExpSiError && expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {

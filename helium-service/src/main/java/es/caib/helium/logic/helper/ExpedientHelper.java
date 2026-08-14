@@ -62,14 +62,16 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.ValidacioException;
+import es.caib.helium.commons.utils.ExceptionUtilsHelium;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.commons.utils.ThreadUtilsHelium;
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WToken;
 import es.caib.helium.disseny.handler.HeliumActionHandler;
 import es.caib.helium.logic.bpmn.HeliumActionHandlerPredefinitFactory;
 import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.disseny.engine.WProcessInstance;
-import es.caib.helium.disseny.engine.WToken;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.security.ExtendedPermission;
@@ -1835,7 +1837,7 @@ public class ExpedientHelper {
 		Integer timeout = this.getTimeoutIniciProperty();
 		ScheduledExecutorService scheduler = null;
 		if (timeout != null) {
-			scheduler = this.setTimeoutIniciExpedient(timeout);			
+			scheduler = ThreadUtilsHelium.setTimeout(timeout);			
 		}
 		// Inici de la creació de l'expedient
 		Expedient expedientPerRetornar = null;
@@ -2131,13 +2133,16 @@ public class ExpedientHelper {
 				logger.error("Error iniciant expedient (entorn=" + (entorn != null ? entorn.getCodi() : "")
 								+ ", tipus=" + (expedientTipus != null ? expedientTipus.getCodi() : "") + "): "
 								+ ex.getMessage(), ex);
-
-				throw new RuntimeException(messageHelper.getMessage("error.proces.peticio") + ": "
-						+ ExceptionUtils.getRootCauseMessage(ex), ex);
+				if (timeout != null 
+						&& ExceptionUtilsHelium.isCausedBy(ex, InterruptedException.class)) {
+					throw new RuntimeException("La creació de l'expedient s'ha interromput després de superar el temps màxim de" + timeout + " segons.");
+				} else {
+					throw new RuntimeException(messageHelper.getMessage("error.proces.peticio") + ": "
+							+ ExceptionUtils.getRootCauseMessage(ex), ex);
+				}
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
-		} catch(Throwable th) {
-			
+
 		} finally {
 			if (scheduler != null) {
 				scheduler.shutdownNow();
@@ -2146,26 +2151,6 @@ public class ExpedientHelper {
 		return expedientPerRetornar;
 	}
 
-	/** Mètode per establir un timeout al thrad actual per evitar que la creacio d'un
-	 * expedient trigui més del compte i eviti l'execució d'altres creacions d'expedients.
-	 * @param timeout Valor en segons per establir el timout.
-	 * @return Retorna el ScheduledExecutor per poder fer una finalització.
-	 */
-	private ScheduledExecutorService setTimeoutIniciExpedient(int timeout) {
-		// Programa l'interrupció del thrad actual
-		final Thread currentThread = Thread.currentThread();
-		ScheduledExecutorService scheduler =
-		        Executors.newSingleThreadScheduledExecutor();
-		
-		scheduler.schedule(new Runnable() {
-		    @Override
-		    public void run() {
-		        currentThread.interrupt();
-		    }
-		}, timeout, TimeUnit.SECONDS);
-		return scheduler;
-	}
-	
 	/** Consulta la propietat amb el timeout d'inici d'expedient en segons. */
 	private Integer getTimeoutIniciProperty() {
 		Integer timeout = null;
