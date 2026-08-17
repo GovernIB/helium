@@ -46,7 +46,7 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 			SearchUsersResult result = this.getUsersByPartialNameOrPartialSurnames(text);
 			if (SearchStatus.RESULT_OK != result.getStatus().getResultCode()) {
 				throw new PersonesPluginException("Resultat incorrecte consultant usuaris per nom LDAP CAIB (text="
-						+ text + "): " + result.getStatus());
+						+ text + "): " + result.getStatus().getResultCode() + " - " + result.getStatus().getResultMessage());
 			}
 			if (result.getUsers() != null) {
 				for (UserInfo userInfo : result.getUsers()) {
@@ -54,7 +54,7 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 				}
 			}
 		} catch (Exception ex) {
-			throw new PersonesPluginException("Error consultant usuaris per nom LDAP CAIB (text=" + text, ex);
+			throw new PersonesPluginException("Error consultant usuaris per nom LDAP CAIB (text=" + text + "): " + ex.getMessage(), ex);
 		}
 		return dadesPersones;
 	}
@@ -79,7 +79,7 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 			UserInfo userInfo = getUserInfoByUserName(usuariCodi);
 			return toDadesPersona(userInfo);
 		} catch (Exception ex) {
-			throw new PersonesPluginException("Error al consultar l'usuari amb codi " + usuariCodi, ex);
+			throw new PersonesPluginException("Error al consultar l'usuari amb codi " + usuariCodi + ": " + ex.getMessage(), ex);
 		}
 	}
 
@@ -108,7 +108,7 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 			}
 			return dadesPersones;
 		} catch (Exception ex) {
-			throw new PersonesPluginException("Error al consultar els usuaris del grup LDAP CAIB " + grupCodi, ex);
+			throw new PersonesPluginException("Error al consultar els usuaris del grup LDAP CAIB " + grupCodi + ": " + ex.getMessage(), ex);
 		}
 	}
 	
@@ -205,7 +205,7 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 				return new SearchUsersResult(new SearchStatus(SearchStatus.RESULT_CLIENT_ERROR,
 						"L´atribut " + attributeKey + " no està definit en els propietats"));
 			}
-			filterB.append("(").append(ldapAttrib).append("=").append(partialValue).append(")");
+			filterB.append("(").append(ldapAttrib).append("=*").append(partialValue).append("*)");
 		}
 		try {
 			String filter;
@@ -232,9 +232,6 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 		List<UserInfo> list = new ArrayList<UserInfo>();
 		while (enumeration.hasMore()) {
 			SearchResult sr = enumeration.next();
-
-			// ldapManager.
-
 			list.add(ldapUserToUserInfo(convertAttributesToLdapUser(sr.getAttributes())));
 		}
 		return new SearchUsersResult(list);
@@ -291,6 +288,19 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 					userInfo.getEmail(), mapSexe(userInfo.getGender()));
 			dadesPersona.setDni(userInfo.getAdministrationID());
 			dadesPersona.setEmail(userInfo.getEmail());
+			if (userInfo.getGender() != null) {
+				switch(userInfo.getGender()) {
+				case FEMALE:
+					dadesPersona.setSexe(Sexe.SEXE_DONA);
+					break;
+				case MALE:
+					dadesPersona.setSexe(Sexe.SEXE_HOME);
+					break;
+				case UNKNOWN:
+				default:
+					break;
+				}
+			}
 			return dadesPersona;
 		} else {
 			return null;
@@ -308,17 +318,14 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 	 */
 	public LDAPUser convertAttributesToLdapUser(Attributes attrib) throws Exception {
 
-		// Attributes attrib = ldapUser.getAttributes();
-		// SearchResult ldapUser
+		LDAPUserManager ldapManager = getLDAPUserManager();
 
-		// TODO Imprimir tots els attributs
-
-		String userName = searchResultToUserName(attrib); // ldapUser);
+		String userName = searchResultToUserName(attrib);
 
 		LDAPUser user = new LDAPUser();
 		user.setUserName(userName);
 
-		String givenNameKey = GlobalProperties.getProperties().getProperty(LDAPUserManager.LDAP_NAME_ATTRIBUTE);
+		String givenNameKey = ldapManager.getLdapProperties().getProperty(LDAPUserManager.LDAP_NAME_ATTRIBUTE);
 		Attribute givenName = attrib.get(givenNameKey);
 		if (givenName == null) {
 			user.setName(null);
@@ -326,12 +333,12 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 			user.setName((String) givenName.get());
 		}
 
-		String surname1Key = GlobalProperties.getProperties().getProperty(LDAPUserManager.LDAP_SURNAME1_ATTRIBUTE);
-		String surname2Key = GlobalProperties.getProperties().getProperty(LDAPUserManager.LDAP_SURNAME2_ATTRIBUTE);
+		String surname1Key = ldapManager.getLdapProperties().getProperty(LDAPUserManager.LDAP_SURNAME1_ATTRIBUTE);
+		String surname2Key = ldapManager.getLdapProperties().getProperty(LDAPUserManager.LDAP_SURNAME2_ATTRIBUTE);
 
 		if (surname1Key == null || surname2Key == null) {
 			// Els llinatges es troben només a dins una sola clau
-			String surnameKey = GlobalProperties.getProperties().getProperty(LDAPUserManager.LDAP_SURNAMES_ATTRIBUTE);
+			String surnameKey = ldapManager.getLdapProperties().getProperty(LDAPUserManager.LDAP_SURNAMES_ATTRIBUTE);
 
 			Attribute surname = attrib.get(surnameKey);
 			if (surname == null) {
@@ -356,16 +363,16 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 			}
 		}
 
-		String memberOfKey = GlobalProperties.getProperties().getProperty(LDAPUserManager.LDAP_MEMBEROF_ATTRIBUTE);
+		String memberOfKey = ldapManager.getLdapProperties().getProperty(LDAPUserManager.LDAP_MEMBEROF_ATTRIBUTE);
 		Attribute memberOfAtt = attrib.get(memberOfKey);
 		if (memberOfAtt == null) {
 			user.setMemberOf(null);
 		} else {
-			String prefix = GlobalProperties.getProperties().getProperty(LDAPUserManager.PREFIX_ROLE_MATCH_MEMBEROF);
+			String prefix = ldapManager.getLdapProperties().getProperty(LDAPUserManager.PREFIX_ROLE_MATCH_MEMBEROF);
 			if (prefix == null) {
 				prefix = "";
 			}
-			String suffix = GlobalProperties.getProperties().getProperty(LDAPUserManager.SUFFIX_ROLE_MATCH_MEMBEROF);
+			String suffix = ldapManager.getLdapProperties().getProperty(LDAPUserManager.SUFFIX_ROLE_MATCH_MEMBEROF);
 			if (suffix == null) {
 				suffix = "";
 			}
@@ -383,7 +390,7 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 			user.setMemberOf(values.toArray(new String[values.size()]));
 		}
 
-		String mailKey = GlobalProperties.getProperties().getProperty(LDAPUserManager.LDAP_EMAIL_ATTRIBUTE);
+		String mailKey = ldapManager.getLdapProperties().getProperty(LDAPUserManager.LDAP_EMAIL_ATTRIBUTE);
 		Attribute mail = attrib.get(mailKey);
 		if (mail == null) {
 			user.setEmail(null);
@@ -391,7 +398,7 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 			user.setEmail((String) mail.get());
 		}
 
-		String telephoneKey = GlobalProperties.getProperties().getProperty(LDAPUserManager.LDAP_TELEPHONE_ATTRIBUTE);
+		String telephoneKey = ldapManager.getLdapProperties().getProperty(LDAPUserManager.LDAP_TELEPHONE_ATTRIBUTE);
 		if (telephoneKey == null) {
 			user.setTelephoneNumber(null);
 		} else {
@@ -403,7 +410,7 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 			}
 		}
 
-		String nifKey = GlobalProperties.getProperties().getProperty(LDAPUserManager.LDAP_ADMINISTRATIONID_ATTRIBUTE);
+		String nifKey = ldapManager.getLdapProperties().getProperty(LDAPUserManager.LDAP_ADMINISTRATIONID_ATTRIBUTE);
 		Attribute nif = attrib.get(nifKey);
 		if (nif == null) {
 			user.setAdministrationID(null);
@@ -426,8 +433,9 @@ public class PersonesPluginLdapCaib extends LdapUserInformationPlugin implements
 	 */
 	public String searchResultToUserName(Attributes attrib) throws Exception {
 
+		LDAPUserManager ldapManager = getLDAPUserManager();
 		// SearchResult ldapUser
-		String userNameAttribKey = GlobalProperties.getProperties().getProperty(LDAPUserManager.LDAP_USERNAME_ATTRIBUTE);
+		String userNameAttribKey = ldapManager.getLdapProperties().getProperty(LDAPUserManager.LDAP_USERNAME_ATTRIBUTE);
 		// Attributes attrib = ldapUser.getAttributes();
 		Attribute userNameAttrib = attrib.get(userNameAttribKey);
 		if (userNameAttrib == null) {
