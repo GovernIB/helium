@@ -21,18 +21,17 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hyperic.sigar.CpuPerc;
-import org.hyperic.sigar.Sigar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 
+import es.caib.comanda.ms.salut.helper.MonitorHelper;
 import es.caib.comanda.ms.salut.model.ContextInfo;
-import es.caib.comanda.ms.salut.model.DetallSalut;
 import es.caib.comanda.ms.salut.model.EstatSalut;
 import es.caib.comanda.ms.salut.model.EstatSalutEnum;
+import es.caib.comanda.ms.salut.model.InformacioSistema;
 import es.caib.comanda.ms.salut.model.IntegracioApp;
 import es.caib.comanda.ms.salut.model.IntegracioInfo;
 import es.caib.comanda.ms.salut.model.IntegracioPeticions;
@@ -68,7 +67,6 @@ public class SalutServiceImpl implements SalutService {
 	@Autowired
 	private ExpedientReindexacioRepository expedientReindexacioRepository;
 	private Date lastCheckout;
-	
 	
 	@Override
 	public List<IntegracioInfo> getIntegracions() {
@@ -118,7 +116,6 @@ public class SalutServiceImpl implements SalutService {
 		EstatSalut estatSalut = checkEstatSalut(performanceUrl);		// Estat
 		EstatSalut salutDatabase = checkDatabase();						// Base de dades
 		List<IntegracioSalut> integracions = checkIntegracions();		// Integracions
-		List<DetallSalut> altres = checkAltres();						// Altres
 		List<MissatgeSalut> missatges = checkMissatges();				// Missatges
 		List<SubsistemaSalut> subsistemes = checkSubsistemes();
 		
@@ -132,7 +129,7 @@ public class SalutServiceImpl implements SalutService {
 				.build();
 		}
 		
-		
+		InformacioSistema informacioSistema = MonitorHelper.getInfoSistema();
 		
 		return SalutInfo.builder()
 				.codi("HEL")
@@ -142,7 +139,7 @@ public class SalutServiceImpl implements SalutService {
 				.estatBaseDeDades(salutDatabase)
 				.integracions(integracions)
 				.subsistemes(subsistemes)
-//				.altres(altres)
+				.informacioSistema(informacioSistema)
 				.missatges(missatges)
 				.build();
 	}
@@ -309,72 +306,6 @@ public class SalutServiceImpl implements SalutService {
 			total += num;
 		}
 		return total / nums.size();
-	}
-
-	public List<DetallSalut> checkAltres() {
-		OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
-		// Nombre de cores (CPU)
-		//int availableProcessors = osBean.getAvailableProcessors();
-		String os = osBean.getName() + " " + osBean.getVersion() + " (" + osBean.getArch() + ")";
-		
-		try {
-			String systemCpuLoad = "No disponible";
-			String processCpuLoad = "No disponible";
-		
-			loadSigarNativeLibs();
-			Sigar sigar = new Sigar();
-			// Informació sobre CPU
-			CpuPerc cpu = sigar.getCpuPerc();
-			systemCpuLoad = CpuPerc.format(cpu.getCombined());
-			processCpuLoad = CpuPerc.format(sigar.getProcCpu(sigar.getPid()).getPercent());
-			Long totalSpace = 0L;
-			Long freeSpace = 0L;
-			
-			for (File root : File.listRoots()) {
-				totalSpace = root.getTotalSpace();
-				freeSpace = root.getFreeSpace();
-			}
-			
-			return Lists.newArrayList(
-			DetallSalut.builder().codi("PRC").nom("Processadors").valor(String.valueOf(Runtime.getRuntime().availableProcessors())).build(),
-			DetallSalut.builder().codi("SCPU").nom("Càrrega del sistema").valor(systemCpuLoad).build(),
-			DetallSalut.builder().codi("PCPU").nom("Càrrega del procés").valor(processCpuLoad).build(),
-			DetallSalut.builder().codi("MED").nom("Memòria disponible").valor(humanReadableByteCount(Runtime.getRuntime().freeMemory())).build(),
-			DetallSalut.builder().codi("MET").nom("Memòria total").valor(humanReadableByteCount(Runtime.getRuntime().totalMemory())).build(),
-			DetallSalut.builder().codi("EDT").nom("Espai de disc total").valor(humanReadableByteCount(totalSpace)).build(),
-			DetallSalut.builder().codi("EDL").nom("Espai de disc lliure").valor(humanReadableByteCount(freeSpace)).build(),
-			DetallSalut.builder().codi("SO").nom("Sistema operatiu").valor(os).build());
-		
-		} catch (Exception e) {
-			logger.error("No s'ha pogut obtenir informació del sistema utilitzant la llibreria Sigar", e);
-			try {
-				// Càrrega de la CPU (només per la implementació de Sun)
-				if (osBean instanceof com.sun.management.OperatingSystemMXBean) {
-					com.sun.management.OperatingSystemMXBean sunOsBean = (com.sun.management.OperatingSystemMXBean) osBean;
-					String systemCpuLoad = sunOsBean.getSystemCpuLoad() * 100 + "%";
-					String processCpuLoad = sunOsBean.getProcessCpuLoad() * 100 + "%";
-					Long totalSpace = 0L;
-					Long freeSpace = 0L;
-					for (File root : File.listRoots()) {
-						totalSpace = root.getTotalSpace();
-						freeSpace = root.getFreeSpace();
-					}
-					return Lists.newArrayList(
-						DetallSalut.builder().codi("PRC").nom("Processadors").valor(String.valueOf(Runtime.getRuntime().availableProcessors())).build(),
-						DetallSalut.builder().codi("CPU").nom("Càrrega del sistema").valor(systemCpuLoad).build(),
-						DetallSalut.builder().codi("CPU").nom("Càrrega del procés").valor(processCpuLoad).build(),
-						DetallSalut.builder().codi("MED").nom("Memòria disponible").valor((Runtime.getRuntime().maxMemory() == Long.MAX_VALUE ? "Ilimitada" : humanReadableByteCount(Runtime.getRuntime().maxMemory()))).build(),
-						DetallSalut.builder().codi("MET").nom("Memòria total").valor(humanReadableByteCount(Runtime.getRuntime().totalMemory())).build(),
-						DetallSalut.builder().codi("EDT").nom("Espai de disc total").valor(humanReadableByteCount(totalSpace)).build(),
-						DetallSalut.builder().codi("EDL").nom("Espai de disc lliure").valor(humanReadableByteCount(freeSpace)).build(),
-						DetallSalut.builder().codi("SO").nom("Sistema operatiu").valor(os).build()
-					);
-				}
-			} catch (Exception e2) {
-				logger.error("Salut: No s'ha pogut obtenir informació del sistema amb la implementació de Sun", e2);
-			}
-			return null;
-		}
 	}
 
 	public List<MissatgeSalut> checkMissatges() {
