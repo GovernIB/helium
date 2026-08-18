@@ -1,15 +1,20 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
 /**
  * Classe que representa una persona d'un sistema extern
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Getter
+@Setter
 public class PersonaDto implements Serializable {
 	public PersonaDto() {
 		super();
@@ -43,46 +48,10 @@ public class PersonaDto implements Serializable {
 		this.email = email;
 		this.sexe = sexe;
 	}
-	
-	
-	public String getCodiDir3() {
-		return codiDir3;
-	}
-	public void setCodiDir3(String codiDir3) {
-		this.codiDir3 = codiDir3;
-	}
-	public InteressatTipusEnumDto getTipus() {
-		return tipus;
-	}
-	public void setTipus(InteressatTipusEnumDto tipus) {
-		this.tipus = tipus;
-	}
-	public String getCodi() {
-		return codi;
-	}
-	public void setCodi(String codi) {
-		this.codi = codi;
-	}
-	public String getNom() {
-		return nom == null ? "" : nom;
-	}
-	public void setNom(String nom) {
-		this.nom = nom;
-	}
-	public String getLlinatge1() {
-		return llinatge1;
-	}
-	public void setLlinatge1(String llinatge1) {
-		this.llinatge1 = llinatge1;
-	}
-	public String getLlinatge2() {
-		return llinatge2;
-	}
-	public void setLlinatge2(String llinatge2) {
-		this.llinatge2 = llinatge2;
-	}
+
+
 	public String getLlinatges() {
-		if (llinatge2 != null && llinatge2.length() > 0)
+		if (llinatge2 != null && !llinatge2.isEmpty())
 			return getLlinatge1() + " " + getLlinatge2();
 		else
 			return getLlinatge1();
@@ -99,20 +68,36 @@ public class PersonaDto implements Serializable {
 			}
 		}
 	}
+
 	public String getNomSencer() {
-		StringBuffer nomSencer = new StringBuffer();
+		StringBuilder nomSencer = new StringBuilder();
 		nomSencer.append(getNom());
-		if (getLlinatge1() != null && getLlinatge1().length() > 0) {
+		if (getLlinatge1() != null && !getLlinatge1().isEmpty()) {
 			nomSencer.append(" ");
 			nomSencer.append(getLlinatge1());
 		}
-		if (getLlinatge2() != null && getLlinatge2().length() > 0) {
+		if (getLlinatge2() != null && !getLlinatge2().isEmpty()) {
 			nomSencer.append(" ");
 			nomSencer.append(getLlinatge2());
 		}
 		return nomSencer.toString();
 	}
-	
+
+	public String getNomSencerCodi() {
+		StringBuilder codiObfuscate = new StringBuilder(" (");
+		if (codi == null || codi.isEmpty()) {
+			codiObfuscate.append("****");
+		} else {
+			int lastIndex = codi.length() > 4? codi.length() - 4 : codi.length() / 2;
+			for(int i = 0; i < lastIndex; i++) {
+				codiObfuscate.append("*");
+			}
+			codiObfuscate.append(codi.substring(lastIndex));
+		}
+		codiObfuscate.append(")");
+		return getNomSencer() + codiObfuscate.toString();
+	}
+
 	@Override
 	public String toString() {
 		return getNomSencer();
@@ -126,64 +111,7 @@ public class PersonaDto implements Serializable {
 			}
 		}
 	}
-	public String getDni() {
-		return dni;
-	}
-	public void setDni(String dni) {
-		this.dni = dni;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
-	}
-	public String getTelefon() {
-		return telefon;
-	}
-	public void setTelefon(String telefon) {
-		this.telefon = telefon;
-	}
-	public Sexe getSexe() {
-		return sexe;
-	}
-	public void setSexe(Sexe sexe) {
-		this.sexe = sexe;
-	}
-	public String getRelleu() {
-		return relleu;
-	}
-	public void setRelleu(String relleu) {
-		this.relleu = relleu;
-	}
-	public String getContrasenya() {
-		return contrasenya;
-	}
-	public void setContrasenya(String contrasenya) {
-		this.contrasenya = contrasenya;
-	}
-	public String getRaoSocial() {
-		return raoSocial;
-	}
-	public void setRaoSocial(String raoSocial) {
-		this.raoSocial = raoSocial;
-	}
-	public String getInicials() {
-		String[] parts = getNomSencer().split(" ");
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < parts.length; i++) {
-			if (parts[i].length() > 2)
-				sb.append(parts[i].substring(0, 1));
-		}
-		return sb.toString();
-	}
-	public boolean isAdmin() {
-		return admin;
-	}
-	public void setAdmin(boolean admin) {
-		this.admin = admin;
-	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

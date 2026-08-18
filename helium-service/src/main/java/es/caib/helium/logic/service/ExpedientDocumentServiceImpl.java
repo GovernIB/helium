@@ -642,41 +642,26 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
-		ExpedientDocumentDto document = documentHelper.findOnePerInstanciaProces(
-				processInstanceId,
-				documentStoreId,
-				expedient.isArxiuActiu());
+		DocumentStore documentStore = documentStoreRepository.getReferenceById(documentStoreId);
 		expedientDocumentHelper.deleteDocument(
 			expedientId,
 			processInstanceId,
 			null,
-			document.getDocumentCodi()
+			documentStore.getCodi()
 		);
-//		expedientDocumentHelper.delete(documentStoreId);
-//		if (processInstanceId == null) {
-//			documentHelper.esborrarDocument(
-//					null,
-//					expedient.getProcessInstanceId(),
-//					documentStoreId);
-//		} else {
-//			documentHelper.esborrarDocument(
-//					null,
-//					processInstanceId,
-//					documentStoreId);
-//		}
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (!document.isAdjunt()) {
+		if (!documentStore.isAdjunt()) {
 			expedientRegistreHelper.crearRegistreEsborrarDocumentInstanciaProces(
 					expedient.getId(),
 					processInstanceId,
 					user,
-					document.getDocumentCodi());
+				documentStore.getCodi());
 		} else {
 			expedientRegistreHelper.crearRegistreEsborrarDocumentInstanciaProces(
 					expedient.getId(),
 					processInstanceId,
 					user,
-					document.getAdjuntTitol());
+					documentStore.getAdjuntTitol());
 		}
 	}
 

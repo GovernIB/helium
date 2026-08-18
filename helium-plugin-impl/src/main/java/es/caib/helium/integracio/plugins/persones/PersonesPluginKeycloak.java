@@ -36,14 +36,22 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 	public List<DadesPersona> findLikeNomSencer(String text) throws PersonesPluginException {
 		SearchUsersResult result;
 		try {
-			result = getUsersByPartialNameOrPartialSurnames(text);
+			int firstSpaceIndex = text.indexOf(" ");
+			if(firstSpaceIndex == -1) {
+				result = getUsersByPartialValuesOr("", text, text, "", "");
+			} else {
+				String firstNamePartial =  text.substring(0, firstSpaceIndex);
+				String lastNamePartial =  text.substring(firstSpaceIndex + 1);
+				result = getUsersByPartialValuesAnd("", firstNamePartial, lastNamePartial, "", "");
+			}
+
 			if(result.getUsers() == null)
 				return new ArrayList<DadesPersona>();
 
 			return result
 				.getUsers()
 				.stream()
-				.map(ui -> toDadesPersona(ui))
+				.map(this::toDadesPersona)
 				.collect(Collectors.toList());
 		} catch (Exception e) {
 			throw new PersonesPluginException("Error cercant dades persona per nom d'usuari [" + text + "]", e);
@@ -60,8 +68,6 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 		try {
 			UserInfo userInfo = getUserInfoByUserName(codi);
 			return toDadesPersona(userInfo);
-		} catch (Exception e) {
-			throw new PersonesPluginException("Error cercant dades persona per codi: " + codi, e);
 		} catch(Throwable e) {
 			throw new PersonesPluginException("Error cercant dades persona per codi: " + codi, e);
 		}
@@ -81,9 +87,10 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 	public List<DadesPersona> findAmbGrup(String grupCodi) throws PersonesPluginException {
 		try {
 			Collection<UserRepresentation> userRepresentacions = internalGetUserNamesByRol(grupCodi);
+			assert userRepresentacions != null;
 			return userRepresentacions
 					.stream()
-					.map(ur -> toDadesPersona(ur))
+					.map(this::toDadesPersona)
 					.collect(Collectors.toList());
 		} catch (Exception e) {
 			throw new PersonesPluginException("Error cercant dades persona amb grup: " + grupCodi, e);
@@ -116,17 +123,17 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 		}
 		Map<String, UserRepresentation> users = new HashMap<String, UserRepresentation>();
 		if (usernamesClientApp != null) {
-			usernamesClientApp.stream().forEach(u -> {
+			usernamesClientApp.forEach(u -> {
 				users.put(u.getUsername(), u);
 			});
 		}
 		if (usernamesClientPersons != null) {
-			usernamesClientPersons.stream().forEach(u -> {
+			usernamesClientPersons.forEach(u -> {
 				users.put(u.getUsername(), u);
 			});
 		}
 		if (usersRealm != null) {
-			usersRealm.stream().forEach(u -> {
+			usersRealm.forEach(u -> {
 				users.put(u.getUsername(), u);
 			});
 		}
@@ -134,8 +141,9 @@ public class PersonesPluginKeycloak extends KeyCloakUserInformationPlugin implem
 	}
 
 	private Set<UserRepresentation> getUsernamesByRolOfRealm(String rol) throws Exception {
-		RolesResource roleres = this.getKeyCloakConnectionForRoles();
-		return roleres.get(rol).getRoleUserMembers();
+		return this.getKeyCloakConnectionForRoles()
+					.get(rol)
+					.getRoleUserMembers();
 	}
 
 	private Set<UserRepresentation> getUsernamesByRolOfClient(String rol, String client) throws Exception {

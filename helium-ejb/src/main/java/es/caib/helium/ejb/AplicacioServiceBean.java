@@ -5,6 +5,7 @@ package es.caib.helium.ejb;
 
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
@@ -37,9 +38,9 @@ public class AplicacioServiceBean extends AbstractServiceEjb<AplicacioService> i
 	 * {@inheritDoc}
 	 */
 	@Override
-	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
-	public UsuariPreferenciesDto getUsuariPreferencies() {
-		return delegateService.getUsuariPreferencies();
+	@PermitAll
+	public PersonaDto findPersonaAmbCodi(String codi) {
+		return delegateService.findPersonaAmbCodi(codi);
 	}
 
 	/**
@@ -47,8 +48,8 @@ public class AplicacioServiceBean extends AbstractServiceEjb<AplicacioService> i
 	 */
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
-	public PersonaDto findPersonaAmbCodi(String codi) {
-		return delegateService.findPersonaAmbCodi(codi);
+	public UsuariPreferenciesDto getUsuariPreferencies() {
+		return delegateService.getUsuariPreferencies();
 	}
 
 	/**

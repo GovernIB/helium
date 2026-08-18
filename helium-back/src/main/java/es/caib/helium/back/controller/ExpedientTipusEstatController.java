@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import es.caib.helium.commons.dto.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,21 +51,7 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.validator.CodiValidator;
-import es.caib.helium.commons.dto.AccioDto;
-import es.caib.helium.commons.dto.CampAgrupacioDto;
-import es.caib.helium.commons.dto.CampDto;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.EntornDto;
-import es.caib.helium.commons.dto.EstatDto;
-import es.caib.helium.commons.dto.ExpedientTipusDto;
-import es.caib.helium.commons.dto.PaginaDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto.OrdreDireccioDto;
-import es.caib.helium.commons.dto.ParellaCodiValorDto;
-import es.caib.helium.commons.dto.PermisDto;
-import es.caib.helium.commons.dto.PermisEstatDto;
-import es.caib.helium.commons.dto.PersonaDto;
-import es.caib.helium.commons.dto.TerminiDto;
 import es.caib.helium.commons.dto.regles.AccioEnum;
 import es.caib.helium.commons.dto.regles.EstatAccioDto;
 import es.caib.helium.commons.dto.regles.EstatReglaDto;
@@ -74,7 +61,7 @@ import es.caib.helium.commons.exportacio.EstatExportacio;
 
 /**
  * Controlador per a la pipella de variables del tipus d'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -823,9 +810,14 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
 		}
 		List<PersonaDto> lista = aplicacioService.findPersonaLikeCodiOrNomSencer(textDecoded);
+		List<CodiNom> resposta = new ArrayList<CodiNom>();
 		String json = "[";
 		for (PersonaDto persona : lista) {
-			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
+			resposta.add(CodiNom
+				.builder()
+				.codi(persona.getCodi())
+				.nom(persona.getNomSencerCodi())
+				.build());
 		}
 		if (json.length() > 1)
 			json = json.substring(0, json.length() - 1);
@@ -836,7 +828,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 	@RequestMapping(value = "/persona/suggestInici/{text}", method = RequestMethod.GET, produces = {
 			"application/json; charset=UTF-8" })
 	@ResponseBody
-	public String personaSuggestInici(@PathVariable String text, Model model) {
+	public CodiNom personaSuggestInici(@PathVariable String text, Model model) {
 		String textDecoded = null;
 		try {
 			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
@@ -845,7 +837,11 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		}
 		PersonaDto persona = aplicacioService.findPersonaAmbCodi(textDecoded);
 		if (persona != null) {
-			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
+			return CodiNom
+					.builder()
+					.codi(persona.getCodi())
+					.nom(persona.getNomSencerCodi())
+					.build();
 		}
 		return null;
 	}

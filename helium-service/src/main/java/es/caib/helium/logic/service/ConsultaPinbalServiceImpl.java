@@ -199,7 +199,7 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 	@Override
 	@Transactional(readOnly=true)
 	public ServeiPinbalDto findServeiPinbalById(Long id) {
-		ServeiPinbalDto resultat = conversioTipusHelper.convertir(serveiPinbalRepository.findById(id), ServeiPinbalDto.class);
+		ServeiPinbalDto resultat = conversioTipusHelper.convertir(serveiPinbalRepository.findById(id).orElseThrow(), ServeiPinbalDto.class);
 		tipusDocumentsPermesosToList(resultat);
 		return resultat;
 	}

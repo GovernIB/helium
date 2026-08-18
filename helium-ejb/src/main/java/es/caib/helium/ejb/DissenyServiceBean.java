@@ -132,7 +132,7 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 	public ExpedientTipusDto findExpedientTipusAmbPermisReadUsuariActual(
 			Long entornId,
 			Long expedientTipusId) {
-		return findExpedientTipusAmbPermisReadUsuariActual(
+		return delegateService.findExpedientTipusAmbPermisReadUsuariActual(
 				entornId,
 				expedientTipusId);
 	}

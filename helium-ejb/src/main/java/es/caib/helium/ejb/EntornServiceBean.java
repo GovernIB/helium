@@ -2,6 +2,7 @@ package es.caib.helium.ejb;
 
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
@@ -60,7 +61,7 @@ public class EntornServiceBean extends AbstractServiceEjb<EntornService> impleme
 	 * {@inheritDoc}
 	 */
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@PermitAll
 	public List<EntornDto> findActiusAmbPermisAcces() {
 		return delegateService.findActiusAmbPermisAcces();
 	}

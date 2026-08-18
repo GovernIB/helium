@@ -163,7 +163,6 @@ public class EntornInterceptor implements HandlerInterceptor {
 					int alertesNoLlegides = 0; //alertaService.countActivesAmbEntornIUsuari(entornActual.getId(), auth.getName(), AlertaService.ALERTAS_NO_LLEGIDES);
 					request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
 				}
-				/////////////////////////////////
 
 				// Refresca el tipus d'expedient actual
 				@SuppressWarnings("unchecked")

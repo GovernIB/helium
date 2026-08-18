@@ -6,14 +6,14 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
-<c:set var="potDissenyarExpedientTipusAdmin" value="${potAdministrarEntorn 
-														or potDissenyarEntorn 
-														or expedientTipus.permisAdministration 
+<c:set var="potDissenyarExpedientTipusAdmin" value="${potAdministrarEntorn
+														or potDissenyarEntorn
+														or expedientTipus.permisAdministration
 														or expedientTipus.permisDesignAdmin}"/>
-<c:set var="potDissenyarExpedientTipusDelegat" value="${potAdministrarEntorn 
-														or potDissenyarEntorn 
-														or expedientTipus.permisDesignAdmin 
-														or expedientTipus.permisAdministration 
+<c:set var="potDissenyarExpedientTipusDelegat" value="${potAdministrarEntorn
+														or potDissenyarEntorn
+														or expedientTipus.permisDesignAdmin
+														or expedientTipus.permisAdministration
 														or expedientTipus.permisDesignDeleg}"/>
 
 <script src="<c:url value="/js/webutil.common.js"/>"></script>
@@ -42,7 +42,7 @@
 	}
 </style>
 <c:choose>
-	<c:when test="${not empty expedientTipus}">		
+	<c:when test="${not empty expedientTipus}">
 		<form class="well">
 			<div id="expedientTipus-info" class="row">
 				<div class="col-md-12">
@@ -50,9 +50,9 @@
 						<dt><spring:message code="expedient.tipus.info.camp.codi"/></dt>
 						<dd>${expedientTipus.codi}</dd>
 						<dt><spring:message code="expedient.tipus.info.camp.titol"/></dt>
-						<dd>${expedientTipus.nom}</dd>				
+						<dd>${expedientTipus.nom}</dd>
 						<dt><spring:message code="expedient.tipus.info.camp.tipus"/></dt>
-						<dd><spring:message code="expedient.tipus.tipus.enum.${expedientTipus.tipus}"/></dd>				
+						<dd><spring:message code="expedient.tipus.tipus.enum.${expedientTipus.tipus}"/></dd>
 						<dt><spring:message code="expedient.tipus.info.camp.ambInfoPropia"/></dt>
 						<dd>
 							<spring:message code="comu.${expedientTipus.ambInfoPropia}"></spring:message>
@@ -60,10 +60,10 @@
 								, <spring:message code="expedient.tipus.info.camp.ambInfoPropia.heretable"/>
 							</c:if>
 							<c:if test="${not empty expedientTipusPare}">
-								, 
+								,
 								<a href="../expedientTipus/${expedientTipusPare.id}">
-									<span class="label label-primary" 
-										title="<spring:message code="expedient.tipus.info.camp.ambInfoPropia.expedientTipusPare" 
+									<span class="label label-primary"
+										title="<spring:message code="expedient.tipus.info.camp.ambInfoPropia.expedientTipusPare"
 										arguments="${expedientTipusPare.codi},${expedientTipusPare.nom}" htmlEscape="true"/>">R</span>
 								</a>
 							</c:if>
@@ -86,7 +86,7 @@
 								${responsableDefecte.nomSencer != null ? responsableDefecte.nomSencer : responsableDefecte.codi}
 								<c:if test="${errorResonsableNoTrobat}">
 									<p class="help-block has-error" style="color: rgb(169, 68, 66)">
-										<span class="fa fa-exclamation-triangle"></span> 
+										<span class="fa fa-exclamation-triangle"></span>
 										<spring:message code="expedient.tipus.info.camp.reponsable.defecte.error"></spring:message>
 									</p>
 								</c:if>
@@ -106,14 +106,14 @@
 						<c:if test="${expedientTipus.manualAjudaNom != null}">
 							<dt><spring:message code="expedient.tipus.form.camp.manual.ajuda"/></dt>
 							<dd>
-								<c:set var="arxiuUrl">../../expedient/${expedientTipus.id}/documentDownload"</c:set>
+								<c:set var="arxiuUrl">/expedient/${expedientTipus.id}/documentDownload"</c:set>
 								<a id="descarregarZip"
 									href="<c:url value="${arxiuUrl}"/>" title="<spring:message code="expedient.tipus.form.camp.manual.ajuda.descarregar"/>">
 									<span  class="fa fa-book"></span> ${expedientTipus.manualAjudaNom}
 								</a>
 							</dd>
-						</c:if>	
-						
+						</c:if>
+
 					</dl>
 					<c:if test="${potDissenyarExpedientTipusDelegat}">
 						<div id="expedientTipus-info-accio" class="dropdown">
@@ -150,23 +150,23 @@
 </c:choose>
 
 <script type="text/javascript">
-// <![CDATA[            
+// <![CDATA[
 
-$(document).ready(function() {	
-	
+$(document).ready(function() {
+
 	var jbpmProcessDefinitionKey = "${expedientTipus.jbpmProcessDefinitionKey}";
-	
+
 	$('#expedientTipusDefinicioProces').on('draw.dt', function() {
 		// Mira si la definicio de proces coincideix amb la del tipus d'expedient
 		$("tr", this).each(function(){
 			if ($(this).find("td").length > 0) {
 				$jbpmKey = $(this).find("td:nth-child(4)");
-				if ($jbpmKey.html() == jbpmProcessDefinitionKey) 
+				if ($jbpmKey.html() == jbpmProcessDefinitionKey)
 					$jbpmKey.html("<spring:message code='comu.true'></spring:message>");
 				else
 					$jbpmKey.html("<spring:message code='comu.false'></spring:message>");
 			}
-		});		    	
+		});
 		// Botó per marcar com a inicial una definicó de procés
 		$("#expedientTipusDefinicioProces a.btn-inicial").click(function(e) {
 			var getUrl = $(this).attr('href');
@@ -226,4 +226,4 @@ function refrescaTaula() {
 	$('#expedientTipusDefinicioProces').webutilDatatable('refresh');
 }
 // ]]>
-</script>			
+</script>

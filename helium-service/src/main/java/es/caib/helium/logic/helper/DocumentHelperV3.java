@@ -2044,6 +2044,7 @@ public class DocumentHelperV3 {
 				documentStore,
 				arxiuPerFirmar,
 				(motiu != null) ? motiu : "Firma en servidor HELIUM");
+		documentStore.setArxiuNom(firma.getNom());
 
 		if (StringUtils.isEmpty(firma.getTipusFirmaEni())
 				|| StringUtils.isEmpty(firma.getPerfilFirmaEni())) {
@@ -2065,7 +2066,6 @@ public class DocumentHelperV3 {
 		}
 
 		String perfil = mapToPerfilFirmaArxiu(firma.getPerfilFirmaEni());
-
 		guardarDocumentFirmat(
 				processInstanceId,
 				documentStoreId,
