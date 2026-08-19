@@ -3,7 +3,6 @@
  */
 package es.caib.helium.commons.dto;
 
-import java.util.Date;
 import java.util.Map;
 
 import es.caib.helium.commons.constants.ExpedientCamps;
@@ -52,12 +51,6 @@ public class ExpedientConsultaDissenyDto {
 	}
 	public ExpedientTipusDto getTipus() {
 		return expedient.getTipus();
-	}
-	public Date getReindexarData () {
-		return expedient.getReindexarData();
-	}
-	public boolean isReindexarError () {
-		return expedient.isReindexarError();
 	}
 	public ExpedientDto getExpedient() {
 		return expedient;
@@ -109,16 +102,5 @@ public class ExpedientConsultaDissenyDto {
 	}
 	public boolean isPermisAdministration() {
 		return expedient.permisAdministration;
-	}
-	/** Retorna true si hi ha cap dada amb error de reindexació.*/
-	public boolean isReindexarCampError() {
-		boolean error = false;
-		for(DadaIndexadaDto dada : getDadesExpedient().values()) {
-			if (dada.getError() != null) {
-				error = true;
-				break;
-			}
-		}
-		return error;
 	}
 }

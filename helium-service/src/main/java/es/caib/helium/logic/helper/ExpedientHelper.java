@@ -11,9 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityNotFoundException;
@@ -264,8 +262,6 @@ public class ExpedientHelper {
 		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());
 		dto.setDataFi(expedient.getDataFi());
 		dto.setAmbRetroaccio(expedient.isAmbRetroaccio());
-		dto.setReindexarData(expedient.getReindexarData());
-		dto.setReindexarError(expedient.isReindexarError());
 		// Interessats
 		List<InteressatDto> interessats = new ArrayList<InteressatDto>() ;
 		if (expedient.getInteressats() != null) {
@@ -1358,8 +1354,6 @@ public class ExpedientHelper {
 				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_NIF));
 		resposta.add(
 				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_ESTAT));
-		resposta.add(
-				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_ERRORS_REINDEXACIO));
 		return resposta;
 	}
 
@@ -1646,13 +1640,6 @@ public class ExpedientHelper {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(CampTipusDto.SELECCIO);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.estat"));
-			return campExpedient;
-		}
-		if (ExpedientCamps.EXPEDIENT_CAMP_ERRORS_REINDEXACIO.equals(campCodi)) {
-			Camp campExpedient = new Camp();
-			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(CampTipusDto.STRING);
-			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.errorsReindexacio"));
 			return campExpedient;
 		}
 		return null;

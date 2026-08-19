@@ -12,7 +12,6 @@ import org.springframework.security.acls.model.NotFoundException;
 import com.codahale.metrics.MetricRegistry;
 import com.sun.star.plugin.PluginException;
 
-import es.caib.comanda.model.management.TascaEstat;
 import es.caib.helium.commons.dto.AreaDto;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.CampTascaDto;
@@ -359,17 +358,6 @@ public interface Jbpm3HeliumService {
 	 * @throws ExpedientNotFoundException
 	 */
 	public void expedientReprendre(
-			String processInstanceId) throws NoTrobatException;
-
-	/**
-	 * Reindexa l'expedient.
-	 *
-	 * @param processInstanceId
-	 * @throws ProcessInstanceNotFoundException
-	 * @throws ExpedientNotFoundException
-	 * @return Retorna true si no hi ha hagut cap error en la reindexació i false si hi ha hagut algun error i l'expedient ha quedat amb estat d'error.
-	 */
-	public boolean expedientReindexar(
 			String processInstanceId) throws NoTrobatException;
 
 	/**

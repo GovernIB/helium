@@ -110,7 +110,6 @@ public class ExpedientDadaHelperTest {
 		expedientTipus.setTramitacioMassiva(false);
 		expedientTipus.setSeleccionarAny(false);
 		expedientTipus.setAmbRetroaccio(false);
-		expedientTipus.setReindexacioAsincrona(false);
 		expedientTipus.setEnviarCorreuAnotacions(false);
 		expedientTipus.setResponsableDefecteCodi("ADMIN");
 

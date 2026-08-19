@@ -924,14 +924,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public boolean expedientReindexar(
-			String processInstanceId) {
-		logger.debug("Reindexant expedient (processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		return expedientDadaHelper.setExpedientDades(expedient);
-	}
-
-	@Override
 	public void expedientBuidaLogs(
 			String processInstanceId) {
 		logger.debug("Buidant logs expedient (processInstanceId=" + processInstanceId + ")");

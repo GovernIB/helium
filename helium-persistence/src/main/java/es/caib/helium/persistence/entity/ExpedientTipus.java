@@ -68,7 +68,6 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private boolean tramitacioMassiva;
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
-	private boolean reindexacioAsincrona;
 	private boolean enviarCorreuAnotacions;
 
 	/** Indica si el tipus d'expedient està basat en un flux o en estats
@@ -368,13 +367,6 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	@Transient
 	public boolean isAmbHerencia() {
 		return this.isAmbInfoPropia() && this.getExpedientTipusPare() != null;
-	}
-	@Column(name="reindexacio_asincrona")
-	public boolean isReindexacioAsincrona() {
-		return reindexacioAsincrona;
-	}
-	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
-		this.reindexacioAsincrona = reindexacioAsincrona;
 	}
 	@Column(name="dies_no_labs")
 	public String getDiesNoLaborables() {

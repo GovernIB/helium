@@ -76,12 +76,6 @@
 			if (e.stopPropagation) e.stopPropagation();
 			return confirm("<spring:message code='expedient.eines.confirm_modificar_variable' />");
 		}
-		function confirmarReindexar(e) {
-			var e = e || window.event;
-			e.cancelBubble = true;
-			if (e.stopPropagation) e.stopPropagation();
-			return confirm("<spring:message code='expedient.eines.confirm_reindexar_expedients' />");
-		}
 		function confirmarReassignar(e) {
 			var e = e || window.event;
 			e.cancelBubble = true;
@@ -267,7 +261,6 @@
 							<c:if test="${permisAdministrador}"><option value="scriptMas"><spring:message code='expedient.massiva.executarScriptMas' /></option></c:if>
 							<option value="massivaCanviVersio"><spring:message code='expedient.massiva.actualitzar' /></option>
 							<option value="massivaExecutarAccio"><spring:message code='expedient.massiva.accions' /></option>
-							<option value="reindexarMas"><spring:message code='expedient.eines.reindexar.expedients' /></option>
 							<option value="modificarVariablesMasCommand"><spring:message code='expedient.massiva.modificar_variables' /></option>
 							<option value="documentMas"><spring:message code='expedient.massiva.documents' /></option>
 							<option value="buidarlogMas"><spring:message code='expedient.eines.buidarlog.expedients' /></option>
@@ -432,19 +425,6 @@
 				<c:if test="${empty accions}">
 					<spring:message code="expedient.document.info.senseaccions"/>
 				</c:if>
-			</div>
-		</div>
-	</div>
-		
-	<div class="opcionMasiva control-group right">
-		<div class="label-titol">
-			<label class="control-label"><spring:message code='expedient.eines.reindexar.expedients' /></label>
-			<div class="form-group">
-				<form:form cssClass="form-horizontal form-tasca" id="reindexarMas" name="reindexarMas" action="massiva/reindexarMas" method="post" onsubmit="return confirmarReindexar(event)">
-					<button class="btn btn-primary right" type="submit" name="accio" value="reindexar">
-						<spring:message code='comuns.reindexar' />
-					</button>
-				</form:form>
 			</div>
 		</div>
 	</div>

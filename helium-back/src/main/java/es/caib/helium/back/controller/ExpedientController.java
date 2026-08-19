@@ -502,10 +502,6 @@ public class ExpedientController extends BaseExpedientController {
 		data.put("anulatComentari", expedient.getComentariAnulat());
 		data.put("alertesTotals", expedient.getAlertesTotals());
 		data.put("alertesPendents", expedient.getAlertesPendents());
-		data.put("reindexarData", (expedient.getReindexarData() != null) ?
-				sdf.format(expedient.getReindexarData())
-				: null);
-		data.put("reindexarError", expedient.isReindexarError());
 
 		return data;
 	}

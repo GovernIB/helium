@@ -196,7 +196,7 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 				}
 			}
 		}
-		// Si està definit per estats llavors ha de tenir informació pròpia, no pot ser heretable ni heretar ni tenir retroacció ni reindexar asíncronament
+		// Si està definit per estats llavors ha de tenir informació pròpia, no pot ser heretable ni heretar ni tenir retroacció
 		if (command.getTipus() != null && ExpedientTipusTipusEnumDto.ESTAT.equals(command.getTipus())) {
 			if (!command.isAmbInfoPropia()) {
 				context.buildConstraintViolationWithTemplate(
@@ -209,13 +209,6 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".ambRetroaccio", null))
 						.addNode("ambRetroaccio")
-						.addConstraintViolation();	
-				valid = false;
-			}
-			if (command.isReindexacioAsincrona()) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage(this.codiMissatge + ".reindexacioAsincrona", null))
-						.addNode("reindexacioAsincrona")
 						.addConstraintViolation();	
 				valid = false;
 			}

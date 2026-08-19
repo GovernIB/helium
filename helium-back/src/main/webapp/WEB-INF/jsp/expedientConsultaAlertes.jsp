@@ -9,66 +9,7 @@
 
 	<c:set var="idioma">ca</c:set>
 
-	<c:if test="${errorsReindexacio > 0}">
-		<div class="alert alert-warning ">
-			<div id="alertaErrorsReindexacio" data-toggle="collapse" data-target="#collapseErrorsReindexacio" title="<spring:message code="expedient.consulta.alerta.errorsReindexacio.tip"/>" style="cursor: pointer;">
-				<span class="fa fa-refresh text-danger"></span>
-				<button type="button" class="close-alertes" aria-hidden="true"><span class="icona-collapse fa fa-chevron-down"></span></button>
-				<spring:message code="expedient.consulta.alerta.errorsReindexacio" arguments="${errorsReindexacio}"/>
-			</div>
-				<div id="collapseErrorsReindexacio" class="collapse" data-parent="#accordion">
-					<div class="card-body" >
-						<div class="contingut-carregant text-center"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-					</div>
-				</div>
-		</div>
-
-	<c:if test="${pendentsReindexacio > 0}">
-		<div class="alert alert-warning ">
-			<div id="alertaPendentsReindexacio" data-toggle="collapse" data-target="#collapsePendentsReindexacio" title="<spring:message code="expedient.consulta.alerta.pendentsReindexacio.tip"/>" style="cursor: pointer;">
-				<span class="fa fa-refresh text-warning"></span>
-				<button type="button" class="close-alertes" aria-hidden="true"><span class="icona-collapse fa fa-chevron-down"></span></button>
-				<spring:message code="expedient.consulta.alerta.pendentsReindexacio" arguments="${pendentsReindexacio}"/>
-			</div>
-				<div id="collapsePendentsReindexacio" class="collapse" data-parent="#accordion">
-					<div class="card-body" >
-						<div class="contingut-carregant text-center"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-					</div>
-				</div>
-		</div>
-
-	</c:if>
-
 	<div id="alertaPendentsErrorsCarregant" style="display:none;">
 		<div class="contingut-carregant text-center"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 	</div>
 
-		<script type="text/javascript">
-			// Errors reindexació
-			var errorsCarregats = false;
-			$('#alertaErrorsReindexacio').click(function(){
-				var icona = $(this).find('.icona-collapse');
-				icona.toggleClass('fa-chevron-down');
-				icona.toggleClass('fa-chevron-up');
-				if (!errorsCarregats) {
-					$('#collapseErrorsReindexacio').empty().html($('#alertaPendentsErrorsCarregant').html());
-					errorsCarregats = true;
-				} else {
-					errorsCarregats = false;
-				}
-			});
-			// Pendents reindexació
-			var pendentsCarregats = false;
-			$('#alertaPendentsReindexacio').click(function(){
-				var icona = $(this).find('.icona-collapse');
-				icona.toggleClass('fa-chevron-down');
-				icona.toggleClass('fa-chevron-up');
-				if (!pendentsCarregats) {
-					$('#collapsePendentsReindexacio').empty().html($('#alertaPendentsErrorsCarregant').html());
-					pendentsCarregats = true;
-				} else {
-					pendentsCarregats = false;
-				}
-			});
-		</script>
-	</c:if>

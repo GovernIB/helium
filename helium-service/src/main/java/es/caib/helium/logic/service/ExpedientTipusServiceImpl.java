@@ -23,9 +23,6 @@ import java.util.zip.ZipInputStream;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.commons.dto.*;
-import es.caib.helium.commons.exception.*;
-import es.caib.helium.persistence.repository.*;
 import org.apache.commons.lang.StringUtils;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
@@ -46,12 +43,47 @@ import org.springframework.transaction.annotation.Transactional;
 import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
+import es.caib.helium.commons.dto.AccioTipusEnumDto;
+import es.caib.helium.commons.dto.ArxiuDto;
+import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.ConsultaCampDto;
 import es.caib.helium.commons.dto.ConsultaCampDto.TipusConsultaCamp;
+import es.caib.helium.commons.dto.ConsultaDto;
+import es.caib.helium.commons.dto.DefinicioProcesDto;
+import es.caib.helium.commons.dto.DominiDto;
+import es.caib.helium.commons.dto.EntornDto;
+import es.caib.helium.commons.dto.EnumeracioDto;
+import es.caib.helium.commons.dto.EstatDto;
+import es.caib.helium.commons.dto.ExecucioMassivaDto;
 import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import es.caib.helium.commons.dto.ExpedientDto.EstatTipusDto;
+import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.dto.ExpedientTipusEstadisticaDto;
+import es.caib.helium.commons.dto.ExpedientTipusFiltreDto;
+import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
+import es.caib.helium.commons.dto.MapeigSistraDto;
 import es.caib.helium.commons.dto.MapeigSistraDto.TipusMapeig;
+import es.caib.helium.commons.dto.PaginaDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.commons.dto.PermisDto;
+import es.caib.helium.commons.dto.PermisEstatDto;
+import es.caib.helium.commons.dto.PersonaDto;
+import es.caib.helium.commons.dto.PortafirmesFluxInfoDto;
+import es.caib.helium.commons.dto.PrincipalTipusEnumDto;
+import es.caib.helium.commons.dto.ReassignacioDto;
+import es.caib.helium.commons.dto.RecursDto;
+import es.caib.helium.commons.dto.SequenciaAnyDto;
+import es.caib.helium.commons.dto.SequenciaDefaultAnyDto;
+import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
+import es.caib.helium.commons.dto.UnitatOrganitzativaEstatEnumDto;
 import es.caib.helium.commons.dto.regles.EstatAccioDto;
 import es.caib.helium.commons.dto.regles.EstatReglaDto;
+import es.caib.helium.commons.exception.DeploymentException;
+import es.caib.helium.commons.exception.ExportException;
+import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.commons.exception.PermisDenegatException;
+import es.caib.helium.commons.exception.SistemaExternException;
+import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.exportacio.AccioExportacio;
 import es.caib.helium.commons.exportacio.AgrupacioExportacio;
 import es.caib.helium.commons.exportacio.CampExportacio;
@@ -71,6 +103,7 @@ import es.caib.helium.commons.exportacio.TascaExportacio;
 import es.caib.helium.commons.exportacio.TerminiExportacio;
 import es.caib.helium.commons.exportacio.ValidacioExportacio;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.DominiHelper;
@@ -84,7 +117,6 @@ import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
@@ -123,6 +155,36 @@ import es.caib.helium.persistence.entity.Tasca;
 import es.caib.helium.persistence.entity.Termini;
 import es.caib.helium.persistence.entity.UnitatOrganitzativa;
 import es.caib.helium.persistence.entity.Validacio;
+import es.caib.helium.persistence.repository.AccioRepository;
+import es.caib.helium.persistence.repository.AnotacioRepository;
+import es.caib.helium.persistence.repository.CampAgrupacioRepository;
+import es.caib.helium.persistence.repository.CampRegistreRepository;
+import es.caib.helium.persistence.repository.CampRepository;
+import es.caib.helium.persistence.repository.CampTascaRepository;
+import es.caib.helium.persistence.repository.CampValidacioRepository;
+import es.caib.helium.persistence.repository.ConsultaCampRepository;
+import es.caib.helium.persistence.repository.ConsultaRepository;
+import es.caib.helium.persistence.repository.DefinicioProcesRepository;
+import es.caib.helium.persistence.repository.DocumentRepository;
+import es.caib.helium.persistence.repository.DocumentTascaRepository;
+import es.caib.helium.persistence.repository.DominiRepository;
+import es.caib.helium.persistence.repository.EnumeracioRepository;
+import es.caib.helium.persistence.repository.EnumeracioValorsRepository;
+import es.caib.helium.persistence.repository.EstatAccioEntradaRepository;
+import es.caib.helium.persistence.repository.EstatAccioSortidaRepository;
+import es.caib.helium.persistence.repository.EstatReglaRepository;
+import es.caib.helium.persistence.repository.EstatRepository;
+import es.caib.helium.persistence.repository.EstatSortidaRepository;
+import es.caib.helium.persistence.repository.ExpedientRepository;
+import es.caib.helium.persistence.repository.ExpedientTipusRepository;
+import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRepository;
+import es.caib.helium.persistence.repository.FirmaTascaRepository;
+import es.caib.helium.persistence.repository.MapeigSistraRepository;
+import es.caib.helium.persistence.repository.ReassignacioRepository;
+import es.caib.helium.persistence.repository.RecursRepository;
+import es.caib.helium.persistence.repository.SequenciaAnyRepository;
+import es.caib.helium.persistence.repository.TerminiRepository;
+import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -262,7 +324,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
 		entity.setSeleccionarAny(expedientTipus.isSeleccionarAny());
 		entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
-		entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 		entity.setDiesNoLaborables(expedientTipus.getDiesNoLaborables());
 		entity.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
 		entity.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
@@ -379,7 +440,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// Només poden configurar la retroacció els dissenyadors de l'entorn
 		if (entornHelper.potDissenyarEntorn(entornId)) {
 			entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
-			entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 		}
 
 		return conversioTipusHelper.convertir(
@@ -577,7 +637,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setAmbRetroaccio(tipus.isAmbRetroaccio());
 		exportacio.setTipus(tipus.getTipus());
 		exportacio.setAmbInfoPropia(tipus.isAmbInfoPropia());
-		exportacio.setReindexacioAsincrona(tipus.isReindexacioAsincrona());
 		exportacio.setSequencia(tipus.getSequencia());
 		exportacio.setSequenciaDefault(tipus.getSequenciaDef());
 		exportacio.setTeNumero(tipus.getTeNumero());
@@ -983,7 +1042,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setRestringirPerGrup(importacio.isRestringirPerGrup());
 			expedientTipus.setSeleccionarAny(importacio.isSeleccionarAny());
 			expedientTipus.setAmbRetroaccio(importacio.isAmbRetroaccio());
-			expedientTipus.setReindexacioAsincrona(importacio.isReindexacioAsincrona());
 			expedientTipus.setTramitacioMassiva(importacio.isTramitacioMassiva());
 			expedientTipus.setHeretable(importacio.isHeretable());
 			if (importacio.getExpedientTipusPareCodi() !=  null) {

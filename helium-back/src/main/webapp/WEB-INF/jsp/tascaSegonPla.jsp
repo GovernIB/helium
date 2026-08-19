@@ -73,8 +73,6 @@
 						<spring:message code="administracio.tasquesSegonPla.codi.comprovarAnotacionsPendents"/>
 					{{else codi == 'comprovarExecucionsMassives'}}
 						<spring:message code="administracio.tasquesSegonPla.codi.comprovarExecucionsMassives"/>
-					{{else codi == 'comprovarReindexacioAsincrona'}}
-						<spring:message code="administracio.tasquesSegonPla.codi.comprovarReindexacioAsincrona"/>
 					{{else codi == 'actualitzarUnitatsIProcediments'}}
 						<spring:message code="administracio.tasquesSegonPla.codi.actualitzarUnitatsIProcediments"/>
 					{{else codi == 'updatePeticionsAsincronesPinbal'}}

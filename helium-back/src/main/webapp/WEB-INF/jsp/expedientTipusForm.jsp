@@ -47,12 +47,10 @@
 							$('#heretable').removeAttr('checked');
 							$('#expedientTipusPareId').val('').change();
 							$('#ambRetroaccio').removeAttr('checked');
-							$('#reindexacioAsincrona').removeAttr('checked');
-							$('#ambRetroaccio, #reindexacioAsincrona').attr('disabled', 'disabled');
 							$('#ambInfoPropia').attr('readonly', 'readonly');
 						} else {
 							$('#ambInfoPropia').removeAttr('readonly');
-							$('#ambInfoPropia, #heretable, #expedientTipusPareId, #ambRetroaccio, #reindexacioAsincrona').removeAttr('disabled');
+							$('#ambInfoPropia, #heretable, #expedientTipusPareId, #ambRetroaccio').removeAttr('disabled');
 						}
 					}).change();
 
@@ -183,7 +181,6 @@
 			<hel:inputCheckbox name="seleccionarAny" textKey="expedient.tipus.form.camp.seleccionarAny" />
 			<c:if test="${potDissenyar}">
 				<hel:inputCheckbox name="ambRetroaccio" textKey="expedient.tipus.form.camp.ambRetroaccio" />
-				<hel:inputCheckbox name="reindexacioAsincrona" textKey="expedient.tipus.form.camp.reindexacioAsincrona" />
 			</c:if>
 			<c:set var="arxiuUrl">/expedientTipus/${id}/documentDownload</c:set>
 			<hel:inputFile

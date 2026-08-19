@@ -50,11 +50,6 @@
 			<hel:inputCheckbox name="ignored" textKey="expedient.tipus.camp.form.camp.ignored" />
 		</div>
 
-		<fieldset id="dadesRegistre" class="dades registre" style="display:none;">
-			<legend><spring:message code="expedient.tipus.camp.form.fieldset.registre"></spring:message></legend>
-			<hel:inputCheckbox name="indexable" textKey="expedient.tipus.camp.form.camp.registre.reindexar" />
-		</fieldset>
-
 		<fieldset id="dadesConsulta" class="dades consulta" style="display:none;">
 			<legend><spring:message code="expedient.tipus.camp.form.fieldset.consulta"></spring:message></legend>
 			<hel:inputSelect emptyOption="true" name="enumeracioId" textKey="expedient.tipus.camp.form.camp.enumeracio" placeholderKey="expedient.tipus.camp.form.camp.enumeracio" optionItems="${enumeracions}" optionValueAttribute="id" optionTextAttribute="nom"/>

@@ -523,17 +523,10 @@ function refrescaEstatSegonPla() {
 						{{/if}}
 					</script>
 				</th>
-				<th data-rdt-property="identificador" data-rdt-template="cellReindexacioTemplate" data-rdt-visible="true">
+				<th data-rdt-property="identificador" data-rdt-template="cellIdentificadorTemplate" data-rdt-visible="true">
 					<spring:message code="expedient.llistat.columna.expedient"/>
-					<script id="cellReindexacioTemplate" type="text/x-jsrender">
+					<script id="cellIdentificadorTemplate" type="text/x-jsrender">
 					{{:identificador}}
-					{{if reindexarData || reindexarError}}
-						<div class="pull-right">
-							<span class="fa fa-refresh {{if reindexarError}}text-danger {{/if}}"
-							title="{{if reindexarData}}<spring:message code="expedient.consulta.reindexacio.asincrona"/>{{/if}}
-								   {{if reindexarError}}<spring:message code="expedient.consulta.reindexacio.error.full"/>{{/if}}"></span>
-						</div>
-					{{/if}}
 					<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 					</c:if>
 					{{if tipus.restringirPerGrup == true }}
@@ -614,8 +607,6 @@ function refrescaEstatSegonPla() {
 					</script>
 				</th>
 				<th data-rdt-property="tipus" data-rdt-visible="false"></th>
-				<th data-rdt-property="reindexarData" data-rdt-visible="false"></th>
-				<th data-rdt-property="reindexarError" data-rdt-visible="false"></th>
 				<th data-rdt-property="infoAturat" data-rdt-visible="false"></th>
 				<th data-rdt-property="comentariAnulat" data-rdt-visible="false"></th>
 				<th data-rdt-property="aturat" data-rdt-visible="false"></th>

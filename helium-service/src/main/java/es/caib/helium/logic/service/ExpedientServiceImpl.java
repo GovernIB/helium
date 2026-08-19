@@ -2420,12 +2420,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, expedient.getErrorDesc(), expedient.getErrorFull()));
 		}
 
-		if (expedient.isReindexarError()) {
-			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC,
-					messageHelper.getMessage("expedient.consulta.reindexacio.error"),
-					messageHelper.getMessage("expedient.consulta.reindexacio.error.full")));
-		}
-
 		return new Object[]{errors_bas,errors_int};
 	}
 
@@ -2448,7 +2442,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 //		}
 		expedient.setErrorDesc(null);
 		expedient.setErrorFull(null);
-		expedient.setReindexarError(false);
 		expedient.setErrorsIntegracions(false);
 	}
 
@@ -3909,7 +3902,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 		Estat estat = expedientHelper.estatCanviar(expedient, estatId, retrocedir);
 
-		// Reindexa l'expedient
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
 		expedientDadaHelper.setExpedientDades(expedient);
 

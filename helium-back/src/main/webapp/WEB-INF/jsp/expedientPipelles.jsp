@@ -185,11 +185,6 @@ dd.subproc {
 		<c:if test="${refrescaSegonPla}">
 			setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
 		</c:if>
-		<c:if test="${expedient.reindexarData != null}">
-		setTimeout( function(){
-				refrescarEstatExpedient();
-		 	}  , 5000 );
-		</c:if>
 	});
 	function refrescaEstatSegonPla() {
 		var tasquesSegonPlaIds = [];
@@ -322,27 +317,6 @@ dd.subproc {
 				$('#expedientDataFi').find('dd').html(data.dataFi);
 				// estat
 				$('#expedientEstat').html(data.estat);
-				// Reindexació
-				if(data.reindexarData || data.reindexarError) {
-					let title = "";
-					if (data.reindexarData) {
-						title = "<spring:message code='expedient.consulta.reindexacio.asincrona.amb.data'/> " + data.reindexarData + ". ";
-						// Programa un refresc de l'estat
-						setTimeout( function(){
-							refrescarEstatExpedient();
-					 	}  , 5000 );
-					}
-					if (data.reindexarError) {
-						title ="<spring:message code='expedient.consulta.reindexacio.error.full'/>.";
-						$('#reindexarEstat span').addClass('text-danger');
-					} else {
-						$('#reindexarEstat span').removeClass('text-danger');
-					}
-					$('#reindexarEstat span').attr('title', title);
-					$('#reindexarEstat').show();
-				} else {
-					$('#reindexarEstat').hide();
-				}
 			},
 			error: function(e) {
 				console.log("Error refrescant l'estat de l'expedient: " + e);
@@ -467,12 +441,6 @@ dd.subproc {
 										<span class="badge sup-count">${expedient.alertesPendents}</span>
 									</c:if>
 							</c:if>
-							<!-- per marcar l'expedient amb error de sincronització -->
-							<a id ="reindexarEstat" style="display:${(not empty expedient.reindexarData || expedient.reindexarError) ? 'inline' : 'none'};" data-toggle="modal" data-maximized="true" href="<c:url value="/expedient/lucene/${expedientId}"/>">
-								<span class="fa fa-refresh <c:if test='${expedient.reindexarError}'>text-danger</c:if> pull-right"
-									title="<c:if test='${expedient.reindexarData != null}'> <spring:message code='expedient.consulta.reindexacio.asincrona.data' arguments='${expedient.reindexarData}'/>. </c:if>
-										   <c:if test='${expedient.reindexarError}'> <spring:message code='expedient.consulta.reindexacio.error.full'/>. </c:if>"></span>
-						    </a>
 						</span>
 					</dd>
 					<c:if test="${not empty expedient.responsablePersona}">
@@ -711,17 +679,6 @@ dd.subproc {
 					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/expedient/${expedientId}/alertes"/>"><spring:message code="expedient.boto.veure_alertes"/></a>
 				</div>
 			</c:if>
-
-			<c:if test="${expedient.reindexarError}">
-				<div class="alert alert-danger" role="alert">
-					<span class="fa fa-refresh text-danger"></span>
-					<strong><spring:message code="expedient.info.reindexacio"/>: </strong>
-					<c:if test="${expedient.reindexarData != null}"> <spring:message code="expedient.consulta.reindexacio.asincrona.data" arguments="${expedient.reindexarData}"/>. </c:if>
-					<spring:message code="expedient.consulta.reindexacio.error.full"/>.
-					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value='/modal/expedient/lucene/${expedientId}'/>"><spring:message code="expedient.boto.veure_dades"/></a>
-				</div>
-			</c:if>
-
 
 			<ul class="nav nav-tabs" role="tablist">
 				<li id="pipella-dades"><a href="#contingut-dades" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.dades"/></a></li>

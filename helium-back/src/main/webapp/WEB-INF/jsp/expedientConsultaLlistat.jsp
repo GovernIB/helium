@@ -87,21 +87,6 @@
 // <![CDATA[
 
 
-// Per comprovar que només es fa una vegada
-var comprovacio_numero = 0;
-/* Abans de realitzar la consulta comprova si hi ha expedients amb error o pendents
-de reindexació i mostra o oculta les advertències de reindexacions. */
-function comprovarPendentsReindexacio() {
-	if (comprovacio_numero % 2 == 0) {
-		//console.log("Consultant alertes de reindexació...");
-		jQuery.ajaxSetup({async:false});
-		$('#contingut-alertes-reindexacio').load(webutilContextPath() + "/nodeco/expedient/consulta/${consulta.id}/alertes");
-		jQuery.ajaxSetup({async:true});
-		//console.log("Alertes reindexació consultades");
-	}
-	comprovacio_numero++;
-}
-
 function showRegistre(el) {
 	var dades = $(el).data('content');
 	dades = Array.isArray(dades)? dades[0] : dades;
@@ -201,18 +186,12 @@ $(document).ready(function() {
 		$("button#consultar", $formulari).click();
 	});
 
-	// Abans de pintar la taula es comproven alertes de reindexació
-	$("#taulaDades").on('preDraw', function() {
-		comprovarPendentsReindexacio();
-	});
 });
 
 // ]]>
 </script>
 </head>
 <body>
-	<!-- Alertes per expedients pendents de reindexació asíncrona o per error de reindexació -->
-	<div id="contingut-alertes-reindexacio"></div>
 
 	<form:form method="post" action="" cssClass="well form-horizontal form-tasca" modelAttribute="expedientConsultaCommand">
 		<form:hidden path="consultaId"/>
@@ -297,20 +276,7 @@ $(document).ready(function() {
 						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>
 					</script>
 				</th>
-				<th data-rdt-property="expedient.identificador" data-rdt-template="cellReindexacioTemplate" data-rdt-sorting="desc" data-visible=true>
-					<spring:message code="expedient.llistat.columna.expedient"/>
-					<script id="cellReindexacioTemplate" type="text/x-jsrender">
-					{{:expedient_identificador}}
-					{{if reindexarData || reindexarError || reindexarCampError }}
-						<div class="pull-right">
-							<span class="fa fa-refresh {{if reindexarError || reindexarCampError }}text-danger {{/if}}"
-							title="{{if reindexarData}}<spring:message code="expedient.consulta.reindexacio.asincrona"/>{{/if}}
-								   {{if reindexarError}}<spring:message code="expedient.consulta.reindexacio.error.full"/>{{/if}}
-								   {{if reindexarCampError}}<spring:message code="expedient.consulta.reindexacio.error.camp"/>{{/if}}"></span>
-						</div>
-					{{/if}}
-					</script>
-				</th>
+				<th data-rdt-property="expedient.identificador" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.expedient"/></th>
 				<c:forEach var="camp" items="${campsInforme}" varStatus="status">
 					<th <c:if test="${camp.varCodi == 'expedient\$estat'}">data-rdt-template="cellEstatTemplate"</c:if> data-rdt-property="dadesExpedient.${camp.varCodi}.valorMostrar" data-visible=true data-tipus="${camp.campTipus}">
 					${camp.campEtiqueta}
@@ -344,9 +310,6 @@ $(document).ready(function() {
 					</c:if>
 				</th>
 				</c:forEach>
-				<th data-rdt-property="reindexarData" data-rdt-visible="false"></th>
-				<th data-rdt-property="reindexarError" data-rdt-visible="false"></th>
-				<th data-rdt-property="reindexarCampError" data-rdt-visible="false"></th>
 				<th data-rdt-property="tipus" data-rdt-visible="false"></th>
 				<th data-rdt-property="infoAturat" data-rdt-visible="false"></th>
 				<th data-rdt-property="estat" data-rdt-visible="false"></th>
@@ -364,7 +327,6 @@ $(document).ready(function() {
 				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>
 				<th data-rdt-property="ambErrors" data-rdt-visible="false"></th>
-				<th data-rdt-property="reindexarData" data-rdt-visible="false"></th>
 				<th data-rdt-property="id" data-rdt-context="true" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">
