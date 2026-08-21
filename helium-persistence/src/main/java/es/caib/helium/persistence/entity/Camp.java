@@ -47,21 +47,6 @@ import es.caib.helium.commons.dto.TerminiDto;
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
 public class Camp implements Serializable, GenericEntity<Long> {
 
-//	public enum CampTipusEnum {
-//		STRING,
-//		INTEGER,
-//		FLOAT,
-//		BOOLEAN,
-//		TEXTAREA,
-//		DATE,
-//		PRICE,
-//		TERMINI,
-//		SELECCIO,
-//		SUGGEST,
-//		REGISTRE,
-//		ACCIO
-//	}
-
 	private Long id;
 	private String codi;
 	private CampTipusDto tipus;
@@ -593,6 +578,27 @@ public class Camp implements Serializable, GenericEntity<Long> {
     public void setConsulta(Consulta consulta) {
         this.consulta = consulta;
     }
+    
+    @Transient
+	public String getCodiPerInforme() {
+		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+			return codi.replace('$', '%');
+		else {
+			if(definicioProces != null) {
+				try {
+					return (definicioProces.getJbpmKey()!=null ? definicioProces.getJbpmKey() + "/"  : "" ) +
+							codi;
+				} catch (Exception ex) {
+					return null;
+				}
+			}else {
+				return (expedientTipus.getJbpmProcessDefinitionKey() !=null ?
+						expedientTipus.getJbpmProcessDefinitionKey()  + "/" : "") +
+						codi;
+			}
+		}
+	}
+
 
 	private static final long serialVersionUID = 1L;
 

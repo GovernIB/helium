@@ -45,6 +45,7 @@ import es.caib.helium.commons.exportacio.TerminiExportacio;
 import es.caib.helium.commons.exportacio.ValidacioExportacio;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.disseny.engine.WProcessDefinition;
+import es.caib.helium.disseny.engine.WUserTask;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Accio;
 import es.caib.helium.persistence.entity.Camp;
@@ -582,18 +583,18 @@ public class DefinicioProcesHelper {
 				expedientTipus.getDefinicionsProces().add(definicio);
 			definicio = definicioProcesRepository.saveAndFlush(definicio);
 			// Crea les tasques publicades
-			for (String nomTasca: workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(definicio.getJbpmKey(), definicio.getVersio())) {
+			for (WUserTask userTask: workflowEngineApi.getUserTasksFromDeployedProcessDefinition(definicio.getJbpmKey(), definicio.getVersio())) {
 				Tasca tasca = new Tasca(
 						definicio,
-						nomTasca,
-						nomTasca,
+						userTask.getId(),
+						userTask.getName() != null ? userTask.getName() : userTask.getId(),
 						TipusTasca.ESTAT);
-				String prefixRecursBo = "forms/" + nomTasca;
+				String prefixRecursBo = "forms/" + userTask.getId();
 				//TODO HELIUM2 desplegar recursos a partir del contingut
 				for (String resourceName: workflowEngineApi.getResourceNames(dpd.getId())) {
 					if (resourceName.startsWith(prefixRecursBo)) {
 						tasca.setTipus(TipusTasca.FORM);
-						tasca.setRecursForm(nomTasca);
+						tasca.setRecursForm(userTask.getId());
 						break;
 					}
 				}

@@ -62,6 +62,8 @@ public class CampDto extends HeretableDto implements Serializable {
 
 	// Dades de Terminis
 	private boolean terminiNomesDies;
+	
+	private String codiPerInforme;
 
 	/** Ordre dins la agrupació. */
 	private Integer ordre;
@@ -352,23 +354,11 @@ public class CampDto extends HeretableDto implements Serializable {
 		this.terminiNomesDies = terminiNomesDies;
 	}
 
+	public void setCodiPerInforme(String codiPerInforme) {
+		this.codiPerInforme = codiPerInforme;
+	}
 	public String getCodiPerInforme() {
-		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
-			return codi.replace('$', '%');
-		else {
-			if(definicioProces != null) {
-				try {
-					return (definicioProces.getJbpmKey()!=null ? definicioProces.getJbpmKey() + "/"  : "" ) +
-							codi;
-				} catch (Exception ex) {
-					return null;
-				}
-			}else {
-				return (expedientTipus.getJbpmProcessDefinitionKey() !=null ?
-						expedientTipus.getJbpmProcessDefinitionKey()  + "/" : "") +
-						codi;
-			}
-		}
+		return codiPerInforme;
 	}
 
 }

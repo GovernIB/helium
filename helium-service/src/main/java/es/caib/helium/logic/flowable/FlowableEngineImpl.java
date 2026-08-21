@@ -166,7 +166,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 
 	@Override
-	public List<String> getTaskNamesFromDeployedProcessDefinition(String processKey, Integer version) {
+	public List<WUserTask> getUserTasksFromDeployedProcessDefinition(String processKey, Integer version) {
 		ProcessDefinition processDefinition =
 			processEngine
 				.getRepositoryService()
@@ -180,20 +180,45 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	    				.getBpmnModel(processDefinition.getId());
 		Process process = model.getMainProcess();
 
-		List<String> taskNames = new ArrayList<>();
+		List<WUserTask> userTasks = new ArrayList<>();
 	    for (FlowElement element : process.getFlowElements()) {
 	        if (element instanceof UserTask) {
 	            UserTask userTask = (UserTask) element;
-	        	taskNames.add(userTask.getId());
+	            WUserTask wUserTask = new WUserTask();
+	            wUserTask.setId(userTask.getId());
+	            wUserTask.setName(userTask.getName());
+	            userTasks.add(wUserTask);
 	        }
 	    }
-		return taskNames;
+		return userTasks;
 	}
 
 	@Override
 	public String getStartTaskName(String processDefinitionId) {
-		// TODO Auto-generated method stub
-		return null;
+		UserTask tascaInicial = null;
+		BpmnModel bpmnModel = processEngine
+								.getRepositoryService()
+									.getBpmnModel(processDefinitionId);
+		
+		for (StartEvent startEvent 
+				: bpmnModel.getMainProcess().findFlowElementsOfType(StartEvent.class)) {
+
+	        // Miram totes les sortides del StartEvent
+	        for (SequenceFlow sequenceFlow : startEvent.getOutgoingFlows()) {
+
+	            FlowElement target =
+	                bpmnModel.getFlowElement(sequenceFlow.getTargetRef());
+
+	            if (target instanceof UserTask) {
+	                tascaInicial = (UserTask) target;
+	                break;
+	            }
+	        }
+	        if (tascaInicial != null) {
+	        	break;
+	        }
+	    }
+		return tascaInicial != null ? tascaInicial.getId() : null;
 	}
 
 	@Override

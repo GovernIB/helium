@@ -267,7 +267,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 								request,
 								"expedient.tipus.enumeracio.valors.importats"));
 
-				if (eliminarValorsAntics) {
+				if (eliminarValorsAntics != null && eliminarValorsAntics.booleanValue()) {
 					List<String> valorsEnUs = new ArrayList<String>();
 					for (ExpedientTipusEnumeracioValorDto valor : enumeracioService.valorsFind(enumeracioId)) {
 						if (!valorsCodis.contains(valor.getCodi())) {

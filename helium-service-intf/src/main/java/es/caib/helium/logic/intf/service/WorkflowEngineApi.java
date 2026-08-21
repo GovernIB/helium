@@ -7,7 +7,14 @@ import java.util.Map;
 import java.util.Set;
 
 import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.disseny.engine.*;
+import es.caib.helium.disseny.engine.WDeployment;
+import es.caib.helium.disseny.engine.WExpedientDto;
+import es.caib.helium.disseny.engine.WProcessDefinition;
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WProcessLog;
+import es.caib.helium.disseny.engine.WTaskInstance;
+import es.caib.helium.disseny.engine.WToken;
+import es.caib.helium.disseny.engine.WUserTask;
 
 
 /**
@@ -167,7 +174,7 @@ public interface WorkflowEngineApi {
 	 * @param version
 	 * @return
 	 */
-	public List<String> getTaskNamesFromDeployedProcessDefinition(
+	public List<WUserTask> getUserTasksFromDeployedProcessDefinition(
             String processKey,
             Integer version);
 

@@ -87,6 +87,7 @@ public class ConversioTipusHelper {
 						CampDto target = new CampDto();
 						target.setId(source.getId());
 						target.setCodi(source.getCodi());
+						target.setCodiPerInforme(source.getCodiPerInforme());
 						target.setEtiqueta(source.getEtiqueta());
 						target.setObservacions(source.getObservacions());
 						target.setTipus(
