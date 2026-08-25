@@ -51,6 +51,8 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	private Set<Termini> terminis = new HashSet<Termini>();
 	private List<CampAgrupacio> agrupacions = new ArrayList<CampAgrupacio>();
 	private Set<Accio> accions = new HashSet<Accio>();
+	private boolean hasStartTask;
+	private String startTaskName;
 
 	public DefinicioProces() {}
 	public DefinicioProces(String jbpmId, String jbpmKey, String etiqueta, int versio, Entorn entorn) {
@@ -227,8 +229,25 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 		}
 	}
 
+	/** Flag a la definició de procés per indicar si té tasca inicial i per tant si s'ha de mostar a l'usuari la tasca inicial. */
+	@Column(name="has_start_task")
+	public boolean isHasStartTask() {
+		return hasStartTask;
+	}
+	public void setHasStartTask(boolean hasStartTask) {
+		this.hasStartTask = hasStartTask;
+	}
 
+	/** Codi de la tasca inicial del flux. */
+	@Column(name="start_task_name", length=255, nullable=true)
+	public String getStartTaskName() {
+		return startTaskName;
+	}
+	public void setStartTaskName(String startTaskName) {
+		this.startTaskName = startTaskName;
+	}
 
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -252,6 +271,7 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 			return false;
 		return true;
 	}
+	
 
 	private static final long serialVersionUID = 1L;
 

@@ -32,13 +32,15 @@ public class DefinicioProcesDesplegarCommand {
 	private Long expedientTipusId;
 	/** Etiqueta que s'assignarà a la nova definició de procés.*/
 	private String etiqueta;
+	/** Indica si el desplegament té una tasca inicial. S'haurà de validar que tingui una tasca d'usuari tot just començar el flux. */
+	private boolean hasStartTask;
 	/** Indica si s'iniciarà una acció massiva per actualitzar els expedients actius. */
 	private boolean actualitzarExpedientsActius;
 	/** Contingut del fitxer */
 	private MultipartFile file;
 	/** Indica si augmentar la versió o sobre escriure els handlers. */
 	private ACCIO_PROCES accio;
-		
+	
 	public Long getId() {
 		return id;
 	}
@@ -62,6 +64,12 @@ public class DefinicioProcesDesplegarCommand {
 	}
 	public void setEtiqueta(String etiqueta) {
 		this.etiqueta = etiqueta;
+	}
+	public boolean isHasStartTask() {
+		return hasStartTask;
+	}
+	public void setHasStartTask(boolean hasStartTask) {
+		this.hasStartTask = hasStartTask;
 	}
 	public boolean isActualitzarExpedientsActius() {
 		return actualitzarExpedientsActius;

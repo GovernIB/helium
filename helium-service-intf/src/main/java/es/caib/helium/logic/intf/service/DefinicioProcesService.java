@@ -15,7 +15,6 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacioCommandDto;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servei per al manteniment de definicions de processos.
@@ -627,6 +626,24 @@ public interface DefinicioProcesService {
 	 * @return
 	 */
 	public DefinicioProcesDto findByJbpmKeyAndVersio(String defprocJbpmKey, int defprocVersio);
+
+	/** Mètode per actualitzar algunes dades d'una definició de procés a Helium com l'etiqueta o si té tasca inicial.
+	 * 
+	 * @param entornId 
+	 * @param definicioProcesId
+	 * @param etiqueta
+	 * @param hasStartTask
+	 * @return
+	 */
+	public DefinicioProcesDto update(long entornId, long definicioProcesId, String etiqueta, boolean hasStartTask);
+
+	/** Mètode per consultar si el flux associat a la definició de procés té una tasca inicial.
+	 * 
+	 * @param definicioProcesId
+	 * 
+	 * @return Retorna el codi de la tasca en cas de tenir una tasca inicial.
+	 */
+	public String checkTascaInicial(long definicioProcesId);
 
 
 }

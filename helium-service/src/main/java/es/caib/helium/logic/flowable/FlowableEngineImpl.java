@@ -195,30 +195,32 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public String getStartTaskName(String processDefinitionId) {
-		UserTask tascaInicial = null;
 		BpmnModel bpmnModel = processEngine
 								.getRepositoryService()
 									.getBpmnModel(processDefinitionId);
-		
+		return this.getStartTaskName(bpmnModel);
+	}
+
+	/** Cerca en el model BPMN la primera tasca d'usuari després de l'inici. */
+	private String getStartTaskName(BpmnModel bpmnModel) {
+		String startTaskName = null;
+		UserTask tascaInicial = null;
 		for (StartEvent startEvent 
 				: bpmnModel.getMainProcess().findFlowElementsOfType(StartEvent.class)) {
-
-	        // Miram totes les sortides del StartEvent
 	        for (SequenceFlow sequenceFlow : startEvent.getOutgoingFlows()) {
-
 	            FlowElement target =
 	                bpmnModel.getFlowElement(sequenceFlow.getTargetRef());
-
 	            if (target instanceof UserTask) {
 	                tascaInicial = (UserTask) target;
 	                break;
 	            }
 	        }
 	        if (tascaInicial != null) {
+	        	startTaskName = tascaInicial.getId();
 	        	break;
 	        }
 	    }
-		return tascaInicial != null ? tascaInicial.getId() : null;
+		return startTaskName;
 	}
 
 	@Override
@@ -1121,6 +1123,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		WProcessDefinition processDefinition = new WProcessDefinition();
 		processDefinition.setKey(process.getId());
 		processDefinition.setName(process.getName());
+		processDefinition.setStartTaskName(this.getStartTaskName(bpmnModel));
 		return processDefinition;
 	}
 

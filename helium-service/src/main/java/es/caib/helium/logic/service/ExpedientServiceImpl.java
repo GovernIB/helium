@@ -3012,7 +3012,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		if (definicioProcesId == null && definicioProces == null) {
 			logger.error("No s'ha trobat la definició de procés (entorn=" + entornId + ", jbpmKey=" + expedientTipus.getJbpmProcessDefinitionKey() + ")");
 		}
-		String startTaskName = workflowEngineApi.getStartTaskName(definicioProces.getJbpmId());
+		String startTaskName = definicioProces.getStartTaskName();
 		if (startTaskName != null) {
 			return tascaHelper.toTascaInicialDto(startTaskName, definicioProces.getJbpmId(), valors);
 		}

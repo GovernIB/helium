@@ -226,6 +226,7 @@
 							<ul class="dropdown-menu">
 								<li><a id="accioExportar" data-toggle="modal" data-modal-id="accioExportarDiv" href='<c:url value="/definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId=${definicioProces.id}"/>'><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
 								<li><a id="accioImportar" data-toggle="modal" data-modal-id="accioImportarDiv" href='<c:url value="/definicioProces/importar?definicioProcesId=${definicioProces.id}"/>'><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
+								<li><a id="accioModificar" data-toggle="modal" href="<c:url value="/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/update"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="definicio.proces.accio.modificar"/></a></li>
 								<li><a id="accioEsborrar" href='<c:url value="/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/delete"/>' data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
 							</ul>
 						</div>

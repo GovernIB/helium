@@ -14,4 +14,5 @@ public class WProcessDefinition {
     private String name;
     private int version;
     private String category;
+    private String startTaskName;
 }

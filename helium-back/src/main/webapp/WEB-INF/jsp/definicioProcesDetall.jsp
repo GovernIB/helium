@@ -5,7 +5,11 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
-
+<c:set var="idioma">ca</c:set>
+<c:set var="potDissenyarDefinicioProcesAdmin" value="${potAdministrarEntorn
+														or potDissenyarEntorn
+														or definicioProces.expedientTipus.permisAdministration
+														or definicioProces.expedientTipus.permisDesignAdmin}"/>
 
 <script src="<c:url value="/js/webutil.common.js"/>"></script>
 <script src="<c:url value="/js/webutil.modal.js"/>"></script>
@@ -55,6 +59,10 @@
 									${definicioProces.expedientTipus.codi} - ${definicioProces.expedientTipus.nom}
 								</a></dd>
 						</c:if>										
+						<c:if test="${not empty definicioProces.startTaskName}">
+							<dt><spring:message code="definicio.proces.detall.camp.startTaskName"></spring:message></dt>
+							<dd>${definicioProces.startTaskName}</dd>
+						</c:if>										
 						<dt><spring:message code="definicio.proces.detall.camp.dataCreacio"/></dt>
 						<dd><fmt:formatDate value="${definicioProces.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></dd>
 						<!-- sub definicions de procés -->				
@@ -65,6 +73,16 @@
 							</dd>
 						</c:if>
 					</dl>
+					<!-- Menú d'accions -->
+					<c:if test="${potDissenyarDefinicioProcesAdmin}">
+						<div id="expedientTipus-info-accio" class="dropdown">
+							<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/expedientTipus/${expedientTipus.id}}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.eines"/>&nbsp;<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a data-toggle="modal" href="<c:url value="/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/update"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="definicio.proces.accio.modificar"/></a></li>
+								<li><a id="accioEsborrar" href='<c:url value="/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/delete"/>' data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+							</ul>
+						</div>
+					</c:if>
 				</div>
 			</div>
 		</form>

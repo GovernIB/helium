@@ -25,6 +25,7 @@ import UploadIcon from "./components/UploadIcon.tsx";
 type DeployFormType = {
     expedientTipusId: string;
     etiqueta: string;
+	hasStartTask: boolean;
     actualitzarExpedientsActius:  boolean;
 }
 
@@ -53,6 +54,7 @@ const App = () => {
     const [deployForm, setDeployForm] = React.useState<DeployFormType>({
         expedientTipusId: expedientTipusId,
         etiqueta: "",
+		hasStartTask: false,
         actualitzarExpedientsActius:  false,
     });
 
@@ -206,7 +208,9 @@ const App = () => {
             const file = new File([response.xml!], 'processDefinition.bpmn');
             formData.append('file', file);
             formData.append('accio', 'PROCES_DESPLEGAR');
-            formData.append('etiqueta', deployForm.etiqueta);
+			formData.append('etiqueta', deployForm.etiqueta);
+			formData.append('hasStartTask', deployForm.hasStartTask.toString());
+			formData.append('actualitzarExpedientsActius', deployForm.actualitzarExpedientsActius.toString());
             formData.append('expedientTipusId', `${deployForm.expedientTipusId}`);
             const saveResponse: Response =  await fetch(`${config.baseUrl}/definicioProces/desplegar`, {
                 method: 'POST',
@@ -322,6 +326,12 @@ const App = () => {
                         <label style={styles.label} htmlFor="etiqueta">Etiqueta</label>
                         <input style={styles.input} id="etiqueta" value={deployForm.etiqueta} onChange={(e) => setDeployForm({...deployForm, etiqueta: e.target.value})} />
                     </div>
+					<div style={styles.formGroup}>
+					    <label htmlFor="hasStartTask" style={styles.label}>
+							<input id="hasStartTask" type={'checkbox'} checked={deployForm.hasStartTask} onChange={(e) => setDeployForm({...deployForm, hasStartTask: e.target.checked})}/>
+							Amb tasca inicial?
+					    </label>
+					</div>
                     <div style={styles.formGroup}>
                         <label style={styles.label} htmlFor="expedientTipusId">Tipus d'expedient</label>
                         <select style={styles.input} id="expedientTipusId" onChange={(e) => setDeployForm({...deployForm, expedientTipusId: e.target.value})} >
@@ -335,7 +345,8 @@ const App = () => {
                     </div>
                     <div style={styles.formGroup}>
                         <label htmlFor="actualitzarExpedientsActius" style={styles.label}>
-                            Actualitzar expedients actius? <input id="actualitzarExpedientsActius" type={'checkbox'} checked={deployForm.actualitzarExpedientsActius} onChange={(e) => setDeployForm({...deployForm, actualitzarExpedientsActius: e.target.checked})}/>
+							<input id="actualitzarExpedientsActius" type={'checkbox'} checked={deployForm.actualitzarExpedientsActius} onChange={(e) => setDeployForm({...deployForm, actualitzarExpedientsActius: e.target.checked})}/>
+                            Actualitzar expedients actius?
                         </label>
                     </div>
                     <div style={styles.footer}>

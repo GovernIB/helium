@@ -1,24 +1,18 @@
 package es.caib.helium.back.controller;
 
-import es.caib.helium.back.command.DefinicioProcesDesplegarCommand;
-import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.ACCIO_PROCES;
-import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.Desplegament;
-import es.caib.helium.back.command.DefinicioProcesExportarCommand;
-import es.caib.helium.back.command.DefinicioProcesExportarCommand.Exportacio;
-import es.caib.helium.back.command.DefinicioProcesExportarCommand.Importacio;
-import es.caib.helium.back.command.DefinicioProcesExportarCommand.Upload;
-import es.caib.helium.back.helper.*;
-import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
-import es.caib.helium.back.mvc.ArxiuView;
-import es.caib.helium.commons.dto.*;
-import es.caib.helium.commons.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
-import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
-import es.caib.helium.commons.exportacio.DefinicioProcesExportacioCommandDto;
-import es.caib.helium.logic.intf.service.ExecucioMassivaService;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +22,49 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.View;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import es.caib.helium.back.command.DefinicioProcesDesplegarCommand;
+import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.ACCIO_PROCES;
+import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.Desplegament;
+import es.caib.helium.back.command.DefinicioProcesExportarCommand;
+import es.caib.helium.back.command.DefinicioProcesExportarCommand.Exportacio;
+import es.caib.helium.back.command.DefinicioProcesExportarCommand.Importacio;
+import es.caib.helium.back.command.DefinicioProcesExportarCommand.Upload;
+import es.caib.helium.back.command.DefinicioProcesUpdateCommand;
+import es.caib.helium.back.command.DefinicioProcesUpdateCommand.Modificacio;
+import es.caib.helium.back.helper.ConversioTipus;
+import es.caib.helium.back.helper.DatatablesHelper;
+import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
+import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.back.helper.NodecoHelper;
+import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.back.mvc.ArxiuView;
+import es.caib.helium.commons.dto.CodiNom;
+import es.caib.helium.commons.dto.ConsultaDto;
+import es.caib.helium.commons.dto.DefinicioProcesDto;
+import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
+import es.caib.helium.commons.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
+import es.caib.helium.commons.dto.EntornDto;
+import es.caib.helium.commons.dto.ExecucioMassivaDto;
+import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.commons.dto.ParellaCodiValorDto;
+import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
+import es.caib.helium.commons.exportacio.DefinicioProcesExportacioCommandDto;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
 
 /**
  * Controlador per al manteniment de les definicions de procés. Controla les pipelles del
@@ -205,6 +234,72 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				"detall");
 	}
 
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/update", method = RequestMethod.GET)
+	public String modificar(
+			HttpServletRequest request,
+			@PathVariable Long definicioProcesId,
+			Model model) {
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		DefinicioProcesDto dto = definicioProcesService.findAmbIdPermisDissenyar(
+				entornActual.getId(), 
+				definicioProcesId);
+		DefinicioProcesUpdateCommand command = new DefinicioProcesUpdateCommand();
+		command.setId(definicioProcesId);
+		command.setEtiqueta(dto.getEtiqueta());
+		command.setJbpmKey(dto.getJbpmKey());
+		command.setHasStartTask(dto.isHasStartTask());
+		command.setVersio(dto.getVersio());
+		model.addAttribute("definicioProcesUpdateCommand", command);
+		return "definicioProcesUpdateForm";
+	}
+	
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/update", method = RequestMethod.POST)
+	public String modificarPost(
+			HttpServletRequest request,
+			@PathVariable Long definicioProcesId,
+			@Validated(Modificacio.class) DefinicioProcesUpdateCommand command,
+			BindingResult bindingResult,
+			Model model) {
+    	DefinicioProcesDto dto = null;
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+        if (bindingResult.hasErrors()) {
+    		dto = definicioProcesService.findAmbIdPermisDissenyar(
+    				entornActual.getId(), 
+    				definicioProcesId);
+    		command.setId(definicioProcesId);
+    		command.setJbpmKey(dto.getJbpmKey());
+    		command.setVersio(dto.getVersio());
+    		model.addAttribute("definicioProcesUpdateCommand", command);
+        	return "definicioProcesUpdateForm";
+        } else {
+        	try {
+        		dto = definicioProcesService.findAmbIdPermisDissenyar(
+        				entornActual.getId(), 
+        				definicioProcesId);
+        		definicioProcesService.update(
+            			entornActual.getId(),
+        				definicioProcesId,
+        				command.getEtiqueta(), 
+        				command.isHasStartTask());
+    			return getModalControllerReturnValueSuccess(
+    					request,
+    					"redirect:/definicioProces",
+    					"definicio.procees.controller.modificat");
+        	} catch(Exception e) {
+        		if (dto != null) {
+            		command.setId(definicioProcesId);
+            		command.setJbpmKey(dto.getJbpmKey());
+            		command.setVersio(dto.getVersio());
+        		}
+        		model.addAttribute("definicioProcesUpdateCommand", command);
+        		MissatgesHelper.error(request, getMessage(request, "definicio.procees.controller.modificat.error", new Object[] {e.getMessage()}));
+            	return "definicioProcesUpdateForm";
+        	}
+        }
+	}
+
+	
 	/** Pipella del detall. */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/detall")
 	public String detall(

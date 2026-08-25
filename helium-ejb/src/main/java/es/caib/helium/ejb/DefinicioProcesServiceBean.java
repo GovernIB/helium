@@ -329,4 +329,16 @@ public class DefinicioProcesServiceBean extends AbstractServiceEjb<DefinicioProc
 		return delegateService.findByJbpmKeyAndVersio(defprocJbpmKey, defprocVersio);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto update(long entornId, long definicioProcesId, String etiqueta, boolean hasStartTask) {
+		return delegateService.update(entornId, definicioProcesId, etiqueta, hasStartTask);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public String checkTascaInicial(long definicioProcesId) {
+		return delegateService.checkTascaInicial(definicioProcesId);
+	}
+
 }

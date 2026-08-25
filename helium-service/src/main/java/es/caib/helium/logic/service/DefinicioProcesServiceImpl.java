@@ -36,13 +36,13 @@ import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacioCommandDto;
 import es.caib.helium.commons.utils.EntornActual;
+import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.EntornHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -115,7 +115,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
-	private WorkflowEngineApi jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -327,7 +327,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		if (definicioProces != null) {
 			try {
-				return jbpmHelper.getXml(definicioProces.getJbpmId());
+				return workflowEngineApi.getXml(definicioProces.getJbpmId());
 			} catch (IOException ex) {
 				logger.error("Error obtenint l'XML de la definició de procés (" +
 					"definicioProcesId=" + definicioProcesId + ")",
@@ -423,7 +423,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		} else
 			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 
-		jbpmHelper.esborrarDesplegament(
+		workflowEngineApi.esborrarDesplegament(
 				definicioProces.getJbpmId());
 		//
 		definicioProcesRepository.delete(definicioProces);
@@ -470,7 +470,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
-		return jbpmHelper.getStartTaskName(definicioProces.getJbpmId());
+		return definicioProces.getStartTaskName();
 	}
 
 	/**
@@ -502,13 +502,17 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		// Marca la tasca com a incicial
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
-		String startTaskName = jbpmHelper.getStartTaskName(definicioProces.getJbpmId());
-		if (startTaskName != null)
-			for (TascaDto tasca : pagina.getContingut())
-				if(tasca.getNom().equals(startTaskName)) {
-					tasca.setInicial(true);
-					break;
-				}
+		if (definicioProces.isHasStartTask()
+				&& definicioProces.getStartTaskName() != null) 
+		{
+			String startTaskName = definicioProces.getStartTaskName();
+			if (startTaskName != null)
+				for (TascaDto tasca : pagina.getContingut())
+					if(tasca.getJbpmName().equals(startTaskName)) {
+						tasca.setInicial(true);
+						break;
+					}
+		}
 
 		ExpedientTipus expedientTipus = null;
 		if ( expedientTipusId != null)
@@ -1574,7 +1578,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant la definició de procés a partir de la instància de procés (" +
 				"processInstanceId = " + processInstanceId + ")");
 
-		WProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
 		DefinicioProces dp = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
 		return conversioTipusHelper.convertir(dp, DefinicioProcesDto.class);
 	}
@@ -1586,6 +1590,58 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"defprocKey = " + defprocKey + ", versio = " + versio + ")");
 		DefinicioProces dp = definicioProcesRepository.findByJbpmKeyAndVersio(defprocKey, versio);
 		return conversioTipusHelper.convertir(dp, DefinicioProcesDto.class);
+	}
+
+	@Override
+	@Transactional
+	public DefinicioProcesDto update(long entornId, long definicioProcesId, String etiqueta, boolean hasStartTask) {
+		logger.debug(
+				"Modificant definició de procés existent (" +
+				"entornId=" + entornId + ", " +
+				"definicioProcesId=" + definicioProcesId + ", " +
+				"etiqueta=" + etiqueta + ", " +
+				"hasStartTask=" + hasStartTask + ")");
+
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true,
+				false);
+		DefinicioProces entity = definicioProcesRepository.findById(definicioProcesId).orElse(null);
+		if (entity == null) {
+			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		}
+		entity.setEtiqueta(etiqueta);
+		if (hasStartTask) {
+			// Recupera la tasca inicial del flux i l'informa, si no en té llença excepció
+			String startTaskName = workflowEngineApi.getStartTaskName(entity.getJbpmId());
+			if (startTaskName == null) {
+				throw new RuntimeException("El flux associat a la definició de procés " + entity.getIdPerMostrar() + " no té tasca inicial.");
+			}
+			entity.setStartTaskName(startTaskName);
+		} else {
+			// Esborra el codi de la tasca inicial
+			entity.setStartTaskName(null);
+		}
+		entity.setHasStartTask(hasStartTask);
+
+		return conversioTipusHelper.convertir(
+				definicioProcesRepository.save(entity),
+				DefinicioProcesDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public String checkTascaInicial(long definicioProcesId) {
+		logger.debug(
+				"Comprovant la tasca inicial del flux d'una definició de procés (" +
+				"definicioProcesId=" + definicioProcesId + ")");
+
+		DefinicioProces entity = definicioProcesRepository.findById(definicioProcesId).orElse(null);
+		if (entity == null) {
+			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		}
+		String tartTaskName = workflowEngineApi.getStartTaskName(entity.getJbpmId());
+		return tartTaskName;
 	}
 
 }

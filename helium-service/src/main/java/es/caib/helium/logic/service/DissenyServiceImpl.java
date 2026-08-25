@@ -4,8 +4,19 @@
 package es.caib.helium.logic.service;
 
 import java.beans.IntrospectionException;
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -13,11 +24,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.commons.dto.*;
-import es.caib.helium.disseny.engine.WExpedientDto;
-import es.caib.helium.logic.helper.*;
-import es.caib.helium.persistence.entity.*;
-import es.caib.helium.persistence.repository.*;
 import org.flowable.common.engine.impl.util.IoUtil;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
@@ -34,19 +40,76 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
+import es.caib.helium.commons.dto.AreaDto;
+import es.caib.helium.commons.dto.CampDto;
+import es.caib.helium.commons.dto.ConsultaCampDto;
+import es.caib.helium.commons.dto.ConsultaDto;
+import es.caib.helium.commons.dto.DefinicioProcesDto;
+import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
+import es.caib.helium.commons.dto.DefinicioProcesVersioDto;
+import es.caib.helium.commons.dto.DocumentDto;
+import es.caib.helium.commons.dto.DominiDto;
+import es.caib.helium.commons.dto.EntornDto;
+import es.caib.helium.commons.dto.ExpedientDocumentPinbalDto;
+import es.caib.helium.commons.dto.ExpedientDto;
+import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.dto.PaginaDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.commons.dto.ParellaCodiValorDto;
+import es.caib.helium.commons.dto.PermisDto;
 import es.caib.helium.commons.dto.handlers.HandlerDto;
 import es.caib.helium.commons.exception.DeploymentException;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.disseny.engine.WExpedientDto;
 import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DefinicioProcesHelper;
+import es.caib.helium.logic.helper.DominiHelper;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientLoggerHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.ExpedientTipusRecursHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PermisosHelper;
+import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
-import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.persistence.entity.Area;
+import es.caib.helium.persistence.entity.Camp;
+import es.caib.helium.persistence.entity.Consulta;
+import es.caib.helium.persistence.entity.ConsultaCamp;
+import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
+import es.caib.helium.persistence.entity.DefinicioProces;
+import es.caib.helium.persistence.entity.Document;
+import es.caib.helium.persistence.entity.Domini;
+import es.caib.helium.persistence.entity.Entorn;
+import es.caib.helium.persistence.entity.ExpedientTipus;
+import es.caib.helium.persistence.entity.Recurs;
+import es.caib.helium.persistence.entity.ServeiPinbalEntity;
+import es.caib.helium.persistence.repository.AccioRepository;
+import es.caib.helium.persistence.repository.AreaRepository;
+import es.caib.helium.persistence.repository.CampRepository;
+import es.caib.helium.persistence.repository.CampTascaRepository;
+import es.caib.helium.persistence.repository.ConsultaCampRepository;
+import es.caib.helium.persistence.repository.ConsultaRepository;
+import es.caib.helium.persistence.repository.DefinicioProcesRepository;
+import es.caib.helium.persistence.repository.DocumentRepository;
+import es.caib.helium.persistence.repository.DominiRepository;
+import es.caib.helium.persistence.repository.EntornRepository;
+import es.caib.helium.persistence.repository.EnumeracioRepository;
+import es.caib.helium.persistence.repository.EstatRepository;
+import es.caib.helium.persistence.repository.ExpedientTipusRepository;
+import es.caib.helium.persistence.repository.RecursRepository;
+import es.caib.helium.persistence.repository.ServeiPinbalRepository;
+import es.caib.helium.persistence.repository.TascaRepository;
+import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
@@ -340,12 +403,11 @@ public class DissenyServiceImpl implements DissenyService {
 				demanaNumeroTitol = (Boolean.TRUE.equals(expedientTipus.getTeNumero()) && Boolean.TRUE.equals(expedientTipus.getDemanaNumero()))
 									|| (Boolean.TRUE.equals(expedientTipus.getTeTitol()) && Boolean.TRUE.equals(expedientTipus.getDemanaTitol()));
 			for (DefinicioProces defProces : listDefProces) {
-				Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
 				dto.addIdAmbEtiquetaId(
 						defProces.getId(),
 						defProces.getJbpmId(),
 						jb.getName() + " v." + defProces.getVersio(),
-						hasStartTask(definicioProces, hasStartTask, expedientTipusId),
+						definicioProces.isHasStartTask(),
 						demanaNumeroTitol);
 				if (defProces.getVersio() == definicioProces.getVersio()) {
 					dto.setEtiqueta(jb.getName() + " v." + defProces.getVersio());
@@ -380,9 +442,6 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(id).orElse(null);
 		if (definicioProces != null) {
 			DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
-			Long expedientTipusId = definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null;
-			Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
-			dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask, expedientTipusId));
 			return dto;
 		}
 		return null;
@@ -402,8 +461,6 @@ public class DissenyServiceImpl implements DissenyService {
 					expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null) {
 				DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
-				Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
-				dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask, expedientTipusId));
 				getAllDefinicioProcesOrderByVersio(dto, expedientTipus);
 				return dto;
 			}
@@ -424,27 +481,6 @@ public class DissenyServiceImpl implements DissenyService {
 			throw new NoTrobatException(DefinicioProces.class, defProcCodi);
 		}
 		return conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
-	}
-
-	private boolean hasStartTask(DefinicioProces definicioProces, Map<Long, Boolean> hasStartTask, Long expedientTipusId) {
-		Long definicioProcesId = definicioProces.getId();
-		Boolean result = hasStartTask.get(definicioProcesId);
-		if (result == null) {
-			result = false;
-			String startTaskName = workflowEngineApi.getStartTaskName(
-					definicioProces.getJbpmId());
-			if (startTaskName != null) {
-				Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-						startTaskName,
-						definicioProces.getJbpmId());
-				if (tasca != null) {
-					List<CampTasca> camps = campTascaRepository.findAmbTascaOrdenats(tasca.getId(), expedientTipusId);
-					result = camps.size() > 0;
-				}
-			}
-			hasStartTask.put(definicioProcesId, result);
-		}
-		return result.booleanValue();
 	}
 
 	@Transactional(readOnly=true)
@@ -1310,6 +1346,7 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProcesDto dto = new DefinicioProcesDto();
 		dto.setJbpmKey(processDefinition.getKey());
 		dto.setJbpmName(processDefinition.getName());
+		dto.setStartTaskName(processDefinition.getStartTaskName());
 		exportacio.setDefinicioProcesDto(dto);
 		return exportacio;
 	}

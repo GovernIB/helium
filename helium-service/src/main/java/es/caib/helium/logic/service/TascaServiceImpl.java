@@ -1714,7 +1714,7 @@ public class TascaServiceImpl implements TascaService {
 		if (definicioProcesId == null && definicioProces == null) {
 			logger.error("No s'ha trobat la definició de procés (entorn=" + expedientTipus.getEntorn().getCodi() + ", jbpmKey=" + expedientTipus.getJbpmProcessDefinitionKey() + ")");
 		}
-		String starTaskName = workflowEngineApi.getStartTaskName(definicioProces.getJbpmId());
+		String starTaskName = definicioProces.getStartTaskName();
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(starTaskName, definicioProces);
 		FormulariExternDto dto = formulariExternHelper.iniciar(
 				tascaIniciId,

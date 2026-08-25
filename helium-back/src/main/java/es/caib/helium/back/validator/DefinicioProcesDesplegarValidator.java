@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import es.caib.helium.back.command.DefinicioProcesDesplegarCommand;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
@@ -44,6 +45,23 @@ public class DefinicioProcesDesplegarValidator implements ConstraintValidator<De
 				.addPropertyNode("file")
 				.addConstraintViolation();
 				valid = false;
+			}
+			if(command.isHasStartTask()) {
+    			// Recupera la informació del contingut del fitxer
+    			DefinicioProcesExportacio exportacio =
+    					dissenyService.getDefinicioProcesExportacioFromContingut(
+        					command.getFile().getOriginalFilename(),
+    						command.getFile().getBytes()
+    					);
+    			// Mira si té tasca inicial
+				String startTaskName = exportacio.getDefinicioProcesDto().getStartTaskName();
+				if (startTaskName == null || startTaskName.isEmpty()) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage(this.codiMissatge + ".hasStartTask.error"))
+					.addNode("hasStartTask")
+					.addConstraintViolation();	
+					valid = false;
+				}				
 			}
 			if(command.isActualitzarExpedientsActius()) {
 				if (command.getExpedientTipusId() != null) {
