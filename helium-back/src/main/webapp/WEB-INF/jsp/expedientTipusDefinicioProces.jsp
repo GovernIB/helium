@@ -6,9 +6,9 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
-<c:set var="potDissenyarExpedientTipusAdmin" value="${potAdministrarEntorn 
-														or potDissenyarEntorn 
-														or expedientTipus.permisAdministration 
+<c:set var="potDissenyarExpedientTipusAdmin" value="${potAdministrarEntorn
+														or potDissenyarEntorn
+														or expedientTipus.permisAdministration
 														or expedientTipus.permisDesignAdmin}"/>
 
 <script src="<c:url value="/js/webutil.common.js"/>"></script>
@@ -40,7 +40,7 @@
 					<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom"/>
 						<script id="cellExpedientTipusDefinicioJbpmkeyTemplate" type="text/x-jsrender">
 								{{if heretat }}
-									<span class="dada-heretada">{{:jbpmKey}}</span> 
+									<span class="dada-heretada">{{:jbpmKey}}</span>
 									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom.heretat"/>">R</span>
 								{{else}}
 									{{:jbpmKey}}
@@ -97,6 +97,8 @@
 				<div class="botons-titol text-right">
 					<a class="btn btn-default" href="../definicioProces/desplegar?expedientTipusId=${expedientTipus.id}" data-toggle="modal">
 						<span class="fa fa-download"></span>&nbsp;<spring:message code="comu.filtre.desplegar"/></a>
+					<a class="btn btn-primary" href="<c:url value="/expedientTipus/${expedientTipus.id}/definicionsProces/new" />" target="_blank">
+						<span class="fa fa-object-group"></span>&nbsp;<spring:message code="definicio.proces.pipelles.pipella.editor"/></a>
 				</div>
 			{{/if}}
 		</script>
@@ -107,7 +109,7 @@
 </c:choose>
 
 <script type="text/javascript">
-// <![CDATA[            
+// <![CDATA[
 // Valor jbpmKey de la DP inicial del TE
 var jbpmProcessDefinitionKey = "${expedientTipus.jbpmProcessDefinitionKey}";
 
@@ -116,12 +118,12 @@ function inicialFunction(jbpmKey) {
 	return jbpmProcessDefinitionKey == jbpmKey;
 }
 
-$(document).ready(function() {	
-	
+$(document).ready(function() {
+
 	// Afegeix la funció javascript pel template de la columna inicial
 	var templateHelpers = {inicial: inicialFunction};
 	$.views.helpers(templateHelpers);
-		
+
 	// Events quan la taula es pinta
 	$('#expedientTipusDefinicioProces').on('draw.dt', function() {
 		// Botó per incorporar la informació de la definició de procés
@@ -151,4 +153,4 @@ function refrescaTaula() {
 }
 
 // ]]>
-</script>			
+</script>

@@ -47,7 +47,7 @@ public class DefinicioProcesServiceBean extends AbstractServiceEjb<DefinicioProc
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DefinicioProcesDto> findSubDefinicionsProces(Long definicioProcesId) {
-		return findSubDefinicionsProces(definicioProcesId);
+		return delegateService.findSubDefinicionsProces(definicioProcesId);
 	}
 
 	@Override

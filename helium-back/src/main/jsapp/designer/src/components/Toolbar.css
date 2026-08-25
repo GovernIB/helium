@@ -1,7 +1,6 @@
 .toolbar {
 	position: absolute;
-	top: 20px;
-	right: 360px;
+	right: 380px;
 	z-index: 10;
 	display: flex;
 	align-items: center;
@@ -48,3 +47,5 @@
 	height: 24px;
 	background: #d0d0d0;
 }
+
+

@@ -5,9 +5,10 @@ type ModalProps = {
     onClose: () => void;
     children: React.ReactNode;
     title?: string;
+    width?: string;
 };
 
-export default ({ isOpen, onClose, children, title }: ModalProps) => {
+export default ({ isOpen, onClose, children, title, width = '1200px' }: ModalProps) => {
     React.useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
@@ -22,7 +23,7 @@ export default ({ isOpen, onClose, children, title }: ModalProps) => {
     if (!isOpen) return null;
     return (
         <div style={styles.overlay} onClick={onClose}>
-            <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={{...styles.modal, width}} onClick={(e) => e.stopPropagation()}>
                 <div style={styles.header}>
                     {title && <h3 style={{ margin: 0 }}>{title}</h3>}
                     <button onClick={onClose} style={styles.closeBtn}>
@@ -50,7 +51,6 @@ const styles: Record<string, React.CSSProperties> = {
         fontFamily: 'sans serif',
         background: 'white',
         borderRadius: 8,
-        width: '1200px',
         maxWidth: '90%',
         maxHeight: '80vh',
         overflow: 'auto',

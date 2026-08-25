@@ -1,0 +1,40 @@
+* {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+
+@keyframes float-arrow {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-4px); }
+}
+@keyframes bounce-arrow {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-4px); }
+}
+@keyframes pop-check {
+	0% { transform: scale(0.5); opacity: 0; }
+	60% { transform: scale(1.15); opacity: 1; }
+	100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulse-border {
+	0%, 100% { stroke-opacity: 0.35; }
+	50% { stroke-opacity: 0.9; }
+}
+@keyframes draw-check {
+	from { stroke-dashoffset: 24; }
+	to { stroke-dashoffset: 0; }
+}
+.fu-arrow-idle { animation: float-arrow 2.4s ease-in-out infinite; }
+.fu-arrow-dragging { animation: bounce-arrow 2s ease-in-out infinite; }
+.fu-check {
+	animation: pop-check 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+	draw-check 0.3s ease-out 0.05s forwards;
+	stroke-dasharray: 24;
+	stroke-dashoffset: 24;
+}
+.fu-dash-pulse { animation: pulse-border 1.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+	.fu-arrow-idle, .fu-arrow-dragging, .fu-dash-pulse { animation: none; }
+	.fu-check { animation: none; stroke-dashoffset: 0; opacity: 1; transform: scale(1); }
+}

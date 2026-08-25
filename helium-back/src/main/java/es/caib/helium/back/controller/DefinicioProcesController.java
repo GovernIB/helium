@@ -83,6 +83,12 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 						paginacioParams));
 	}
 
+	/** Accés al llistat de definicions de procés de l'entorn des del menú de disseny. */
+	@RequestMapping(value = "/new", method = RequestMethod.GET)
+	public String novaDefinicioProcess() {
+			return "definicioProcesEditor";
+	}
+
 	/** Mètode per esborrar una versió específica des del disseny de la definició de procés. */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/delete", method = RequestMethod.GET)
 	public String delete(
@@ -651,7 +657,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         			// Realitza la importació com a una nova versió
         			exportacio.getDefinicioProcesDto().setEtiqueta(command.getEtiqueta());
         			DefinicioProcesDto definicioProces = definicioProcesService.importar(
-            				command.getEntornId(),
+            				command.getEntornId() != null? command.getEntornId() : entornActual.getId(),
             				command.getExpedientTipusId(),
             				command.getId(),
             				null, 	// DefinicioProcesExportacioCommandDto
@@ -751,6 +757,29 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         	}
         }
 	}
+
+	@RequestMapping(value = "/data", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> data(HttpServletRequest request) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		Map<String, Object> response = new HashMap<String, Object>();
+		if (entornActual != null) {
+			//response.put("entorn", entornActual);
+			// Select dels tipus d'expedient de l'entorn
+			List<ExpedientTipusDto> expedientsTipus = expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId());
+			// Retorna només els que son de tipus FLUX.
+			response.put(
+				"expedientsTipus",
+				expedientsTipus.stream().
+					filter(et -> ExpedientTipusTipusEnumDto.FLOW.equals(et.getTipus())).
+					map(te -> CodiNom.builder().codi(te.getId().toString()).nom(te.getNom()).build()).
+					collect(Collectors.toList()));
+		} else {
+			response.put("expedientsTipus", new ArrayList<CodiNom>());
+		}
+		return response;
+	}
+
 	private void omplirModelFormulariDesplegament(
 			DefinicioProcesDesplegarCommand command,
 			Model model,

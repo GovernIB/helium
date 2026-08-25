@@ -4,10 +4,11 @@ interface ToolbarProps {
     showCode: () => void;
     download: () => void;
     save: () => void;
+    upload?: (() => void);
 }
 
 export default (props: ToolbarProps) => {
-    const { showCode, download, save } = props;
+    const { showCode, download, save, upload} = props;
     return (
         <div className="toolbar">
             <div className="grup">
@@ -24,6 +25,19 @@ export default (props: ToolbarProps) => {
                         </g>
                     </svg>
                 </button>
+                {upload && (<button title="Carregar" onClick={upload}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <g id="Interface / Upload">
+                            <path
+                                d="M6 21H18M12 3V17M12 3L17 8M12 3L7 8"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </g>
+                    </svg>
+                </button>)}
                 <button title="Descarregar" onClick={download}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <g id="Interface / Download">
@@ -37,7 +51,7 @@ export default (props: ToolbarProps) => {
                         </g>
                     </svg>
                 </button>
-                <button title="Save" onClick={save}>
+                <button title="Publicar" onClick={save}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <g id="Interface / Save">
                             <path
