@@ -61,6 +61,68 @@ const App = () => {
     const modelerRef = React.useRef<BpmnJS | null>(null);
     const inputRef = React.useRef<HTMLInputElement | null>(null);
 
+    const [isDirty, setIsDirty] = React.useState<boolean>(false);
+
+    React.useEffect(() => {
+        const handleBeforeUnload = (event: Event) => {
+            if (isDirty) {
+                event.preventDefault();
+                event.returnValue = false;
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [isDirty]);
+
+    React.useEffect(() => {
+        setIsLoading(true);
+        init().finally(() => {
+            setIsLoading(false);
+        })
+    }, []);
+
+    const init = async () => {
+        if (!canvasRef.current) return;
+        const modeler = new BpmnJS({
+            container: canvasRef.current,
+            propertiesPanel: {
+                parent: propertiesRef.current,
+            },
+            additionalModules: [
+                BpmnPropertiesPanelModule,
+                BpmnPropertiesProviderModule,
+                CamundaPlatformPropertiesProviderModule,
+                FlowablePropertiesProviderModule,
+            ],
+            moddleExtensions: {
+                camunda: camundaModdle,
+                flowable: flowableModdle,
+            },
+        });
+
+        const eventBus:any = modeler.get('eventBus');
+        const handleCommandStackChange = () => {
+            const commandStack: any = modeler.get('commandStack');
+            // canUndo() returns true if any modification has been made
+            setIsDirty(commandStack.canUndo());
+        };
+
+        eventBus.on('commandStack.changed', handleCommandStackChange);
+        modelerRef.current = modeler;
+
+        if(isNew) {
+            await modelerRef.current.createDiagram();
+            await loadData();
+        } else {
+            await loadDiagram();
+        }
+
+        return () => {
+            modeler.destroy();
+        };
+    }
+
     const showCode = () => {
         modelerRef.current?.saveXML({ format: true }).then((response) => {
             setModalOpen(true);
@@ -94,15 +156,24 @@ const App = () => {
                 const response: SaveXMLResult | undefined = await modelerRef.current?.saveXML({ format: true });
                 if(response == undefined)
                     return;
-                await fetch(`${document.URL}/save`, {
+
+                setIsDirty(false);
+                const formData = new FormData();
+                const file = new File([response.xml!], 'processDefinition.bpmn');
+                formData.append('file', file);
+                formData.append('etiqueta', deployForm.etiqueta);
+                formData.append('expedientTipusId', '');
+                const saveResponse :Response = await fetch(`${document.URL}/save`, {
                     method: 'POST',
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        xml: btoa(response.xml!)
-                    }),
+                    body: formData,
                 });
+
+                if(!saveResponse.ok) {
+                    alert('Error desant definició de procès \n' + (await saveResponse.text()));
+                    return;
+                }
+
+                window.location.reload();
             }
         } finally {
             setIsLoading(false);
@@ -111,45 +182,6 @@ const App = () => {
 
     const upload = () => {
         inputRef.current?.click();
-    }
-
-    React.useEffect(() => {
-        setIsLoading(true);
-        init().finally(() => {
-            setIsLoading(false);
-        })
-    }, []);
-
-    const init = async () => {
-        if (!canvasRef.current) return;
-        const modeler = new BpmnJS({
-            container: canvasRef.current,
-            propertiesPanel: {
-                parent: propertiesRef.current,
-            },
-            additionalModules: [
-                BpmnPropertiesPanelModule,
-                BpmnPropertiesProviderModule,
-                CamundaPlatformPropertiesProviderModule,
-                FlowablePropertiesProviderModule,
-            ],
-            moddleExtensions: {
-                camunda: camundaModdle,
-                flowable: flowableModdle,
-            },
-        });
-        modelerRef.current = modeler;
-
-        if(isNew) {
-            await modelerRef.current.createDiagram();
-            await loadData();
-        } else {
-            await loadDiagram();
-        }
-
-        return () => {
-            modeler.destroy();
-        };
     }
 
     const loadDiagram = async () => {
@@ -168,6 +200,7 @@ const App = () => {
                 alert(`No s'ha especificat la etiqueta de la definició`);
                 return;
             }
+            setIsDirty(false);
 
             const formData = new FormData();
             const file = new File([response.xml!], 'processDefinition.bpmn');
@@ -175,12 +208,17 @@ const App = () => {
             formData.append('accio', 'PROCES_DESPLEGAR');
             formData.append('etiqueta', deployForm.etiqueta);
             formData.append('expedientTipusId', `${deployForm.expedientTipusId}`);
-            await fetch(`${config.baseUrl}/definicioProces/desplegar`, {
+            const saveResponse: Response =  await fetch(`${config.baseUrl}/definicioProces/desplegar`, {
                 method: 'POST',
                 body: formData,
             });
             setModalDespOpen(false);
-            window.location.href = config.baseUrl + '/utils/modalTancar';
+            if(!saveResponse.ok) {
+                alert('Error desant definició de procès \n' + (await saveResponse.text()));
+                return;
+            }
+
+            window.location.href = document.URL.replace('/definicionsProces/new', '').replace('/new', '');
         } finally {
             setIsLoading(false);
         }
@@ -230,7 +268,7 @@ const App = () => {
         setIsDragging(false);
     }, [modelerRef.current]);
 
-    const hey = async (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+    const onFileChange = async (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
         console.log(e.target.files);
         if(e.target.files && e.target.files.length > 0)
             loadFile(e.target.files?.item(0)!)
@@ -242,7 +280,7 @@ const App = () => {
                 ref={inputRef}
                 type="file"
                 multiple={false}
-                onChange={hey}
+                onChange={onFileChange}
                 style={{ display: "none" }}
             />
             <LoadingOverlay isLoading={isLoading}/>
