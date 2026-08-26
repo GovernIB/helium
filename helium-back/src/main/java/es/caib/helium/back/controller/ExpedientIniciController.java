@@ -110,7 +110,6 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 			AnotacioDto anotacio) throws Exception {
 
 		boolean hasStartTask = false;
-		String redirectUrlSuffix = definicioProcesId != null ? "/" + definicioProcesId : "";
 		request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID, "TIE_" + System.currentTimeMillis());
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 
@@ -125,6 +124,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 			definicioProcesId = definicioProces.getId();
 			hasStartTask = definicioProces.isHasStartTask();
 		}
+		String redirectUrlSuffix = definicioProcesId != null ? "/" + definicioProcesId : "";
 
 		// Si l'expedient requereix dades inicials redirigeix al pas per demanar aquestes dades
 		if (hasStartTask) {

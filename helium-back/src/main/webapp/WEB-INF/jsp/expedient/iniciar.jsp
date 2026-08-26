@@ -15,6 +15,9 @@
 			body {background-image: none; padding-top: 0px;}
 		</style>
 	<meta name="capsaleraTipus" content="llistat"/>
+	<script src="<c:url value="/webjars/datatables.net/1.10.25/js/jquery.dataTables.min.js"/>"></script>
+	<script src="<c:url value="/webjars/datatables.net-bs/1.10.19/js/dataTables.bootstrap.min.js"/>"></script>
+	<link href="<c:url value="/webjars/datatables.net-bs/1.10.19/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
@@ -54,6 +57,14 @@ $(document).ready( function() {
 	$("button[name=altaMassiva]").click(function() {
 		window.location.href = "<c:url value="/modal/expedient/altaMassiva"></c:url>";
 	});
+	$('#registre').DataTable({
+		paginate : false,
+		language: {
+			url: webutilContextPath() + '/js/datatables/i18n/datatables.' + '${idioma}' + '.json'
+		}, 
+	}).on('draw', function() {
+		$('#registre_filter').find('input').focus();
+	});
 });
 
 // ]]>
@@ -80,7 +91,7 @@ $(document).ready( function() {
 	</display:table>
 	<script>
 		$("select").select2({
-		    width: 'calc(100% - 71px)',
+			width: 'calc(100% - 71px)',
 		    allowClear: true
 		});
 	</script>

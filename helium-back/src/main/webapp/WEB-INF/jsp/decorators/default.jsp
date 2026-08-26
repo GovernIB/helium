@@ -456,7 +456,7 @@
 					</div>
 					<c:if test="${hiHaTramitsPerIniciar}">
 						<div id="iniciar-expediente" class="btn-group navbar-btn navbar-right">
-							<a data-toggle="modal" data-callback="refrescarTaulaDades();" data-maximized="true" class="btn btn-primary" href="<c:url value="/modal/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
+							<a data-toggle="modal" data-callback="refrescarTaulaDades();" data-maximized="true" class="btn btn-primary" href="<c:url value="/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
 							<script type="text/javascript">
 								function refrescarTaulaDades() {
 									try {
