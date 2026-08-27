@@ -47,7 +47,7 @@ public class ComandaHelper {
 	
 	public ComandaTasca getTasca(String tascaId) throws UniformInterfaceException, InterruptedException, ExecutionException {
 		ClientResponse response = getClient()
-								.resource(API_URL + "/v1/tasques/" + tascaId)
+								.resource(API_URL + "/tasques/v1/" + tascaId)
 								.queryParam("appCodi", "HEL")
 								.queryParam("entornCodi", ENTORN)
 								.get(ClientResponse.class);
@@ -62,13 +62,24 @@ public class ComandaHelper {
 	
 	public void upsertTasca(String taskId, String nom, String expedientNumero, String tipusExpedientNom, JbpmTask task, ComandaTascaEstat estat) {
 		try {
+			String potEnviar = GlobalProperties.getInstance().getProperty("app.comanda.notifica.tasques", "true");
+			if(potEnviar.trim().toUpperCase().equals("FALSE"))
+				return;
+			
 			String descripcio = String.format("[%s] %s", expedientNumero, tipusExpedientNom);
 			ComandaTasca tasca = getTasca(taskId);
-			if(tasca == null) {
+			if(tasca == null && task.getAssignee() != null) {
 				createTasca(taskId, nom, expedientNumero, descripcio, task, estat);
 				return;
 			}
-			updateTasca(tasca, taskId, expedientNumero, descripcio, task, estat);
+			
+			if(task.getAssignee() != null) {
+				updateTasca(tasca, taskId, expedientNumero, descripcio, task, estat);
+				return;
+			}
+			
+			if(tasca != null && task.getAssignee() == null)
+				deleteTasca(taskId);
 		} catch(Exception e) {
 			logger.error(
 					"Error inesperat a la creació/actualització de la tasca amb id '" + taskId + "' del expedient " + expedientNumero,
@@ -117,7 +128,7 @@ public class ComandaHelper {
 										.build();
 		
 		ClientResponse response = getClient()
-									.resource(API_URL + "/v1/tasques")
+									.resource(API_URL + "/tasques/v1")
 									.type(MediaType.APPLICATION_JSON)
 									.accept(MediaType.APPLICATION_JSON)
 									.post(ClientResponse.class, tasca);
@@ -157,7 +168,7 @@ public class ComandaHelper {
 		
 		
 		ClientResponse response = getClient()
-				.resource(API_URL + "/v1/tasques/" + tasca.getIdentificador())
+				.resource(API_URL + "/tasques/v1/" + tasca.getIdentificador())
 				.queryParam("appCodi", "HEL")
 				.queryParam("entornCodi", ENTORN)
 				.type(MediaType.APPLICATION_JSON)
@@ -166,6 +177,21 @@ public class ComandaHelper {
 
 		if(response.getStatus() != 200)
 			logger.error("[COMANDA] PUT: " + response.toString());
+	}
+	
+	public void deleteTasca(String tascaId) throws UniformInterfaceException, InterruptedException, ExecutionException {
+		ClientResponse response = getClient()
+								.resource(API_URL + "/tasques/v1/" + tascaId)
+								.queryParam("appCodi", "HEL")
+								.queryParam("entornCodi", ENTORN)
+								.delete(ClientResponse.class);
+		
+		if(response.getStatus() == 200)
+			return;
+			//response.getEntity(String.class);
+		
+		logger.error("[COMANDA] DELETE: " + response.toString());
+		return;
 	}
 	
 	public Client getClient() {
