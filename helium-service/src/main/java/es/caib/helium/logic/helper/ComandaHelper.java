@@ -15,6 +15,7 @@ import es.caib.comanda.model.management.Prioritat;
 import es.caib.comanda.model.management.Tasca;
 import es.caib.comanda.model.management.TascaEstat;
 import es.caib.helium.commons.config.PropertyConfig;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.config.JacksonObjectMapperProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ public class ComandaHelper {
 
 	public Tasca getTasca(String tascaId) throws UniformInterfaceException, InterruptedException, ExecutionException {
 		ClientResponse response = getClient()
-								.resource(API_URL + "/v1/tasques/" + tascaId)
+								.resource(API_URL + "/tasques/v1/" + tascaId)
 								.queryParam("appCodi", APP_CODI)
 								.queryParam("entornCodi", ENTORN)
 								.get(ClientResponse.class);
@@ -72,17 +73,28 @@ public class ComandaHelper {
 
 	public void upsertTasca(String taskId, String nom, String expedientNumero, String tipusExpedientNom, WTaskInstance task, TascaEstat estat) {
 		try {
+			String potEnviar = GlobalProperties.getInstance().getProperty("app.comanda.notifica.tasques", "true");
+			if(potEnviar.trim().equalsIgnoreCase("FALSE"))
+				return;
+
 			String descripcio = String.format("[%s] %s", expedientNumero, tipusExpedientNom);
 			Tasca tasca = getTasca(taskId);
-			if(tasca == null) {
+			if(tasca == null && task.getActorId() != null) {
 				createTasca(taskId, nom, expedientNumero, descripcio, task, estat);
 				return;
 			}
-			updateTasca(tasca, taskId, expedientNumero, descripcio, task, estat);
+
+			if(task.getActorId() != null) {
+				updateTasca(tasca, taskId, expedientNumero, descripcio, task, estat);
+				return;
+			}
+
+			if(tasca != null && task.getActorId() == null)
+				deleteTasca(taskId);
 		} catch(Exception e) {
 			logger.error(
-					"Error inesperat a la creació/actualització de la tasca amb id '" + taskId + "' del expedient " + expedientNumero,
-					e);
+				"Error inesperat a la creació/actualització de la tasca amb id '" + taskId + "' del expedient " + expedientNumero,
+				e);
 		}
 	}
 
@@ -147,7 +159,7 @@ public class ComandaHelper {
 		tasca.setGrupsAmbPermis(grups);
 
 		ClientResponse response = getClient()
-				.resource(API_URL + "/v1/tasques/" + tasca.getIdentificador())
+				.resource(API_URL + "/tasques/v1/" + tasca.getIdentificador())
 				.queryParam("appCodi", APP_CODI)
 				.queryParam("entornCodi", ENTORN)
 				.type(MediaType.APPLICATION_JSON)
@@ -156,6 +168,21 @@ public class ComandaHelper {
 
 		if(response.getStatus() != 200)
 			logger.error("[COMANDA] PUT: {}", response.toString());
+	}
+
+	public Tasca deleteTasca(String tascaId) throws UniformInterfaceException {
+		ClientResponse response = getClient()
+			.resource(API_URL + "/tasques/v1/" + tascaId)
+			.queryParam("appCodi", APP_CODI)
+			.queryParam("entornCodi", ENTORN)
+			.delete(ClientResponse.class);
+
+		if(response.getStatus() == 200) {
+			return response.getEntity(Tasca.class);
+		}
+
+		logger.error("[COMANDA] DELETE: {}", response.toString());
+		return null;
 	}
 
 	public Client getClient() {
