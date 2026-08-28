@@ -26,6 +26,13 @@ String baseHelium = es.caib.helium.commons.utils.GlobalProperties.getInstance().
 <script>
 	window.__APP_CONFIG__ = {
 		baseUrl: "<%=baseHelium%>",
+		returnUrl: '${returnUrl}',
+		entornId: '${entornId}',
+		expedientTipusId: '${expedientTipusId}',
+		definicioProcesEtiqueta: '${definicioProces.etiqueta}',
+		definicioProcesId: '',//'${definicioProces.id}',
+		hasStartTask: ${(empty definicioProces)? false : definicioProces.hasStartTask},
+		isNew: ${empty definicioProces}
 	};
 	document.title = "Disseny definició de procés";
 </script>

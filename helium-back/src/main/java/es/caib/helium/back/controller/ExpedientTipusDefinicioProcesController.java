@@ -222,30 +222,34 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/new", method = RequestMethod.GET)
-	public String create(HttpServletRequest request, @PathVariable Long expedientTipusId) {
+	public String create(HttpServletRequest request, @PathVariable Long expedientTipusId, Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		model.addAttribute("entornId", entornActual.getId());
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("returnUrl", request.getHeader("referer"));
 		return "definicioProcesEditor";
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/data", method = RequestMethod.GET)
-	@ResponseBody
-	public Map<String, Object> definicionsProcesData(HttpServletRequest request, @PathVariable Long expedientTipusId) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		Map<String, Object> response = new HashMap<String, Object>();
-		if (entornActual != null) {
-			// Select dels tipus d'expedient de l'entorn
-			List<ExpedientTipusDto> expedientsTipus = expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId());
-			// Retorna només els que son de tipus FLUX.
-			response.put(
-				"expedientsTipus",
-				expedientsTipus.stream().
-					filter(et -> ExpedientTipusTipusEnumDto.FLOW.equals(et.getTipus())).
-					map(te -> CodiNom.builder().codi(te.getId().toString()).nom(te.getNom()).build()).
-					collect(Collectors.toList()));
-		} else {
-			response.put("expedientsTipus", new ArrayList<CodiNom>());
-		}
-		return response;
-	}
+//	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/data", method = RequestMethod.GET)
+//	@ResponseBody
+//	public Map<String, Object> definicionsProcesData(HttpServletRequest request, @PathVariable Long expedientTipusId) {
+//		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+//		Map<String, Object> response = new HashMap<String, Object>();
+//		if (entornActual != null) {
+//			// Select dels tipus d'expedient de l'entorn
+//			List<ExpedientTipusDto> expedientsTipus = expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId());
+//			// Retorna només els que son de tipus FLUX.
+//			response.put(
+//				"expedientsTipus",
+//				expedientsTipus.stream().
+//					filter(et -> ExpedientTipusTipusEnumDto.FLOW.equals(et.getTipus())).
+//					map(te -> CodiNom.builder().codi(te.getId().toString()).nom(te.getNom()).build()).
+//					collect(Collectors.toList()));
+//		} else {
+//			response.put("expedientsTipus", new ArrayList<CodiNom>());
+//		}
+//		return response;
+//	}
 
 
 	private static final Log logger = LogFactory.getLog(ExpedientTipusDefinicioProcesController.class);

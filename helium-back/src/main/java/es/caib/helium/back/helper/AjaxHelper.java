@@ -190,6 +190,17 @@ public class AjaxHelper {
 		public boolean isErrorsCamps() {
 			return errorsCamps != null;
 		}
+
+		public void addErrorGlobal(AjaxFormError ajaxFormError) {
+			if(this.errorsGlobals == null) {
+				this.errorsGlobals = new ArrayList<AjaxFormError>();
+			}
+			this.errorsGlobals.add(ajaxFormError);
+		}
+
+		public void setEstat(AjaxFormEstatEnum estat) {
+			this.estat = estat;
+		}
 	}
 	public static class AjaxFormError {
 		private String camp;

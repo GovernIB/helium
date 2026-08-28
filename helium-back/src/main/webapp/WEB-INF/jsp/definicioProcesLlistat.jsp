@@ -22,7 +22,7 @@
 <body>
 	<div class="text-right" data-toggle="botons-titol">
 		<c:if test="${potDissenyarEntorn}">
-			<a class="btn btn-primary" href="definicioProces/new" target="_blank"><span class="fa fa-object-group"></span>&nbsp;<spring:message code="definicio.proces.pipelles.pipella.editor"/></a>
+			<a class="btn btn-primary" href="definicioProces/new"><span class="fa fa-object-group"></span>&nbsp;<spring:message code="definicio.proces.pipelles.pipella.editor"/></a>
 			<a class="btn btn-default" href="definicioProces/importar" data-toggle="modal"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a>
 			<a class="btn btn-default" href="definicioProces/desplegar" data-toggle="modal" data-callback="callbackModaldefinicionsProces()"><span class="fa fa-download"></span>&nbsp;<spring:message code="comu.filtre.desplegar"/></a>
 		</c:if>

@@ -12,7 +12,6 @@ import {
 } from 'bpmn-js-properties-panel';
 import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
 import FlowablePropertiesProviderModule from './flowable/FlowablePropertiesProviderModule';
-import type {SaveXMLResult} from "bpmn-js/lib/BaseViewer";
 
 import Modal from './components/Modal';
 import Toolbar from './components/Toolbar';
@@ -21,26 +20,38 @@ import LoadingOverlay from "./components/LoadingOverlay";
 import flowableModdle from './flowable/flowable.json';
 import {useCallback} from "react";
 import UploadIcon from "./components/UploadIcon.tsx";
+import type {ModdleElement} from "bpmn-js/lib/model/Types";
 
-type DeployFormType = {
+interface DeployFormType {
     expedientTipusId: string;
     etiqueta: string;
 	hasStartTask: boolean;
-    actualitzarExpedientsActius:  boolean;
+    actualitzarExpedientsActius: boolean;
+    errors: string[];
 }
 
-type ProcessDefinitionDataType = {
+interface ProcessDefinitionDataType {
     expedientsTipus: {
         codi: string;
         nom: string;
     }[];
 }
 
+interface FormError {
+    camp: string;
+    missatge: string;
+}
+
+interface FormResponse {
+    objecte: any;
+    estat: string;
+    errorsGlobals: FormError[];
+    errorsCamps: FormError[];
+}
+
 const App = () => {
     const config = window.__APP_CONFIG__ || {};
-    const isNew: boolean = document.URL.endsWith("/new");
-    const _:string = document.URL.substring(document.URL.indexOf("expedientTipus/")+15);
-    const expedientTipusId: string = _.substring(0, _.indexOf("/"));
+    const isNew: boolean = config.isNew;
 
     const [modalOpen, setModalOpen] = React.useState<boolean>(false);
     const [modalDespOpen, setModalDespOpen] = React.useState<boolean>(false);
@@ -52,10 +63,11 @@ const App = () => {
     });
 
     const [deployForm, setDeployForm] = React.useState<DeployFormType>({
-        expedientTipusId: expedientTipusId,
-        etiqueta: "",
-		hasStartTask: false,
+        expedientTipusId: config.expedientTipusId,
+        etiqueta: config.definicioProcesEtiqueta,
+		hasStartTask: !!config.hasStartTask,
         actualitzarExpedientsActius:  false,
+        errors: []
     });
 
     const canvasRef = React.useRef<HTMLDivElement | null>(null);
@@ -106,16 +118,24 @@ const App = () => {
         const eventBus:any = modeler.get('eventBus');
         const handleCommandStackChange = () => {
             const commandStack: any = modeler.get('commandStack');
-            // canUndo() returns true if any modification has been made
             setIsDirty(commandStack.canUndo());
         };
 
         eventBus.on('commandStack.changed', handleCommandStackChange);
         modelerRef.current = modeler;
 
+        setDeployForm({
+            expedientTipusId: config.expedientTipusId,
+            etiqueta: config.definicioProcesEtiqueta,
+            hasStartTask: config.hasStartTask,
+            actualitzarExpedientsActius:  false,
+            errors: []
+        });
+
+        await loadData();
+
         if(isNew) {
             await modelerRef.current.createDiagram();
-            await loadData();
         } else {
             await loadDiagram();
         }
@@ -149,37 +169,15 @@ const App = () => {
     };
 
     const save = async () => {
-        setIsLoading(true);
-        try {
-            if(isNew) {
-                modelerRef.current?.getDefinitions()
-                setModalDespOpen(true);
-            } else {
-                const response: SaveXMLResult | undefined = await modelerRef.current?.saveXML({ format: true });
-                if(response == undefined)
-                    return;
+        // Comprovar que te tasca inicial
+        const base: any =  modelerRef.current!.getDefinitions();
+        const startEvent: ModdleElement = base.rootElements[0].flowElements[0];
+        const hasStartTask: boolean = startEvent.outgoing?.length == 1 &&
+                                      startEvent.outgoing[0].$type == 'bpmn:SequenceFlow' &&
+                                      startEvent.outgoing[0].targetRef.$type == 'bpmn:UserTask';
 
-                setIsDirty(false);
-                const formData = new FormData();
-                const file = new File([response.xml!], 'processDefinition.bpmn');
-                formData.append('file', file);
-                formData.append('etiqueta', deployForm.etiqueta);
-                formData.append('expedientTipusId', '');
-                const saveResponse :Response = await fetch(`${document.URL}/save`, {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                if(!saveResponse.ok) {
-                    alert('Error desant definició de procès \n' + (await saveResponse.text()));
-                    return;
-                }
-
-                window.location.reload();
-            }
-        } finally {
-            setIsLoading(false);
-        }
+        setDeployForm({...deployForm, hasStartTask, errors: []});
+        setModalDespOpen(true);
     }
 
     const upload = () => {
@@ -195,41 +193,43 @@ const App = () => {
     const deploy = async () => {
         setIsLoading(true);
         try {
-            const response: SaveXMLResult | undefined = await modelerRef.current?.saveXML({format: true});
+            const [response] = await Promise.all([modelerRef.current?.saveXML({format: true})]);
+
             if (response == undefined)
                 return;
-            if (!deployForm.etiqueta) {
-                alert(`No s'ha especificat la etiqueta de la definició`);
-                return;
-            }
-            setIsDirty(false);
 
+            setIsDirty(false);
             const formData = new FormData();
             const file = new File([response.xml!], 'processDefinition.bpmn');
             formData.append('file', file);
             formData.append('accio', 'PROCES_DESPLEGAR');
-			formData.append('etiqueta', deployForm.etiqueta);
-			formData.append('hasStartTask', deployForm.hasStartTask.toString());
-			formData.append('actualitzarExpedientsActius', deployForm.actualitzarExpedientsActius.toString());
-            formData.append('expedientTipusId', `${deployForm.expedientTipusId}`);
-            const saveResponse: Response =  await fetch(`${config.baseUrl}/definicioProces/desplegar`, {
+            formData.append('id', config.definicioProcesId);
+            formData.append('entornId', config.entornId);
+            formData.append('etiqueta', deployForm.etiqueta);
+            formData.append('hasStartTask', `${deployForm.hasStartTask}`);
+            formData.append('actualitzarExpedientsActius', `${deployForm.actualitzarExpedientsActius}`);
+            formData.append('expedientTipusId', deployForm.expedientTipusId);
+            const saveResponse: Response = await fetch(`${config.baseUrl}/definicioProces/editor/desplegar`, {
                 method: 'POST',
                 body: formData,
             });
-            setModalDespOpen(false);
             if(!saveResponse.ok) {
+                const formResponse: FormResponse = await saveResponse.json();
+                const errorsGlobals = formResponse.errorsGlobals?.map((err) => `${err.camp}: ${err.missatge}`);
+                const errorsCamps = formResponse.errorsCamps?.map((err) => `${err.camp}: ${err.missatge}`);
+                setDeployForm({...deployForm, errors: [...(errorsGlobals||[]), ...(errorsCamps||[])]});
                 alert('Error desant definició de procès \n' + (await saveResponse.text()));
                 return;
             }
-
-            window.location.href = document.URL.replace('/definicionsProces/new', '').replace('/new', '');
+            setModalDespOpen(false);
+            window.location.href = config.returnUrl;
         } finally {
             setIsLoading(false);
         }
     }
 
     const loadData = async () => {
-        const response = await fetch(document.URL.replace('/new', '/data'));
+        const response = await fetch(config.baseUrl + '/definicioProces/editor/data');
         setData(await response.json());
     }
 
@@ -273,7 +273,6 @@ const App = () => {
     }, [modelerRef.current]);
 
     const onFileChange = async (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
-        console.log(e.target.files);
         if(e.target.files && e.target.files.length > 0)
             loadFile(e.target.files?.item(0)!)
     }
@@ -320,7 +319,14 @@ const App = () => {
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Codi BPMN">
                 <pre style={{ whiteSpace: 'pre-wrap' }}>{modalContent}</pre>
             </Modal>
-            <Modal width="40vw" isOpen={modalDespOpen} onClose={() => setModalDespOpen(false)} title="Desplegar nova definició de process">
+            <Modal width="40vw" isOpen={modalDespOpen} onClose={() => setModalDespOpen(false)} title="Desplegar definició de process">
+                {deployForm.errors.length > 0 && <div style={styles.errorContainer}>
+                    {
+                        deployForm.errors.map((e, i) => (
+                            <span style={styles.errorText} key={i}>{e}</span>
+                        ))
+                    }
+                </div>}
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <div style={styles.formGroup}>
                         <label style={styles.label} htmlFor="etiqueta">Etiqueta</label>
@@ -328,8 +334,10 @@ const App = () => {
                     </div>
 					<div style={styles.formGroup}>
 					    <label htmlFor="hasStartTask" style={styles.label}>
-							<input id="hasStartTask" type={'checkbox'} checked={deployForm.hasStartTask} onChange={(e) => setDeployForm({...deployForm, hasStartTask: e.target.checked})}/>
-							Amb tasca inicial?
+							<input id="hasStartTask" type={'checkbox'} checked={deployForm.hasStartTask} onChange={(e) => {
+                                setDeployForm({...deployForm, hasStartTask: e.target.checked});
+                            }}/>
+							<span>Amb tasca inicial?</span>
 					    </label>
 					</div>
                     <div style={styles.formGroup}>
@@ -346,7 +354,7 @@ const App = () => {
                     <div style={styles.formGroup}>
                         <label htmlFor="actualitzarExpedientsActius" style={styles.label}>
 							<input id="actualitzarExpedientsActius" type={'checkbox'} checked={deployForm.actualitzarExpedientsActius} onChange={(e) => setDeployForm({...deployForm, actualitzarExpedientsActius: e.target.checked})}/>
-                            Actualitzar expedients actius?
+                            <span>Actualitzar expedients actius?</span>
                         </label>
                     </div>
                     <div style={styles.footer}>
@@ -361,6 +369,9 @@ const App = () => {
 const styles: Record<string, React.CSSProperties> = {
     label: {
         flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        columnGap: '5px',
         paddingTop: '10px',
         paddingBottom: '5px',
         fontWeight: 'bold',
@@ -373,6 +384,7 @@ const styles: Record<string, React.CSSProperties> = {
         borderRadius: 4,
         padding: '6px 12px',
         fontSize: '16px',
+        backgroundColor: 'white',
     },
     formGroup: {
         paddingRight: '2em',
@@ -408,6 +420,17 @@ const styles: Record<string, React.CSSProperties> = {
         borderTop: '1px solid #ccc',
         flexDirection: 'row-reverse',
         paddingTop: '0.5em',
+    },
+    errorContainer: {
+        borderRadius: 5,
+        backgroundColor: '#ffb4b4',
+        padding: '12px',
+        display: 'flex',
+        flexDirection: 'column',
+    },
+    errorText: {
+        color: '#ff0000',
+        paddingBottom: '10px',
     }
 };
 

@@ -174,7 +174,8 @@ public class DefinicioProcesHelper {
 					importacio.getNomDeploy(),
 					importacio.getContingutDeploy(),
 					entorn,
-					expedientTipus);
+					expedientTipus,
+					importacio.isHasStartTask());
 		} else {
 			definicio = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		}
@@ -563,7 +564,8 @@ public class DefinicioProcesHelper {
 			String nomDeploy,
 			byte[] contingutDeploy,
 			Entorn entorn,
-			ExpedientTipus expedientTipus) {
+			ExpedientTipus expedientTipus,
+			boolean hasStartTask) {
 		DefinicioProces definicio = null;
 		boolean isJar = nomDeploy.endsWith(".bar") || nomDeploy.endsWith(".jar") || nomDeploy.endsWith(".zip");
 		WProcessDefinition dpd = workflowEngineApi.desplegar(
@@ -578,6 +580,18 @@ public class DefinicioProcesHelper {
 					dpd.getName(),
 					dpd.getVersion(),
 					entorn);
+			if (hasStartTask) {
+				// Recupera la tasca inicial del flux i l'informa, si no en té llença excepció
+				String startTaskName = workflowEngineApi.getStartTaskName(definicio.getJbpmId());
+				if (startTaskName == null) {
+					throw new RuntimeException("El flux associat a la definició de procés " + definicio.getIdPerMostrar() + " no té tasca inicial.");
+				}
+				definicio.setStartTaskName(startTaskName);
+			} else {
+				// Esborra el codi de la tasca inicial
+				definicio.setStartTaskName(null);
+			}
+			definicio.setHasStartTask(hasStartTask);
 			definicio.setExpedientTipus(expedientTipus);
 			if (expedientTipus != null)
 				expedientTipus.getDefinicionsProces().add(definicio);

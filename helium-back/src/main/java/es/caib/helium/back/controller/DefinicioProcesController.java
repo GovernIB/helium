@@ -13,10 +13,14 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import es.caib.helium.back.helper.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -40,12 +44,7 @@ import es.caib.helium.back.command.DefinicioProcesExportarCommand.Importacio;
 import es.caib.helium.back.command.DefinicioProcesExportarCommand.Upload;
 import es.caib.helium.back.command.DefinicioProcesUpdateCommand;
 import es.caib.helium.back.command.DefinicioProcesUpdateCommand.Modificacio;
-import es.caib.helium.back.helper.ConversioTipus;
-import es.caib.helium.back.helper.DatatablesHelper;
 import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.back.helper.NodecoHelper;
-import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.mvc.ArxiuView;
 import es.caib.helium.commons.dto.CodiNom;
 import es.caib.helium.commons.dto.ConsultaDto;
@@ -114,8 +113,11 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 
 	/** Accés al llistat de definicions de procés de l'entorn des del menú de disseny. */
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
-	public String novaDefinicioProcess() {
-			return "definicioProcesEditor";
+	public String novaDefinicioProcess(HttpServletRequest request, Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		model.addAttribute("entornId", entornActual.getId());
+		model.addAttribute("returnUrl", request.getHeader("referer"));
+		return "definicioProcesEditor";
 	}
 
 	/** Mètode per esborrar una versió específica des del disseny de la definició de procés. */
@@ -242,7 +244,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		DefinicioProcesDto dto = definicioProcesService.findAmbIdPermisDissenyar(
-				entornActual.getId(), 
+				entornActual.getId(),
 				definicioProcesId);
 		DefinicioProcesUpdateCommand command = new DefinicioProcesUpdateCommand();
 		command.setId(definicioProcesId);
@@ -253,7 +255,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		model.addAttribute("definicioProcesUpdateCommand", command);
 		return "definicioProcesUpdateForm";
 	}
-	
+
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
@@ -265,7 +267,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
         if (bindingResult.hasErrors()) {
     		dto = definicioProcesService.findAmbIdPermisDissenyar(
-    				entornActual.getId(), 
+    				entornActual.getId(),
     				definicioProcesId);
     		command.setId(definicioProcesId);
     		command.setJbpmKey(dto.getJbpmKey());
@@ -275,12 +277,12 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         } else {
         	try {
         		dto = definicioProcesService.findAmbIdPermisDissenyar(
-        				entornActual.getId(), 
+        				entornActual.getId(),
         				definicioProcesId);
         		definicioProcesService.update(
             			entornActual.getId(),
         				definicioProcesId,
-        				command.getEtiqueta(), 
+        				command.getEtiqueta(),
         				command.isHasStartTask());
     			return getModalControllerReturnValueSuccess(
     					request,
@@ -299,7 +301,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         }
 	}
 
-	
+
 	/** Pipella del detall. */
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/detall")
 	public String detall(
@@ -743,6 +745,8 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
             					command.getFile().getOriginalFilename(),
         						command.getFile().getBytes()
         					);
+
+					exportacio.setHasStartTask(command.isHasStartTask());
         			// Guarda la darrera per copiar dades
         			DefinicioProcesDto darreraDefinicioProces =
         					definicioProcesService.findByEntornTipusIdAndJbpmKey(
@@ -853,7 +857,147 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         }
 	}
 
-	@RequestMapping(value = "/data", method = RequestMethod.GET)
+	/** Acció d'enviament del fitxer i les opcions sobre les dades de la definició de procés.
+	 * La validació es fa en el <i>DefinicioProcesImportarValidator</i>.
+	 * @param request
+	 * @param command
+	 * @param bindingResult
+	 * @param model
+	 * @see es.caib.helium.back.validator.DefinicioProcesImportarValidator
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/editor/desplegar", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<AjaxHelper.AjaxFormResponse> editorDesplegar(
+		HttpServletRequest request,
+		@ModelAttribute("command")
+		@Validated(Desplegament.class)
+		DefinicioProcesDesplegarCommand command,
+		@NotNull BindingResult bindingResult,
+		Model model) throws IOException {
+		if (bindingResult.hasErrors()) {
+			AjaxHelper.AjaxFormResponse response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+		}  else {
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			boolean error = false;
+			AjaxHelper.AjaxFormResponse response = new AjaxHelper.AjaxFormResponse(null);
+			try {
+				if (ACCIO_PROCES.PROCES_DESPLEGAR.equals(command.getAccio())) {
+					// Recupera la informació del contingut del fitxer
+					DefinicioProcesExportacio exportacio =
+						dissenyService.getDefinicioProcesExportacioFromContingut(
+							command.getFile().getOriginalFilename(),
+							command.getFile().getBytes()
+						);
+
+					exportacio.setHasStartTask(command.isHasStartTask());
+					// Guarda la darrera per copiar dades
+					DefinicioProcesDto darreraDefinicioProces =
+						definicioProcesService.findByEntornTipusIdAndJbpmKey(
+							entornActual.getId(),
+							command.getExpedientTipusId(),
+							exportacio.getDefinicioProcesDto().getJbpmKey());
+					// Realitza la importació com a una nova versió
+					exportacio.getDefinicioProcesDto().setEtiqueta(command.getEtiqueta());
+					DefinicioProcesDto definicioProces = definicioProcesService.importar(
+						command.getEntornId() != null? command.getEntornId() : entornActual.getId(),
+						command.getExpedientTipusId(),
+						command.getId(),
+						null, 	// DefinicioProcesExportacioCommandDto
+						exportacio);
+					// Copia les dades de la darrera versió a la nova
+					if (darreraDefinicioProces != null)
+						definicioProcesService.copiarDefinicioProces(
+							darreraDefinicioProces.getId(),
+							definicioProces.getId());
+					// Invoca al mètode per relacionar les darreres definicions de procés
+					if (definicioProces.getExpedientTipus() != null)
+						definicioProcesService.relacionarDarreresVersions(definicioProces.getExpedientTipus().getId());
+
+					MissatgesHelper.success(request, getMessage( request, "definicio.proces.desplegar.form.success"));
+					if (command.isActualitzarExpedientsActius()) {
+						// Programació de la tasca d'actualització d'expedients actius
+						ExecucioMassivaDto dto = new ExecucioMassivaDto();
+						dto.setDataInici(new Date());
+						dto.setEnviarCorreu(false);
+						dto.setParam1(definicioProces.getJbpmKey());
+						dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(definicioProces.getVersio())));
+						dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
+						dto.setProcInstIds(
+							expedientService.findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
+								entornActual.getId(),
+								definicioProces.getExpedientTipus() != null? definicioProces.getExpedientTipus().getId() : null,
+								definicioProces.getJbpmKey()));
+						try {
+							execucioMassivaService.crearExecucioMassiva(dto);
+							MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {dto.getProcInstIds().size()}));
+						} catch(Exception e) {
+							logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
+							response.addErrorGlobal(new AjaxHelper.AjaxFormError("", getMessage(
+								request,
+								"definicio.proces.desplegar.error.actualitzarExpedientActius",
+								new Object[] {e.getMessage()})));
+							response.setEstat(AjaxHelper.AjaxFormEstatEnum.ERROR);
+							error = true;
+						}
+					}
+				} else if (ACCIO_PROCES.PROCES_ACTUALITZAR.equals(command.getAccio())){
+					DefinicioProcesDto definicioProces = null;
+					try {
+						definicioProces = dissenyService.updateHandlers(
+							entornActual.getId(),
+							command.getExpedientTipusId(),
+							command.getFile().getOriginalFilename(),
+							command.getFile().getBytes());
+						if (definicioProces.getExpedientTipus() != null)
+							MissatgesHelper.success(request,
+								getMessage(
+									request,
+									"definicio.proces.actualitzar.confirmacio.expedientTipus",
+									new Object[] {
+										definicioProces.getJbpmKey(),
+										definicioProces.getVersio(),
+										definicioProces.getExpedientTipus().getCodi(),
+										definicioProces.getExpedientTipus().getNom() }));
+						else
+							MissatgesHelper.success(request,
+								getMessage(
+									request,
+									"definicio.proces.actualitzar.confirmacio.global",
+									new Object[] {
+										definicioProces.getJbpmKey(),
+										definicioProces.getVersio() }));
+
+					} catch (Exception e) {
+						logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
+						response.addErrorGlobal(new AjaxHelper.AjaxFormError("", getMessage(
+							request,
+							"definicio.proces.actualitzar.excepcio",
+							new Object[] {e.getMessage()})));
+						response.setEstat(AjaxHelper.AjaxFormEstatEnum.ERROR);
+						error = true;
+					}
+				}
+			} catch (Exception e) {
+				logger.error("Error: (" + e.getClass() + ") ", e );
+				response.addErrorGlobal(new AjaxHelper.AjaxFormError("", getMessage(
+					request,
+					"definicio.proces.desplegar.form.error",
+					new Object[] {e.getMessage()})));
+				response.setEstat(AjaxHelper.AjaxFormEstatEnum.ERROR);
+				error = true;
+			}
+			if (error)
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+			return ResponseEntity.ok(AjaxHelper.generarAjaxFormOk());
+		}
+
+	}
+
+	@RequestMapping(value = "/editor/data", method = RequestMethod.GET)
 	@ResponseBody
 	public Map<String, Object> data(HttpServletRequest request) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();

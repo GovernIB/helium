@@ -1,8 +1,9 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.command;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.web.multipart.MultipartFile;
 
 import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.Desplegament;
@@ -10,22 +11,22 @@ import es.caib.helium.back.validator.DefinicioProcesDesplegar;
 
 /**
  * Command pel desplegament d'un arxiu .par d'una definició de procés.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @DefinicioProcesDesplegar(groups = {Desplegament.class})
 public class DefinicioProcesDesplegarCommand {
-	
+
 	/** Enumeració per distingir la acció a realitzar amb el desplegament JBPM. */
 	public enum ACCIO_PROCES {
-		// Realitza un desplegament normal	
+		// Realitza un desplegament normal
 		PROCES_DESPLEGAR,
 		// Sobreescriu els handlers
 		PROCES_ACTUALITZAR;
 	}
 
 	/** Id de la definició de procés sobre la que es desplega la definició de procés. */
-	private Long id = null;	
+	private Long id = null;
 	/** Id de l'entorn on es desplega la definició de procés. */
 	private Long entornId;
 	/** Id del tipus d'expedient on es desplega la definició de procés. */
@@ -37,10 +38,11 @@ public class DefinicioProcesDesplegarCommand {
 	/** Indica si s'iniciarà una acció massiva per actualitzar els expedients actius. */
 	private boolean actualitzarExpedientsActius;
 	/** Contingut del fitxer */
+	@JsonIgnore
 	private MultipartFile file;
 	/** Indica si augmentar la versió o sobre escriure els handlers. */
 	private ACCIO_PROCES accio;
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -83,7 +85,7 @@ public class DefinicioProcesDesplegarCommand {
 	public void setFile(MultipartFile file) {
 		this.file = file;
 	}
-	
+
 	public ACCIO_PROCES getAccio() {
 		return accio;
 	}

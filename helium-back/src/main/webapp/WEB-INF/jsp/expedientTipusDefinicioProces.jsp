@@ -97,7 +97,7 @@
 				<div class="botons-titol text-right">
 					<a class="btn btn-default" href="../definicioProces/desplegar?expedientTipusId=${expedientTipus.id}" data-toggle="modal">
 						<span class="fa fa-download"></span>&nbsp;<spring:message code="comu.filtre.desplegar"/></a>
-					<a class="btn btn-primary" href="<c:url value="/expedientTipus/${expedientTipus.id}/definicionsProces/new" />" target="_blank">
+					<a class="btn btn-primary" href="<c:url value="/expedientTipus/${expedientTipus.id}/definicionsProces/new" />">
 						<span class="fa fa-object-group"></span>&nbsp;<spring:message code="definicio.proces.pipelles.pipella.editor"/></a>
 				</div>
 			{{/if}}
