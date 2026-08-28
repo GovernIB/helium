@@ -6,6 +6,7 @@ package es.caib.helium.persistence.repository;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -152,8 +153,13 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives3) " +
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives4) " +
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives5)) " +
+			"and (:idsSeleccionatsEmpty = true or e.id in (:idsSeleccionats)) " +
 			"and (:mostrarAnulats = true or e.anulat = false) " +
-			"and (:nomesAlertes = false or e.errorDesc is not null)")
+			"and (:nomesAlertes = false or e.errorDesc is not null) " +
+			"and (:mostrarTasquesPersonals = false or 0 < (select count(et.id) from ExpedientTasca et where et.expedient = e and et.open = true and et.assignee is not null)) " +
+			"and (:mostrarTasquesGrup = false or 0 < (select count(et.id) from ExpedientTasca et where et.expedient = e and et.open = true and et.assignee is null and et.groupId is not null)) " +
+			"and (:nomesErrors = false or e.errorDesc is not null) " +
+			"and (:nomesErrorsArxiu = false or e.errorArxiu is not null) " )
 	Page<Expedient> findByFiltreGeneralPaginat(
 			@Param("entorn") Entorn entorn,
 			@Param("tipusPermesos") Collection<ExpedientTipus> tipusPermesos,
@@ -184,7 +190,13 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("rootProcessInstanceIdsAmbTasquesActives4") Collection<String> rootProcessInstanceIdsAmbTasquesActives4,
 			@Param("rootProcessInstanceIdsAmbTasquesActives5") Collection<String> rootProcessInstanceIdsAmbTasquesActives5,
 			@Param("mostrarAnulats") boolean mostrarAnulats,
+			@Param("mostrarTasquesPersonals") boolean mostrarTasquesPersonals,
+			@Param("mostrarTasquesGrup") boolean mostrarTasquesGrup,
+			@Param("nomesErrors") boolean nomesErrors,
+			@Param("nomesErrorsArxiu") boolean nomesErrorsArxiu,
 			@Param("nomesAlertes") boolean nomesAlertes,
+			@Param("idsSeleccionatsEmpty") boolean idsSeleccionatsEmpty,
+			@Param("idsSeleccionats") Set<Long> idsSeleccionats,
 			Pageable pageable);
 
 	@Query(	"SELECT e.id from Expedient e " +

@@ -89,7 +89,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			HttpServletRequest request,
 			Model model) {
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
-		model.addAttribute("expedientConsulta", filtreCommand);
+		model.addAttribute("expedientConsultaCommand", filtreCommand);
 		if (filtreCommand.isConsultaRealitzada()) {
 			omplirModelGet(request, model);
 		}

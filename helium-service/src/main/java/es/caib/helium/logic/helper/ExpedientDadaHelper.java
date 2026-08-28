@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.Column;
+import javax.persistence.JoinColumn;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -439,11 +440,11 @@ public class ExpedientDadaHelper {
 					.map((ic) -> {
 						if (ic.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 							String colName = getColumnName(ic.getCodi().replace(ExpedientCamps.EXPEDIENT_PREFIX, ""), Expedient.class);
-							return "expedient." + colName;
+							return "expedient." + colName + " as \"" + ic.getCodi() + "\"";
 						} else if(ic.getTipus() == CampTipusDto.REGISTRE || ic.isMultiple()) {
-							return "JSON_QUERY(d.DADES, '$." + ic.getCodi() + ".v') as " + ic.getCodi();
+							return "JSON_QUERY(d.DADES, '$." + ic.getCodi() + ".v') as \"" + ic.getCodi() + "\"";
 						}
-						return "JSON_VALUE(d.DADES, '$." + ic.getCodi() + ".v') as " + ic.getCodi();
+						return "JSON_VALUE(d.DADES, '$." + ic.getCodi() + ".v') as \"" + ic.getCodi() + "\"";
 					})
 					.collect(Collectors.toList())));
 		}
@@ -547,11 +548,17 @@ public class ExpedientDadaHelper {
 			if (f.isAnnotationPresent(Column.class)) {
 				Column column = f.getAnnotation(Column.class);
 				return column.name();
+			} else if(f.isAnnotationPresent(JoinColumn.class)) {
+				JoinColumn column = f.getAnnotation(JoinColumn.class);
+				return column.name();
 			}
 			try {
 				Method getter = entityClass.getMethod("get" + fieldName.substring(0,1).toUpperCase() + fieldName.substring(1));
 				if (getter.isAnnotationPresent(Column.class)) {
 					Column column = getter.getAnnotation(Column.class);
+					return column.name();
+				} else if(getter.isAnnotationPresent(JoinColumn.class)) {
+					JoinColumn column = getter.getAnnotation(JoinColumn.class);
 					return column.name();
 				}
 			} catch (NoSuchMethodException e) {

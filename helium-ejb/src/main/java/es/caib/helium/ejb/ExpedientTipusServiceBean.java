@@ -3,6 +3,7 @@ package es.caib.helium.ejb;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
@@ -625,6 +626,7 @@ public class ExpedientTipusServiceBean extends AbstractServiceEjb<ExpedientTipus
 	}
 
 	@Override
+	@PermitAll
 	public PaginaDto<RecursDto> recursFindPerDatatable(
 		Long expedientTipusId,
 		String filtre,

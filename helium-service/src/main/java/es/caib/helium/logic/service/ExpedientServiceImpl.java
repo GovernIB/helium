@@ -379,9 +379,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		List<DadesDocumentDto> adjunts,
 		Long anotacioId,
 		boolean anotacioInteressatsAssociar) throws Exception {
-		
+
 		ExpedientDto expedientDto = null;
-		
+
 		// Evita crear un expedient per la mateixa anotació
 		Object lock;
 		if(anotacioId != null) {
@@ -1081,7 +1081,13 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						null,
 						null,
 						MostrarAnulatsDto.SI.equals(mostrarAnulats),
+						nomesTasquesPersonals,
+						nomesTasquesGrup,
+						nomesErrors,
+						nomesErrorsArxiu,
 						nomesAlertes,
+						idsSeleccionats.isEmpty(),
+						idsSeleccionats,
 						paginacioHelper.toSpringDataPageable(paginacioParams)
 					),
 					ExpedientDto.class);
@@ -1785,7 +1791,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					ex);
 		}
 	}
-	
+
 	@Transactional(propagation=Propagation.REQUIRES_NEW)
 	public void syncTancamentArxiu(Long expedientId, boolean esborrarExpSiError) {
 		Expedient expedient = expedientRepository.findById(expedientId).orElseThrow();
@@ -1802,16 +1808,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				}
 			}
 			throw new TramitacioException(
-					expedient.getEntorn().getId(), 
-					expedient.getEntorn().getCodi(), 
-					expedient.getEntorn().getNom(), 
-					expedient.getId(), 
-					expedient.getTitol(), 
-					expedient.getNumero(), 
-					expedient.getTipus().getId(), 
-					expedient.getTipus().getCodi(), 
-					expedient.getTipus().getNom(), 
-					errorDescripcio, 
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(),
+					expedient.getEntorn().getNom(),
+					expedient.getId(),
+					expedient.getTitol(),
+					expedient.getNumero(),
+					expedient.getTipus().getId(),
+					expedient.getTipus().getCodi(),
+					expedient.getTipus().getNom(),
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -1860,16 +1866,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		} catch(Exception ex) {
 			String errorDescripcio = "Error finalitzant l'expedient migrant " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			throw new TramitacioException(
-					expedient.getEntorn().getId(), 
-					expedient.getEntorn().getCodi(), 
-					expedient.getEntorn().getNom(), 
-					expedient.getId(), 
-					expedient.getTitol(), 
-					expedient.getNumero(), 
-					expedient.getTipus().getId(), 
-					expedient.getTipus().getCodi(), 
-					expedient.getTipus().getNom(), 
-					errorDescripcio, 
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(),
+					expedient.getEntorn().getNom(),
+					expedient.getId(),
+					expedient.getTitol(),
+					expedient.getNumero(),
+					expedient.getTipus().getId(),
+					expedient.getTipus().getCodi(),
+					expedient.getTipus().getNom(),
+					errorDescripcio,
 					ex);
 		}
 	}
