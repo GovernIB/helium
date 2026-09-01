@@ -2501,9 +2501,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		
 		model.addAttribute("portafirmesTipusOptions", psTipus);
 		
-		if(expedientDocumentDto.getDocumentCodi()!=null) {
-
-			if (command != null) {
+		if (command != null) {
+			if(expedientDocumentDto.getDocumentCodi()!=null) {
 				DocumentDto documentDto = documentService.findAmbId(
 						expedient.getTipus().getId(), 
 						expedientDocumentDto.getDocumentId());
@@ -2529,15 +2528,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				}
 				command.setMotiu(getMessage(request, "expedient.document.firmaPassarela.camp.motiu.default", new Object[] {expedient.getNumero()}));
 				model.addAttribute("documentExpedientEnviarPortasignaturesCommand", command);
+			} else {
+				// Es adjunt
+				command.setPortafirmesFluxTipus(PortafirmesTipusEnumDto.FLUX);
+				command.setPortafirmesPrioritatTipus(PortafirmesPrioritatEnumDto.NORMAL);
+				command.setPortafirmesActiu(true);
+				command.setId(documentStoreId);
+				command.setMotiu(getMessage(request, "expedient.document.firmaPassarela.camp.motiu.default", new Object[] {expedient.getNumero()}));
+				model.addAttribute("documentExpedientEnviarPortasignaturesCommand", command);
 			}
-		} else {
-			// Es adjunt
-			command.setPortafirmesFluxTipus(PortafirmesTipusEnumDto.FLUX);
-			command.setPortafirmesPrioritatTipus(PortafirmesPrioritatEnumDto.NORMAL);
-			command.setPortafirmesActiu(true);
-			command.setId(documentStoreId);
-			command.setMotiu(getMessage(request, "expedient.document.firmaPassarela.camp.motiu.default", new Object[] {expedient.getNumero()}));
-			model.addAttribute("documentExpedientEnviarPortasignaturesCommand", command);
 		}
 		model.addAttribute(
 				"fluxtipEnumOptions",
@@ -2656,7 +2655,16 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				String errMsg = getMessage(request, "expedient.document.enviar.portasignatures.error", new Object[] {e.getMessage()});
 				logger.error(errMsg, e);
 				MissatgesHelper.error(request, errMsg, e);
-				return "redirect:" + request.getHeader("referer");
+				this.emplenarModelPortasigEnviar(
+						model,
+						request, 
+						null, 
+						expedientId, 
+						processInstanceId, 
+						documentStoreId);
+				model.addAttribute("documentExpedientEnviarPortasignaturesCommand", command);
+				return "v3/expedientDocumentEnviarPortasignaturesForm";
+				//return "redirect:" + request.getHeader("referer");
 			}
 		}
 		this.emplenarModelPortasigEnviar(
@@ -2700,6 +2708,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		String portafirmesFluxId = command.getPortafirmesEnviarFluxId()  != null ? 
 				command.getPortafirmesEnviarFluxId() 
 				: command.getPortafirmesNouFluxId();
+		if(command.getPortafirmesFluxTipus() == PortafirmesTipusEnumDto.SIMPLE)
+			portafirmesFluxId = null;
+
 		expedientDocumentService.enviarPortasignatures(
 				documentDto,
 				annexos,

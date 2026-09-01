@@ -147,12 +147,14 @@ div.dropdown-menu.loading .rmodal_carrecs {
 <body>
 	<c:if test="${potFirmar}">
 		<c:set var="formAction">
-			<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/enviarPortasignatures"/>
+			<c:url value="/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/enviarPortasignatures"/>
 		</c:set>
 
 		<form:form 	cssClass="form-horizontal content" action="${formAction}" enctype="multipart/form-data" method="post" commandName="documentExpedientEnviarPortasignaturesCommand">
 			<div>
 				<input type="hidden" name="id" value="${documentExpedientEnviarPortasignaturesCommand.id}"/>
+				<input type="hidden" name="portafirmesActiu" value="${documentExpedientEnviarPortasignaturesCommand.portafirmesActiu}"/>
+				
 				<hel:inputText required="true" name="motiu" textKey="expedient.document.enviar.portasignatures.camp.motiu"/>
 				<hel:inputSelect name="portafirmesPrioritatTipus" textKey="expedient.document.enviar.portasignatures.camp.prioritat" 
 							optionItems="${portafirmesPrioritatEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
