@@ -129,6 +129,9 @@
 				});
 			});
 			modalobj.on('hide.bs.modal', function () {
+				if (settings.modalCloseFunction) {
+					settings.modalCloseFunction();
+				}
 				/*if (!$(this).data('modal-cancel')) {
 					$(this).removeData('modal-cancel');
 					if (settings.modalCloseFunction) {
@@ -227,8 +230,8 @@
 				};
 				var refrescarAlertesFunction = function() {
 					$.ajax({
-						url: settings.alertesRefreshUrl,
-						async: false,
+						url: settings.alertesRefreshUrl || document.alertesRefreshUrl,
+						async: true,
 						timeout: 20000,
 						success: function (data) {
 							$('#contingut-alertes *').remove();
@@ -271,14 +274,16 @@
 					    });
 						return false;
 					} else if (modal) {
-						/*var modalCloseFunction = function() {
+						var modalCloseFunction = function() {
 							if (settings.refrescarPagina)
 								refrescarPaginaFunction();
+							if (settings.refrescarAlertes)
+								refrescarAlertesFunction();
 //							if (settings.refrescarAlertes && settings.alertesRefreshUrl)
 //								refrescarAlertesFunction();
 //							if (callback)
 //								executeCallbackFunction(true);
-						};*/
+						};
 						var modalDivId = $(this).attr('id') + "_modal";
 						if ($('#' + modalDivId).length == 0)
 							$('body').append('<div id="' + modalDivId + '"></div>');
@@ -289,10 +294,11 @@
 							callback:  $(this).data("rdt-link-callback"),
 							ajax:  $(this).data("rdt-link-ajax"),
 							dataTable: settings.dataTable,
+							modalCloseFunction: modalCloseFunction,
 							refrescarTaula: settings.refrescarTaula,
 							refrescarPagina: settings.refrescarPagina,
 							refrescarAlertes: settings.refrescarAlertes,
-							alertesRefreshUrl: settings.alertesRefreshUrl
+							alertesRefreshUrl: settings.alertesRefreshUrl || document.alertesRefreshUrl
 						});
 						return false;
 					} else {
