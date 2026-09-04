@@ -180,6 +180,7 @@
 		}
 	</style>
 	<script type="text/javascript">
+		document.alertesRefreshUrl = "<c:url value="/nodeco/missatges"/>";
 		$(document).ready(function(){
 
 			$('#menuEntorns').click(function () {

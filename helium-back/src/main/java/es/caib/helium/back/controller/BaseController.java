@@ -49,7 +49,7 @@ public class BaseController implements MessageSourceAware {
 		if (refrescar)
 			return modalUrlTancar();
 		else
-			return "utils/modalTancar";
+			return "redirect:/nodeco/utils/modalTancar";
 	}
 
 	protected String modalUrlTancar() {
