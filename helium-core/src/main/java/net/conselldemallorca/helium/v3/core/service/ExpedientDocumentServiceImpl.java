@@ -523,31 +523,30 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		dadesNotificacioDto.setDocumentId(documentStoreId);
 		*/
 		
-		/* Opció 2: obtenir document com la descàrrega. */
-		ArxiuDto arxiuDto = documentHelperV3.getArxiuPerDocumentStoreId(
-				documentStoreId, 
-				false, //per signar
-				true,  //amb segell signatura
-				true,  //per notificar
-				null); //versió
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId); //OBTENIR PER ID
 		
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		dadesNotificacioDto.setEmisorDir3Codi(expedientTipus.getNotibEmisor());
 		dadesNotificacioDto.setProcedimentCodi(expedientTipus.getNotibCodiProcediment());
 		dadesNotificacioDto.setExpedientId(expedientId);
+		dadesNotificacioDto.setDocumentId(documentStoreId);
 		dadesNotificacioDto.setEnviamentTipus(dadesNotificacioDto.getEnviamentTipus());
 		
-		dadesNotificacioDto.setDocumentArxiuNom(arxiuDto.getNom());
-		dadesNotificacioDto.setDocumentArxiuContingut(arxiuDto.getContingut());
-		// Si el document té contingut val més no enviar l'UUID
-		if (arxiuDto.getContingut() == null) {
-			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId); //OBTENIR PER ID
+		if(documentStore.getArxiuUuid() != null) {
 			dadesNotificacioDto.setDocumentArxiuUuid(documentStore.getArxiuUuid());
+			dadesNotificacioDto.setDocumentArxiuNom(documentStore.getArxiuNom());
 		} else {
+			/* Opció 2: obtenir document com la descàrrega. */
+			ArxiuDto arxiuDto = documentHelperV3.getArxiuPerDocumentStoreId(
+					documentStoreId, 
+					false, //per signar
+					true,  //amb segell signatura
+					true,  //per notificar
+					null); //versió
+			dadesNotificacioDto.setDocumentArxiuContingut(arxiuDto.getContingut());
+			dadesNotificacioDto.setDocumentArxiuNom(arxiuDto.getNom());
 			dadesNotificacioDto.setDocumentArxiuUuid(null);
 		}
-		dadesNotificacioDto.setDocumentId(documentStoreId);
-
 		
 		//Si es tracta d'un zip amb un llistat de documents, els posem dins annexos
 		dadesNotificacioDto.setDocumentsDinsZip(documentsDinsZip);
