@@ -496,55 +496,31 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 		// Prepara les dades d'enviament
 		DadesEnviamentDto dadesEnviamentDto = new DadesEnviamentDto();
-		/* Oppció 1: codi actual corregit
-		DocumentDto documentDto = documentHelperV3.toDocumentDto(
-				documentStoreId,
-				true,
-				false,
-				true, // ambContingutVista per obtenir el document firmat de custòdia #
-				false,
-				true, // Per notificar
-				false);
+
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		dadesNotificacioDto.setEmisorDir3Codi(expedientTipus.getNotibEmisor());
 		dadesNotificacioDto.setProcedimentCodi(expedientTipus.getNotibCodiProcediment());
 		dadesNotificacioDto.setExpedientId(expedientId);
+		dadesNotificacioDto.setDocumentId(documentStoreId);
 		dadesNotificacioDto.setEnviamentTipus(dadesNotificacioDto.getEnviamentTipus());
 
-		dadesNotificacioDto.setDocumentArxiuNom(documentDto.getArxiuNom());
-		dadesNotificacioDto.setDocumentArxiuContingut(documentDto.getArxiuContingut());
-		// Si el document té contingut val més no enviar l'UUID
-		if (documentDto.getArxiuContingut() == null) {
-			dadesNotificacioDto.setDocumentArxiuUuid(documentDto.getArxiuUuid());
-		}
-		dadesNotificacioDto.setDocumentId(documentStoreId);
-		*/
+		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null); //OBTENIR PER ID
 
-		/* Opció 2: obtenir document com la descàrrega. */
-		ArxiuDto arxiuDto = documentHelperV3.getArxiuPerDocumentStoreId(
+		if(documentStore.getArxiuUuid() != null) {
+			dadesNotificacioDto.setDocumentArxiuUuid(documentStore.getArxiuUuid());
+			dadesNotificacioDto.setDocumentArxiuNom(documentStore.getArxiuNom());
+		} else {
+			/* obtenir document com la descàrrega. */
+			ArxiuDto arxiuDto = documentHelperV3.getArxiuPerDocumentStoreId(
 				documentStoreId,
 				false, //per signar
 				true,  //amb segell signatura
 				true,  //per notificar
 				null); //versió
-
-		ExpedientTipus expedientTipus = expedient.getTipus();
-		dadesNotificacioDto.setEmisorDir3Codi(expedientTipus.getNotibEmisor());
-		dadesNotificacioDto.setProcedimentCodi(expedientTipus.getNotibCodiProcediment());
-		dadesNotificacioDto.setExpedientId(expedientId);
-		dadesNotificacioDto.setEnviamentTipus(dadesNotificacioDto.getEnviamentTipus());
-
-		dadesNotificacioDto.setDocumentArxiuNom(arxiuDto.getNom());
-		dadesNotificacioDto.setDocumentArxiuContingut(arxiuDto.getContingut());
-		// Si el document té contingut val més no enviar l'UUID
-		if (arxiuDto.getContingut() == null) {
-			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null); //OBTENIR PER ID
-			dadesNotificacioDto.setDocumentArxiuUuid(documentStore.getArxiuUuid());
-		} else {
+			dadesNotificacioDto.setDocumentArxiuContingut(arxiuDto.getContingut());
+			dadesNotificacioDto.setDocumentArxiuNom(arxiuDto.getNom());
 			dadesNotificacioDto.setDocumentArxiuUuid(null);
 		}
-		dadesNotificacioDto.setDocumentId(documentStoreId);
-
 
 		//Si es tracta d'un zip amb un llistat de documents, els posem dins annexos
 		dadesNotificacioDto.setDocumentsDinsZip(documentsDinsZip);
