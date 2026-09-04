@@ -349,7 +349,7 @@ public class PdfUtils {
 
 	private static String[] extensionsConvertiblesPdf = {
 			"pdf", "odt", "sxw", "rtf", "doc", "wpd", "txt", "ods",
-			"sxc", "xls", "csv", "tsv", "odp", "sxi", "ppt"};
+			"sxc", "xls", "csv", "tsv", "odp", "sxi", "ppt", "docx"};
 	public static boolean isArxiuConvertiblePdf(String arxiuNom) {
 		String extensio = getArxiuExtensio(arxiuNom);
 		if (extensio != null) {
