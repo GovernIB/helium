@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface TerminiPausarHandler extends HeliumActionHandler {
+public interface TerminiPausarHandler extends HeliumBpmnHandler {
 	public void setTerminiCodi(String terminiCodi);
 	public void setVarTerminiCodi(String varTerminiCodi);
 	public void setVarData(String varData);

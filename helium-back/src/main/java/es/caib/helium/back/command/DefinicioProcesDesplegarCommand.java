@@ -4,6 +4,8 @@
 package es.caib.helium.back.command;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import es.caib.helium.back.command.DefinicioProcesDesplegarCommand.Desplegament;
@@ -14,6 +16,8 @@ import es.caib.helium.back.validator.DefinicioProcesDesplegar;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Getter
+@Setter
 @DefinicioProcesDesplegar(groups = {Desplegament.class})
 public class DefinicioProcesDesplegarCommand {
 
@@ -31,6 +35,8 @@ public class DefinicioProcesDesplegarCommand {
 	private Long entornId;
 	/** Id del tipus d'expedient on es desplega la definició de procés. */
 	private Long expedientTipusId;
+	/** Id del tipus d'expedient on es desplega la definició de procés. */
+	private Long definicioProcesId;
 	/** Etiqueta que s'assignarà a la nova definició de procés.*/
 	private String etiqueta;
 	/** Indica si el desplegament té una tasca inicial. S'haurà de validar que tingui una tasca d'usuari tot just començar el flux. */
@@ -42,56 +48,6 @@ public class DefinicioProcesDesplegarCommand {
 	private MultipartFile file;
 	/** Indica si augmentar la versió o sobre escriure els handlers. */
 	private ACCIO_PROCES accio;
-
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public Long getEntornId() {
-		return entornId;
-	}
-	public void setEntornId(Long entornId) {
-		this.entornId = entornId;
-	}
-	public Long getExpedientTipusId() {
-		return expedientTipusId;
-	}
-	public void setExpedientTipusId(Long expedientTipusId) {
-		this.expedientTipusId = expedientTipusId;
-	}
-	public String getEtiqueta() {
-		return etiqueta;
-	}
-	public void setEtiqueta(String etiqueta) {
-		this.etiqueta = etiqueta;
-	}
-	public boolean isHasStartTask() {
-		return hasStartTask;
-	}
-	public void setHasStartTask(boolean hasStartTask) {
-		this.hasStartTask = hasStartTask;
-	}
-	public boolean isActualitzarExpedientsActius() {
-		return actualitzarExpedientsActius;
-	}
-	public void setActualitzarExpedientsActius(boolean actualitzarExpedientsActius) {
-		this.actualitzarExpedientsActius = actualitzarExpedientsActius;
-	}
-	public MultipartFile getFile() {
-		return file;
-	}
-	public void setFile(MultipartFile file) {
-		this.file = file;
-	}
-
-	public ACCIO_PROCES getAccio() {
-		return accio;
-	}
-	public void setAccio(ACCIO_PROCES accio) {
-		this.accio = accio;
-	}
 
 	public interface Desplegament {}
 }

@@ -326,12 +326,12 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto updateHandlers(Long entornId, Long expedientTipusId, String nomArxiu, byte[] contingut) {
-		return delegateService.updateHandlers(entornId, expedientTipusId, nomArxiu, contingut);
+	public DefinicioProcesDto updateHandlers(Long entornId, Long expedientTipusId, Long processDefinitionId, String nomArxiu, byte[] contingut) {
+		return delegateService.updateHandlers(entornId, expedientTipusId, processDefinitionId, nomArxiu, contingut);
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothomnew String(data, StandardCharsets.UTF_8)"})
 	public void propagarHandlers(
 			Long idDefinicioProcesOrigen,
 			List<Long> idsDefinicioProcesDesti) {

@@ -10,10 +10,12 @@ import java.util.zip.ZipInputStream;
 
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.disseny.engine.*;
+import es.caib.helium.logic.helper.ExpedientTipusRecursHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.*;
 import org.flowable.bpmn.model.Process;
+import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.api.io.InputStreamProvider;
 import org.flowable.common.engine.impl.db.SuspensionState;
 import org.flowable.common.engine.impl.identity.Authentication;
@@ -43,9 +45,10 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Autowired
 	private ProcessEngine processEngine;
-
 	@Autowired
 	private PluginHelper pluginHelper;
+	@Autowired
+	private ExpedientTipusRecursHelper expedientTipusRecursHelper;
 
 	@Override
 	public WProcessDefinition desplegar(String nomArxiu, byte[] contingut, boolean isJar) {
@@ -105,8 +108,18 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public byte[] getResourceBytes(String deploymentId, String resourceName) throws IOException {
-				InputStream is = processEngine.getRepositoryService().getResourceAsStream(deploymentId, resourceName);
-		return is.readAllBytes();
+		try {
+			InputStream is = processEngine
+				.getRepositoryService()
+				.getResourceAsStream(deploymentId, resourceName);
+			return is.readAllBytes();
+		} catch (FlowableObjectNotFoundException e) {
+			ProcessDefinition wpd = processEngine.getRepositoryService()
+				.createProcessDefinitionQuery()
+				.deploymentId(deploymentId)
+				.singleResult();
+			return expedientTipusRecursHelper.loadResource(wpd.getId(), resourceName);
+		}
 	}
 
 	@Override
@@ -205,7 +218,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	private String getStartTaskName(BpmnModel bpmnModel) {
 		String startTaskName = null;
 		UserTask tascaInicial = null;
-		for (StartEvent startEvent 
+		for (StartEvent startEvent
 				: bpmnModel.getMainProcess().findFlowElementsOfType(StartEvent.class)) {
 	        for (SequenceFlow sequenceFlow : startEvent.getOutgoingFlows()) {
 	            FlowElement target =
@@ -232,7 +245,6 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public void updateSubprocessDefinition(WProcessDefinition pd1, WProcessDefinition pd2) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -638,33 +650,27 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public Map<String, Object> getTaskInstanceVariables(String taskId) {
-		// TODO Auto-generated method stub
-		return null;
+		return processEngine.getTaskService().getVariables(taskId);
 	}
 
 	@Override
 	public Object getTaskInstanceVariable(String taskId, String varName) {
-		// TODO Auto-generated method stub
-		return null;
+		return processEngine.getTaskService().getVariable(taskId, varName);
 	}
 
 	@Override
 	public void setTaskInstanceVariable(String taskId, String varName, Object valor) {
-		// TODO Auto-generated method stub
-
+		processEngine.getTaskService().setVariable(taskId, varName, valor);
 	}
 
 	@Override
 	public void setTaskInstanceVariables(String taskId, Map<String, Object> variables, boolean deleteFirst) {
-		// TODO Auto-generated method stub
-		// Task task = processEngine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
 		processEngine.getTaskService().setVariables(taskId, variables);
 	}
 
 	@Override
 	public void deleteTaskInstanceVariable(String taskId, String varName) {
-		// TODO Auto-generated method stub
-
+		processEngine.getTaskService().removeVariable(taskId, varName);
 	}
 
 	@Override
@@ -928,9 +934,8 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void updateHandlers(long long1, Map<String, byte[]> recursos) {
+	public void updateHandlers(long processDefinitionId, Map<String, byte[]> recursos) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -966,30 +971,15 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public List<WTaskInstance> findTaskInstancesForProcessInstance(String processInstanceId) {
 		List<WTaskInstance> wTask = new ArrayList<>();
-		List<Task> tasks = processEngine
-									.getTaskService()
-										.createTaskQuery()
-										.includeIdentityLinks()
-										.processInstanceId(processInstanceId).list();
-
-		// Comprovam que no estiguin a historic
-		if(tasks.isEmpty()) {
-			List<HistoricTaskInstance> htasks = processEngine
-								.getHistoryService()
-								.createHistoricTaskInstanceQuery()
-								.processInstanceId(processInstanceId)
-								.list();
-			for (HistoricTaskInstance task : htasks) {
-				wTask.add(toWTaskInstance(task));
-			}
-		} else {
-			for (Task task : tasks) {
-				wTask.add(toWTaskInstance(task));
-			}
-		}
+		List<HistoricTaskInstance> htasks = processEngine
+							.getHistoryService()
+							.createHistoricTaskInstanceQuery()
+							.processInstanceId(processInstanceId)
+							.list();
+		for (HistoricTaskInstance task : htasks)
+			wTask.add(toWTaskInstance(task));
 		return wTask;
 	}
-
 
 	@Override
 	public List<Long> expedientFindByFiltre(Long entornId, String name, List<Long> tipusPermesosIds,

@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ExpedientAturarHandler extends HeliumActionHandler {
+public interface ExpedientAturarHandler extends HeliumBpmnHandler {
 
 	void setMotiu(String motiu);
 	void setVarMotiu(String varMotiu);

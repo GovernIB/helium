@@ -1,6 +1,6 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.disseny.handler.HeliumActionHandler;
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
@@ -19,33 +19,33 @@ import java.util.Map;
 @Component
 public class HeliumActionHandlerPredefinitFactory {
 
-	public HeliumActionHandler createInstance(
+	public HeliumBpmnHandler createInstance(
 		String handlerClassName,
 		Map<String, String> params) throws ReflectiveOperationException {
 		Class<?> rawClass = Class.forName(handlerClassName);
-		if (!HeliumActionHandler.class.isAssignableFrom(rawClass)) {
+		if (!HeliumBpmnHandler.class.isAssignableFrom(rawClass)) {
 			throw new IllegalArgumentException(
-				"La classe " + handlerClassName + " no implementa " + HeliumActionHandler.class);
+				"La classe " + handlerClassName + " no implementa " + HeliumBpmnHandler.class);
 		}
-		return createInstance(rawClass.asSubclass(HeliumActionHandler.class), params);
+		return createInstance(rawClass.asSubclass(HeliumBpmnHandler.class), params);
 	}
 
-	public HeliumActionHandler createInstance(
-		Class<? extends HeliumActionHandler> handlerClass,
+	public HeliumBpmnHandler createInstance(
+		Class<? extends HeliumBpmnHandler> handlerClass,
 		Map<String, String> params) throws ReflectiveOperationException {
-		Class<? extends HeliumActionHandler> implementationClass = findImplementationClass(handlerClass);
-			HeliumActionHandler handler = implementationClass.getDeclaredConstructor().newInstance();
+		Class<? extends HeliumBpmnHandler> implementationClass = findImplementationClass(handlerClass);
+			HeliumBpmnHandler handler = implementationClass.getDeclaredConstructor().newInstance();
 			new BeanWrapperImpl(handler).setPropertyValues(params);
 			return handler;
 	}
 
-	private Class<? extends HeliumActionHandler> findImplementationClass(
-		Class<? extends HeliumActionHandler> handlerClass) {
+	private Class<? extends HeliumBpmnHandler> findImplementationClass(
+		Class<? extends HeliumBpmnHandler> handlerClass) {
 		String implementationsPackage = HeliumActionHandlerPredefinitFactory.class.getPackageName();
 		ClassPathScanningCandidateComponentProvider scanner =
 			new ClassPathScanningCandidateComponentProvider(false);
 		scanner.addIncludeFilter(new AssignableTypeFilter(handlerClass));
-		List<Class<? extends HeliumActionHandler>> candidates = new ArrayList<>();
+		List<Class<? extends HeliumBpmnHandler>> candidates = new ArrayList<>();
 		for (var candidate: scanner.findCandidateComponents(implementationsPackage)) {
 			try {
 				Class<?> clazz = Class.forName(candidate.getBeanClassName());
@@ -53,7 +53,7 @@ public class HeliumActionHandlerPredefinitFactory {
 					continue;
 				}
 				if (handlerClass.isAssignableFrom(clazz)) {
-					candidates.add(clazz.asSubclass(HeliumActionHandler.class));
+					candidates.add(clazz.asSubclass(HeliumBpmnHandler.class));
 				}
 			} catch (ClassNotFoundException e) {
 				throw new IllegalStateException(

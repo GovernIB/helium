@@ -1366,10 +1366,10 @@ public class TascaServiceImpl implements TascaService {
 					outcome,
 					usuari);
 			//workflowEngineApi.startTaskInstance(tascaId);
+			WDelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
 			workflowEngineApi.endTaskInstance(tascaId, outcome);
 			// checkCompletarTasca(tascaId);
 			// Accions per a una tasca delegada
-			WDelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
 			if (delegationInfo != null) {
 				if (!tascaId.equals(delegationInfo.getSourceTaskId())) {
 					// Copia les variables de la tasca delegada a la original

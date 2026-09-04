@@ -5,6 +5,6 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ExpedientFinalitzarHandler extends HeliumActionHandler {
+public interface ExpedientFinalitzarHandler extends HeliumBpmnHandler {
 
 }

@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface DocumentConsultarHandler extends HeliumActionHandler {
+public interface DocumentConsultarHandler extends HeliumBpmnHandler {
 
 	void setDocument(String document);
 	void setVarDocument(String varDocument);

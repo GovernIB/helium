@@ -772,7 +772,7 @@ public interface WorkflowEngineApi {
 	 */
 	public WProcessDefinition parse(String nomArxiu, byte[] contingut) throws Exception;
 
-	public void updateHandlers(long long1, Map<String, byte[]> recursos);
+	public void updateHandlers(long processDefinitionId, Map<String, byte[]> recursos);
 
 	public Set<String> getHandlerNames(String jbpmId);
 

@@ -13,7 +13,7 @@ import es.caib.helium.commons.utils.PdfUtils;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.utils.DocumentTokenUtils;
-import es.caib.helium.persistence.common.jbpm.JbpmVars;
+import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
 import es.caib.helium.persistence.repository.*;
@@ -466,12 +466,12 @@ public class DocumentHelper {
 		}
 	}
 	public String getDocumentCodiPerVariableJbpm(String var) {
-		if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
-			return var.substring(JbpmVars.PREFIX_DOCUMENT.length());
-		} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
-			return var.substring(JbpmVars.PREFIX_ADJUNT.length());
-		} else if (var.startsWith(JbpmVars.PREFIX_SIGNATURA)) {
-			return var.substring(JbpmVars.PREFIX_SIGNATURA.length());
+		if (var.startsWith(BpmnVars.PREFIX_DOCUMENT)) {
+			return var.substring(BpmnVars.PREFIX_DOCUMENT.length());
+		} else if (var.startsWith(BpmnVars.PREFIX_ADJUNT)) {
+			return var.substring(BpmnVars.PREFIX_ADJUNT.length());
+		} else if (var.startsWith(BpmnVars.PREFIX_SIGNATURA)) {
+			return var.substring(BpmnVars.PREFIX_SIGNATURA.length());
 		} else {
 			return var;
 		}
@@ -600,10 +600,10 @@ public class DocumentHelper {
 				}
 				String codiDocument;
 				if (document.isAdjunt()) {
-					dto.setAdjuntId(document.getCodi().substring(JbpmVars.PREFIX_ADJUNT.length()));
+					dto.setAdjuntId(document.getCodi().substring(BpmnVars.PREFIX_ADJUNT.length()));
 					dto.setDocumentId(document.getId());
 				} else {
-					codiDocument = document.getCodi().substring(JbpmVars.PREFIX_DOCUMENT.length());
+					codiDocument = document.getCodi().substring(BpmnVars.PREFIX_DOCUMENT.length());
 //					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
 //					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
 					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());

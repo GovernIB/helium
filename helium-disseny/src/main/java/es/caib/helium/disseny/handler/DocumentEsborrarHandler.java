@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface DocumentEsborrarHandler extends HeliumActionHandler {
+public interface DocumentEsborrarHandler extends HeliumBpmnHandler {
 
 	void setDocumentCodi(String documentCodi);
 	void setVarDocumentCodi(String varDocumentCodi);

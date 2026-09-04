@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ExpedientComentariModificarHandler extends HeliumActionHandler {
+public interface ExpedientComentariModificarHandler extends HeliumBpmnHandler {
 
 	void setComentari(String comentari);
 	void setVarComentari(String varComentari);

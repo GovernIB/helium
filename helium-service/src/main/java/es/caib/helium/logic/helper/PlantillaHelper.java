@@ -41,7 +41,7 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.common.jbpm.JbpmVars;
+import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Area;
 import es.caib.helium.persistence.entity.AreaJbpmId;
 import es.caib.helium.persistence.entity.Carrec;
@@ -741,7 +741,7 @@ public class PlantillaHelper {
 								List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(processInstanceId);
 								DocumentDto resposta = null;
 								for (int i = 0; i < documents.size(); i++) {
-									if (documents.get(i).getCodi().equals(JbpmVars.PREFIX_DOCUMENT + codi))
+									if (documents.get(i).getCodi().equals(BpmnVars.PREFIX_DOCUMENT + codi))
 										resposta = documentHelper.toDocumentDto(
 												documents.get(i).getId(),
 												false,

@@ -805,6 +805,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         				definicioProces = dissenyService.updateHandlers(
 							entornActual.getId(),
 							command.getExpedientTipusId(),
+							command.getDefinicioProcesId(),
         					command.getFile().getOriginalFilename(),
     						command.getFile().getBytes());
         				if (definicioProces.getExpedientTipus() != null)
@@ -949,6 +950,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 						definicioProces = dissenyService.updateHandlers(
 							entornActual.getId(),
 							command.getExpedientTipusId(),
+							command.getDefinicioProcesId(),
 							command.getFile().getOriginalFilename(),
 							command.getFile().getBytes());
 						if (definicioProces.getExpedientTipus() != null)

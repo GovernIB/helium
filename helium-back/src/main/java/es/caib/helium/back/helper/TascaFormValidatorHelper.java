@@ -13,6 +13,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.jsp.jstl.core.LoopTagStatus;
 
+import es.caib.helium.back.command.ExpedientEinesCancelCommand;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -309,7 +310,18 @@ public class TascaFormValidatorHelper implements Validator {
 	private Validator getValidatorPerExpressions(
 			List<TascaDadaDto> tascaDadas,
 			Object command) {
-		throw new RuntimeException("Not implemented yet");
+		return new ExpressionsValidator();
+	}
+
+	private class ExpressionsValidator implements Validator {
+		public boolean supports(Class clazz) {
+			return true;
+		}
+
+		public void validate(Object target, Errors errors) {
+			System.out.println("Validació d'expressions no implementat");
+			//ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
+		}
 	}
 
 	private Object getCommandPerValidadorExpressions(

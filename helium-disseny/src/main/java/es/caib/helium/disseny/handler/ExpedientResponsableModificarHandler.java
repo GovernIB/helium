@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ExpedientResponsableModificarHandler extends HeliumActionHandler {
+public interface ExpedientResponsableModificarHandler extends HeliumBpmnHandler {
 
 	void setResponsableCodi(String responsableCodi);
 	void setVarResponsableCodi(String varResponsableCodi);

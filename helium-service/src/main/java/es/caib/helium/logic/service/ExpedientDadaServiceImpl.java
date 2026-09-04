@@ -37,7 +37,7 @@ import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.common.jbpm.JbpmVars;
+import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.CampAgrupacio;
 import es.caib.helium.persistence.entity.CampRegistre;
@@ -175,7 +175,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
 		}
 		if (camp != null && camp.isDominiCacheText())
-			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
+			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, BpmnVars.PREFIX_VAR_DESCRIPCIO + varCodi);
 
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,

@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ExpedientDesfinalitzarHandler extends HeliumActionHandler {
+public interface ExpedientDesfinalitzarHandler extends HeliumBpmnHandler {
 
 	void setReprendre(String reprendre);
 	void setVarReprendre(String varReprendre);

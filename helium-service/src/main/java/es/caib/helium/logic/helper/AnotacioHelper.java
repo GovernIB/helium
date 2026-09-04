@@ -41,8 +41,7 @@ import es.caib.helium.commons.dto.InteressatDocumentTipusEnumDto;
 import es.caib.helium.commons.dto.InteressatTipusEnumDto;
 import es.caib.helium.commons.dto.DadesEnviamentDto.EntregaPostalTipus;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.persistence.common.jbpm.JbpmVars;
+import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Alerta;
 import es.caib.helium.persistence.entity.Alerta.AlertaPrioritat;
 import es.caib.helium.persistence.entity.Anotacio;
@@ -59,15 +58,12 @@ import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.Interessat;
 import es.caib.helium.persistence.entity.MapeigSistra;
 import es.caib.helium.persistence.entity.UnitatOrganitzativa;
-import es.caib.helium.persistence.repository.AnotacioAnnexRepository;
-import es.caib.helium.persistence.repository.AnotacioEmailRepository;
 import es.caib.helium.persistence.repository.AnotacioRepository;
 import es.caib.helium.persistence.repository.CampRepository;
 import es.caib.helium.persistence.repository.DefinicioProcesRepository;
 import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.ExpedientTipusRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import es.caib.helium.persistence.repository.InteressatRepository;
 import es.caib.helium.persistence.repository.MapeigSistraRepository;
 import es.caib.helium.logic.security.ExtendedPermission;
@@ -147,7 +143,7 @@ public class AnotacioHelper {
 		if(anotacio==null) {
 			anotacio = anotacioRepository.findById(anotacioId).orElse(null);
 		}
-		
+
 		// Comprova els permisos
 		if (comprovarPermis)
 			this.comprovaPermisAccio(anotacio);
@@ -770,7 +766,7 @@ public class AnotacioHelper {
 			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
 		}
 		if (camp != null && camp.isDominiCacheText())
-			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
+			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, BpmnVars.PREFIX_VAR_DESCRIPCIO + varCodi);
 
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,

@@ -66,7 +66,7 @@ import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.commons.utils.ThreadUtilsHelium;
 import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.disseny.engine.WToken;
-import es.caib.helium.disseny.handler.HeliumActionHandler;
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.bpmn.HeliumActionHandlerPredefinitFactory;
 import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
@@ -1781,7 +1781,7 @@ public class ExpedientHelper {
 				anotacioInteressatsAssociar,
 				backofficeUtils);
 	}
-	
+
 	/** Mètode per iniciar un expedient. */
 	@Transactional
 	public Expedient iniciar(
@@ -1824,7 +1824,7 @@ public class ExpedientHelper {
 		Integer timeout = this.getTimeoutIniciProperty();
 		ScheduledExecutorService scheduler = null;
 		if (timeout != null) {
-			scheduler = ThreadUtilsHelium.setTimeout(timeout);			
+			scheduler = ThreadUtilsHelium.setTimeout(timeout);
 		}
 		// Inici de la creació de l'expedient
 		Expedient expedientPerRetornar = null;
@@ -2120,7 +2120,7 @@ public class ExpedientHelper {
 				logger.error("Error iniciant expedient (entorn=" + (entorn != null ? entorn.getCodi() : "")
 								+ ", tipus=" + (expedientTipus != null ? expedientTipus.getCodi() : "") + "): "
 								+ ex.getMessage(), ex);
-				if (timeout != null 
+				if (timeout != null
 						&& ExceptionUtilsHelium.isCausedBy(ex, InterruptedException.class)) {
 					throw new RuntimeException("La creació de l'expedient s'ha interromput després de superar el temps màxim de" + timeout + " segons.");
 				} else {
@@ -2134,7 +2134,7 @@ public class ExpedientHelper {
 			if (scheduler != null) {
 				scheduler.shutdownNow();
 			}
-		}		
+		}
 		return expedientPerRetornar;
 	}
 
@@ -2445,7 +2445,7 @@ public class ExpedientHelper {
 		} else {
 			if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
 				try {
-					HeliumActionHandler handler = expedientTipusRecursHelper.createHandlerInstance(
+					HeliumBpmnHandler handler = expedientTipusRecursHelper.createHandlerInstance(
 						expedient,
 						null,
 						accio.getHandlerClasse(),
@@ -2471,7 +2471,7 @@ public class ExpedientHelper {
 				}
 			} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
 				try {
-					HeliumActionHandler handler = heliumActionHandlerPredefinitFactory.createInstance(
+					HeliumBpmnHandler handler = heliumActionHandlerPredefinitFactory.createInstance(
 						accio.getHandlerClasse(),
 						dades);
 					handler.execute(HeliumApiFactory.createInstance(

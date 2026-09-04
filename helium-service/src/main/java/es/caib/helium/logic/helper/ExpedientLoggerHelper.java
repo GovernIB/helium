@@ -44,7 +44,7 @@ import es.caib.helium.disseny.engine.WTaskLog;
 import es.caib.helium.disseny.engine.WToken;
 import es.caib.helium.disseny.engine.WTransitionLog;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.common.jbpm.JbpmVars;
+import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.CampTasca;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -268,9 +268,9 @@ public class ExpedientLoggerHelper {
 					Expedient expedient = expedientRepository.findByProcessInstanceId(variableInstance.getProcessInstanceId());
 					ExpedientTipus expedientTipus = expedient != null ? expedient.getTipus() : null;
 					Camp camp = null;
-					if(codi.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
+					if(codi.startsWith(BpmnVars.PREFIX_DOCUMENT)) {
 						// Document
-						codi = codi.substring((JbpmVars.PREFIX_DOCUMENT).length());
+						codi = codi.substring((BpmnVars.PREFIX_DOCUMENT).length());
 						// Cerca el document per veure si està marcat per ignorar
 						Document document = null;
 						if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {

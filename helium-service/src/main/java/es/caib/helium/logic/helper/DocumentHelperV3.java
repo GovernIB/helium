@@ -77,7 +77,7 @@ import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.utils.DocumentTokenUtils;
-import es.caib.helium.persistence.common.jbpm.JbpmVars;
+import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.AnotacioAnnex;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.Document;
@@ -521,7 +521,7 @@ public class DocumentHelperV3 {
 				Long documentStoreId = (Long)varsInstanciaProces.get(var);
 				if (documentStoreId != null) {
 					ExpedientDocumentDto ed = null;
-					if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
+					if (var.startsWith(BpmnVars.PREFIX_DOCUMENT)) {
 						// Afegeix el document
 						String documentCodi = getDocumentCodiDeVariableJbpm(var);
 						Document document = null;
@@ -545,7 +545,7 @@ public class DocumentHelperV3 {
 										"documentCodi=" + documentCodi + ")");
 							ed = dto;
 						}
-					} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
+					} else if (var.startsWith(BpmnVars.PREFIX_ADJUNT)) {
 						// Afegeix l'adjunt
 						ed = crearDtoPerAdjuntExpedient(
 								getAdjuntIdDeVariableJbpm(var),
@@ -861,7 +861,7 @@ public class DocumentHelperV3 {
 					true);
 			workflowEngineApi.setTaskInstanceVariable(
 					task.getId(),
-					JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
+					BpmnVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
 					documentStore.getId());
 		}
 		return dto;
@@ -1468,7 +1468,7 @@ public class DocumentHelperV3 {
 						documentStore.getCodi());
 				workflowEngineApi.deleteTaskInstanceVariable(
 						taskInstanceId,
-						JbpmVars.PREFIX_SIGNATURA + documentCodi);
+						BpmnVars.PREFIX_SIGNATURA + documentCodi);
 			}
 			if (processInstanceId != null) {
 				workflowEngineApi.deleteProcessInstanceVariable(
@@ -1537,12 +1537,12 @@ public class DocumentHelperV3 {
 	}
 
 	public static String getDocumentCodiPerVariableJbpm(String var) {
-		if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
-			return var.substring(JbpmVars.PREFIX_DOCUMENT.length());
-		} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
-			return var.substring(JbpmVars.PREFIX_ADJUNT.length());
-		} else if (var.startsWith(JbpmVars.PREFIX_SIGNATURA)) {
-			return var.substring(JbpmVars.PREFIX_SIGNATURA.length());
+		if (var.startsWith(BpmnVars.PREFIX_DOCUMENT)) {
+			return var.substring(BpmnVars.PREFIX_DOCUMENT.length());
+		} else if (var.startsWith(BpmnVars.PREFIX_ADJUNT)) {
+			return var.substring(BpmnVars.PREFIX_ADJUNT.length());
+		} else if (var.startsWith(BpmnVars.PREFIX_SIGNATURA)) {
+			return var.substring(BpmnVars.PREFIX_SIGNATURA.length());
 		} else {
 			return var;
 		}
@@ -2558,19 +2558,19 @@ public class DocumentHelperV3 {
 	}
 
 	private String getDocumentCodiDeVariableJbpm(String varName) {
-		return varName.substring(JbpmVars.PREFIX_DOCUMENT.length());
+		return varName.substring(BpmnVars.PREFIX_DOCUMENT.length());
 	}
 	private String getAdjuntIdDeVariableJbpm(String varName) {
-		return varName.substring(JbpmVars.PREFIX_ADJUNT.length());
+		return varName.substring(BpmnVars.PREFIX_ADJUNT.length());
 	}
 
 	private void filtrarVariablesAmbDocuments(Map<String, Object> variables) {
 		if (variables != null) {
-			variables.remove(JbpmVars.VAR_TASCA_VALIDADA);
-			variables.remove(JbpmVars.VAR_TASCA_DELEGACIO);
+			variables.remove(BpmnVars.VAR_TASCA_VALIDADA);
+			variables.remove(BpmnVars.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
 			for (String codi: variables.keySet()) {
-				if (!codi.startsWith(JbpmVars.PREFIX_DOCUMENT) && !codi.startsWith(JbpmVars.PREFIX_ADJUNT)) {
+				if (!codi.startsWith(BpmnVars.PREFIX_DOCUMENT) && !codi.startsWith(BpmnVars.PREFIX_ADJUNT)) {
 					codisEsborrar.add(codi);
 				}
 			}

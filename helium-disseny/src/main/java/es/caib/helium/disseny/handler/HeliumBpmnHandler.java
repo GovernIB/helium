@@ -4,7 +4,7 @@ import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.exception.BpmnException;
 import es.caib.helium.disseny.exception.HeliumHandlerException;
 
-public interface HeliumActionHandler {
+public interface HeliumBpmnHandler {
 
 	void execute(HeliumApi heliumApi) throws HeliumHandlerException, BpmnException;
 

@@ -33,8 +33,8 @@ import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.disseny.engine.WDelegationInfo;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.common.jbpm.DominiCodiDescripcio;
-import es.caib.helium.persistence.common.jbpm.JbpmVars;
+import es.caib.helium.persistence.common.bpmn.DominiCodiDescripcio;
+import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
 
 /**
@@ -609,13 +609,13 @@ public class TascaHelper {
 	public void validarTasca(String taskId) {
 		workflowEngineApi.setTaskInstanceVariable(
 				taskId,
-				JbpmVars.VAR_TASCA_VALIDADA,
+				BpmnVars.VAR_TASCA_VALIDADA,
 				new Date());
 	}
 	public void restaurarTasca(String taskId) {
 		workflowEngineApi.deleteTaskInstanceVariable(
 				taskId,
-				JbpmVars.VAR_TASCA_VALIDADA);
+				BpmnVars.VAR_TASCA_VALIDADA);
 	}
 
 	public boolean isTascaValidada(Object task) {
@@ -633,7 +633,7 @@ public class TascaHelper {
 			return true;
 		Object valor = workflowEngineApi.getTaskInstanceVariable(
 				((WTaskInstance)task).getId(),
-				JbpmVars.VAR_TASCA_VALIDADA);
+				BpmnVars.VAR_TASCA_VALIDADA);
 		if (valor == null || !(valor instanceof Date))
 			return false;
 		return true;
@@ -643,7 +643,7 @@ public class TascaHelper {
 		Tasca tasca = findTascaByJbpmTask((WTaskInstance)task);
 		for (DocumentTasca docTasca: tasca.getDocuments()) {
 			if (docTasca.isRequired()) {
-				String codiJbpm = JbpmVars.PREFIX_DOCUMENT + docTasca.getDocument().getCodi();
+				String codiJbpm = BpmnVars.PREFIX_DOCUMENT + docTasca.getDocument().getCodi();
 				Object valor = workflowEngineApi.getTaskInstanceVariable(
 						((WTaskInstance)task).getId(),
 						codiJbpm);
@@ -660,7 +660,7 @@ public class TascaHelper {
 		Tasca tasca = findTascaByJbpmTask((WTaskInstance)task);
 		for (FirmaTasca firmaTasca: tasca.getFirmes()) {
 			if (firmaTasca.isRequired()) {
-				String codiJbpm = JbpmVars.PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
+				String codiJbpm = BpmnVars.PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
 				Object valor = workflowEngineApi.getTaskInstanceVariable(((WTaskInstance)task).getId(), codiJbpm);
 				if (valor == null)
 					ok = false;
@@ -685,7 +685,7 @@ public class TascaHelper {
 								campTasca.getCamp().getCodi(),
 								((DominiCodiDescripcio)campValor).getCodi());
 						variables.put(
-								JbpmVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
+								BpmnVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
 								((DominiCodiDescripcio)campValor).getDescripcio());
 					} else {
 						String text = variableHelper.getTextPerCamp(
@@ -695,7 +695,7 @@ public class TascaHelper {
 								null,
 								task.getProcessInstanceId());
 						variables.put(
-								JbpmVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
+								BpmnVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
 								text);
 					}
 				}
@@ -717,18 +717,21 @@ public class TascaHelper {
 		info.setSupervised(supervisada);
 		workflowEngineApi.setTaskInstanceVariable(
 				task.getId(),
-				JbpmVars.VAR_TASCA_DELEGACIO,
+				BpmnVars.VAR_TASCA_DELEGACIO,
 				info);
 	}
 	public WDelegationInfo getDelegationInfo(WTaskInstance task) {
-		return (WDelegationInfo)workflowEngineApi.getTaskInstanceVariable(
-				task.getId(),
-				JbpmVars.VAR_TASCA_DELEGACIO);
+		Object delegacio = workflowEngineApi.getTaskInstanceVariable(
+			task.getId(),
+			BpmnVars.VAR_TASCA_DELEGACIO);
+		if(delegacio == null)
+			return null;
+		return (WDelegationInfo) delegacio;
 	}
 	public void deleteDelegationInfo(WTaskInstance task) {
 		workflowEngineApi.deleteTaskInstanceVariable(
 				task.getId(),
-				JbpmVars.VAR_TASCA_DELEGACIO);
+				BpmnVars.VAR_TASCA_DELEGACIO);
 	}
 
 	/** Mètode per trobar i retornar els diferents usuaris assignats a les tasques obertes o tancades d'un expedient.

@@ -4,19 +4,12 @@
 package es.caib.helium.logic.service;
 
 import java.beans.IntrospectionException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -24,6 +17,9 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
+import ma.glasnost.orika.impl.generator.ByteArrayClassLoader;
+import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.impl.util.IoUtil;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
@@ -902,12 +898,13 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	@Transactional(readOnly = true)
 	public Set<String> getRecursosNom(Long definicioProcesId) {
-		Set<String> resposta = null;
+		Set<String> resposta = new HashSet<String>();
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		if (definicioProces != null) {
 			WProcessDefinition processDefinition = workflowEngineApi.getProcessDefinition(definicioProces.getJbpmId());
-			resposta = workflowEngineApi.getResourceNames(processDefinition.getDeploymentId());
+			resposta.addAll(workflowEngineApi.getResourceNames(processDefinition.getDeploymentId()));
 		}
+		resposta.addAll(recursRepository.findNomByDefinicioProcesId(definicioProcesId));
 		return resposta;
 	}
 
@@ -923,17 +920,23 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	@Transactional(readOnly = true)
 	public byte[] getRecursContingut(Long definicioProcesId, String nom) throws IOException {
-		return this.getRecursContingut(
+		try {
+			return getRecursContingut(
 				definicioProcesRepository.findById(definicioProcesId).orElse(null).getJbpmId(),
 				nom);
-
+		} catch (FlowableObjectNotFoundException ex) {
+			return recursRepository
+						.findContingutByExpedientTipusIdAndDefinicioProcesIdAndName(
+							null,
+							definicioProcesId,
+							nom).orElse(null);
+		}
 	}
 
 	private byte[] getRecursContingut(String processDefinitionId, String nom) throws IOException {
 		WProcessDefinition pd = workflowEngineApi.getProcessDefinition(processDefinitionId);
-		return workflowEngineApi.getResourceBytes(
-				pd.getDeploymentId(),
-				nom);
+		definicioProcesRepository.findByJbpmId(processDefinitionId);
+		return workflowEngineApi.getResourceBytes(pd.getDeploymentId(), nom);
 	}
 
 	/** Retorna el contingut del .par de la definició de procés. */
@@ -1161,54 +1164,87 @@ public class DissenyServiceImpl implements DissenyService {
 	public DefinicioProcesDto updateHandlers(
 			Long entornId,
 			Long expedientTipusId,
+			Long processDefinitionId,
 			String nomArxiu,
 			byte[] contingut) {
 		// Comprova el nom de l'arxiu
-		if (! nomArxiu.endsWith("ar")) {
+		if (! (nomArxiu.endsWith("ar") || nomArxiu.endsWith("zip"))) {
 			throw new RuntimeException(
 					messageHelper.getMessage("definicio.proces.actualitzar.error.arxiuNom", new Object[] {nomArxiu}));
 		}
-		// Obrir el .par i comprovar que és correcte
-		// Thanks to George Mournos who helped to improve this:
-		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
-		ProcessDefinition processDefinition;
-		try {
-//			processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+
+		WProcessDefinition processDefinition = null;
+		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+		try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(contingut))) {
+			ZipEntry entry;
+			while ((entry = zis.getNextEntry()) != null) {
+				if (!entry.isDirectory()) {
+					String fileName = Paths.get(entry.getName()).getFileName().toString();
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					zis.transferTo(bos);
+					byte[] data = bos.toByteArray();
+
+					if(fileName.endsWith(".bpmn"))
+						processDefinition = workflowEngineApi.parseProcess(data);
+
+					if(fileName.endsWith(".class"))
+						handlers.put(entry.getName(), data);
+				}
+				zis.closeEntry();
+			}
 		} catch (Exception e) {
 			throw new DeploymentException(
 					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
 		}
-		WProcessDefinition jbpmProcessDefinition = null; //new WProcessDefinition(processDefinition);
-    	// Recuperar la darrera versió de la definició de procés
+
+		if(processDefinition == null)
+			throw new DeploymentException(messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
+
+		ExpedientTipus expedientTipus = null;
+
 		DefinicioProces darrera;
 		if (expedientTipusId != null) {
-			// per expedientTipus
-			darrera = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, jbpmProcessDefinition.getKey());
+			darrera = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, processDefinition.getKey());
+			expedientTipus = expedientTipusRepository.findById(expedientTipusId).orElse(null);
 		} else {
-			// global
-			darrera = definicioProcesRepository.findDarreraVersioGlobalAmbJbpmKey(entornId, jbpmProcessDefinition.getKey());
+			darrera = definicioProcesRepository.findDarreraVersioGlobalAmbJbpmKey(entornId, processDefinition.getKey());
 		}
+
+		Date now = new Date();
+		List<Recurs> recursos = new ArrayList<Recurs>();
+		for(String k : handlers.keySet()) {
+			byte[] content = handlers.get(k);
+			ByteArrayClassLoader loader = new ByteArrayClassLoader(Thread.currentThread().getContextClassLoader());
+			String classPath = k;
+			if(classPath.endsWith(".class"))
+				classPath = classPath.substring(0, classPath.length() - ".class".length());
+
+			if(classPath.startsWith("classes/"))
+				classPath = classPath.substring("classes/".length());
+
+			classPath = classPath.replaceAll("/", ".");
+			Class<?> clazz = loader.defineClass(classPath, content);
+			recursos.add(new Recurs(k,
+						 true,
+						 HeliumBpmnHandler.class.isAssignableFrom(clazz), // Es handler
+						 now,
+						 content,
+						 expedientTipus,
+						 darrera));
+		}
+		recursRepository.saveAll(recursos);
+
 		if (darrera == null) {
 			throw new DeploymentException(
 					messageHelper.getMessage(
 							"definicio.proces.actualitzar.error.jbpmKey." + (expedientTipusId != null ? "expedientTipus" : "global"),
-							new Object[] {jbpmProcessDefinition.getKey()}));
+							new Object[] {processDefinition.getKey()}));
 		}
 
-		//TODO HELIUM2: resoldre la publicació de handlers propis
-//		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
-//		@SuppressWarnings("unchecked")
-//		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
-//		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
-//		for (String nom : bytesMap.keySet())
-//			if (nom.endsWith(".class")) {
-//				handlers.put(nom, bytesMap.get(nom));
-//			}
-//		// Actualitza els handlers de la darrera versió de la definició de procés
+		// Actualitza els handlers de la darrera versió de la definició de procés
 //		workflowEngineApi.updateHandlers(
-//				Long.parseLong(darrera.getJbpmId()),
+//				processDefinitionId,
 //				handlers);
-
 		return conversioTipusHelper.convertir(darrera, DefinicioProcesDto.class);
 
 	}

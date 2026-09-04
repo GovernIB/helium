@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Mètodes per a obtenir i modificar la informació de base de dades relativa a un recurs.
@@ -38,6 +39,18 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 		String nom,
 		Boolean isClass);
 
+	@Query(
+		"SELECT r.contingut " +
+			"FROM Recurs r " +
+			"WHERE " +
+			"    ((:expedientTipusId IS NULL) OR r.expedientTipus.id = :expedientTipusId) " +
+			"AND ((:definicioProcesId IS NULL AND r.definicioProces IS NULL) OR r.definicioProces.id = :definicioProcesId) " +
+			"AND r.nom = :nom ")
+	Optional<byte[]> findContingutByExpedientTipusIdAndDefinicioProcesIdAndName(
+		Long expedientTipusId,
+		Long definicioProcesId,
+		String nom);
+
 	List<Recurs> findByExpedientTipusIdAndHandler(Long expedientTipusId, boolean handler);
 
 	@Query(
@@ -51,5 +64,22 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 		@Param("esNullFiltre") boolean esNullFiltre,
 		@Param("filtre") String filtre,
 		Pageable pageable);
+
+	@Query(
+		"SELECT r.nom " +
+			"FROM Recurs r " +
+			"WHERE " +
+			"    r.definicioProces.id = :definicioProcesId ")
+	Set<String> findNomByDefinicioProcesId(@Param("definicioProcesId") Long definicioProcesId);
+
+	@Query(
+		"SELECT r.contingut " +
+			"FROM Recurs r " +
+			"WHERE " +
+			"    r.definicioProces.jbpmId = :jbpmId " +
+			"AND r.nom = :nom ")
+	Optional<byte[]> findContingutByDefinicioProcesBpmnIdAndName(
+		@Param("jbpmId") String bpmnId,
+		@Param("nom") String nom);
 
 }

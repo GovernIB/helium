@@ -5,7 +5,7 @@ import es.caib.helium.commons.dto.TerminiIniciatDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.exception.BpmnException;
-import es.caib.helium.persistence.common.jbpm.DominiCodiDescripcio;
+import es.caib.helium.persistence.common.bpmn.DominiCodiDescripcio;
 
 import java.util.Date;
 

@@ -1,6 +1,6 @@
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.disseny.handler.HeliumActionHandler;
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.classloader.WorkflowEngineApiClassLoader;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import lombok.RequiredArgsConstructor;
@@ -115,10 +115,10 @@ public class WorkflowEngineApiResourceHelper {
 		String deploymentId,
 		String className) throws ClassNotFoundException, IntrospectionException {
 		List<ExpedientTipusRecursHelper.HandlerParameter> params = new ArrayList<>();
-		Class<? extends HeliumActionHandler> handlerClass = loadClass(
+		Class<? extends HeliumBpmnHandler> handlerClass = loadClass(
 			deploymentId,
 			className,
-			HeliumActionHandler.class);
+			HeliumBpmnHandler.class);
 		BeanInfo info = Introspector.getBeanInfo(handlerClass);
 		for (PropertyDescriptor pd: info.getPropertyDescriptors()) {
 			if (pd.getWriteMethod() != null) {
@@ -143,14 +143,14 @@ public class WorkflowEngineApiResourceHelper {
 	 * @throws ReflectiveOperationException
 	 *            si es produeix algun altre error creant la instància del handler.
 	 */
-	public HeliumActionHandler createHandlerInstance(
+	public HeliumBpmnHandler createHandlerInstance(
 		String deploymentId,
 		String className,
 		Map<String, String> values) throws ClassNotFoundException, ReflectiveOperationException {
-		HeliumActionHandler actionHandler = loadClassAndCreateInstance(
+		HeliumBpmnHandler actionHandler = loadClassAndCreateInstance(
 			deploymentId,
 			className,
-			HeliumActionHandler.class);
+			HeliumBpmnHandler.class);
 		new BeanWrapperImpl(actionHandler).setPropertyValues(values);
 		return actionHandler;
 	}

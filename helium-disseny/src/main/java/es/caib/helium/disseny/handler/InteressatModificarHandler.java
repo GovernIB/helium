@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface InteressatModificarHandler extends HeliumActionHandler {
+public interface InteressatModificarHandler extends HeliumBpmnHandler {
 
 	void setId(String id);
 	void setCodi(String codi);

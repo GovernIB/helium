@@ -2,8 +2,8 @@ package es.caib.helium.disseny.engine;
 
 import lombok.Data;
 
-/** Classe per per representar la informació general d'una definició de procés definida dins d'un workflow engine.
- *
+/**
+ * Classe per representar la informació general d'una definició de procés definida dins d'un workflow engine.
  */
 @Data
 public class WProcessDefinition {

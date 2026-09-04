@@ -1,6 +1,6 @@
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.disseny.handler.HeliumActionHandler;
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.ExpedientTipus;
@@ -246,7 +246,7 @@ public class ExpedientTipusRecursHelperTest {
 		expedient.setTipus(tipus);
 		Map<String, String> values = new HashMap<>();
 		values.put("variable1", "valor-prova");
-		HeliumActionHandler handler = expedientTipusRecursHelper.createHandlerInstance(
+		HeliumBpmnHandler handler = expedientTipusRecursHelper.createHandlerInstance(
 			expedient,
 			definicioProcesId,
 			HANDLER_RESOURCE_CLASS,

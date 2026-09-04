@@ -1,6 +1,6 @@
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.disseny.handler.HeliumActionHandler;
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.classloader.RecursListClassLoader;
 import es.caib.helium.logic.classloader.RecursRepositoryClassLoader;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -205,11 +205,11 @@ public class ExpedientTipusRecursHelper {
 		Long definicioProcesId,
 		String className) throws ClassNotFoundException, IntrospectionException {
 		List<HandlerParameter> params = new ArrayList<>();
-		Class<? extends HeliumActionHandler> handlerClass = loadClass(
+		Class<? extends HeliumBpmnHandler> handlerClass = loadClass(
 			expedientTipusId,
 			definicioProcesId,
 			className,
-			HeliumActionHandler.class);
+			HeliumBpmnHandler.class);
 		BeanInfo info = Introspector.getBeanInfo(handlerClass);
 		for (PropertyDescriptor pd: info.getPropertyDescriptors()) {
 			if (pd.getWriteMethod() != null) {
@@ -236,16 +236,16 @@ public class ExpedientTipusRecursHelper {
 	 * @throws ReflectiveOperationException
 	 *            si es produeix algun altre error creant la instància del handler.
 	 */
-	public HeliumActionHandler createHandlerInstance(
+	public HeliumBpmnHandler createHandlerInstance(
 		Expedient expedient,
 		Long definicioProcesId,
 		String className,
 		Map<String, String> values) throws ClassNotFoundException, ReflectiveOperationException {
-		HeliumActionHandler actionHandler = loadClassAndCreateInstance(
+		HeliumBpmnHandler actionHandler = loadClassAndCreateInstance(
 			expedient.getTipus().getId(),
 			definicioProcesId,
 			className,
-			HeliumActionHandler.class);
+			HeliumBpmnHandler.class);
 		new BeanWrapperImpl(actionHandler).setPropertyValues(values);
 		return actionHandler;
 	}
@@ -279,7 +279,7 @@ public class ExpedientTipusRecursHelper {
 						replace("/", ".").
 						replace(".class", "");
 					Class<?> clazz = classLoader.loadClass(className);
-					r.setHandler(HeliumActionHandler.class.isAssignableFrom(clazz));
+					r.setHandler(HeliumBpmnHandler.class.isAssignableFrom(clazz));
 				} catch (ClassNotFoundException ignored) { }
 			});
 	}
@@ -288,6 +288,23 @@ public class ExpedientTipusRecursHelper {
 		Long expedientTipusId,
 		Long definicioProcesId) {
 		return new RecursRepositoryClassLoader(expedientTipusId, definicioProcesId, recursRepository);
+	}
+
+	/**
+	 * Obté el contingut d'un recurs.
+	 *
+	 * @param definicioProcesBpmnId
+	 *            l'bpmnId de la definició de procés (pot ser null i es cercarà un recurs lligat al tipus d'expedient).
+	 * @param name
+	 *            el nom del recurs.
+	 * @return el contingut del recurs o null si el recurs no s'ha trobat.
+	 */
+	public byte[] loadResource(
+		String definicioProcesBpmnId,
+		String name) {
+		return recursRepository
+			.findContingutByDefinicioProcesBpmnIdAndName(definicioProcesBpmnId, name)
+			.orElse(null);
 	}
 
 	@Getter

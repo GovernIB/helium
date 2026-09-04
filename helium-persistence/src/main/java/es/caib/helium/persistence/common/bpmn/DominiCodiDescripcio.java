@@ -1,4 +1,4 @@
-package es.caib.helium.persistence.common.jbpm;
+package es.caib.helium.persistence.common.bpmn;
 
 public class DominiCodiDescripcio {
 

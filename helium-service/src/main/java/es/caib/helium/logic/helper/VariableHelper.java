@@ -33,9 +33,8 @@ import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.common.jbpm.BasicActionHandler;
-import es.caib.helium.persistence.common.jbpm.DominiCodiDescripcio;
-import es.caib.helium.persistence.common.jbpm.JbpmVars;
+import es.caib.helium.persistence.common.bpmn.DominiCodiDescripcio;
+import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.CampAgrupacio;
 import es.caib.helium.persistence.entity.CampRegistre;
@@ -859,9 +858,9 @@ public class VariableHelper {
 	public Object getDescripcioVariable(String taskId, String processInstanceId, String codi) {
 		Object valor = null;
 		if (taskId != null)
-			valor = workflowEngineApi.getTaskInstanceVariable(taskId, JbpmVars.PREFIX_VAR_DESCRIPCIO + codi);
+			valor = workflowEngineApi.getTaskInstanceVariable(taskId, BpmnVars.PREFIX_VAR_DESCRIPCIO + codi);
 		if (valor == null)
-			valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + codi);
+			valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, BpmnVars.PREFIX_VAR_DESCRIPCIO + codi);
 		return valor;
 	}
 
@@ -1035,15 +1034,14 @@ public class VariableHelper {
 
 	private void filtrarVariablesUsIntern(Map<String, Object> variables) {
 		if (variables != null) {
-			variables.remove(JbpmVars.VAR_TASCA_VALIDADA);
-			variables.remove(JbpmVars.VAR_TASCA_DELEGACIO);
+			variables.remove(BpmnVars.VAR_TASCA_VALIDADA);
+			variables.remove(BpmnVars.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
 			for (String codi: variables.keySet()) {
-				if (	codi.startsWith(JbpmVars.PREFIX_DOCUMENT) ||
-						codi.startsWith(JbpmVars.PREFIX_SIGNATURA) ||
-						codi.startsWith(JbpmVars.PREFIX_ADJUNT) ||
-						codi.startsWith(JbpmVars.PREFIX_VAR_DESCRIPCIO) ||
-						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
+				if (	codi.startsWith(BpmnVars.PREFIX_DOCUMENT) ||
+						codi.startsWith(BpmnVars.PREFIX_SIGNATURA) ||
+						codi.startsWith(BpmnVars.PREFIX_ADJUNT) ||
+						codi.startsWith(BpmnVars.PREFIX_VAR_DESCRIPCIO))
 					codisEsborrar.add(codi);
 			}
 			for (String codi: codisEsborrar)

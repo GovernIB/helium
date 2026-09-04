@@ -1,6 +1,6 @@
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.disseny.handler.HeliumActionHandler;
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import net.bytebuddy.ByteBuddy;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
@@ -149,7 +149,7 @@ public class WorkflowEngineApiResourceHelperTest {
 			thenReturn(bytes);
 		Map<String, String> values = new HashMap<>();
 		values.put("variable1", "valor-prova");
-		HeliumActionHandler handler = workflowEngineApiResourceHelper.createHandlerInstance(
+		HeliumBpmnHandler handler = workflowEngineApiResourceHelper.createHandlerInstance(
 			deploymentId,
 			HANDLER_RESOURCE_CLASS,
 			values);

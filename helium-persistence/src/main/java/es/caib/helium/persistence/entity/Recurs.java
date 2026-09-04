@@ -46,8 +46,7 @@ public class Recurs implements Serializable, GenericEntity<Long> {
 	@JoinColumn(
 		name = "expedient_tipus_id",
 		referencedColumnName = "id",
-		foreignKey = @ForeignKey(name = "hel_recurs_exptip_fk"),
-		nullable = false)
+		foreignKey = @ForeignKey(name = "hel_recurs_exptip_fk"))
 	private ExpedientTipus expedientTipus;
 
 	@ManyToOne(fetch = FetchType.LAZY)

@@ -1,14 +1,14 @@
 /**
- * 
+ *
  */
-package es.caib.helium.persistence.common.jbpm;
+package es.caib.helium.persistence.common.bpmn;
 
 /**
  * Prefixos per a emmagatzemar informació com a variables jBPM.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class JbpmVars {
+public class BpmnVars {
 
 	public static final String VAR_PREFIX = "H3l1um#";
 	public static final String VAR_TASCA_PREFIX = VAR_PREFIX + "tasca.";

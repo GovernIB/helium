@@ -105,7 +105,7 @@ import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.regles.ReglaHelper;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.persistence.common.jbpm.JbpmVars;
+import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Anotacio;
 import es.caib.helium.persistence.entity.AnotacioAnnex;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -2406,8 +2406,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Map<String, Object> variables = jbpmHelper.getProcessInstanceVariables(expedient.getProcessInstanceId());
 		if (variables != null) {
 			if (variables != null) {
-				variables.remove(JbpmVars.VAR_TASCA_VALIDADA);
-				variables.remove(JbpmVars.VAR_TASCA_DELEGACIO);
+				variables.remove(BpmnVars.VAR_TASCA_VALIDADA);
+				variables.remove(BpmnVars.VAR_TASCA_DELEGACIO);
 				/*
 				List<String> codisEsborrar = new ArrayList<String>();
 				for (String codi: variables.keySet()) {

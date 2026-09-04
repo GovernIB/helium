@@ -2,7 +2,7 @@ package es.caib.helium.logic.classloader;
 
 import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.exception.HeliumHandlerException;
-import es.caib.helium.disseny.handler.HeliumActionHandler;
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.bpmn.HeliumApiImpl;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import lombok.SneakyThrows;
@@ -67,10 +67,10 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 			if (c == null) {
 				try {
 					c = findClass(name);
-					if (HeliumActionHandler.class.isAssignableFrom(c)) {
+					if (HeliumBpmnHandler.class.isAssignableFrom(c)) {
 						@SuppressWarnings("unchecked")
-						Class<? extends HeliumActionHandler> handlerClass =
-							(Class<? extends HeliumActionHandler>) c;
+						Class<? extends HeliumBpmnHandler> handlerClass =
+							(Class<? extends HeliumBpmnHandler>) c;
 						c = generateJavaDelegateProxy(handlerClass);
 					}
 				} catch (ClassNotFoundException e) {
@@ -100,7 +100,7 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 	}
 
 	@SneakyThrows
-	private Class<?> generateJavaDelegateProxy(Class<? extends HeliumActionHandler> handlerClass) {
+	private Class<?> generateJavaDelegateProxy(Class<? extends HeliumBpmnHandler> handlerClass) {
 		DynamicType.Builder<Object> builder = new ByteBuddy()
 			.subclass(Object.class, ConstructorStrategy.Default.NO_CONSTRUCTORS)
 			.name(handlerClass.getName() + "$JavaDelegateProxy")
@@ -143,9 +143,9 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 	}
 
 	public static class JavaDelegateInterceptor {
-		private final Class<? extends HeliumActionHandler> handlerClass;
+		private final Class<? extends HeliumBpmnHandler> handlerClass;
 		private final Map<String, Object> pendingFieldValues = new ConcurrentHashMap<>();
-		public JavaDelegateInterceptor(Class<? extends HeliumActionHandler> handlerClass) {
+		public JavaDelegateInterceptor(Class<? extends HeliumBpmnHandler> handlerClass) {
 			this.handlerClass = handlerClass;
 		}
 		// Cridat pels setters generats a la classe proxy (un per cada setXxx detectat)
@@ -155,7 +155,7 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 		// Aquest mètode s'invocarà quan es cridi execute(DelegateExecution) sobre la classe generada
 		public void execute(DelegateExecution execution) {
 			try {
-				HeliumActionHandler handlerInstance = handlerClass.getDeclaredConstructor().newInstance();
+				HeliumBpmnHandler handlerInstance = handlerClass.getDeclaredConstructor().newInstance();
 				applyPendingFieldValues(handlerInstance, execution);
 				HeliumApi heliumApi = buildHeliumApi(execution);
 				handlerInstance.execute(heliumApi);
@@ -166,7 +166,7 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 			}
 		}
 		private void applyPendingFieldValues(
-			HeliumActionHandler handlerInstance,
+			HeliumBpmnHandler handlerInstance,
 			DelegateExecution execution) throws ReflectiveOperationException {
 			for (Map.Entry<String, Object> entry : pendingFieldValues.entrySet()) {
 				String setterName = entry.getKey();
