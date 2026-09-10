@@ -24,7 +24,7 @@
 							<tr>
 								<c:forEach var="registreDada" items="${registreFila.registreDades}">
 									<c:if test="${registreDada.llistar}">
-										<td>${registreDada.text}</td>
+										<td><c:out value="${registreDada.text}"/></td>
 									</c:if>
 								</c:forEach>
 							</tr>
@@ -38,7 +38,7 @@
 			<c:otherwise>
 				<c:if test="${not empty dada.varValor}">
 					<%-- ${dada.varValorClass} --%>
-					<strong>${dada.textMultiple}</strong>
+					<strong><pre class="dada-textarea"><c:out value="${dada.textMultiple}"/></pre></strong>
 				</c:if>
 				<c:if test="${not empty dada.error}">
 					<p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<span>${dada.error}</span></p>
