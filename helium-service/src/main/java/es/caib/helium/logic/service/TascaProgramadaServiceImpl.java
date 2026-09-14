@@ -1,12 +1,7 @@
 package es.caib.helium.logic.service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -535,24 +530,27 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	public void comprovarEmailAnotacionsNoAgrupats() {
 		// Consultar entrades de la taula HEL_ANOTACIO_EMAIL amb agrupat = 0
 		List<AnotacioEmail> anotacioEmailListNoAgrupats=anotacioEmailRepository.findByEnviamentAgrupatOrderByDestinatariCodi(false);
-		boolean fi = anotacioEmailListNoAgrupats!=null && anotacioEmailListNoAgrupats.isEmpty();
-		while(!fi) {
-			List<AnotacioEmail> emailsPerEsborrar=new ArrayList<AnotacioEmail>();
+		List<AnotacioEmail> emailsPerEsborrar = new ArrayList<AnotacioEmail>();
+		Set<String> emailAnotacioEnviats = new HashSet<String>();
+		for(AnotacioEmail anotacioEmail: anotacioEmailListNoAgrupats) {
+			String emailAnotacio = String.format("%s %s",
+				anotacioEmail.getDestinatariEmail(),
+				anotacioEmail.getAnotacio().getId());
+			if (emailAnotacioEnviats.contains(emailAnotacio)) {
+				emailsPerEsborrar.add(anotacioEmail);
+				continue;
+			}
 			try {
-				for(AnotacioEmail anotacioEmail: anotacioEmailListNoAgrupats) {
-					//enviar email correu (no agrupat) de creació/incorporació/arribada d'anotació
-					emailHelper.sendAnotacioEmailNoAgrupat(anotacioEmail, anotacioEmailListNoAgrupats);
-					// Esborrar les que s'hagin pogut enviar
-					emailsPerEsborrar.add(anotacioEmail);
-					anotacioEmailRepository.delete(anotacioEmail);
-				}
-				anotacioEmailListNoAgrupats.removeAll(emailsPerEsborrar);
-			}catch(Exception e) {
+				//enviar email correu (no agrupat) de creació/incorporació/arribada d'anotació
+				emailHelper.sendAnotacioEmailNoAgrupat(anotacioEmail, anotacioEmailListNoAgrupats);
+				// Esborrar les que s'hagin pogut enviar
+				emailsPerEsborrar.add(anotacioEmail);
+				emailAnotacioEnviats.add(emailAnotacio);
+			} catch (Exception e) {
 				// Si l'error és que l'email no existeix o no és correcte, igualment eliminar-lo.
 				// Posarem un número de reintents i passat aquest límit s'eliminarà.
 				logger.error("Error enviant l'email d'anotació: " + e.getMessage(), e);
 			}
-			fi = anotacioEmailListNoAgrupats!=null && anotacioEmailListNoAgrupats.isEmpty();
 		}
 		// Eliminar correus més antics de 3 dies pedents d'enviar
 		for (AnotacioEmail anotacioEmail : anotacioEmailListNoAgrupats) {
@@ -560,7 +558,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 			Date formattedToday = new Date();
 			Date formattedExpired = anotacioEmail.getDataCreacio();
 			int diffInDays = (int)( (formattedToday.getTime() - formattedExpired.getTime()) / (1000 * 60 * 60 * 24) );
-			if (diffInDays > 2) {
+			if (diffInDays > 2 || emailsPerEsborrar.contains(anotacioEmail)) {
 				anotacioEmailRepository.delete(anotacioEmail);
 			}
 		}

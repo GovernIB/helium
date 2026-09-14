@@ -3,16 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -1373,6 +1364,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 
 		// Envia correus als que tinguin l'usuari configurat.
 		List<String> correctes = new ArrayList<String>();
+		Set<String> enviats = new HashSet<String>();
 		List<String> errors = new ArrayList<String>();
 		for (PersonaDto persona : personesAmbPermis) {
 			String destinatari = persona.getNomSencer();
@@ -1389,6 +1381,11 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					String email = usuariPreferencies.getEmailAlternatiu() != null ?
 										usuariPreferencies.getEmailAlternatiu()
 										: persona.getEmail();
+
+					// Si ja s'ha enviat el mateix correu, no tornar a realitzar l'enviament
+					if(enviats.contains(email))
+						continue;
+
 					AnotacioEmail anotacioEmail = new AnotacioEmail(
 							anotacio,
 							expedient,
@@ -1403,6 +1400,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					// Envia el correu
 					emailHelper.sendAnotacioEmailNoAgrupat(anotacioEmail, new ArrayList<AnotacioEmail>());
 					correctes.add(destinatari);
+					enviats.add(email);
 				}
 			} catch(Exception e) {
 				errors.add(destinatari);
