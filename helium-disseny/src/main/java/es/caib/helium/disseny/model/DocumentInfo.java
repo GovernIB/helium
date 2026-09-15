@@ -20,6 +20,7 @@ public class DocumentInfo {
 	private Date dataDocument;
 	private String arxiuNom;
 	private byte[] arxiuContingut;
+	private String arxiuUuid;
 	private boolean signat = false;
 	private String registreNumero;
 	private Date registreData;
@@ -28,6 +29,7 @@ public class DocumentInfo {
 	private boolean registreEntrada = true;
 	private boolean registrat = false;
 	private String processInstanceId;
+	private String processInstanceTitol;
 	private String codiDocument;
 	private String tipusDocument;
 	private String tipusDocumental;
@@ -37,5 +39,16 @@ public class DocumentInfo {
 	private String observacions;
 	private String csv;
 	private String urlVerificacioSignatures;
+
+	public String getArxiuExtensio() {
+		if (getArxiuNom() == null)
+			return null;
+		int indexPunt = getArxiuNom().lastIndexOf(".");
+		if (indexPunt != -1) {
+			return getArxiuNom().substring(indexPunt + 1);
+		} else {
+			return null;
+		}
+	}
 
 }

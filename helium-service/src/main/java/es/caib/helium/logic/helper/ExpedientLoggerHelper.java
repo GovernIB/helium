@@ -1522,6 +1522,36 @@ public class ExpedientLoggerHelper {
 		return expedientLog;
 	}
 
+	public ExpedientLog afegirLogExpedient(
+		Long expedientId,
+		ExpedientLogAccioTipus tipus,
+		String accioParams) {
+
+		Expedient expedient = expedientHelper.findById(expedientId);
+
+		Long jbpmLogId = null;
+		if (expedient.isAmbRetroaccio()) {
+			jbpmLogId = workflowEngineApi.addProcessInstanceMessageLog(
+				expedient.getProcessInstanceId(),
+				getMessageLogPerTipus(tipus));
+		}
+		String usuari = "Timer";
+		try {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}catch (Exception e){}
+		ExpedientLog expedientLog = new ExpedientLog(
+			expedient,
+			usuari,
+			expedient.getProcessInstanceId(),
+			tipus);
+		expedientLog.setProcessInstanceId(expedient.getProcessInstanceId());
+		expedientLog.setJbpmLogId(jbpmLogId);
+		if (accioParams != null)
+			expedientLog.setAccioParams(accioParams);
+		expedientLoggerRepository.save(expedientLog);
+		return expedientLog;
+	}
+
 	public List<Object> findLogIdTasquesById(List<String> tasquesIds) {
 		return expedientLoggerRepository.findLogIdTasquesById(tasquesIds);
 	}

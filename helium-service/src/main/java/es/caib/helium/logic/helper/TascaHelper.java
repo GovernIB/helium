@@ -774,10 +774,14 @@ public class TascaHelper {
 				tasca.setOwner(task.getActorId());
 				tasca.setAssignee(task.getActorId());
 				tasca.setGroupId(groupId);
-				tasca.setStartTime(task.getStartTime());
-				tasca.setClaimTime(task.getClaimTime());
-				tasca.setEndTime(task.getEndTime());
-				tasca.setDueDate(task.getDueDate());
+				if(task.getEndTime() == null)
+					tasca.setStartTime(task.getStartTime());
+				if(task.getEndTime() == null)
+					tasca.setClaimTime(task.getClaimTime());
+				if(task.getEndTime() == null)
+					tasca.setDueDate(task.getDueDate());
+				if(task.getEndTime() != null)
+					tasca.setEndTime(task.getEndTime());
 				tasca.setDuration(duration);
 				tasca.setPriority(task.getPriority());
 				tasca.setOpen(task.isOpen());

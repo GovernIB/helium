@@ -1701,7 +1701,7 @@
     },
 
     {
-        "classe" : "es.caib.helium.disseny.handler.NotificacioAltaHandler",
+        "classe" : "es.caib.helium.logic.bpmn.NotificacioAltaHandler",
         "nom" : "Donar d’alta notificacions al servei de notificacions Notib",
         "descripcio" : "L'alta de peticions de notificacions al servei de notificacions NOTIB es fa mitjançant un handler d'alta de notificacions.",
         "parametres" : [

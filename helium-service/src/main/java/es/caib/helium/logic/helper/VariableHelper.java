@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,6 @@ import org.springframework.stereotype.Component;
 
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
-import es.caib.helium.commons.dto.CampAgrupacioDto;
-import es.caib.helium.commons.dto.CampTipusDto;
-import es.caib.helium.commons.dto.ExpedientDadaDto;
-import es.caib.helium.commons.dto.ExpedientTascaDto;
-import es.caib.helium.commons.dto.ParellaCodiValorDto;
-import es.caib.helium.commons.dto.TascaDadaDto;
-import es.caib.helium.commons.dto.ValidacioDto;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
@@ -151,6 +145,81 @@ public class VariableHelper {
 		return findDadesPerInstanciaProces(processInstanceId, false);
 	}
 
+	public List<ExpedientDadaDto> findDadesPerExpedient(
+		Long expedientId,
+		boolean incloureVariablesBuides) {
+		String tipusExp = null;
+		Expedient exp = expedientHelper.findById(expedientId);
+		ExpedientTipus expedientTipus = exp.getTipus();
+		if (MesuresTemporalsHelper.isActiu()) {
+			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
+			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp);
+			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "0");
+		}
+		Map<String, Camp> campsIndexatsPerCodi = new HashMap<String, Camp>();
+		Set<Camp> camps;
+		if (expedientTipus.getExpedientTipusPare() != null) {
+			// Camps heretats
+			for (Camp camp: expedientTipus.getExpedientTipusPare().getCamps())
+				campsIndexatsPerCodi.put(camp.getCodi(), camp);
+		}
+		camps = expedientTipus.getCamps();
+
+		for (Camp camp: camps)
+			campsIndexatsPerCodi.put(camp.getCodi(), camp);
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "0");
+		mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "1");
+		List<ExpedientDadaDto> resposta = new ArrayList<ExpedientDadaDto>();
+		Map<String, Object> varsInstanciaProces = expedientDadaHelper.getDadesValors(exp, null, null);
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
+		if (varsInstanciaProces != null) {
+			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");
+			filtrarVariablesUsIntern(varsInstanciaProces);
+			for (String var: varsInstanciaProces.keySet()) {
+				ExpedientDadaDto dto = null;
+				boolean varAmbContingut = varsInstanciaProces.get(var) != null;
+				Camp camp = campsIndexatsPerCodi.get(var);
+				if (varAmbContingut) {
+					dto = getDadaPerVariableJbpm(
+						camp,
+						var,
+						varsInstanciaProces.get(var),
+						null,
+						null,
+						null,
+						false);
+					// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
+					try {
+						if (camp != null && (CampTipusDto.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
+							Object[] registreValors = (Object[])varsInstanciaProces.get(var);
+							varAmbContingut = registreValors.length > 0;
+						}
+					} catch(Exception e) {
+						dto.setError(messageHelper.getMessage(
+							"variable.helper.error.recuperant.valor",
+							new Object[] {camp.getTipus(), (camp.isMultiple() ? " múltiple" : "")}));
+					}
+				}
+				if (varAmbContingut) {
+					resposta.add(dto);
+				} else if (incloureVariablesBuides) {
+					dto = getDadaPerVariableJbpm(
+						camp,
+						var,
+						null,
+						null,
+						null,
+						null,
+						false);
+					resposta.add(dto);
+				}
+			}
+			mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "2");
+		}
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp);
+		return resposta;
+	}
+
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(
 			String processInstanceId,
 			boolean incloureVariablesBuides) {
@@ -238,14 +307,31 @@ public class VariableHelper {
 	}
 
 	public ExpedientDadaDto getDadaPerInstanciaProces(
+		String processInstanceId,
+		String variableCodi,
+		boolean incloureVariablesBuides) {
+		return getDadaPerExpedientInstanciaProces(
+			null,
+			processInstanceId,
+			variableCodi,
+			incloureVariablesBuides);
+	}
+
+	public ExpedientDadaDto getDadaPerExpedientInstanciaProces(
+			Long expedientId,
 			String processInstanceId,
 			String variableCodi,
 			boolean incloureVariablesBuides) {
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		Expedient expedient;
+		if(expedientId != null) {
+			expedient = expedientHelper.findById(expedientId);
+		} else {
+			expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		}
 		ExpedientTipus expedientTipus = expedient.getTipus();
 
 		Camp camp;
-		if (expedientTipus.isAmbInfoPropia()) {
+		if (expedientTipus.isAmbInfoPropia() || expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.ESTAT) {
 			camp = campRepository.findByExpedientTipusAndCodi(
 					expedientTipus.getId(),
 					variableCodi,

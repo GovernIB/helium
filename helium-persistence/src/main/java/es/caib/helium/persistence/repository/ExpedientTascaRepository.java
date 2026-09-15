@@ -23,6 +23,7 @@ public interface ExpedientTascaRepository extends JpaRepository<ExpedientTasca, 
 
 	@Query(	" FROM ExpedientTasca et " +
 			"	WHERE et.expedient.entorn.id = :entornId " +
+			"	AND (et.completed IS NULL OR et.completed = false) " +
 			"	AND (:isResponsableNull = true OR ( " +
 			"		et.assignee = :responsable OR " +
 			"		(et.assignee is NULL AND :responsable in (SELECT c.userId FROM et.candidates c)) " +

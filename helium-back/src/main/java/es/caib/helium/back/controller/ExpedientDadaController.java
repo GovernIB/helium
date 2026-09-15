@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -78,7 +78,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
 
 /**
  * Controlador per a la pipella de dades de l'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -131,7 +131,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 					e);
 		}
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/executar/accio", method = RequestMethod.GET)
 	public String dadaExpExecutarAccio(
 			HttpServletRequest request,
@@ -150,7 +150,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		}
 		return "redirect:" + request.getHeader("referer");
 	}
-	
+
 
 	@RequestMapping(value = "/{expedientId}/dada")
 	public String dades(
@@ -307,7 +307,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 						campsAddicionals,
 						campsAddicionalsClasses,
 						false);
-			else 
+			else
 				return TascaFormHelper.getCommandBuitForCamps(
 						llistTasca,
 						campsAddicionals,
@@ -316,7 +316,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, ex.getMessage(), ex);
 			logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
-		} 
+		}
 	}
 		return null;
 	}
@@ -351,7 +351,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		} catch (UnsupportedEncodingException e) {
 			logger.error(e);
 		}
-		
+
 		return "expedientDadaModificar";
 	}
 
@@ -374,9 +374,9 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
 			@PathVariable String varCodi,
-			@Valid @ModelAttribute("modificarVariableCommand") Object command, 
-			BindingResult result, 
-			SessionStatus status, 
+			@Valid @ModelAttribute("modificarVariableCommand") Object command,
+			BindingResult result,
+			SessionStatus status,
 			Model model) {
 		try {
 			List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
@@ -417,8 +417,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 			logger.error("S'ha produit un error al intentar modificar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
 		}
 		return modalUrlTancar(false);
-	}	
-	
+	}
+
 	/** Cas en que s'edita una dada de tipus acció i es prem sobre l'acció*/
 	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/update/accio", method = RequestMethod.POST)
 	public String dadaExpEditarAccio(
@@ -441,22 +441,22 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable String procesId,
 			@PathVariable String varCodi,
 			@RequestParam(value = "accioCamp", required = true) String accioCamp,
-			@Valid @ModelAttribute("modificarVariableCommand") Object command, 
-			BindingResult result, 
-			SessionStatus status, 
+			@Valid @ModelAttribute("modificarVariableCommand") Object command,
+			BindingResult result,
+			SessionStatus status,
 			Model model) {
 
 		this.executarDadaAccio(request, expedientId, procesId, varCodi, accioCamp);
-		
+
 		// Redirigeix al formulari després d'executar l'acció
 		model.asMap().clear();
 		return "redirect:/modal/expedient/" + expedientId + "/proces/" + procesId + "/dada/" + varCodi + "/update";
-	}		
+	}
 
 	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		for (int i=0; i <= 12 ; i++)		
+		for (int i=0; i <= 12 ; i++)
 			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
 		return resposta;
 	}
@@ -500,7 +500,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, ex.getMessage(), ex);
 				logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
-			} 
+			}
 		}
 		return null;
 	}
@@ -590,9 +590,9 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
 			@PathVariable String varCodi,
-			@Valid @ModelAttribute("addVariableCommand") Object command, 
-			BindingResult result, 
-			SessionStatus status, 
+			@Valid @ModelAttribute("addVariableCommand") Object command,
+			BindingResult result,
+			SessionStatus status,
 			Model model) {
 		try {
 			boolean perEstats = procesId == null;
@@ -616,10 +616,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 					}
 					if (codi.contains(".")) {
 						result.rejectValue("codi", "error.camp.codi.char.nok");
-					}	
+					}
 					if (codi.contains(" ")) {
 						result.rejectValue("codi", "error.camp.codi.char.espai");
-					}	
+					}
 					if (!result.hasErrors()) {
 						expedientDadaService.create(
 								expedientId,
@@ -650,7 +650,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 						tascaDades);
 				validator.setValidarExpresions(false);
 				validator.setValidarObligatoris(true);
-				validator.validate(commandValidar, result);				
+				validator.validate(commandValidar, result);
 				if (!result.hasErrors()) {
 					expedientDadaService.create(
 							expedientId,
@@ -785,11 +785,11 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable String procesId,
 			@PathVariable String varCodi,
 			@RequestParam(value = "accioCamp", required = true) String accioCamp,
-			@Valid @ModelAttribute("addVariableCommand") Object command, 
-			BindingResult result, 
-			SessionStatus status, 
+			@Valid @ModelAttribute("addVariableCommand") Object command,
+			BindingResult result,
+			SessionStatus status,
 			Model model) {
-		
+
 		this.executarDadaAccio(request, expedientId, procesId, varCodi, accioCamp);
 
 		// Redirigeix al formulari després d'executar l'acció
@@ -797,7 +797,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return "redirect:/modal/expedient/" + expedientId + "/proces/" + procesId + "/dada/" + varCodi + "/new";
 	}
 
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -834,7 +834,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 		Map<InstanciaProcesDto, Map<CampAgrupacioDto, List<ExpedientDadaDto>>> dades = new LinkedHashMap<InstanciaProcesDto, Map<CampAgrupacioDto,List<ExpedientDadaDto>>>();
 		Map<InstanciaProcesDto,Integer> totalsPerProces = new LinkedHashMap<InstanciaProcesDto, Integer>();
-		// Per a cada instància de procés ordenem les dades per agrupació  
+		// Per a cada instància de procés ordenem les dades per agrupació
 		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesInstancia = null;
@@ -874,7 +874,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				procesInstanceId);
 		if (dadesInstancia != null) {
 			Collections.sort(
-				dadesInstancia, 
+				dadesInstancia,
 				new Comparator<ExpedientDadaDto>() {
 					public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
 						return d1.getVarCodi().compareToIgnoreCase(d2.getVarCodi());
@@ -901,7 +901,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 
 	/** Retorna les dades de la instància de procés agrupades per agrupació. S'ha de tenir en compte
 	 * que les agrupacions poden estar sobreescrites, per tant preval la agrupació sobreescrita del fill
-	 * i s'ha de determinar la agrupació pel codi en comptes de l'identificador. 
+	 * i s'ha de determinar la agrupació pel codi en comptes de l'identificador.
 	 * @param expedientId
 	 * @param instaciaProcesId
 	 * @param ambOcults
@@ -910,7 +910,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 	private Map<CampAgrupacioDto, List<ExpedientDadaDto>> getDadesInstanciaProces(
 			Long expedientId,
 			String instaciaProcesId,
-			boolean ambOcults) {		
+			boolean ambOcults) {
 		// definirem un mapa. La clau serà el nom de l'agrupació, i el valor el llistat de variables de l'agrupació
 		Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesProces = new TreeMap<CampAgrupacioDto, List<ExpedientDadaDto>>(
 				// Comparador d'ordre d'agrupacions, primer la null, després heretades i finalment pròpies
@@ -944,7 +944,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				instaciaProcesId);
 		if (dadesInstancia == null || dadesInstancia.isEmpty())
 			return null;
-		
+
 		// Obtenim les agrupacions de la definició de procés o del tipus d'expedient
 		List<CampAgrupacioDto> agrupacions = expedientDadaService.agrupacionsFindAmbInstanciaProces(
 				expedientId,
@@ -954,7 +954,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		Map<Long, CampAgrupacioDto> mapAgrupacionsPerId = new HashMap<Long, CampAgrupacioDto>();
 		Map<String, CampAgrupacioDto> mapAgrupacionsPerCodi = new HashMap<String, CampAgrupacioDto>();
 		this.resoldreAgrupacionsSobreescrites(agrupacions, mapAgrupacionsPerId, mapAgrupacionsPerCodi);
-		
+
 		// Agrupa les dades per agrupacions
 		CampAgrupacioDto agrupacio;
 		List<ExpedientDadaDto> dades;
@@ -967,7 +967,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 					agrupacio = mapAgrupacionsPerCodi.get( mapAgrupacionsPerId.get(dada.getAgrupacioId()).getCodi() );
 				}
 				// Esbrina la llista
-				if (dadesProces.containsKey(agrupacio)) { 
+				if (dadesProces.containsKey(agrupacio)) {
 					dades = dadesProces.get(agrupacio);
 				} else { //if agrupacio of current dada iteration changed or first dada iteration
 					dades = new ArrayList<ExpedientDadaDto>();
@@ -977,7 +977,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				dades.add(dada);
 			}
 		}
-		
+
 		for (Map.Entry<CampAgrupacioDto, List<ExpedientDadaDto>> entry : dadesProces.entrySet()) {
 		    Collections.sort(entry.getValue(), new Comparator<ExpedientDadaDto>() {
 		    	@Override
@@ -996,8 +996,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 		    	}
 		    });
 		}
-		
-		return dadesProces;	
+
+		return dadesProces;
 	}
 
 	/** Mètode per posar totes les agrupacions en el map per identificador i posar només
@@ -1008,7 +1008,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 	 */
 	private void resoldreAgrupacionsSobreescrites(
 			List<CampAgrupacioDto> agrupacions,
-			Map<Long, CampAgrupacioDto> mapAgrupacionsPerId, 
+			Map<Long, CampAgrupacioDto> mapAgrupacionsPerId,
 			Map<String, CampAgrupacioDto> mapAgrupacionsPerCodi) {
 
 		// Afegeix les agrupacions per id i guarda el codi de les sobreescrites
@@ -1020,13 +1020,13 @@ public class ExpedientDadaController extends BaseExpedientController {
 		}
 		// Construeix el map de les agrupacions per codi no sobreescrites
 		mapAgrupacionsPerCodi.put(null, null);
-		for (CampAgrupacioDto agrupacio : agrupacions) 
+		for (CampAgrupacioDto agrupacio : agrupacions)
 			if (!codisSobreescrites.contains(agrupacio.getCodi()) || agrupacio.isSobreescriu())
 				mapAgrupacionsPerCodi.put(agrupacio.getCodi(), agrupacio);
 	}
-	
+
 	/** Mètode privat per executar una acció relacionada amb una variable tipus ACCIO.
-	 * 
+	 *
 	 * @param request
 	 * @param expedientId
 	 * @param procesId
@@ -1060,7 +1060,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 					ex);
 			logger.error(errMsg + ": "+ ex.getLocalizedMessage(), ex);
 		}
-		
+
 	}
 
 	private void exportXLS(HttpServletResponse response, ExpedientDto expedient, List<DadaListDto> dades) {
@@ -1226,7 +1226,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		XSSFCell cell = xlsRow.createCell(colNum);
 		cell.setCellValue(valor);
 		cell.setCellStyle(style);
-		
+
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientDadaController.class);

@@ -32,11 +32,11 @@ public class DistribucioRestController {
 
 	@PostMapping("/comunicarAnotacionsPendents")
 	public ResponseEntity<String> event(@RequestBody List<AnotacioRegistreId> ids) {
-		log.info("Rebuda la comunicació de " + ids.size() + "anotacions de registre de Distribucio. Inici del processament.");
+		log.info("Rebuda la comunicació de {} anotacions de registre de Distribucio. Inici del processament.", ids.size());
 		try {
 			anotacioService.comunicarAnotacionsPendents(ids);
 		} catch(Exception e) {
-			log.error("Error en el tractament de la comunicació d'anotacions pendents: " + e.getMessage());
+			log.error("Error en el tractament de la comunicació d'anotacions pendents: {}", e.getMessage());
 			return new ResponseEntity<String>("Error processant les anotacions: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<String>("OK", HttpStatus.OK);

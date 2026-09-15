@@ -46,8 +46,6 @@ public class TascaFormValidatorHelper implements Validator {
 	boolean validarObligatoris;
 	boolean validarExpresions;
 
-
-
 	public TascaFormValidatorHelper(
 			TascaService tascaService,
 			List<TascaDadaDto> tascaDades) {
@@ -176,7 +174,7 @@ public class TascaFormValidatorHelper implements Validator {
 					errorPropietatNoPresent = false;
 					try {
 						commandPerValidadorExpressions = getCommandPerValidadorExpressions(commandPerValidadorExpressions, propietatAddicional);
-						getValidatorPerExpressions(tascaDades, command).validate(
+						getValidatorPerExpressions(tascaDades).validate(
 								commandPerValidadorExpressions,
 								errors);
 					} catch (NotReadablePropertyException ex) {
@@ -308,20 +306,8 @@ public class TascaFormValidatorHelper implements Validator {
 	}
 
 	private Validator getValidatorPerExpressions(
-			List<TascaDadaDto> tascaDadas,
-			Object command) {
-		return new ExpressionsValidator();
-	}
-
-	private class ExpressionsValidator implements Validator {
-		public boolean supports(Class clazz) {
-			return true;
-		}
-
-		public void validate(Object target, Errors errors) {
-			System.out.println("Validació d'expressions no implementat");
-			//ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
-		}
+			List<TascaDadaDto> tascaDadas) {
+		return new ExpressionsValidator(tascaDadas);
 	}
 
 	private Object getCommandPerValidadorExpressions(

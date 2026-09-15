@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -28,7 +28,7 @@ import es.caib.helium.commons.dto.AccioTipusEnumDto;
 /**
  * Objecte de domini que representa un document de la definició
  * de procés
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
@@ -57,9 +57,9 @@ public class Accio implements Serializable, GenericEntity<Long> {
 
 	public Accio() {}
 	public Accio(
-			DefinicioProces definicioProces, 
-			String codi, 
-			String nom, 
+			DefinicioProces definicioProces,
+			String codi,
+			String nom,
 			AccioTipusEnumDto tipus) {
 		this.definicioProces = definicioProces;
 		this.codi = codi;
@@ -67,9 +67,9 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.tipus = tipus;
 	}
 	public Accio(
-			ExpedientTipus expedientTipus, 
-			String codi, 
-			String nom, 
+			ExpedientTipus expedientTipus,
+			String codi,
+			String nom,
 			AccioTipusEnumDto tipus) {
 		this.expedientTipus = expedientTipus;
 		this.codi = codi;
@@ -120,7 +120,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	public void setTipus(AccioTipusEnumDto tipus) {
 		this.tipus = tipus;
 	}
-	
+
 	@Column(name="jbpm_action", length=255, nullable=false)
 	public String getJbpmAction() {
 		return jbpmAction;
@@ -188,7 +188,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	public void setExpedientTipus(ExpedientTipus expedientTipus) {
 		this.expedientTipus = expedientTipus;
 	}
-	
+
 	@Column(name="defproc_jbpmkey", length=255)
 	public String getDefprocJbpmKey() {
 		return defprocJbpmKey;
@@ -204,7 +204,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	public void setHandlerClasse(String handlerClasse) {
 		this.handlerClasse = handlerClasse;
 	}
-	
+
 	@Column(name="handler_dades", length=255)
 	public String getHandlerDades() {
 		return handlerDades;
@@ -274,7 +274,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 				return false;
 		} else if (!handlerDades.equals(other.handlerDades))
 			return false;
-		
+
 		return true;
 	}
 

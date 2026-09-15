@@ -1,5 +1,7 @@
 package es.caib.helium.disseny.api;
 
+import es.caib.helium.commons.dto.DadesNotificacioDto;
+import es.caib.helium.commons.dto.RegistreIdDto;
 import es.caib.helium.commons.dto.TerminiIniciatDto;
 import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.disseny.engine.WTaskInstance;
@@ -15,13 +17,15 @@ public interface HeliumApi {
 	public void setVariable(String codi, Object valor);
 	public <T> T getVariableDefaultValue(String codi, T defaultValue);
 	public Date getVariableDefaultValueAsDate(String codi, Object defaultValue);
+	public Integer getVariableDefaultValueAsInteger(String codi, Object defaultValue);
 	public Boolean getVariableDefaultValueAsBoolean(String codi, Object defaultValue);
 
 	public ExpedientInfo getExpedientInfo();
 
 	public DocumentInfo getDocumentInfo(String documentCodi);
+	public DocumentInfo getDocumentInfo(String documentCodi, boolean ambCongingut);
 
-	public void setDocument(
+	public DocumentInfo setDocument(
 		String documentCodi,
 		String arxiuNom,
 		byte[] arxiuContingut,
@@ -134,6 +138,8 @@ public interface HeliumApi {
 		String transicioOK,
 		String transicioKO,
 		String portafirmesFluxId);
+
+	public void notificacioCrear(DadesNotificacioDto notificacio);
 
 	public void enviarEmail(
 		List<String> recipients,

@@ -1286,6 +1286,10 @@ public class ExpedientHelper {
 		return expedientRepository.findByEntornIdAndId(entornId, id);
 	}
 
+	public Expedient findById(Long id) {
+		return expedientRepository.findById(id).orElse(null);
+	}
+
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
 		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
 		if (expedient == null) {
@@ -2452,7 +2456,7 @@ public class ExpedientHelper {
 						dades);
 					handler.execute(HeliumApiFactory.createInstance(
 						expedient,
-						null,
+						expedient.getProcessInstanceId(),
 						null,
 						estatRepository,
 						this,
@@ -2476,7 +2480,7 @@ public class ExpedientHelper {
 						dades);
 					handler.execute(HeliumApiFactory.createInstance(
 						expedient,
-						null,
+						expedient.getProcessInstanceId(),
 						null,
 						estatRepository,
 						this,

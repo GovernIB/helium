@@ -135,7 +135,7 @@ public class AbstractSalutPlugin implements SalutPlugin {
         }
         final long totalOperacions = peticionsOkSegures + peticionsErrorSegures;
         // Percentatge d'errors arrodonit correctament evitant divisió d'enters
-        final int errorRatePct = (int) Math.round((peticionsErrorSegures * 100.0) / totalOperacions);
+        final int errorRatePct = (int) Math.round((peticionsErrorSegures * 100.0) / (totalOperacions == 0L? 1L : totalOperacions));
         return EstatHelper.calculaEstat(errorRatePct);
     }
 

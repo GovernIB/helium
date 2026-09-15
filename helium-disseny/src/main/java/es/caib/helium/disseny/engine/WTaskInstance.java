@@ -37,7 +37,7 @@ public class WTaskInstance {
 		return !this.isCancelled() && endTime == null;
 	}
 	public boolean isCompleted() {
-		return false; //TODO: revisar
+		return endTime != null;
 	}
 
 	public boolean isAgafada() {

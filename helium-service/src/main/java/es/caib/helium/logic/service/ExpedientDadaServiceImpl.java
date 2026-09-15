@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.dto.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +25,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.caib.helium.commons.dto.CampAgrupacioDto;
-import es.caib.helium.commons.dto.CampInfoDto;
-import es.caib.helium.commons.dto.CampTipusDto;
-import es.caib.helium.commons.dto.DadaListDto;
-import es.caib.helium.commons.dto.DadaValorDto;
-import es.caib.helium.commons.dto.ExpedientDadaDto;
-import es.caib.helium.commons.dto.InstanciaProcesDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.regles.CampFormProperties;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.utils.MessageHelper;

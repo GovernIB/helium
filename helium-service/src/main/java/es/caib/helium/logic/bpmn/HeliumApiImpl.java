@@ -1,5 +1,6 @@
 package es.caib.helium.logic.bpmn;
 
+import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.disseny.engine.WTaskInstance;
@@ -7,6 +8,7 @@ import es.caib.helium.disseny.exception.HeliumHandlerException;
 import es.caib.helium.disseny.model.DocumentInfo;
 import es.caib.helium.commons.dto.*;
 import es.caib.helium.disseny.model.ExpedientInfo;
+import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.repository.EstatRepository;
@@ -80,6 +82,27 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 	}
 
+	public Integer getVariableDefaultValueAsInteger(String codi, Object defaultValue) {
+		if (defaultValue != null) {
+			if (defaultValue instanceof Integer) {
+				return (Integer) defaultValue;
+			} else {
+				return Integer.parseInt(defaultValue.toString());
+			}
+		}
+		if (codi != null && !codi.isEmpty()) {
+			Object valor = getVariable(codi);
+			if (valor != null) {
+				if (valor instanceof Integer) {
+					return (Integer) valor;
+				} else {
+					return Integer.parseInt(valor.toString());
+				}
+			}
+		}
+		return null;
+	}
+
 	public Boolean getVariableDefaultValueAsBoolean(String codi, Object defaultValue) {
 		Object value = getVariableValue(codi, defaultValue);
 		if (value != null) {
@@ -101,11 +124,28 @@ public class HeliumApiImpl implements HeliumApi {
 		expedientInfo.setNumero(expedient.getNumero());
 		expedientInfo.setDataInici(expedient.getDataInici());
 		expedientInfo.setDataFi(expedient.getDataFi());
+		expedientInfo.setAvisosMobil(expedient.getAvisosMobil());
+		expedientInfo.setAvisosEmail(expedient.getAvisosEmail());
+		expedientInfo.setNumeroIdentificador(expedient.getNumeroIdentificador());
+		expedientInfo.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
+		expedientInfo.setNtiIdentificador(expedient.getNtiIdentificador());
+		expedientInfo.setProcessInstanceId(expedient.getProcessInstanceId());
+		expedientInfo.setEntornId(expedient.getEntorn().getId());
+
+		expedientInfo.setTipusId(expedient.getTipus().getId());
+		expedientInfo.setTipus(expedient.getTipus().getTipus());
+		expedientInfo.setNotibEmisor(expedient.getTipus().getNotibEmisor());
+		expedientInfo.setNotibCodiProcediment(expedient.getTipus().getNotibCodiProcediment());
 		return expedientInfo;
 	}
 
 	@Override
 	public DocumentInfo getDocumentInfo(String documentCodi) {
+		return getDocumentInfo(documentCodi, false);
+	}
+
+	@Override
+	public DocumentInfo getDocumentInfo(String documentCodi, boolean ambCongingut) {
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
 			expedient.getId(),
 			processId,
@@ -119,13 +159,16 @@ public class HeliumApiImpl implements HeliumApi {
 				documentCodi);
 			DocumentDto docV3 = documentHelperV3.toDocumentDto(
 				documentStore.getId(),
+				ambCongingut && !documentStore.isSignat(),
+				ambCongingut && documentStore.isSignat(),
 				false,
 				false,
 				true,
-				true,
-				false,
 				false);
 			DocumentInfo resposta = new DocumentInfo();
+			resposta.setProcessInstanceId(processId);
+			if(documentDisseny.getDefinicioProces() != null)
+				resposta.setProcessInstanceTitol(documentDisseny.getDefinicioProces().getEtiqueta());
 			resposta.setId(documentStore.getId());
 			resposta.setCodiDocument(documentCodi);
 			if (documentStore.isAdjunt()) {
@@ -139,8 +182,13 @@ public class HeliumApiImpl implements HeliumApi {
 			if (documentStore.isSignat()) {
 				resposta.setCsv(docV3.getArxiuCsv());
 				resposta.setUrlVerificacioSignatures(docV3.getSignaturaUrlVerificacio());
+				resposta.setArxiuContingut(docV3.getSignatContingut());
+			} else {
+				resposta.setArxiuContingut(docV3.getArxiuContingut());
 			}
 			resposta.setRegistrat(documentStore.isRegistrat());
+			resposta.setArxiuUuid(docV3.getArxiuUuid());
+
 			if (documentStore.isRegistrat()) {
 				resposta.setRegistreNumero(documentStore.getRegistreNumero());
 				resposta.setRegistreData(documentStore.getRegistreData());
@@ -155,7 +203,7 @@ public class HeliumApiImpl implements HeliumApi {
 	}
 
 	@Override
-	public void setDocument(
+	public DocumentInfo setDocument(
 		String documentCodi,
 		String arxiuNom,
 		byte[] arxiuContingut,
@@ -163,7 +211,7 @@ public class HeliumApiImpl implements HeliumApi {
 		boolean ambFirma,
 		boolean firmaSeparada,
 		byte[] firmaContingut) {
-		expedientDocumentHelper.setDocument(
+		DocumentStore documentStore = expedientDocumentHelper.setDocument(
 			expedient.getId(),
 			processId,
 			taskId,
@@ -181,6 +229,26 @@ public class HeliumApiImpl implements HeliumApi {
 			null,
 			null,
 			null);
+
+		DocumentInfo resposta = new DocumentInfo();
+		resposta.setProcessInstanceId(processId);
+		resposta.setId(documentStore.getId());
+		resposta.setCodiDocument(documentCodi);
+		resposta.setTitol(documentStore.getArxiuNom() != null? documentStore.getArxiuNom() : documentStore.getAdjuntTitol());
+		resposta.setDataCreacio(documentStore.getDataCreacio());
+		resposta.setDataDocument(documentStore.getDataDocument());
+		resposta.setSignat(documentStore.isSignat());
+		resposta.setRegistrat(documentStore.isRegistrat());
+		resposta.setArxiuUuid(documentStore.getArxiuUuid());
+
+		if (documentStore.isRegistrat()) {
+			resposta.setRegistreNumero(documentStore.getRegistreNumero());
+			resposta.setRegistreData(documentStore.getRegistreData());
+			resposta.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
+			resposta.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
+			resposta.setRegistreEntrada(documentStore.isRegistreEntrada());
+		}
+		return resposta;
 	}
 
 	@Override
@@ -559,6 +627,24 @@ public class HeliumApiImpl implements HeliumApi {
 			PortafirmesSimpleTipusEnumDto.SERIE,
 			portafirmesFluxId,
 			PortafirmesTipusEnumDto.SIMPLE);
+	}
+
+	public void notificacioCrear(DadesNotificacioDto notificacio) {
+		RespostaEnviar respostaPlugin = pluginHelper.altaNotificacio(this.expedient, notificacio);
+		if (respostaPlugin.isError()) {
+			throw new SistemaExternException(
+				expedient.getEntorn().getId(),
+				expedient.getEntorn().getCodi(),
+				expedient.getEntorn().getNom(),
+				expedient.getId(),
+				expedient.getTitol(),
+				expedient.getNumero(),
+				expedient.getTipus().getId(),
+				expedient.getTipus().getCodi(),
+				expedient.getTipus().getNom(),
+				"(Registre data de justificant)",
+				respostaPlugin.getErrorDescripcio());
+		}
 	}
 
 	@Override

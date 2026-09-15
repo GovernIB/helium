@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -35,7 +35,7 @@ import es.caib.helium.logic.intf.service.ExpedientTascaService;
 
 /**
  * Controlador per la reassignació de tasques dels expedients
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -59,7 +59,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 		model.addAttribute(expedientTascaReassignarCommand);
 		return "expedient/tasca/reassignar";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignar", method = RequestMethod.POST)
 	public String tascaReassignarPost(
 			HttpServletRequest request,
@@ -70,7 +70,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
-		String tipus = request.getParameter("tipusExpressio"); 
+		String tipus = request.getParameter("tipusExpressio");
 		if ("submit".equals(submit) || submit.length() == 0) {
 			new TascaReassignarValidator().setTipus(tipus).validate(expedientTascaReassignarCommand, result);
 	        if (result.hasErrors()) {
@@ -96,10 +96,10 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	        	return "expedient/tasca/reassignar";
 			}
 		}
-		
+
 		return modalUrlTancar(false);
 	}
-	
+
 	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public String personaSuggest(
@@ -138,11 +138,11 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 				}
 		return null;
 	}
-	
-	
+
+
 	private class TascaReassignarValidator implements Validator {
 		private String tipus;
-		
+
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientTascaReassignarCommand.class);
@@ -160,7 +160,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			this.tipus = tipus;
 			return this;
 		}
-		
+
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientTasquesReassignarController.class);

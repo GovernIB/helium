@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -33,22 +33,22 @@ import es.caib.helium.commons.dto.AnotacioEstatEnumDto;
 import es.caib.helium.commons.dto.ArxiuEstat;
 
 /**
- * Classe del model de dades que representa una anotació al registre rebuda com a Backoffice 
+ * Classe del model de dades que representa una anotació al registre rebuda com a Backoffice
  * de Distribucio.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
 @Table(name = "hel_anotacio")
 public class Anotacio implements Serializable, GenericEntity<Long> {
 
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_anot")
 	@TableGenerator(name="gen_anot", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
 	@Column(name="id")
 	private Long id;
-	
+
 	/** Expedient tipus associat per codi de procediment */
 	@ManyToOne(optional=true)
 	@JoinColumn(name="expedient_tipus_id")
@@ -60,7 +60,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private Expedient expedient;
 
 	// Dades del processament de la petició d'anotació
-	
+
 	/** Estat de l'anotació a Helium. */
 	/** Identificador de l'anotació a Distribucio per relacionar la informació amb la petició de distribució */
 	@Column(name = "distribucio_id", length = 80, nullable = false)
@@ -72,7 +72,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private AnotacioEstatEnumDto estat;
 	@Column(name = "data_recepcio", nullable = false)
 	private Date dataRecepcio;
-	
+
 	// Camps per la tasca en segon pla de consulta
 	@Column(name = "consulta_intents", nullable = false)
 	private int consultaIntents = 0;
@@ -80,7 +80,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private String consultaError = null;
 	@Column(name = "consulta_data")
 	private Date consultaData = null;
-	
+
 	// Camps de dades del processament
 	/** Data en què s'ha processat amb o sense error o que s'ha rebutjat l'anotació. */
 	@Column(name = "data_processament")
@@ -88,13 +88,13 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	@Lob
 	@Column(name = "error_processament")
 	private String errorProcessament = null;
-	
+
 	/** Motiu del rebuig en cas de rebutjar l'anotació */
 	@Column(name = "rebuig_motiu", length = 500)
 	private String rebuigMotiu;
-	
+
 	// Dades pròpies de l'anotació
-	
+
 	@Column(name = "aplicacio_codi", length = 20)
 	private String aplicacioCodi;
 	@Column(name = "aplicacio_versio", length = 15)
@@ -174,20 +174,20 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private String tramitCodi;
 	@Column(name = "tramit_nom", length = 255)
 	private String tramitNom;
-	
+
 	@OneToMany(
 			mappedBy = "anotacio",
 			cascade = CascadeType.ALL,
 			orphanRemoval = true)
 	private List<AnotacioInteressat> interessats = new ArrayList<AnotacioInteressat>();
-	
+
 	@OneToMany(
 			mappedBy = "anotacio",
 			cascade = { CascadeType.ALL },
 			orphanRemoval = true,
 			fetch = FetchType.EAGER)
 	private List<AnotacioAnnex> annexos = new ArrayList<AnotacioAnnex>();
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -226,11 +226,11 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 				expedientTipus,
 				expedient);
 	}
-	
+
 
 	/**
 	 * Builder per a crear noves instàncies d'aquesta classe.
-	 * 
+	 *
 	 * @author Limit Tecnologies <limit@limit.es>
 	 */
 	public static class Builder {
@@ -341,7 +341,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 			built.observacions = observacions;
 			return this;
 		}
-		
+
 		public Builder oficinaDescripcio(String oficinaDescripcio) {
 			built.oficinaDescripcio = oficinaDescripcio;
 			return this;
@@ -396,7 +396,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 			built.destiDescripcio = destiDescripcio;
 			return this;
 		}
-		
+
 		public Builder serveiCodi(String serveiCodi) {
 			built.serveiCodi = serveiCodi;
 			return this;
@@ -406,12 +406,12 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 			built.presencial = presencial;
 			return this;
 		}
-		
+
 		public Builder tramitCodi(String tramitCodi) {
 			built.tramitCodi = tramitCodi;
 			return this;
 		}
-		
+
 		public Builder tramitNom(String tramitNom) {
 			built.tramitNom = tramitNom;
 			return this;
@@ -421,8 +421,8 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 			return built;
 		}
 	}
-	
-	
+
+
 
 	public String getAplicacioCodi() {
 		return aplicacioCodi;
@@ -557,14 +557,14 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	public void setExtracte(String extracte) {
 		this.extracte = extracte;
 	}
-	
+
 	public String getProcedimentCodi() {
 		return procedimentCodi;
 	}
 	public void setProcedimentCodi(String procedimentCodi) {
 		this.procedimentCodi = procedimentCodi;
 	}
-	
+
 	public String getServeiCodi() {
 		return serveiCodi;
 	}
@@ -583,10 +583,6 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	}
 	public void setExpedient(Expedient expedient) {
 		this.expedient = expedient;
-	}
-	
-	public void setidiomaDescripcio(String idiomaDescripcio) {
-		this.idiomaDescripcio = idiomaDescripcio;
 	}
 
 	public String getLlibreCodi() {
@@ -733,7 +729,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 		this.annexos = annexos;
 	}
 
-	
+
 	public String getDistribucioId() {
 		return distribucioId;
 	}
@@ -812,13 +808,13 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	public void setTramitNom(String tramitNom) {
 		this.tramitNom = tramitNom;
 	}
-	
+
 
 	/// Consultes sobre l'anotació
-	
+
 	@Transient
 	private boolean annexosRecorreguts = false;
-	@Transient	
+	@Transient
 	private boolean errorAnnexos = false;
 	@Transient
 	private boolean annexosInvalids = false;

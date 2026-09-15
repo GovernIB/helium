@@ -2,6 +2,7 @@ package es.caib.helium.ejb;
 
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
@@ -179,9 +180,9 @@ public class AnotacioServiceBean extends AbstractServiceEjb<AnotacioService> imp
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@PermitAll
 	public void comunicarAnotacionsPendents(List<AnotacioRegistreId> anotacionsDistribucio) {
 		delegateService.comunicarAnotacionsPendents(anotacionsDistribucio);
 	}
-	
+
 }

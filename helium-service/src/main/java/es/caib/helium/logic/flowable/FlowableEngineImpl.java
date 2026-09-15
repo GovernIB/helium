@@ -420,13 +420,19 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 									.taskId(taskId)
 									.includeIdentityLinks()
 									.singleResult();
-
 		if(task != null) {
+			if(task.getIdentityLinkCount() > 0 && task.getQueryIdentityLinks().isEmpty()) {
+				processEngine.getManagementService().executeCommand(commandContext -> {
+					task.setQueryIdentityLinks(null);
+					task.getIdentityLinks();
+					return null;
+				});
+			}
+
 			if(task.getIdentityLinkCount() > 0 && task.getQueryIdentityLinks().isEmpty()) {
 				task.setQueryIdentityLinks(null);
 				task.getIdentityLinks();
 			}
-
 			return toWTaskInstance(task);
 		}
 
