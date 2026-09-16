@@ -191,6 +191,8 @@ public class ExpedientHelper {
 	private AlertaHelper alertaHelper;
 	@Resource
 	private AnotacioHelper anotacioHelper;
+	@Resource
+	private RequestWarningHelper requestWarningHelper;
 
 	
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
@@ -2111,7 +2113,20 @@ public class ExpedientHelper {
 				// Indexam l'expedient
 				logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
 				mesuresTemporalsHelper.mesuraIniciar("Indexar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
-				indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+				try {
+					indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+				} catch(Exception ex) {
+					String text = String.format("Error creant indexació per instancia de process %s: [Error: %s]", 
+									expedient.getProcessInstanceId(),
+									ex.getMessage());
+					this.alertaHelper.crearAlerta(
+							entorn, 
+							expedient, 
+							new Date(), 
+							usuariBo, 
+							text);
+					requestWarningHelper.add(text);
+				}
 				mesuresTemporalsHelper.mesuraCalcular("Indexar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 
 			} catch( Throwable ex) {

@@ -206,6 +206,19 @@ public class LuceneHelper extends LuceneIndexSupport {
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
 	}
+	
+	public void deleteExpedient(final Long expedientId) {
+		logger.debug("Esborrant informació de l'expedient de l'index Lucene (" +
+				"id=" + expedientId + ")");
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene");
+		synchronized(syncObj) {
+			checkIndexOk();
+			getLuceneIndexTemplate().deleteDocuments(new Term(ExpedientCamps.EXPEDIENT_CAMP_ID, expedientId.toString()));
+		}
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene");
+	}
+	
+	
 
 	@SuppressWarnings("unchecked")
 	public List<Long> findNomesIds(

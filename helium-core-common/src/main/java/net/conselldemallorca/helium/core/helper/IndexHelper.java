@@ -337,6 +337,10 @@ public class IndexHelper {
 			contextIndexarTipExp.stop();
 		}
 	}
+	
+	public void expedientIndexLuceneDelete(Long expedientId) {
+		luceneHelper.deleteExpedient(expedientId);
+	}
 
 	public boolean expedientIndexLuceneRecrear(Expedient expedient) {
 		// Mètriques - Timers

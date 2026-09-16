@@ -74,6 +74,7 @@ import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.RequestWarningHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
@@ -101,6 +102,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
@@ -190,6 +192,7 @@ import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientLoggerRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
@@ -264,6 +267,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private EstatAccioSortidaRepository estatAccioSortidaRepository;
 	@Resource
 	private PeticioPinbalRepository peticioPinbalRepository;
+	@Resource
+	private ExpedientReindexacioRepository expedientReindexacioRepository;
 
 	@Resource
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
@@ -331,6 +336,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private ExpedientTipusService expedientTipusService;
 	@Resource
 	private Jbpm3HeliumService jbpm3HeliumService;
+	@Resource
+	private RequestWarningHelper requestWarningHelper;
 	
 	private ConcurrentMap<Long, Object> anotaciosInPorcess = new ConcurrentHashMap<Long, Object>();
 	
@@ -816,8 +823,18 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				desti.removeRelacioOrigen(expedient);		
 			}
 		}
+		
+		try {
+			luceneHelper.deleteExpedient(expedient);
+		} catch(Exception e) {
+			ExpedientReindexacio reindexacio = new ExpedientReindexacio();
+			reindexacio.setExpedientId(expedient.getId());
+			reindexacio.setDataReindexacio(new Date());
+			expedientReindexacioRepository.saveAndFlush(reindexacio);
+			requestWarningHelper.add("Error esborrant index lucene d'expedient %d: [Error: %s]", id, e.getMessage());
+		}
+		
 		expedientRepository.delete(expedient);
-		luceneHelper.deleteExpedient(expedient);
 		if (expedient.getArxiuUuid() != null && pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {			
 			try {
 				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
@@ -825,6 +842,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				logger.warn("Error esborrant l'expedient " + expedient.getNumero() + " " + expedient.getTitol() +" a l'Arxliu: " + e.getMessage());
 			}
 		}
+		
 		crearRegistreExpedient(
 				expedient.getId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),
@@ -1589,7 +1607,15 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		jbpmHelper.suspendProcessInstances(ids);
 		expedient.setAnulat(true);
 		expedient.setComentariAnulat(motiu);
-		luceneHelper.deleteExpedient(expedient);
+		try {
+			luceneHelper.deleteExpedient(expedient);
+		} catch(Exception e) {
+			ExpedientReindexacio reindexacio = new ExpedientReindexacio();
+			reindexacio.setExpedientId(expedient.getId());
+			reindexacio.setDataReindexacio(new Date());
+			expedientReindexacioRepository.save(reindexacio);
+			requestWarningHelper.add("Error esborrant index lucene d'expedient %d: [Error: %s]", id, e.getMessage());
+		}
 		crearRegistreExpedient(
 				expedient.getId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),

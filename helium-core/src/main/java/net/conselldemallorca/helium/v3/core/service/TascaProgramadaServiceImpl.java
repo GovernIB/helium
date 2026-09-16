@@ -368,6 +368,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 			}			
 		} else {
 			logger.warn("No s'ha trobat l'expedient amb id " + expedientId + " per reindexar.");
+			indexHelper.expedientIndexLuceneDelete(expedientId);
 		}
 	}
 
