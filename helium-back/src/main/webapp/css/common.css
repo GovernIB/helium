@@ -468,3 +468,14 @@ p.aclaracio {
     border-color: #EBCCD1;
     color: #A94442;
 }
+
+.dada-textarea {
+	background: unset;
+	border: none;
+	margin: 0;
+	padding: 0;
+	color: #666666;
+	font-size: 14px;
+	font-weight: 700;
+	font-style: normal;
+}

@@ -834,7 +834,11 @@ public class PlantillaHelper {
 		template.setContentWrapper(new DocumentTemplate.ContentWrapper() {
 			public String wrapContent(String content) {
 				return "[#ftl]\n"
-						+ "[#escape any as any?xml?replace(\"[\\n|\\r|\\r\\n|\\n\\r]\",\"</text:p> <text:p>\")]\n"
+						+ "[#escape any as any?xml"
+						+ "?replace(\"  \", \" <text:s/>\", \"r\")"
+						+ "?replace(\"\\n\\n\", \"</text:p><text:p>\", \"r\")"
+						+ "?replace(\"(\\r\\n|\\n\\r|\\r|\\n)\", \"<text:line-break/>\", \"r\")"
+						+ "]\n"
 						+ content
 						+ "[/#escape]";
 			}
