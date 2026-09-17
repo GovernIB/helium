@@ -15,11 +15,13 @@ import org.hibernate.validator.constraints.NotEmpty;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
+import net.conselldemallorca.helium.webapp.v3.validator.DocumentNotificacio;
 
 /**
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@DocumentNotificacio
 public class DocumentNotificacioCommand {
 
 	@NotEmpty

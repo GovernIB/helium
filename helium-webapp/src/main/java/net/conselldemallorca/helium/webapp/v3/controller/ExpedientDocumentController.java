@@ -1219,7 +1219,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 		if (result.hasErrors()) {
 			this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
-	    	return "v3/expedientDocumentNotificar";
+			return "v3/expedientDocumentNotificar";
 		}
 		try {
 			DadesNotificacioDto dadesNotificacioDto = ConversioTipusHelper.convertir(
