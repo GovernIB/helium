@@ -178,6 +178,9 @@
 				<th data-col-name="enviamentDatatEstat" data-template="#cellEnviamentEstatTemplate" width="9%">
 				<spring:message code="expedient.notificacio.estat.enviament"/>
 					<script id="cellEnviamentEstatTemplate" type="text/x-jsrender">
+						{{if error}}
+							<span class="fa fa-warning text-danger" title="{{>errorDescripcio}}"></span>
+						{{/if}}
 						{{if enviamentDatatEstat == 'REGISTRADA'}}
 								<spring:message code="notificacio.enviament.estat.enum.REGISTRADA"></spring:message>
 						{{else enviamentDatatEstat == 'ENVIADA'}}
@@ -291,6 +294,8 @@
 				<th data-col-name="expedientTipusCodi" data-visible="false">
 				<th data-col-name="entornNom" data-visible="false">
 				<th data-col-name="entornCodi" data-visible="false">
+				<th data-col-name="errorDescripcio" data-visible="false">
+				<th data-col-name="error" data-visible="false">
 			</tr>
 		</thead>
 	</table>
