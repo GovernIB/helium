@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.command;
 
@@ -11,14 +11,16 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import es.caib.helium.back.validator.DocumentNotificacio;
 import es.caib.helium.commons.dto.EnviamentTipusEnumDto;
 import es.caib.helium.commons.dto.IdiomaEnumDto;
 import es.caib.helium.commons.dto.ServeiTipusEnumDto;
 
 /**
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@DocumentNotificacio
 public class DocumentNotificacioCommand {
 
 	@NotEmpty
@@ -38,39 +40,9 @@ public class DocumentNotificacioCommand {
 	private Date caducitat;
 	private int retard;
 	private boolean entregaPostalActiva;
-	
 	private IdiomaEnumDto idioma;
-	
-//	private EntregaPostalTipus entregaPostalTipus;
-//	private EntregaPostalViaTipus  entregaPostalViaTipus;
-//	private String entregaPostalViaNom;
-//	private String entregaPostalNumeroCasa;
-//	private String entregaPostalNumeroQualificador;
-//	private String entregaPostalPuntKm;
-//	private String entregaPostalApartatCorreus;
-//	private String entregaPostalPortal;	
-//	private String entregaPostalEscala;
-//	private String entregaPostalPlanta;
-//	private String entregaPostalPorta;
-//	private String entregaPostalBloc;
-//	private String entregaPostalComplement;
-//	private String entregaPostalCodiPostal;
-//	private String entregaPostalPoblacio;
-//	private String entregaPostalMunicipiCodi;
-//	private String entregaPostalProvinciaCodi;
-//	private String entregaPostalPaisCodi;
-//	private String entregaPostalLinea1;
-//	private String entregaPostalLinea2;
-//	private Integer entregaPostalCie;
-//	private String entregaPostalFormatSobre;
-//	private String entregaPostalFormatFulla;
-//	
-//	private boolean entregaDehObligat;
-//	private String entregaDehProcedimentCodi;
-//	
-	
-	
-	
+
+
 	public String getGrupCodi() {
 		return grupCodi;
 	}
@@ -143,5 +115,5 @@ public class DocumentNotificacioCommand {
 	public void setIdioma(IdiomaEnumDto idioma) {
 		this.idioma = idioma;
 	}
-	
+
 }

@@ -1710,7 +1710,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				true,
-				true,
+				false,
 				false, // Per notificar
 				(documentStore == null || documentStore.getArxiuUuid() == null));
 		if (dto == null) {
