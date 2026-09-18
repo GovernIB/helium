@@ -39,21 +39,21 @@
 				</c:if>
 				<c:set var="agrupacioFirst" value="${false}"/>
 			</c:forEach>
-			
+
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.proces.cap' /></div>
 	</c:otherwise>
-	
+
 </c:choose>
 
 <script>
 /*<![CDATA[*/
-var procesId =<c:out value="${procesId}"/>
+var procesId = '<c:out value="${procesId}"/>';
 var contadorTotals =<c:out value="${contadorTotals}"/>
 if(contadorTotals > 0){
 	$("#" + procesId + "-titol > span.badge.general").html(contadorTotals);
 }else{
-	$("#" + procesId + "-titol > span.badge.general").html('');	
+	$("#" + procesId + "-titol > span.badge.general").html('');
 }
 </script>

@@ -94,7 +94,6 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 				campsFiltre,
 				campsAddicionals,
 				campsAddicionalsClasses,
-				consulta.getMapValorsPredefinits().size() > 0 ? consulta.getMapValorsPredefinits() : null,
 				true);
 	}
 
