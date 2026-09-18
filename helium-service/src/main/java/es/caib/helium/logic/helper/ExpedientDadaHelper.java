@@ -443,6 +443,10 @@ public class ExpedientDadaHelper {
 							return "expedient." + colName + " as \"" + ic.getCodi() + "\"";
 						} else if(ic.getTipus() == CampTipusDto.REGISTRE || ic.isMultiple()) {
 							return "JSON_QUERY(d.DADES, '$." + ic.getCodi() + ".v') as \"" + ic.getCodi() + "\"";
+						} else if(ic.getTipus() == CampTipusDto.INTEGER ||
+							      ic.getTipus() == CampTipusDto.FLOAT ||
+							      ic.getTipus() == CampTipusDto.PRICE) {
+							return "JSON_QUERY(d.DADES, '$." + ic.getCodi() + ".v' RETURNING NUMBER NULL ON ERROR) as \"" + ic.getCodi() + "\"";
 						}
 						return "JSON_VALUE(d.DADES, '$." + ic.getCodi() + ".v') as \"" + ic.getCodi() + "\"";
 					})
@@ -578,7 +582,13 @@ public class ExpedientDadaHelper {
 				campNom = campNom.substring(campNom.indexOf(ExpedientCamps.EXPEDIENT_PREFIX_SEPARADOR)+1);
 				campNom = "expedient." + getColumnName(campNom, Expedient.class);
 			} else {
-				campNom = "JSON_VALUE(d.DADES, '$." + campNom + ".v')";
+				 if(f.getTipus() == CampTipusDto.INTEGER &&
+					f.getTipus() == CampTipusDto.FLOAT &&
+					f.getTipus() == CampTipusDto.PRICE) {
+					 campNom = "JSON_QUERY(d.DADES, '$." + f.getCodi() + ".v' RETURNING NUMBER NULL ON ERROR) as \"" + f.getCodi() + "\"";
+				} else {
+					 campNom = "JSON_VALUE(d.DADES, '$." + campNom + ".v')";
+				 }
 			}
 			if(filtreVal == null)
 				continue;

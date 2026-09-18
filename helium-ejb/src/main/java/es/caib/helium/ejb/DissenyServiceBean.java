@@ -143,7 +143,7 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 		return delegateService.getDeploymentResource(id, recursForm);
 	}
 
-	public ExpedientTipusDto getExpedientTipusById(Long id) {
+	public ExpedientTipusDto getExpedientTipusById(Long id) throws NoTrobatException {
 		return delegateService.getExpedientTipusById(id);
 	}
 
