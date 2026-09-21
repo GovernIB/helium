@@ -51,6 +51,18 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 		Long definicioProcesId,
 		String nom);
 
+	@Query(
+		"SELECT r.contingut " +
+			"FROM Recurs r " +
+			"WHERE " +
+			"    ((:expedientTipusId IS NULL) OR r.expedientTipus.id = :expedientTipusId) " +
+			"AND ((:definicioProcesId IS NULL AND r.definicioProces IS NULL) OR r.definicioProces.id = :definicioProcesId) " +
+			"AND r.id = :id ")
+	Optional<byte[]> findContingutByExpedientTipusIdAndDefinicioProcesIdAndId(
+		Long expedientTipusId,
+		Long definicioProcesId,
+		Long id);
+
 	List<Recurs> findByExpedientTipusIdAndHandler(Long expedientTipusId, boolean handler);
 
 	@Query(
@@ -73,6 +85,14 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 	Set<String> findNomByDefinicioProcesId(@Param("definicioProcesId") Long definicioProcesId);
 
 	@Query(
+		"SELECT r.nom " +
+			" FROM Recurs r " +
+			" WHERE " +
+			" r.expedientTipus.id = :expedientTipusId " +
+			" AND r.definicioProces IS NULL")
+	Set<String> findNomByExpedientTipus(@Param("expedientTipusId") Long expedientTipusId);
+
+	@Query(
 		"SELECT r.contingut " +
 			"FROM Recurs r " +
 			"WHERE " +
@@ -82,4 +102,5 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 		@Param("jbpmId") String bpmnId,
 		@Param("nom") String nom);
 
+	Recurs findByDefinicioProcesIdAndNom(Long definicioProcesId, String nom);
 }

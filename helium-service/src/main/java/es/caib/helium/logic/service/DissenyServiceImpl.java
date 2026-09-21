@@ -908,6 +908,72 @@ public class DissenyServiceImpl implements DissenyService {
 		return resposta;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public Set<String> getRecursosPropisNom(Long definicioProcesId) {
+		return recursRepository.findNomByDefinicioProcesId(definicioProcesId);
+	}
+
+	@Override
+	@Transactional
+	public void recursDelete(Long definicioProcesId, String nom) throws NoTrobatException {
+		Recurs recurs = recursRepository.findByDefinicioProcesIdAndNom(definicioProcesId, nom);
+		if (recurs == null) {
+			throw new NoTrobatException(Recurs.class, nom);
+		}
+		recursRepository.delete(recurs);
+	}
+
+	@Override
+	@Transactional
+	public List<String> recursDesplegar(
+			Long definicioProcesId,
+			String nomArxiu,
+			byte[] contingut) throws NoTrobatException {
+		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
+		if (definicioProces == null) {
+			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		}
+		if (definicioProces.getExpedientTipus() == null) {
+			throw new DeploymentException(
+				messageHelper.getMessage("definicio.proces.recurs.desplegar.global.error"));
+		}
+		if (!(nomArxiu.endsWith(".jar") || nomArxiu.endsWith(".zip") || nomArxiu.endsWith(".class"))) {
+			throw new DeploymentException(
+				messageHelper.getMessage("definicio.proces.recurs.desplegar.error.arxiuNom", new Object[] {nomArxiu}));
+		}
+		try {
+			List<Recurs> recursosCreats;
+			if (nomArxiu.endsWith(".class")) {
+				recursosCreats = expedientTipusRecursHelper.deploy(
+					definicioProces.getExpedientTipus().getId(), definicioProcesId, contingut, nomArxiu);
+			} else {
+				recursosCreats = expedientTipusRecursHelper.deploy(
+					definicioProces.getExpedientTipus().getId(), definicioProcesId, contingut);
+			}
+			return recursosCreats.stream().
+				map(r -> {
+					String prefix;
+					if (r.isHandler()) {
+						prefix = "(H) ";
+					} else if (r.isClasse()) {
+						prefix = "(C) ";
+					} else {
+						prefix = "(R) ";
+					}
+					return prefix + r.getNom();
+				}).
+				collect(Collectors.toList());
+		} catch (IOException ex) {
+			logger.error(
+				"Error desplegant els recursos de la definició de procés (definicioProcesId={}, nomArxiu={})",
+				definicioProcesId,
+				nomArxiu,
+				ex);
+			throw new DeploymentException(messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
+		}
+	}
+
 	@Transactional(readOnly = true)
 	public Set<String> getHandlersNom(Long definicioProcesId) {
 		Set<String> resposta = null;
@@ -1287,7 +1353,13 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional
     public List<String> updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
 		try {
-			List<Recurs> recursosCreats = expedientTipusRecursHelper.deploy(expedientTipusId, null, contingut);
+			List<Recurs> recursosCreats;
+			if(nomArxiu.endsWith(".zip") || nomArxiu.endsWith(".jar")) {
+				recursosCreats = expedientTipusRecursHelper.deploy(expedientTipusId, null, contingut);
+			} else {
+				recursosCreats = expedientTipusRecursHelper.deploy(expedientTipusId, null, contingut, nomArxiu);
+			}
+
 			return recursosCreats.stream().
 				map(r -> {
 					String prefix;

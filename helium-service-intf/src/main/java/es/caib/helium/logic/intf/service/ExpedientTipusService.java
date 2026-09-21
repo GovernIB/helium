@@ -734,6 +734,42 @@ public interface ExpedientTipusService {
 		String filtre,
 		PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
+	/**
+	 * Esborra un recurs del tipus d'expedient.
+	 *
+	 * @param expedientTipusId
+	 *            Id del tipus d'expedient.
+	 * @param id
+	 *            Id del recurs.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el recurs o no pertany al tipus d'expedient.
+	 */
+	void recursDelete(
+		Long expedientTipusId,
+		Long id) throws NoTrobatException;
+
+	/**
+	 * Recupera un recurs del tipus d'expedient.
+	 *
+	 * @param expedientTipusId
+	 *            Id del tipus d'expedient.
+	 * @param id
+	 *            Id del recurs.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el recurs o no pertany al tipus d'expedient.
+	 */
+	byte[] getRecursContingut(
+		Long expedientTipusId,
+		Long id) throws NoTrobatException;
+
+	/**
+	 * Genera i retorna un par (zip) amb tots els recursos del tipus d'expedient
+	 *
+	 * @param expedientTipusId
+	 * @return
+	 */
+	byte[] getParContingut(Long expedientTipusId);
+
 	/***********************************************/
 	/********************ESTATS*********************/
 	/***********************************************/

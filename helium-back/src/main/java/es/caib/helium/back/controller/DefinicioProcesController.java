@@ -358,9 +358,104 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				// Llistat de recursos
 				Set<String> recursos = dissenyService.getRecursosNom(definicioProcesId);
 				model.addAttribute("recursos", recursos);
+				// Noms dels recursos emmagatzemats a la taula de recursos (els únics esborrables)
+				model.addAttribute("recursosEsborrables", dissenyService.getRecursosPropisNom(definicioProcesId));
 			}
 		}
 		return "definicioProcesRecurs";
+	}
+
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/recurs/delete", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean recursDelete(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			@RequestParam String nom,
+			Model model) {
+
+		try {
+			dissenyService.recursDelete(definicioProcesId, nom);
+
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"definico.proces.recurs.esborrar.correcte"));
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"definico.proces.recurs.esborrar.error"),
+					e);
+			logger.error("S'ha produit un error al intentar eliminar el recurs amb nom '" + nom + "' de la definició de procés amb id '" + definicioProcesId, e);
+			return false;
+		}
+	}
+
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/recurs/new", method = RequestMethod.GET)
+	public String recursNew(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		DefinicioProcesDesplegarCommand command = new DefinicioProcesDesplegarCommand();
+		command.setDefinicioProcesId(definicioProcesId);
+		command.setEntornId(entornActual.getId());
+		command.setAccio(ACCIO_PROCES.PROCES_DESPLEGAR);
+		model.addAttribute("jbpmKey", jbmpKey);
+		model.addAttribute("definicioProces", definicioProces);
+		model.addAttribute("command", command);
+		return "definicioProcesRecursForm";
+	}
+
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/recurs/new", method = RequestMethod.POST)
+	public String recursNewPost(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			@ModelAttribute("command") @Validated(Desplegament.class) DefinicioProcesDesplegarCommand command,
+			BindingResult bindingResult,
+			Model model) throws IOException {
+		command.setDefinicioProcesId(definicioProcesId);
+		boolean error = false;
+		if (bindingResult.hasErrors()) {
+			error = true;
+		} else {
+			try {
+				List<String> recursos = dissenyService.recursDesplegar(
+						definicioProcesId,
+						command.getFile().getOriginalFilename(),
+						command.getFile().getBytes());
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"definico.proces.recurs.desplegar.form.success",
+								new Object[] {recursos.size(), recursos}));
+			} catch (Exception e) {
+				logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage(), e);
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"definicio.proces.actualitzar.excepcio",
+								new Object[] {e.getMessage()}),
+						e);
+				error = true;
+			}
+		}
+		if (error) {
+			model.addAttribute("jbpmKey", jbmpKey);
+			model.addAttribute("definicioProces", definicioProcesService.findById(definicioProcesId));
+			return "definicioProcesRecursForm";
+		} else {
+			return modalUrlTancar(false);
+		}
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/recurs/descarregar")

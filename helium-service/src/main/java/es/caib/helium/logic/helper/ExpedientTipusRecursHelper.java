@@ -1,5 +1,6 @@
 package es.caib.helium.logic.helper;
 
+import aj.org.objectweb.asm.ClassReader;
 import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.classloader.RecursListClassLoader;
 import es.caib.helium.logic.classloader.RecursRepositoryClassLoader;
@@ -40,6 +41,71 @@ public class ExpedientTipusRecursHelper {
 	private final ExpedientTipusRepository expedientTipusRepository;
 	private final DefinicioProcesRepository definicioProcesRepository;
 	private final RecursRepository recursRepository;
+
+	/**
+	 * Desplega els recursos d'un .jar a dins un tipus d'expedient / definició de procés.
+	 * <p>
+	 * Si el recurs és una classe l'emmagatzema substituint els '/' del nom per '.' i llevant el '.class' final. Si no
+	 * és una classe emmagatzema el recurs tal i com apareix al .jar (amb '/').
+	 *
+	 * @param expedientTipusId
+	 *            l'id del tipus d'expedient.
+	 * @param definicioProcesId
+	 *            l'id de la definició de procés (si és null es crearà el recurs lligat només al tipus d'expedient).
+	 * @param content
+	 *            el contingut del fitxer.
+	 * @param name
+	 * 	          el name del fitxer.
+	 * @throws IOException
+	 *            si no s'ha pogut llegit el contingut del.
+	 */
+	public List<Recurs> deploy(
+		Long expedientTipusId,
+		Long definicioProcesId,
+		byte[] content,
+		String name) throws IOException {
+		Optional<ExpedientTipus> expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		if (expedientTipus.isPresent()) {
+			Optional<DefinicioProces> definicioProces = (definicioProcesId != null) ?
+				definicioProcesRepository.findById(definicioProcesId) :
+				Optional.empty();
+			boolean isClass = name.endsWith(".class");
+
+			if(isClass) {
+				try (InputStream is = new ByteArrayInputStream(content)) {
+					ClassReader reader = new ClassReader(is);
+					name = reader.getClassName() + ".class";
+				}
+			}
+
+			Optional<Recurs> existent = recursRepository.findByExpedientTipusAndDefinicioProcesAndNom(
+				expedientTipus.get(),
+				definicioProces.orElse(null),
+				name);
+			List<Recurs> recursosCreats = new ArrayList<Recurs>();
+			if (existent.isPresent()) {
+				Recurs saved = existent.get();
+				saved.setClasse(isClass);
+				saved.setDataCreacio(new Date());
+				saved.setContingut(content);
+				recursosCreats.add(saved);
+			} else {
+				recursosCreats.add(recursRepository.save(
+					Recurs.builder().
+						nom(name).
+						classe(isClass).
+						dataCreacio(new Date()).
+						contingut(content).
+						expedientTipus(expedientTipus.get()).
+						definicioProces(definicioProces.orElse(null)).
+						build()));
+			}
+			updateRecursHandlerField(recursosCreats);
+			return recursosCreats;
+		} else {
+			throw new EntityNotFoundException("Couldn't find ExpedientTipus with id " + expedientTipusId);
+		}
+	}
 
 	/**
 	 * Desplega els recursos d'un .jar a dins un tipus d'expedient / definició de procés.

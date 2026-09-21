@@ -24,7 +24,7 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="1"
-				data-rowhref-toggle="modal"
+			  	data-botons-template="#tableButtonsRecursosTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -47,9 +47,37 @@
 						</script>
 					</th>
 					<th data-col-name="dataCreacio" data-converter="date"><spring:message code="expedient.tipus.recurs.llistat.columna.dataCreacio"/></th>
+					<th data-col-name="id" data-template="#cellAccionsRecursTemplate" data-orderable="false"  width="50px">
+						<script id="cellAccionsRecursTemplate" type="text/x-jsrender">
+							<div class="dropdown navbar-right">
+								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									<li>
+										<a href='<c:url value="/expedientTipus${expedientTipus.id}/recurs/{{:id}}/descarregar"/>?nom={:nom}' >
+											<span class="fa fa-download"></span>&nbsp;<spring:message code="definico.proces.recurs.descarregar"/>
+										</a>
+									</li>
+									<li>
+										<a 	href='<c:url value="/expedientTipus${expedientTipus.id}/recurs/{{:id}}/delete"/>'
+											data-toggle="ajax"
+											class="consultar-expedient"
+											data-confirm="<spring:message code="expedient.tipus.recurs.llistat.accio.esborrar.confirmacio"/>">
+											<span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.recurs.llistat.accio.esborrar"/></a>
+									</li>
+								</ul>
+							</div>
+						</script>
+					</th>
 				</tr>
 			</thead>
 		</table>
+
+		<script id="tableButtonsRecursosTemplate" type="text/x-jsrender">
+			<div class="botons-titol text-right">
+				<a id="descarregar_par" class="btn btn-primary" href='<c:url value="/expedientTipus/${expedientTipus.id}/recurs/par"></c:url>' style="margin-left: 10px;"><span class="fa fa-arrow-down"></span>&nbsp;<spring:message code="definico.proces.recurs.descarregar.par"/></a>
+				<a id="nou_recurs" class="btn btn-default" href="<c:url value="/modal/expedientTipus/${expedientTipus.id}/recursos/new"/>" data-toggle="modal" data-datatable-id="expedientTipusRecurs"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.recurs.llistat.accio.add"/></a>
+			</div>
+		</script>
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
@@ -65,12 +93,12 @@ $(document).ready(function() {
 	});
 });
 
-function callbackModalRedireccions() {
+function callbackModalRecursos() {
 	refrescaTaula();
 }
 
 function refrescaTaula() {
-	$('#expedientTipusRedireccio').webutilDatatable('refresh');
+	$('#expedientTipusRecurs').webutilDatatable('refresh');
 }
 // ]]>
 </script>

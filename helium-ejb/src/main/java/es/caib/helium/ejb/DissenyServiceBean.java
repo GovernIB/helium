@@ -260,6 +260,24 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Set<String> getRecursosPropisNom(Long definicioProcesId) {
+		return delegateService.getRecursosPropisNom(definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void recursDelete(Long definicioProcesId, String nom) throws NoTrobatException {
+		delegateService.recursDelete(definicioProcesId, nom);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<String> recursDesplegar(Long definicioProcesId, String nomArxiu, byte[] contingut) throws NoTrobatException {
+		return delegateService.recursDesplegar(definicioProcesId, nomArxiu, contingut);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public byte[] getRecursContingut(Long definicioProcesId, String nom) throws IOException {
 		return delegateService.getRecursContingut(definicioProcesId, nom);
 	}

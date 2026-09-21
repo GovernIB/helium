@@ -639,6 +639,30 @@ public class ExpedientTipusServiceBean extends AbstractServiceEjb<ExpedientTipus
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void recursDelete(
+		Long expedientTipusId,
+		Long id) throws NoTrobatException {
+		delegateService.recursDelete(
+			expedientTipusId,
+			id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public byte[] getRecursContingut(
+		Long expedientTipusId,
+		Long id) throws NoTrobatException {
+		return delegateService.getRecursContingut(expedientTipusId, id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public byte[] getParContingut(Long expedientTipusId) {
+		return delegateService.getParContingut(expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ConsultaDto consultaCreate(Long expedientTipusId, ConsultaDto consulta) throws PermisDenegatException {
 		return delegateService.consultaCreate(expedientTipusId, consulta);
 	}

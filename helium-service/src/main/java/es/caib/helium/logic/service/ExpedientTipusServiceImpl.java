@@ -4,22 +4,12 @@
 package es.caib.helium.logic.service;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.io.ByteArrayOutputStream;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
@@ -149,6 +139,7 @@ import es.caib.helium.persistence.entity.ExpedientTipusUnitatOrganitzativa;
 import es.caib.helium.persistence.entity.FirmaTasca;
 import es.caib.helium.persistence.entity.MapeigSistra;
 import es.caib.helium.persistence.entity.Reassignacio;
+import es.caib.helium.persistence.entity.Recurs;
 import es.caib.helium.persistence.entity.SequenciaAny;
 import es.caib.helium.persistence.entity.SequenciaDefaultAny;
 import es.caib.helium.persistence.entity.Tasca;
@@ -2922,7 +2913,72 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return pagina;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void recursDelete(
+		Long expedientTipusId,
+		Long id) throws NoTrobatException {
+		logger.debug(
+			"Esborrant el recurs del tipus d'expedient (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"recursId=" + id + ")");
+		Recurs recurs = recursRepository.findById(id).orElse(null);
+		if (recurs == null
+				|| recurs.getExpedientTipus() == null
+				|| !expedientTipusId.equals(recurs.getExpedientTipus().getId())) {
+			throw new NoTrobatException(Recurs.class, id);
+		}
+		recursRepository.delete(recurs);
+	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public byte[] getRecursContingut(
+		Long expedientTipusId,
+		Long id) throws NoTrobatException {
+		Optional<byte[]> recurs = recursRepository
+									.findContingutByExpedientTipusIdAndDefinicioProcesIdAndId(
+										expedientTipusId,
+										null,
+										id);
+		if(recurs.isEmpty())
+			throw new NoTrobatException(Recurs.class, id);
+		return recurs.get();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public byte[] getParContingut(Long expedientTipusId) {
+		Set<String> recursosNoms = recursRepository.findNomByExpedientTipus(expedientTipusId);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ZipOutputStream out = new ZipOutputStream(baos);
+		byte[] recursContingut;
+		ZipEntry ze;
+		try {
+			for (String recursNom : recursosNoms) {
+				recursContingut = recursRepository.findContingutByExpedientTipusIdAndDefinicioProcesIdAndName(
+										expedientTipusId,
+										null,
+										recursNom
+									).orElse(null);
+				if (recursContingut != null) {
+					ze = new ZipEntry(recursNom);
+					out.putNextEntry(ze);
+					out.write(recursContingut);
+					out.closeEntry();
+				}
+			}
+			out.close();
+		} catch (Exception e) {
+			String errMsg = "Error construint el .par del tipus d'expedient " + expedientTipusId + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
+		}
+		return baos.toByteArray();
+	}
 
 	/***********************************************/
 	/*******************ESTATS**********************/

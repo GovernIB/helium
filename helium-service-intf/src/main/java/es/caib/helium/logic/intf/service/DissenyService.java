@@ -233,6 +233,34 @@ public interface DissenyService {
 	/** Retorna la llista de recursos per a una definició de procés específica. */
 	public Set<String> getRecursosNom(Long definicioProcesId);
 
+	/** Retorna els noms dels recursos emmagatzemats a la taula de recursos per a una definició
+	 * de procés específica. Són els únics que es poden esborrar; la resta pertanyen al
+	 * desplegament del motor de workflow.
+	 */
+	public Set<String> getRecursosPropisNom(Long definicioProcesId);
+
+	/** Esborra un recurs emmagatzemat a la taula de recursos per a una definició de procés.
+	 * @param definicioProcesId Id de la definició de procés.
+	 * @param nom Nom del recurs.
+	 * @throws NoTrobatException Si no s'ha trobat el recurs per a la definició de procés.
+	 */
+	public void recursDelete(Long definicioProcesId, String nom) throws NoTrobatException;
+
+	/**
+	 *  Métode per rebre un arxiu .jar/.zip o .class i desplegar els recursos a la taula de
+	 * recursos per a una definició de procés.
+	 *
+	 * @param definicioProcesId Id de la definició de procés.
+	 * @param nomArxiu Nom per comprovar que acabi amb jar, zip o class.
+	 * @param contingut Contingut del fitxer amb els recursos a desplegar.
+	 * @return Retorna la llista de noms de recursos desplegats o actualitzats.
+	 * @throws NoTrobatException Si no s'ha trobat la definició de procés.
+	 */
+	public List<String> recursDesplegar(
+			Long definicioProcesId,
+			String nomArxiu,
+			byte[] contingut) throws NoTrobatException;
+
 	/** Retorna el contingut d'un recurs de la definició de procés. */
 	public byte[] getRecursContingut(
 			Long definicioProcesId,
