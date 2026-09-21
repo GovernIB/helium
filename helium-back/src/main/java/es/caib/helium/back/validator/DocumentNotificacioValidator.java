@@ -1,29 +1,29 @@
 package es.caib.helium.back.validator;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.HandlerMapping;
+
 import es.caib.helium.back.command.DocumentNotificacioCommand;
 import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.EnviamentTipusEnumDto;
 import es.caib.helium.commons.dto.InteressatDto;
 import es.caib.helium.commons.dto.InteressatTipusEnumDto;
-import es.caib.helium.logic.helper.ExpedientDocumentHelper;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.ExpedientInteressatService;
-import es.caib.helium.persistence.entity.DocumentStore;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.HandlerMapping;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-import java.util.List;
-import java.util.Map;
 
 public class DocumentNotificacioValidator implements ConstraintValidator<DocumentNotificacio, DocumentNotificacioCommand> {
-	private final List<String> COMUNICACIO_SIR_ALLOWED_FORMATS = Lists.newArrayList("JPG", "JPEG", "ODT", "ODP", "ODS", "ODG",
+	private final List<String> COMUNICACIO_SIR_ALLOWED_FORMATS = Arrays.asList("JPG", "JPEG", "ODT", "ODP", "ODS", "ODG",
 		"DOCX", "XLSX", "PPTX", "PDF", "PNG", "RTF",
 		"SVG", "TIFF", "TXT", "XML", "XSIG");
 

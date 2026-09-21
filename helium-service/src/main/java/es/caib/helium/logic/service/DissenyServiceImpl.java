@@ -4,12 +4,21 @@
 package es.caib.helium.logic.service;
 
 import java.beans.IntrospectionException;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -17,11 +26,8 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.disseny.handler.HeliumBpmnHandler;
-import ma.glasnost.orika.impl.generator.ByteArrayClassLoader;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.impl.util.IoUtil;
-import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -62,6 +68,7 @@ import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.disseny.engine.WExpedientDto;
 import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.DominiHelper;
@@ -109,6 +116,7 @@ import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
+import ma.glasnost.orika.impl.generator.ByteArrayClassLoader;
 
 /**
  * Servei per gestionar les tasques de disseny.
@@ -1434,10 +1442,8 @@ public class DissenyServiceImpl implements DissenyService {
 					ZipEntry entry;
 					while ((entry = zis.getNextEntry()) != null) {
 						if (
-							entry.getName().equals("process-definition.bpmn") ||
-								entry.getName().equals("process-definition.bpmn20.xml") ||
-								entry.getName().equals("process_definition.bpmn") ||
-								entry.getName().equals("process_definition.bpmn20.xml")) {
+							entry.getName().endsWith(".bpmn") ||
+								entry.getName().endsWith(".bpmn20.xml")) {
 							processDefinition = workflowEngineApi.parseProcess(zis.readAllBytes());
 							break;
 						}
@@ -1448,6 +1454,10 @@ public class DissenyServiceImpl implements DissenyService {
 					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"),
 					ex);
 			}
+		}
+		if (processDefinition == null) {
+			throw new DeploymentException(
+					messageHelper.getMessage("definicio.proces.actualitzar.error.definicio.null"));
 		}
 		exportacio.setNomDeploy(fitxer);
 		exportacio.setContingutDeploy(contingut);

@@ -60,7 +60,7 @@
 		<div class="form-group">
 			<label class="control-label col-xs-4 obligatori" for="file"><spring:message code="definicio.proces.desplegar.form.file"/></label>
 			<div class="col-xs-8">
-				<input type="file" name="file" id="file" accept="application/bpmn+bpmn2+xml+par+zip, .bpmn, .bpmn.xml, .zip, .jar" />
+				<input type="file" name="file" id="file" accept="application/bpmn+bpmn2.xml+jar+zip, .bpmn, .bpmn2.xml, .zip, .jar" />
 				<p class="comment col-xs-8"><spring:message code="definicio.proces.desplegar.form.file.comment"></spring:message></p>
 				<c:set var="fileErrors"><form:errors path="file"/></c:set>
 				<c:if test="${not empty fileErrors}">
