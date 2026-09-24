@@ -1457,8 +1457,15 @@ public class DocumentHelperV3 {
 					}
 				}
 			}
-			if (esborrarDocument)
+			if (esborrarDocument) {
+				for (DocumentStore parent : new ArrayList<DocumentStore>(documentStore.getZips())) {
+					parent.getContinguts().remove(documentStore);
+				}
+
+				documentStore.getContinguts().clear();
+				documentStoreRepository.flush();
 				documentStoreRepository.deleteById(documentStoreId);
+			}
 
 			if (taskInstanceId != null) {
 				workflowEngineApi.deleteTaskInstanceVariable(
