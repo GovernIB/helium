@@ -1506,8 +1506,18 @@ public class DocumentHelperV3 {
 					}
 				}
 			}
-			if (esborrarDocument)
+			
+			
+			
+			if (esborrarDocument) {
+				for (DocumentStore parent : new ArrayList<DocumentStore>(documentStore.getZips())) {
+					parent.getContinguts().remove(documentStore);
+				}
+				
+				documentStore.getContinguts().clear();
+				documentStoreRepository.flush();
 				documentStoreRepository.delete(documentStoreId);
+			}
 			
 			if (taskInstanceId != null) {
 				jbpmHelper.deleteTaskInstanceVariable(
