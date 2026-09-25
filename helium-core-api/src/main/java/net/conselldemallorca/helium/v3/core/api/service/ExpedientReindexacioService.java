@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.v3.core.api.dto.IndexInfoDto;
+
 
 /**
  * Servei per consultar dades de reindexació com els expedients amb error o pendents
@@ -71,4 +73,10 @@ public interface ExpedientReindexacioService {
 	 * @return Llista List<ExpedientTipusDto, Long errors, Long reindexacions>
 	 */
 	public List<Object[]> getDades(Long entornId);
+
+	/** Mètode per comrpovar l'estat de l'índex de Lucene. */
+	public IndexInfoDto comprovaIndex();
+
+	/** Mètode per consultar la darrera informació de l'índex sense provocar una comprovació. */
+	public IndexInfoDto getIndexInfo();
 }

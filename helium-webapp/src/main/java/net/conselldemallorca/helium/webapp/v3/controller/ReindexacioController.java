@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientReindexacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IndexInfoDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxResponse;
@@ -49,7 +50,7 @@ public class ReindexacioController extends BaseExpedientController {
 	public String get(
 			HttpServletRequest request,
 			Model model) {
-						
+
 		return "v3/reindexacions";
 	}
 
@@ -114,6 +115,9 @@ public class ReindexacioController extends BaseExpedientController {
 			dades.add(dadaMap);
 		}
 		ret.put("dades", dades);
+		// Informació de l'índex
+		IndexInfoDto indexInfo = expedientReindexacioService.comprovaIndex();
+		ret.put("indexInfo", indexInfo);
 
 		return ret;
 	}

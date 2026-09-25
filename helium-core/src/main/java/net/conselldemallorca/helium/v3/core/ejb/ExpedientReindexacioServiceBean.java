@@ -13,6 +13,7 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.IndexInfoDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
 
 /**
@@ -75,4 +76,17 @@ public class ExpedientReindexacioServiceBean implements ExpedientReindexacioServ
 	public List<Object[]> getDades(Long entornId) {
 		return delegate.getDades(entornId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public IndexInfoDto comprovaIndex() {
+		return delegate.comprovaIndex();
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public IndexInfoDto getIndexInfo() {
+		return delegate.getIndexInfo();
+	}
+
 }

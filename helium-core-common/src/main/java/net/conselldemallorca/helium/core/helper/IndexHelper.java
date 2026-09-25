@@ -13,6 +13,8 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.codahale.metrics.Counter;
@@ -33,6 +35,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IndexInfoDto;
 import net.conselldemallorca.helium.v3.core.api.exception.IndexacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -662,4 +665,33 @@ public class IndexHelper {
 
 		return resposta;
 	}
+
+	/** Per guardar la informació i consultar-la sense haver de tornar a calcular l'espai necessari. */
+	private IndexInfoDto indexInfo = new IndexInfoDto();
+	
+	/** Aques mètode consulta a LuceneHelper la informació dels índexos per saber l'espai dispnible i la grandària dels segments.
+	 * @throws Exception 
+	 * 
+	 */
+	public IndexInfoDto comprovaIndex() {
+		try {
+			indexInfo = luceneHelper.comprovaIndex();
+		} catch (Exception e) {
+			indexInfo = new IndexInfoDto();
+			indexInfo.setCorrecte(false);
+			String errMsg = "Error comprovant l'índex de Lucene: " + e.getMessage();
+			indexInfo.setError(errMsg);
+			logger.error(errMsg);
+		}
+		return indexInfo;
+	}
+
+
+	/** Consulta la darrera informació de l'índex actualitzada. Es crida des de les consultes de Comanda */
+	public IndexInfoDto getIndexInfo() {
+		return indexInfo;
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(IndexHelper.class);
+
 }

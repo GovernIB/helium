@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
@@ -28,10 +29,13 @@ import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IndexInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
@@ -56,6 +60,8 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 	private ExpedientTipusService expedientTipusService;
 	@Resource
 	private AlertaService alertaService;
+	@Autowired
+	ExpedientReindexacioService expedientReindexacioService;
 
 
 
@@ -223,6 +229,13 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 							SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES,
 							accessiblesConConsultasActivas);
 				}
+			}
+			// Si l'usuari actual és administrador es mira si posar una alerta segons l'estat de Lucene.
+			IndexInfoDto indexInfo = expedientReindexacioService.getIndexInfo();
+			if (indexInfo.getError() != null) {
+				MissatgesHelper.error(request, indexInfo.getError());
+			} else if  (indexInfo.getAlerta() != null) {
+				MissatgesHelper.warning(request, indexInfo.getAlerta());
 			}
 		}
 		return true;

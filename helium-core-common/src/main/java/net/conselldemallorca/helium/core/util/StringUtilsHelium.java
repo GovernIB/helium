@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.core.util;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -30,4 +31,24 @@ public class StringUtilsHelium {
 	public static String formatDateTime(Date date) {
 		return date != null ? df.format(date) : "";
 	}
+	
+	/** Passa de bytes a String
+	 * 
+	 * @param bytes
+	 * @return
+	 */
+	private static String[] tamanyUnitats = {"b", "Kb", "Mb", "Gb", "Tb", "Pb"};
+	
+	public static String formatBytes(long bytes) {
+		long valor = bytes;
+		int i = 0;
+		while (bytes > Math.pow(1024, i + 1) 
+				&& i < tamanyUnitats.length - 1) {
+			valor = valor / 1024;
+			i++;
+		}
+		DecimalFormat df = new DecimalFormat("#,###.##");
+		return df.format(valor) + " " + tamanyUnitats[i];
+	}
+
 }

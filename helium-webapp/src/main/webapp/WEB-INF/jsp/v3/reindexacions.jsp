@@ -187,7 +187,23 @@
 
 			// Adequa els botons d'iniciar i aturar reindexacio segons l'estat
 			adequarControlsReindexacio(data.reindexant);
-			
+
+			// Dades de l'índex de lucene
+			var indexInfo = data.indexInfo.midaTotalStr  + " en " + data.indexInfo.midaSegments.length  + " segments (" + data.indexInfo.midaSegmentsStr + "). Disponible "  + data.indexInfo.espaiLliureStr + " de " +  data.indexInfo.espaiTotalStr 
+							+ ". Espai necessari estimat "  + data.indexInfo.espaiNecessariStr ;  
+			$("#dadesIndex").html(indexInfo);
+			if (data.indexInfo.correcte) {
+				$('#dadesIndexErrorIcon').hide();
+			} else {
+				$('#dadesIndexErrorIcon').show();
+			}
+			webutilEsborrarAlertes('#dadesIndexAlertes');
+			if ( data.indexInfo.alerta != null) {
+				webutilAlertaWarning(data.indexInfo.alerta, '#dadesIndexAlertes');
+			}
+			if ( data.indexInfo.error != null) {
+				webutilAlertaError(data.indexInfo.error, '#dadesIndexAlertes');
+			}
 			// Carrega les dades a la taula
 			
 			var $tbody = $('#dades-taula').find("tbody");
@@ -484,7 +500,7 @@
 		
 		<div id="contingut-alertes">
 		</div>
-	
+		
 		<div class="row">
 			<div class="col-md-4">
 				<h4><spring:message code="reindexacions.dataConsulta"/>:</h4>
@@ -501,6 +517,17 @@
 			<div class="col-md-5" style="<c:if test="${!dadesPersona.admin}">display: none</c:if>">
 				<div id="reindexarAlerta">
 				</div>
+			</div>
+		</div>
+		
+		<!-- Dades de l'índex -->
+		<div class="row">
+			<div class="col-md-4">
+				<h4><spring:message code="reindexacions.dadesIndex"/>:</h4>
+			</div>
+			<div class="col-md-8">
+				<h4><strong><span id="dadesIndex">-</span> <span id="dadesIndexErrorIcon" class="fa fa-warning text text-danger" title="Error" style="display: none;"></span></strong> </h4>
+				<div id="dadesIndexAlertes"></div>
 			</div>
 		</div>
 

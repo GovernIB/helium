@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.helperv26;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -44,6 +45,7 @@ import org.springmodules.lucene.search.core.LuceneSearchTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+import net.conselldemallorca.helium.core.lucene.HeliumSimpleIndexFactoryBean;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
@@ -55,6 +57,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IndexInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
@@ -83,6 +86,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 
 	@Resource
 	protected MesuresTemporalsHelper mesuresTemporalsHelper;
+	/** Bean propi que crea el SimpleIndexFactory i guarda una referència al IndexWriter. */
 
 	/** Objecte de sincronització per accedir al LuceneIndex. */
 	private static Object syncObj = new Object();
@@ -93,7 +97,15 @@ public class LuceneHelper extends LuceneIndexSupport {
 	// si es desactiva abans de la reindexació total aleshores hi haura expedients
 	// que no sortiran als resultats de les consultes per tipus.
 	protected static final boolean PEGAT_ENTORN_ACTIU = true;
+		
+	
+	/** Consulta la informació de l'espai disponible i el que ocupen els índexos. 
+	 * @throws IOException */
+	public IndexInfoDto comprovaIndex() throws Exception {
+		return HeliumSimpleIndexFactoryBean.getInstance().comprovaIndex();
+	}
 
+	
 	public boolean createExpedient(
 			final Expedient expedient,
 			Map<String, DefinicioProces> definicionsProces,
@@ -179,7 +191,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedientCamp", "lucene", expedient.getTipus().getNom());
 		try {
 			synchronized(syncObj) {
-				checkIndexOk();
 				getLuceneIndexTemplate().updateDocument(termIdFromExpedient(expedient), new DocumentModifier() {
 					public Document updateDocument(Document document) {
 						removeDocumentField(document, camp);
@@ -201,7 +212,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"id=" + expedient.getId() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
 		synchronized(syncObj) {
-			checkIndexOk();
 			getLuceneIndexTemplate().deleteDocuments(termIdFromExpedient(expedient));
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
@@ -212,7 +222,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"id=" + expedientId + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene");
 		synchronized(syncObj) {
-			checkIndexOk();
 			getLuceneIndexTemplate().deleteDocuments(new Term(ExpedientCamps.EXPEDIENT_CAMP_ID, expedientId.toString()));
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene");
@@ -502,7 +511,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 			final boolean comprovarIniciant) {
 		final Map<String, String> errors = new HashMap<String, String>();
 		synchronized(syncObj) {
-			checkIndexOk();
 			List<Long> resposta = searchTemplate.search(new TermQuery(termIdFromExpedient(expedient)), new HitExtractor() {
 				public Object mapHit(int id, Document document, float score) {
 					return new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
@@ -898,12 +906,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 
 	private Term termIdFromExpedient(Expedient expedient) {
 		return new Term(ExpedientCamps.EXPEDIENT_CAMP_ID, expedient.getId().toString());
-	}
-
-	protected void checkIndexOk() {
-		synchronized(syncObj) {
-			getLuceneIndexTemplate().addDocuments(new ArrayList<Document>());
-		}
 	}
 
 	@SuppressWarnings("unchecked")

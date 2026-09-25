@@ -19,9 +19,6 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -42,16 +39,17 @@ import es.caib.comanda.ms.salut.model.SalutInfo;
 import es.caib.comanda.ms.salut.model.SalutNivell;
 import es.caib.comanda.ms.salut.model.SubsistemaInfo;
 import es.caib.comanda.ms.salut.model.SubsistemaSalut;
+import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Avis;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AvisNivellEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IndexInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.service.SalutService;
 import net.conselldemallorca.helium.v3.core.repository.AvisRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 
 @Service
 public class SalutServiceImpl implements SalutService {
@@ -64,8 +62,8 @@ public class SalutServiceImpl implements SalutService {
 	private AvisRepository avisRepository;
 	@Resource
 	private MonitorIntegracioHelper monitorIntegracioHelper;
-	@Autowired
-	private ExpedientReindexacioRepository expedientReindexacioRepository;
+	@Resource
+	private IndexHelper indexHelper;
 	private Date lastCheckout;
 	
 	@Override
@@ -434,23 +432,24 @@ public class SalutServiceImpl implements SalutService {
 	}
 	
 	private List<SubsistemaSalut> checkSubsistemes() {
-		// Consulta les dades de tots els expedients de tots els entorns
-		List<Object[]> dades = expedientReindexacioRepository.getDades(true, null);
-		Object[] stats = dades.get(0);
-		Long totalErrors	= (Long) stats[0];
-		Long totalOk		= (Long) stats[2];
 		
 		List<SubsistemaSalut> subsistemes = new ArrayList<SubsistemaSalut>();
+		// Index Lucene
+		IndexInfoDto indexInfo = indexHelper.getIndexInfo();
+		EstatSalutEnum estatLucene = EstatSalutEnum.UP;
+		if (indexInfo.getError() != null) {
+			estatLucene = EstatSalutEnum.ERROR;
+		} else if (indexInfo.getAlerta() != null) {
+			estatLucene = EstatSalutEnum.WARN;
+		}
 		SubsistemaSalut luceneStats = SubsistemaSalut
 				.builder()
 				.codi("LCN")
-				.estat(EstatSalutEnum.UP)
-				.totalError(totalErrors)
-				.totalOk(totalOk)
+				.estat(estatLucene)
+				.totalError(null)
+				.totalOk(null)
 				.build();
 		subsistemes.add(luceneStats);
 		return subsistemes;
-	}
-	
-	private static final Log logger = LogFactory.getLog(SalutServiceImpl.class);
+	}	
 }

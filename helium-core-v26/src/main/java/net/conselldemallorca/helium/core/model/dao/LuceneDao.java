@@ -40,7 +40,6 @@ public class LuceneDao extends LuceneHelper {
 			Expedient expedient,
 			List<Camp> informeCamps) {
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: getDadesExpedient", "lucene", expedient.getTipus().getNom());
-		checkIndexOk();
 		Query query = queryFromCampFiltre(
 				ExpedientCamps.EXPEDIENT_CAMP_ID,
 				expedient.getId().toString(),
@@ -61,7 +60,6 @@ public class LuceneDao extends LuceneHelper {
 			int firstRow,
 			int maxResults) {
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedient", "lucene");
-		checkIndexOk();
 		Query query = getLuceneQuery(
 				entorn,
 				expedientTipus,
@@ -85,7 +83,6 @@ public class LuceneDao extends LuceneHelper {
 			int maxResults,
 			List<Long> ids) {
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedient", "lucene");
-		checkIndexOk();
 		Query query = null;
 		if (ids != null && !ids.isEmpty()) {
 			query = getLuceneQuery(entorn, expedientTipus, filtreCamps, filtreValors, ids.subList(1, ids.size()));

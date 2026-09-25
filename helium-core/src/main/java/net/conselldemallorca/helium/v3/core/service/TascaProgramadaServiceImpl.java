@@ -219,6 +219,13 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 			return;
 		}
 		
+		// Aprofita per actualitzar la informació sobre l'espai disponible per l'índex.
+		try {
+			indexHelper.comprovaIndex();
+		} catch (Exception e) {
+			logger.error("Error comprovant l'índex: " + e.getMessage());
+		}
+
 		// Consulta les reindexacions pendents
 		Sort sort = new Sort(Direction.ASC, "id");
 		List<ExpedientReindexacio> reindexacions = expedientReindexacioRepository.findAll(sort);

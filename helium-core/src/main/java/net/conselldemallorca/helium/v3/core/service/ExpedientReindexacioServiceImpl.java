@@ -15,9 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientReindexacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IndexInfoDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -41,6 +43,8 @@ public class ExpedientReindexacioServiceImpl implements ExpedientReindexacioServ
 	
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private IndexHelper indexHelper;
 
 
 	/**
@@ -146,5 +150,20 @@ public class ExpedientReindexacioServiceImpl implements ExpedientReindexacioServ
 		return dades;
 	}
 	
-	//private static final Logger logger = LoggerFactory.getLogger(ExpedientReindexacioServiceImpl.class);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IndexInfoDto comprovaIndex() {
+		return indexHelper.comprovaIndex();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IndexInfoDto getIndexInfo() {
+		return indexHelper.getIndexInfo();
+	}
+
 }
