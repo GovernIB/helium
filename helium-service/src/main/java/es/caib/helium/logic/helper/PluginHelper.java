@@ -18,7 +18,6 @@ import java.util.Properties;
 import javax.annotation.Resource;
 
 import es.caib.helium.integracio.plugins.validacio.ValidaSignaturaResposta;
-import es.caib.helium.integracio.plugins.validacio.ValidacioSignaturaPlugin;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -26,13 +25,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fundaciobit.pluginsib.validatecertificate.InformacioCertificat;
-import org.fundaciobit.pluginsib.validatesignature.api.IValidateSignaturePlugin;
-import org.fundaciobit.pluginsib.validatesignature.api.SignatureDetailInfo;
-import org.fundaciobit.pluginsib.validatesignature.api.SignatureRequestedInformation;
-import org.fundaciobit.pluginsib.validatesignature.api.TimeStampInfo;
-import org.fundaciobit.pluginsib.validatesignature.api.ValidateSignatureRequest;
-import org.fundaciobit.pluginsib.validatesignature.api.ValidateSignatureResponse;
-import org.fundaciobit.pluginsib.validatesignature.api.ValidationStatus;
+import org.fundaciobit.pluginsib.validatesignature.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -225,7 +218,7 @@ public class PluginHelper {
 	private FirmaPlugin firmaPlugin;
 	private IArxiuPlugin arxiuPlugin;
 	private NotificacioPlugin notificacioPlugin;
-	private ValidacioSignaturaPlugin validaSignaturaPlugin;
+	private IValidateSignaturePlugin validaSignaturaPlugin;
 	private UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin;
 	private PinbalPluginInterface pinbalPlugin;
 	private FirmaWebPlugin firmaWebPlugin;
@@ -3156,24 +3149,41 @@ public class PluginHelper {
 		accioParams.put("contentType", contentType);
 		long t0 = System.currentTimeMillis();
 		try {
-			ValidaSignaturaResposta validateSignatureResponse = getValidaSignaturaPlugin().validaSignatura(
-				documentStore.getArxiuNom(),
-				contentType,
-				documentContingut,
-				firmaContingut
-			);
-
+			ValidateSignatureRequest validationRequest = new ValidateSignatureRequest();
+			if (firmaContingut != null) {
+				validationRequest.setSignedDocumentData(documentContingut);
+				validationRequest.setSignatureData(firmaContingut);
+			} else {
+				validationRequest.setSignatureData(documentContingut);
+			}
+			SignatureRequestedInformation sri = new SignatureRequestedInformation();
+			sri.setReturnSignatureTypeFormatProfile(true);
+			sri.setReturnCertificateInfo(true);
+			sri.setReturnValidationChecks(false);
+			sri.setValidateCertificateRevocation(false);
+			sri.setReturnCertificates(true);
+			sri.setReturnTimeStampInfo(true);
+			validationRequest.setSignatureRequestedInformation(sri);
+			ValidateSignatureResponse validateSignatureResponse = getValidaSignaturaPlugin().validateSignature(validationRequest);
 
 			List<ArxiuFirmaDetallDto> detalls = new ArrayList<ArxiuFirmaDetallDto>();
 			List<ArxiuFirmaDto> firmes = new ArrayList<ArxiuFirmaDto>();
 			ArxiuFirmaDto firma = new ArxiuFirmaDto();
-			if (validateSignatureResponse.getFirmaDetalls() != null) {
-				for (ArxiuFirmaDetallDto signatureInfo: validateSignatureResponse.getFirmaDetalls()) {
+			if (validateSignatureResponse.getSignatureDetailInfo() != null) {
+				for (SignatureDetailInfo signatureInfo: validateSignatureResponse.getSignatureDetailInfo()) {
 					ArxiuFirmaDetallDto detall = new ArxiuFirmaDetallDto();
-					detall.setData(signatureInfo.getData());
-					detall.setResponsableNif(signatureInfo.getResponsableNif());
-					detall.setResponsableNom(signatureInfo.getResponsableNom());
-					detall.setEmissorCertificat(signatureInfo.getEmissorCertificat());
+					TimeStampInfo timeStampInfo = signatureInfo.getTimeStampInfo();
+					if (timeStampInfo != null) {
+						detall.setData(timeStampInfo.getCreationTime());
+					} else {
+						detall.setData(signatureInfo.getSignDate());
+					}
+					InformacioCertificat certificateInfo = signatureInfo.getCertificateInfo();
+					if (certificateInfo != null) {
+						detall.setResponsableNif(certificateInfo.getNifResponsable());
+						detall.setResponsableNom(certificateInfo.getNomCompletResponsable());
+						detall.setEmissorCertificat(certificateInfo.getEmissorOrganitzacio());
+					}
 					detalls.add(detall);
 				}
 				firma.setAutofirma(false);
@@ -3183,13 +3193,15 @@ public class PluginHelper {
 					firma.setContingut(documentContingut);
 				}
 				firma.setDetalls(detalls);
-				firma.setPerfil(ArxiuFirmaPerfilEnumDto.valueOf(validateSignatureResponse.getPerfil()));
-				firma.setTipus(firmaTipusEniToArxiu(validateSignatureResponse.getTipus()));
+				firma.setPerfil(ArxiuFirmaPerfilEnumDto.valueOf(validateSignatureResponse.getSignProfile()));
+				firma.setTipus(toArxiuFirmaTipusEnum(
+					validateSignatureResponse.getSignType(),
+					validateSignatureResponse.getSignFormat()));
 				firma.setTipusMime(contentType);
 				firmes.add(firma);
 
-				accioParams.put("response.signProfile", validateSignatureResponse.getPerfil());
-				accioParams.put("response.signType", validateSignatureResponse.getTipus());
+				accioParams.put("response.signProfile", validateSignatureResponse.getSignProfile());
+				accioParams.put("response.signType", validateSignatureResponse.getSignType());
 				accioParams.put("response.signFormat", firma.getTipus());
 			}
 			monitorIntegracioHelper.addAccioOk(
@@ -3227,46 +3239,64 @@ public class PluginHelper {
 	 * @return
 	 */
 	public ArxiuFirmaValidacioDetallDto validaSignaturaObtenirDetalls(
-			String documentNom,
-			String documentMime,
-			byte[] documentContingut,
-			byte[] firmaContingut) {
+		byte[] documentContingut,
+		byte[] firmaContingut) {
 		String accioDescripcio = "Obtenir informació de document firmat";
 		Map<String, Object> accioParams = new HashMap<String, Object>();
 		accioParams.put("documentContingut.length", documentContingut != null? documentContingut.length : -1);
 		accioParams.put("firmaContingut.length", firmaContingut != null? firmaContingut.length : -1);
 		long t0 = System.currentTimeMillis();
 
+
 		try {
 			ArxiuFirmaValidacioDetallDto validacioDetalls = new ArxiuFirmaValidacioDetallDto();
 
-			ValidaSignaturaResposta validateSignatureResponse = getValidaSignaturaPlugin().validaSignatura(
-				documentNom,
-				documentMime,
-				documentContingut,
-				firmaContingut
-			);
+			ValidateSignatureRequest validationRequest = new ValidateSignatureRequest();
+			if (firmaContingut != null) {
+				validationRequest.setSignedDocumentData(documentContingut);
+				validationRequest.setSignatureData(firmaContingut);
+			} else {
+				validationRequest.setSignatureData(documentContingut);
+			}
+			SignatureRequestedInformation sri = new SignatureRequestedInformation();
+			sri.setReturnSignatureTypeFormatProfile(true);
+			sri.setReturnCertificateInfo(true);
+			sri.setReturnValidationChecks(false);
+			sri.setValidateCertificateRevocation(false);
+			sri.setReturnCertificates(false);
+			sri.setReturnTimeStampInfo(true);
+			validationRequest.setSignatureRequestedInformation(sri);
+			ValidateSignatureResponse validateSignatureResponse = getValidaSignaturaPlugin().validateSignature(validationRequest);
 
-			validacioDetalls.setValid(validateSignatureResponse.getStatus() == 1);
-			validacioDetalls.setMessage(validateSignatureResponse.getErrMsg());
+			ValidationStatus validationStatus = validateSignatureResponse.getValidationStatus();
+			validacioDetalls.setValid(validationStatus.getStatus() == 1);
+			validacioDetalls.setMessage(validationStatus.getErrorMsg());
 
 			List<ArxiuFirmaDetallDto> detalls = new ArrayList<ArxiuFirmaDetallDto>();
-			if (validateSignatureResponse.getFirmaDetalls() != null) {
-				for (ArxiuFirmaDetallDto signatureInfo: validateSignatureResponse.getFirmaDetalls()) {
+			if (validateSignatureResponse.getSignatureDetailInfo() != null) {
+				for (SignatureDetailInfo signatureInfo: validateSignatureResponse.getSignatureDetailInfo()) {
 					ArxiuFirmaDetallDto detall = new ArxiuFirmaDetallDto();
-					detall.setData(signatureInfo.getData());
-					detall.setResponsableNif(signatureInfo.getResponsableNif());
-					detall.setResponsableNom(signatureInfo.getResponsableNom());
-					detall.setEmissorCertificat(signatureInfo.getEmissorCertificat());
+					TimeStampInfo timeStampInfo = signatureInfo.getTimeStampInfo();
+					if (timeStampInfo != null) {
+						detall.setData(timeStampInfo.getCreationTime());
+					} else {
+						detall.setData(signatureInfo.getSignDate());
+					}
+					InformacioCertificat certificateInfo = signatureInfo.getCertificateInfo();
+					if (certificateInfo != null) {
+						detall.setResponsableNif(certificateInfo.getNifResponsable());
+						detall.setResponsableNom(certificateInfo.getNomCompletResponsable());
+						detall.setEmissorCertificat(certificateInfo.getEmissorOrganitzacio());
+					}
 					detalls.add(detall);
 				}
 			}
 			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_VALIDASIG,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					IntegracioParametreDto.toIntegracioParametres(accioParams));
+				MonitorIntegracioHelper.INTCODI_VALIDASIG,
+				accioDescripcio,
+				IntegracioAccioTipusEnumDto.ENVIAMENT,
+				System.currentTimeMillis() - t0,
+				IntegracioParametreDto.toIntegracioParametres(accioParams));
 
 			validacioDetalls.setDetalls(detalls);
 
@@ -3274,27 +3304,27 @@ public class PluginHelper {
 		} catch (Exception ex) {
 			String errorDescripcio = ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_VALIDASIG,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					IntegracioParametreDto.toIntegracioParametres(accioParams));
+				MonitorIntegracioHelper.INTCODI_VALIDASIG,
+				accioDescripcio,
+				IntegracioAccioTipusEnumDto.ENVIAMENT,
+				System.currentTimeMillis() - t0,
+				errorDescripcio,
+				ex,
+				IntegracioParametreDto.toIntegracioParametres(accioParams));
 
 			Throwable throwable = ExceptionHelper.getRootCauseOrItself(ex);
 			if (throwable.getMessage().contains("El formato de la firma no es valido(urn:oasis:names:tc:dss:1.0:resultmajor:RequesterError)")
-					|| throwable.getMessage().contains("El formato de la firma no es válido(urn:oasis:names:tc:dss:1.0:resultmajor:RequesterError)")
-					|| throwable.getMessage().contains("El documento OOXML no está firmado(urn:oasis:names:tc:dss:1.0:resultmajor:ResponderError)")
-					|| throwable.getMessage().contains("El documento OOXML no está firmado.(urn:oasis:names:tc:dss:1.0:resultmajor:ResponderError)")
-					|| throwable.getMessage().contains("La firma proporcionada no contiene un nodo <ds:Signature>")
-					|| throwable.getMessage().contains("(VALIDATION) Se ha producido un error accediendo a la revisión del diccionario con nombre")) {
+				|| throwable.getMessage().contains("El formato de la firma no es válido(urn:oasis:names:tc:dss:1.0:resultmajor:RequesterError)")
+				|| throwable.getMessage().contains("El documento OOXML no está firmado(urn:oasis:names:tc:dss:1.0:resultmajor:ResponderError)")
+				|| throwable.getMessage().contains("El documento OOXML no está firmado.(urn:oasis:names:tc:dss:1.0:resultmajor:ResponderError)")
+				|| throwable.getMessage().contains("La firma proporcionada no contiene un nodo <ds:Signature>")
+				|| throwable.getMessage().contains("(VALIDATION) Se ha producido un error accediendo a la revisión del diccionario con nombre")) {
 				return new ArxiuFirmaValidacioDetallDto(false, throwable.getMessage(), null);
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
-						MonitorIntegracioHelper.INTCODI_VALIDASIG,
-						errorDescripcio,
-						ex);
+					MonitorIntegracioHelper.INTCODI_VALIDASIG,
+					errorDescripcio,
+					ex);
 			}
 		}
 	}
@@ -4469,14 +4499,14 @@ public class PluginHelper {
 		return pinbalPlugin;
 	}
 
-	private ValidacioSignaturaPlugin getValidaSignaturaPlugin() {
+	private IValidateSignaturePlugin getValidaSignaturaPlugin() {
 		if (validaSignaturaPlugin == null) {
 			//es.caib.ripea.plugin.validatesignature.class
 			String pluginClass = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_VALIDATESIGNATURE_PLUGIN_CLASS);
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
-					validaSignaturaPlugin = (ValidacioSignaturaPlugin)clazz.getDeclaredConstructor(
+					validaSignaturaPlugin = (IValidateSignaturePlugin)clazz.getDeclaredConstructor(
 							String.class,
 							Properties.class).newInstance(
 						PropertyConfig.PROP_BASE_PREFIX_PLUGIN_VALIDATESIGNATURE,

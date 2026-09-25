@@ -13,6 +13,7 @@ import es.caib.helium.commons.registre.RegistreAnotacio;
 import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.StringUtilsHelium;
+import es.caib.helium.disseny.engine.WExpedientDto;
 import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.disseny.engine.WTaskInstance;
@@ -802,7 +803,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 	public void expedientBuidaLogs(
 		String processInstanceId) {
 		log.debug("Buidant logs expedient (processInstanceId=" + processInstanceId + ")");
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
+		WExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
 		if (piexp == null)
 			throw new NoTrobatException(ExpedientDto.class, processInstanceId);
 		workflowEngineApi.deleteProcessInstanceTreeLogs(piexp.getProcessInstanceId());

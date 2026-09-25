@@ -1697,7 +1697,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		// Definicions
 		DefinicioProces definicioProces;
-		if (command.getDefinicionsProces().size() > 0) {
+		if (!command.getDefinicionsProces().isEmpty()) {
 			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
 				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
 					if (ExpedientTipusTipusEnumDto.FLOW.equals(expedientTipus.getTipus())) {
@@ -1739,7 +1739,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// Consultes
 		Map<String, Consulta> consultes = new HashMap<String, Consulta>();
 		Consulta consulta;
-		if (command.getConsultes().size() > 0) {
+		if (!command.getConsultes().isEmpty()) {
 			// Map<jbpmKey, versio> de les definicions de procés
 			Map<String, Integer> definicionsProcesVersio = new HashMap<String, Integer>();
 			// Consulta la darrera versió de totes les definicions de procés incloent les heretades i les de l'entorn

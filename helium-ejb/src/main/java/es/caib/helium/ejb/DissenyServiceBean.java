@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
@@ -143,6 +144,8 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 		return delegateService.getDeploymentResource(id, recursForm);
 	}
 
+	@Override
+	@PermitAll
 	public ExpedientTipusDto getExpedientTipusById(Long id) throws NoTrobatException {
 		return delegateService.getExpedientTipusById(id);
 	}
@@ -288,6 +291,8 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 		return delegateService.getParContingut(definicioProcesId);
 	}
 
+	@Override
+	@PermitAll
 	public PaginaDto<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesExpedientTipus(
 			Long entornId,
 			Long expedientTipusId,

@@ -13,12 +13,17 @@ import org.flowable.common.engine.api.delegate.event.*;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.impl.TaskServiceImpl;
+import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.flowable.spring.boot.EngineConfigurationConfigurer;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -46,6 +51,31 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 		private final ProcessEngineConfiguration processEngineConfiguration;
 		@Override
 		public void onEvent(FlowableEvent event) {
+			if(event.getType() == FlowableEngineEventType.PROCESS_CREATED) {
+				Object entity = ((FlowableEntityEvent)event).getEntity();
+				if(entity instanceof ExecutionEntity) {
+					String rootProcessInstanceId = ((ExecutionEntity) entity).getRootProcessInstanceId();
+					String processInstanceId = ((ExecutionEntity) entity).getProcessInstanceId();
+					if(rootProcessInstanceId != null) {
+						ProcessInstance pi = processEngineConfiguration
+							.getRuntimeService()
+							.createProcessInstanceQuery()
+							.includeProcessVariables()
+							.processInstanceId(rootProcessInstanceId)
+							.singleResult();
+						List<String> expedientVariables = pi.getProcessVariables()
+															.keySet()
+															.stream()
+															.filter(k -> k.startsWith("__expedient_"))
+															.collect(Collectors.toList());
+						Map<String, Object> variables = new HashMap<String, Object>();
+						for (String key : expedientVariables)
+							variables.put(key, pi.getProcessVariables().get(key));
+						processEngineConfiguration.getRuntimeService().setVariables(processInstanceId, variables);
+					}
+				}
+				return;
+			}
 			if (!(event instanceof FlowableEngineEvent)) {
 				return;
 			}

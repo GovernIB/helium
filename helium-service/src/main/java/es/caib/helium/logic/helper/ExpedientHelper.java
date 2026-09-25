@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Resource;
 import javax.persistence.EntityNotFoundException;
 
+import es.caib.helium.disseny.engine.WExpedientDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -1137,7 +1138,6 @@ public class ExpedientHelper {
 	 * informació dels documents a Helium. Aquest mètode s'invoca quan es detecta que l'expedient
 	 * està tancat a l'Arxiu i per tant no es pot modificar.
 	 * @param expedient
-	 * @param continguts
 	 */
 	@Transactional
 	private void revisarFirmaDocumentsExpedient(
@@ -1291,7 +1291,8 @@ public class ExpedientHelper {
 	}
 
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
-		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		WExpedientDto e = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
+		Expedient expedient = expedientRepository.findById(e.getId()).orElse(null);
 		if (expedient == null) {
 			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
 			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
@@ -1987,9 +1988,6 @@ public class ExpedientHelper {
 			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
 			WProcessInstance processInstance = null;
 			if (expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
-				if(variables == null)
-					variables = new HashMap<String, Object>();
-				variables.put("__expedient_numero__", expedient.getNumeroDefault());
 				processInstance = workflowEngineApi.startProcessInstanceById(
 						IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
 						definicioProces.getJbpmId(),
@@ -2004,6 +2002,16 @@ public class ExpedientHelper {
 			expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 
+			if(expedientPerRetornar.getProcessInstanceId() != null) {
+				if (variables == null)
+					variables = new HashMap<String, Object>();
+				variables.put("__expedient_id__", expedient.getId());
+				variables.put("__expedient_numero__", expedient.getNumero());
+				variables.put("__expedient_numero_default__", expedient.getNumeroDefault());
+				variables.put("__expedient_titol__", expedient.getTitol());
+				variables.put("__expedient_entorn__", entorn.getId());
+				workflowEngineApi.setProcessInstanceVariables(expedientPerRetornar.getProcessInstanceId(), variables);
+			}
 			// Verificar la ultima vegada que l'expedient va modificar el seu estat
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 			if(expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {

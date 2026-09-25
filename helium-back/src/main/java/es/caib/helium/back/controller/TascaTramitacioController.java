@@ -444,10 +444,8 @@ public class TascaTramitacioController extends BaseTascaController {
 		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
 		while (itDocuments.hasNext()) {
 			TascaDocumentDto document = itDocuments.next();
-			if (document.isReadOnly()) {
-				if (document.getId() != null)
-					itDocuments.remove();
-			}
+			if (document.isReadOnly() && document.getId() != null)
+				itDocuments.remove();
 		}
 
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);

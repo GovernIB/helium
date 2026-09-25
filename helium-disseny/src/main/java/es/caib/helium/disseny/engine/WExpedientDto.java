@@ -1,46 +1,19 @@
 package es.caib.helium.disseny.engine;
 
+import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
-@SuperBuilder
+@Builder
 @Data
 public class WExpedientDto {
-	public Long getId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getTitol() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getNumero() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getNumeroDefault() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Date getDataInici() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Date getDataFi() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getProcessInstanceId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	private Long id;
+	private String titol;
+	private String numero;
+	private String numeroDefault;
+	private Date dataInici;
+	private Date dataFi;
+	private String processInstanceId;
 }
 

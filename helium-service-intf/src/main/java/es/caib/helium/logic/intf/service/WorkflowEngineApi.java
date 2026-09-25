@@ -389,6 +389,15 @@ public interface WorkflowEngineApi {
             Object value);
 
 	/**
+	 * Assigna les variables indicades a la instància de procés
+	 * @param processInstanceId
+	 * @param variables
+	 */
+	void setProcessInstanceVariables(
+		String processInstanceId,
+		Map<String, Object> variables);
+
+	/**
 	 * Elimina una variable d'una instància de procés
 	 *
 	 * @param processInstanceId
@@ -794,7 +803,7 @@ public interface WorkflowEngineApi {
 			boolean nomesErrors, boolean nomesTasquesPersonals, boolean nomesTasquesGrup, boolean b, Object object,
 			PaginacioParamsDto paginacioParams, boolean c, boolean nomesErrorsArxiu, Set<Long> idsSeleccionats);
 
-	public es.caib.helium.commons.dto.ExpedientDto expedientFindByProcessInstanceId(String processInstanceId);
+	public WExpedientDto expedientFindByProcessInstanceId(String processInstanceId);
 
 	public void deleteProcessInstanceTreeLogs(String processInstanceId);
 

@@ -2,6 +2,7 @@ package es.caib.helium.ejb;
 
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
@@ -33,17 +34,20 @@ public class ProcedimentServiceBean extends AbstractServiceEjb<ProcedimentServic
 	}
 
 	@Override
+	@PermitAll
 	public PaginaDto<ProcedimentDto> findAmbFiltre(ProcedimentFiltreDto filtre,
 			PaginacioParamsDto paginacioParams) {
 		return delegateService.findAmbFiltre(filtre, paginacioParams);
 	}
 
 	@Override
+	@PermitAll
 	public ProcedimentDto findByCodiSia(String codiSia) {
 		return delegateService.findByCodiSia(codiSia);
 	}
 
 	@Override
+	@PermitAll
 	public List<ProcedimentDto> findByNomOrCodiSia(String nom) {
 		return delegateService.findByNomOrCodiSia(nom);
 	}
@@ -61,21 +65,25 @@ public class ProcedimentServiceBean extends AbstractServiceEjb<ProcedimentServic
 	}
 
 	@Override
+	@PermitAll
 	public boolean isUpdatingProcediments() {
 		return delegateService.isUpdatingProcediments();
 	}
 
 	@Override
+	@PermitAll
 	public boolean isUpdatingServeis() {
 		return delegateService.isUpdatingServeis();
 	}
 
 	@Override
+	@PermitAll
 	public ProgresActualitzacioDto getProgresActualitzacio() {
 		return delegateService.getProgresActualitzacio();
 	}
 
 	@Override
+	@PermitAll
 	public ProgresActualitzacioDto getProgresServisActualitzacio() {
 		return delegateService.getProgresServisActualitzacio();
 	}

@@ -9,7 +9,7 @@
 <c:if test="${hiHaPendents gt 0 and tasca.open}">
 	<c:if test="${contHiHaPendents == 0}">
 	<td class="dadesTaulaTasca"><tr class="dadesTaulaTascaTr"><td class="dadesTaulaTascaTd" colspan="3">
-	<table id="tasques-pendents-meves" class="dataTable table table-bordered table-hover">
+	<table id="tasques-pendents-meves-${tasca.id}" class="dataTable table table-bordered table-hover">
 		<thead>
 			<tr>
 				<th><spring:message code="expedient.tasca.columna.tasca"/></th>
@@ -86,7 +86,7 @@
 						<li><a data-rdt-link-ajax=true data-rdt-link-callback="alliberar(${procesId},${tasca.id});" href="<c:url value="/expedient/${expedient.id}/tasca/${tasca.id}/alliberar"/>" class="icon" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 					</c:if>
 					<c:if test="${expedient.permisTaskAssign and tasca.open}">
-						<li><a href="<c:url value="/modal/expedient/${expedient.id}/tasca/${tasca.id}/reassignar"/>" class="icon" data-rdt-link-modal="true" data-rdt-link-callback="recarregarLlistatTasques(${procesId},${tasca.id});"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li>
+						<li><a id="reassignar_${tasca.id}" data-rdt-link-modal-min-height="280" href="<c:url value="/modal/expedient/${expedient.id}/tasca/${tasca.id}/reassignar"/>" class="icon" data-rdt-link-modal="true" data-rdt-link-callback="recarregarLlistatTasques(${procesId},${tasca.id});"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li>
 					</c:if>
 					<c:if test="${expedient.permisTaskManagement and tasca.open and not tasca.suspended}">
 						<li><a href="<c:url value="/expedient/${expedient.id}/tasca/${tasca.id}/suspendre"/>" data-rdt-link-callback="recarregarLlistatTasques(${procesId},${tasca.id});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>

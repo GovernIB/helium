@@ -58,10 +58,10 @@ public class PropertyConfig {
 	public static final String PROP_CONVERSIO_PORTASIGNATURES_EXTENSION = PROPERTY_PREFIX + "conversio.portasignatures.extension";
 	public static final String PROP_CONVERSIO_DEFAULT_EXTENSION = PROPERTY_PREFIX + "conversio.default.extension";
 
-	public static final String PROP_DISTRIBUCIO_REGLES_API_REST_URL = PROPERTY_PREFIX + "helium.distribucio.regles.api.rest.url";
-	public static final String PROP_DISTRIBUCIO_REGLES_API_REST_USUARI = PROPERTY_PREFIX + "helium.distribucio.regles.api.rest.usuari";
-	public static final String PROP_DISTRIBUCIO_REGLES_API_REST_PASSWORD = PROPERTY_PREFIX + "helium.distribucio.regles.api.rest.password";
-	public static final String PROP_DISTRIBUCIO_REGLES_API_REST_CODI_BACKOFFICE = PROPERTY_PREFIX + "helium.distribucio.regles.api.rest.codi.backoffice";
+	public static final String PROP_DISTRIBUCIO_REGLES_API_REST_URL = PROPERTY_PREFIX + "distribucio.regles.api.rest.url";
+	public static final String PROP_DISTRIBUCIO_REGLES_API_REST_USUARI = PROPERTY_PREFIX + "distribucio.regles.api.rest.usuari";
+	public static final String PROP_DISTRIBUCIO_REGLES_API_REST_PASSWORD = PROPERTY_PREFIX + "distribucio.regles.api.rest.password";
+	public static final String PROP_DISTRIBUCIO_REGLES_API_REST_CODI_BACKOFFICE = PROPERTY_PREFIX + "distribucio.regles.api.rest.codi.backoffice";
 
 	public static final String PROP_ANOTACIONS_CONSULTA_NUM_THREADS = PROPERTY_PREFIX + "anotacions.consulta.num.threads";
 
@@ -149,9 +149,9 @@ public class PropertyConfig {
 	public static final String PROP_PINBAL_PLUGIN_PASSWORD = PROPERTY_PLUGIN_PREFIX + "pinbal.password";
 	public static final String PROP_PINBAL_PLUGIN_ISJBOSS = PROPERTY_PLUGIN_PREFIX + "pinbal.isJBoss";
 
-	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_URL = PROPERTY_PREFIX + "helium.distribucio.backofficeIntegracio.ws.url";
-	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_USERNAME = PROPERTY_PREFIX + "helium.distribucio.backofficeIntegracio.ws.username";
-	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_PASSWORD = PROPERTY_PREFIX + "helium.distribucio.backofficeIntegracio.ws.password";
+	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_URL = PROPERTY_PREFIX + "distribucio.backofficeIntegracio.ws.url";
+	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_USERNAME = PROPERTY_PREFIX + "distribucio.backofficeIntegracio.ws.username";
+	public static final String PROP_DISTRIBUCIO_BACKOFFICE_INTEGRACIO_WS_PASSWORD = PROPERTY_PREFIX + "distribucio.backofficeIntegracio.ws.password";
 
 	public static final String PROP_VALIDATESIGNATURE_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "validatesignature.class";
 	public static final String PROP_PLUGINS_VALIDATESIGNATURE_AFIRMACXF_ENDPOINT = PROPERTY_PLUGIN_PREFIX + "validatesignature.afirmacxf.endpoint";

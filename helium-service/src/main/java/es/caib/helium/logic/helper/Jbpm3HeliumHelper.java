@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream;
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
+import es.caib.helium.disseny.engine.WExpedientDto;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -213,6 +214,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private RegistreRepository registreRepository;
 
 
+	@Resource
+	private ExpedientDocumentHelper expedientDocumentHelper;
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource
@@ -927,7 +930,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void expedientBuidaLogs(
 			String processInstanceId) {
 		logger.debug("Buidant logs expedient (processInstanceId=" + processInstanceId + ")");
-		ExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
+		WExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
 		if (piexp == null)
 			throw new NoTrobatException(ExpedientDto.class, processInstanceId);
 		workflowEngineApi.deleteProcessInstanceTreeLogs(piexp.getProcessInstanceId());
@@ -988,16 +991,16 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long documentStoreId) throws ValidacioException {
 
 		if(documentStoreId==null) {
-			documentStoreId = documentHelper.findDocumentStorePerInstanciaProcesAndDocumentCodi(
-					processInstanceId,
-					documentCodi);
+			DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(null, processInstanceId, null, documentCodi);
+			if(documentStore != null)
+				documentStoreId = documentStore.getId();
 		}
 
 		documentHelper.firmaServidor(
 				processInstanceId,
 				documentStoreId,
 				motiu,
-				contingut !=null ? contingut : null);
+				contingut);
 	}
 
 	@Override

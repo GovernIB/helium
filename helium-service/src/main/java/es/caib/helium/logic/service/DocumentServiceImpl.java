@@ -905,8 +905,7 @@ public class DocumentServiceImpl implements DocumentService {
 						return null;
 			}
 
-			return pluginHelper.validaSignaturaObtenirDetalls(
-				documentNom, contentType, documentContingut, firmaContingut);
+			return pluginHelper.validaSignaturaObtenirDetalls(documentContingut, firmaContingut);
 	}
 
 	private void guardaPeticioPinbalSenseError(

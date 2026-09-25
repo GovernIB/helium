@@ -2634,10 +2634,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		InstanciaProcesDto dto = new InstanciaProcesDto();
 		dto.setId(processInstanceId);
 		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
-		if (pi == null )
+		if (pi == null)
 			return null;
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
-		if (pi.getDescription() != null && pi.getDescription().length() > 0)
+		if (pi.getDescription() != null && !pi.getDescription().isEmpty())
 			dto.setTitol(pi.getDescription());
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
 		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class));

@@ -31,6 +31,7 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.service.impl.persistence.entity.TaskEntityImpl;
+import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -195,7 +196,17 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 		List<WUserTask> userTasks = new ArrayList<>();
 	    for (FlowElement element : process.getFlowElements()) {
-	        if (element instanceof UserTask) {
+			if (element instanceof SubProcess) {
+				for (FlowElement subElement : ((SubProcess)element).getFlowElements()) {
+					if (subElement instanceof UserTask) {
+						UserTask userTask = (UserTask) subElement;
+						WUserTask wUserTask = new WUserTask();
+						wUserTask.setId(userTask.getId());
+						wUserTask.setName(userTask.getName());
+						userTasks.add(wUserTask);
+					}
+				}
+			} else if (element instanceof UserTask) {
 	            UserTask userTask = (UserTask) element;
 	            WUserTask wUserTask = new WUserTask();
 	            wUserTask.setId(userTask.getId());
@@ -367,7 +378,6 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public void deleteProcessInstance(String processInstanceId) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -390,26 +400,52 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return processEngine
+				.getRuntimeService()
+				.getVariables(processInstanceId);
+		} catch (FlowableObjectNotFoundException e) {
+			List<HistoricVariableInstance> variables = processEngine
+				.getHistoryService()
+				.createHistoricVariableInstanceQuery()
+				.executionId(processInstanceId)
+				.list();
+			Map<String, Object> response = new HashMap<String, Object>();
+			for (HistoricVariableInstance variable : variables)
+				response.put(variable.getVariableName(), variable.getValue());
+			return response;
+		}
 	}
 
 	@Override
 	public Object getProcessInstanceVariable(String processInstanceId, String varName) {
-		// TODO Auto-generated method stub
-		return null;
+		if(varName == null || processInstanceId == null)
+			return null;
+		return this.processEngine
+				.getRuntimeService()
+				.getVariable(processInstanceId, varName);
 	}
 
 	@Override
 	public void setProcessInstanceVariable(String processInstanceId, String varName, Object value) {
-		// TODO Auto-generated method stub
+		this.processEngine
+			.getRuntimeService()
+			.setVariable(processInstanceId, varName, value);
+	}
 
+	public void setProcessInstanceVariables(
+		String processInstanceId,
+		Map<String, Object> variables) {
+		this.processEngine
+			.getRuntimeService()
+			.setVariables(processInstanceId, variables);
 	}
 
 	@Override
 	public void deleteProcessInstanceVariable(String processInstanceId, String varName) {
-		// TODO Auto-generated method stub
-
+		this.processEngine
+			.getRuntimeService()
+			.removeVariable(processInstanceId, varName);
 	}
 
 	@Override
@@ -486,10 +522,21 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public void endTaskInstance(String taskId, String outcome) {
-		processEngine
+		if(outcome == null) {
+			processEngine
+				.getTaskService()
+				.complete(taskId);
+			return;
+		}
+		TaskEntityImpl task = (TaskEntityImpl) processEngine
 			.getTaskService()
-			.complete(taskId);
-
+			.createTaskQuery()
+			.taskId(taskId)
+			.singleResult();
+		processEngine.getRuntimeService().createChangeActivityStateBuilder()
+			.processInstanceId(task.getProcessDefinitionId())
+			.moveExecutionToActivityId(task.getExecutionId(), outcome)
+			.changeState();
 	}
 
 	@Override
@@ -1000,9 +1047,37 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public es.caib.helium.commons.dto.ExpedientDto expedientFindByProcessInstanceId(String processInstanceId) {
-		// TODO Auto-generated method stub
-		return null;
+	public WExpedientDto expedientFindByProcessInstanceId(String processInstanceId) {
+		ProcessInstance pi = processEngine
+			.getRuntimeService()
+			.createProcessInstanceQuery()
+			.processInstanceId(processInstanceId)
+			.includeProcessVariables()
+			.singleResult();
+		if (pi != null && pi.getProcessVariables().get("__expedient_id__") != null)
+			return WExpedientDto.builder()
+					.id((Long)Optional.of(pi.getProcessVariables().get("__expedient_id__")).orElse(0))
+					.titol((String)Optional.of(pi.getProcessVariables().get("__expedient_titol__")).orElse(""))
+					.numero((String)Optional.of(pi.getProcessVariables().get("__expedient_numero__")).orElse(""))
+					.numeroDefault((String)Optional.of(pi.getProcessVariables().get("__expedient_numero_default__")).orElse(""))
+					.processInstanceId(processInstanceId)
+					.build();
+
+		HistoricProcessInstance hpi = processEngine.getHistoryService()
+			.createHistoricProcessInstanceQuery()
+			.processInstanceId(processInstanceId)
+			.includeProcessVariables()
+			.singleResult();
+		if(hpi == null || hpi.getProcessVariables().get("__expedient_id__") == null)
+			return null;
+
+		return WExpedientDto.builder()
+			.id((Long)Optional.of(hpi.getProcessVariables().get("__expedient_id__")).orElse(0))
+			.titol((String)Optional.of(hpi.getProcessVariables().get("__expedient_titol__")).orElse(""))
+			.numero((String)Optional.of(hpi.getProcessVariables().get("__expedient_numero__")).orElse(""))
+			.numeroDefault((String)Optional.of(hpi.getProcessVariables().get("__expedient_numero_default__")).orElse(""))
+			.processInstanceId(processInstanceId)
+			.build();
 	}
 
 	@Override

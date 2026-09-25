@@ -855,11 +855,11 @@ public class DefinicioProcesHelper {
 				conversioTipusHelper.convertir(
 						definicio,
 						DefinicioProcesDto.class));
-		exportacio.setNomDeploy("export.par");
+		exportacio.setNomDeploy(definicio.getJbpmKey() + ".zip");
 
 		WProcessDefinition pd = workflowEngineApi.getProcessDefinition(definicio.getJbpmId());
 		Set<String> resourceNames = workflowEngineApi.getResourceNames(pd.getDeploymentId());
-		if (resourceNames != null && resourceNames.size() > 0) {
+		if (resourceNames != null && !resourceNames.isEmpty()) {
 			try {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ZipOutputStream zos = new ZipOutputStream(baos);
@@ -888,7 +888,7 @@ public class DefinicioProcesHelper {
 			}
 		}
 		// Tasques
-		if (exportAll || command.getTasques().size() > 0)
+		if (exportAll || !command.getTasques().isEmpty())
 			for (Tasca tasca : definicio.getTasques())
 				if (exportAll || command.getTasques().contains(tasca.getJbpmName())) {
 					TascaExportacio tascaExportacio = new TascaExportacio(
@@ -953,7 +953,7 @@ public class DefinicioProcesHelper {
 					exportacio.getTasques().add(tascaExportacio);
 				}
 		// Variables
-		if (exportAll || command.getVariables().size() > 0)
+		if (exportAll || !command.getVariables().isEmpty())
 			for (Camp camp : definicio.getCamps())
 				if (exportAll || command.getVariables().contains(camp.getCodi())) {
 					boolean necessitaDadesExternes =
@@ -1007,7 +1007,7 @@ public class DefinicioProcesHelper {
 					}
 				}
 		// Agrupacions
-		if (exportAll || command.getAgrupacions().size() > 0)
+		if (exportAll || !command.getAgrupacions().isEmpty())
 			for (CampAgrupacio agrupacio: definicio.getAgrupacions())
 				if (exportAll || command.getAgrupacions().contains(agrupacio.getCodi()))
 					exportacio.getAgrupacions().add(new AgrupacioExportacio(
@@ -1016,7 +1016,7 @@ public class DefinicioProcesHelper {
 							agrupacio.getDescripcio(),
 							agrupacio.getOrdre()));
 		// Documents
-		if (exportAll || command.getDocuments().size() > 0) {
+		if (exportAll || !command.getDocuments().isEmpty()) {
 			DocumentExportacio documentExportacio;
 			for (Document document : definicio.getDocuments())
 				if (exportAll || command.getDocuments().contains(document.getCodi())) {
@@ -1075,7 +1075,7 @@ public class DefinicioProcesHelper {
 				}
 		}
 		// Terminis
-		if (exportAll || command.getTerminis().size() > 0) {
+		if (exportAll || !command.getTerminis().isEmpty()) {
 			TerminiExportacio terminiExportacio;
 			for (Termini termini : definicio.getTerminis())
 				if (exportAll || command.getTerminis().contains(termini.getCodi())) {
@@ -1097,7 +1097,7 @@ public class DefinicioProcesHelper {
 				}
 		}
 		// Accions
-		if (exportAll || command.getAccions().size() > 0) {
+		if (exportAll || !command.getAccions().isEmpty()) {
 			AccioExportacio accioExportacio;
 			for (Accio accio : definicio.getAccions())
 				if (exportAll || command.getAccions().contains(accio.getCodi())) {
