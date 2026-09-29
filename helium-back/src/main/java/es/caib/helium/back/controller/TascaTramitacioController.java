@@ -1477,7 +1477,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			try {
 				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-//				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 				tascaService.completarMassiu(tascaId, transicioSortida);
 
@@ -1485,18 +1484,12 @@ public class TascaTramitacioController extends BaseTascaController {
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
 				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
 				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));
-//				dto.setExpedientTipusId(expTipusId);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("Completar");
 				Object[] params = new Object[2];
 				params[0] = entorn.getId();
 				params[1] = transicioSortida;
-//				params[2] = auth.getCredentials();
-//				List<String> rols = new ArrayList<String>();
-//				for (GrantedAuthority gauth : auth.getAuthorities()) {
-//					rols.add(gauth.getAuthority());
-//				}
-//				params[3] = rols;
+
 				dto.setParam2(execucioMassivaService.serialize(params));
 
 				execucioMassivaService.crearExecucioMassiva(dto);

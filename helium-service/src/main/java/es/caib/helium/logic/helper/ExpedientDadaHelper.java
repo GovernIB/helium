@@ -186,7 +186,7 @@ public class ExpedientDadaHelper {
 			Map<String, DadesValor> dades = new HashMap<String, DadesValor>();
 			for(String varCodi :  variablesProcessades.keySet()) {
 				Object varValor = variablesProcessades.get(varCodi);
-				dades.put(varCodi, new DadesValor(valorPerJson(varValor), DadaTipusEnum.getTipusByClass(varValor.getClass())));
+				dades.put(varCodi, new DadesValor(valorPerJson(varValor), DadaTipusEnum.getTipusByClass(varValor == null? String.class : varValor.getClass())));
 			}
 			expedientDadesEntity.setDades(MapToDades(dades));
 		} catch(Exception e) {

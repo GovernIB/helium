@@ -298,19 +298,16 @@ public class TascaFormHelper {
 					// Camps senzills
 					} else {
 						switch (camp.getCampTipus()) {
-							case TERMINI:
-								if (valor != null) {
-									valor = crearTermini(valor);
-								} else {
-									valor = new String[3];
-								}
-								break;
-							case PRICE:
-								valor = (valor != null)? BigDecimal.valueOf((Double) valor) : null;
-								break;
-							case DATE:
-								valor = (valor != null)? new Date((Long) valor) : null;
-								break;
+						case TERMINI:
+							if (valor != null) {
+								valor = crearTermini(valor);
+							} else {
+								valor = new String[3];
+							}
+							break;
+						case PRICE:
+							valor = (valor != null)? BigDecimal.valueOf((Double) valor) : null;
+							break;
 						}
 						setSimpleProperty(
 								command,
@@ -386,6 +383,12 @@ public class TascaFormHelper {
 								Object[] lvalue = (Object[])valor;
 								if (lvalue.length > i)
 									valorReg = lvalue[i++];
+
+								if (campRegistre.getJavaClass().equals(Date.class) &&
+									valorReg instanceof String &&
+									!((String) valorReg).isEmpty()) {
+									valorReg = new SimpleDateFormat("yyyy-MM-dd").parse((String) valorReg);
+								}
 								metodeSet.invoke(valorRegistre, valorReg);
 							}
 						}

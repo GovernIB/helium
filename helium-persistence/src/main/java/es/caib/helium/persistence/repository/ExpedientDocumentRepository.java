@@ -19,8 +19,7 @@ import java.util.List;
 public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocument, Long> {
 
 	public ExpedientDocument findByDocumentStore(DocumentStore documentStore);
-	public ExpedientDocument findByCodiAndExpedientId(String codi, Long  expedientId);
-	/** Obté els documents d'un expedient sense procés ni tasca. */
+	public ExpedientDocument findByExpedientIdAndCodi(Long  expedientId, String codi);
 	@Query(" FROM ExpedientDocument ed " +
 			" WHERE " +
 			" (:expedientIdIsNull = true OR ed.expedient.id = :expedientId) " +
@@ -35,6 +34,19 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 		@Param("processIdIsNull") Boolean processIdIsNull,
 		@Param("taskId") String taskId,
 		@Param("taskIdIsNull") Boolean taskIdIsNull);
+
+
+	@Query(" FROM ExpedientDocument ed " +
+		" WHERE " +
+		" ed.expedient.id = :expedientId " +
+		" AND ((:processId IS NULL AND ed.processInstanceId IS NULL) OR ed.processInstanceId = :processId) " +
+		" AND ((:taskId IS NULL AND ed.taskId IS NULL) OR ed.taskId = :taskId) " +
+		" AND ed.codi = :codi ")
+	public ExpedientDocument findByCodi(
+		@Param("codi") String codi,
+		@Param("expedientId") Long expedientId,
+		@Param("processId") String processId,
+		@Param("taskId") String taskId);
 
 	public void deleteByDocumentStoreId(Long documentStoreId);
 
@@ -51,10 +63,21 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 	@Query("SELECT ed.documentStore from ExpedientDocument ed" +
 		" WHERE " +
 		" 	ed.expedient.id = :expedientId AND " +
-		" 	ed.processInstanceId = :processId")
+		" 	ed.processInstanceId = :processId AND " +
+		"	ed.taskId IS NULL ")
 	public List<DocumentStore> findDocumentStoreByExpedientIdAndProcessId(
 		@Param("expedientId") Long expedientId,
 		@Param("processId") String processId);
+
+	/** Obté els documents d'un expedient per un procés concret. */
+	@Query( "SELECT ed.documentStore from ExpedientDocument ed" +
+			" WHERE " +
+			" 	ed.codi = :codi AND " +
+			" 	ed.processInstanceId = :processId AND " +
+			"	ed.taskId IS NULL ")
+	public DocumentStore findDocumentStoreByProcessIdAndCodi(
+		@Param("processId") String processId,
+		@Param("codi") String codi);
 
 	/** Obté els documents d'un expedient sense procés ni tasca. */
 	@Query("SELECT ed.documentStore from ExpedientDocument ed" +

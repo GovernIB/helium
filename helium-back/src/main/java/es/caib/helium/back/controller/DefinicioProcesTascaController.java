@@ -152,13 +152,15 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
-
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
 		DefinicioProcesTascaVariableCommand command = new DefinicioProcesTascaVariableCommand();
 		command.setTascaId(id);
 		command.setReadFrom(true);
 		command.setWriteTo(true);
 		command.setAmpleCols(12);
 		command.setBuitCols(0);
+		if(definicioProces.getExpedientTipus() != null)
+			command.setExpedientTipusId(definicioProces.getExpedientTipus().getId());
 		model.addAttribute("definicioProcesTascaVariableCommand", command);
 
 		omplirModelVariables(jbpmKey, definicioProcesId, id, model);

@@ -895,7 +895,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 	 * treu la variable del propi registre.
 	 * @param expedientTipusId
 	 * @param registreId
-	 * @param filtrar
+	 * @param membreId
 	 * @return
 	 */
 	private List<ParellaCodiValorDto> obtenirParellesCampRegistre(

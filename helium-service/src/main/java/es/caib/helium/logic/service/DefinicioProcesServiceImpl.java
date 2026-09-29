@@ -503,7 +503,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		// Marca la tasca com a incicial
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		if (definicioProces.isHasStartTask()
-				&& definicioProces.getStartTaskName() != null) 
+				&& definicioProces.getStartTaskName() != null)
 		{
 			String startTaskName = definicioProces.getStartTaskName();
 			if (startTaskName != null)

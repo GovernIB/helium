@@ -5,6 +5,7 @@ package es.caib.helium.logic.service;
 
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -108,6 +109,8 @@ public class TascaServiceImpl implements TascaService {
 	private DocumentHelperV3 documentHelper;
 	@Autowired
 	private ExpedientDadaHelper expedientDadaHelper;
+	@Autowired
+	private ExpedientDocumentHelper expedientDocumentHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -635,7 +638,7 @@ public class TascaServiceImpl implements TascaService {
 				tascaId,
 				true,
 				true);
-		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
+		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(null, null, tascaId, documentCodi);
 		if (documentStore != null) {
 			return documentHelper.getArxiuPerDocumentStoreId(
 					documentStore.getId(),
@@ -922,10 +925,17 @@ public class TascaServiceImpl implements TascaService {
 					documentCodi);
 		}
 
-		documentHelper.esborrarDocument(
-				taskInstanceId,
-				task.getProcessInstanceId(),
-				documentCodi);
+//		documentHelper.esborrarDocument(
+//				taskInstanceId,
+//				task.getProcessInstanceId(),
+//				documentCodi);
+
+		expedientDocumentHelper.deleteDocument(
+			expedient.getId(),
+			task.getProcessInstanceId(),
+			taskInstanceId,
+			documentCodi);
+
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
@@ -989,8 +999,12 @@ public class TascaServiceImpl implements TascaService {
 				"firmaContingut=" + firmaContingut + ", " +
 				"user=" + user + ")");
 		WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
-		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
+			expedient.getId(),
+			task.getProcessInstanceId(),
+			taskInstanceId,
+			documentCodi);
 		boolean creat = (documentStore == null);
 		if (creat) {
 			expedientLoggerHelper.afegirLogExpedientPerTasca(
@@ -1004,6 +1018,7 @@ public class TascaServiceImpl implements TascaService {
 					documentCodi);
 		}
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
+		/*
 		Long documentStoreId = documentHelper.crearActualitzarDocument(
 				taskInstanceId,
 				task.getProcessInstanceId(),
@@ -1019,14 +1034,35 @@ public class TascaServiceImpl implements TascaService {
 				null,
 				null,
 				null).getId();
+		 */
+		documentStore = expedientDocumentHelper.setDocument(
+											expedient.getId(),
+											task.getProcessInstanceId(),
+											taskInstanceId,
+											documentCodi,
+											documentData,
+											arxiuNom,
+											arxiuNom,
+											arxiuContingut,
+											arxiuContentType,
+											ambFirma,
+											firmaSeparada,
+											firmaContingut,
+											null,
+											null,
+											null,
+											null,
+											null);
+		Long documentStoreId = documentStore.getId();
+
 		//Al actualitzar un document desde una tasca, s'ha de associar la tasca a la variable JBMP
 		//En cas de crear, no fa falta perque ja s'haurà assignat al metode DocumentHelperV3.postProcessarDocument
-		if (documentStore!=null) {
-			workflowEngineApi.setTaskInstanceVariable(
-					taskInstanceId,
-					documentStore.getCodi(),
-					documentStore.getId());
-		}
+//		if (documentStore!=null) {
+//			workflowEngineApi.setTaskInstanceVariable(
+//					taskInstanceId,
+//					documentStore.getCodi(),
+//					documentStore.getId());
+//		}
 		// Registra l'acció
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -1257,6 +1293,34 @@ public class TascaServiceImpl implements TascaService {
 		}
 	}
 
+	private void mouDadesDocumentsAProcess(String taskInstanceId) {
+		WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
+		ExpedientTasca tasca = expedientTascaRepository.findByTaskId(taskInstanceId);
+		List<TascaDadaDto> variables = variableHelper.findDadesPerInstanciaTasca(task);
+
+		// Cercam quines variables s'han de passar al process
+		List<String> variablesPerPassar = variables.stream()
+											.filter(TascaDadaDto::isWriteTo)
+											.map(TascaDadaDto::getVarCodi)
+											.collect(Collectors.toList());
+
+		Map<String, Object> processDades = new  HashMap<String, Object>();
+		Map<String, Object> dadesTasca = expedientDadaHelper.getDadesValors(tasca.getExpedient(), null, taskInstanceId);
+		for(String variable : variablesPerPassar)
+			if(dadesTasca.get(variable) != null)
+				processDades.put(variable, dadesTasca.get(variable));
+		expedientDadaHelper.setDades(tasca.getExpedient(), task.getProcessInstanceId(), null, processDades);
+
+		List<DocumentStore> documentsTasca = expedientDocumentHelper.findByExpedientAndTask(tasca.getExpedient().getId(), taskInstanceId);
+		for(DocumentStore documentStore : documentsTasca){
+			expedientDocumentHelper.delete(documentStore.getId());
+			expedientDocumentHelper.setDocument(
+				tasca.getExpedient().getId(),
+				task.getProcessInstanceId(),
+				null,
+				documentStore);
+		}
+	}
 
 	@Override
 	@Transactional
@@ -1388,6 +1452,7 @@ public class TascaServiceImpl implements TascaService {
 				}
 			}
 			actualitzarTerminisIAlertes(tascaId, expedientLog.getExpedient());
+			mouDadesDocumentsAProcess(tascaId);
 			expedientHelper.verificarFinalitzacioExpedient(
 					expedientLog.getExpedient());
 			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(

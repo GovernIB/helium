@@ -865,7 +865,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
-			@RequestParam Long membreId,
+			@RequestParam(required=false) Long membreId,
 			Model model) {
 		return obtenirParellesCampRegistre(definicioProcesId, campId, membreId);
 	}
@@ -886,9 +886,9 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	 * Retorna les parelles de codi i valor per als registres. Treu els que ja estan seleccionats
 	 * i les variables de tipus registre. A més, si està marcat filtrar també
 	 * treu la variable del propi registre.
-	 * @param expedientTipusId
+	 * @param definicioProcesId
 	 * @param registreId
-	 * @param filtrar
+	 * @param membreId
 	 * @return
 	 */
 	private List<ParellaCodiValorDto> obtenirParellesCampRegistre(

@@ -21,13 +21,13 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.tablednd.js"/>"></script>
-	
+
 	<script type="text/javascript">
 		$(function() {
 			$('#changeToDisseny').on('click', function() {
@@ -38,16 +38,18 @@
 
 	<hel:modalHead/>
 </head>
-<body>			
+<body>
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 		<button id="changeToDisseny" type="button" class="btn btn-primary">
 			<i class="fa fa-pencil"></i> <spring:message code="comu.boto.dissenyar"/>
 		</button>
 	</div>
-	
+
 	<form:form id="tasca-camp-form" cssClass="well" action="${baseModalUrl}/variable/new" enctype="multipart/form-data" method="post" modelAttribute="definicioProcesTascaVariableCommand">
 		<input type="hidden" name="tascaId" id="inputTascaId" value="${definicioProcesTascaVariableCommand.tascaId}"/>
+		<input type="hidden" name="expedientTipusId" id="expedientTipusId" value="${definicioProcesTascaVariableCommand.expedientTipusId}"/>
+
 		<div class="row">
 			<div class="col-sm-4">
 				<hel:inputSelect inline="true" required="true" emptyOption="true" name="campId" textKey="definicio.proces.tasca.variable.form.variable" placeholderKey="definicio.proces.tasca.variable.form.variable.placeholder" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="valor"/>
@@ -64,7 +66,7 @@
 						<hel:inputCheckbox inline="true" name="required" textKey="definicio.proces.tasca.variable.columna.required" />
 					</div>
 					<div class="col-sm-3">
-						<hel:inputCheckbox inline="true" name="readOnly" textKey="definicio.proces.tasca.variable.columna.readOnly" />				
+						<hel:inputCheckbox inline="true" name="readOnly" textKey="definicio.proces.tasca.variable.columna.readOnly" />
 					</div>
 				</div>
 			</div>
@@ -75,7 +77,7 @@
 			</div>
 		</div>
 	</form:form>
-		
+
 	<div style="height: 500px;">
 		<table	id="tascaVariable"
 				data-toggle="datatable"
@@ -104,7 +106,7 @@
 								<span class="label label-warning pull-right" title="Definició de Procés">DP</span>
 							{{/if}}
 						</script>
-					</th>					
+					</th>
 					<th data-col-name="readFrom" data-template="#celldefinicioProcesTascaVariableReadFromTemplate" data-orderable="false">
 					<spring:message code="definicio.proces.tasca.variable.columna.readFrom"/>
 						<script id="celldefinicioProcesTascaVariableReadFromTemplate" type="text/x-jsrender">
@@ -137,9 +139,9 @@
 						</div>
 						</script>
 					</th>
-					
+
 					<th data-col-name="order" data-visible="false"><spring:message code="definicio.proces.tasca.variable.columna.ordre"/></th>
-					<th data-col-name="heretat" data-visible="false"/>					
+					<th data-col-name="heretat" data-visible="false"/>
 					<th data-col-name="ampleCols" data-template="#celldefinicioProcesTascaVariableAmpleColsTemplate" data-orderable="false">
 						<spring:message code="definicio.proces.tasca.variable.columna.ampleCols"/>
 						<script id="celldefinicioProcesTascaVariableAmpleColsTemplate" type="text/x-jsrender">
@@ -172,7 +174,7 @@
 			<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>"></span><span class="sr-only">&hellip;</span>
 		</span>
 	</div>
-	
+
 	<script type="text/javascript">
 	// <![CDATA[
 
@@ -188,13 +190,13 @@
 			res = item.text + " <span class='label label-primary'>R</span>";
 		else if(item.id && campsSobreescriuenIds.indexOf(parseInt(item.id)) >= 0)
 			res = item.text + " <span class='label label-warning'>S</span>";
-		else 
+		else
 			res = item.text;
 	    return res;
 	  }
-	
+
 	$(document).ready(function() {
-		
+
 
 		// Afegeix format si l'item de la agrupació està heretat
 		$('#campId').select2({
@@ -207,7 +209,7 @@
 			// Posa la taula com a ordenable
 			$("#tascaVariable").tableDnD({
 		    	onDragClass: "drag",
-		    	onDrop: function(table, row) {	        	
+		    	onDrop: function(table, row) {
 		        	var pos = row.rowIndex - 1;
 		        	var id= obtenirId(pos);
 		        	if (pos != filaMovem)
@@ -221,7 +223,7 @@
 		        $(this.cells[0]).addClass('showDragHandle');
 		    }, function() {
 		        $(this.cells[0]).removeClass('showDragHandle');
-		    });	
+		    });
 		    // Si es modifica un checbox, s'actualitza el registre
 		    $("input[type=checkbox]", this).change(function() {
 		    	updateCheckbox(this);
@@ -251,17 +253,17 @@
 					}
 				});
 				e.stopImmediatePropagation();
-				return false;				
+				return false;
 			});
 		    // Bloqueja les files heretades
 			$("tr", this).each(function(){
 				if ($(this).find("a.herencia").length > 0) {
 					$("input", this).prop('disabled', true);
 				}
-			});		    
-		  });	
+			});
+		  });
 	});
-	
+
 	/* Actualitza un valor del camp de la tasca. */
 	function updateCheckbox(checkbox) {
 		var variableId = $(checkbox).data('variableid');
@@ -288,7 +290,7 @@
 				webutilRefreshMissatges();
 				$(spin).remove();
 				$(checkbox).show();
-				
+
 			}
 		});
 	}
@@ -308,7 +310,7 @@
 		}
 		return buit;
 	}
-	
+
 	/* Actualitza un valor numèric del camp de la tasca. */
 	function updateNumeric(input) {
 		var variableId = $(input).data('variableid');
@@ -318,27 +320,27 @@
 			.clone()
 			.show()
 			.insertAfter(input);
-		
+
 		var valor = $(input).val();
 		if (propietat == 'ampleCols') {
 			if (valor == undefined || valor == '' || valor > 12)
 				valor = 12;
-			else if (valor <= 0) 
+			else if (valor <= 0)
 				valor = 1;
-			
+
 			$("#buitCols_" + variableId).val(definirAmpleBuit(valor, $("#buitCols_" + variableId).val()));
 		} else {
 			if (valor == undefined || valor == '')
 				valor = 0;
-			else if (valor > 12) 
+			else if (valor > 12)
 				valor = 12;
 			else if (valor < -12)
 				valor = -12;
-			
+
 			valor = definirAmpleBuit($("#ampleCols_" + variableId).val(), valor);
-			
+
 		}
-		
+
 		$(input).hide();
 		$.ajax({
 			type: 'POST',
@@ -361,7 +363,7 @@
 		});
 	}
 
-	
+
 	function canviarPosicioTascaVariable( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
 		$('#tascaVariable').DataTable().order([6, 'asc']);
@@ -382,7 +384,7 @@
 				$(spin).remove();
 				$(input).show();
 			}
-		});	
+		});
 	}
 
 	function obtenirId(pos){
@@ -396,11 +398,11 @@
 				var fila = filaMovem - (filaMovem-pos)+1;
 			}
 		}
-		id = $("#tascaVariable tr:eq("+fila+")").attr("id");	
+		id = $("#tascaVariable tr:eq("+fila+")").attr("id");
 		id2 = id.split("_");
 		return id2[1] ;
 	}
-		
+
 	function refrescaVariables() {
 		var getUrl = '${baseUrl}/variable/select';
 		$.ajax({
@@ -421,11 +423,11 @@
 				console.log("Error obtenint variables: " + e);
 			}
 		});
-	}	
+	}
 	function refrescaTaula() {
 		$('#tascaVariable').webutilDatatable('refresh');
-	}	
+	}
 	// ]]>
-	</script>	
+	</script>
 </body>
-		
+

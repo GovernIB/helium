@@ -3,6 +3,9 @@
  */
 package es.caib.helium.commons.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,42 +19,35 @@ import java.util.List;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Getter
+@Setter
 public class TascaDadaDto {
 
 	private String varCodi;
 	private Object varValor;
-
 	private Long campId;
 	private CampTipusDto campTipus;
 	private String campEtiqueta;
 	private boolean campMultiple;
 	private boolean campOcult;
 	private String[] campParams;
-
 	private String jbpmAction;
 	private String observacions;
 	private String definicioProcesKey;
-
 	private boolean terminiNomesDies = false;
-
 	private String text;
 	private List<TascaDadaDto> multipleDades;
 	private List<TascaDadaDto> registreDades;
 	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
-
 	private String error;
-
 	private boolean readOnly;
 	private boolean readFrom;
 	private boolean writeTo;
 	private boolean required;
 	private int ampleCols;
 	private int buitCols;
-
 	private boolean llistar;  // Si s'ha de llistar dins camp tipus registre
-
 	CampAgrupacioDto agrupacio;
-
 
 	public TascaDadaDto(String codi, CampTipusDto tipus, String etiqueta) {
 		this.varCodi = codi;
@@ -61,158 +57,8 @@ public class TascaDadaDto {
 
 	public TascaDadaDto() {
 	}
-
-	public String getVarCodi() {
-		return varCodi;
-	}
-	public void setVarCodi(String varCodi) {
-		this.varCodi = varCodi;
-	}
-	public Object getVarValor() {
-		return varValor;
-	}
-	public void setVarValor(Object varValor) {
-		this.varValor = varValor;
-	}
-	public Long getCampId() {
-		return campId;
-	}
-	public void setCampId(Long campId) {
-		this.campId = campId;
-	}
-	public CampTipusDto getCampTipus() {
-		return campTipus;
-	}
-	public void setCampTipus(CampTipusDto campTipus) {
-		this.campTipus = campTipus;
-	}
-	public String getCampEtiqueta() {
-		return campEtiqueta;
-	}
-	public void setCampEtiqueta(String campEtiqueta) {
-		this.campEtiqueta = campEtiqueta;
-	}
-	public boolean isCampMultiple() {
-		return campMultiple;
-	}
-	public void setCampMultiple(boolean campMultiple) {
-		this.campMultiple = campMultiple;
-	}
 	public boolean isCampOcult() {
 		return isReadOnly() ? false : campOcult;
-	}
-	public void setCampOcult(boolean campOcult) {
-		this.campOcult = campOcult;
-	}
-	public String[] getCampParams() {
-		return campParams;
-	}
-	public void setCampParams(String[] campParams) {
-		this.campParams = campParams;
-	}
-	public String getJbpmAction() {
-		return jbpmAction;
-	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
-	}
-	public String getObservacions() {
-		return observacions;
-	}
-	public void setObservacions(String observacions) {
-		this.observacions = observacions;
-	}
-	public boolean isReadOnly() {
-		return readOnly;
-	}
-	public void setReadOnly(boolean readOnly) {
-		this.readOnly = readOnly;
-	}
-	public boolean isReadFrom() {
-		return readFrom;
-	}
-	public void setReadFrom(boolean readFrom) {
-		this.readFrom = readFrom;
-	}
-	public boolean isWriteTo() {
-		return writeTo;
-	}
-	public void setWriteTo(boolean writeTo) {
-		this.writeTo = writeTo;
-	}
-	public boolean isRequired() {
-		return required;
-	}
-	public void setRequired(boolean required) {
-		this.required = required;
-	}
-	public int getAmpleCols() {
-		return ampleCols;
-	}
-
-	public void setAmpleCols(int ampleCols) {
-		this.ampleCols = ampleCols;
-	}
-
-	public int getBuitCols() {
-		return buitCols;
-	}
-
-	public void setBuitCols(int buitCols) {
-		this.buitCols = buitCols;
-	}
-
-	public String getText() {
-		return text;
-	}
-	public void setText(String text) {
-		this.text = text;
-	}
-	public List<TascaDadaDto> getMultipleDades() {
-		return multipleDades;
-	}
-	public void setMultipleDades(List<TascaDadaDto> multipleDades) {
-		this.multipleDades = multipleDades;
-	}
-	public List<TascaDadaDto> getRegistreDades() {
-		return registreDades;
-	}
-	public void setRegistreDades(List<TascaDadaDto> registreDades) {
-		this.registreDades = registreDades;
-	}
-	public List<ValidacioDto> getValidacions() {
-		return validacions;
-	}
-	public void setValidacions(List<ValidacioDto> validacions) {
-		this.validacions = validacions;
-	}
-	public String getError() {
-		return error;
-	}
-	public void setError(String error) {
-		this.error = error;
-	}
-	public boolean isLlistar() {
-		return llistar;
-	}
-	public void setLlistar(boolean llistar) {
-		this.llistar = llistar;
-	}
-
-	public CampAgrupacioDto getAgrupacio() {
-		return agrupacio;
-	}
-
-	public void setAgrupacio(CampAgrupacioDto agrupacio) {
-		this.agrupacio = agrupacio;
-	}
-
-	public boolean isTerminiNomesDies() {
-		return terminiNomesDies;
-	}
-
-	public void setTerminiNomesDies(boolean terminiNomesDies) {
-		this.terminiNomesDies = terminiNomesDies;
 	}
 
 	public Object[] getMultipleValor() {
@@ -316,14 +162,6 @@ public class TascaDadaDto {
 		return CampTipusDto.REGISTRE.equals(campTipus);
 	}
 
-	public String getDefinicioProcesKey() {
-		return definicioProcesKey;
-	}
-
-	public void setDefinicioProcesKey(String definicioProcesKey) {
-		this.definicioProcesKey = definicioProcesKey;
-	}
-
 	public String getCampParamsConcatenats() {
 		if (campParams == null) {
 			return null;
@@ -336,8 +174,6 @@ public class TascaDadaDto {
 		}
 		return sb.toString();
 	}
-
-
 
 	private String getMultipleComText(boolean plantilla) {
 		if (isCampMultiple()) {

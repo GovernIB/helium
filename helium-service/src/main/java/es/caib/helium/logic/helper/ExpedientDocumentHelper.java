@@ -11,7 +11,6 @@ import es.caib.helium.commons.utils.OpenOfficeUtils;
 import es.caib.helium.commons.utils.PdfUtils;
 import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.logic.utils.DocumentTokenUtils;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.repository.*;
@@ -25,7 +24,6 @@ import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -115,6 +113,25 @@ public class ExpedientDocumentHelper {
 		return expedientDocumentRepository.findDocumentStoreByExpedientIdAndProcessId(expedientId, processId);
 	}
 
+	public DocumentStore findByProcessAndCodi(String processId, String codi) {
+		return expedientDocumentRepository.findDocumentStoreByProcessIdAndCodi(processId, codi);
+	}
+
+	public DocumentStore setDocument(
+		Long expedientId,
+		String processInstanceId,
+		String taskInstanceId,
+		DocumentStore  documentStore) {
+		Expedient expedient = expedientHelper.findById(expedientId);
+		upsert(
+			documentStore,
+			documentStore.getCodi(),
+			expedient,
+			processInstanceId,
+			taskInstanceId);
+		return documentStore;
+	}
+
 	public DocumentStore setDocument(
 		Long expedientId,
 		String processInstanceId,
@@ -134,17 +151,20 @@ public class ExpedientDocumentHelper {
 		String ntiIdOrigen,
 		List<ExpedientDocumentDto> annexosPerNotificar
 	) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-			expedientId,
-			new Permission[] {
-				ExtendedPermission.DOC_MANAGE,
-				ExtendedPermission.ADMINISTRATION});
+		Expedient expedient = expedientHelper.findById(expedientId);
 		Document document = documentRepository.findByExpedientTipusAndCodi(
 			expedient.getTipus().getId(),
 			documentCodi,
 			expedient.getTipus().getExpedientTipusPare() != null);
 
-		DocumentStore documentStore = expedientDocumentRepository.findDocumentStoreByExpedientIdAndCodi(expedientId, documentCodi);
+		DocumentStore documentStore = expedientDocumentRepository.findDocumentStoreByCodi(
+											documentCodi,
+											expedientId,
+											expedientId == null,
+											processInstanceId,
+											processInstanceId == null,
+											taskInstanceId,
+											taskInstanceId == null);
 
 		if(documentStore == null) {
 			String documentCodiPerCreacio = documentCodi;
@@ -268,7 +288,7 @@ public class ExpedientDocumentHelper {
 			}
 		}
 
-		create(
+		upsert(
 			documentStore,
 			documentStore.getCodi(), //documentCodi,
 			expedient,
@@ -283,7 +303,6 @@ public class ExpedientDocumentHelper {
 		String processInstanceId,
 		String taskInstanceId,
 		String documentCodi) {
-
 		ExpedientDocument expedientDocument = expedientDocumentRepository.findByCodi(
 			documentCodi,
 			expedientId,
@@ -292,6 +311,14 @@ public class ExpedientDocumentHelper {
 			processInstanceId == null,
 			taskInstanceId,
 			taskInstanceId == null);
+
+		// Si s'intenta esborrar un document des de una tasca pero el document pertany al process
+		if (expedientDocument == null && taskInstanceId != null && processInstanceId != null)
+			expedientDocument = expedientDocumentRepository.findByCodi(
+				documentCodi,
+				expedientId,
+				processInstanceId,
+				null);
 
 		if (expedientDocument != null) {
 			boolean esborrarDocument = true;
@@ -320,21 +347,19 @@ public class ExpedientDocumentHelper {
 						", entorn=" + expedient.getTipus().getEntorn().getCodi() + ", document= " + documentStoreId
 						+ (documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : documentStore.getCodiDocument() ) + ")");
 				} else {
-					if (esborrarDocument ) {
+					if (esborrarDocument && documentStore.getAnnexId() == null) {
 						// No esborra el document de l'Arxiu si té un annex associat
-						if (documentStore.getAnnexId() == null) {
-							// Consulta si existeix abans cridar a esborrar per a que no falli
-							boolean arxiuExisteixDocument = false;
-							try {
-								arxiuExisteixDocument = null != pluginHelper.arxiuDocumentInfo(documentStore.getArxiuUuid(), null, false, documentStore.isSignat());
-							} catch (Exception ex) {
-								// Si no existeix falla la consulta.
-								log.error("No s'ha pogut borrar el document "+documentStore.getArxiuUuid()+" del arxiu perque no existeix.");
-							}
-							if ( arxiuExisteixDocument) {
-								// Esborra el document de l'Arxiu
-								pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
-							}
+						// Consulta si existeix abans cridar a esborrar per a que no falli
+						boolean arxiuExisteixDocument = false;
+						try {
+							arxiuExisteixDocument = null != pluginHelper.arxiuDocumentInfo(documentStore.getArxiuUuid(), null, false, documentStore.isSignat());
+						} catch (Exception ex) {
+							// Si no existeix falla la consulta.
+							log.error("No s'ha pogut borrar el document "+documentStore.getArxiuUuid()+" del arxiu perque no existeix.");
+						}
+						if ( arxiuExisteixDocument) {
+							// Esborra el document de l'Arxiu
+							pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
 						}
 					}
 				}
@@ -358,6 +383,12 @@ public class ExpedientDocumentHelper {
 			}
 			expedientDocumentRepository.delete(expedientDocument);
 			if (esborrarDocument) {
+				for (DocumentStore parent : new ArrayList<DocumentStore>(documentStore.getZips())) {
+					parent.getContinguts().remove(documentStore);
+				}
+
+				documentStore.getContinguts().clear();
+				documentStoreRepository.flush();
 				documentStoreRepository.delete(documentStore);
 			}
 		}
@@ -372,25 +403,31 @@ public class ExpedientDocumentHelper {
 		expedientDocumentRepository.deleteByExpedientId(expedientId);
 	}
 
-	private ExpedientDocument create(
+	private ExpedientDocument upsert(
 		DocumentStore documentStore,
 		String codi,
 		Expedient expedient,
 		String processInstanceId,
 		String taskId) {
-		ExpedientDocument entity = expedientDocumentRepository.findByCodiAndExpedientId(codi, expedient.getId());
-		if(entity != null)
-			return entity;
-
-		entity = ExpedientDocument
-								.builder()
-								.documentStore(documentStore)
-								.codi(codi)
-								.expedient(expedient)
-								.processInstanceId(processInstanceId)
-								.taskId(taskId)
-								.tipus(DocumentTipusEnum.DOCUMENT)
-								.build();
+		Long expedientId = expedient != null? expedient.getId() : null;
+		ExpedientDocument entity = expedientDocumentRepository.findByCodi(
+										codi,
+										expedientId,
+										processInstanceId,
+										taskId);
+		if (entity != null) {
+			entity.setDocumentStore(documentStore);
+		} else {
+			entity = ExpedientDocument
+				.builder()
+				.documentStore(documentStore)
+				.codi(codi)
+				.expedient(expedient)
+				.processInstanceId(processInstanceId)
+				.taskId(taskId)
+				.tipus(DocumentTipusEnum.DOCUMENT)
+				.build();
+		}
 		return expedientDocumentRepository.save(entity);
 	}
 

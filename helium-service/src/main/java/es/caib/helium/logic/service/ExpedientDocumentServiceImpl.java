@@ -274,7 +274,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 		if(isSignat || (firmaSeparada && firmaContingut != null)) {
 			ArxiuFirmaValidacioDetallDto firmaValidacio =
-				pluginHelper.validaSignaturaObtenirDetalls(arxiuNom, arxiuContentType, arxiuContingut, firmaContingut);
+				pluginHelper.validaSignaturaObtenirDetalls(arxiuContingut, firmaContingut);
 			isValid = firmaValidacio.isValid();
 			validationMessage = firmaValidacio.getMessage();
 		}
@@ -434,7 +434,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Long documentStoreId = null;
 
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		ExpedientDocumentDto expDocDto = this.findOneAmbInstanciaProces(expedient.getId(), processInstanceId, documentCodi);
+		ExpedientDocumentDto expDocDto = null;
+		if(documentCodi != null)
+			expDocDto = this.findOneAmbInstanciaProces(expedient.getId(), processInstanceId, documentCodi);
 
 		if(expDocDto != null) {
 			documentStoreId = expDocDto.getId();
@@ -2636,7 +2638,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			false,
 			false,
 			false);
+
 		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
+
+		if(processInstanceId != null) {
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+			documentsTipusExpedient.addAll(documentRepository.findByDefinicioProcesId(definicioProces.getId()));
+		}
 
 		List<DocumentStore> documentStoreList = null;
 		if(processInstanceId != null) {

@@ -251,7 +251,7 @@ public class VariableHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "0");
 		mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		List<ExpedientDadaDto> resposta = new ArrayList<ExpedientDadaDto>();
-		Map<String, Object> varsInstanciaProces = expedientDadaHelper.getDadesValors(exp, exp.getProcessInstanceId(), null);
+		Map<String, Object> varsInstanciaProces = expedientDadaHelper.getDadesValors(exp, processInstanceId, null);
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		if (varsInstanciaProces != null) {
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");

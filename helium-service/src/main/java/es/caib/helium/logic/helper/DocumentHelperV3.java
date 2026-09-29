@@ -159,10 +159,6 @@ public class DocumentHelperV3 {
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
-	private ExceptionHelper exceptionHelper;
-	@Resource
-	private ExpedientRegistreHelper expedientRegistreHelper;
-	@Resource
 	private RegistreRepository registreRepository;
 	@Resource
 	private DocumentNotificacioRepository documentNotificacioRepository;
@@ -170,6 +166,8 @@ public class DocumentHelperV3 {
 	private AnotacioAnnexRepository anotacioAnnexRepository;
 	@Resource
 	private PeticioPinbalRepository peticioPinbalRepository;
+	@Resource
+	private ExpedientDocumentHelper expedientDocumentHelper;
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -187,12 +185,7 @@ public class DocumentHelperV3 {
 			String documentCodi,
 			boolean arxiuActiu) {
 		ExpedientDocumentDto expedientDocumentDto = null;
-		Long documentStoreId = findDocumentStorePerInstanciaProcesAndDocumentCodi(
-				processInstanceId,
-				documentCodi);
-		DocumentStore documentStore = null;
-		if (documentStoreId != null)
-		 documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
+		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(null, processInstanceId, null, documentCodi);
 		if (documentStore != null)
 			expedientDocumentDto = findOnePerInstanciaProces(processInstanceId, documentStore, arxiuActiu);
 		return expedientDocumentDto;
@@ -350,7 +343,7 @@ public class DocumentHelperV3 {
 						String numeroRegistre = documentStore.getRegistreNumero();
 						String urlComprovacioSignatura = null;
 					    if (ambSegellSignatura && documentStore.getReferenciaCustodia() != null) {
-					    	urlComprovacioSignatura = getUrlComprovacioSignatura(documentStore.getId(), documentStore.getReferenciaCustodia());
+					    	urlComprovacioSignatura = getUrlComprovacioSignatura(documentStore.getId());
 					    }
 					    getPdfUtils().estampar(
 						      arxiuNomOriginal,
@@ -574,15 +567,6 @@ public class DocumentHelperV3 {
 		return resposta;
 	}
 
-	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(
-			String processInstanceId,
-			String documentCodi) {
-			return getDocumentStoreIdDeVariableJbpm(
-					null,
-					processInstanceId,
-					documentCodi);
-	}
-
 	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
 			String processInstanceId,
 			Long documentStoreId,
@@ -767,13 +751,13 @@ public class DocumentHelperV3 {
 	public DocumentStore getDocumentStore(
 			WTaskInstance task,
 			String documentCodi) {
-		DocumentStore documentStore = null;
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getId()), task.getProcessInstanceId(), documentCodi);
-		if (documentStoreId != null) {
-			documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
+		return expedientDocumentHelper
+				.findDocumentStore(
+					null,
+					task.getProcessInstanceId(),
+					task.getId(),
+					documentCodi);
 		}
-		return documentStore;
-	}
 
 	public DocumentStore findById(
 			Long documentStoreId) {
@@ -1293,14 +1277,12 @@ public class DocumentHelperV3 {
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdDocumentoOrigen) {
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(
-				taskInstanceId,
-				processInstanceId,
-				documentCodi);
-		DocumentStore documentStore = null;
-		if (documentStoreId != null) {
-			documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
-		}
+		DocumentStore documentStore = expedientDocumentHelper
+										.findDocumentStore(
+											null,
+											processInstanceId,
+											taskInstanceId,
+											documentCodi);
 		if (arxiuContentType == null)
 			arxiuContentType = this.getContentType(arxiuNom);
 		if (documentStore == null) {
@@ -1322,7 +1304,7 @@ public class DocumentHelperV3 {
 
 			if(isSignat || (firmaSeparada && firmaContingut != null)) {
 				ArxiuFirmaValidacioDetallDto firmaValidacio =
-					pluginHelper.validaSignaturaObtenirDetalls(arxiuNom, arxiuContentType, arxiuContingut, firmaContingut);
+					pluginHelper.validaSignaturaObtenirDetalls(arxiuContingut, firmaContingut);
 				isValid = firmaValidacio.isValid();
 				validationMessage = firmaValidacio.getMessage();
 			}
@@ -1351,7 +1333,7 @@ public class DocumentHelperV3 {
 					null);
 		} else {
 			return actualitzarDocument(
-					documentStoreId,
+					documentStore.getId(),
 					taskInstanceId,
 					processInstanceId,
 					documentData,
@@ -1421,7 +1403,7 @@ public class DocumentHelperV3 {
 							", entorn=" + expedient.getTipus().getEntorn().getCodi() + ", document= " + documentStoreId
 							+ (documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : documentStore.getCodiDocument() ) + ")");
 				} else {
-					if (esborrarDocument ) {
+					if (esborrarDocument) {
 						// No esborra el document de l'Arxiu si té un annex associat
 						if (documentStore.getAnnexId() == null) {
 							// Consulta si existeix abans cridar a esborrar per a que no falli
@@ -1879,7 +1861,7 @@ public class DocumentHelperV3 {
 										arxiuOrigenNom,
 										arxiuOrigenContingut,
 										(ambSegellSignatura) ? !documentStore.isSignat() : false,
-										(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStore.getReferenciaCustodia(), dto.getTokenSignatura()): null,
+										(ambSegellSignatura) ? getUrlComprovacioSignatura(dto.getTokenSignatura()): null,
 										documentStore.isRegistrat(),
 										numeroRegistre,
 										dataRegistre,
@@ -2428,52 +2410,54 @@ public class DocumentHelperV3 {
 		dto.setArxiuNom(document.getArxiuNom());
 		dto.setArxiuContingutDefinit(document.getArxiuContingut() != null && document.getArxiuContingut().length > 0);
 		dto.setPortafirmesActiu(document.isPortafirmesActiu());
-		Long documentStoreId;
-		documentStoreId = getDocumentStoreIdDeVariableJbpm(
-				String.valueOf(task.getId()),
-				readonly ? task.getProcessInstanceId() : null, // Si és readonly no es troba a la tasca però sí es pot llegir del procés
-					document.getCodi());
-		if (documentStoreId != null) {
-			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
-			if (documentStore != null) {
-				dto.setDocumentStoreId(documentStoreId);
-				dto.setArxiuNom(documentStore.getArxiuNom());
-				dto.setDataCreacio(documentStore.getDataCreacio());
-				dto.setDataModificacio(documentStore.getDataModificacio());
-				dto.setDataDocument(documentStore.getDataDocument());
-				dto.setSignat(documentStore.isSignat());
-				dto.setRegistrat(documentStore.isRegistrat());
-				if (documentStore.isSignat()) {
-					if (documentStore.getArxiuUuid() == null) {
+		DocumentStore documentStore = expedientDocumentHelper
+			.findDocumentStore(
+				null,
+				task.getProcessInstanceId(),
+				task.getId(),
+				document.getCodi());
+
+		if (documentStore == null)
+			documentStore = expedientDocumentHelper.findByProcessAndCodi(task.getProcessInstanceId(), document.getCodi());
+
+		if (documentStore != null) {
+			dto.setDocumentStoreId(documentStore.getId());
+			dto.setArxiuNom(documentStore.getArxiuNom());
+			dto.setDataCreacio(documentStore.getDataCreacio());
+			dto.setDataModificacio(documentStore.getDataModificacio());
+			dto.setDataDocument(documentStore.getDataDocument());
+			dto.setSignat(documentStore.isSignat());
+			dto.setRegistrat(documentStore.isRegistrat());
+			if (documentStore.isSignat()) {
+				if (documentStore.getArxiuUuid() == null) {
 //						dto.setUrlVerificacioCustodia(
 //								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
 //										documentStore.getReferenciaCustodia()));
 //						dto.setSignaturaUrlVerificacio(
 //								dto.getUrlVerificacioCustodia());
-					} else {
-						dto.setSignaturaUrlVerificacio(
-								getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
-					}
+				} else {
+					dto.setSignaturaUrlVerificacio(
+							getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
 				}
+			}
 
-				List<Portasignatures>  enviamentsPF = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(documentStore.getProcessInstanceId(), documentStore.getId());
-				if (enviamentsPF!=null && enviamentsPF.size()>0) {
-					dto.setPsignaActual(conversioTipusHelper.convertir(enviamentsPF.get(0), PortasignaturesDto.class));
-				}
+			List<Portasignatures>  enviamentsPF = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(documentStore.getProcessInstanceId(), documentStore.getId());
+			if (enviamentsPF!=null && enviamentsPF.size()>0) {
+				dto.setPsignaActual(conversioTipusHelper.convertir(enviamentsPF.get(0), PortasignaturesDto.class));
+			}
 
-				dto.setNtiCsv(documentStore.getNtiCsv());
-				try {
-					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
-				} catch (Exception ex) {
-					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
-				}
-				if (documentStore.isRegistrat()) {
-					dto.setRegistreData(documentStore.getRegistreData());
-					dto.setRegistreNumero(documentStore.getRegistreNumero());
-					dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
-					dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
-					dto.setRegistreEntrada(documentStore.isRegistreEntrada());
-				}
+			dto.setNtiCsv(documentStore.getNtiCsv());
+			try {
+				dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStore.getId().toString()));
+			} catch (Exception ex) {
+				logger.error("No s'ha pogut generar el token pel document " + documentStore.getId(), ex);
+			}
+			if (documentStore.isRegistrat()) {
+				dto.setRegistreData(documentStore.getRegistreData());
+				dto.setRegistreNumero(documentStore.getRegistreNumero());
+				dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
+				dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
+				dto.setRegistreEntrada(documentStore.isRegistreEntrada());
 			}
 		}
 		return dto;
@@ -2601,17 +2585,12 @@ public class DocumentHelperV3 {
 		}
 	}
 
-	private String getUrlComprovacioSignatura(Long documentStoreId, String referenciaCustodia) throws Exception {
-//		String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(referenciaCustodia);
-//		if (urlCustodia != null) {
-//			return urlCustodia;
-//		} else {
-			String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
-			if (baseUrl == null)
-				baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
-			String token = getDocumentTokenUtils().xifrarToken(documentStoreId.toString());
-			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
-//		}
+	private String getUrlComprovacioSignatura(Long documentStoreId) throws Exception {
+		String baseUrl = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
+		if (baseUrl == null)
+			baseUrl = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
+		String token = getDocumentTokenUtils().xifrarToken(documentStoreId.toString());
+		return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 	}
 
 	/** Mètode per obtenir la URL per verificar la signatura. Si el documentStore té uuid s'asumeix que és a l'Arxiu i si no
@@ -2673,16 +2652,11 @@ public class DocumentHelperV3 {
 		return documentTokenUtils;
 	}
 
-	private String getUrlComprovacioSignatura(String referenciaCustodia, String token) {
-//		String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(referenciaCustodia);
-//		if (urlCustodia != null) {
-//			return urlCustodia;
-//		} else {
-			String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
-			if (baseUrl == null)
-				baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
-			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
-//		}
+	private String getUrlComprovacioSignatura(String token) {
+		String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
+		if (baseUrl == null)
+			baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
+		return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 	}
 
 	private byte[] getContingutDocumentAmbFont(DocumentStore document) {
@@ -2693,26 +2667,8 @@ public class DocumentHelperV3 {
 							document.getReferenciaFont());
 	}
 
-	private Long getDocumentStoreIdDeVariableJbpm(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi) {
-		Object value = null;
-		if (taskInstanceId != null) {
-			value = workflowEngineApi.getTaskInstanceVariable(
-					taskInstanceId,
-					documentCodi);
-		}
-		if (value == null && processInstanceId != null) {
-			value = workflowEngineApi.getProcessInstanceVariable(
-					processInstanceId,
-					documentCodi);
-		}
-		return (Long)value;
-	}
-
 	private String nomArxiuAmbExtensio(String fileName, String extensio) {
-		if (extensio == null || extensio.length() == 0)
+		if (extensio == null || extensio.isEmpty())
 			return fileName;
 		int indexPunt = fileName.lastIndexOf(".");
 		if (indexPunt != -1) {

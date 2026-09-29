@@ -426,7 +426,10 @@ public class Camp implements Serializable, GenericEntity<Long> {
 				case PRICE:
 					return new DecimalFormat("#,##0.00").format((BigDecimal) valor);
 				case DATE:
-					return new SimpleDateFormat("dd/MM/yyyy").format(new Date((Long) valor));
+					if(valor instanceof Date)
+						return new SimpleDateFormat("dd/MM/yyyy").format((Date) valor);
+					if(valor instanceof String)
+						return (String) valor;
 				case BOOLEAN:
 					return Boolean.valueOf(valor.toString()) ? "Si" : "No";
 				case TERMINI:
@@ -578,7 +581,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
     public void setConsulta(Consulta consulta) {
         this.consulta = consulta;
     }
-    
+
     @Transient
 	public String getCodiPerInforme() {
 		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
