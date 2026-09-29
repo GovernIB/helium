@@ -292,7 +292,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				documentsPinbal = documentsPinbal || instanciaProces.isDocumentsPinbal();
 				documents.put(instanciaProces, documentsInstancia);
 			}
-			
+
 			model.addAttribute("documentsPinbal", documentsPinbal);
 			model.addAttribute("documents", documents);
 		}
@@ -1620,6 +1620,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			ModelMap model) throws ServletException {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		if(expedient.getDataFi() != null && expedient.isArxiuActiu())
+			throw new ServletException("No es pot esborrar un document finalitzat a Arxiu");
+
 		boolean response = false;
 		try {
 			expedientDocumentService.delete(
@@ -2310,7 +2314,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg, e);
 		}
-		return null;
+		return modalUrlTancar();
 	}
 
 	/** Modal per veure el llistat de notificacions relacioandes amb un document.

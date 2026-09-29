@@ -162,6 +162,7 @@
 															<c:set var="esborrarConfirmacioMsg"><spring:message code='expedient.document.confirm_esborrar_proces' /></c:set>
 														</c:otherwise>
 													</c:choose>
+													<c:if test="${(empty expedient.dataFi) || !expedient.arxiuActiu}">
 													<a 	class="icon fa fa-trash-o fa-2x"
 														data-rdt-link-confirm="${esborrarConfirmacioMsg}"
 														data-rdt-link-ajax=true
@@ -169,6 +170,7 @@
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
 														title="<spring:message code='expedient.document.esborrar'/>">
 													</a>
+													</c:if>
 												</c:if>
 												<c:if test="${!document.documentValid}">
 													<span class="fa fa-exclamation-triangle fa-2x text-danger" title="<spring:message htmlEscape="true" code="expedient.document.invalid" arguments="${document.documentError}"/>""></span>
