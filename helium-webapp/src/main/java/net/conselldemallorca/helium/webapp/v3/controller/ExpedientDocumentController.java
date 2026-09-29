@@ -1655,7 +1655,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,	
 			ModelMap model) throws ServletException {
-		boolean response = false; 
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		if(expedient.getDataFi() != null && expedient.isArxiuActiu())
+			throw new ServletException("No es pot esborrar un document finalitzat a Arxiu");
+		
+		boolean response = false;
 		try {
 			expedientDocumentService.delete(
 					expedientId,
