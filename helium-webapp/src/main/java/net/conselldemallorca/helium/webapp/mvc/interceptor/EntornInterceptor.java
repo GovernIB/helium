@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -35,6 +36,7 @@ import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientReindexacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.webapp.v3.helper.Alert;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
@@ -230,11 +232,27 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 							accessiblesConConsultasActivas);
 				}
 			}
+			
+			HttpSession session = request.getSession();
 			// Si l'usuari actual és administrador es mira si posar una alerta segons l'estat de Lucene.
 			IndexInfoDto indexInfo = expedientReindexacioService.getIndexInfo();
 			if (indexInfo.getError() != null) {
+				List<Alert> alerts = (List<Alert>)session.getAttribute(MissatgesHelper.SESSION_ATTRIBUTE_ERROR);
+				if(alerts != null) {
+					for(Alert alert : alerts) {
+						if(alert.getText().equals(indexInfo.getError()))
+							return true;
+					}
+				}
 				MissatgesHelper.error(request, indexInfo.getError());
 			} else if  (indexInfo.getAlerta() != null) {
+				List<Alert> alerts = (List<Alert>)session.getAttribute(MissatgesHelper.SESSION_ATTRIBUTE_WARNING);
+				if(alerts != null) {
+					for(Alert alert : alerts) {
+						if(alert.getText().equals(indexInfo.getAlerta()))
+							return true;
+					}
+				}
 				MissatgesHelper.warning(request, indexInfo.getAlerta());
 			}
 		}

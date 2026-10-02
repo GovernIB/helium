@@ -310,20 +310,37 @@ public class SalutServiceImpl implements SalutService {
 		List<MissatgeSalut> missatges = new ArrayList<MissatgeSalut>();
 		try {
 			List<Avis> avisos = avisRepository.findActive(DateUtils.truncate(new Date(), Calendar.DATE));
-		if (avisos != null && !avisos.isEmpty()) {
-			for(Avis avis : avisos) {
+			if (avisos != null && !avisos.isEmpty()) {
+				for(Avis avis : avisos) {
+					missatges.add(MissatgeSalut
+							.builder()
+							.missatge(avis.getMissatge())
+							.data(avis.getDataInici())
+							.nivell(toSalutNivell(avis.getAvisNivell()))
+							.build());
+				}
+			}
+			
+			IndexInfoDto indexInfo = indexHelper.getIndexInfo();
+			if (indexInfo.getError() != null) {
 				missatges.add(MissatgeSalut
 						.builder()
-						.missatge(avis.getMissatge())
-						.data(avis.getDataInici())
-						.nivell(toSalutNivell(avis.getAvisNivell()))
+						.missatge(indexInfo.getError())
+						.data(indexInfo.getData())
+						.nivell(SalutNivell.ERROR)
+						.build());
+			} else if (indexInfo.getAlerta() != null) {
+				missatges.add(MissatgeSalut
+						.builder()
+						.missatge(indexInfo.getAlerta())
+						.data(indexInfo.getData())
+						.nivell(SalutNivell.WARN)
 						.build());
 			}
-		}
-			return null;
 		} catch (Exception e) {
 			return null;
 		}
+		return missatges;
 	}
 	
 	public static String humanReadableByteCount(long bytes) {
@@ -437,8 +454,10 @@ public class SalutServiceImpl implements SalutService {
 		// Index Lucene
 		IndexInfoDto indexInfo = indexHelper.getIndexInfo();
 		EstatSalutEnum estatLucene = EstatSalutEnum.UP;
+		long errors = 0;
 		if (indexInfo.getError() != null) {
 			estatLucene = EstatSalutEnum.ERROR;
+			errors++;
 		} else if (indexInfo.getAlerta() != null) {
 			estatLucene = EstatSalutEnum.WARN;
 		}
@@ -446,8 +465,8 @@ public class SalutServiceImpl implements SalutService {
 				.builder()
 				.codi("LCN")
 				.estat(estatLucene)
-				.totalError(null)
-				.totalOk(null)
+				.totalError(errors)
+				.totalOk(0l)
 				.build();
 		subsistemes.add(luceneStats);
 		return subsistemes;
