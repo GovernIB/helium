@@ -6,6 +6,7 @@ package es.caib.helium.back.helper;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -29,9 +30,10 @@ import es.caib.helium.commons.dto.TascaDadaDto;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class TascaFormHelper {
+public abstract class TascaFormHelper {
 
 	private static final String VARIABLE_SESSIO_COMMAND_TMP = "TascaFormUtil_CommandSessioTmp";
+	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
 	public static Object getCommandForFiltre(
 			List<TascaDadaDto> campsFiltre,
@@ -306,7 +308,8 @@ public class TascaFormHelper {
 							}
 							break;
 						case PRICE:
-							valor = (valor != null)? BigDecimal.valueOf((Double) valor) : null;
+							if(valor instanceof Double)
+								valor = BigDecimal.valueOf((Double) valor);
 							break;
 						}
 						setSimpleProperty(
@@ -331,12 +334,11 @@ public class TascaFormHelper {
 					// 4. En cas contrari assignarem els valor obtinguts a l'objecte Registre
 					} else {
 						if (camp.isCampMultiple()) {
-							//valorRegistre = ((List)valor).toArray();
 							valorRegistre = Array.newInstance(registre.getClass(), ((Object[])valor).length);
 
-
+							List<TascaDadaDto> registreDades = camp.getMultipleDades().get(0).getRegistreDades();
 							List<Method> setters = new ArrayList<Method>();
-							for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
+							for (TascaDadaDto campRegistre : registreDades) {
 								Method metodeSet = registre.getClass().getMethod(
 									"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1),
 									campRegistre.getJavaClass());
@@ -347,9 +349,17 @@ public class TascaFormHelper {
 							for(Object fila : (Object[])valor) {
 								Object nRegistre = registre.getClass().newInstance();
 								int i = 0;
-								for(Object col : (Object[])fila) {
+								for(Object valorReg : (Object[])fila) {
+									TascaDadaDto campRegistre = registreDades.get(i);
 									Method setter = setters.get(i++);
-									setter.invoke(nRegistre, col);
+
+									if (campRegistre.getJavaClass().equals(Date.class) &&
+										valorReg instanceof String &&
+										!((String) valorReg).isEmpty()) {
+										valorReg = dateFormatter.parse((String) valorReg);
+									}
+
+									setter.invoke(nRegistre, valorReg);
 								}
 								((Object[]) valorRegistre)[filaIndex++] = nRegistre;
 							}
@@ -387,7 +397,7 @@ public class TascaFormHelper {
 								if (campRegistre.getJavaClass().equals(Date.class) &&
 									valorReg instanceof String &&
 									!((String) valorReg).isEmpty()) {
-									valorReg = new SimpleDateFormat("yyyy-MM-dd").parse((String) valorReg);
+									valorReg = dateFormatter.parse((String) valorReg);
 								}
 								metodeSet.invoke(valorRegistre, valorReg);
 							}
@@ -408,7 +418,7 @@ public class TascaFormHelper {
 		}
 		if (campsAddicionals != null) {
 			for (String codi: campsAddicionals.keySet()) {
-				Object valor = campsAddicionals.containsKey(codi) ? campsAddicionals.get(codi) : null;
+				Object valor = campsAddicionals.getOrDefault(codi, null);
 				try {
 					setSimpleProperty(
 							command,
@@ -511,7 +521,7 @@ public class TascaFormHelper {
 		}
 		if (campsAddicionals != null) {
 			for (String codi: campsAddicionals.keySet()) {
-				Object valor = campsAddicionals.containsKey(codi) ? campsAddicionals.get(codi) : null;
+				Object valor = campsAddicionals.getOrDefault(codi, null);
 				try {
 					setSimpleProperty(
 							command,
@@ -617,7 +627,7 @@ public class TascaFormHelper {
 		} else if (valor != null) {
 			valorComString = valor.toString();
 		}
-		return valorComString.toString();
+		return valorComString;
 	}
 
 	public static String varValorClassToString(Object valor) {
@@ -655,7 +665,7 @@ public class TascaFormHelper {
 		} else if (valor != null) {
 			valorComString = valor.getClass().toString();
 		}
-		return valorComString.toString();
+		return valorComString;
 	}
 
 
@@ -682,7 +692,6 @@ public class TascaFormHelper {
 			if (!tascaDada.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				if (tascaDada.getCampTipus() != null)  {
 					if (isCampMultiple(tascaDada, esConsultaPerTipus)) {
-						//propertyClass = Array.newInstance(Object.class, 1).getClass();
 						propertyClass = Array.newInstance(Object.class, 1).getClass();
 					} else {
 						propertyClass = tascaDada.getJavaClass();
@@ -728,7 +737,6 @@ public class TascaFormHelper {
 				}
 				int midaLinia = camp.getMultipleDades().get(0).getRegistreDades().size();
 				// Validar que és correcte el següent:
-				//int mida = camp.isReadOnly() ? camp.getMultipleDades().size() : ((Object[])valor).length;
 				int mida = valor != null ? ((Object[])valor).length : 0;
 
 				Object[][] linies = new Object[mida][midaLinia];

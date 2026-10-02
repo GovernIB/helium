@@ -437,16 +437,18 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 							cell = xlsRow.createCell(colNum++);
 							cell.setCellType(XSSFCell.CELL_TYPE_NUMERIC);
 							if(dada.getValor() != null) {
-								if( camp.getCampTipus().equals(CampTipusDto.INTEGER)) {
-									cell.setCellValue((Long) dada.getValor());
-								} else if (camp.getCampTipus().equals(CampTipusDto.FLOAT)) {
-									cell.setCellValue((Double) dada.getValor());
-									cell.setCellStyle(dStyle);
-								} else if (camp.getCampTipus().equals(CampTipusDto.PRICE)) {
-									cell.setCellValue(((BigDecimal) dada.getValor()).doubleValue());
-									cell.setCellStyle(dStyle);
-								} else {
-									cell.setCellValue(dada.getValorMostrar());
+								switch (camp.getCampTipus()) {
+									case INTEGER:
+										cell.setCellValue(((BigDecimal) dada.getValor()).longValue());
+										break;
+									case FLOAT:
+									case PRICE:
+										cell.setCellValue(((BigDecimal) dada.getValor()).doubleValue());
+										cell.setCellStyle(dStyle);
+										break;
+									default:
+										cell.setCellValue(dada.getValorMostrar());
+										break;
 								}
 							}
 						} else if(camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {

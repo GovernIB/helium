@@ -294,8 +294,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private TascaHelper tascaHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-//	@Resource
-//	private LuceneHelper luceneHelper;
 	@Resource(name="permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
@@ -2077,11 +2075,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 		// executa l'script
 		workflowEngineApi.evaluateScript(processInstanceId, script, new HashSet<String>());
-
-
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
-		expedientDadaHelper.setExpedientDades(expedient);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+				expedientId,
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR,
 				script);
@@ -2254,6 +2250,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		if (permetreExecutarAccioExpedient(accio, expedient)) {
 			mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 			expedientLoggerHelper.afegirLogExpedientPerProces(
+					expedientId,
 					processInstanceId,
 					ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 					accio.getJbpmAction());
@@ -2283,7 +2280,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						ex);
 			}
 			expedientHelper.verificarFinalitzacioExpedient(expedient);
-			expedientDadaHelper.setExpedientDades(expedient);
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 		} else {
 			throw new PermisDenegatException(
@@ -2322,6 +2318,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 		mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accioCamp, "expedient", expedient.getTipus().getNom());
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+				expedientId,
 				processInstanceId,
 				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 				accioCamp);
@@ -2366,7 +2363,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					ex);
 		}
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
-		expedientDadaHelper.setExpedientDades(expedient);
 		mesuresTemporalsHelper.mesuraCalcular("Executar CAMP ACCIO" + accioCamp, "expedient", expedient.getTipus().getNom());
 	}
 
@@ -3059,9 +3055,14 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			throw new NoTrobatException(Consulta.class,consultaId);
 		}
 
-		List<TascaDadaDto> campsConsulta_ = consultaHelper.findCampsPerCampsConsulta(
+		Integer totals = expedientDadaHelper.countDadesExpedients(
+			consulta.getEntorn().getId(),
+			consulta.getExpedientTipus().getId(),
+			null,
+			consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(
 				consulta,
-				TipusConsultaCamp.INFORME);
+				TipusConsultaCamp.FILTRE)),
+			filtreValors);
 
 		List<Map<String, DadaIndexadaDto>> result = expedientDadaHelper.findDadesExpedients(
 			consulta.getEntorn().getId(),
@@ -3092,7 +3093,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 		return paginacioHelper.toPaginaDto(
 				resposta,
-				result.size(),
+				totals,
 				paginacioParams);
 	}
 
@@ -3895,10 +3896,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Override
 	@Transactional
 	public EstatDto estatCanviar(Long expedientId, Long estatId, boolean retrocedir) {
-
 		logger.debug("Canviant l'estat a l'expedient (" +
 				"estatId=" + estatId + ")");
-
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,
@@ -3907,10 +3906,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false);
 
 		Estat estat = expedientHelper.estatCanviar(expedient, estatId, retrocedir);
-
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
-		expedientDadaHelper.setExpedientDades(expedient);
-
 		return conversioTipusHelper.convertir(estat, EstatDto.class);
 	}
 

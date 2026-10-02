@@ -148,6 +148,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 							tascaId,
 							expedient);
 			expedientLoggerHelper.afegirLogExpedientPerProces(
+					expedientId,
 					task.getProcessInstanceId(),
 					ExpedientLogAccioTipus.TASCA_CANCELAR,
 					null);
@@ -182,6 +183,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					tascaId,
 					expedient);
 			expedientLoggerHelper.afegirLogExpedientPerProces(
+					expedientId,
 					task.getProcessInstanceId(),
 					ExpedientLogAccioTipus.TASCA_SUSPENDRE,
 					null);
@@ -216,6 +218,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					tascaId,
 					expedient);
 			expedientLoggerHelper.afegirLogExpedientPerProces(
+					expedientId,
 					task.getProcessInstanceId(),
 					ExpedientLogAccioTipus.TASCA_CONTINUAR,
 					null);

@@ -920,6 +920,7 @@ public class TascaServiceImpl implements TascaService {
 					documentCodi);
 		} else {
 			expedientLoggerHelper.afegirLogExpedientPerProces(
+					expedient.getId(),
 					task.getProcessInstanceId(),
 					ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
 					documentCodi);
@@ -1538,7 +1539,6 @@ public class TascaServiceImpl implements TascaService {
 				);
 		// Actualitza les dades de l'expedient per si canvien.
 		WProcessInstance pi = workflowEngineApi.getProcessInstance(task.getProcessInstanceId());
-		expedientDadaHelper.setExpedientDades(expedientRepository.findByProcessInstanceId(pi.getRootProcessInstanceId()));
 	}
 
 	@Override

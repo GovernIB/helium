@@ -10,6 +10,7 @@ import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.OpenOfficeUtils;
 import es.caib.helium.commons.utils.PdfUtils;
 import es.caib.helium.disseny.engine.WProcessDefinition;
+import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.utils.DocumentTokenUtils;
 import es.caib.helium.persistence.entity.*;
@@ -90,8 +91,7 @@ public class ExpedientDocumentHelper {
 
 	public Document findDocument(
 		Long expedientId,
-		String processId,
-		String taskId,
+		String processInstanceId,
 		String codi) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 			expedientId,
@@ -99,10 +99,14 @@ public class ExpedientDocumentHelper {
 			false,
 			false,
 			false);
-		return documentRepository.findByExpedientTipusAndCodi(
-			expedient.getTipus().getId(),
-			codi,
-			expedient.getTipus().getExpedientTipusPare() != null);
+		if(expedient.getTipus().isAmbInfoPropia()) {
+			return documentRepository.findByExpedientTipusAndCodi(
+				expedient.getTipus().getId(),
+				codi,
+				expedient.getTipus().getExpedientTipusPare() != null);
+		}
+		WProcessInstance processInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
+		return documentRepository.findByDefinicioProces(processInstance.getProcessDefinitionId(), codi);
 	}
 
 	public List<DocumentStore> findByExpedientAndTask(Long expedientId, String taskId) {
@@ -656,8 +660,6 @@ public class ExpedientDocumentHelper {
 		byte[] contingut,
 		byte[] contingutFirma,
 		String contentType) {
-//		logger.debug("Recuperar la informació de les firmes amb el plugin ValidateSignature ("
-//			+ "documentStore" + documentStore.getId() + ")");
 
 		List<ArxiuFirmaDto> firmes = pluginHelper.validaSignaturaObtenirFirmes(
 			documentStore,
@@ -749,14 +751,6 @@ public class ExpedientDocumentHelper {
 			if (documentStore.getReferenciaCustodia() == null) {
 				documentStore.setReferenciaCustodia(documentStore.getId() + "_" + new Date().getTime());
 			}
-//			String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-//				documentStore.getReferenciaCustodia());
-//			String baseUrl = getPropertyCustodiaVerificacioBaseUrl();
-//			if (baseUrl != null && urlCustodia.startsWith(baseUrl)) {
-//				arxiuCsv = urlCustodia.substring(baseUrl.length());
-//			} else {
-//				arxiuCsv = urlCustodia;
-//			}
 			arxiuCsvRegulacio = getPropertyNtiCsvDef();
 		}
 		if (arxiuTipoFirma != null) {
@@ -841,9 +835,9 @@ public class ExpedientDocumentHelper {
 			if (document.getConvertirExtensio() != null && !document.getConvertirExtensio().isEmpty()) {
 				extensioVista = document.getConvertirExtensio();
 			} else {
-				extensioVista = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_VISTA_EXTENSION);
+				extensioVista = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_VISTA_EXTENSION);
 				if (extensioVista == null)
-					extensioVista = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_GENTASCA_EXTENSION);
+					extensioVista = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_GENTASCA_EXTENSION);
 			}
 		}
 		return extensioVista;
@@ -1067,36 +1061,36 @@ public class ExpedientDocumentHelper {
 	}
 
 	private String getExtensioArxiuSignat() {
-		return (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_EXTENSION);
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_EXTENSION);
 	}
 
 	private String getExtensioArxiuRegistrat() {
-		return (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_REGISTRE_EXTENSION);
+		return GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_REGISTRE_EXTENSION);
 	}
 
 	private boolean isSignaturaFileAttached() {
-		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_SIGNATURA_PLUGIN_FILE_ATTACHED));
+		return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_SIGNATURA_PLUGIN_FILE_ATTACHED));
 	}
 
 	private boolean isActiuConversioSignatura() {
-		String actiuConversio = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_ACTIU);
+		String actiuConversio = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_ACTIU);
 		if (!"true".equalsIgnoreCase(actiuConversio))
 			return false;
-		String actiuConversioSignatura = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_ACTIU);
+		String actiuConversioSignatura = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_CONVERSIO_SIGNATURA_ACTIU);
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
 	private DocumentTokenUtils getDocumentTokenUtils() {
 		if (documentTokenUtils == null)
 			documentTokenUtils = new DocumentTokenUtils(
-				(String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ENCRIPTACIO_CLAU));
+				GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_ENCRIPTACIO_CLAU));
 		return documentTokenUtils;
 	}
 
 	private String getUrlComprovacioSignatura(String token) {
-			String baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
+			String baseUrl = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_VERIFICACIO_URL);
 			if (baseUrl == null)
-				baseUrl = (String)GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
+				baseUrl = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BASE_URL);
 			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 	}
 

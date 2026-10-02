@@ -271,10 +271,12 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			if (documentStore != null) {
 				if (PortafirmesEstatEnum.SIGNAT.equals(portasignatures.getEstat()) ||
 					(PortafirmesEstatEnum.ERROR.equals(portasignatures.getEstat()) && Portasignatures.Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
+					Expedient expedient = portasignatures.getExpedient();
 					// Processa els documents signats
 					try {
 						ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 						expedientLogHelper.afegirLogExpedientPerProces(
+							expedient.getId(),
 							processInstanceId,
 							ExpedientLog.ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES,
 							Boolean.toString(true));
@@ -288,7 +290,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 							portasignatures.setDataCustodiaIntent(new Date());
 						}
 						portasignatures.setDataCustodiaOk(new Date());
-						Expedient expedient = portasignatures.getExpedient();
+
 						if (token != null
 							&& ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
 							// Avança el flux
@@ -314,6 +316,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 					// Processa els documents rebutjats
 					try {
 						expedientLogHelper.afegirLogExpedientPerProces(
+							portasignatures.getExpedient().getId(),
 							processInstanceId,
 							ExpedientLog.ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES,
 							Boolean.toString(false));

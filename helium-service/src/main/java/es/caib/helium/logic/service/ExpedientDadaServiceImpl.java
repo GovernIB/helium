@@ -153,10 +153,11 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-		Object valorVell = variableHelper.getVariableJbpmProcesValor(
-				processInstanceId,
-				varCodi);
-//		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
+//		Object valorVell = variableHelper.getVariableJbpmProcesValor(
+//				processInstanceId,
+//				varCodi);
+		Object valorVell = expedientDadaHelper.getDada(expedient, processInstanceId, null, varCodi);
+
 		// Esborra la descripció per variables que mantenen el valor de la consulta
 		Camp camp;
 		if (expedient.getTipus().isAmbInfoPropia()) {
@@ -171,12 +172,14 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, BpmnVars.PREFIX_VAR_DESCRIPCIO + varCodi);
 
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+			    expedientId,
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
 				varCodi);
-		expedientDadaHelper.optimitzarValorPerConsultesDominiGuardar(
-				expedient.getTipus(),
+		expedientDadaHelper.setDada(
+				expedient,
 				processInstanceId,
+				null,
 				varCodi,
 				varValor);
 		Registre registre = crearRegistreInstanciaProces(
@@ -213,6 +216,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 						ExtendedPermission.DATA_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+				expedientId,
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
 				varCodi);
@@ -239,10 +243,11 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
 				"varCodi=" + varCodi + ")");
-		return variableHelper.getDadaPerInstanciaProces(
-				processInstanceId,
-				varCodi,
-				true);
+		return variableHelper.getDadaPerExpedientInstanciaProces(
+			expedientId,
+			processInstanceId,
+			varCodi,
+			true);
 	}
 
 	/**
@@ -377,7 +382,13 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		String filtre = paginacioParams.getFiltre();
 		boolean filtrar = !StringUtils.isEmpty(filtre);
 
-		List<ExpedientDadaDto> dadesExpedient = variableHelper.findDadesPerInstanciaProces(processInstanceId, true);
+		List<ExpedientDadaDto> dadesExpedient;
+		if(expedient.getTipus().getTipus() == ExpedientTipusTipusEnumDto.ESTAT) {
+			dadesExpedient = variableHelper.findDadesPerExpedient(expedientId, true);
+		} else {
+			dadesExpedient = variableHelper.findDadesPerInstanciaProces(processInstanceId, true);
+		}
+
 		// Consulta els camps del pare en cas d'herència
 		Map<String, Camp> campsMap = new HashMap<String, Camp>();
 		if (expedient.getTipus().getExpedientTipusPare() != null) {
@@ -608,7 +619,13 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		List<CampInfoDto> campsNoUtilitzats = new ArrayList<CampInfoDto>();
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, true, false, false, false);
 		List<Camp> camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedient.getTipus());
-		List<ExpedientDadaDto> dadesExpedient = variableHelper.findDadesPerInstanciaProces(expedient.getProcessInstanceId(), true);
+		List<ExpedientDadaDto> dadesExpedient;
+		if (expedient.getTipus().getTipus() == ExpedientTipusTipusEnumDto.ESTAT) {
+			dadesExpedient = variableHelper.findDadesPerExpedient(expedientId, true);
+		} else {
+			dadesExpedient = variableHelper.findDadesPerInstanciaProces(expedient.getProcessInstanceId(), true);
+		}
+
 		Map<String, CampFormProperties> campsFormProperties = reglaHelper.getCampFormProperties(expedient.getTipus(), expedient.getEstat());
 
 		if (dadesExpedient != null && !dadesExpedient.isEmpty()) {
@@ -646,7 +663,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	public DadaListDto getDadaList(Long expedientId, String procesId, String varCodi) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, true, false, false, false);
 		Camp camp = campRepository.findByExpedientTipusAndCodi(expedient.getTipus().getId(), varCodi, false);
-		ExpedientDadaDto dadaExp = variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true);
+		ExpedientDadaDto dadaExp = variableHelper.getDadaPerInstanciaProces(expedientId, procesId, varCodi, true);
 
 		if (camp != null) {
 			return toDadaListDto(camp, dadaExp, null, procesId, expedientId);

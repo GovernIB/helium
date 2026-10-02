@@ -528,10 +528,7 @@
 		  data-info-type="button"
 		  data-rowcolid-nullclass="no-data"
 		  data-selection-enabled="false"
-<%--		  data-fixed-order="1"--%>
 		  data-group="agrupacioNom"
-<%--		  data-selection-url="${expedient.id}/dada/selection"--%>
-<%--		  data-selection-counter="#descarregarCount"--%>
 		  data-botons-template="#tableButtonsDadesTemplate"
 		  class="table table-striped table-bordered table-hover">
 	<thead>

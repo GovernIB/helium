@@ -3458,6 +3458,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		String documentCodi = documentStore.getCodiDocument();
 		String arxiuNomAntic = documentStore.getArxiuNom();
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+				expedientId,
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
 				documentCodi);
@@ -3477,7 +3478,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
 				ntiIdOrigen);
-		expedientDadaHelper.setExpedientDades(expedient);
 		expedientRegistreHelper.crearRegistreModificarDocumentInstanciaProces(
 				expedient.getId(),
 				processInstanceId,
@@ -3532,6 +3532,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				processInstanceId);
 		boolean isAdjunt = documentCodi == null;
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+				expedientId,
 				processInstanceId,
 				isAdjunt ?
 						ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR
@@ -3559,7 +3560,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				null,
 				null,
 				annexosPerNotificar).getId();
-		expedientDadaHelper.setExpedientDades(expedient);
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
 				expedient.getId(),
 				processInstanceId,
@@ -3612,7 +3612,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 		Expedient expedient = expedientRepository.getReferenceById(expedientId);
 
-		DocumentStore documentStore = documentStoreRepository.getReferenceById(documentStoreId);
+		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
 		if (documentStore == null) {
 			throw new NoTrobatException(
 					DocumentStore.class,
@@ -3664,7 +3664,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		// Itera per tots els usuaris per revisar quins d'ells tenen permís de lectura sobre l'expedient ja sigui
 		// directe o per UO.
 		List<String> usuarisAmbPermis = new ArrayList<String>();
-		Expedient expedient = expedientRepository.getReferenceById(expedientId);
+		Expedient expedient = expedientRepository.findById(expedientId).orElse(null);
 		if (expedient != null && usuaris != null) {
 			List<String> personesAmbPermis = permisosHelper.findPersonesAmbPermisLectura(expedient);
 			String usuari;

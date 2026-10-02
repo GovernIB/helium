@@ -408,8 +408,6 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		}
 	}
 
-
-
 	public static String getComText(
 			CampTipusDto tipus,
 			Object valor,
@@ -420,30 +418,27 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		try {
 			switch (tipus) {
 				case INTEGER:
-					return new DecimalFormat("#").format((Long) valor);
+					return new DecimalFormat("#").format(valor);
 				case FLOAT:
-					return new DecimalFormat("#.##########").format((Double) valor);
+					return new DecimalFormat("#.##########").format(valor);
 				case PRICE:
-					return new DecimalFormat("#,##0.00").format((BigDecimal) valor);
+					return new DecimalFormat("#,##0.00").format(valor);
 				case DATE:
+					if(valor instanceof String)
+						valor = new SimpleDateFormat("yyyy-MM-dd").parse((String) valor);
 					if(valor instanceof Date)
 						return new SimpleDateFormat("dd/MM/yyyy").format((Date) valor);
-					if(valor instanceof String)
-						return (String) valor;
+					return valor.toString();
 				case BOOLEAN:
-					return Boolean.valueOf(valor.toString()) ? "Si" : "No";
+					return Boolean.parseBoolean(valor.toString()) ? "Si" : "No";
 				case TERMINI:
-					//if (valor instanceof Termini) {
-					//text = ((Termini)valor).toString();
-					//} else {
 					String strValor = valor.toString();
 					String[] parts = strValor.split("/");
 					TerminiDto t = new TerminiDto();
-					t.setAnys((parts.length >= 0) ? new Integer(parts[0]).intValue() : 0);
-					t.setMesos((parts.length >= 1) ? new Integer(parts[1]).intValue() : 0);
-					t.setDies((parts.length >= 2) ? new Integer(parts[2]).intValue() : 0);
+					t.setAnys((parts.length >= 0) ? Integer.parseInt(parts[0]) : 0);
+					t.setMesos((parts.length >= 1) ? Integer.parseInt(parts[1]) : 0);
+					t.setDies((parts.length >= 2) ? Integer.parseInt(parts[2]) : 0);
 					return t.toString();
-				//}
 				case SELECCIO:
 				case SUGGEST:
 					return valorDomini;
@@ -463,15 +458,15 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		try {
 			Object obj = null;
 			if (tipus.equals(CampTipusDto.INTEGER)) {
-				obj = new Long(text);
+				obj = Long.parseLong(text);
 			} else if (tipus.equals(CampTipusDto.FLOAT)) {
-				obj = new Double(text);
+				obj = Double.parseDouble(text);
 			} else if (tipus.equals(CampTipusDto.PRICE)) {
 				obj = new BigDecimal(text);
 			} else if (tipus.equals(CampTipusDto.DATE)) {
 				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
 			} else if (tipus.equals(CampTipusDto.BOOLEAN)) {
-				obj = new Boolean("S".equals(text));
+				obj = "S".equals(text);
 			} else if (tipus.equals(CampTipusDto.SELECCIO)) {
 				obj = text;
 			} else if (tipus.equals(CampTipusDto.SUGGEST)) {
@@ -480,9 +475,9 @@ public class Camp implements Serializable, GenericEntity<Long> {
 				String[] parts = text.split("/");
 				Termini termini = new Termini();
 				if (parts.length == 3) {
-					termini.setAnys(new Integer(parts[0]));
-					termini.setMesos(new Integer(parts[1]));
-					termini.setDies(new Integer(parts[2]));
+					termini.setAnys(Integer.parseInt(parts[0]));
+					termini.setMesos(Integer.parseInt(parts[1]));
+					termini.setDies(Integer.parseInt(parts[2]));
 				}
 				obj = termini;
 			} else {

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -18,7 +18,7 @@ import es.caib.helium.persistence.entity.Document;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a un document que està emmagatzemat a dins la base
  * de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface DocumentRepository extends JpaRepository<Document, Long> {
@@ -37,11 +37,11 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"order by codi asc")
 	List<Document> findByExpedientTipusId(@Param("expedientTipusId") Long expedientTipusId);
 
-	
+
 	@Query(	"select d from " +
 			"    Document d " +
 			"where " +
-			"	(d.id not in ( " + 
+			"	(d.id not in ( " +
 						// Llistat de sobreescrits
 			"			select ds.id " +
 			"			from Document da " +
@@ -57,22 +57,31 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"			or (d.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) )) " +
 			"order by codi asc")
 	List<Document> findByExpedientTipusAmbHerencia(@Param("expedientTipusId") Long expedientTipus);
-	
+
 	/** Consulta per expedient tipus i el codi. Té en compte l'herència. */
 	@Query(	"from Document d " +
 			"where " +
 			"  	d.id = :id " +
 			"  	and d.definicioProces.id = :definicioProcesId ")
-	public Document findByDefinicioProces(
+	Document findByDefinicioProces(
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("id") Long id);
-	
+
+	/** Consulta per definició process Id i el codi. Té en compte l'herència. */
+	@Query(	"from Document d " +
+		"where " +
+		"  	d.codi = :codi " +
+		"  	and d.definicioProces.jbpmId = :definicioProcesId ")
+	Document findByDefinicioProces(
+		@Param("definicioProcesId") String definicioProcesId,
+		@Param("codi") String codi);
+
 	Document findByDefinicioProcesAndCodi(DefinicioProces definicioProces, String codi);
-	
+
 	@Query (
-			"from Document d " + 
+			"from Document d " +
 			"where (:ambHerencia = false " +
-			"		or d.id not in ( " + 
+			"		or d.id not in ( " +
 						// Llistat de sobreescrits
 			"			select ds.id " +
 			"			from Document da " +
@@ -86,18 +95,18 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"	) " +
 			"	and	(d.expedientTipus.id = :expedientTipusId " +
 						// Heretats
-			"			or ( :ambHerencia = true and d.expedientTipus.id = ( " +	
-			"					select et.expedientTipusPare.id " + 
-			"					from ExpedientTipus et " + 
+			"			or ( :ambHerencia = true and d.expedientTipus.id = ( " +
+			"					select et.expedientTipusPare.id " +
+			"					from ExpedientTipus et " +
 			"					where et.id = :expedientTipusId))) " +
 			"	and d.codi = :codi"
 			)
 	Document findByExpedientTipusAndCodi(
-			@Param("expedientTipusId") Long expedientTipus, 
+			@Param("expedientTipusId") Long expedientTipus,
 			@Param("codi") String codi,
 			@Param("ambHerencia") boolean ambHerencia);
-	
-	
+
+
 	@Query(	"select " +
 			"    dt.document, " +
 			"    dt.required, " +
@@ -113,12 +122,12 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	public List<Object[]> findAmbDefinicioProcesITascaJbpmNameOrdenats(
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("jbpmName") String jbpmName);
-	
-	
+
+
 	@Query(	"from Document d " +
 			"where " +
 			"	(:ambHerencia = false " +
-			"		or d.id not in ( " + 
+			"		or d.id not in ( " +
 						// Llistat de sobreescrits
 			"			select ds.id " +
 			"			from Document da " +
@@ -132,7 +141,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"   and (d.expedientTipus.id = :expedientTipusId " +
 						// Heretats
 			"			or (:ambHerencia = true " +
-			"					and d.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " + 
+			"					and d.expedientTipus.id = (select etp.expedientTipusPare.id from ExpedientTipus etp where etp.id = :expedientTipusId) ) " +
 			"			or d.expedientTipus.id is null) " +
 			"   and (d.definicioProces.id = :definicioProcesId or d.definicioProces.id is null) " +
 			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
@@ -140,10 +149,10 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
-			@Param("filtre") String filtre,		
+			@Param("filtre") String filtre,
 			@Param("ambHerencia") boolean ambHerencia,
 			Pageable pageable);
-			
+
 	@Query( "select d " +
 			"from Document d " +
 			"	join d.expedientTipus et with et.id = :expedientTipusId, " +

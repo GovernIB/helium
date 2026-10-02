@@ -827,7 +827,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			throw new NoTrobatException(DefinicioProces.class, processInstanceId);
 
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Document document = documentHelper.findDocument(expedient.getId(), processInstanceId, taskInstanceId, documentCodi);
+		Document document = documentHelper.findDocument(expedient.getId(), processInstanceId, documentCodi);
 
 		if (document == null) {
 			throw new NoTrobatException(Document.class, documentCodi);
@@ -1842,7 +1842,6 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			Document document = documentHelper.findDocument(
 				expedient.getId(),
 				processInstanceId,
-				null,
 				dadesConsultaPinbal.getDocumentCodi());
 			if (document==null)
 				throw new RuntimeException("No s'ha trobat el codi de document "+dadesConsultaPinbal.getDocumentCodi()+ " per el procés "+processInstanceId+".");
@@ -2023,7 +2022,6 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			Document document = documentHelper.findDocument(
 				expedient.getId(),
 				processInstanceId,
-				null,
 				dadesConsultaPinbal.getDocumentCodi());
 			if (document==null)
 				throw new RuntimeException("No s'ha trobat el codi de document "+dadesConsultaPinbal.getDocumentCodi()+ " per el procés "+processInstanceId+".");
@@ -2168,7 +2166,6 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			Document document = documentHelper.findDocument(
 				expedient.getId(),
 				processInstanceId,
-				null,
 				dadesConsultaPinbal.getDocumentCodi());
 			if (document==null)
 				throw new RuntimeException("No s'ha trobat el codi de document "+dadesConsultaPinbal.getDocumentCodi()+ " per el procés "+processInstanceId+".");
@@ -3479,6 +3476,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 		String documentCodi = documentStore.getCodiDocument();
 		String arxiuNomAntic = documentStore.getArxiuNom();
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+			expedientId,
 			processInstanceId,
 			ExpedientLog.ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
 			documentCodi);
@@ -3554,6 +3552,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			processInstanceId);
 		boolean isAdjunt = documentCodi == null;
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+			expedientId,
 			processInstanceId,
 			isAdjunt ?
 				ExpedientLog.ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR

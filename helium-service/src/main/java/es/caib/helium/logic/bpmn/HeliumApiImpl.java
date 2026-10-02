@@ -155,7 +155,6 @@ public class HeliumApiImpl implements HeliumApi {
 			Document documentDisseny = expedientDocumentHelper.findDocument(
 				expedient.getId(),
 				processId,
-				taskId,
 				documentCodi);
 			DocumentDto docV3 = documentHelperV3.toDocumentDto(
 				documentStore.getId(),
@@ -690,7 +689,6 @@ public class HeliumApiImpl implements HeliumApi {
 		Document documentDisseny = expedientDocumentHelper.findDocument(
 			expedient.getId(),
 			processId,
-			taskId,
 			documentCodi);
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
 			expedient.getId(),

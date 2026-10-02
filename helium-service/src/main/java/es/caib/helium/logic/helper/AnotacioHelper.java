@@ -610,6 +610,7 @@ public class AnotacioHelper {
 					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no
 					mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, varCodi);
 					dada = variableHelper.getDadaPerInstanciaProces(
+							expedientId,
 							expedient.getProcessInstanceId(),
 							varCodi,
 							true);
@@ -740,10 +741,11 @@ public class AnotacioHelper {
 				"varValor=" + varValor + ")");
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+				expedientId,
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
 				varCodi);
-		expedientDadaHelper.optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processInstanceId, varCodi, varValor);
+		expedientDadaHelper.setDada(expedient, processInstanceId, null, varCodi, varValor);
 	}
 
 
@@ -754,29 +756,13 @@ public class AnotacioHelper {
 				"varCodi=" + varCodi + ", " +
 				"varValor=" + varValor + ")");
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, varCodi);
-		// Esborra la descripció per variables que mantenen el valor de la consulta
-		Camp camp;
-		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findById(instanciaProces.getDefinicioProces().getId()).orElse(null);
-		if (expedient.getTipus().isAmbInfoPropia()) {
-			// obtenir el camp amb expedient tipus codi i codi de la variable
-			camp = campRepository.findByExpedientTipusAndCodi(expedient.getTipus().getId(), varCodi, expedient.getTipus().getExpedientTipusPare() != null);
-		}else {
-			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
-		}
-		if (camp != null && camp.isDominiCacheText())
-			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, BpmnVars.PREFIX_VAR_DESCRIPCIO + varCodi);
-
+		expedientDadaHelper.deleteDada(expedient, processInstanceId, null, varCodi);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+				expedientId,
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
 				varCodi);
-		expedientDadaHelper.optimitzarValorPerConsultesDominiGuardar(
-				expedient.getTipus(),
-				processInstanceId,
-				varCodi,
-				varValor);
+		expedientDadaHelper.setDada(expedient, processInstanceId, null, varCodi, varValor);
 	}
 
 	private void processarDocumentsAnotacio(

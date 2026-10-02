@@ -10,7 +10,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.persistence.Column;
 import javax.persistence.JoinColumn;
@@ -56,9 +55,9 @@ public class ExpedientDadaHelper {
 	private final JdbcTemplate jdbcTemplate;
 
 	// Objectes estàtics per fer la conversió JSON/Map
-	private final static ObjectMapper mapper;
-    private final static TypeReference<HashMap<String,DadesValor>> typeRef;
-	private final static SimpleDateFormat dateFormatter;
+	private static final ObjectMapper mapper;
+	private static final TypeReference<HashMap<String,DadesValor>> typeRef;
+	private static final SimpleDateFormat dateFormatter;
 
 	static {
 		mapper = new ObjectMapper();
@@ -71,56 +70,6 @@ public class ExpedientDadaHelper {
 
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 	}
-
-	public List<Camp> findCampsDisponiblesOrdenatsPerCodi(ExpedientTipus expedientTipus, DefinicioProces definicioProces) {
-		if (expedientTipus.isAmbInfoPropia()) {
-			return campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
-		} else {
-			return campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
-		}
-	}
-
-	public void optimitzarValorPerConsultesDominiGuardar(
-			ExpedientTipus expedientTipus,
-			String processInstanceId,
-			String varName,
-			Object varValue) {
-		Camp camp;
-		if (expedientTipus.isAmbInfoPropia())
-			camp = campRepository.findByExpedientTipusAndCodi(
-					expedientTipus.getId(),
-					varName,
-					expedientTipus.getExpedientTipusPare() != null);
-		else {
-			camp = campRepository.findByDefinicioProcesAndCodi(
-					null, //definicioProces,
-					varName);
-		}
-		if (camp != null && camp.isDominiCacheText()) {
-			if (varValue != null) {
-				if (camp.getTipus().equals(CampTipusDto.SELECCIO) ||
-					camp.getTipus().equals(CampTipusDto.SUGGEST)) {
-
-					String text;
-					try {
-						// Consultem el valor de la variable
-						text = variableHelper.getTextPerCamp(
-								camp,
-								varValue,
-								null,
-								null,
-								processInstanceId);
-					} catch (Exception e) {
-						text = "";
-					}
-
-//					workflowEngineApi.setProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varName, text);
-				}
-			}
-		}
-//		workflowEngineApi.setProcessInstanceVariable(processInstanceId, varName, varValue);
-	}
-
 
 	/** Estableix el valor per una dada de l'expedient
 	 *
@@ -143,18 +92,16 @@ public class ExpedientDadaHelper {
 			expedientDadesEntity.setPrincipal(taskId == null);
 			expedientDadesRepository.save(expedientDadesEntity);
 		}
-		// Fixa el valor de la dada
-		// this.optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processId, varCodi, varValor);
 
 		try {
 			Map<String, DadesValor> dades;
 			if (expedientDadesEntity.getDades() != null) {
-				dades = DadesToMap(expedientDadesEntity.getDades());
+				dades = dadesToMap(expedientDadesEntity.getDades());
 			} else {
 				dades = new HashMap<String, DadesValor>();
 			}
 			dades.put(varCodi, varValor != null ? new DadesValor(valorPerJson(varValor), DadaTipusEnum.getTipusByClass(varValor.getClass())) : null);
-			expedientDadesEntity.setDades(MapToDades(dades));
+			expedientDadesEntity.setDades(mapToDades(dades));
 		} catch(Exception e) {
 			throw new RuntimeException("Error fixant valor json a les dades per conversió de les dades.", e);
 		}
@@ -179,16 +126,14 @@ public class ExpedientDadaHelper {
 			expedientDadesEntity.setPrincipal(taskId == null);
 			expedientDadesRepository.save(expedientDadesEntity);
 		}
-		// Fixa el valor de la dada
-		// this.optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processId, varCodi, varValor);
 
 		try {
 			Map<String, DadesValor> dades = new HashMap<String, DadesValor>();
-			for(String varCodi :  variablesProcessades.keySet()) {
-				Object varValor = variablesProcessades.get(varCodi);
-				dades.put(varCodi, new DadesValor(valorPerJson(varValor), DadaTipusEnum.getTipusByClass(varValor == null? String.class : varValor.getClass())));
+			for(Map.Entry<String, Object> variable :  variablesProcessades.entrySet()) {
+				Object varValor = variable.getValue();
+				dades.put(variable.getKey(), new DadesValor(valorPerJson(varValor), DadaTipusEnum.getTipusByClass(varValor == null? String.class : varValor.getClass())));
 			}
-			expedientDadesEntity.setDades(MapToDades(dades));
+			expedientDadesEntity.setDades(mapToDades(dades));
 		} catch(Exception e) {
 			throw new RuntimeException("Error fixant valor json a les dades per conversió de les dades.", e);
 		}
@@ -214,7 +159,7 @@ public class ExpedientDadaHelper {
 		try {
 			Map<String, DadesValor> dades;
 			if (expedientDadesEntity.getDades() != null) {
-				dades = DadesToMap(expedientDadesEntity.getDades());
+				dades = dadesToMap(expedientDadesEntity.getDades());
 				if (dades.containsKey(varCodi)) {
 					DadesValor dada = dades.get(varCodi);
 					if(dada != null)
@@ -228,16 +173,10 @@ public class ExpedientDadaHelper {
 	}
 
 	/** Obté tots els valors de les variables l'expedient
-	 *
-	 * @param expedient
-	 * @param processId
-	 * @param taskId
 	 */
 	@Transactional
 	public Map<String, Object> getDadesValors(Expedient expedient, String processId, String taskId) {
-
 		Map<String, Object> valors = new HashMap<String, Object>();
-
 		// Recupera les dades per l'expedient segons el context de tasca, procés i expedient
 		ExpedientDades expedientDadesEntity = this.getDades(expedient, processId, taskId);
 		if (expedientDadesEntity == null) {
@@ -245,9 +184,9 @@ public class ExpedientDadaHelper {
 		}
 		try {
 			if (expedientDadesEntity.getDades() != null) {
-				Map<String, DadesValor> dades = DadesToMap(expedientDadesEntity.getDades());
-				for (String varCodi : dades.keySet()) {
-					valors.put(varCodi, parseData(dades.get(varCodi).getV(), dades.get(varCodi).getT()));
+				Map<String, DadesValor> dades = dadesToMap(expedientDadesEntity.getDades());
+				for (Map.Entry<String, DadesValor> dada : dades.entrySet()) {
+					valors.put(dada.getKey(), parseData(dada.getValue().getV(), dada.getValue().getT()));
 				}
 			}
 		} catch(Exception e) {
@@ -256,11 +195,12 @@ public class ExpedientDadaHelper {
 		return valors;
 	}
 
-	private String MapToDades(Map<String, DadesValor> dades) throws Exception {
+	private String mapToDades(Map<String, DadesValor> dades) throws
+		JsonProcessingException {
 		return mapper.writeValueAsString(dades);
 	}
 
-	private Map<String, DadesValor> DadesToMap(String dades) throws Exception {
+	private Map<String, DadesValor> dadesToMap(String dades) throws JsonProcessingException {
 	    return mapper.readValue(dades, typeRef);
 	}
 
@@ -288,21 +228,13 @@ public class ExpedientDadaHelper {
 		try {
 			Map<String, DadesValor> dades;
 			if (expedientDadesEntity.getDades() != null) {
-				dades = DadesToMap(expedientDadesEntity.getDades());
-				if (dades.containsKey(varCodi)) {
-					dades.remove(varCodi);
-				}
-				expedientDadesEntity.setDades(MapToDades(dades));
+				dades = dadesToMap(expedientDadesEntity.getDades());
+				dades.remove(varCodi);
+				expedientDadesEntity.setDades(mapToDades(dades));
 			}
 		} catch(Exception e) {
 			throw new RuntimeException("Error fixant valor json a les dades per conversió de les dades.", e);
 		}
-	}
-
-	/** Actualitza les dades de l'expedient al servei de dade. */
-	public boolean setExpedientDades(Expedient expedient) {
-		// TODO Auto-generated method stub
-		return true;
 	}
 
 	/** Mètode de l'IndexHelper que s'ha de substituir. */
@@ -344,6 +276,20 @@ public class ExpedientDadaHelper {
 				.collect(Collectors.toList());
 	}
 
+	public Integer countDadesExpedients(
+		Long entornId,
+		Long expedientTipusId,
+		List<Long> llistaExpedientIds,
+		List<Camp> filtreCamps,
+		Map<String, Object> filtre) {
+		return queryCountDadesExpedients(entornId,
+			expedientTipusId,
+			llistaExpedientIds,
+			filtreCamps,
+			filtre);
+	}
+
+
 	public List<Map<String, DadaIndexadaDto>> findDadesExpedients(
 		Long entornId,
 		Long expedientTipusId,
@@ -372,20 +318,17 @@ public class ExpedientDadaHelper {
 			if (expedient != null) {
 				Map<String, DadaIndexadaDto> dadesExpedient = new HashMap<String, DadaIndexadaDto>();
 				for(String k : row.keySet()) {
-					Camp camp = informeCamps.stream().filter(cc -> {
-						return cc.getCodi()
+					Camp camp = informeCamps.stream().filter(cc -> cc.getCodi()
 							.replace(ExpedientCamps.EXPEDIENT_PREFIX, "")
-							.equalsIgnoreCase(k);
-					}).findAny().orElse(null);
+							.equalsIgnoreCase(k)
+					).findAny().orElse(null);
 					DadaIndexadaDto di;
 					if(camp != null) {
 						di = new DadaIndexadaDto(camp.getCodi(), camp.getCodiEtiqueta());
 					} else {
 						di = new DadaIndexadaDto(k, k);
 					}
-
 					Object value = row.get(k);
-
 					String indexValor = value != null? value.toString() : null;
 					if (value != null &&
 						camp != null &&
@@ -427,30 +370,29 @@ public class ExpedientDadaHelper {
 		int pageSize) {
 
 		List<Object> args = new ArrayList<Object>();
-		StringBuilder query = new StringBuilder("SELECT * FROM ( SELECT rownum r__, t.* FROM ( ");
+		StringBuilder query = new StringBuilder();
 		query.append(" SELECT expedient.ID as " + CLAU_EXPEDIENT_ID);
 
 		if(informeCamps != null && !informeCamps.isEmpty()) {
 			query.append(", ");
 			// Afegim les columnes del select a la query
-			query.append(String.join(
-				", ",
-				informeCamps
-					.stream()
-					.map((ic) -> {
-						if (ic.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
-							String colName = getColumnName(ic.getCodi().replace(ExpedientCamps.EXPEDIENT_PREFIX, ""), Expedient.class);
-							return "expedient." + colName + " as \"" + ic.getCodi() + "\"";
-						} else if(ic.getTipus() == CampTipusDto.REGISTRE || ic.isMultiple()) {
-							return "JSON_QUERY(d.DADES, '$." + ic.getCodi() + ".v') as \"" + ic.getCodi() + "\"";
-						} else if(ic.getTipus() == CampTipusDto.INTEGER ||
-							      ic.getTipus() == CampTipusDto.FLOAT ||
-							      ic.getTipus() == CampTipusDto.PRICE) {
-							return "JSON_QUERY(d.DADES, '$." + ic.getCodi() + ".v' RETURNING NUMBER NULL ON ERROR) as \"" + ic.getCodi() + "\"";
-						}
-						return "JSON_VALUE(d.DADES, '$." + ic.getCodi() + ".v') as \"" + ic.getCodi() + "\"";
-					})
-					.collect(Collectors.toList())));
+			query.append(informeCamps
+				.stream()
+				.map((ic) -> {
+					if (ic.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+						String colName = getColumnName(ic.getCodi().replace(ExpedientCamps.EXPEDIENT_PREFIX, ""), Expedient.class);
+						return "expedient." + colName + " as \"" + ic.getCodi() + "\"";
+					} else if(ic.getTipus() == CampTipusDto.REGISTRE || ic.isMultiple()) {
+						return "JSON_QUERY(d.DADES, '$." + ic.getCodi() + ".v') as \"" + ic.getCodi() + "\"";
+					} else if(
+						ic.getTipus() ==  CampTipusDto.PRICE ||
+						ic.getTipus() ==  CampTipusDto.INTEGER ||
+						ic.getTipus() ==  CampTipusDto.FLOAT) {
+						return "JSON_VALUE(d.DADES, '$." + ic.getCodi() + ".v' RETURNING NUMBER) as \"" + ic.getCodi() + "\"";
+					}
+					return "JSON_VALUE(d.DADES, '$." + ic.getCodi() + ".v') as \"" + ic.getCodi() + "\"";
+				})
+				.collect(Collectors.joining(", ")));
 		}
 		query.append(" FROM HEL_EXPEDIENT_DADES d, HEL_EXPEDIENT expedient ");
 		query.append(" WHERE expedient.ID = d.EXPEDIENT_ID AND d.principal = 1 "); // Sempre cercam a les dades principals del expedient
@@ -471,55 +413,85 @@ public class ExpedientDadaHelper {
 		}
 
 		// FILTRE
-		if(filtre != null && !filtre.isEmpty()) {
-			buildDataFilter(query, args, filtre, filtreCamps);
-		}
+		if(filtre != null && !filtre.isEmpty())
+			query.append(buildDataFilter(args, filtre, filtreCamps));
 
 		// ORDENACIÓ
 		if(orders == null || orders.isEmpty()) {
 			query.append(" ORDER BY expedient.ID DESC ");
 		} else {
-			query.append(" ORDER BY " +
-				String.join(", ",
-					orders
-						.stream()
-						.map(o -> {
-							if(o.getCamp().equals("expedient$identificador") || o.getCamp().equals("expedient.identificador")) {
-								return " expedient.NUMERO " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC") +
-									" ,expedient.NUMERO_DEFAULT " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC");
-							}
-							if(o.getCamp().replaceFirst("dadesExpedient\\.", "").startsWith(ExpedientCamps.EXPEDIENT_PREFIX)
-								|| o.getCamp().startsWith("expedient.")) {
-								String columnName = getColumnName(
-									o.getCamp()
-										.replaceFirst("dadesExpedient\\.", "")
-										.replace(ExpedientCamps.EXPEDIENT_PREFIX, "")
-										.replace("expedient.", "")
-										.replaceAll("\\.valor$", ""),
-									Expedient.class);
-								return " expedient." + columnName + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? " ASC" : " DESC");
-							}
-							String camp = o.getCamp().replaceFirst("dadesExpedient\\.", "JSON_VALUE(d.DADES, '\\$\\.");
-							return camp.substring(0, camp.lastIndexOf(".valor")) + ".v') " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC");
-						})
-						.collect(Collectors.toList())
-				)
+			query.append(" ORDER BY ")
+				.append(
+				orders
+					.stream()
+					.map(o -> {
+						if(o.getCamp().equals("expedient$identificador") || o.getCamp().equals("expedient.identificador")) {
+							return " expedient.NUMERO " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC") +
+								" ,expedient.NUMERO_DEFAULT " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC");
+						}
+						if(o.getCamp().replaceFirst("dadesExpedient\\.", "").startsWith(ExpedientCamps.EXPEDIENT_PREFIX)
+							|| o.getCamp().startsWith("expedient.")) {
+							String columnName = getColumnName(
+								o.getCamp()
+									.replaceFirst("dadesExpedient\\.", "")
+									.replace(ExpedientCamps.EXPEDIENT_PREFIX, "")
+									.replace("expedient.", "")
+									.replaceAll("\\.valorMostrar$", "")
+									.replaceAll("\\.valor$", ""),
+								Expedient.class);
+							return " expedient." + columnName + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? " ASC" : " DESC");
+						}
+						String camp = o.getCamp().replaceFirst("dadesExpedient\\.", "JSON_VALUE(d.DADES, '\\$\\.");
+						return camp.substring(0, camp.lastIndexOf(".valor")) + ".v') " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC");
+					})
+					.collect(Collectors.joining(", "))
 			);
 		}
 
 		if(pageSize > 0) {
-			query.append(" ) t WHERE rownum < ((? * ?) + 1 ) ");
-			args.add(page+1);
+			int offset = page * pageSize;
+			query.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+			args.add(offset);
 			args.add(pageSize);
-
-			query.append(" ) WHERE r__ >= (((? - 1) * ?) + 1) ");
-			args.add(page+1);
-			args.add(pageSize);
-		} else {
-			query.append(" ) t ) ");
 		}
 
 		return jdbcTemplate.queryForList(query.toString(), args.toArray());
+	}
+
+	private Integer queryCountDadesExpedients(
+		Long entornId,
+		Long expedientTipusId,
+		List<Long> llistaExpedientIds,
+		List<Camp> filtreCamps,
+		Map<String, Object> filtre) {
+
+		List<Object> args = new ArrayList<Object>();
+		StringBuilder query = new StringBuilder(" SELECT COUNT(expedient.ID) as total ");
+
+		query.append(" FROM HEL_EXPEDIENT_DADES d, HEL_EXPEDIENT expedient ");
+		query.append(" WHERE expedient.ID = d.EXPEDIENT_ID AND d.principal = 1 "); // Sempre cercam a les dades principals del expedient
+		query.append(" AND expedient.ENTORN_ID = ? ");
+		args.add(entornId);
+
+		if(expedientTipusId != null) {
+			query.append(" AND expedient.TIPUS_ID = ? ");
+			args.add(expedientTipusId);
+		}
+
+		if(llistaExpedientIds != null) {
+			List<String> stringIds = llistaExpedientIds
+				.stream()
+				.map(Object::toString)
+				.collect(Collectors.toList());
+			query.append(" AND expedient.ID IN (").append(String.join(", ", stringIds)).append(")");
+		}
+
+		// FILTRE
+		if(filtre != null && !filtre.isEmpty())
+			query.append(buildDataFilter(args, filtre, filtreCamps));
+		List<java.util.Map<String, Object>> result = jdbcTemplate.queryForList(query.toString(), args.toArray());
+		BigDecimal total = (BigDecimal) result.get(0).get("total");
+		return total.intValue();
 	}
 
 	public Integer countValueInUse(Long expedientTipusId, String campCodi, String value) {
@@ -528,7 +500,6 @@ public class ExpedientDadaHelper {
 
 		query.append(" WHERE  d.EXPEDIENT_TIPUS_ID = ? ");
 		args.add(expedientTipusId);
-		//query.append(" AND JSON_EXISTS(d.DADES, '$.").append(campCodi).append(".v')");
 		query.append(" AND JSON_VALUE(d.DADES, '$.").append(campCodi).append(".v') = ?");
 		args.add(value);
 
@@ -541,8 +512,6 @@ public class ExpedientDadaHelper {
 
 	/**
 	 * Retorna el nom de la columna del camp d'una entitat especificada
-	 * @param fieldName
-	 * @param entityClass
 	 * @return nom de la columna o fieldName si no es possible trobar la columna
 	 */
 	private String getColumnName(String fieldName, Class<?> entityClass) {
@@ -566,14 +535,15 @@ public class ExpedientDadaHelper {
 					return column.name();
 				}
 			} catch (NoSuchMethodException e) {
-				// TODO:
+				log.error(e.getMessage(), e);
 			}
 
 		}
 		return fieldName;
 	}
 
-	private void buildDataFilter(StringBuilder query, List<Object> args, Map<String, Object> filtre, List<Camp> filtreCamps) {
+	private String buildDataFilter(List<Object> args, Map<String, Object> filtre, List<Camp> filtreCamps) {
+		StringBuilder query = new StringBuilder();
 		for(Camp f : filtreCamps) {
 			Object filtreVal = filtre.get(f.getCodi());
 
@@ -582,13 +552,7 @@ public class ExpedientDadaHelper {
 				campNom = campNom.substring(campNom.indexOf(ExpedientCamps.EXPEDIENT_PREFIX_SEPARADOR)+1);
 				campNom = "expedient." + getColumnName(campNom, Expedient.class);
 			} else {
-				 if(f.getTipus() == CampTipusDto.INTEGER &&
-					f.getTipus() == CampTipusDto.FLOAT &&
-					f.getTipus() == CampTipusDto.PRICE) {
-					 campNom = "JSON_QUERY(d.DADES, '$." + f.getCodi() + ".v' RETURNING NUMBER NULL ON ERROR) as \"" + f.getCodi() + "\"";
-				} else {
-					 campNom = "JSON_VALUE(d.DADES, '$." + campNom + ".v')";
-				 }
+				campNom = "JSON_VALUE(d.DADES, '$." + campNom + ".v')";
 			}
 			if(filtreVal == null)
 				continue;
@@ -604,29 +568,42 @@ public class ExpedientDadaHelper {
 				case TEXTAREA:
 				case STRING:
 					if(filtreVal instanceof Object[]) {
-						Stream<Object> vals = Arrays
-												.stream(((Object[]) filtreVal))
-												.filter(Objects::nonNull);
-						if(vals.findAny().isEmpty())
+						List<Object> vals = Arrays
+							.stream(((Object[]) filtreVal))
+							.filter(Objects::nonNull)
+							.collect(Collectors.toList());
+						if(vals.isEmpty())
 							break;
 
 						query
 							.append(" AND ")
 							.append(campNom)
 							.append(" in (")
-							.append(vals.map(o -> "?")
-									.collect(Collectors.joining(", ")))
+							.append(vals.stream().map(o -> "?")
+								.collect(Collectors.joining(", ")))
 							.append(")");
-						args.addAll(vals.collect(Collectors.toList()));
+						args.addAll(vals);
 					} else {
 						query
-							.append(" AND ")
+							.append(" AND UPPER(")
 							.append(campNom)
-							.append(" like ? ");
+							.append(") like UPPER(?)");
 						args.add("%" + filtreVal + "%");
 					}
 					break;
 				case DATE:
+					if(filtreVal instanceof Date[]) {
+						Date[] frange = (Date[])filtreVal;
+						if(frange[0] != null) {
+							query.append(" AND ").append(campNom).append(" >= ? ");
+							args.add(dateFormatter.format(frange[0]));
+						}
+						if(frange[1] != null) {
+							query.append(" AND ").append(campNom).append(" <= ? ");
+							args.add(dateFormatter.format(frange[1]));
+						}
+					}
+					break;
 				case INTEGER:
 				case FLOAT:
 				case PRICE:
@@ -640,8 +617,8 @@ public class ExpedientDadaHelper {
 							query.append(" AND ").append(campNom).append(" <= ? ");
 							args.add(frange[1]);
 						}
-						break;
 					}
+					break;
 				case SELECCIO:
 				case SUGGEST:
 				default:
@@ -650,6 +627,7 @@ public class ExpedientDadaHelper {
 					break;
 			}
 		}
+		return query.toString();
 	}
 
 	private Object parseData(Object value, DadaTipusEnum tipus) {

@@ -62,7 +62,7 @@ public class CampDto extends HeretableDto implements Serializable {
 
 	// Dades de Terminis
 	private boolean terminiNomesDies;
-	
+
 	private String codiPerInforme;
 
 	/** Ordre dins la agrupació. */

@@ -132,15 +132,6 @@ public class VariableHelper {
 		return resposta;
 	}
 
-	/*public Map<String, TascaDadaDto> findDadesTascaPerExpedientId(Long expedientId) {
-		Expedient expedient = expedientRepository.findOne(expedientId);
-		Map<String, TascaDadaDto> dades = new HashMap<String, TascaDadaDto>();
-		for (ExpedientDadaDto dada : findDadesPerInstanciaProces(expedient.getProcessInstanceId())) {
-			dades.put(dada.getVarCodi(), getTascaDadaDtoFromExpedientDadaDto(dada));
-		}
-		return dades;
-	}*/
-
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String processInstanceId) {
 		return findDadesPerInstanciaProces(processInstanceId, false);
 	}
@@ -303,15 +294,16 @@ public class VariableHelper {
 	public ExpedientDadaDto getDadaPerInstanciaProces(
 			String processInstanceId,
 			String variableCodi) {
-		return getDadaPerInstanciaProces(processInstanceId, variableCodi, false);
+		return getDadaPerInstanciaProces(null, processInstanceId, variableCodi, false);
 	}
 
 	public ExpedientDadaDto getDadaPerInstanciaProces(
+		Long expedientId,
 		String processInstanceId,
 		String variableCodi,
 		boolean incloureVariablesBuides) {
 		return getDadaPerExpedientInstanciaProces(
-			null,
+			expedientId,
 			processInstanceId,
 			variableCodi,
 			incloureVariablesBuides);

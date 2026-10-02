@@ -1493,12 +1493,11 @@ public class ExpedientLoggerHelper {
 	}
 
 	public ExpedientLog afegirLogExpedientPerProces(
+			Long expedientId,
 			String processInstanceId,
 			ExpedientLogAccioTipus tipus,
 			String accioParams) {
-
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-
+		Expedient expedient = expedientHelper.findById(expedientId);
 		Long jbpmLogId = null;
 		if (expedient.isAmbRetroaccio()) {
 			jbpmLogId = workflowEngineApi.addProcessInstanceMessageLog(

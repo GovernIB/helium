@@ -250,6 +250,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId);
 		boolean isAdjunt = documentCodi == null;
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+				expedientId,
 				processInstanceId,
 				isAdjunt ?
 						ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR
@@ -384,6 +385,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		String documentCodi = documentStore.getCodiDocument();
 		String arxiuNomAntic = documentStore.getArxiuNom();
 		expedientLoggerHelper.afegirLogExpedientPerProces(
+				expedientId,
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
 				documentCodi);

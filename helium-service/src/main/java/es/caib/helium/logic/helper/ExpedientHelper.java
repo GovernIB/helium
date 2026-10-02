@@ -689,8 +689,6 @@ public class ExpedientHelper {
 					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
 			expedient.setGrupCodi(grupCodi);
 		}
-		// Actualitza les dades de l'expedient al servei de dades
-		expedientDadaHelper.setExpedientDades(expedient);
 
 		//Actualitzem el nom de l'expedient a l'arxiu
 		if (expedient.isArxiuActiu() && atributsArxiuCanviats) {
@@ -1291,8 +1289,13 @@ public class ExpedientHelper {
 	}
 
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
-		WExpedientDto e = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
-		Expedient expedient = expedientRepository.findById(e.getId()).orElse(null);
+
+		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		if(expedient == null) {
+			WExpedientDto e = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
+			expedient = e != null ? expedientRepository.findById(e.getId()).orElse(null) : null;
+		}
+
 		if (expedient == null) {
 			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
 			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
@@ -1956,7 +1959,7 @@ public class ExpedientHelper {
 				expedientTipus.updateSequenciaDefault(any, 1);
 			// Configura el títol de l'expedient
 			if (expedientTipus.getTeTitol()) {
-				if (titol != null && titol.length() > 0)
+				if (titol != null && !titol.isEmpty())
 					expedient.setTitol(titol);
 				else
 					expedient.setTitol("[Sense títol]");
@@ -1964,7 +1967,7 @@ public class ExpedientHelper {
 			// Verifica si pot estar repetit per tipus d'expedient
 			if (expedientTipus.getTeTitol() && expedientTipus.getDemanaTitol()) {
 				List<Expedient> expedientMateixTitol = findByEntornIdAndTipusAndTitol(entornId, expedientTipusId, expedient.getTitol());
-				if (expedientMateixTitol.size() > 0)
+				if (!expedientMateixTitol.isEmpty())
 					throw new ValidacioException(
 							messageHelper.getMessage(
 									"error.expedient.titolrepetit",
@@ -1985,7 +1988,6 @@ public class ExpedientHelper {
 						expedientTipus,
 						expedientTipus.getJbpmProcessDefinitionKey());
 			}
-			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
 			WProcessInstance processInstance = null;
 			if (expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
 				processInstance = workflowEngineApi.startProcessInstanceById(
@@ -1996,11 +1998,13 @@ public class ExpedientHelper {
 			}
 
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
-
 			// Emmagatzema el nou expedient
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 			expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+
+			if(variables != null)
+				expedientDadaHelper.setDades(expedientPerRetornar, expedientPerRetornar.getProcessInstanceId(), null, variables);
 
 			if(expedientPerRetornar.getProcessInstanceId() != null) {
 				if (variables == null)
@@ -2016,6 +2020,7 @@ public class ExpedientHelper {
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 			if(expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
 				ExpedientLog log = expedientLoggerHelper.afegirLogExpedientPerProces(
+						expedient.getId(),
 						processInstance.getId(),
 						ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
 						null);
@@ -2111,12 +2116,6 @@ public class ExpedientHelper {
 
 				// Comprova si després de l'inici ja està en un node fi
 				verificarFinalitzacioExpedient(expedientPerRetornar);
-
-				// Indexam l'expedient
-				logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
-				mesuresTemporalsHelper.mesuraIniciar("Indexar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
-				expedientDadaHelper.setExpedientDades(expedientPerRetornar);
-				mesuresTemporalsHelper.mesuraCalcular("Indexar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 
 			} catch( Throwable ex) {
 				// Rollback de la creació de l'expedient a l'arxiu
