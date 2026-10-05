@@ -16,9 +16,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.IndexInfoDto;
 public class HeliumLuceneUtils {
 	
 	/**
-     * Marge de seguretat 10 GB.
+     * Marge de seguretat en % sobre la mida estimada del merge (suma dels segments).
      */
-    public static final long MARGE_SEGURETAT_BYTES = 10L * 1024L * 1024L * 1024L;
+    public static final double MARGE_SEGURETAT_BYTES_TPC = 0.1;
 
 
 	/** Suma els bytes dels segments. */
@@ -57,7 +57,7 @@ public class HeliumLuceneUtils {
 		indexInfo.setMidaTotalStr(StringUtilsHelium.formatBytes(midaTotal));
 		
 		// Comprovacio de si es troba en nivell d'avís o d'error
-		long espaiNecessari = midaTotal + MARGE_SEGURETAT_BYTES;
+		long espaiNecessari = midaTotal + Math.round(midaTotal * MARGE_SEGURETAT_BYTES_TPC);
 		indexInfo.setEspaiNecessari(espaiNecessari);
 		indexInfo.setEspaiNecessariStr(StringUtilsHelium.formatBytes(espaiNecessari));
 		long espaiAlerta = espaiNecessari * 2;
