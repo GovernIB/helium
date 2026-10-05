@@ -213,9 +213,30 @@ public class TramitacioExterna extends BaseTest {
 			fail("No s'ha trobar la variable var_data");
 	}
 	
+	/** Prova a afegir un document. */
+	@Test
+	public void a3_afegirDocument() {
+		TramitacioService ws = getClientTramitacio(); 
+		// Recupera la tasca
+		TascaTramitacio tasca = getTascaVariables();
+		try {
+			ws.setDocumentTasca(
+					propietats.getEntornTestCodi(), 
+					propietats.getUsuariTestCodi(), 
+					tasca.getId(), 
+					"psigna_doc", 
+					"document.txt", 
+					new Date(), 
+					"Texte de prova".getBytes());
+		} catch (TramitacioException e) {
+			e.printStackTrace();
+			fail("Error consultant les variables del procés " + tasca.getProcessInstanceId());
+		}
+	}
+	
 	/** Prova a modificar el valor d'una variable. */
 	@Test
-	public void a3_consultaDocuments() {
+	public void a4_consultaDocuments() {
 		TramitacioService ws = getClientTramitacio(); 
 		// Recupera la tasca
 		TascaTramitacio tasca = getTascaVariables();
@@ -245,7 +266,7 @@ public class TramitacioExterna extends BaseTest {
 	 * 
 	 */
 	@Test
-	public void a4_finalitzarTasca() {
+	public void a5_finalitzarTasca() {
 		TramitacioService ws = getClientTramitacio();
 		// Recupera la tasca
 		TascaTramitacio tasca = getTascaVariables();		
@@ -265,7 +286,7 @@ public class TramitacioExterna extends BaseTest {
 	 * 
 	 */
 	@Test
-	public void a5_executarScript() {
+	public void a6_executarScript() {
 		TramitacioService ws = getClientTramitacio();
 		try {
 			ExpedientInfo expedient = this.getExpedientProva();
@@ -282,7 +303,7 @@ public class TramitacioExterna extends BaseTest {
 
 	/** Esborra l'expedient creat per fer les proves. */
 	@Test
-	public void a6_esborrarExpedientTramitacioExterna() {
+	public void a7_esborrarExpedientTramitacioExterna() {
 		if (propietats.isEsborrarExpedientTest()) {
 			esborrarExpedientTramitacioExterna();
 		}
