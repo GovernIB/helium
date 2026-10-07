@@ -1056,10 +1056,10 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			.singleResult();
 		if (pi != null && pi.getProcessVariables().get("__expedient_id__") != null)
 			return WExpedientDto.builder()
-					.id((Long)Optional.of(pi.getProcessVariables().get("__expedient_id__")).orElse(0))
-					.titol((String)Optional.of(pi.getProcessVariables().get("__expedient_titol__")).orElse(""))
-					.numero((String)Optional.of(pi.getProcessVariables().get("__expedient_numero__")).orElse(""))
-					.numeroDefault((String)Optional.of(pi.getProcessVariables().get("__expedient_numero_default__")).orElse(""))
+					.id((Long)pi.getProcessVariables().get("__expedient_id__"))
+					.titol((String)Optional.ofNullable(pi.getProcessVariables().get("__expedient_titol__")).orElse(""))
+					.numero((String)Optional.ofNullable(pi.getProcessVariables().get("__expedient_numero__")).orElse(""))
+					.numeroDefault((String)Optional.ofNullable(pi.getProcessVariables().get("__expedient_numero_default__")).orElse(""))
 					.processInstanceId(processInstanceId)
 					.build();
 
@@ -1072,10 +1072,10 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			return null;
 
 		return WExpedientDto.builder()
-			.id((Long)Optional.of(hpi.getProcessVariables().get("__expedient_id__")).orElse(0))
-			.titol((String)Optional.of(hpi.getProcessVariables().get("__expedient_titol__")).orElse(""))
-			.numero((String)Optional.of(hpi.getProcessVariables().get("__expedient_numero__")).orElse(""))
-			.numeroDefault((String)Optional.of(hpi.getProcessVariables().get("__expedient_numero_default__")).orElse(""))
+			.id((Long)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_id__")).orElse(0L))
+			.titol((String)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_titol__")).orElse(""))
+			.numero((String)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_numero__")).orElse(""))
+			.numeroDefault((String)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_numero_default__")).orElse(""))
 			.processInstanceId(processInstanceId)
 			.build();
 	}

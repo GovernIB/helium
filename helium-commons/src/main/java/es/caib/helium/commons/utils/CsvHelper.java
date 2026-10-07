@@ -39,16 +39,14 @@ public class CsvHelper {
 			List<String[]> files = new ArrayList<String[]>();
 			// 1a fila
 			String line;
-			int cont = 0;
 		    while ((line = br.readLine()) != null) {
-		    	cont++;
-		        String[] tokens = this.getCsvTokens(line, this.separador, this.delimitadorString, cont);
-		        if (this.textEnCorxets) {
-		        	for (int i=0; i<tokens.length; i++) {
-		        		if (tokens[i].startsWith("\"") && tokens[i].endsWith("\""))
-		        			tokens[i] = tokens[i].substring(1, tokens[i].length()-1);
-		        	}
-		        }
+		        String[] tokens = this.getCsvTokens(line, this.separador, this.delimitadorString);
+	        if (this.textEnCorxets) {
+	        	for (int i=0; i<tokens.length; i++) {
+	        		if (tokens[i].length() >= 2 && tokens[i].startsWith("\"") && tokens[i].endsWith("\""))
+	        			tokens[i] = tokens[i].substring(1, tokens[i].length()-1);
+	        	}
+	        }
 		        files.add(tokens);
 		    }
 		    // close the reader
@@ -61,7 +59,7 @@ public class CsvHelper {
 		return resultat;
 	}
 
-	public String[] getCsvTokens(String line, char separador, char delimitadorString, int cont) throws Exception {
+	public String[] getCsvTokens(String line, char separador, char delimitadorString) throws Exception {
 		List<String> tokens = new ArrayList<String>();
 		// si és un nou token i comença per delimitadorString llavors llegeix fins al següent delimitador d'string i guarda'l com un nou token
 		// altrament comença un nou string token i llegeix fins al següent separador
@@ -70,60 +68,84 @@ public class CsvHelper {
 			for (int i=0; i<line.length(); i++) {
 				if(i!=line.length()-1) {
 					if (line.charAt(i) == delimitadorString) {
-						for(int j=i+1; j<line.length();j++) {
-							if(line.charAt(j)!=delimitadorString && j!=line.length()-1)  {
-								token.append(line.charAt(j));
-							}else {
-								i=j+1;
+					for(int j=i+1; j<line.length();j++) {
+						if(line.charAt(j)!=delimitadorString)  {
+							token.append(line.charAt(j));
+							if (j==line.length()-1) {
+								// Sense cometa de tancament: tot el que queda és contingut
+								i=j;
 								break;
+							}
+						} else if (j+1<line.length() && line.charAt(j+1)==delimitadorString) {
+							// Cometa escapada ("") dins de valor entre cometes
+							token.append(delimitadorString);
+							j++;
+							if (j==line.length()-1) {
+								i=j;
+								break;
+							}
+						} else {
+							i=j+1;
+							break;
+						}
+					}
+					tokens.add(token.toString());
+					token = new StringBuilder();
+					// Si el separador posterior a la cometa de tancament és l'últim
+					// caràcter, cal conservar el camp buit final ("a"; -> ["a",""])
+					if (i==line.length()-1 && line.charAt(i)==separador) {
+						tokens.add("");
+						token = new StringBuilder();
+					} else if (i>=line.length()) {
+						// El valor entre cometes arribava fins al final: res més a fer
+					}
+				} else {
+					if(line.charAt(i)!=separador) {
+						boolean entreCometes = false;
+						for(int j=i; j<line.length();j++) {
+							char c = line.charAt(j);
+							if(c==delimitadorString) {
+								if (entreCometes && j+1<line.length() && line.charAt(j+1)==delimitadorString) {
+									token.append(delimitadorString);
+									j++;
+								} else {
+									entreCometes = !entreCometes;
+								}
+								if (j==line.length()-1) {
+									i=j;
+								}
+							}
+							else if (c==separador && !entreCometes) {
+								i=j;
+								tokens.add(token.toString());
+								token = new StringBuilder();
+								continue;
+							}
+							else {
+								token.append(c);
+								if (j==line.length()-1) {
+									i=j;
+								}
 							}
 						}
 						tokens.add(token.toString());
 						token = new StringBuilder();
 					} else {
-						if(line.charAt(i)!=separador) {
-							for(int j=i; j<line.length();j++) {
-								if(line.charAt(j)!=separador && j!=line.length()-1) {
-									if(line.charAt(j)!=delimitadorString)
-										token.append(line.charAt(j));
-								}
-								else if (j==line.length()-1 && line.charAt(j)!=separador) {
-									token.append(line.charAt(j));
-									i=j;
-								} else if (j==line.length()-1 && line.charAt(j)==separador) {
-									i=j;
-									token.append("");
-									tokens.add(token.toString());
-									token = new StringBuilder();
-									continue;
-								} else if (j!=line.length()-1 && line.charAt(j)==separador && line.charAt(i+1)==delimitadorString) {
-									token.append(line.charAt(j));
-									i=j;
-								} else if (j!=line.length()-1 && line.charAt(j)==separador) {
-									i=j;
-									token.append("");
-									tokens.add(token.toString());
-									token = new StringBuilder();
-									continue;
-								}
-								else {
-									i=j;
-									break;
-								}
-							}
-							tokens.add(token.toString());
-							token = new StringBuilder();
-						} else {
-							token.append("");
-							tokens.add(token.toString());
-							token = new StringBuilder();
-						}
+						token.append("");
+						tokens.add(token.toString());
+						token = new StringBuilder();
 					}
+				}
+			} else {
+				if (line.charAt(i)==separador) {
+					tokens.add(token.toString());
+					tokens.add("");
 				} else {
 					token.append(line.charAt(i));
 					tokens.add(token.toString());
-					break;
 				}
+				break;
+			}
 
 			}
 		}
@@ -144,8 +166,7 @@ public class CsvHelper {
 
 		String[] tokens;
 		try {
-			int cont=0;
-			tokens = csvHelper.getCsvTokens(line, ';', '"', cont);
+			tokens = csvHelper.getCsvTokens(line, ';', '"');
 			for (int i=0; i< tokens.length; i++) {
 				System.out.println(i + " " + tokens[i]);
 			}
@@ -175,37 +196,5 @@ public class CsvHelper {
 				csvBuilder.append("\n");
 		}
 		return csvBuilder.toString().getBytes(codificacio);
-	}
-
-	public char getSeparador() {
-		return separador;
-	}
-
-	public void setSeparador(char separador) {
-		this.separador = separador;
-	}
-
-	public char getDelimitadorString() {
-		return delimitadorString;
-	}
-
-	public void setDelimitadorString(char delimitadorString) {
-		this.delimitadorString = delimitadorString;
-	}
-
-	public String getCodificacio() {
-		return codificacio;
-	}
-
-	public void setCodificacio(String codificacio) {
-		this.codificacio = codificacio;
-	}
-
-	public boolean isTextEnCorxets() {
-		return textEnCorxets;
-	}
-
-	public void setTextEnCorxets(boolean textEnCorxets) {
-		this.textEnCorxets = textEnCorxets;
 	}
 }
