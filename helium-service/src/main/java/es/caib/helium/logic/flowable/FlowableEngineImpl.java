@@ -9,9 +9,11 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 import es.caib.helium.commons.dto.PersonaDto;
+import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.engine.*;
 import es.caib.helium.logic.helper.ExpedientTipusRecursHelper;
 import es.caib.helium.logic.helper.PluginHelper;
+import groovy.lang.GroovyShell;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.*;
 import org.flowable.bpmn.model.Process;
@@ -779,51 +781,10 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public Map<String, Object> evaluateScript(String processInstanceId, String script, Set<String> outputNames) {
-
-//		Map<String, Object> variables =
-//				this.processEngine.getRuntimeService().getVariables(processInstanceId);
-//		Map<String, Object> bindings = new HashMap<>();
-//		bindings.put(
-//			    "execution",
-//			    new ExecutionWrapper(
-//			        runtimeService,
-//			        processInstanceId));
-
-//		ScriptEngine engine =
-//			    new ScriptEngineManager()
-//			        .getEngineByName("groovy");
-
-//		GroovyScriptEngine engine = new GroovyScriptEngine("file:src/main/resources/");
-//		engine.loadScriptByName("");
-//		engine.run("", "");
-//
-//		try {
-//			//engine.eval(script);
-//		} catch (ScriptException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
-        //ExpressionManager expressionManager = CommandContextUtil.getProcessEngineConfiguration().getExpressionManager(); //nulpoiner peruqè no és execució real
-
-//        ExpressionManager expressionManager =
-//        	    ((ProcessEngineConfigurationImpl)
-//        	        processEngine.getProcessEngineConfiguration())
-//        	            .getExpressionManager();
-
-//        ProcessEngineConfigurationImpl cfg =
-//        	    (ProcessEngineConfigurationImpl)
-//        	        ((ServiceImpl) this.processEngine.getRuntimeService())
-//        	            .getCommandExecutor();
-
-//        Expression expression = expressionManager.createExpression(script);
-//        expression.getValue(new MapDelegateVariableContainer());
-
-		//org.flowable.common.engine.impl.el.ExpressionManager expressionManager ;
-		//this.processEngine.getProcessEngineConfiguration().getsc
-		// TODO Auto-generated method stub
-		return null;
+	public void evaluateScript(HeliumApi api, String script) {
+		GroovyShell shell = new GroovyShell();
+		shell.setVariable("heliumApi", api);
+		shell.evaluate(script);
 	}
 
 	@Override
@@ -1259,6 +1220,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			wpi.setProcessDefinitionVersion(pi.getProcessDefinitionVersion());
 			wpi.setParentProcessInstanceId(pi.getSuperProcessInstanceId());
 			wpi.setStartTime(pi.getStartTime());
+			wpi.setEndTime(pi.getEndTime());
 			wpi.setDescription(pi.getDescription());
 		}
 		return wpi;

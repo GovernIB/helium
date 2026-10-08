@@ -29,6 +29,8 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.validation.ValidationException;
 
+import es.caib.helium.logic.bpmn.HeliumApiFactory;
+import es.caib.helium.logic.helper.*;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,30 +110,6 @@ import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.TramitacioValidacioException;
 import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.logic.helper.AlertaHelper;
-import es.caib.helium.logic.helper.ComandaHelper;
-import es.caib.helium.logic.helper.ConsultaHelper;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DistribucioHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExceptionHelper;
-import es.caib.helium.logic.helper.ExpedientDadaHelper;
-import es.caib.helium.logic.helper.ExpedientDocumentHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientLoggerHelper;
-import es.caib.helium.logic.helper.ExpedientRegistreHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.helper.NotificacioHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.helper.UnitatOrganitzativaHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
-import es.caib.helium.logic.helper.VariableHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.disseny.engine.WTaskInstance;
@@ -216,11 +194,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Autowired
 	private ApplicationContext applicationContext;
 	@Resource
-	private DocumentRepository documentRepository;
-	@Resource
 	private ExpedientRepository expedientRepository;
-	@Resource
-	private ExpedientHeliumRepository expedientHeliumRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -228,17 +202,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Resource
 	private ConsultaRepository consultaRepository;
 	@Resource
-	private ExpedientLoggerRepository expedientLogRepository;
-	@Resource
 	private CampRepository campRepository;
 	@Resource
 	private AlertaRepository alertaRepository;
 	@Resource
 	private RegistreRepository registreRepository;
-	@Resource
-	private EnumeracioRepository enumeracioRepository;
-	@Resource
-	private TerminiRepository terminiRepository;
 	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
@@ -255,10 +223,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private DocumentNotificacioRepository documentNotificacioRepository;
 	@Resource
 	private AnotacioRepository anotacioRepository;
-	@Resource
-	private EstatAccioEntradaRepository estatAccioEntradaRepository;
-	@Resource
-	private EstatAccioSortidaRepository estatAccioSortidaRepository;
 	@Resource
 	private PeticioPinbalRepository peticioPinbalRepository;
 
@@ -284,8 +248,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
-	@Resource
-	private VariableHelper variableHelper;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource(name="pluginHelperV3")
@@ -319,17 +281,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Resource
 	private AlertaHelper alertaHelper;
 	@Resource
-	private ExceptionHelper exceptionHelper;
-	@Resource
 	private UsuariActualHelper usuariActualHelper;
-	@Resource
-	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
-	@Resource
-	private ExpedientTipusService expedientTipusService;
 	@Resource
 	private Jbpm3HeliumService jbpm3HeliumService;
 	@Autowired
 	private ComandaHelper comandaHelper;
+
+	@Resource
+	private ExpedientInteressatHelper expedientInteressatHelper;
+	@Resource
+	private MailHelper mailHelper;
 
 	@Autowired
 	private ApplicationEventPublisher eventPublisher;
@@ -2074,7 +2035,19 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 
 		// executa l'script
-		workflowEngineApi.evaluateScript(processInstanceId, script, new HashSet<String>());
+		workflowEngineApi.evaluateScript(HeliumApiFactory.createInstance(
+			expedient,
+			processInstanceId,
+			null,
+			estatRepository,
+			expedientHelper,
+			expedientDadaHelper,
+			expedientDocumentHelper,
+			documentHelper,
+			pluginHelper,
+			alertaHelper,
+			expedientInteressatHelper,
+			mailHelper), script);
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				expedientId,

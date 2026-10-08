@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.engine.WDeployment;
 import es.caib.helium.disseny.engine.WExpedientDto;
 import es.caib.helium.disseny.engine.WProcessDefinition;
@@ -679,10 +680,9 @@ public interface WorkflowEngineApi {
 
 	// ACCIONS
 	////////////////////////////////////////////////////////////////////////////////
-	public Map<String, Object> evaluateScript(
-			String processInstanceId,
-			String script,
-			Set<String> outputNames);
+	public void evaluateScript(
+			HeliumApi api,
+			String script);
 	public Object evaluateExpression(
 			String taskInstanceInstanceId,
 			String processInstanceId,

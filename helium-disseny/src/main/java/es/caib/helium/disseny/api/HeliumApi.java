@@ -1,7 +1,6 @@
 package es.caib.helium.disseny.api;
 
 import es.caib.helium.commons.dto.DadesNotificacioDto;
-import es.caib.helium.commons.dto.RegistreIdDto;
 import es.caib.helium.commons.dto.TerminiIniciatDto;
 import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.disseny.engine.WTaskInstance;

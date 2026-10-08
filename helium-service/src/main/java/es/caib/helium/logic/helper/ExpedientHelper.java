@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,6 +16,7 @@ import javax.annotation.Resource;
 import javax.persistence.EntityNotFoundException;
 
 import es.caib.helium.disseny.engine.WExpedientDto;
+import es.caib.helium.persistence.entity.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -2449,9 +2449,20 @@ public class ExpedientHelper {
 					dades);
 			} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
 				workflowEngineApi.evaluateScript(
-					processInstanceId,
-					accio.getScript(),
-					new HashSet<>());
+					HeliumApiFactory.createInstance(
+						expedient,
+						processInstanceId,
+						null,
+						estatRepository,
+						this,
+						expedientDadaHelper,
+						expedientDocumentHelper,
+						documentHelper,
+						pluginHelper,
+						alertaHelper,
+						expedientInteressatHelper,
+						mailHelper),
+					accio.getScript());
 			}
 		} else {
 			if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
@@ -2463,7 +2474,7 @@ public class ExpedientHelper {
 						dades);
 					handler.execute(HeliumApiFactory.createInstance(
 						expedient,
-						expedient.getProcessInstanceId(),
+						processInstanceId,
 						null,
 						estatRepository,
 						this,
@@ -2487,7 +2498,7 @@ public class ExpedientHelper {
 						dades);
 					handler.execute(HeliumApiFactory.createInstance(
 						expedient,
-						expedient.getProcessInstanceId(),
+						processInstanceId,
 						null,
 						estatRepository,
 						this,
