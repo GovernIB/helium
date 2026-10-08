@@ -16,7 +16,7 @@
 		<property name="location" value="${app.lucene.fs.basedir}"/>
 		<property name="create" value="true"/>
 	</bean>
-	<bean id="indexFactory" class="org.springmodules.lucene.index.factory.concurrent.LockIndexFactory">
+	<bean id="indexFactory" class="net.conselldemallorca.helium.core.lucene.HeliumLockIndexFactory">
 		<property name="targetIndexFactory">
 			<bean class="net.conselldemallorca.helium.core.lucene.HeliumSimpleIndexFactoryBean">
 				<property name="directory" ref="${app.lucene.directory}"/>
