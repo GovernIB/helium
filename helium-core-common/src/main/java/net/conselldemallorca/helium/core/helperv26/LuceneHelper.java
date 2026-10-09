@@ -1182,35 +1182,41 @@ public class LuceneHelper extends LuceneIndexSupport {
 					for(CampRegistre campRegistre : camp.getRegistreMembres()) {
 						Camp membre = campRegistre.getMembre();
 						if(index < valorsMembres.length) {
-							String val = "";
-							switch(membre.getTipus()) {
-							case DATE:
-								DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:SS");
-								val = sdf.format(valorsMembres[index++]);
-								break;
-							case INTEGER:
-								val = ((Long) valorsMembres[index++]).toString();
-								break;
-							case FLOAT:
-								val = ((Double) valorsMembres[index++]).toString();
-								break;
-							case BOOLEAN:
-								val = ((Boolean) valorsMembres[index++]) ? "Si" : "No";
-								break;
-							case TERMINI:
-								Termini term = (Termini) valorsMembres[index++];
-								val = term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
-								break;
-							case SELECCIO:
-							case SUGGEST:
-							case STRING:
-							case TEXTAREA:
-								val = (String) valorsMembres[index++];
-								break;
-							default:
-								val = valorsMembres[index++].toString();
+							String val =  "";
+							if (valorsMembres[index] != null) {
+								switch(membre.getTipus()) {
+								case DATE:
+									DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:SS");
+									val = sdf.format(valorsMembres[index++]);
+									break;
+								case INTEGER:
+									val = ((Long) valorsMembres[index++]).toString();
+									break;
+								case FLOAT:
+									val = ((Double) valorsMembres[index++]).toString();
+									break;
+								case BOOLEAN:
+									val = ((Boolean) valorsMembres[index++]) ? "Si" : "No";
+									break;
+								case TERMINI:
+									Termini term = (Termini) valorsMembres[index++];
+									val = term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
+									break;
+								case SELECCIO:
+								case SUGGEST:
+								case STRING:
+								case TEXTAREA:
+									val = (String) valorsMembres[index++];
+									break;
+								default:
+									val = valorsMembres[index++].toString();
+								}
+							} else {
+								val = "";
+								index++;
 							}
 							valorsFormat.add(val);
+							
 						}
 					}
 					valorsList.add(valorsFormat);
