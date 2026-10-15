@@ -457,16 +457,17 @@ public class SalutServiceImpl implements SalutService {
 		long errors = 0;
 		if (indexInfo.getError() != null) {
 			estatLucene = EstatSalutEnum.ERROR;
-			errors++;
+			errors = 100;
 		} else if (indexInfo.getAlerta() != null) {
 			estatLucene = EstatSalutEnum.WARN;
+			errors = 100;
 		}
 		SubsistemaSalut luceneStats = SubsistemaSalut
 				.builder()
 				.codi("LCN")
 				.estat(estatLucene)
 				.totalError(errors)
-				.totalOk(0l)
+				.totalOk(100l)
 				.build();
 		subsistemes.add(luceneStats);
 		return subsistemes;

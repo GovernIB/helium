@@ -24,6 +24,7 @@ import org.springframework.web.servlet.ModelAndViewDefiningException;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
@@ -233,27 +234,30 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				}
 			}
 			
-			HttpSession session = request.getSession();
 			// Si l'usuari actual és administrador es mira si posar una alerta segons l'estat de Lucene.
-			IndexInfoDto indexInfo = expedientReindexacioService.getIndexInfo();
-			if (indexInfo.getError() != null) {
-				List<Alert> alerts = (List<Alert>)session.getAttribute(MissatgesHelper.SESSION_ATTRIBUTE_ERROR);
-				if(alerts != null) {
-					for(Alert alert : alerts) {
-						if(alert.getText().equals(indexInfo.getError()))
-							return true;
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if (auth != null && UsuariActualHelper.isAdministrador(auth)) {
+				HttpSession session = request.getSession();
+				IndexInfoDto indexInfo = expedientReindexacioService.getIndexInfo();
+				if (indexInfo.getError() != null) {
+					List<Alert> alerts = (List<Alert>)session.getAttribute(MissatgesHelper.SESSION_ATTRIBUTE_ERROR);
+					if(alerts != null) {
+						for(Alert alert : alerts) {
+							if(alert.getText().equals(indexInfo.getError()))
+								return true;
+						}
 					}
-				}
-				MissatgesHelper.error(request, indexInfo.getError());
-			} else if  (indexInfo.getAlerta() != null) {
-				List<Alert> alerts = (List<Alert>)session.getAttribute(MissatgesHelper.SESSION_ATTRIBUTE_WARNING);
-				if(alerts != null) {
-					for(Alert alert : alerts) {
-						if(alert.getText().equals(indexInfo.getAlerta()))
-							return true;
+					MissatgesHelper.error(request, indexInfo.getError());
+				} else if  (indexInfo.getAlerta() != null) {
+					List<Alert> alerts = (List<Alert>)session.getAttribute(MissatgesHelper.SESSION_ATTRIBUTE_WARNING);
+					if(alerts != null) {
+						for(Alert alert : alerts) {
+							if(alert.getText().equals(indexInfo.getAlerta()))
+								return true;
+						}
 					}
-				}
-				MissatgesHelper.warning(request, indexInfo.getAlerta());
+					MissatgesHelper.warning(request, indexInfo.getAlerta());
+				}			
 			}
 		}
 		return true;
