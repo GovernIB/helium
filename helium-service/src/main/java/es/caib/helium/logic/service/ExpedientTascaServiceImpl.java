@@ -48,7 +48,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
-	private WorkflowEngineApi jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 
 	/**
 	 * {@inheritDoc}
@@ -117,7 +117,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		for (WProcessInstance jpi: jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId())) {
+		for (WProcessInstance jpi: workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId())) {
 			resposta.addAll(
 					tascaHelper.findTasquesPerExpedientPerInstanciaProces(
 							jpi.getId().toString(),
@@ -152,7 +152,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					task.getProcessInstanceId(),
 					ExpedientLogAccioTipus.TASCA_CANCELAR,
 					null);
-			jbpmHelper.cancelTaskInstance(String.valueOf(tascaId));
+			workflowEngineApi.cancelTaskInstance(String.valueOf(tascaId));
 			tascaHelper.refreshExpedientTasca(tascaId);
 			crearRegistreTasca(
 					expedientId,
@@ -187,7 +187,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					task.getProcessInstanceId(),
 					ExpedientLogAccioTipus.TASCA_SUSPENDRE,
 					null);
-			jbpmHelper.suspendTaskInstance(String.valueOf(tascaId));
+			workflowEngineApi.suspendTaskInstance(String.valueOf(tascaId));
 			tascaHelper.refreshExpedientTasca(tascaId);
 			crearRegistreTasca(
 					expedientId,
@@ -222,7 +222,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					task.getProcessInstanceId(),
 					ExpedientLogAccioTipus.TASCA_CONTINUAR,
 					null);
-			jbpmHelper.resumeTaskInstance(String.valueOf(tascaId));
+			workflowEngineApi.resumeTaskInstance(String.valueOf(tascaId));
 			tascaHelper.refreshExpedientTasca(tascaId);
 			crearRegistreTasca(
 					expedientId,
@@ -261,7 +261,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				null);
 		if (!expedient.isAturat()) {
-			jbpmHelper.reassignTaskInstance(tascaId, expressio, expedient.getEntorn().getId());
+			workflowEngineApi.reassignTaskInstance(tascaId, expressio, expedient.getEntorn().getId());
 			String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(tascaId);
 			expedientLog.setAccioParams(previousActors + "::" + currentActors);
 			String usuari = SecurityContextHolder.getContext().getAuthentication().getName();

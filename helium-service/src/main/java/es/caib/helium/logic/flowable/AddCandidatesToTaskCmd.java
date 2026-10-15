@@ -58,16 +58,18 @@ public class AddCandidatesToTaskCmd extends NeedsActiveTaskCmd<Void> {
 			return null;
 		}
 
-		if (task.getProcessDefinitionId() != null && Flowable5Util.isFlowable5ProcessDefinitionId(commandContext, task.getProcessDefinitionId())) {
+		if (task.getProcessDefinitionId() != null && Flowable5Util.isFlowable5ProcessDefinitionId(commandContext, task.getProcessDefinitionId()) && identityId != null) {
 			Flowable5CompatibilityHandler compatibilityHandler = Flowable5Util.getFlowable5CompatibilityHandler();
 			for(String identity : identityId)
 				compatibilityHandler.addIdentityLink(taskId, identity, AddIdentityLinkCmd.IDENTITY_USER, IdentityLinkType.CANDIDATE);
 			return null;
 		}
 
-		for(String identity : identityId) {
-			IdentityLinkEntity identityLinkEntity =  identityLinkService.createTaskIdentityLink(task.getId(), identity, null, IdentityLinkType.CANDIDATE);
-			IdentityLinkUtil.handleTaskIdentityLinkAddition(task, identityLinkEntity);
+		if(identityId != null) {
+			for (String identity : identityId) {
+				IdentityLinkEntity identityLinkEntity = identityLinkService.createTaskIdentityLink(task.getId(), identity, null, IdentityLinkType.CANDIDATE);
+				IdentityLinkUtil.handleTaskIdentityLinkAddition(task, identityLinkEntity);
+			}
 		}
 
 		if(this.group != null) {

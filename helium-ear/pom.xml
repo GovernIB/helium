@@ -60,6 +60,15 @@
 			<artifactId>spring-hateoas</artifactId>
 			<version>1.5.5</version>
 		</dependency>
+		<!-- Force bundling in EAR lib: provides UnsynchronizedByteArrayInputStream (since 2.7) for tika-core 2.8.0 on JBoss EAP 7.2 -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

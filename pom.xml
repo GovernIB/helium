@@ -18,6 +18,8 @@
 		<orika.starter.version>2.4.6</orika.starter.version>
 		<sitemesh.version>2.5.0</sitemesh.version>
 		<commons-lang.version>2.6</commons-lang.version>
+		<commons-io.version>2.11.0</commons-io.version>
+		<commons-fileupload.version>1.5</commons-fileupload.version>
 		<cxf.version>2.2.10</cxf.version>
 		<lucene.version>2.9.4</lucene.version>
 		<spring-security.version>5.7.11</spring-security.version>
@@ -71,6 +73,16 @@
 				<groupId>org.flowable</groupId>
 				<artifactId>flowable-spring-boot-starter-process</artifactId>
 				<version>6.8.0</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-fileupload</groupId>
+				<artifactId>commons-fileupload</artifactId>
+				<version>${commons-fileupload.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

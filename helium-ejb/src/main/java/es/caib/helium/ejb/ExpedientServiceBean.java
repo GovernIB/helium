@@ -488,7 +488,7 @@ public class ExpedientServiceBean extends AbstractServiceEjb<ExpedientService> i
 			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
-		return consultaFindPaginat(
+		return delegateService.consultaFindPaginat(
 				consultaId,
 				filtreValors,
 				expedientIdsSeleccio,
@@ -515,7 +515,7 @@ public class ExpedientServiceBean extends AbstractServiceEjb<ExpedientService> i
 			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
-		return consultaFindNomesIdsPaginat(
+		return delegateService.consultaFindNomesIdsPaginat(
 				consultaId,
 				filtreValors,
 				nomesTasquesPersonals,
@@ -752,11 +752,11 @@ public class ExpedientServiceBean extends AbstractServiceEjb<ExpedientService> i
 	public void syncDocumentsArxiu(Long id, boolean esborrarExpSiError) {
 		delegateService.syncDocumentsArxiu(id, esborrarExpSiError);
 	}
-	
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void syncTancamentArxiu(Long id, boolean esborrarExpSiError) {
-		delegateService.syncTancamentArxiu(id, esborrarExpSiError);		
+		delegateService.syncTancamentArxiu(id, esborrarExpSiError);
 	}
 
 	@Override

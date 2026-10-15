@@ -984,11 +984,7 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly = true)
 	public Set<String> getHandlersNom(Long definicioProcesId) {
-		Set<String> resposta = null;
-		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
-		if (definicioProces != null)
-			resposta = workflowEngineApi.getHandlerNames(definicioProces.getJbpmId());
-		return resposta;
+		return recursRepository.findNomByDefinicioProcesIdAndHandler(definicioProcesId, true);
 	}
 
 	@Override
@@ -996,7 +992,7 @@ public class DissenyServiceImpl implements DissenyService {
 	public byte[] getRecursContingut(Long definicioProcesId, String nom) throws IOException {
 		try {
 			return getRecursContingut(
-				definicioProcesRepository.findById(definicioProcesId).orElse(null).getJbpmId(),
+				definicioProcesRepository.getReferenceById(definicioProcesId).getJbpmId(),
 				nom);
 		} catch (FlowableObjectNotFoundException ex) {
 			return recursRepository

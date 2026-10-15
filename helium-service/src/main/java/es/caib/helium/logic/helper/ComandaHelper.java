@@ -120,7 +120,7 @@ public class ComandaHelper {
 							.dataInici(DatesUtils.toOffsetDateTime(task.getStartTime()))
 							.dataFi(DatesUtils.toOffsetDateTime(task.getEndTime()))
 							.dataCaducitat(DatesUtils.toOffsetDateTime(task.getDueDate()))
-							.redireccio(new URL(HELIUM_BASE_URL + "/v3/tasca/" + taskId))
+							.redireccio(new URL(HELIUM_BASE_URL + "/tasca/" + taskId))
 							.grup(null)
 							.responsable(task.getActorId())
 							.usuarisAmbPermis(usuaris)
@@ -152,7 +152,7 @@ public class ComandaHelper {
 		tasca.setDataInici(DatesUtils.toOffsetDateTime(task.getStartTime()));
 		tasca.setDataFi(DatesUtils.toOffsetDateTime(task.getEndTime()));
 		tasca.setDataCaducitat(DatesUtils.toOffsetDateTime(task.getDueDate()));
-		tasca.setRedireccio(new URL(HELIUM_BASE_URL + "/v3/tasca/" + taskId));
+		tasca.setRedireccio(new URL(HELIUM_BASE_URL + "/tasca/" + taskId));
 		tasca.setGrup(null);
 		tasca.setResponsable(task.getActorId());
 		tasca.setUsuarisAmbPermis(usuaris);

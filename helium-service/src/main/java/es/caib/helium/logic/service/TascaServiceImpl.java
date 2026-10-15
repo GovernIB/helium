@@ -834,8 +834,7 @@ public class TascaServiceImpl implements TascaService {
 				true);
 		//	Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 
-		// TODO contemplar el cas que no faci falta que l'usuari
-		// estigui als pooledActors
+		// TODO contemplar el cas que no faci falta que l'usuari estigui als pooledActors
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Set<String> pooledActors = task.getPooledActors();
 		if (!pooledActors.contains(auth.getName())) {
@@ -873,18 +872,13 @@ public class TascaServiceImpl implements TascaService {
 		logger.debug("Alliberant tasca (id=" + taskInstanceId + ")");
 		// TODO contemplar el cas que no faci falta que l'usuari
 		// de la tasca sigui l'usuari actual
-		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
-				taskInstanceId,
-				false,
-				true);
-//		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
 				taskInstanceId);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
 				taskInstanceId,
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
-		task = workflowEngineApi.releaseTaskInstance(taskInstanceId);
+		WTaskInstance task = workflowEngineApi.releaseTaskInstance(taskInstanceId);
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskInstanceId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
@@ -925,11 +919,6 @@ public class TascaServiceImpl implements TascaService {
 					ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
 					documentCodi);
 		}
-
-//		documentHelper.esborrarDocument(
-//				taskInstanceId,
-//				task.getProcessInstanceId(),
-//				documentCodi);
 
 		expedientDocumentHelper.deleteDocument(
 			expedient.getId(),
@@ -1019,23 +1008,6 @@ public class TascaServiceImpl implements TascaService {
 					documentCodi);
 		}
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
-		/*
-		Long documentStoreId = documentHelper.crearActualitzarDocument(
-				taskInstanceId,
-				task.getProcessInstanceId(),
-				documentCodi,
-				documentData,
-				arxiuNom,
-				arxiuContingut,
-				arxiuContentType,
-				ambFirma,
-				firmaSeparada,
-				firmaContingut,
-				null,
-				null,
-				null,
-				null).getId();
-		 */
 		documentStore = expedientDocumentHelper.setDocument(
 											expedient.getId(),
 											task.getProcessInstanceId(),
@@ -1058,12 +1030,6 @@ public class TascaServiceImpl implements TascaService {
 
 		//Al actualitzar un document desde una tasca, s'ha de associar la tasca a la variable JBMP
 		//En cas de crear, no fa falta perque ja s'haurà assignat al metode DocumentHelperV3.postProcessarDocument
-//		if (documentStore!=null) {
-//			workflowEngineApi.setTaskInstanceVariable(
-//					taskInstanceId,
-//					documentStore.getCodi(),
-//					documentStore.getId());
-//		}
 		// Registra l'acció
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();

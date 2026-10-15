@@ -20,6 +20,7 @@ public class WProcessInstance {
 	private String parentProcessInstanceId;
 	private String rootProcessInstanceId;
 	private Date startTime;
+	private Date endTime;
 	private String description;
 	private boolean isSuspended;
 }

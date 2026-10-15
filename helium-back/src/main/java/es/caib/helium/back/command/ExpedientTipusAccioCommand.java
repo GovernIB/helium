@@ -61,7 +61,7 @@ public class ExpedientTipusAccioCommand {
 	private String handlerPredefinit;
 
 	// Dades del handler propi o predefinit
-	private Map<String, String> handlerDades = new HashMap<String, String>();
+	private Map<String, String> handlerDades;
 
 	// Tipus script
 	@Size(max = 1024, groups = {Creacio.class, Modificacio.class})

@@ -75,31 +75,11 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.common.ThreadLocalInfo;
-import es.caib.helium.persistence.entity.Accio;
-import es.caib.helium.persistence.entity.Alerta;
 import es.caib.helium.persistence.entity.Alerta.AlertaPrioritat;
-import es.caib.helium.persistence.entity.Anotacio;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentStore;
-import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.persistence.entity.Estat;
-import es.caib.helium.persistence.entity.EstatAccioEntrada;
-import es.caib.helium.persistence.entity.EstatAccioSortida;
-import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.Expedient.IniciadorTipus;
-import es.caib.helium.persistence.entity.ExpedientLog;
 import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogAccioTipus;
 import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogEstat;
 import es.caib.helium.persistence.entity.ExpedientLog.LogInfo;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.ExpedientTipusUnitatOrganitzativa;
-import es.caib.helium.persistence.entity.Interessat;
-import es.caib.helium.persistence.entity.Registre;
-import es.caib.helium.persistence.entity.SequenciaAny;
-import es.caib.helium.persistence.entity.SequenciaDefaultAny;
-import es.caib.helium.persistence.entity.UnitatOrganitzativa;
 import es.caib.helium.persistence.repository.AlertaRepository;
 import es.caib.helium.persistence.repository.AnotacioRepository;
 import es.caib.helium.persistence.repository.DefinicioProcesRepository;
@@ -842,14 +822,14 @@ public class ExpedientHelper {
 				ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR,
 				null);
 
-//		List<JbpmProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId());
-		String[] ids = null;//		String[] ids = new String[processInstancesTree.size()];
-//		int i = 0;
-//		for (JbpmProcessInstance pi: processInstancesTree)
-//			ids[i++] = pi.getId();
-
+		List<WProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId());
+		List<String> ids = new ArrayList<String>();
+		String[] subIds = processInstancesTree.stream().filter(pi -> pi.getParentProcessInstanceId() != null && pi.getEndTime() == null).map(WProcessInstance::getId).toArray(String[]::new);
+		String[] principalIds = processInstancesTree.stream().filter(pi -> pi.getParentProcessInstanceId() == null && pi.getEndTime() == null).map(WProcessInstance::getId).toArray(String[]::new);
+		ids.addAll(Arrays.asList(subIds));
+		ids.addAll(Arrays.asList(principalIds));
 		Date dataFinalitzacio = new Date();
-		workflowEngineApi.finalitzarExpedient(ids, dataFinalitzacio);
+		workflowEngineApi.finalitzarExpedient(ids.toArray(new String[0]), dataFinalitzacio);
 		expedient.setDataFi(dataFinalitzacio);
 
 		//tancam l'expedient de l'arxiu si escau
@@ -864,7 +844,7 @@ public class ExpedientHelper {
 
 	/**
 	 * Metode per tancar un expedient i firmar els documents
-	 * @param id
+	 * @param expedientId
 	 * @param firmaDocumentsServidor
 	 */
 	public void tancarExpedientArxiu(Long expedientId, boolean firmaDocumentsServidor) {
@@ -1678,42 +1658,42 @@ public class ExpedientHelper {
 	 */
 	private void verificarFinalitzacioProcessInstance(
 			String processInstanceId) {
-//		JbpmProcessInstance processInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
-//
-//		// Si el procés està finalitzat
-//		if (processInstance!=null && processInstance.getEnd() != null) {
-//			// Finalitzar terminis actius
-//			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(processInstance.getId())) {
-//				if (terminiIniciat.getDataInici() != null) {
-//					terminiIniciat.setDataCancelacio(new Date());
-//					long[] timerIds = terminiIniciat.getTimerIdsArray();
-//					for (int i = 0; i < timerIds.length; i++)
-//						workflowEngineApi.suspendTimer(
-//								timerIds[i],
-//								new Date(Long.MAX_VALUE));
-//				}
-//			}
-//			// Actualitzar data de fi de l'expedient
-//			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
-//			if (expedient != null) {
-//				expedient.setDataFi(processInstance.getEnd());
-//
-//				//Tancam expedient al arxiu si escau, firmant els documents sense firma amb firma servidor
-//				if (expedient.isArxiuActiu()) {
-//					try {
-//						tancarExpedientArxiu(expedient, true);
-//					} catch(Exception e) {
-//						expedient.setDataFi(null);
-//						alertaHelper.crearAlerta(
-//							expedient.getEntorn(),
-//							expedient,
-//							new Date(),
-//							null,
-//							"Error tancant expedient a Arxiu: " + e.getMessage());
-//					}
-//				}
-//			}
-//		}
+		WProcessInstance processInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
+
+		// Si el procés està finalitzat
+		if (processInstance!=null && processInstance.getEndTime() != null) {
+			// Finalitzar terminis actius
+			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(processInstance.getId())) {
+				if (terminiIniciat.getDataInici() != null) {
+					terminiIniciat.setDataCancelacio(new Date());
+					long[] timerIds = terminiIniciat.getTimerIdsArray();
+					for (int i = 0; i < timerIds.length; i++)
+						workflowEngineApi.suspendTimer(
+								timerIds[i],
+								new Date(Long.MAX_VALUE));
+				}
+			}
+			// Actualitzar data de fi de l'expedient
+			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+			if (expedient != null) {
+				expedient.setDataFi(processInstance.getEndTime());
+
+				//Tancam expedient al arxiu si escau, firmant els documents sense firma amb firma servidor
+				if (expedient.isArxiuActiu()) {
+					try {
+						tancarExpedientArxiu(expedient, true);
+					} catch(Exception e) {
+						expedient.setDataFi(null);
+						alertaHelper.crearAlerta(
+							expedient.getEntorn(),
+							expedient,
+							new Date(),
+							null,
+							"Error tancant expedient a Arxiu: " + e.getMessage());
+					}
+				}
+			}
+		}
 	}
 
 	/** Mètode per iniciar l'expedient en una nova transacció. */

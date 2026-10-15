@@ -429,20 +429,20 @@ public interface WorkflowEngineApi {
 	////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Obté la instància d0una tasca donat el seu codi
-	 *
-	 * @param taskId
-	 * @return
-	 */
-	public WTaskInstance getTaskById(String taskId); // Instancia de tasca
-
-	/**
 	 * Obté la llista de instàncies de tasca d'una instància de procés
 	 *
 	 * @param processInstanceId
 	 * @return
 	 */
 	public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId);
+
+	/**
+	 * Obté la instància d0una tasca donat el seu codi
+	 *
+	 * @param taskId
+	 * @return
+	 */
+	public WTaskInstance getTaskById(String taskId); // Instancia de tasca
 
 	/**
 	 * Obté l'identificador de la instància de tasca activa donat el seu token d'execució
@@ -781,10 +781,6 @@ public interface WorkflowEngineApi {
 	 */
 	public WProcessDefinition parse(String nomArxiu, byte[] contingut) throws Exception;
 
-	public void updateHandlers(long processDefinitionId, Map<String, byte[]> recursos);
-
-	public Set<String> getHandlerNames(String jbpmId);
-
 	public WProcessLog getProcessLogById(Long jbpmLogId);
 
 	public long addProcessInstanceMessageLog(String processInstanceId, String string);
@@ -793,7 +789,7 @@ public interface WorkflowEngineApi {
 
 	public Long addTaskInstanceMessageLog(String taskInstanceId, String messageLogPerTipus);
 
-	public List<WTaskInstance> findTaskInstancesForProcessInstance(String processInstanceId);
+	public List<WTaskInstance> findTaskInstancesForProcessInstance(String processInstanceId, boolean completed);
 
 	public List<Long> expedientFindByFiltre(Long entornId, String name,
 			List<Long> tipusPermesosIds, Map<Long, List<Long>> unitatsPerTipusComu, String titol, String numero,

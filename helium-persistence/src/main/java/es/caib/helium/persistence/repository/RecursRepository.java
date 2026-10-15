@@ -65,6 +65,8 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 
 	List<Recurs> findByExpedientTipusIdAndHandler(Long expedientTipusId, boolean handler);
 
+	List<Recurs> findByDefinicioProcesIdAndHandler(Long definicioProcesId, boolean handler);
+
 	@Query(
 		"FROM Recurs r " +
 		"WHERE " +
@@ -83,6 +85,14 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 			"WHERE " +
 			"    r.definicioProces.id = :definicioProcesId ")
 	Set<String> findNomByDefinicioProcesId(@Param("definicioProcesId") Long definicioProcesId);
+
+	@Query(
+		"SELECT r.nom " +
+			"FROM Recurs r " +
+			"WHERE " +
+			"   r.definicioProces.id = :definicioProcesId" +
+			"	AND r.handler = :isHandler ")
+	Set<String> findNomByDefinicioProcesIdAndHandler(@Param("definicioProcesId") Long definicioProcesId, @Param("isHandler") boolean isHandler);
 
 	@Query(
 		"SELECT r.nom " +

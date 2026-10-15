@@ -441,8 +441,10 @@ public class ExpedientDadaHelper {
 								Expedient.class);
 							return " expedient." + columnName + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? " ASC" : " DESC");
 						}
-						String camp = o.getCamp().replaceFirst("dadesExpedient\\.", "JSON_VALUE(d.DADES, '\\$\\.");
-						return camp.substring(0, camp.lastIndexOf(".valor")) + ".v') " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC");
+						String camp = "JSON_VALUE(d.DADES, '$." + o.getCamp().replaceFirst("dadesExpedient\\.", "");
+						int valorIndex = camp.lastIndexOf(".valor");
+						valorIndex = valorIndex > 0? valorIndex : camp.length();
+						return camp.substring(0, valorIndex) + ".v') " + (o.getDireccio() == PaginacioParamsDto.OrdreDireccioDto.ASCENDENT? "ASC" : "DESC");
 					})
 					.collect(Collectors.joining(", "))
 			);
@@ -640,7 +642,7 @@ public class ExpedientDadaHelper {
 			}
 		}
 		if (tipus == DadaTipusEnum.p) {
-			return BigDecimal.valueOf((Double) value);
+			return BigDecimal.valueOf(((Number) value).doubleValue());
 		}
 		return value;
 	}

@@ -48,7 +48,7 @@ import lombok.experimental.Delegate;
 public class ExpedientDocumentServiceBean extends AbstractServiceEjb<ExpedientDocumentService> implements ExpedientDocumentService {
 
 	@Delegate
-	ExpedientDocumentService delegateService;
+	private ExpedientDocumentService delegateService;
 
 	protected void setDelegateService(ExpedientDocumentService delegateService) {
 		this.delegateService = delegateService;

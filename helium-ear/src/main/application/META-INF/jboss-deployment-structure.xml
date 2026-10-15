@@ -2,6 +2,11 @@
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2"
                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<deployment>
+		<exclusions>
+			<!-- Use EAR bundled commons-io 2.11.0 (provides UnsynchronizedByteArrayInputStream since 2.7,
+			     required by tika-core 2.8.0) instead of old EAP 7.2 server module -->
+			<module name="org.apache.commons.io"/>
+		</exclusions>
 		<dependencies>
 			<module name="org.keycloak.keycloak-core" export="TRUE"/>
 			<module name="jdk.management" export="TRUE"/>

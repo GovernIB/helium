@@ -69,4 +69,6 @@ public interface ExpedientTascaRepository extends JpaRepository<ExpedientTasca, 
 		@Param("mostrarAssignadesGrup") boolean mostrarAssignadesGrup,
 		@Param("administrador") boolean administrador,
 		Pageable pageable);
+
+    void deleteByExpedientId(Long id);
 }

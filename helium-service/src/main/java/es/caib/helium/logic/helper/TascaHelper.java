@@ -389,7 +389,7 @@ public class TascaHelper {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesForProcessInstance(processInstanceId);
+		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesForProcessInstance(processInstanceId, false);
 		for (WTaskInstance task: tasks) {
 			if (!task.isCompleted()) {
 				ExpedientTascaDto tasca = toExpedientTascaDto(
@@ -427,7 +427,7 @@ public class TascaHelper {
 			boolean notCompleted,
 			boolean mostrarDeOtrosUsuarios) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesForProcessInstance(processInstanceId);
+		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesForProcessInstance(processInstanceId, completed);
 		for (WTaskInstance task: tasks) {
 			ExpedientTascaDto tasca = toExpedientTascaDto(
 					task,
@@ -742,7 +742,7 @@ public class TascaHelper {
 	public List<PersonaDto> findParticipants(Expedient expedient) {
 		List<PersonaDto> participants = new ArrayList<PersonaDto>();
 
-		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
+		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId(), false);
 		Set<String> codis = new HashSet<String>();
 		for (WTaskInstance task: tasks) {
 			if (task.getActorId() != null && ! codis.contains(task.getActorId())) {

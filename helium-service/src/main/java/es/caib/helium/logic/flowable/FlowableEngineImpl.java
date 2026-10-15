@@ -26,10 +26,12 @@ import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.TaskServiceImpl;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
+import org.flowable.engine.migration.ProcessInstanceMigrationValidationResult;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.service.impl.persistence.entity.TaskEntityImpl;
@@ -385,19 +387,31 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public void suspendProcessInstances(String[] processInstanceIds) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void resumeProcessInstances(String[] processInstanceIds) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void changeProcessInstanceVersion(String processInstanceId, int newVersion) {
-		// TODO Auto-generated method stub
-
+		HistoricProcessInstance hpi = processEngine.getHistoryService()
+			.createHistoricProcessInstanceQuery()
+			.processInstanceId(processInstanceId)
+			.singleResult();
+		ProcessInstanceMigrationValidationResult result = processEngine
+									.getProcessMigrationService()
+									.createProcessInstanceMigrationBuilder()
+									.migrateToProcessDefinition(hpi.getProcessDefinitionKey(), newVersion)
+									.validateMigration(processInstanceId);
+		if (result.isMigrationValid()) {
+			processEngine
+				.getProcessMigrationService()
+				.createProcessInstanceMigrationBuilder()
+				.migrateToProcessDefinition(hpi.getProcessDefinitionKey(), newVersion)
+				.migrate(processInstanceId);
+		}
 	}
 
 	@Override
@@ -452,35 +466,12 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WTaskInstance getTaskById(String taskId) {
-		TaskEntityImpl task = (TaskEntityImpl) this.processEngine
-							.getTaskService()
-								.createTaskQuery()
-									.taskId(taskId)
-									.includeIdentityLinks()
-									.singleResult();
-		if(task != null) {
-			if(task.getIdentityLinkCount() > 0 && task.getQueryIdentityLinks().isEmpty()) {
-				processEngine.getManagementService().executeCommand(commandContext -> {
-					task.setQueryIdentityLinks(null);
-					task.getIdentityLinks();
-					return null;
-				});
-			}
-
-			if(task.getIdentityLinkCount() > 0 && task.getQueryIdentityLinks().isEmpty()) {
-				task.setQueryIdentityLinks(null);
-				task.getIdentityLinks();
-			}
-			return toWTaskInstance(task);
-		}
-
-		HistoricTaskInstance htask = processEngine
-			.getHistoryService()
-			.createHistoricTaskInstanceQuery()
-			.taskId(taskId)
-			.includeIdentityLinks()
-			.singleResult();
-		return toWTaskInstance(htask);
+		return toWTaskInstance(processEngine
+				.getHistoryService()
+				.createHistoricTaskInstanceQuery()
+				.taskId(taskId)
+				.includeIdentityLinks()
+				.singleResult());
 	}
 
 	@Override
@@ -510,9 +501,21 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WTaskInstance releaseTaskInstance(String taskId) {
+
+		List<IdentityLink> il = processEngine
+			.getTaskService()
+			.getIdentityLinksForTask(taskId);
+//		if(il.size() == 1) {
+//			IdentityLink idLink = il.get(0);
+//			processEngine.getTaskService().deleteCandidateUser(taskId, idLink.getUserId());
+//			//processEngine.getTaskService().deleteUserIdentityLink(taskId, idLink.getUserId(), idLink.getType());
+//		}
 		processEngine
 			.getTaskService()
 			.unclaim(taskId);
+		processEngine
+			.getTaskService()
+			.setAssignee(taskId, null);
 		return getTaskById(taskId);
 	}
 
@@ -881,8 +884,32 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio) {
-		// TODO Auto-generated method stub
+		for(String processInstanceId : processInstanceIds) {
+			processEngine
+				.getRuntimeService()
+				.deleteProcessInstance(processInstanceId, "Closed manually");
+//			List<ProcessInstance> children = processEngine.getRuntimeService().createProcessInstanceQuery()
+//				.superProcessInstanceId(processInstanceId)
+//				.list();
+//
+//			if(!children.isEmpty()) {
+//				finalitzarExpedient(children.stream().map(Execution::getProcessInstanceId).toArray(String[]::new), dataFinalitzacio);
+//			}
 
+//			List<String> activeActivityIds = processEngine.getRuntimeService().getActiveActivityIds(processInstanceId);
+//			ProcessInstance pi = processEngine.getRuntimeService().createProcessInstanceQuery()
+//				.processInstanceId(processInstanceId)
+//				.singleResult();
+//			BpmnModel model = processEngine.getRepositoryService().getBpmnModel(pi.getProcessDefinitionId());
+//			List<EndEvent> endEvents = model.getMainProcess()
+//				.findFlowElementsOfType(EndEvent.class, false);
+//			String endEventId = endEvents.get(0).getId();
+//			processEngine.getRuntimeService().
+//				createChangeActivityStateBuilder()
+//				.processInstanceId(processInstanceId)
+//				.moveActivityIdsToSingleActivityId(activeActivityIds, endEventId)
+//				.changeState();
+		}
 	}
 
 	@Override
@@ -948,17 +975,6 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void updateHandlers(long processDefinitionId, Map<String, byte[]> recursos) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public Set<String> getHandlerNames(String jbpmId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public WProcessLog getProcessLogById(Long jbpmLogId) {
 		// TODO Auto-generated method stub
 		return null;
@@ -983,15 +999,30 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<WTaskInstance> findTaskInstancesForProcessInstance(String processInstanceId) {
+	public List<WTaskInstance> findTaskInstancesForProcessInstance(String processInstanceId, boolean completed) {
 		List<WTaskInstance> wTask = new ArrayList<>();
-		List<HistoricTaskInstance> htasks = processEngine
-							.getHistoryService()
-							.createHistoricTaskInstanceQuery()
-							.processInstanceId(processInstanceId)
-							.list();
-		for (HistoricTaskInstance task : htasks)
-			wTask.add(toWTaskInstance(task));
+		if(completed) {
+			List<HistoricTaskInstance> htasks = processEngine
+								.getHistoryService()
+								.createHistoricTaskInstanceQuery()
+								.includeIdentityLinks()
+								.processInstanceId(processInstanceId)
+								.list();
+			for (HistoricTaskInstance task : htasks)
+				wTask.add(toWTaskInstance(task));
+		} else {
+			List<Task> tasks = processEngine
+								.getTaskService()
+								.createTaskQuery()
+								.includeIdentityLinks()
+								.processInstanceId(processInstanceId)
+								.list();
+
+			for (Task task : tasks) {
+				task.getIdentityLinks();
+				wTask.add(toWTaskInstance(task));
+			}
+		}
 		return wTask;
 	}
 
@@ -1043,8 +1074,14 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public void deleteProcessInstanceTreeLogs(String processInstanceId) {
-		// TODO Auto-generated method stub
-
+//		ProcessInstance pi = processEngine
+//			.getRuntimeService()
+//			.createProcessInstanceQuery()
+//			.processInstanceId(processInstanceId)
+//			.singleResult();
+		processEngine
+			.getHistoryService()
+			.deleteHistoricProcessInstance(processInstanceId);
 	}
 
 	@Override
@@ -1333,6 +1370,14 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			wt.setActorId(t.getAssignee());
 			wt.setProcessInstanceId(t.getProcessInstanceId());
 			wt.setProcessDefinitionId(t.getProcessDefinitionId());
+
+			for (var identityLink : t.getIdentityLinks()) {
+				if (identityLink.getUserId() != null) {
+					wt.getPooledActors().add(identityLink.getUserId());
+				} else if (identityLink.getGroupId() != null) {
+					wt.getRols().add(identityLink.getGroupId());
+				}
+			}
 		}
 		return wt;
 	}

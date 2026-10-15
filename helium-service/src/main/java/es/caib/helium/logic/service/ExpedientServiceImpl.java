@@ -31,6 +31,7 @@ import javax.validation.ValidationException;
 
 import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import es.caib.helium.logic.helper.*;
+import es.caib.helium.persistence.repository.*;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,33 +150,6 @@ import es.caib.helium.persistence.entity.Registre;
 import es.caib.helium.persistence.entity.Termini;
 import es.caib.helium.persistence.entity.TerminiIniciat;
 import es.caib.helium.persistence.entity.UnitatOrganitzativa;
-import es.caib.helium.persistence.repository.AccioRepository;
-import es.caib.helium.persistence.repository.AlertaRepository;
-import es.caib.helium.persistence.repository.AnotacioEmailRepository;
-import es.caib.helium.persistence.repository.AnotacioRepository;
-import es.caib.helium.persistence.repository.CampRepository;
-import es.caib.helium.persistence.repository.ConsultaRepository;
-import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.persistence.repository.DocumentNotificacioRepository;
-import es.caib.helium.persistence.repository.DocumentRepository;
-import es.caib.helium.persistence.repository.DocumentStoreRepository;
-import es.caib.helium.persistence.repository.EnumeracioRepository;
-import es.caib.helium.persistence.repository.EstatAccioEntradaRepository;
-import es.caib.helium.persistence.repository.EstatAccioSortidaRepository;
-import es.caib.helium.persistence.repository.EstatRepository;
-import es.caib.helium.persistence.repository.ExecucioMassivaExpedientRepository;
-import es.caib.helium.persistence.repository.ExpedientHeliumRepository;
-import es.caib.helium.persistence.repository.ExpedientLoggerRepository;
-import es.caib.helium.persistence.repository.ExpedientRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRepository;
-import es.caib.helium.persistence.repository.ParametreRepository;
-import es.caib.helium.persistence.repository.PeticioPinbalRepository;
-import es.caib.helium.persistence.repository.PortasignaturesRepository;
-import es.caib.helium.persistence.repository.RegistreRepository;
-import es.caib.helium.persistence.repository.TerminiIniciatRepository;
-import es.caib.helium.persistence.repository.TerminiRepository;
-import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 import es.caib.pluginsib.arxiu.api.ContingutArxiu;
 import es.caib.pluginsib.arxiu.api.ExpedientMetadades;
 import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
@@ -225,6 +199,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private AnotacioRepository anotacioRepository;
 	@Resource
 	private PeticioPinbalRepository peticioPinbalRepository;
+	@Resource
+	private ExpedientTascaRepository expedientTascaRepository;
 
 	@Resource
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
@@ -744,6 +720,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 		expedientDadaHelper.deleteByExpedient(expedient.getId());
 		expedientDocumentHelper.deleteByExpedient(expedient.getId());
+		expedientTascaRepository.deleteByExpedientId(expedient.getId());
 		expedientRepository.delete(expedient);
 		if (expedient.getArxiuUuid() != null && pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {
 			try {
@@ -881,7 +858,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			MostrarAnulatsDto mostrarAnulats,
 			Set<Long> idsSeleccionats,
 			PaginacioParamsDto paginacioParams) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		logger.debug("Consulta general d'expedients paginada (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
@@ -913,37 +889,15 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				true);
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
-		Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
-		Permission[] permisosRequerits= new Permission[] {
-				ExtendedPermission.READ,
-				ExtendedPermission.ADMINISTRATION};
 		if (expedientTipusId != null) {
 			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 					expedientTipusId);
-
-			//Obté la llista de unitats organitzatives per les quals té permisos (també retornarà les uo filles)
-			if(expedientTipus.isProcedimentComu()) {
-				List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
-				unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList, permisosRequerits);
-			}
-
-		} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
-			if (expedientTipusDtoAccessibles != null && !expedientTipusDtoAccessibles.isEmpty()) {
-				List<Long> idsExpTipusAccessibles = new ArrayList<Long>();
-				for(ExpedientTipusDto expTipus: expedientTipusDtoAccessibles) {
-					idsExpTipusAccessibles.add(expTipus.getId());
-				}
-				List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList =
-						expedientTipusUnitatOrganitzativaRepository.findByExpedientTipus(idsExpTipusAccessibles);
-				unitatsPerTipusComu =
-						expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList, permisosRequerits);
-			}
 		}
 		// Comprova l'accés a l'estat
 		Estat estat = null;
 		if (estatId != null) {
 			estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
-					expedientTipus.getId(),
+					expedientTipusId,
 					estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
@@ -952,178 +906,55 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 		// Calcula la data fi pel filtre
 		dataInici2 = this.ajustaFinalDia(dataInici2);
-		// Calcula la data finalització fi pel filtre
-		dataFi2 = this.ajustaFinalDia(dataFi2);
 
 		// Obté la llista de tipus d'expedient permesos
-//		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		List<ExpedientTipus> tipusPermesos = expedientTipusHelper.findAmbPermisRead(entorn);
 
-		//Tenim en compte si es filtre per unitatOrganitzativa, es té en compte la llista de uo's permeses
-		Long unitatOrganitzativaId = null;
-		if(unitatOrganitzativaCodi!=null) {
-			UnitatOrganitzativa unitatOrg = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
-			unitatOrganitzativaId = unitatOrg!=null? unitatOrg.getId() : null;
-		}
+		PaginaDto<ExpedientDto> pagina = paginacioHelper.toPaginaDto(
+			expedientRepository.findByFiltreGeneralPaginat(
+				entorn,
+				tipusPermesos,
+				expedientTipus == null,
+				expedientTipus,
+				titol == null,
+				titol,
+				numero == null,
+				numero,
+				dataInici1 == null,
+				dataInici1,
+				dataInici2 == null,
+				dataInici2,
+				EstatTipusDto.INICIAT.equals(estatTipus),
+				EstatTipusDto.FINALITZAT.equals(estatTipus),
+				estat == null,
+				estat,
+				geoPosX == null,
+				geoPosX,
+				geoPosY == null,
+				geoPosY,
+				geoReferencia == null,
+				geoReferencia,
+				false,
+				null,
+				null,
+				null,
+				null,
+				null,
+				MostrarAnulatsDto.SI.equals(mostrarAnulats),
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
+				nomesErrors,
+				nomesErrorsArxiu,
+				nomesAlertes,
+				idsSeleccionats.isEmpty(),
+				idsSeleccionats,
+				paginacioHelper.toSpringDataPageable(paginacioParams)
+			),
+		ExpedientDto.class);
 
-		List<Long> expedientsIds;
-		/*
-		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
-		if(idsSeleccionats == null || idsSeleccionats.isEmpty()) {
-			// Executa la consulta amb paginació
-			expedientsIds = jbpmHelper.expedientFindByFiltre(
-					entornId,
-					auth.getName(),
-					tipusPermesosIds,
-					unitatsPerTipusComu,
-					titol,
-					numero,
-					unitatOrganitzativaId,
-					expedientTipusId,
-					dataInici1,
-					dataInici2,
-					dataFi1,
-					dataFi2,
-					estatId,
-					geoPosX,
-					geoPosY,
-					geoReferencia,
-					//TODO3: afegir el nou camp en la capa service
-					registreNumero,
-					EstatTipusDto.INICIAT.equals(estatTipus),
-					EstatTipusDto.FINALITZAT.equals(estatTipus),
-					MostrarAnulatsDto.SI.equals(mostrarAnulats),
-					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-					nomesAlertes,
-					nomesErrors,
-					nomesTasquesPersonals,
-					nomesTasquesGrup,
-					true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
-					usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
-					paginacioParams,
-					false,
-					nomesErrorsArxiu,
-					idsSeleccionats);
-			// Retorna la pàgina amb la resposta
-			*/
-			// TODO: Mostrar nomes els expedients que compleixen el filtre
-			//if (expedientsIds.size() > 0) {
-//			try {
-				return paginacioHelper.toPaginaDto(
-					expedientRepository.findByFiltreGeneralPaginat(
-						entorn,
-						tipusPermesos,
-						expedientTipus == null,
-						expedientTipus,
-						titol == null,
-						titol,
-						numero == null,
-						numero,
-						dataInici1 == null,
-						dataInici1,
-						dataInici2 == null,
-						dataInici2,
-						EstatTipusDto.INICIAT.equals(estatTipus),
-						EstatTipusDto.FINALITZAT.equals(estatTipus),
-						estat == null,
-						estat,
-						geoPosX == null,
-						geoPosX,
-						geoPosY == null,
-						geoPosY,
-						geoReferencia == null,
-						geoReferencia,
-						false,
-						null,
-						null,
-						null,
-						null,
-						null,
-						MostrarAnulatsDto.SI.equals(mostrarAnulats),
-						nomesTasquesPersonals,
-						nomesTasquesGrup,
-						nomesErrors,
-						nomesErrorsArxiu,
-						nomesAlertes,
-						idsSeleccionats.isEmpty(),
-						idsSeleccionats,
-						paginacioHelper.toSpringDataPageable(paginacioParams)
-					),
-					ExpedientDto.class);
-//			} catch(Exception e) {
-//				e.printStackTrace();
-//				throw e;
-//			}
-			//}
-//		} else {
-//
-//			expedientsIds = new ArrayList<Long>(0);
-//			//List<Expedient> expedientsList = new ArrayList<Expedient>();
-//
-//			for(List<Long> expIds : Iterables.partition(idsSeleccionats, 800)) {
-//
-//				paginacioParams.setPaginaTamany(idsSeleccionats.size());
-//
-//				List<Long> fiteredExpedientsIds = jbpmHelper.expedientFindByFiltre(
-//						entornId,
-//						auth.getName(),
-//						tipusPermesosIds,
-//						unitatsPerTipusComu,
-//						titol,
-//						numero,
-//						unitatOrganitzativaId,
-//						expedientTipusId,
-//						dataInici1,
-//						dataInici2,
-//						dataFi1,
-//						dataFi2,
-//						estatId,
-//						geoPosX,
-//						geoPosY,
-//						geoReferencia,
-//						//TODO3: afegir el nou camp en la capa service
-//						registreNumero,
-//						EstatTipusDto.INICIAT.equals(estatTipus),
-//						EstatTipusDto.FINALITZAT.equals(estatTipus),
-//						MostrarAnulatsDto.SI.equals(mostrarAnulats),
-//						MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-//						nomesAlertes,
-//						nomesErrors,
-//						nomesTasquesPersonals,
-//						nomesTasquesGrup,
-//						true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
-//						usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
-//						paginacioParams,
-//						false,
-//						nomesErrorsArxiu,
-//						Sets.newTreeSet(expIds));
-//
-//				expedientsIds.addAll(fiteredExpedientsIds);
-//
-//				// TODO: Mostrar nomes els expedients que compleixen el filtre
-//				expedients.addAll(
-//						conversioTipusHelper.convertirList(
-//								expedientRepository.findAll(),
-////								expedientRepository.findByIdIn(fiteredExpedientsIds),
-//								ExpedientDto.class));
-//			}
-//
-//			paginacioParams.setPaginaTamany(expedients.size());
-//		}
-
-		// Després de la consulta els expedients es retornen en ordre invers
-//		Collections.sort(expedients, new ExpedientDtoIdsComparator(expedientsIds));
-//
-//		if (expedients.size() > 0) {
-//			for(List<ExpedientDto> expedientsChunk : Iterables.partition(expedients, 800)) {
-//				expedientHelper.omplirPermisosExpedients(expedientsChunk);
-//				expedientHelper.trobarAlertesExpedients(expedientsChunk);
-//			}
-//		}
-//		return paginacioHelper.toPaginaDto(
-//				expedients,
-//				expedientsIds.size(),
-//				paginacioParams);
+		expedientHelper.omplirPermisosExpedients(pagina.getContingut());
+		expedientHelper.trobarAlertesExpedients(pagina.getContingut());
+		return pagina;
 	}
 
 	/** Ajusta el dia per a que estigui tot inclòs. Ajusta l'hora i els minuts fins al final del dia. */
@@ -1139,28 +970,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			ret = cal.getTime();
 		}
 		return ret;
-	}
-
-	/** Classe per poder comparar la posició dels expedients segons la llista d'identificadors ordenada
-	 * que es retorna de la consulta d'expedients paginada i ordenada. Segons la posició de l'identificador
-	 * a la llista retornada els expedients van en una o altra posició.
-	 */
-	public class ExpedientDtoIdsComparator implements Comparator<ExpedientDto> {
-
-		private List<Long> ids;
-
-		public ExpedientDtoIdsComparator(List<Long> ids){
-			this.ids = ids;
-		}
-
-		/** L'ordre dels expedients depén de la posició del seu ID després de la consulta. */
-		@Override
-		public int compare(ExpedientDto e1, ExpedientDto e2) {
-			Integer i1 = ids.indexOf(e1.getId());
-			Integer i2 = ids.indexOf(e2.getId());
-			return i1.compareTo(i2);
-		}
-
 	}
 
 	/**
@@ -1490,7 +1299,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					expedient.getProcessInstanceId(),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					documentStore.getCodi());
-			List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
+			List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId(), false);
 			for (WTaskInstance task: tasks) {
 				workflowEngineApi.deleteTaskInstanceVariable(
 						task.getId(),
@@ -2120,12 +1929,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			// Arriben amb el mateix ordre??
 			List<WProcessInstance> instanciesProces = workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId());
 			for (WProcessInstance instanciaProces: instanciesProces) {
-				DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(instanciaProces.getId().toString());
+				DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(instanciaProces.getId());
 				int versio = findVersioDefProcesActualitzar(subDefinicioProces, subProcesIds, instanciaProces.getProcessDefinitionName());
 				if (versio != -1 && versio != defprocAntiga.getVersio()) {
-					workflowEngineApi.changeProcessInstanceVersion(instanciaProces.getId().toString(), versio);
-					DefinicioProces defprocNova =  expedientHelper.findDefinicioProcesByProcessInstanceId(instanciaProces.getId().toString());
-					updateTerminis(instanciaProces.getId().toString(), defprocAntiga, defprocNova);
+					workflowEngineApi.changeProcessInstanceVersion(instanciaProces.getId(), versio);
+					DefinicioProces defprocNova =  expedientHelper.findDefinicioProcesByProcessInstanceId(instanciaProces.getId());
+					updateTerminis(instanciaProces.getId(), defprocAntiga, defprocNova);
 				}
 			}
 		}
