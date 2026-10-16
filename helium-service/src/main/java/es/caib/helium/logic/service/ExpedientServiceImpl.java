@@ -3306,12 +3306,21 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			", expedientTipusId = " + expedientTipusId +
 			", jbpmKey = " + jbpmKey + ")");
 		List<String> processInstancesIds = new ArrayList<String>();
-		for (WProcessInstance processInstance :
-			workflowEngineApi.findProcessInstancesWithProcessDefinitionNameEntornAndTipus(
-					jbpmKey,
-					entornId,
-					expedientTipusId))
-			processInstancesIds.add(processInstance.getId().toString());
+		
+		// Consulta totes les instàncies de procés per
+		for (WProcessInstance pi :
+			workflowEngineApi.findProcessInstancesWithProcessDefinitionName(
+					jbpmKey)) {
+			if (pi.getEndTime() == null) {
+				// Recupera l'expedient i si és del tipus que toca afegegeix l'id a la llista
+				Expedient expedient = expedientRepository.findByProcessInstanceId(pi.getRootProcessInstanceId());
+				if (expedient != null 
+						&& ((expedientTipusId != null && expedient.getTipus().getId() == expedientTipusId)
+								|| (entornId != null && expedient.getEntorn().getId() == entornId ))) {
+					processInstancesIds.add(pi.getId());
+				}
+			}
+		}
 		return processInstancesIds;
 	}
 

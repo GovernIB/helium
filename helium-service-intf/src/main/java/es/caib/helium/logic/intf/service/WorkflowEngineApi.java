@@ -226,25 +226,14 @@ public interface WorkflowEngineApi {
 	 */
 	public long countProcessInstancesWithProcessDefinitionId(String processDefinitionId);
 
-//	/**
-//	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom
-//	 *
-//	 * @param processName
-//	 * @return
-//	 */
-//	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName);
-
 	/**
-	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom i l'entorn Helium
+	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom
 	 *
 	 * @param processName
-	 * @param entornId
 	 * @return
 	 */
-	// Com a entornId podem utilitzar el tenantId de la instància de procés, o la categoria de la definició de procés
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(
-            String processName,
-            Long entornId);
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(
+            String processName);
 
 	/**
 	 * Obté les instàncies de procés del procés principal, i dels subprocessos donat l'identificador del procés principal
@@ -806,9 +795,6 @@ public interface WorkflowEngineApi {
 	public List<String> findRootProcessInstancesWithTasksCommand(String name, List<String> idsPI, boolean nomesMeves,
 			boolean nomesTasquesPersonals, boolean nomesTasquesGrup);
 
-	public WProcessInstance[] findProcessInstancesWithProcessDefinitionNameEntornAndTipus(String jbpmKey, Long entornId,
-			Long expedientTipusId);
-
 	public void describeTaskInstance(String id, String titol, Object descriptionWithFields);
 
 	public void resumeTimer(long timerId, Date dataFi);
@@ -847,4 +833,14 @@ public interface WorkflowEngineApi {
 	 */
 	public WProcessDefinition parseProcess(byte[] contingut);
 
+	/** Mètode per cercar la tasca en el procés i completar-la passant una llista de valors per la tasca.
+	 * 
+	 * @param processInstanceId
+	 * @param taskName
+	 * @param variables
+	 */
+	public void completeTask(
+			String processInstanceId, 
+			String taskName, 
+			Map<String, Object> variables);
 }

@@ -272,10 +272,17 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName,
-			Long entornId) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName) {
+		List<WProcessInstance> wPis = new ArrayList<>();
+		List<ProcessInstance> instancies = processEngine
+				.getRuntimeService()
+			    .createProcessInstanceQuery()
+			    .processDefinitionKey(processName)
+			    .list();
+		for (ProcessInstance pi : instancies) {
+			wPis.add(toWProcessInstance(pi));
+		}
+		return wPis;
 	}
 
 	@Override
@@ -1091,13 +1098,6 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		return null;
 	}
 
-	@Override
-	public WProcessInstance[] findProcessInstancesWithProcessDefinitionNameEntornAndTipus(String jbpmKey, Long entornId,
-			Long expedientTipusId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	/** Mètode per modificar la descripció d'una tasca. */
 	@Override
 	public void describeTaskInstance(String id, String titol, Object descriptionWithFields) {
@@ -1380,6 +1380,24 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			}
 		}
 		return wt;
+	}
+
+	@Override
+	public void completeTask(String processInstanceId, String taskName, Map<String, Object> variables) {
+		// Obté la tasca per nom
+		Task task = processEngine
+				.getTaskService()
+				.createTaskQuery()
+				.processInstanceId(processInstanceId)
+				.taskDefinitionKey(taskName)
+				.singleResult();
+		if (task != null) {
+			// Completa la tasca
+			processEngine
+				.getTaskService()
+				.complete(task.getId(), 
+						variables);		
+		}
 	}
 
 }

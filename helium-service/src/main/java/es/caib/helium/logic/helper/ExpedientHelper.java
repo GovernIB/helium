@@ -1974,6 +1974,13 @@ public class ExpedientHelper {
 						IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
 						definicioProces.getJbpmId(),
 						variables);
+				// Si la definició de procés té tasca inicial completa la primera tasca
+				if (definicioProces.isHasStartTask() && definicioProces.getStartTaskName() != null) {
+					workflowEngineApi.completeTask(
+							processInstance.getId(),
+							definicioProces.getStartTaskName(), 
+							variables);
+				}
 				expedient.setProcessInstanceId(processInstance.getId());
 			}
 
