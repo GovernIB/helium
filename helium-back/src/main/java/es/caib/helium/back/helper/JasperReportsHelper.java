@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.jasperreports.engine.export.*;
 import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.Timer;
@@ -24,12 +25,6 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.export.JRCsvExporter;
-import net.sf.jasperreports.engine.export.JRHtmlExporter;
-import net.sf.jasperreports.engine.export.JRRtfExporter;
-import net.sf.jasperreports.engine.export.JRXlsExporter;
-import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
-import net.sf.jasperreports.engine.export.JRXmlExporter;
 import net.sf.jasperreports.engine.export.oasis.JROdtExporter;
 import net.sf.jasperreports.engine.fill.AsynchronousFillHandle;
 import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
@@ -203,7 +198,7 @@ public class JasperReportsHelper {
 			response.setHeader("Content-Disposition","attachment; filename=\"informe.html\"");
 			response.setContentType("text/html");
 			File htmlFile = new File("filename=\"informe.html\"");
-			final JRHtmlExporter loHtmlExp = new JRHtmlExporter();
+			final HtmlExporter loHtmlExp = new HtmlExporter();
 			loHtmlExp.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
 			loHtmlExp.setParameter(JRExporterParameter.OUTPUT_STREAM, response.getOutputStream());
 			loHtmlExp.setParameter(JRExporterParameter.CHARACTER_ENCODING, "UTF-8");

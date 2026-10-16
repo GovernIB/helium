@@ -32,6 +32,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -543,7 +544,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		wb = new XSSFWorkbook();
 
 		bold = wb.createFont();
-		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setBold(true);
 		bold.setColor(IndexedColors.WHITE.getIndex());
 
 		greyFont = wb.createFont();
@@ -560,7 +561,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		cellGreyStyle.setFont(greyFont);
 
 		headerStyle = wb.createCellStyle();
-		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillPattern(FillPatternType.FINE_DOTS);
 		headerStyle.setFillBackgroundColor(IndexedColors.GREY_80_PERCENT.getIndex());
 		headerStyle.setFont(bold);
 

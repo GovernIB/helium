@@ -337,7 +337,7 @@ public class NotificacionsController extends BaseExpedientController {
 
 			//Estil per Capçaleres
 			Font headerFont = workbook.createFont();
-			headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD); // Apache POI 3.7: setBoldweight
+			headerFont.setBold(true); // Apache POI 3.7: setBoldweight
 
 			CellStyle headerStyle = workbook.createCellStyle();
 			headerStyle.setFont(headerFont);

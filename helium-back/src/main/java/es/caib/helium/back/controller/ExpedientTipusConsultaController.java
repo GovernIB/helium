@@ -365,7 +365,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 								"\n<property name=\"ireport.x\" value=\"0\"/>" +
 								"\n<property name=\"ireport.y\" value=\"0\"/>";
 			for (CampDto camp: camps) {
-				jasperReport = jasperReport + "\n<field name=\"" + camp.getCodiPerInforme() +"\" class=\"es.caib.helium.commons.dto.FieldValue\"/>";
+				jasperReport = jasperReport + "\n<field name=\"" + camp.getCodi() +"\" class=\"es.caib.helium.commons.dto.FieldValue\"/>";
 			}
 			jasperReport = jasperReport +
 				"\n<title>" +

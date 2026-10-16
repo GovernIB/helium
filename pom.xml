@@ -18,7 +18,7 @@
 		<orika.starter.version>2.4.6</orika.starter.version>
 		<sitemesh.version>2.5.0</sitemesh.version>
 		<commons-lang.version>2.6</commons-lang.version>
-		<commons-io.version>2.11.0</commons-io.version>
+		<commons-io.version>2.14.0</commons-io.version>
 		<commons-fileupload.version>1.5</commons-fileupload.version>
 		<cxf.version>2.2.10</cxf.version>
 		<lucene.version>2.9.4</lucene.version>

@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -1049,7 +1050,7 @@ public class AnotacioController extends BaseExpedientController {
 		wb = new XSSFWorkbook();
 
 		bold = wb.createFont();
-		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setBold(true);
 		bold.setColor(IndexedColors.WHITE.getIndex());
 
 		greyFont = wb.createFont();
@@ -1154,11 +1155,11 @@ public class AnotacioController extends BaseExpedientController {
 			HttpServletRequest request) {
 		XSSFFont bold;
 		bold = wb.createFont();
-		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setBold(true);
 		bold.setColor(IndexedColors.WHITE.getIndex());
 		XSSFCellStyle headerStyle;
 		headerStyle = wb.createCellStyle();
-		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillPattern(FillPatternType.FINE_DOTS);
 		headerStyle.setFillBackgroundColor(IndexedColors.GREY_80_PERCENT.getIndex());
 		headerStyle.setFont(bold);
 		int rowNum = 0;

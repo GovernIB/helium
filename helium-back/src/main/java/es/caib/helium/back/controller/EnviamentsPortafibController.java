@@ -12,6 +12,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -199,7 +200,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 
 	        //Estil per Capçaleres
 	        Font headerFont = workbook.createFont();
-	        headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD); // Apache POI 3.7: setBoldweight
+	        headerFont.setBold(true);
 
 	        CellStyle headerStyle = workbook.createCellStyle();
 	        headerStyle.setFont(headerFont);
@@ -271,7 +272,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 
 		        if (documentUrl != null && !documentUrl.isEmpty()) {
 		            CreationHelper createHelper = workbook.getCreationHelper();
-		            Hyperlink link = createHelper.createHyperlink(Hyperlink.LINK_URL);
+		            Hyperlink link = createHelper.createHyperlink(HyperlinkType.URL);
 		            link.setAddress(documentUrl);
 
 		            linkCell.setHyperlink(link);
@@ -279,7 +280,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 		            CellStyle hlinkStyle = workbook.createCellStyle();
 		            Font hlinkFont = workbook.createFont();
 		            hlinkFont.setUnderline(Font.U_SINGLE);
-		            hlinkFont.setColor(HSSFColor.BLUE.index);
+		            hlinkFont.setColor(HSSFColor.HSSFColorPredefined.BLUE.getIndex());
 		            hlinkStyle.setFont(hlinkFont);
 		            linkCell.setCellStyle(hlinkStyle);
 		        }

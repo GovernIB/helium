@@ -21,10 +21,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.DataFormat;
-import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -464,11 +461,11 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	private int createHeader(XSSFSheet sheet, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, String sheetName) {
 
 		XSSFFont bold = sheet.getWorkbook().createFont();
-		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setBold(true);
 		bold.setColor(IndexedColors.WHITE.getIndex());
 
 		XSSFCellStyle headerStyle = sheet.getWorkbook().createCellStyle();
-		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillPattern(FillPatternType.FINE_DOTS);
 		headerStyle.setFillBackgroundColor(IndexedColors.GREY_80_PERCENT.getIndex());
 		headerStyle.setFont(bold);
 
@@ -520,7 +517,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		if (val!=null && val.getValor()!=null) {
 			try {
 				if (val.getValor() instanceof BigDecimal) {
-					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+					cell = xlsRow.createCell(colNum++, CellType.NUMERIC);
 					BigDecimal valorConvertit = (BigDecimal)e.getValue().getValor();
 					String valor_s = new DecimalFormat("#,##0.00").format(valorConvertit);
 					valor_s = valor_s.replace(".", "").replace(",", ".");
@@ -531,22 +528,22 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						cell.setCellValue("");
 					}
 				} else if (val.getValor() instanceof Integer) {
-					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+					cell = xlsRow.createCell(colNum++, CellType.NUMERIC);
 					Integer valorConvertit = (Integer)e.getValue().getValor();
 					cell.setCellValue(valorConvertit);
 					cell.setCellStyle(iStyle);
 				} else if (val.getValor() instanceof Float) {
-					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+					cell = xlsRow.createCell(colNum++, CellType.NUMERIC);
 					Float valorConvertit = (Float)e.getValue().getValor();
 					cell.setCellValue(valorConvertit);
 					cell.setCellStyle(dStyle);
 				} else if (val.getValor() instanceof Long) {
-					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+					cell = xlsRow.createCell(colNum++, CellType.NUMERIC);
 					Long valorConvertit = (Long)e.getValue().getValor();
 					cell.setCellValue(valorConvertit);
 					cell.setCellStyle(iStyle);
 				} else if (val.getValor() instanceof Double) {
-					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+					cell = xlsRow.createCell(colNum++, CellType.NUMERIC);
 					Double valorConvertit = (Double)e.getValue().getValor();
 					cell.setCellValue(valorConvertit);
 				} else if (val.getValor() instanceof Date) {
@@ -555,7 +552,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 					cell.setCellValue(valorConvertit);
 					cell.setCellStyle(cellDateStyle);
 				} else {
-					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_STRING);
+					cell = xlsRow.createCell(colNum++, CellType.STRING);
 					cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));
 				}
 			} catch (Exception ex) {

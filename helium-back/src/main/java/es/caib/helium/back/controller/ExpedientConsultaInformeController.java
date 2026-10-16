@@ -10,7 +10,9 @@ import net.sf.jasperreports.engine.JRException;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
@@ -342,7 +344,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		wb = new XSSFWorkbook();
 
 		bold = wb.createFont();
-		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setBold(true);
 		bold.setColor(IndexedColors.WHITE.getIndex());
 
 		greyFont = wb.createFont();
@@ -435,7 +437,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 						DadaIndexadaDto dada = dades.get(camp.getVarCodi());
 						if (camp.getCampTipus().equals(CampTipusDto.INTEGER) || camp.getCampTipus().equals(CampTipusDto.FLOAT) || camp.getCampTipus().equals(CampTipusDto.PRICE) ) {
 							cell = xlsRow.createCell(colNum++);
-							cell.setCellType(XSSFCell.CELL_TYPE_NUMERIC);
+							cell.setCellType(CellType.NUMERIC);
 							if(dada.getValor() != null) {
 								switch (camp.getCampTipus()) {
 									case INTEGER:
@@ -522,11 +524,11 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		Map<String, List<String>> registresHeaders) {
 		XSSFFont bold;
 		bold = wb.createFont();
-		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setBold(true);
 		bold.setColor(IndexedColors.WHITE.getIndex());
 		XSSFCellStyle headerStyle;
 		headerStyle = wb.createCellStyle();
-		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillPattern(FillPatternType.FINE_DOTS);
 		headerStyle.setFillBackgroundColor(IndexedColors.GREY_80_PERCENT.getIndex());
 		headerStyle.setFont(bold);
 		int rowNum = 0;

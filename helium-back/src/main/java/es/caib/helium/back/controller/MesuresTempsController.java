@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -39,7 +40,7 @@ import es.caib.helium.logic.intf.service.AdminService;
 
 /**
  * Controlador per a la pàgina inicial (index).
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -60,14 +61,14 @@ public class MesuresTempsController extends BaseController {
 	private XSSFCellStyle greyStyle;
 	private XSSFCellStyle dGreyStyle;
 	private XSSFFont greyFont;
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,
 			Model model) {
 		return "mesuresTemps";
 	}
-		
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/all", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
@@ -75,12 +76,12 @@ public class MesuresTempsController extends BaseController {
 		DecimalFormat df = new DecimalFormat( "####0.00" );
 		DecimalFormat df2 = new DecimalFormat( "####0.000" );
 		Map mjson = new LinkedHashMap();
-		
+
 		List<MesuraTemporalDto> mesures = adminService.mesuraTemporalFindByFamilia(familia, false);
 		Set<String> llistatFamilies = new HashSet<String>();
 		llistatFamilies.addAll(adminService.mesuraTemporalFindFamiliesAll());
-		
-		if (adminService.isStatisticActive()) {			
+
+		if (adminService.isStatisticActive()) {
 			List<MesuraTemporalDto> listStatistics = adminService.getHibernateStatistics(familia, false);
 			if (!listStatistics.isEmpty()) {
 				mesures.addAll(listStatistics);
@@ -88,12 +89,12 @@ public class MesuresTempsController extends BaseController {
 			llistatFamilies.add("sql_helium");
 			llistatFamilies.add("sql_jbpm");
 		}
-		
+
 		Map mfamilies = new LinkedHashMap();
 		for (String fam: llistatFamilies) {
 			mfamilies.put(fam, getMessage(request, "temps.familia." + fam));
 		}
-		
+
 		if (mesures.isEmpty()) {
 			mjson.put("familia", mfamilies);
 		} else {
@@ -108,7 +109,7 @@ public class MesuresTempsController extends BaseController {
 			JSONArray lnumMesures = new JSONArray();
 			JSONArray lperiodes = new JSONArray();
 			Map mseries = new LinkedHashMap();
-			
+
 			for (MesuraTemporalDto mesura: mesures) {
 				lclaus.add(mesura.getClau());
 				ltipus.add(mesura.getTipusExpedient());
@@ -120,7 +121,7 @@ public class MesuresTempsController extends BaseController {
 				lmaximes.add(mesura.getMaxima() + " ms");
 				lnumMesures.add(mesura.getNumMesures());
 				lperiodes.add(df2.format(mesura.getPeriode()) + " ex/m");
-				
+
 				JSONArray lseries = new JSONArray();
 				for (IntervalEventDto event: mesura.getEvents()) {
 					List  levents = new LinkedList();
@@ -133,7 +134,7 @@ public class MesuresTempsController extends BaseController {
 				mserie.put("data", lseries);
 				mseries.put(mesura.getClau(), mserie);
 			}
-			
+
 			mjson.put("clau", lclaus);
 			mjson.put("tipus", ltipus);
 			mjson.put("tasca", ltasca);
@@ -147,21 +148,21 @@ public class MesuresTempsController extends BaseController {
 			mjson.put("familia", mfamilies);
 			mjson.put("series", mseries);
 		}
-		
+
 		String json = JSONValue.toJSONString(mjson);
 		return json;
 	}
 
 	@RequestMapping(value = "export", method = RequestMethod.GET)
 	public void mesuresTempsExport(HttpServletRequest request, HttpServletResponse response) {
-		
+
 		logger.debug("[TEMPS] >>>>> Inici generació de document Excel amb els temps d'execució.");
-		
+
 		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Helium... ");
 		List<MesuraTemporalDto> mesures = adminService.mesuraTemporalFindByFamilia(null, true);
 		int numMesures = mesures.size();
 		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Helium... " + numMesures + " mesures.");
-		
+
 		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Hibernate...");
 		mesures.addAll(adminService.getHibernateStatistics("", true));
 		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Hibernate..." + (mesures.size() - numMesures) + " mesures.");
@@ -169,7 +170,7 @@ public class MesuresTempsController extends BaseController {
 		wb = new XSSFWorkbook();
 
 		bold = wb.createFont();
-		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setBold(true);
 		bold.setColor(IndexedColors.WHITE.getIndex());
 		greyFont = wb.createFont();
 		greyFont.setColor(IndexedColors.GREY_50_PERCENT.getIndex());
@@ -183,7 +184,7 @@ public class MesuresTempsController extends BaseController {
 		cellGreyStyle.setFont(greyFont);
 
 		headerStyle = wb.createCellStyle();
-		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillPattern(FillPatternType.FINE_DOTS);
 		headerStyle.setFillBackgroundColor(IndexedColors.BLUE_GREY.getIndex());
 		headerStyle.setFont(bold);
 
@@ -324,7 +325,7 @@ public class MesuresTempsController extends BaseController {
 				logger.error("Mesura de temps: No s'ha pogut crear la línia: " + mesura.getNom(), e);
 			}
 		}
-		
+
 		logger.debug("OK");
 
 		// PER TIPUS EXPEDIENT
@@ -394,7 +395,7 @@ public class MesuresTempsController extends BaseController {
 		}
 
 		logger.debug("OK");
-		
+
 		// PER TASCA
 		List<MesuraTemporalDto> mesuresTasca = adminService.mesuraTemporalFindByTasca();
 		sheet = wb.createSheet("Mesures Tasca");
@@ -460,11 +461,11 @@ public class MesuresTempsController extends BaseController {
 				logger.error("Mesura de temps: No s'ha pogut crear la línia de tasca: " + mesura.getNom(), e);
 			}
 		}
-		
+
 		logger.debug("OK");
 		logger.debug("[TEMPS] >>>>> Finalitzada generació de document Excel amb els temps d'execució.");
 
-		try {   
+		try {
 			response.setHeader("Content-disposition", "attachment; filename=mesuresTemps.xls");
 			wb.write( response.getOutputStream() );
 		} catch (Exception e) {
@@ -511,6 +512,6 @@ public class MesuresTempsController extends BaseController {
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(request, "temps.pes"))));
 		cell.setCellStyle(headerStyle);
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(MesuresTempsController.class);
 }

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -53,7 +54,7 @@ import es.caib.helium.logic.intf.service.ExpedientTipusService;
 
 /**
  * Controlador per al manteniment d'entorns.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller(value = "entornEstadisticaControllerV3")
@@ -66,13 +67,13 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	protected DissenyService dissenyService;
 	@Autowired
 	private EntornService entornService;
-	
+
 	private LinkedHashMap<String, Object> estadisticaPerEntorn = new LinkedHashMap<String, Object>();
 	private LinkedHashMap<EntornDto, List<ExpedientTipusDto>> expTipusAgrupatsPerEntornTableData =  new LinkedHashMap<EntornDto, List<ExpedientTipusDto>>();
 
 
 	/** Resposta GET i POST de la pàgina i formulari d'estadístiques.
-	 * 
+	 *
 	 * @param request
 	 * @param model
 	 * @return Retorna com si fos una crida post de consulta.
@@ -83,12 +84,12 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			ExpedientTipusEstadisticaCommand filtreCommand,
 			@RequestParam(value = "accio", required = false) String accio,
 			Model model) {
-		
+
 		if (accio != null && "netejar".equals(accio))
 			filtreCommand = new ExpedientTipusEstadisticaCommand();
-		
+
 		// Torna a omplir el model
-		model.addAttribute("expedientTipusEstadisticaCommand", filtreCommand);		
+		model.addAttribute("expedientTipusEstadisticaCommand", filtreCommand);
 		// Valida l'accés a l'entorn
 		Boolean potAdministrarEntorn = SessionHelper.getSessionManager(request).getPotAdministrarEntorn();
 		if (potAdministrarEntorn != null && !potAdministrarEntorn) {
@@ -103,9 +104,9 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		// Afegeix els diferents entorns
 		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
 		List<EntornDto> entorns = (persona != null && persona.isAdmin())?entornService.findActiusAll():entornService.findActiusAmbPermisAdmin();
-		
+
 		Collections.sort(
-				entorns, 
+				entorns,
 				new Comparator<EntornDto>() {
 					public int compare(EntornDto e1, EntornDto e2) {
 						int order = e1.getNom().compareTo(e2.getNom());
@@ -114,11 +115,11 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 				}
 			);
 		model.addAttribute("entorns",entorns);
-		
+
 		ExpedientTipusDto expedientTipusSeleccionat=null;
 		if(filtreCommand.getExpedientTipusId()!=null) {
 			expedientTipusSeleccionat= expedientTipusService.findAmbId(filtreCommand.getExpedientTipusId());
-		}		
+		}
 		LinkedHashMap<EntornDto, List<ExpedientTipusDto>> expTipusAgrupatsPerEntorn = new LinkedHashMap<EntornDto, List<ExpedientTipusDto>>();
 		for(EntornDto entorn: entorns) {
 				expTipusAgrupatsPerEntorn.put(entorn,  expedientTipusService.findAmbEntorn(entorn.getId(),
@@ -135,11 +136,11 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		    	}
 		    });
 		}
-		model.addAttribute("expTipusAgrupatsPerEntorn", expTipusAgrupatsPerEntorn);	
+		model.addAttribute("expTipusAgrupatsPerEntorn", expTipusAgrupatsPerEntorn);
 		// Estats
 		model.addAttribute("estats", this.getEstatsModel(request, filtreCommand.getExpedientTipusId()));
 
-		
+
 		Boolean anulats = null;
 		if (filtreCommand.getMostrarAnulats() != null) {
 			if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NOMES_ANULATS))
@@ -147,11 +148,11 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			else if(filtreCommand.getMostrarAnulats().equals(MostrarAnulatsDto.NO))
 				anulats = false;
 		}
-		
+
 		if(persona == null || !persona.isAdmin()) {
 			filtreCommand.setEntornId(SessionHelper.getSessionManager(request).getEntornActual().getId());
 		}
-		
+
 		// Filtra els entorns
 		List<EntornDto> entornsFiltre = new ArrayList<EntornDto>();
 		if (filtreCommand.getEntornId() != null || expedientTipusSeleccionat!=null) {
@@ -167,11 +168,11 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		} else {
 			entornsFiltre.addAll(entorns);
 		}
-		
+
 		//Reiniciem variables locals
 		estadisticaPerEntorn = new LinkedHashMap<String, Object>();
 		expTipusAgrupatsPerEntornTableData =  new LinkedHashMap<EntornDto, List<ExpedientTipusDto>>();
-		
+
 		for(EntornDto entornFiltre: entornsFiltre) {
 			for(EntornDto entorn: expTipusAgrupatsPerEntorn.keySet()) {
 				if(entorn.getId().equals(entornFiltre.getId())) {
@@ -187,27 +188,27 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		// Calcula les estadístiques per entorn
 		for(EntornDto entorn: entornsFiltre) {
 			List<ExpedientTipusEstadisticaDto> et = expedientTipusService.findEstadisticaByFiltre(
-					filtreCommand.getAnyInicial(), 
-					filtreCommand.getAnyFinal(), 
-					entorn.getId(), 
-					filtreCommand.getExpedientTipusId(), 
-					anulats, 
-					filtreCommand.getNumero(), 
-					filtreCommand.getTitol(), 
-					this.getEstatTipus(filtreCommand.getEstat()), 
+					filtreCommand.getAnyInicial(),
+					filtreCommand.getAnyFinal(),
+					entorn.getId(),
+					filtreCommand.getExpedientTipusId(),
+					anulats,
+					filtreCommand.getNumero(),
+					filtreCommand.getTitol(),
+					this.getEstatTipus(filtreCommand.getEstat()),
 					this.getEstatId(filtreCommand.getEstat()),
 					filtreCommand.getAturat(),
 					(persona != null && persona.isAdmin())? false : true);
 				Map<String, Object> estadistica = this.calcEstadistiques(et);
 				estadisticaPerEntorn.put(entorn.getCodi(), estadistica);
 		}
-		model.addAttribute("estadisticaPerEntorn", estadisticaPerEntorn);		
-		
+		model.addAttribute("estadisticaPerEntorn", estadisticaPerEntorn);
+
 		return "estadisticaEntorns";
 	}
-	
+
 	/** Obté la llista de parelles codi valor pel model d'estats amb l'estat inicialitzat i finalitzat
-	 * 
+	 *
 	 * @param request Petició per saber l'idioma dels missatges.
 	 * @param expedientTipusId
 	 * @return
@@ -218,8 +219,8 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		estats.add(new ParellaCodiValorDto(EstatTipusDto.INICIAT.toString(), getMessage(
 								request,
 								"expedient.consulta.iniciat")));
-		if (expedientTipusId != null 
-				&& expedientTipusId > 0) {		
+		if (expedientTipusId != null
+				&& expedientTipusId > 0) {
 			// Estats tipus d'expedient
 			for(EstatDto e : expedientTipusService.estatFindAll(expedientTipusId, true)){
 				estats.add(new ParellaCodiValorDto(String.valueOf(e.getId()), e.getNom()));
@@ -231,9 +232,9 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 				"expedient.consulta.finalitzat")));
 		return estats;
 	}
-	
+
 	/** Obté la llista de parelles codi valor pel model d'estats amb l'estat inicialitzat i finalitzat
-	 * 
+	 *
 	 * @param request Petició per saber l'idioma dels missatges.
 	 * @param expedientTipusId
 	 * @return
@@ -249,7 +250,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		}
 		return entornSelValor;
 	}
-	
+
 	private void afegirParellesEntornTipusExp(long entornId, List<ParellaCodiValorDto> entornSelValor) {
 		EntornDto entornSeleccionat = entornService.findOne(entornId);
 		entornSelValor.add(new ParellaCodiValorDto(entornSeleccionat.getCodi(), entornSeleccionat.getNom()));
@@ -262,7 +263,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	}
 
 	/** Mètode per consultar els estats per tipus d'expedient quan canviï la selecció del tipus d'expedient.
-	 * 
+	 *
 	 * @param request
 	 * @param expedientTipusId
 	 * @return
@@ -274,9 +275,9 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			@PathVariable Long expedientTipusId) {
 		return this.getEstatsModel(request, expedientTipusId);
 	}
-	
+
 	/** Mètode per consultar els expedientsTipus per entorn quan canviï la selecció de l'entorn.
-	 * 
+	 *
 	 * @param request
 	 * @param entornId
 	 * @return
@@ -291,7 +292,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 
 
 	/** Si estat és un identificador llavors retorna tipus CUSTOM, si no el corresponent a INICIAT o FINALITZAT.
-	 * 
+	 *
 	 * @param estat Conté el text del tipus o l'id.
 	 * @return
 	 */
@@ -307,7 +308,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	}
 
 	/** Si estat conté un identificador llavors el retorna, si no null.
-	 * 
+	 *
 	 * @param estat
 	 * @return
 	 */
@@ -322,7 +323,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		return estatId;
 	}
 
-	
+
 	@RequestMapping(value = "excel", method = RequestMethod.POST)
 	public void excel(
 			HttpServletRequest request,
@@ -330,21 +331,21 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			ExpedientTipusEstadisticaCommand filtreCommand,
 			BindingResult bindingResult,
 			Model model) {
-		
+
 		generarExcel(request, response, estadisticaPerEntorn, expTipusAgrupatsPerEntornTableData);
 	}
-	
+
 	/** Calcula les estadístiques i posa les dades en diferents entrades en un Map<String, Object>
-	 * 
+	 *
 	 * @param et Dades per calcular les estadístiques per entorn.
 	 * @return
 	 */
 	private Map<String, Object> calcEstadistiques(List<ExpedientTipusEstadisticaDto> et) {
 
 		Map<String, Object> estadistica = new HashMap<String, Object>();
-		
+
 		TreeSet<String> anys = new TreeSet<String>();
-		Map<String, String> titols = new HashMap<String, String>();  
+		Map<String, String> titols = new HashMap<String, String>();
 		Map<String, Map<String, Object>> ete = new TreeMap<String, Map<String, Object>>();
 		Map<String, Long> totalTipus = new  HashMap<String, Long>();
 		for(ExpedientTipusEstadisticaDto element : et) {
@@ -360,10 +361,10 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 				}else {
 					totalTipus.put(nom, totalTipus.get(nom) + element.getN());
 				}
-				
+
 				ete.get(nom).put(element.getAnyInici() != null ? element.getAnyInici() : "", element.getN());
 		}
-		
+
 		Map<String, Object> totalAny =  totalPerAny(ete);
 		estadistica =  new HashMap<String, Object>();
 		estadistica.put("tableData", ete);
@@ -378,7 +379,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		Map<String, Object> totalAny = new HashMap<String, Object>();
 		for(Map.Entry<String, Map<String, Object>> entry : ete.entrySet()) {
 			for(Map.Entry<String, Object> any : entry.getValue().entrySet()) {
-				
+
 				if(!totalAny.containsKey(any.getKey())) {
 					totalAny.put(any.getKey(), any.getValue());
 				}else {
@@ -386,17 +387,17 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 				}
 			}
 		}
-		
+
 		return totalAny;
 	}
-	
+
 	private void generarExcel(
 			HttpServletRequest request,
 			HttpServletResponse response,
-			LinkedHashMap<String, Object> estadistiLinkedHashMap, 
+			LinkedHashMap<String, Object> estadistiLinkedHashMap,
 			LinkedHashMap<EntornDto, List<ExpedientTipusDto>> expTipusAgrupatsPerEntornTableData
 			) {
-		
+
 		XSSFWorkbook wb;
 		XSSFCellStyle cellStyle;
 		XSSFCellStyle dStyle;
@@ -406,50 +407,50 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		XSSFCellStyle dGreyStyle;
 		XSSFFont greyFont;
 		wb = new XSSFWorkbook();
-	
+
 		bold = wb.createFont();
-		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setBold(true);
 		bold.setColor(IndexedColors.WHITE.getIndex());
-		
+
 		greyFont = wb.createFont();
 		greyFont.setColor(IndexedColors.GREY_25_PERCENT.getIndex());
 		greyFont.setCharSet(XSSFFont.ANSI_CHARSET);
-		
+
 		cellStyle = wb.createCellStyle();
 		cellStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
 		cellStyle.setWrapText(true);
-		
+
 		cellGreyStyle = wb.createCellStyle();
 		cellGreyStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
 		cellGreyStyle.setWrapText(true);
 		cellGreyStyle.setFont(greyFont);
-		
+
 		greyStyle = wb.createCellStyle();
 		greyStyle.setFont(greyFont);
-	
+
 		DataFormat format = wb.createDataFormat();
 		dStyle = wb.createCellStyle();
 		dStyle.setDataFormat(format.getFormat("0.00"));
-	
+
 		dGreyStyle = wb.createCellStyle();
 		dGreyStyle.setFont(greyFont);
 		dGreyStyle.setDataFormat(format.getFormat("0.00"));
-			
+
 		XSSFFont deaderBold;
 		deaderBold = wb.createFont();
-		deaderBold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		deaderBold.setBold(true);
 		deaderBold.setColor(IndexedColors.WHITE.getIndex());
 		XSSFCellStyle headerStyle;
 		headerStyle = wb.createCellStyle();
-		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillPattern(FillPatternType.FINE_DOTS);
 		headerStyle.setFillBackgroundColor(IndexedColors.GREY_80_PERCENT.getIndex());
 		headerStyle.setFont(deaderBold);
-		
+
 		XSSFFont boldFont = wb.createFont();
-		boldFont.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		boldFont.setBold(true);
 		XSSFCellStyle boldText = wb.createCellStyle();
 		boldText.setFont(boldFont);
-		
+
 		LinkedHashMap<EntornDto, Long> totalEntornsMap = new LinkedHashMap<EntornDto, Long>();
 		LinkedHashMap<EntornDto, Integer> totalTipusExpedientEntornsMap = new LinkedHashMap<EntornDto, Integer>();
 		long totalEntorns = 0;
@@ -459,9 +460,9 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			totalTipusExpedientEntornsMap.put(entry.getKey(), entry.getValue().size());
 			totalEntorns += totalEntorn;
 		}
-		
+
 		generarPaginaTotalEntorns(wb, headerStyle, boldText, totalEntornsMap, totalTipusExpedientEntornsMap, totalEntorns);
-		
+
 		try {
 			String fileName = "Estadistica.xls";
 			response.setHeader("Pragma", "");
@@ -473,11 +474,11 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		} catch (Exception e) {
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private long generarPagina(XSSFWorkbook wb,  XSSFCellStyle headerStyle, XSSFCellStyle boldText, EntornDto entorn, List<ExpedientTipusDto> expedientsTipus, Integer totatTipologies) {
 		XSSFSheet sheet = wb.createSheet(entorn.getNom());
-	
+
 		int rowNum = 0;
 		int colNum = 0;
 		// Capçalera
@@ -506,12 +507,12 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 				cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(any)));
 				cell.setCellStyle(headerStyle);
 			}
-			
+
 			cell = xlsRow.createCell(colNum++);
 			cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Total tipus")));
 			sheet.autoSizeColumn(colNum);
 			cell.setCellStyle(headerStyle);
-			
+
 			TreeMap<String, Object> tableData = (TreeMap<String, Object>) estadistica.get("tableData");
 			Map<String, Long> totalTipus = (Map<String, Long>) estadistica.get("totalTipus");
 			Map<String, Long> totalAny = (Map<String, Long>) estadistica.get("totalAny");
@@ -527,7 +528,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(expTip.getNom())));
 				sheet.autoSizeColumn(colNum);
-				
+
 				for (String any : (TreeSet<String>) estadistica.get("anys")) {
 					Long t = (((Map<String,Object>) tableData.get(expTip.getCodi())).containsKey(any))? (Long) ((Map<String,Object>) tableData.get(expTip.getCodi())).get(any): new Long(0);
 					sheet.autoSizeColumn(colNum);
@@ -540,7 +541,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 				cell.setCellValue(tt);
 				cell.setCellStyle(boldText);
 			}
-				
+
 			colNum = 0;
 			xlsRow = sheet.createRow(rowNum++);
 			cell = xlsRow.createCell(colNum++);
@@ -551,7 +552,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			cell.setCellValue("");
 			cell.setCellStyle(headerStyle);
 			sheet.autoSizeColumn(colNum);
-			
+
 			for (String any : (TreeSet<String>) estadistica.get("anys")) {
 				Long t = totalAny.containsKey(any)? totalAny.get(any) : new Long(0);
 				sheet.autoSizeColumn(colNum);
@@ -560,7 +561,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 				cell.setCellStyle(boldText);
 				total += t.longValue();
 			}
-			
+
 			sheet.autoSizeColumn(colNum);
 			cell = xlsRow.createCell(colNum++);
 			cell.setCellValue(total);
@@ -568,7 +569,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			totalEntorn += total;
 			for(int i=0; i<colNum; i++)
 				sheet.autoSizeColumn(i);
-			
+
 			colNum = 0;
 			xlsRow = sheet.createRow(rowNum++);
 			cell = xlsRow.createCell(colNum++);
@@ -582,39 +583,39 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		}
 		return totalEntorn;
 	}
-	
-	
+
+
 	private void generarPaginaTotalEntorns(XSSFWorkbook wb, XSSFCellStyle headerStyle, XSSFCellStyle boldText, LinkedHashMap<EntornDto, Long> totalEntornsMap, LinkedHashMap<EntornDto, Integer> totalTipusExpedientEntornsMap, long totalEntorns) {
 		XSSFSheet sheet = wb.createSheet("Resum per entorns");
-		
+
 		int rowNum = 0;
 		int colNum = 0;
 		// Capçalera
 		XSSFRow xlsRow = sheet.createRow(rowNum++);
 		XSSFCell cell;
-		
+
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Codi")));
 		cell.setCellStyle(headerStyle);
 		sheet.autoSizeColumn(colNum);
-		
+
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Entorn")));
 		sheet.autoSizeColumn(colNum);
 		cell.setCellStyle(headerStyle);
-		
+
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Total Entorn")));
 		cell.setCellStyle(headerStyle);
 		sheet.autoSizeColumn(colNum);
-		
+
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Nre. tipologies")));
 		cell.setCellStyle(headerStyle);
 		sheet.autoSizeColumn(colNum);
-		
+
 		Integer totalTipologies = 0;
-			
+
 		for(Map.Entry<EntornDto, Long> entry : totalEntornsMap.entrySet()) {
 			colNum=0;
 			xlsRow = sheet.createRow(rowNum++);
@@ -634,9 +635,9 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			cell.setCellValue(totalTipus);
 			cell.setCellStyle(boldText);
 			sheet.autoSizeColumn(colNum);
-			
+
 		}
-			
+
 		colNum = 0;
 		xlsRow = sheet.createRow(rowNum++);
 		cell = xlsRow.createCell(colNum++);
@@ -647,7 +648,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		cell.setCellValue("");
 		cell.setCellStyle(headerStyle);
 		sheet.autoSizeColumn(colNum);
-			
+
 		sheet.autoSizeColumn(colNum);
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(totalEntorns);
@@ -661,7 +662,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		for(int i=0; i<colNum; i++)
 			sheet.autoSizeColumn(i);
 	}
-				
+
 	@ModelAttribute("anulats")
 	public List<ParellaCodiValorDto> populateAnulats(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -670,7 +671,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si.only"), MostrarAnulatsDto.NOMES_ANULATS));
 		return resposta;
 	}
-	
+
 	@ModelAttribute("aturats")
 	public List<ParellaCodiValorDto> populateAturats(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();

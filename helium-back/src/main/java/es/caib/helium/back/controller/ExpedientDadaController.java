@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFPatternFormatting;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -1072,7 +1073,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		// ESTILS
 		// Capçalera
 		XSSFFont headFont = wb.createFont();
-		headFont.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		headFont.setBold(true);
 		headFont.setFontHeightInPoints((short) 16);
 
 		XSSFCellStyle headerStyle = wb.createCellStyle();
@@ -1081,17 +1082,17 @@ public class ExpedientDadaController extends BaseExpedientController {
 
 		// Agrupacions
 		XSSFFont agFont = wb.createFont();
-		agFont.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		agFont.setBold(true);
 		agFont.setFontHeightInPoints((short) 12);
 
 		XSSFCellStyle agStyle = wb.createCellStyle();
 		agStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-		agStyle.setFillPattern(HSSFPatternFormatting.SOLID_FOREGROUND);
+		agStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		agStyle.setFont(agFont);
 
 		// Nom
 		XSSFFont bold = wb.createFont();
-		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setBold(true);
 
 		XSSFCellStyle nStyle = wb.createCellStyle();
 		nStyle.setFont(bold);
@@ -1103,7 +1104,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		dStyle.setWrapText(true);
 		XSSFCellStyle hStyle = wb.createCellStyle();
 		hStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-		hStyle.setFillPattern(HSSFPatternFormatting.FINE_DOTS);
+		hStyle.setFillPattern(FillPatternType.FINE_DOTS);
 
 		// CONTINGUT
 
