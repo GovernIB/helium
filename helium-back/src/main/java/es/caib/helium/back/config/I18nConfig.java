@@ -10,7 +10,7 @@ import es.caib.helium.back.helper.MessageHelper;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
@@ -30,11 +30,8 @@ public class I18nConfig {
 
 	@Bean
 	public MessageSource messageSource() {
-		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-		messageSource.setBasenames(
-			"classpath:helium-messages",
-			"classpath:helium-messages_v3",
-			"classpath:helium-errors");
+		ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+		messageSource.setBasenames("helium-messages");
 		messageSource.setDefaultLocale(Locale.forLanguageTag("ca"));
 		messageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
 		messageSource.setFallbackToSystemLocale(false);
