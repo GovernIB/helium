@@ -18,7 +18,7 @@
 	<link href="<c:url value="/webjars/bootstrap/3.3.6/dist/css/bootstrap.min.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/webjars/font-awesome/4.5.0/css/font-awesome.min.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/webjars/jquery/1.12.0/dist/jquery-ui.css"/>" rel="stylesheet"/>
-	<link href="<c:url value="/css/estils-v3.css"/>" rel="stylesheet">
+	<link href="<c:url value="/css/estils-v3.css?versio=${versioNom}"/>" rel="stylesheet">
 	<link rel="shortcut icon" href="<c:url value="/img/ico/favicon.png"/>">
 	<link rel="icon" type="image/png" href="<c:url value="/img/ico/favicon.png"/>">
 	<script src="<c:url value="/webjars/jquery/1.12.0/dist/jquery.min.js"/>" type="text/javascript"></script>

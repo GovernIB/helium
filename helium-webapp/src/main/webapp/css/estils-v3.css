@@ -448,4 +448,6 @@ span.herencia {
 	font-size: 14px;
 	font-weight: 700;
 	font-style: normal;
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	white-space: pre-line;
 }
