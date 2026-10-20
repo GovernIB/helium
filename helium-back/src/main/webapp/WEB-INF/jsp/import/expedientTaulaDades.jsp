@@ -37,8 +37,14 @@
 			</c:when>
 			<c:otherwise>
 				<c:if test="${not empty dada.varValor}">
-					<%-- ${dada.varValorClass} --%>
-					<strong><pre class="dada-textarea"><c:out value="${dada.textMultiple}"/></pre></strong>
+					<c:choose>
+						<c:when test="${dadaTipusRegistre or dada.campTipus == 'TEXTAREA'}">
+							<pre class="dada-textarea"><strong><c:out value="${dada.textMultiple}"/></strong></pre>
+						</c:when>
+						<c:otherwise>
+							<strong><c:out value="${dada.textMultiple}"/></strong>
+						</c:otherwise>
+					</c:choose>
 				</c:if>
 				<c:if test="${not empty dada.error}">
 					<p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<span>${dada.error}</span></p>
