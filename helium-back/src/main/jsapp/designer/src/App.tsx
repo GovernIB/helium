@@ -10,7 +10,6 @@ import {
     BpmnPropertiesProviderModule,
     CamundaPlatformPropertiesProviderModule,
 } from 'bpmn-js-properties-panel';
-import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
 import FlowablePropertiesProviderModule from './flowable/FlowablePropertiesProviderModule';
 
 import Modal from './components/Modal';
@@ -97,6 +96,12 @@ const App = () => {
     }, []);
 
     const init = async () => {
+
+        console.log({
+            CamundaPlatformPropertiesProviderModule,
+            //camundaModdle
+        });
+
         if (!canvasRef.current) return;
         const modeler = new BpmnJS({
             container: canvasRef.current,
@@ -110,7 +115,7 @@ const App = () => {
                 FlowablePropertiesProviderModule,
             ],
             moddleExtensions: {
-                camunda: camundaModdle,
+                //camunda: camundaModdle,
                 flowable: flowableModdle,
             },
         });

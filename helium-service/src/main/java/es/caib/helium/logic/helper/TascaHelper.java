@@ -459,6 +459,7 @@ public class TascaHelper {
 			boolean ambPermisos) {
 		ExpedientTascaDto dto = new ExpedientTascaDto();
 		DefinicioProces defp = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Tasca t = tascaRepository.findByJbpmNameAndDefinicioProces(task.getTaskName(), defp);
 		if (t != null) {
 			dto.setAmbRepro(t.isAmbRepro());
@@ -556,8 +557,13 @@ public class TascaHelper {
 		if (task.getActorId() != null) {
 			dto.setResponsable(
 					this.findPersonaOrDefault(task.getActorId()));
+		} else if(task.getPooledActors() != null && task.getPooledActors().size() == 1) {
+			String actorId = (String) task.getPooledActors().toArray()[0];
+			dto.setResponsable(
+				this.findPersonaOrDefault(actorId));
+			dto.setAssignadaUsuariActual(actorId.equals(auth.getName()));
 		}
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
 		if (task.getActorId() != null) {
 			if (auth != null) {
 				dto.setAssignadaUsuariActual(task.getActorId().equals(auth.getName()));
@@ -579,6 +585,26 @@ public class TascaHelper {
 							return p1.getNom().compareToIgnoreCase(p2.getNom());
 						}
 					});
+			dto.setResponsables(responsables);
+		} else if(task.getRols() != null && !task.getRols().isEmpty()) {
+			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+			for (String rol : task.getRols())
+				responsables.addAll(this.findPersonesByGrup(rol));
+
+			for (PersonaDto persona: responsables) {
+				if (auth.getName().equals(persona.getCodi())) {
+					dto.setAssignadaUsuariActual(true);
+					break;
+				}
+			}
+
+			Collections.sort(
+				responsables,
+				new Comparator<PersonaDto>() {
+					public int compare(PersonaDto p1, PersonaDto p2) {
+						return p1.getNom().compareToIgnoreCase(p2.getNom());
+					}
+				});
 			dto.setResponsables(responsables);
 		}
 		if (ambPermisos) {
@@ -605,6 +631,16 @@ public class TascaHelper {
 		}
 		return persona;
 	}
+
+	public List<PersonaDto> findPersonesByGrup(String grupCodi) {
+		try {
+			return pluginHelper.personaFindAmbGrup(grupCodi);
+		} catch(Exception e) {
+			logger.warn("Error consultant persones per grup " + grupCodi + ": " + e.getMessage());
+		}
+		return List.of();
+	}
+
 
 	public void validarTasca(String taskId) {
 		workflowEngineApi.setTaskInstanceVariable(

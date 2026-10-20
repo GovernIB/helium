@@ -832,17 +832,29 @@ public class TascaServiceImpl implements TascaService {
 				taskInstanceid,
 				false,
 				true);
-		//	Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 
 		// TODO contemplar el cas que no faci falta que l'usuari estigui als pooledActors
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Set<String> pooledActors = task.getPooledActors();
+
+		if( pooledActors.isEmpty()
+			&& task.getRols() != null
+			&& !task.getRols().isEmpty()) {
+			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+			for (String rol : task.getRols())
+				responsables.addAll(tascaHelper.findPersonesByGrup(rol));
+
+			for (PersonaDto persona : responsables)
+				pooledActors.add(persona.getCodi());
+		}
+
 		if (!pooledActors.contains(auth.getName())) {
 			logger.debug("L'usuari no s'ha trobat com a pooledActor de la tasca (" +
 					"id=" + taskInstanceid + ", " +
 					"personaCodi=" + auth.getName() + ")");
 			throw new NoTrobatException(WTaskInstance.class,taskInstanceid);
 		}
+
 		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskInstanceid);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
 				taskInstanceid,

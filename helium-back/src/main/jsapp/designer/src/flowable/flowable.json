@@ -2,46 +2,89 @@
     "name": "Flowable",
     "uri": "http://flowable.org/bpmn",
     "prefix": "flowable",
-    "xml": {
-        "tagAlias": "lowerCase"
-    },
+    "xml": { "tagAlias": "lowerCase" },
+    "associations": [],
     "types": [
         {
-            "name": "ServiceTaskDelegateExpression",
-            "superClass": ["bpmn:ServiceTask"],
+            "name": "ProcessProps",
+            "extends": ["bpmn:Process"],
             "properties": [
-                {
-                    "name": "flowable:class",
-                    "type": "String"
-                },
-                {
-                    "name": "flowable:expression",
-                    "type": "String"
-                },
-                {
-                    "name": "flowable:delegateExpression",
-                    "type": "String"
-                }
+                { "name": "candidateStarterUsers", "isAttr": true, "type": "String" },
+                { "name": "candidateStarterGroups", "isAttr": true, "type": "String" }
             ]
         },
         {
-            "name": "field",
-            "superClass": ["bpmn:BaseElement"],
+            "name": "UserTaskProps",
+            "extends": ["bpmn:UserTask"],
             "properties": [
-                {
-                    "name": "name",
-                    "type": "String",
-                    "required": true,
-                    "isAttr": true
-                },
-                {
-                    "name": "string",
-                    "type": "String"
-                },
-                {
-                    "name": "expression",
-                    "type": "String"
-                }
+                { "name": "assignee", "isAttr": true, "type": "String" },
+                { "name": "candidateUsers", "isAttr": true, "type": "String" },
+                { "name": "candidateGroups", "isAttr": true, "type": "String" },
+                { "name": "dueDate", "isAttr": true, "type": "String" },
+                { "name": "priority", "isAttr": true, "type": "String" },
+                { "name": "category", "isAttr": true, "type": "String" },
+                { "name": "formKey", "isAttr": true, "type": "String" }
+            ]
+        },
+        {
+            "name": "StartEventProps",
+            "extends": ["bpmn:StartEvent"],
+            "properties": [
+                { "name": "initiator", "isAttr": true, "type": "String" },
+                { "name": "formKey", "isAttr": true, "type": "String" }
+            ]
+        },
+        {
+            "name": "ServiceTaskProps",
+            "extends": ["bpmn:ServiceTask"],
+            "properties": [
+                { "name": "class", "isAttr": true, "type": "String" },
+                { "name": "expression", "isAttr": true, "type": "String" },
+                { "name": "delegateExpression", "isAttr": true, "type": "String" },
+                { "name": "resultVariableName", "isAttr": true, "type": "String" }
+            ]
+        },
+        {
+            "name": "ScriptTaskProps",
+            "extends": ["bpmn:ScriptTask"],
+            "properties": [
+                { "name": "resultVariable", "isAttr": true, "type": "String" },
+                { "name": "autoStoreVariables", "isAttr": true, "type": "Boolean", "default": false }
+            ]
+        },
+        {
+            "name": "CallActivityProps",
+            "extends": ["bpmn:CallActivity"],
+            "properties": [
+                { "name": "calledElementType", "isAttr": true, "type": "String" },
+                { "name": "inheritVariables", "isAttr": true, "type": "Boolean", "default": false },
+                { "name": "inheritBusinessKey", "isAttr": true, "type": "Boolean", "default": false },
+                { "name": "businessKey", "isAttr": true, "type": "String" },
+                { "name": "fallbackToDefaultTenant", "isAttr": true, "type": "Boolean", "default": false }
+            ]
+        },
+        {
+            "name": "SequenceFlowProps",
+            "extends": ["bpmn:SequenceFlow"],
+            "properties": [
+                { "name": "skipExpression", "isAttr": true, "type": "String" }
+            ]
+        },
+        {
+            "name": "ActivityProps",
+            "extends": ["bpmn:Activity"],
+            "properties": [
+                { "name": "async", "isAttr": true, "type": "Boolean", "default": false },
+                { "name": "exclusive", "isAttr": true, "type": "Boolean", "default": true },
+                { "name": "skipExpression", "isAttr": true, "type": "String" }
+            ]
+        },
+        {
+            "name": "MultiInstanceProps",
+            "extends": ["bpmn:MultiInstanceLoopCharacteristics"],
+            "properties": [
+                { "name": "collection", "isAttr": true, "type": "String" },
+                { "name": "elementVariable", "isAttr": true, "type": "String" }
             ]
         }
     ]
