@@ -154,6 +154,18 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public ExpedientTascaDto findAmbProcessInstanceIdAndTaskName(
+		String processInstanceId,
+		String taskName) throws NoTrobatException {
+		return tascaHelper.toExpedientTascaDto(
+					workflowEngineApi.findTaskInstanceByProcessInstanceIdAndName(processInstanceId, taskName),
+					null,
+					true,
+					false);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public ExpedientTascaDto findAmbIdPerTramitacio(
 			String id) {
 		logger.debug("Consultant tasca per tramitar donat el seu id (" +
@@ -1092,7 +1104,7 @@ public class TascaServiceImpl implements TascaService {
 		Map<String, Object> variablesProcessades = new HashMap<String, Object>(variables);
 		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variablesProcessades);
 		task = workflowEngineApi.getTaskById(taskInstanceId);
-		workflowEngineApi.setTaskInstanceVariables(taskInstanceId, variablesProcessades, false);
+		//workflowEngineApi.setTaskInstanceVariables(taskInstanceId, variablesProcessades, false);
 		tascaHelper.refreshExpedientTasca(taskInstanceId);
 		this.expedientDadaHelper.setDades(expedient, task.getProcessInstanceId(), taskInstanceId, variablesProcessades);
 		if (task.getStartTime() == null) {
@@ -1135,9 +1147,8 @@ public class TascaServiceImpl implements TascaService {
 				task.getProcessDefinitionId());
 		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);
 		workflowEngineApi.startTaskInstance(taskInstanceId);
-		workflowEngineApi.setTaskInstanceVariables(taskInstanceId, variables, false);
-		tascaHelper.refreshExpedientTasca(taskInstanceId);
-		tascaHelper.validarTasca(taskInstanceId);
+		//workflowEngineApi.setTaskInstanceVariables(taskInstanceId, variables, false);
+		tascaHelper.refreshExpedientTasca(taskInstanceId, true);
 
 		Registre registre = new Registre(
 				new Date(),
@@ -1173,9 +1184,6 @@ public class TascaServiceImpl implements TascaService {
 				usuari);
 		tascaHelper.restaurarTasca(tascaId);
 
-//		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-//				task.getTaskName(),
-//				task.getProcessDefinitionId());
 		Registre registre = new Registre(
 				new Date(),
 				expedient.getId(),
@@ -1183,7 +1191,6 @@ public class TascaServiceImpl implements TascaService {
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
 				tascaId);
-//		registre.setMissatge("Restaurar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 		registre.setMissatge("Restaurar \"" + task.getTaskName() + "\"");
 		registreRepository.save(registre);
 	}
@@ -1361,7 +1368,6 @@ public class TascaServiceImpl implements TascaService {
 			String outcome,
 			String usuari) {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-
 		mesuresTemporalsHelper.tascaCompletarIniciar(expedient, tascaId, task.getTaskName());
 
 		final Timer timerTotal = metricRegistry.timer(
@@ -1414,21 +1420,19 @@ public class TascaServiceImpl implements TascaService {
 			tascaHelper.refreshExpedientTasca(tascaId);
 			// checkCompletarTasca(tascaId);
 			// Accions per a una tasca delegada
-			if (delegationInfo != null) {
-				if (!tascaId.equals(delegationInfo.getSourceTaskId())) {
-					// Copia les variables de la tasca delegada a la original
-					workflowEngineApi.setTaskInstanceVariables(
-							delegationInfo.getSourceTaskId(),
-							workflowEngineApi.getTaskInstanceVariables(tascaId),
-							false);
-					WTaskInstance taskOriginal = workflowEngineApi.getTaskById(
-							delegationInfo.getSourceTaskId());
-					if (!delegationInfo.isSupervised()) {
-						// Si no es supervisada també finalitza la tasca original
-						completar(taskOriginal.getId(), outcome);
-					}
-					tascaHelper.deleteDelegationInfo(taskOriginal);
+			if (delegationInfo != null && !tascaId.equals(delegationInfo.getSourceTaskId())) {
+				// Copia les variables de la tasca delegada a la original
+//				workflowEngineApi.setTaskInstanceVariables(
+//						delegationInfo.getSourceTaskId(),
+//						workflowEngineApi.getTaskInstanceVariables(tascaId),
+//						false);
+				WTaskInstance taskOriginal = workflowEngineApi.getTaskById(
+						delegationInfo.getSourceTaskId());
+				if (!delegationInfo.isSupervised()) {
+					// Si no es supervisada també finalitza la tasca original
+					completar(taskOriginal.getId(), outcome);
 				}
+				tascaHelper.deleteDelegationInfo(taskOriginal);
 			}
 			actualitzarTerminisIAlertes(tascaId, expedientLog.getExpedient());
 			mouDadesDocumentsAProcess(tascaId);
@@ -1445,30 +1449,8 @@ public class TascaServiceImpl implements TascaService {
 					Registre.Entitat.TASCA,
 					tascaId);
 
-			// comandaHelper.upsertTasca(tascaId, tasca.getNom(), expedient.getNumero(), task, ComandaTascaEstat.FINALITZADA);
-
 			registre.setMissatge("Finalitzar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 			registreRepository.save(registre);
-//		} catch (ExecucioHandlerException ex) {
-//			throw new TramitacioHandlerException(
-//					(expedient != null) ? expedient.getEntorn().getId() : null,
-//					(expedient != null) ? expedient.getEntorn().getCodi() : null,
-//					(expedient != null) ? expedient.getEntorn().getNom() : null,
-//					(expedient != null) ? expedient.getId() : null,
-//					(expedient != null) ? expedient.getTitol() : null,
-//					(expedient != null) ? expedient.getNumero() : null,
-//					(expedient != null) ? expedient.getTipus().getId() : null,
-//					(expedient != null) ? expedient.getTipus().getCodi() : null,
-//					(expedient != null) ? expedient.getTipus().getNom() : null,
-//					ex.getProcessInstanceId(),
-//					ex.getTaskInstanceId(),
-//					ex.getTokenId(),
-//					ex.getClassName(),
-//					ex.getMethodName(),
-//					ex.getFileName(),
-//					ex.getLineNumber(),
-//					"",
-//					ex.getCause());
 		} catch (Exception ex) {
 			throw new TramitacioException(
 					expedient.getEntorn().getId(),
@@ -1677,9 +1659,9 @@ public class TascaServiceImpl implements TascaService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		WTaskInstance task = workflowEngineApi.getTaskById(taskId);
 		Object valorVell = variableHelper.getVariableJbpmTascaValor(task.getId(), codiVariable);
-		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put(codiVariable, valor);
-		workflowEngineApi.setTaskInstanceVariables(task.getId(), variables, false);
+//		Map<String, Object> variables = new HashMap<String, Object>();
+//		variables.put(codiVariable, valor);
+//		workflowEngineApi.setTaskInstanceVariables(task.getId(), variables, false);
 
 		Registre registre = new Registre(
 				new Date(),

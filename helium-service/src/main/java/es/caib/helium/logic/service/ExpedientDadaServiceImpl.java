@@ -30,7 +30,6 @@ import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.CampAgrupacio;
 import es.caib.helium.persistence.entity.CampRegistre;
@@ -142,7 +141,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			String processInstanceId,
 			String varCodi,
 			Object varValor) {
-
 		logger.debug("Modificant dada de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -153,24 +151,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
-//		Object valorVell = variableHelper.getVariableJbpmProcesValor(
-//				processInstanceId,
-//				varCodi);
 		Object valorVell = expedientDadaHelper.getDada(expedient, processInstanceId, null, varCodi);
-
-		// Esborra la descripció per variables que mantenen el valor de la consulta
-		Camp camp;
-		if (expedient.getTipus().isAmbInfoPropia()) {
-			// obtenir el camp amb expedient tipus codi i codi de la variable
-			camp = campRepository.findByExpedientTipusAndCodi(expedient.getTipus().getId(), varCodi, expedient.getTipus().getExpedientTipusPare() != null);
-		}else {
-			InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
-			DefinicioProces definicioProces = definicioProcesRepository.findById(instanciaProces.getDefinicioProces().getId()).orElse(null);
-			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
-		}
-		if (camp != null && camp.isDominiCacheText())
-			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, BpmnVars.PREFIX_VAR_DESCRIPCIO + varCodi);
-
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 			    expedientId,
 				processInstanceId,

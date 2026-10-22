@@ -13,7 +13,6 @@ import es.caib.helium.commons.registre.RegistreAnotacio;
 import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.StringUtilsHelium;
-import es.caib.helium.disseny.engine.WExpedientDto;
 import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.disseny.engine.WTaskInstance;
@@ -71,8 +70,6 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 	@Autowired
 	private ReassignacioRepository reassignacioRepository;
 	@Autowired
-	private AlertaRepository alertaRepository;
-	@Autowired
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Autowired
 	private EstatRepository estatRepository;
@@ -98,7 +95,6 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 	private PeticioPinbalRepository peticioPinbalRepository;
 	@Autowired
 	private ExpedientDadaHelper expedientDadaHelper;
-
 
 	@Autowired
 	private ExpedientHelper expedientHelper;
@@ -803,10 +799,10 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 	public void expedientBuidaLogs(
 		String processInstanceId) {
 		log.debug("Buidant logs expedient (processInstanceId=" + processInstanceId + ")");
-		WExpedientDto piexp = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
-		if (piexp == null)
+		WProcessInstance pi = workflowEngineApi.findRootProcessInstance(processInstanceId);
+		if (pi == null)
 			throw new NoTrobatException(ExpedientDto.class, processInstanceId);
-		workflowEngineApi.deleteProcessInstanceTreeLogs(piexp.getProcessInstanceId());
+		workflowEngineApi.deleteProcessInstanceTreeLogs(pi.getId());
 	}
 
 	@Override
@@ -2832,9 +2828,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 		if (camp == null)
 			throw new NoTrobatException(Camp.class, varCodi);
 		ExpedientDadaDto resposta = new ExpedientDadaDto();
-		Object valor = workflowEngineApi.getProcessInstanceVariable(
-			processInstanceId,
-			varCodi);
+		Object valor = expedientDadaHelper.getDada(null, processInstanceId, null, varCodi);
 		resposta.setText(
 			variableHelper.getTextPerCamp(
 				camp,
@@ -2872,9 +2866,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 		if (camp == null)
 			throw new NoTrobatException(Camp.class,varCodi);
 		TascaDadaDto resposta = new TascaDadaDto();
-		Object valor = workflowEngineApi.getTaskInstanceVariable(
-			taskInstanceId,
-			varCodi);
+		Object valor = expedientDadaHelper.getDada(null, processInstanceId, null, varCodi);
 		resposta.setText(
 			variableHelper.getTextPerCamp(
 				camp,

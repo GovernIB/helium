@@ -22,7 +22,6 @@ import es.caib.helium.commons.formulari.IniciFormulari;
 import es.caib.helium.commons.formulari.RespostaIniciFormulari;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.FormulariExtern;
 import es.caib.helium.persistence.entity.Tasca;
@@ -37,10 +36,6 @@ import es.caib.helium.logic.helper.WsClientHelper.WsClientAuth;
 @Component
 public class FormulariExternHelper {
 
-	@Resource
-	private ExpedientTipusHelper expedientTipusHelper;
-	@Resource
-	private TascaHelper tascaHelper;
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
@@ -135,8 +130,7 @@ public class FormulariExternHelper {
 		List<ParellaCodiValor> varsForm = new ArrayList<ParellaCodiValor>();
 		if (varsTasca != null) {
 			for (String key: varsTasca.keySet()) {
-				if (!key.startsWith(BpmnVars.VAR_PREFIX))
-					varsForm.add(new ParellaCodiValor(key, varsTasca.get(key)));
+				varsForm.add(new ParellaCodiValor(key, varsTasca.get(key)));
 			}
 		}
 		return varsForm;

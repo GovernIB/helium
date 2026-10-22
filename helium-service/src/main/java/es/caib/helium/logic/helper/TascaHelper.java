@@ -34,7 +34,6 @@ import es.caib.helium.disseny.engine.WDelegationInfo;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.common.bpmn.DominiCodiDescripcio;
-import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
 
 /**
@@ -73,6 +72,8 @@ public class TascaHelper {
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 	@Resource
 	private MessageHelper messageHelper;
+	@Resource
+	private ExpedientDocumentRepository expedientDocumentRepository;
 
 
 	public WTaskInstance getTascaComprovacionsTramitacio(
@@ -473,6 +474,9 @@ public class TascaHelper {
 		dto.setTitol(dadesCacheTasca.getTitol());
 		dto.setJbpmName(task.getTaskName());
 		dto.setDescription(task.getDescription());
+
+		if(task.getRols() != null && !task.getRols().isEmpty())
+			dto.setGroupId(String.join(",", task.getRols()));
 		dto.setAssignee(task.getActorId());
 		dto.setPooledActors(task.getPooledActors());
 		dto.setCreateTime(task.getCreateTime());
@@ -522,24 +526,7 @@ public class TascaHelper {
 			dto.setValidada(isTascaValidada(task));
 			dto.setDocumentsComplet(isDocumentsComplet(task));
 			dto.setSignaturesComplet(isSignaturesComplet(task));
-			// Opcional informació delegacio?
-//			WDelegationInfo delegationInfo = getDelegationInfo(task);
-//			if (delegationInfo != null) {
-//				boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
-//				dto.setDelegada(true);
-//				dto.setDelegacioOriginal(original);
-//				dto.setDelegacioData(delegationInfo.getStart());
-//				dto.setDelegacioComentari(delegationInfo.getComment());
-//				dto.setDelegacioSupervisada(delegationInfo.isSupervised());
-//				WTaskInstance tascaDelegacio = null;
-//				if (original) {
-//					tascaDelegacio = workflowEngineApi.getTaskById(delegationInfo.getTargetTaskId());
-//				} else {
-//					tascaDelegacio = workflowEngineApi.getTaskById(delegationInfo.getSourceTaskId());
-//				}
-//				dto.setDelegacioPersona(
-//						pluginHelper.personaFindAmbCodi(tascaDelegacio.getAssignee()));
-//			}
+
 			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
 			if (definicioProces != null) {
 				dto.setDefinicioProcesId(definicioProces.getId());
@@ -641,17 +628,10 @@ public class TascaHelper {
 		return List.of();
 	}
 
-
-	public void validarTasca(String taskId) {
-		workflowEngineApi.setTaskInstanceVariable(
-				taskId,
-				BpmnVars.VAR_TASCA_VALIDADA,
-				new Date());
-	}
 	public void restaurarTasca(String taskId) {
-		workflowEngineApi.deleteTaskInstanceVariable(
-				taskId,
-				BpmnVars.VAR_TASCA_VALIDADA);
+		ExpedientTasca expedientTasca = expedientTascaRepository.findByTaskId(taskId);
+		expedientTasca.setValidated(null);
+		expedientTascaRepository.save(expedientTasca);
 	}
 
 	public boolean isTascaValidada(Object task) {
@@ -667,42 +647,38 @@ public class TascaHelper {
 		}
 		if (!hiHaCampsModificables)
 			return true;
-		Object valor = workflowEngineApi.getTaskInstanceVariable(
-				((WTaskInstance)task).getId(),
-				BpmnVars.VAR_TASCA_VALIDADA);
-		if (valor == null || !(valor instanceof Date))
-			return false;
-		return true;
+
+		ExpedientTasca expedientTasca = expedientTascaRepository.findByTaskId(((WTaskInstance)task).getId());
+		Boolean valor = expedientTasca.getValidated();
+		return valor != null && valor;
 	}
 	public boolean isDocumentsComplet(Object task) {
-		boolean ok = true;
 		Tasca tasca = findTascaByJbpmTask((WTaskInstance)task);
+		List<ExpedientDocument> tascaDocuments = expedientDocumentRepository.findByTaskId(((WTaskInstance)task).getId());
+		List<String> tascaDocumentsCodis = tascaDocuments.stream().map(ExpedientDocument::getCodi).collect(Collectors.toList());
 		for (DocumentTasca docTasca: tasca.getDocuments()) {
-			if (docTasca.isRequired()) {
-				String codiJbpm = BpmnVars.PREFIX_DOCUMENT + docTasca.getDocument().getCodi();
-				Object valor = workflowEngineApi.getTaskInstanceVariable(
-						((WTaskInstance)task).getId(),
-						codiJbpm);
-				if (valor == null) {
-					ok = false;
-					break;
-				}
-			}
+			if (docTasca.isRequired() && !tascaDocumentsCodis.contains(docTasca.getDocument().getCodi()))
+				return false;
 		}
-		return ok;
+		return true;
 	}
+
 	public boolean isSignaturesComplet(Object task) {
-		boolean ok = true;
 		Tasca tasca = findTascaByJbpmTask((WTaskInstance)task);
+		List<ExpedientDocument> tascaDocuments = expedientDocumentRepository.findByTaskId(((WTaskInstance)task).getId());
+		List<String> tascaDocumentsCodis = tascaDocuments.stream().map(ExpedientDocument::getCodi).collect(Collectors.toList());
 		for (FirmaTasca firmaTasca: tasca.getFirmes()) {
-			if (firmaTasca.isRequired()) {
-				String codiJbpm = BpmnVars.PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
-				Object valor = workflowEngineApi.getTaskInstanceVariable(((WTaskInstance)task).getId(), codiJbpm);
-				if (valor == null)
-					ok = false;
+			if (firmaTasca.isRequired() && tascaDocumentsCodis.contains(firmaTasca.getDocument().getCodi())) {
+				ExpedientDocument ed = tascaDocuments
+										.stream()
+										.filter(td -> td.getCodi().equals(firmaTasca.getDocument().getCodi()))
+										.findFirst()
+										.get();
+				if(!ed.getDocumentStore().isSignat())
+					return false;
 			}
 		}
-		return ok;
+		return true;
 	}
 
 	public void processarCampsAmbDominiCacheActivat(
@@ -720,9 +696,8 @@ public class TascaHelper {
 						variables.put(
 								campTasca.getCamp().getCodi(),
 								((DominiCodiDescripcio)campValor).getCodi());
-						variables.put(
-								BpmnVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
-								((DominiCodiDescripcio)campValor).getDescripcio());
+						variables.put(campTasca.getCamp().getCodi(),
+									  ((DominiCodiDescripcio)campValor).getDescripcio());
 					} else {
 						String text = variableHelper.getTextPerCamp(
 								campTasca.getCamp(),
@@ -730,9 +705,7 @@ public class TascaHelper {
 								null,
 								null,
 								task.getProcessInstanceId());
-						variables.put(
-								BpmnVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
-								text);
+						variables.put(campTasca.getCamp().getCodi(), text);
 					}
 				}
 			}
@@ -745,29 +718,32 @@ public class TascaHelper {
 			WTaskInstance delegada,
 			String comentari,
 			boolean supervisada) {
-		WDelegationInfo info = null; //new WDelegationInfo();
-		info.setSourceTaskId(original.getId());
-		info.setTargetTaskId(delegada.getId());
-		info.setStart(new Date());
-		info.setComment(comentari);
-		info.setSupervised(supervisada);
-		workflowEngineApi.setTaskInstanceVariable(
-				task.getId(),
-				BpmnVars.VAR_TASCA_DELEGACIO,
-				info);
+//		WDelegationInfo info = null; //new WDelegationInfo();
+//		info.setSourceTaskId(original.getId());
+//		info.setTargetTaskId(delegada.getId());
+//		info.setStart(new Date());
+//		info.setComment(comentari);
+//		info.setSupervised(supervisada);
+//		throw new RuntimeException("Not implemented");
+//		workflowEngineApi.setTaskInstanceVariable(
+//				task.getId(),
+//				BpmnVars.VAR_TASCA_DELEGACIO,
+//				info);
 	}
 	public WDelegationInfo getDelegationInfo(WTaskInstance task) {
-		Object delegacio = workflowEngineApi.getTaskInstanceVariable(
-			task.getId(),
-			BpmnVars.VAR_TASCA_DELEGACIO);
-		if(delegacio == null)
+//		throw new RuntimeException("Not implemented");
+//		Object delegacio = workflowEngineApi.getTaskInstanceVariable(
+//			task.getId(),
+//			BpmnVars.VAR_TASCA_DELEGACIO);
+//		if(delegacio == null)
 			return null;
-		return (WDelegationInfo) delegacio;
+//		return (WDelegationInfo) delegacio;
 	}
 	public void deleteDelegationInfo(WTaskInstance task) {
-		workflowEngineApi.deleteTaskInstanceVariable(
-				task.getId(),
-				BpmnVars.VAR_TASCA_DELEGACIO);
+//		throw new RuntimeException("Not implemented");
+//		workflowEngineApi.deleteTaskInstanceVariable(
+//				task.getId(),
+//				BpmnVars.VAR_TASCA_DELEGACIO);
 	}
 
 	/** Mètode per trobar i retornar els diferents usuaris assignats a les tasques obertes o tancades d'un expedient.
@@ -793,6 +769,10 @@ public class TascaHelper {
 	/// @param taskInstanceId Identificador de la tasca
 	///
 	public void refreshExpedientTasca(String taskInstanceId) {
+		this.refreshExpedientTasca(taskInstanceId, null);
+	}
+
+	public void refreshExpedientTasca(String taskInstanceId, Boolean validated) {
 		if(taskInstanceId == null)
 			return;
 		try {
@@ -824,6 +804,7 @@ public class TascaHelper {
 				tasca.setCancelled(task.isCancelled());
 				tasca.setSuspended(task.isSuspended());
 				tasca.setCompleted(task.isCompleted());
+				tasca.setValidated(validated);
 			} else {
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 				tasca = ExpedientTasca
@@ -847,6 +828,7 @@ public class TascaHelper {
 					.cancelled(task.isCancelled())
 					.suspended(task.isSuspended())
 					.completed(task.isCompleted())
+					.validated(validated)
 					.build();
 			}
 

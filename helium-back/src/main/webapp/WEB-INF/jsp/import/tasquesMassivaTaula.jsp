@@ -20,8 +20,8 @@
 			<tr>
 				<td>
 					${tasca.titol}
-					<c:if test="${not tasca.agafada && not empty tasca.responsables}">
-						<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>"></span>
+					<c:if test="${not tasca.agafada && not empty tasca.responsables && not empty tasca.groupId}">
+						<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>: ${tasca.groupId}"></span>
 					</c:if>
 					<div class="pull-right">
 						<c:if test="${tasca.cancelled}">
@@ -47,8 +47,8 @@
 				<td>${tasca.expedientIdentificador}</td>
 				<td>${tasca.expedientTipusNom}</td>
 				<td><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
-				<td><fmt:formatDate value="${tasca.dueDate}" pattern="dd/MM/yyyy"/></td>								
+				<td><fmt:formatDate value="${tasca.dueDate}" pattern="dd/MM/yyyy"/></td>
 			</tr>
 		</tbody>
-	</c:forEach>				       		
+	</c:forEach>
 </table>

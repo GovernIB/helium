@@ -33,6 +33,9 @@ import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.persistence.repository.*;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,8 +119,6 @@ import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 import es.caib.helium.logic.intf.service.ParametreService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.security.ExtendedPermission;
@@ -258,8 +259,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private AlertaHelper alertaHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
-	@Resource
-	private Jbpm3HeliumService jbpm3HeliumService;
 	@Autowired
 	private ComandaHelper comandaHelper;
 
@@ -1300,11 +1299,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					documentStore.getCodi());
 			List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId(), false);
-			for (WTaskInstance task: tasks) {
-				workflowEngineApi.deleteTaskInstanceVariable(
-						task.getId(),
-						codi);
-			}
+//			for (WTaskInstance task: tasks) {
+//				workflowEngineApi.deleteTaskInstanceVariable(
+//						task.getId(),
+//						codi);
+//			}
 		}
 	}
 
@@ -3306,7 +3305,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			", expedientTipusId = " + expedientTipusId +
 			", jbpmKey = " + jbpmKey + ")");
 		List<String> processInstancesIds = new ArrayList<String>();
-		
+
 		// Consulta totes les instàncies de procés per
 		for (WProcessInstance pi :
 			workflowEngineApi.findProcessInstancesWithProcessDefinitionName(
@@ -3314,7 +3313,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			if (pi.getEndTime() == null) {
 				// Recupera l'expedient i si és del tipus que toca afegegeix l'id a la llista
 				Expedient expedient = expedientRepository.findByProcessInstanceId(pi.getRootProcessInstanceId());
-				if (expedient != null 
+				if (expedient != null
 						&& ((expedientTipusId != null && expedient.getTipus().getId() == expedientTipusId)
 								|| (entornId != null && expedient.getEntorn().getId() == entornId ))) {
 					processInstancesIds.add(pi.getId());
@@ -3395,7 +3394,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						// En cas d'error al consultar l'arxiu, s'intenta cercar la versió original
 						if(arxiu == null) {
 							try {
-								arxiu = jbpm3HeliumService.getArxiuVersioOriginal(expedientId, document.getId());
+								arxiu = getArxiuVersioOriginal(expedientId, document.getId());
 								avisos.add("No s'ha pogut obtenir la versió imprimible de " + this.getZipDocumentErrorDesc(document, instanciaProces, procesPrincipalId) + ", s'ha obtingut la versió original.");
 							} catch (Exception ex) {
 								errors.add("No s'ha pogut obtenir i adjuntar " + this.getZipDocumentErrorDesc(document, instanciaProces, procesPrincipalId) + ".");
@@ -3448,6 +3447,58 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			throw new RuntimeException(errMsg, e);
 		}
 		return baos.toByteArray();
+	}
+
+	public ArxiuDto getArxiuVersioOriginal(Long expedientId, Long documentStoreId) {
+		logger.debug("Consulta de l'arxiu del document original (" +
+			"expedientId=" + expedientId + ", " +
+			"documentStoreId=" + documentStoreId + ")");
+
+		Expedient expedient = expedientRepository.getReferenceById(expedientId);
+		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
+		if (documentStore == null) {
+			throw new NoTrobatException(
+				DocumentStore.class,
+				documentStoreId);
+		}
+
+		expedientHelper.comprovarInstanciaProces(
+			expedient,
+			documentStore.getProcessInstanceId());
+
+		ArxiuDto arxiu = new ArxiuDto();
+		arxiu.setNom(documentStore.getArxiuNom());
+		if (documentStore.getArxiuContingut() == null && documentStore.getArxiuUuid() != null) {
+			es.caib.pluginsib.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentOriginal(documentStore.getArxiuUuid(), null);
+			if (documentArxiu != null && documentArxiu.getContingut() != null) {
+				arxiu.setContingut(documentArxiu.getContingut().getContingut());
+				arxiu.setTipusMime(documentArxiu.getContingut().getTipusMime());
+				String nom = documentArxiu.getNom();
+				if(!nom.contains(".")) {
+					String extensio = "";
+					if (documentArxiu.getMetadades().getExtensio() != null) {
+						// Extensió a partir de les dades de les metadades.
+						extensio = documentArxiu.getMetadades().getExtensio().toString();
+					} else if (documentArxiu.getContingut().getTipusMime() != null) {
+						// Extensió a partir del mime type
+						MimeType mimeType;
+						try {
+							mimeType = MimeTypes.getDefaultMimeTypes().forName(documentArxiu.getContingut().getTipusMime());
+							extensio = mimeType.getExtension();
+						} catch (MimeTypeException e) {
+							logger.warn("Error obtenint l'extensió pel mime type " + documentArxiu.getContingut().getTipusMime() + " pel documentStore " + documentStore.getId(), e);
+						}
+					}
+					nom += extensio;
+				}
+				arxiu.setNom(nom);
+			}
+		} else {
+			arxiu.setContingut(documentStore.getArxiuContingut());
+			arxiu.setTipusMime(documentHelper.getContentType(documentStore.getArxiuNom()));
+		}
+
+		return arxiu;
 	}
 
     /** Mètode privat per completar la informació de l'error d'obtenció d'un document o adjunt segons si és del procés principal o no. */
@@ -3767,7 +3818,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 	@Transactional
 	private void updateTasquesExpedient(String processInstanceId, String expedientNumero, String tipusExpedientNom) {
-		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesByProcessInstanceId(processInstanceId);
+		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstanceByProcessInstanceId(processInstanceId);
 		for(WTaskInstance task : tasks) {
 			try {
 				tascaHelper.refreshExpedientTasca(task.getId());

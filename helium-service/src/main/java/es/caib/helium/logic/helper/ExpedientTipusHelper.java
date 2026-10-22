@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 
 //import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import es.caib.helium.disseny.engine.WExpedientDto;
+import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.persistence.entity.*;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
@@ -212,8 +213,8 @@ public class ExpedientTipusHelper {
 
 	public ExpedientTipus findAmbProcessInstanceId(
 			String processInstanceId) {
-		WExpedientDto e = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
-		Expedient exp = expedientRepository.getReferenceById(e.getId());
+		WProcessInstance pi = workflowEngineApi.findRootProcessInstance(processInstanceId);
+		Expedient exp = expedientRepository.findByProcessInstanceId(pi.getId());
 		return expedientTipusRepository.findById(exp.getTipus().getId()).orElse(null);
 	}
 

@@ -4,21 +4,16 @@
 package es.caib.helium.logic.helpers;
 
 import es.caib.helium.commons.config.PropertyConfig;
-import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.PortafirmesEstatEnum;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.PdfUtils;
 import es.caib.helium.logic.helper.*;
-import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.utils.DocumentTokenUtils;
-import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
 import es.caib.helium.persistence.repository.*;
-import es.caib.pluginsib.arxiu.api.FirmaPerfil;
-import es.caib.pluginsib.arxiu.api.FirmaTipus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
@@ -30,10 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-//import org.jbpm.graph.exe.ProcessInstanceExpedient;
-//import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-//import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-
 /**
  * Helper per a gestionar els documents dels expedients
  *
@@ -42,16 +33,6 @@ import java.util.List;
 @Component
 public class DocumentHelper {
 
-	/*public static final String PREFIX_VAR_DOCUMENT = "H3l1um#document.";
-	public static final String PREFIX_ADJUNT = "H3l1um#adjunt.";
-	public static final String PREFIX_SIGNATURA = "H3l1um#signatura.";*/
-
-//	@Resource
-//	private WorkflowEngineApi jbpmDao;
-	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
-	private ExpedientRepository expedientRepository;
 	@Resource
 	private DocumentRepository documentRepository;
 	@Resource
@@ -63,15 +44,9 @@ public class DocumentHelper {
 	private PluginHelper pluginHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
-	@Resource(name = "documentHelperV3")
-	private DocumentHelperV3 documentHelperV3;
-	@Resource
-	private ExpedientDocumentHelper expedientDocumentHelper;
 
 	private DocumentTokenUtils documentTokenUtils;
 	private PdfUtils pdfUtils;
-
-
 
 	public Long actualitzarDocument(
 			String taskInstanceId,
@@ -115,39 +90,6 @@ public class DocumentHelper {
 						documentStore.getReferenciaFont(),
 						expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 		}
-
-
-		// Crea el document a dins la gestió documental
-//		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu()) {
-//			ProcessInstanceExpedient expedient = jbpmDao.expedientFindByProcessInstanceId(processInstanceId);
-//			String docNom = documentNom;
-//			if (docNom == null) {
-//				Document document = getDocumentDisseny(
-//						taskInstanceId,
-//						processInstanceId,
-//						documentCodi);
-//				docNom = document.getNom();
-//			}
-//			String referenciaFont = pluginHelper.gestioDocumentalCreateDocument(
-//					expedientRepository.findOne(expedient.getId()),
-//					documentStoreId.toString(),
-//					docNom,
-//					documentData,
-//					arxiuNom,
-//					arxiuContingut);
-//			documentStore.setReferenciaFont(referenciaFont);
-//		}
-//		// Guarda la referència al nou document a dins el jBPM
-//		if (taskInstanceId != null)
-//			jbpmDao.setTaskInstanceVariable(
-//					taskInstanceId,
-//					getVarPerDocumentCodi(documentCodi, isAdjunt),
-//					documentStoreId);
-//		else
-//			jbpmDao.setProcessInstanceVariable(
-//					processInstanceId,
-//					getVarPerDocumentCodi(documentCodi, isAdjunt),
-//					documentStoreId);
 		return documentStoreId;
 	}
 
@@ -202,179 +144,6 @@ public class DocumentHelper {
 		}
 	}
 
-	public void esborrarDocumentAdjunt(
-			Long documentStoreId,
-			String processInstanceId,
-			String adjuntId) {
-
-		if (documentStoreId != null){
-			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
-			if (documentStore != null) {
-//				if (documentStore.isSignat()) {
-//					if (pluginHelper.custodiaIsPluginActiu()) {
-//						pluginHelper.custodiaEsborrarSignatures(
-//								documentStore.getReferenciaCustodia(),
-//								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-//					}
-//				}
-				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-					pluginHelper.gestioDocumentalDeleteDocument(
-							documentStore.getReferenciaFont(),
-							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-				if (processInstanceId != null) {
-					List<Portasignatures> peticions = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
-							processInstanceId,
-							documentStore.getId());
-					if (!peticions.isEmpty()) {
-						for (Portasignatures peticio : peticions) {
-							peticio.setEstat(PortafirmesEstatEnum.ESBORRAT);
-							portasignaturesRepository.save(peticio);
-						}
-					}
-				}
-				documentStoreRepository.deleteById(documentStoreId);
-			}
-			if (processInstanceId != null) {
-//				jbpmDao.deleteProcessInstanceVariable(
-//						processInstanceId,
-//						getVarPerDocumentCodi(adjuntId, true));
-			}
-		}
-	}
-
-	public boolean signarDocumentTascaAmbToken(
-			String token,
-			byte[] signatura) {
-		String taskInstanceId = getTaskInstanceIdPerToken(token);
-		Long documentStoreId = getDocumentStoreIdPerToken(token);
-		DocumentDto dto = toDocumentDto(
-				documentStoreId,
-				false,
-				false,
-				true,
-				true,
-				true);
-		if (dto != null) {
-			DocumentStore documentStore = documentStoreRepository.findById(dto.getId()).orElse(null);
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
-					documentStore.getProcessInstanceId());
-			boolean custodiat = false;
-			if (documentStore.getArxiuUuid() != null) {
-				ArxiuDto pdfFirmat = new ArxiuDto();
-				pdfFirmat.setNom("firma.pdf");
-				pdfFirmat.setTipusMime("application/pdf");
-				pdfFirmat.setContingut(signatura);
-				String documentNom = documentHelperV3.inArxiu(expedient.getProcessInstanceId(), documentStore.getArxiuUuid(), dto.getArxiuNom());
-				String documentDescripcio = dto.getDocumentNom();
-				pluginHelper.arxiuDocumentGuardarPdfFirmat(
-						expedient,
-						documentStore,
-						documentNom,
-						documentDescripcio,
-						pdfFirmat);
-				es.caib.pluginsib.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
-						documentStore.getArxiuUuid(),
-						null,
-						false,
-						true);
-				documentHelperV3.actualitzarNtiFirma(documentStore, documentArxiu);
-				custodiat = true;
-			}
-//			else if (pluginHelper.custodiaIsPluginActiu()) {
-//				if (expedient.isNtiActiu()) {
-//					documentHelperV3.actualitzarNtiFirma(documentStore, null);
-//				}
-//				String nomArxiu = getNomArxiuAmbExtensio(
-//						dto.getArxiuNom(),
-//						getExtensioArxiuSignat());
-//				String referenciaCustodia = documentStore.getId() + "_" + new Date().getTime();
-//				if (pluginHelper.custodiaIsValidacioImplicita()) {
-//					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-//							referenciaCustodia,
-//							documentStore.getReferenciaFont(),
-//							nomArxiu,
-//							dto.getCustodiaCodi(),
-//							signatura);
-//					custodiat = true;
-//				} else {
-//					RespostaValidacioSignatura resposta = pluginHelper.signaturaVerificar(
-//							dto.getVistaContingut(),
-//							signatura,
-//							false);
-//					if (resposta.isEstatValid()) {
-//						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-//								referenciaCustodia,
-//								documentStore.getReferenciaFont(),
-//								nomArxiu,
-//								dto.getCustodiaCodi(),
-//								signatura);
-//						custodiat = true;
-//					}
-//				}
-//				documentStore.setReferenciaCustodia(referenciaCustodia);
-//			}
-			if (custodiat) {
-				documentStore.setSignat(true);
-//				jbpmDao.setTaskInstanceVariable(
-//						taskInstanceId,
-//						JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
-//						documentStore.getId());
-			}
-			return custodiat;
-		}
-		return false;
-	}
-
-	public DocumentStore getDocumentStore(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi) {
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
-		if (documentStoreId != null)
-			return documentStoreRepository.findById(documentStoreId).orElse(null);
-		else
-			return null;
-	}
-
-	public DocumentDto getDocumentSenseContingut(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi,
-			boolean perSignarEnTasca,
-			boolean ambInfoPsigna) {
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
-		if (documentStoreId != null) {
-			try {
-				DocumentDto dto = toDocumentDto(
-						documentStoreId,
-						false,
-						false,
-						false,
-						false,
-						false);
-				if (perSignarEnTasca) {
-					try {
-						dto.setTokenSignaturaMultiple(getDocumentTokenUtils().xifrarTokenMultiple(
-								new String[] {
-										taskInstanceId,
-										documentStoreId.toString()}));
-					} catch (Exception ex) {
-						logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
-					}
-					if (dto.isSignat()) {
-//						Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskInstanceId, JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi());
-//						dto.setSignatEnTasca(signatEnTasca != null);
-					} else {
-						dto.setSignatEnTasca(false);
-					}
-				}
-				return dto;
-			} catch (Exception e) {
-				logger.error(e);
-			}
-		}
-		return null;
-	}
 	public DocumentDto getDocumentSenseContingut(
 			Long documentStoreId) {
 		if (documentStoreId != null) {
@@ -393,115 +162,6 @@ public class DocumentHelper {
 			}
 		}
 		return null;
-	}
-	public DocumentDto getDocumentOriginal(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi,
-			boolean ambContingut) {
-		return getDocumentOriginal(
-				getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi),
-				ambContingut);
-	}
-	public DocumentDto getDocumentOriginalPerToken(
-			String token,
-			boolean ambContingut) {
-		return getDocumentOriginal(
-				getDocumentStoreIdPerToken(token),
-				ambContingut);
-	}
-	public DocumentDto getDocumentOriginal(
-			Long documentStoreId,
-			boolean ambContingut) {
-		if (documentStoreId != null) {
-			try {
-				return toDocumentDto(
-						documentStoreId,
-						ambContingut,
-						false,
-						false,
-						false,
-						false);
-			} catch (Exception e) {
-				logger.error(e);
-			}
-		}
-		return null;
-	}
-
-	public DocumentDto getDocumentVista(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi,
-			boolean perSignar,
-			boolean ambSegellSignatura) throws Exception {
-		return getDocumentVista(
-				getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi),
-				perSignar,
-				ambSegellSignatura);
-	}
-	public DocumentDto getDocumentVistaPerToken(
-			String token,
-			boolean perSignar,
-			boolean ambSegellSignatura) throws Exception {
-		return getDocumentVista(
-				getDocumentStoreIdPerToken(token),
-				perSignar,
-				ambSegellSignatura);
-	}
-	public DocumentDto getDocumentVista(
-			Long documentStoreId,
-			boolean perSignar,
-			boolean ambSegellSignatura) throws Exception {
-		if (documentStoreId != null) {
-			return toDocumentDto(
-					documentStoreId,
-					false,
-					false,
-					true,
-					perSignar,
-					ambSegellSignatura);
-		} else {
-			return null;
-		}
-	}
-	public String getDocumentCodiPerVariableJbpm(String var) {
-		if (var.startsWith(BpmnVars.PREFIX_DOCUMENT)) {
-			return var.substring(BpmnVars.PREFIX_DOCUMENT.length());
-		} else if (var.startsWith(BpmnVars.PREFIX_ADJUNT)) {
-			return var.substring(BpmnVars.PREFIX_ADJUNT.length());
-		} else if (var.startsWith(BpmnVars.PREFIX_SIGNATURA)) {
-			return var.substring(BpmnVars.PREFIX_SIGNATURA.length());
-		} else {
-			return var;
-		}
-	}
-
-	public WTaskInstance getTaskPerToken(String token) {
-		return null; //jbpmDao.getTaskById(getTaskInstanceIdPerToken(token));
-	}
-
-	public void actualitzarNtiFirma(
-			DocumentStore documentStore,
-			es.caib.pluginsib.arxiu.api.Document arxiuDocument) {
-		documentHelperV3.actualitzarNtiFirma(documentStore, arxiuDocument);
-	}
-
-	public void guardarDocumentFirmat(
-			DocumentStore documentStore,
-			byte[] signatura) throws Exception {
-
-		// Guarda la firma asociada al document, es dona per fet que és un PDF
-		documentHelperV3.guardarDocumentFirmat(
-				documentStore.getProcessInstanceId(),
-				documentStore.getId(),
-				"document_firmat.pdf",
-				"application/pdf",
-				FirmaTipus.PADES.name(),
-				"TF06",
-				FirmaPerfil.EPES.name(),
-				signatura,
-				null);
 	}
 
 	private Long getDocumentStoreIdDeVariableJbpm(
@@ -528,33 +188,6 @@ public class DocumentHelper {
 //					getVarPerDocumentCodi(documentCodi, isAdjunt));
 		}
 		return (Long)value;
-	}
-
-	private Document getDocumentDisseny(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi) {
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		ExpedientTipus expedientTipus = expedient.getTipus();
-		DefinicioProces definicioProces;
-//		if (taskInstanceId != null) {
-//			JbpmTask taskInstance = jbpmDao.getTaskById(taskInstanceId);
-//			definicioProces = definicioProcesRepository.findByJbpmId(taskInstance.getProcessDefinitionId());
-//		} else {
-//			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
-//			definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
-//		}
-
-		if (expedientTipus.isAmbInfoPropia())
-			return documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus.getId(),
-					documentCodi,
-					expedientTipus.getExpedientTipusPare() != null);
-//		else
-//			return documentRepository.findByDefinicioProcesAndCodi(
-//					definicioProces,
-//					documentCodi);
-		return null;
 	}
 
 	private DocumentDto toDocumentDto(
@@ -600,10 +233,10 @@ public class DocumentHelper {
 				}
 				String codiDocument;
 				if (document.isAdjunt()) {
-					dto.setAdjuntId(document.getCodi().substring(BpmnVars.PREFIX_ADJUNT.length()));
+					dto.setAdjuntId(document.getCodi());
 					dto.setDocumentId(document.getId());
 				} else {
-					codiDocument = document.getCodi().substring(BpmnVars.PREFIX_DOCUMENT.length());
+					codiDocument = document.getCodi();
 //					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
 //					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
 					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
@@ -789,30 +422,6 @@ public class DocumentHelper {
 		return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 	}
 
-	private Long getDocumentStoreIdPerToken(String token) {
-		try {
-			String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
-			if (tokenDesxifrat.length == 1)
-				return Long.parseLong(tokenDesxifrat[0]);
-			else
-				return Long.parseLong(tokenDesxifrat[1]);
-		} catch (Exception ex) {
-			throw new RuntimeException("Format de token incorrecte", ex);
-		}
-	}
-
-	private String getTaskInstanceIdPerToken(String token) {
-		try {
-			String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
-			if (tokenDesxifrat.length == 2)
-				return tokenDesxifrat[0];
-			else
-				throw new RuntimeException("Format de token incorrecte");
-		} catch (Exception ex) {
-			throw new RuntimeException("Format de token incorrecte", ex);
-		}
-	}
-
 	private DocumentTokenUtils getDocumentTokenUtils() {
 		if (documentTokenUtils == null)
 			documentTokenUtils = new DocumentTokenUtils(
@@ -827,12 +436,4 @@ public class DocumentHelper {
 
 	private static final Log logger = LogFactory.getLog(DocumentHelper.class);
 
-	public void esborrarVariableInstance(
-			String processInstanceId,
-			String adjuntId) {
-
-//			jbpmDao.deleteProcessInstanceVariable(
-//						processInstanceId,
-//						getVarPerDocumentCodi(adjuntId, true));
-	}
 }

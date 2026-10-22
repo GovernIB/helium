@@ -234,10 +234,10 @@ public class ExpedientDadaHelperTest {
 
 		lenient().doAnswer(invocation -> expedientDades.get())
 			.when(expedientDadesRepository).
-			findByExpedientAndTaskId(any(), any());
+			findByTaskId(any());
 		lenient().doAnswer(invocation -> expedientDades.get())
 			.when(expedientDadesRepository)
-			.findByExpedientAndProcessIdAndTaskIdIsNull(any(), any());
+			.findByProcessIdAndTaskIdIsNull(any());
 		lenient().doAnswer(invocation -> Lists.newArrayList(expedientDades.get()))
 			.when(expedientDadesRepository)
 			.findByExpedient(any());

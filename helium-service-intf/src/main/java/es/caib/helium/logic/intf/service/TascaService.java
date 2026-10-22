@@ -54,6 +54,13 @@ public interface TascaService {
 			Long expedientId) throws NoTrobatException;
 
 	/**
+	 * Consulta d'informació d'una tasca per instancia de process i nom
+	 */
+	public ExpedientTascaDto findAmbProcessInstanceIdAndTaskName(
+		String processInstanceId,
+		String taskName) throws NoTrobatException;
+
+	/**
 	 * Consulta d'informació d'una tasca per a tramitar-la.
 	 *
 	 * @param id

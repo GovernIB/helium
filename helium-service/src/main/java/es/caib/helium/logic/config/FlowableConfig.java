@@ -32,7 +32,6 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 
 	private final WorkflowEngineApi workflowEngineApi;
 	private final ComandaHelper comandaHelper;
-	private final TascaHelper tascaHelper;
 
 	@Override
 	public void configure(SpringProcessEngineConfiguration processEngineConfiguration) {
@@ -40,7 +39,7 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 			new WorkflowEngineApiClassLoader(workflowEngineApi));
 		processEngineConfiguration.setEventListeners(List.of(new CurrentDeploymentIdEventListener(processEngineConfiguration)));
 		List<FlowableEventListener> listeners = ((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().getEventListeners().stream().collect(Collectors.toList());
-		listeners.add(new FlowableTaskEventListener(processEngineConfiguration, comandaHelper, tascaHelper));
+		listeners.add(new FlowableTaskEventListener(processEngineConfiguration, comandaHelper));
 		((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().setEventListeners(listeners);
 		processEngineConfiguration.setUseClassForNameClassLoading(false);
 	}

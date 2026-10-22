@@ -12,6 +12,7 @@ import org.flowable.common.engine.api.delegate.event.FlowableEntityEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEvent;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.identitylink.service.impl.persistence.entity.IdentityLinkEntity;
 import org.flowable.task.service.impl.persistence.entity.TaskEntity;
 
@@ -20,7 +21,6 @@ import org.flowable.task.service.impl.persistence.entity.TaskEntity;
 public class FlowableTaskEventListener extends AbstractFlowableEventListener {
 	private final ProcessEngineConfiguration processEngineConfiguration;
 	private final ComandaHelper comandaHelper;
-	private final TascaHelper tascaHelper;
 
 	@Override
 	public void onEvent(FlowableEvent event) {
@@ -63,6 +63,8 @@ public class FlowableTaskEventListener extends AbstractFlowableEventListener {
 				.includeProcessVariables()
 				.singleResult();
 
+			boolean checkAssignee = false;
+
 			TascaEstat estat = null;
 			switch ((FlowableEngineEventType) event.getType()) {
 			case ENTITY_UPDATED:
@@ -77,6 +79,7 @@ public class FlowableTaskEventListener extends AbstractFlowableEventListener {
 				break;
 			case ENTITY_CREATED:
 			case TASK_CREATED:
+				checkAssignee = true;
 				estat = TascaEstat.PENDENT;
 				break;
 			case TASK_ASSIGNED:
@@ -100,6 +103,14 @@ public class FlowableTaskEventListener extends AbstractFlowableEventListener {
 				estat = TascaEstat.CANCELADA;
 			}
 
+			if(checkAssignee && currentTask.getCandidates() != null	&& currentTask.getCandidates().size() == 1) {
+				IdentityLink il = currentTask.getCandidates().stream().findFirst().get();
+				if(il.getUserId() != null)
+					processEngineConfiguration
+						.getTaskService()
+						.setAssignee(currentTask.getId(), il.getUserId());
+			}
+
 			WTaskInstance taskInstance = FlowableEngineImpl.toWTaskInstance(currentTask);
 			comandaHelper.upsertTasca(
 				taskId,
@@ -109,9 +120,6 @@ public class FlowableTaskEventListener extends AbstractFlowableEventListener {
 				taskInstance,
 				estat
 			);
-
-			// tascaHelper.refreshExpedientTasca(taskId);
-
 		} catch(Exception ex) {
 			log.error("No s'ha pogut processar event de la tasca = {}", taskId, ex);
 		}

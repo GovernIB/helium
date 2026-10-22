@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -11,14 +11,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import es.caib.helium.commons.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import es.caib.helium.back.command.AnotacioAcceptarCommand;
 import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.commons.dto.AnotacioDto;
 import es.caib.helium.commons.dto.ExpedientDto.IniciadorTipusDto;
-import es.caib.helium.commons.dto.ParellaCodiValorDto;
-import es.caib.helium.commons.dto.ExpedientDto;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.TascaService;
 
@@ -27,7 +25,7 @@ import es.caib.helium.logic.intf.service.TascaService;
  * - Inici sense dades
  * - Inici amb formulari de la 1a tasca
  * - Inici amb formulari demanant títol o número
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class BaseExpedientIniciController extends BaseExpedientController {
@@ -48,16 +46,16 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 
 	@Autowired
 	protected AnotacioService anotacioService;
-	
+
 	/** Mètode sincronitzat per iniciar un expedient compartit entre els controladors que inicien expedients. Posa el missatge comú d'expedient
 	 * creat.
-	 * @param request 
-	 * 
+	 * @param request
+	 *
 	 * @param entornId
 	 * @param expedientTipusId
 	 * @param definicioProcesId
 	 * @return
-	 * 
+	 *
 	 * @throws Exception Hi poden haver excepcions no controlades amb sistemes externs.
 	 */
 	protected ExpedientDto iniciarExpedient (
@@ -71,7 +69,7 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 			Integer any,
 			Map<String, Object> valors,
 			AnotacioAcceptarCommand anotacioAcceptarCommand) throws Exception  {
-		
+
 		ExpedientDto iniciat = expedientService.create(
 				entornId,
 				null,
@@ -81,13 +79,24 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 				numero,
 				unitatOrganitzativaCodi,
 				titol,
-				null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, 
-				valors, 
+				null, null, null, null, false, null, null, null, null, null, null, false, null, null, false,
+				valors,
 				null,
 				IniciadorTipusDto.INTERN,
 				null, null, null, null,
 				anotacioAcceptarCommand != null? anotacioAcceptarCommand.getId() : null,
 				anotacioAcceptarCommand != null? anotacioAcceptarCommand.isAssociarInteressats() : false);
+
+		DefinicioProcesDto definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+
+		// Si la definició de procés té tasca inicial completa la primera tasca
+//		if (definicioProces.isHasStartTask() && definicioProces.getStartTaskName() != null) {
+//			ExpedientTascaDto expedientTasca = tascaService.findAmbProcessInstanceIdAndTaskName(
+//				iniciat.getProcessInstanceId(),
+//				definicioProces.getStartTaskName());
+//			tascaService.completar(expedientTasca.getId(), null);
+//		}
+
 
 		if (iniciat.getErrorArxiu()==null) {
 			MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
@@ -97,17 +106,17 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 		if (anotacioAcceptarCommand != null) {
 			AnotacioDto anotacio = anotacioService.findAmbId(anotacioAcceptarCommand.getId());
 				MissatgesHelper.success(
-						request, 
-						getMessage(	request, 
+						request,
+						getMessage(	request,
 									"anotacio.form.acceptar.incorporar.success",
 									new Object[] { anotacio.getIdentificador(), iniciat.getNumeroIdentificador()}));
-		}		
+		}
 		// Esborra els valors temporals de la sessió
 		netejarSessio(request);
-			
+
 		return iniciat;
 	}
-	
+
 	/** Obté per a la select els anys seleccionables */
 	public static List<ParellaCodiValorDto> getAnysSeleccionables() {
 		List<ParellaCodiValorDto> anys = new ArrayList<ParellaCodiValorDto>();
@@ -117,7 +126,7 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 		}
 		return anys;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static void netejarSessio(HttpServletRequest request) {
 		Enumeration<String> atributs = request.getSession().getAttributeNames();

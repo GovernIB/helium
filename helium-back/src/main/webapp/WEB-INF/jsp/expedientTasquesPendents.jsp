@@ -31,7 +31,7 @@
 								<td class="columna-info-tasca">
 									${tasca.titol}
 									<c:if test="${not tasca.agafada && not empty tasca.responsables}">
-										<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>"></span>
+										<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>: ${tasca.groupId}"></span>
 									</c:if>
 									<div class="pull-right">
 										<c:if test="${tasca.cancelled}">

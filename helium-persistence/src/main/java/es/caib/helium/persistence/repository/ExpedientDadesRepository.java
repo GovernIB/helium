@@ -18,10 +18,10 @@ import java.util.List;
 public interface ExpedientDadesRepository extends JpaRepository<ExpedientDades, Long> {
 
 	/** Obté les dades d'un expedient per una tasca concreta. */
-	public ExpedientDades findByExpedientAndTaskId(Expedient expedient, String taskId);
+	public ExpedientDades findByTaskId(String taskId);
 
 	/** Obté les dades d'un expedient per un procés concret. */
-	public ExpedientDades findByExpedientAndProcessIdAndTaskIdIsNull(Expedient expedient, String processId);
+	public ExpedientDades findByProcessIdAndTaskIdIsNull(String processId);
 
 	/** Obté les dades d'un expedient sense procés ni tasca. */
 	public List<ExpedientDades> findByExpedient(Expedient expedient);

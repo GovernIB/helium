@@ -39,26 +39,23 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 		String nom,
 		Boolean isClass);
 
-	@Query(
-		"SELECT r.contingut " +
-			"FROM Recurs r " +
-			"WHERE " +
-			"    ((:expedientTipusId IS NULL) OR r.expedientTipus.id = :expedientTipusId) " +
-			"AND ((:definicioProcesId IS NULL AND r.definicioProces IS NULL) OR r.definicioProces.id = :definicioProcesId) " +
-			"AND r.nom = :nom ")
+	@Query( "SELECT r.contingut " +
+			"	FROM Recurs r " +
+			"	WHERE " +
+			"    	((:expedientTipusId IS NULL) OR r.expedientTipus.id = :expedientTipusId) " +
+			"	AND ((:definicioProcesId IS NULL AND r.definicioProces IS NULL) OR r.definicioProces.id = :definicioProcesId) " +
+			"	AND r.nom = :nom ")
 	Optional<byte[]> findContingutByExpedientTipusIdAndDefinicioProcesIdAndName(
 		Long expedientTipusId,
 		Long definicioProcesId,
 		String nom);
 
-	@Query(
-		"SELECT r.contingut " +
-			"FROM Recurs r " +
+	@Query( "SELECT r FROM Recurs r " +
 			"WHERE " +
 			"    ((:expedientTipusId IS NULL) OR r.expedientTipus.id = :expedientTipusId) " +
 			"AND ((:definicioProcesId IS NULL AND r.definicioProces IS NULL) OR r.definicioProces.id = :definicioProcesId) " +
 			"AND r.id = :id ")
-	Optional<byte[]> findContingutByExpedientTipusIdAndDefinicioProcesIdAndId(
+	Optional<Recurs> findContingutByExpedientTipusIdAndDefinicioProcesIdAndId(
 		Long expedientTipusId,
 		Long definicioProcesId,
 		Long id);

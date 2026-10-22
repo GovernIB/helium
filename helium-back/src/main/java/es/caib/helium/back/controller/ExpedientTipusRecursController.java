@@ -9,6 +9,7 @@ import es.caib.helium.back.helper.*;
 import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.mvc.ArxiuView;
 import es.caib.helium.commons.dto.*;
+import es.caib.helium.commons.exception.NoTrobatException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -164,17 +165,14 @@ public class ExpedientTipusRecursController extends BaseExpedientTipusController
 
 	@RequestMapping(value = "/{expedientTipusId}/recurs/{id}/descarregar")
 	public View recursDescarregar(
-		HttpServletRequest request,
-		HttpServletResponse response,
 		@PathVariable Long expedientTipusId,
 		@PathVariable Long id,
-		@RequestParam String nom,
-		Model model) throws IOException {
-		expedientTipusService.getRecursContingut(expedientTipusId, id);
-		model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME,nom);
+		Model model) throws NoTrobatException {
+		RecursDto recurs = expedientTipusService.getRecursContingut(expedientTipusId, id);
+		model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME,recurs.getNom());
 		model.addAttribute(
 			ArxiuView.MODEL_ATTRIBUTE_DATA,
-			expedientTipusService.getRecursContingut(expedientTipusId, id));
+			recurs.getContingut());
 		return arxiuView;
 	}
 

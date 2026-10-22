@@ -758,7 +758,7 @@ public interface ExpedientTipusService {
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el recurs o no pertany al tipus d'expedient.
 	 */
-	byte[] getRecursContingut(
+	RecursDto getRecursContingut(
 		Long expedientTipusId,
 		Long id) throws NoTrobatException;
 

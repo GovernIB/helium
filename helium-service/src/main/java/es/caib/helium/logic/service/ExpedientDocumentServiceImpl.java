@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
@@ -105,7 +106,6 @@ import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.regles.ReglaHelper;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Anotacio;
 import es.caib.helium.persistence.entity.AnotacioAnnex;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -180,7 +180,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
-	private WorkflowEngineApi jbpmHelper;
+	private WorkflowEngineApi workflowEnigineApi;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -2379,33 +2379,14 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Override
 	@Transactional(readOnly = true)
 	public Set<Long> findIdsDocumentsByExpedient(Long expedientId) {
-		Set<Long> documentStoreIds = new HashSet<Long>();
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {ExtendedPermission.READ});
-		Map<String, Object> variables = jbpmHelper.getProcessInstanceVariables(expedient.getProcessInstanceId());
-		if (variables != null) {
-			if (variables != null) {
-				variables.remove(BpmnVars.VAR_TASCA_VALIDADA);
-				variables.remove(BpmnVars.VAR_TASCA_DELEGACIO);
-				/*
-				List<String> codisEsborrar = new ArrayList<String>();
-				for (String codi: variables.keySet()) {
-					if (!codi.startsWith(JbpmVars.PREFIX_DOCUMENT) && !codi.startsWith(JbpmVars.PREFIX_ADJUNT)) {
-						codisEsborrar.add(codi);
-					}
-				}
-				*/
-				for (String codi: variables.keySet())
-					variables.remove(codi);
-			}
-			for (String var: variables.keySet()) {
-				Long documentStoreId = (Long)variables.get(var);
-				if (documentStoreId != null)
-					documentStoreIds.add(documentStoreId);
-			}
-		}
-		return documentStoreIds;
+		return expedientDocumentHelper
+			.findByExpedientAndProcess(expedientId, expedient.getProcessInstanceId())
+			.stream()
+			.map(DocumentStore::getId)
+			.collect(Collectors.toSet());
 	}
 
 	/**

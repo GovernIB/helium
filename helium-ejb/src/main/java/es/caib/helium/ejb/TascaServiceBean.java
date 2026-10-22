@@ -53,6 +53,14 @@ public class TascaServiceBean extends AbstractServiceEjb<TascaService> implement
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTascaDto findAmbProcessInstanceIdAndTaskName(
+		String processInstanceId,
+		String taskName) throws NoTrobatException {
+		return delegateService.findAmbProcessInstanceIdAndTaskName(processInstanceId, taskName);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTascaDto findAmbIdPerTramitacio(
 			String id) {
 		return delegateService.findAmbIdPerTramitacio(id);

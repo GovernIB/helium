@@ -89,6 +89,8 @@ public class ExpedientTasca implements Serializable, GenericEntity<Long> {
 	private Boolean cancelled;
 	@Column(name="SUSPENDED")
 	private Boolean suspended;
+	@Column(name="VALIDATED")
+	private Boolean validated;
 
 	@OneToMany(mappedBy="tasca", fetch=FetchType.LAZY, cascade={CascadeType.ALL})
 	private List<TascaCandidate> candidates;

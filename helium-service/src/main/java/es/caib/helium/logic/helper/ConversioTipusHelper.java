@@ -548,6 +548,7 @@ public class ConversioTipusHelper {
 					target.setOpen(source.getOpen());
 					target.setCompleted(source.getCompleted());
 					target.setPooledActors(source.getPooledActors());
+					target.setGroupId(source.getGroupId());
 					return target;
 				}
 			});

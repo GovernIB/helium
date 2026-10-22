@@ -25,10 +25,16 @@
 				<div class="outcomes" data-textfi="<spring:message code="tasca.tramitacio.boto.finalitzar"/>">
         			<c:forEach var="outcome" items="${tasca.outcomes}" varStatus="status">
         				<c:choose>
-        					<c:when test="${not empty outcome}"><c:set var="textCompletar" value="${outcome}"/></c:when>
-        					<c:otherwise><c:set var="textCompletar"><spring:message code="tasca.tramitacio.boto.finalitzar"/></c:set></c:otherwise>
+        					<c:when test="${not empty outcome}">
+								<button type="button" id="tasca-boto-completar-${outcome.id}" data-transicio="${outcome.id}" name="accio" value="completar" class="btn btn-primary tasca-boto">
+									${(empty outcome.name)? outcome.id : outcome.name}
+								</button>
+							</c:when>
+        					<c:otherwise>
+								<c:set var="textCompletar"><spring:message code="tasca.tramitacio.boto.finalitzar"/></c:set>
+								<button type="button" id="tasca-boto-completar-${textCompletar}" data-transicio="${textCompletar}" name="accio" value="completar" class="btn btn-primary tasca-boto">${textCompletar}</button>
+							</c:otherwise>
         				</c:choose>
-        				<button type="button" id="tasca-boto-completar-${textCompletar}" data-transicio="${textCompletar}" name="accio" value="completar" class="btn btn-primary tasca-boto">${textCompletar}</button>
         			</c:forEach>
 	      		</div>
 			</c:when>

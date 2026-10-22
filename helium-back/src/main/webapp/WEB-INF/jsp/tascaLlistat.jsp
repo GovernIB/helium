@@ -438,8 +438,8 @@
 					<spring:message code="tasca.llistat.columna.titol.tasca"/>
 					<script id="cellPersonalGroupTemplate" type="text/x-jsrender">
 						{{:titol}}
-						{{if !agafada && responsables != null}}
-							<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>"></span>
+						{{if !agafada && responsables != null && groupId != null}}
+							<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>: {{:groupId}}"></span>
 						{{/if}}
 						<div class="pull-right">
 							{{if cancelled}}
@@ -551,6 +551,7 @@
 				<th data-rdt-property="errorFinalitzacio" data-rdt-visible="false"></th>
 				<th data-rdt-property="marcadaFinalitzarFormat" data-rdt-visible="false"></th>
 				<th data-rdt-property="iniciFinalitzacioFormat" data-rdt-visible="false"></th>
+				<th data-rdt-property="groupId" data-rdt-visible="false"></th>
 			</tr>
 		</thead>
 	</table>

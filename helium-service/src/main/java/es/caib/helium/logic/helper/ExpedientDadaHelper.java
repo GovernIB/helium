@@ -148,9 +148,7 @@ public class ExpedientDadaHelper {
 	 */
 	@Transactional
 	public Object getDada(Expedient expedient, String processId, String taskId, String varCodi) {
-
 		Object valor = null;
-
 		// Recupera les dades per l'expedient segons el context de tasca, procés i expedient
 		ExpedientDades expedientDadesEntity = this.getDades(expedient, processId, taskId);
 		if (expedientDadesEntity == null) {
@@ -208,9 +206,9 @@ public class ExpedientDadaHelper {
 	private ExpedientDades getDades(Expedient expedient, String processId, String taskId) {
 		ExpedientDades expedientDades = null;
 		if (taskId != null) {
-			expedientDades = expedientDadesRepository.findByExpedientAndTaskId(expedient, taskId);
+			expedientDades = expedientDadesRepository.findByTaskId(taskId);
 		} else if (processId != null) {
-			expedientDades = expedientDadesRepository.findByExpedientAndProcessIdAndTaskIdIsNull(expedient, processId);
+			expedientDades = expedientDadesRepository.findByProcessIdAndTaskIdIsNull(processId);
 		} else {
 			expedientDades = expedientDadesRepository.findByExpedientAndPrincipal(expedient, true);
 		}

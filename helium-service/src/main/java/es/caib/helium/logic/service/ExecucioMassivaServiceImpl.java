@@ -1009,7 +1009,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	}
 
 	/** Mètode per executar una sola acció massiva. Té un timeout de 10' per evitar bloquejos en les accions
-	 * massives. 
+	 * massives.
 	 */
 	@Override
 	@Transactional
@@ -1229,7 +1229,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		}
 		return timeout;
 	}
-	
+
 	@Override
 	public void actualitzaUltimaOperacio(Long ome_id) {
 		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findById(ome_id).orElse(null);
@@ -1816,11 +1816,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			String var = ome.getExecucioMassiva().getParam1();
 			Object[] params = (Object[]) deserialize(ome.getExecucioMassiva().getParam2());
 			String idPI = exp.getProcessInstanceId();
-			if (idPI != null) {
-				expedientDadaService.update(exp.getId(), idPI, var, params[2]);
-			} else {
-				tascaService.updateVariable(exp.getId(), (String) params[1], var, params[2]);
-			}
+			expedientDadaService.update(exp.getId(), idPI, var, params[2]);
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
@@ -1898,7 +1894,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					if (doc == null) {
 						throw new Exception("Document inexistent: no es pot esborrar");
 					} else if (!doc.isSignat() && !doc.isRegistrat()) {
-						documentHelperV3.esborrarDocument(null, exp.getProcessInstanceId(), aux.getCodi());
+						documentHelperV3.esborrarDocument(exp.getProcessInstanceId(), aux.getCodi());
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot esborrar");
 					} else if (doc.isRegistrat()) {

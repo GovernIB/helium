@@ -25,8 +25,11 @@ import javax.annotation.Resource;
 
 import com.google.common.collect.Lists;
 import es.caib.helium.commons.config.PropertyConfig;
+import es.caib.helium.commons.dades.DocumentTipusEnum;
 import es.caib.helium.commons.dto.*;
 import es.caib.helium.disseny.engine.WProcessDefinition;
+import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.repository.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -77,33 +80,7 @@ import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.utils.DocumentTokenUtils;
-import es.caib.helium.persistence.common.bpmn.BpmnVars;
-import es.caib.helium.persistence.entity.AnotacioAnnex;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentNotificacio;
-import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
-import es.caib.helium.persistence.entity.DocumentTasca;
-import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.FirmaTasca;
-import es.caib.helium.persistence.entity.PeticioPinbal;
-import es.caib.helium.persistence.entity.Portasignatures;
-import es.caib.helium.persistence.entity.Registre;
-import es.caib.helium.persistence.entity.Tasca;
-import es.caib.helium.persistence.repository.AnotacioAnnexRepository;
-import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.persistence.repository.DocumentNotificacioRepository;
-import es.caib.helium.persistence.repository.DocumentRepository;
-import es.caib.helium.persistence.repository.DocumentStoreRepository;
-import es.caib.helium.persistence.repository.DocumentTascaRepository;
-import es.caib.helium.persistence.repository.ExpedientRepository;
-import es.caib.helium.persistence.repository.FirmaTascaRepository;
-import es.caib.helium.persistence.repository.PeticioPinbalRepository;
-import es.caib.helium.persistence.repository.PortasignaturesRepository;
-import es.caib.helium.persistence.repository.RegistreRepository;
-import es.caib.helium.persistence.repository.TascaRepository;
 import es.caib.pluginsib.arxiu.api.ContingutArxiu;
 import es.caib.pluginsib.arxiu.api.DocumentEstat;
 import es.caib.pluginsib.arxiu.api.Firma;
@@ -131,7 +108,7 @@ public class DocumentHelperV3 {
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
 	@Resource
-	private ExpedientRepository expedientRepository;
+	private ExpedientDocumentRepository expedientDocumentRepository;
 	@Resource
 	private DocumentTascaRepository documentTascaRepository;
 	@Resource
@@ -473,7 +450,6 @@ public class DocumentHelperV3 {
 	}
 
 	public List<Document> findDocumentsExpedient(Expedient expedient, String processInstanceId) {
-
 		DefinicioProces definicioProces = null;
 		if (ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus()) && processInstanceId!=null) {
 			definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
@@ -495,74 +471,56 @@ public class DocumentHelperV3 {
 			String processInstanceId) {
 		List<ExpedientDocumentDto> resposta = new ArrayList<ExpedientDocumentDto>();
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-
 		List<Document> documents = findDocumentsExpedient(expedient, processInstanceId);
-
+		List<ExpedientDocument> expedientDocuments = expedientDocumentRepository.findByExpedientAndProcessInstance(expedient.getId(), processInstanceId);
+		// Cosulta els documents notificats de l'expedient per marcar-los com a notificats
+		List<Long> documentsNotificats = this.getDocumentsNotificats(expedient);
 		// Consulta els annexos de les anotacions de registre i les guarda en un Map<Long documentStoreId, Anotacio>
 		Map<Long, AnotacioAnnex> mapAnotacions = new HashMap<Long, AnotacioAnnex>();
 		for (AnotacioAnnex annex : anotacioAnnexRepository.findByAnotacioExpedientId(expedient.getId()))
 			mapAnotacions.put(annex.getId(), annex);
 
-		// Cosulta els documents notificats de l'expedient per marcar-los com a notificats
-		List<Long> documentsNotificats = this.getDocumentsNotificats(expedient);
+		Map<String, Document> tipusDocuments = new HashMap<String, Document>();
+		for(Document document : documents)
+			tipusDocuments.put(document.getCodi(), document);
 
-		// Consulta els documents de l'instància de procés
-		Map<String, Object> varsInstanciaProces = workflowEngineApi.getProcessInstanceVariables(processInstanceId);
-		if (varsInstanciaProces != null) {
-			filtrarVariablesAmbDocuments(varsInstanciaProces);
-			for (String var: varsInstanciaProces.keySet()) {
-				Long documentStoreId = (Long)varsInstanciaProces.get(var);
-				if (documentStoreId != null) {
-					ExpedientDocumentDto ed = null;
-					if (var.startsWith(BpmnVars.PREFIX_DOCUMENT)) {
-						// Afegeix el document
-						String documentCodi = getDocumentCodiDeVariableJbpm(var);
-						Document document = null;
-						for (Document doc: documents) {
-							if (doc.getCodi().equals(documentCodi)) {
-								document = doc;
-								break;
-							}
-						}
-						if (document != null) {
-							ed = crearDtoPerDocumentExpedient(
-									document,
-									documentStoreId,
-									expedient.isArxiuActiu());
-							ed.setAnotacioId(null); // De moment només arriben per anotació els annexos
-						} else {
-							ExpedientDocumentDto dto = new ExpedientDocumentDto();
-							dto.setId(documentStoreId);
-							dto.setProcessInstanceId(processInstanceId);
-							dto.setError("No s'ha trobat el document de la definició de procés (" +
-										"documentCodi=" + documentCodi + ")");
-							ed = dto;
-						}
-					} else if (var.startsWith(BpmnVars.PREFIX_ADJUNT)) {
-						// Afegeix l'adjunt
-						ed = crearDtoPerAdjuntExpedient(
-								getAdjuntIdDeVariableJbpm(var),
-								documentStoreId,
-								expedient.isArxiuActiu());
-					}
-					// Afegeix informació de l'annex relacionat amb el document
-					if (ed != null && mapAnotacions.containsKey(ed.getAnotacioAnnexId())) {
-						AnotacioAnnex annex = mapAnotacions.get(ed.getAnotacioAnnexId());
-						ed.setAnotacioId(annex.getAnotacio().getId());
-						ed.setAnotacioIdentificador(annex.getAnotacio().getIdentificador());
-						ed.setAnotacioAnnexTitol(annex.getTitol());
-					}
-					// Informació de les notificacions
-					ed.setNotificat(documentsNotificats.contains(documentStoreId));
-					List<PeticioPinbal> pps = peticioPinbalRepository.findByExpedientIdAndDocumentIdOrderByDataPeticioDesc(expedient.getId(), documentStoreId);
-					if (pps!=null && pps.size()>0) {
-						ed.setPinbal(true);
-						ed.setEstatPinbal(pps.get(0).getEstat());
-					}
-					ed.setNotificable(PdfUtils.isArxiuConvertiblePdf(ed.getArxiuNom()));
-					resposta.add(ed);
+		for(ExpedientDocument expedientDocument : expedientDocuments) {
+			Document document = tipusDocuments.get(expedientDocument.getCodi());
+			ExpedientDocumentDto ed = null;
+			if (expedientDocument.getTipus() == DocumentTipusEnum.DOCUMENT) {
+				if (document != null) {
+					ed = crearDtoPerDocumentExpedient(
+							document,
+							expedientDocument.getDocumentStore(),
+							expedient.isArxiuActiu());
+				} else {
+					ed = new ExpedientDocumentDto();
+					ed.setId(expedientDocument.getDocumentStore().getId());
+					ed.setProcessInstanceId(processInstanceId);
+					ed.setError("No s'ha trobat el document de la definició de procés (documentCodi=" + expedientDocument.getCodi() + ")");
 				}
+			} else {
+				// Afegeix l'adjunt
+				ed = crearDtoPerAdjuntExpedient(
+						expedientDocument.getCodi(),
+						expedientDocument.getDocumentStore().getId(),
+						expedient.isArxiuActiu());
 			}
+			// Afegeix informació de l'annex relacionat amb el document
+			if (mapAnotacions.containsKey(ed.getAnotacioAnnexId())) {
+				AnotacioAnnex annex = mapAnotacions.get(ed.getAnotacioAnnexId());
+				ed.setAnotacioId(annex.getAnotacio().getId());
+				ed.setAnotacioIdentificador(annex.getAnotacio().getIdentificador());
+				ed.setAnotacioAnnexTitol(annex.getTitol());
+			}
+			// Informació de les notificacions
+			ed.setNotificat(documentsNotificats.contains(expedientDocument.getDocumentStore().getId()));
+			List<PeticioPinbal> pps = peticioPinbalRepository.findByExpedientIdAndDocumentIdOrderByDataPeticioDesc(expedient.getId(), expedientDocument.getDocumentStore().getId());
+			if (pps!=null && !pps.isEmpty()) {
+				ed.setPinbal(true);
+				ed.setEstatPinbal(pps.get(0).getEstat());
+			}
+			ed.setNotificable(PdfUtils.isArxiuConvertiblePdf(ed.getArxiuNom()));
 		}
 		return resposta;
 	}
@@ -578,7 +536,7 @@ public class DocumentHelperV3 {
 		if (documentStore != null) {
 			if (documentStore.isAdjunt()) {
 				return crearDtoPerAdjuntExpedient(
-						getAdjuntIdDeVariableJbpm(documentStore.getCodi()),
+						documentStore.getCodi(),
 						documentStoreId,
 						arxiuActiu);
 			} else {
@@ -843,10 +801,10 @@ public class DocumentHelperV3 {
 					tascaId,
 					true,
 					true);
-			workflowEngineApi.setTaskInstanceVariable(
-					task.getId(),
-					BpmnVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
-					documentStore.getId());
+//			workflowEngineApi.setTaskInstanceVariable(
+//					task.getId(),
+//					BpmnVars.PREFIX_SIGNATURA + dto.getDocumentCodi(),
+//					documentStore.getId());
 		}
 		return dto;
 	}
@@ -1037,17 +995,17 @@ public class DocumentHelperV3 {
 
 		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar
 		// sino en cas que falli arxiu, el document no es veurá a la pipella de documents del expedient.
-		if (taskInstanceId != null) {
-			workflowEngineApi.setTaskInstanceVariable(
-					taskInstanceId,
-					documentStore.getCodi(),
-					documentStore.getId());
-		} else {
-			workflowEngineApi.setProcessInstanceVariable(
-					processInstanceId,
-					documentStore.getCodi(),
-					documentStore.getId());
-		}
+//		if (taskInstanceId != null) {
+//			workflowEngineApi.setTaskInstanceVariable(
+//					taskInstanceId,
+//					documentStore.getCodi(),
+//					documentStore.getId());
+//		} else {
+//			workflowEngineApi.setProcessInstanceVariable(
+//					processInstanceId,
+//					documentStore.getCodi(),
+//					documentStore.getId());
+//		}
 
 		documentStoreCreat.setDocumentValid(documentValid);
 		documentStoreCreat.setDocumentError(documentError);
@@ -1217,17 +1175,17 @@ public class DocumentHelperV3 {
 
 		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar
 		// sino en cas que falli arxiu, el document no es veurá a la pipella de documents del expedient.
-		if (taskInstanceId != null) {
-			workflowEngineApi.setTaskInstanceVariable(
-					taskInstanceId,
-					documentStore.getCodi(),
-					documentStore.getId());
-		} else {
-			workflowEngineApi.setProcessInstanceVariable(
-					processInstanceId,
-					documentStore.getCodi(),
-					documentStore.getId());
-		}
+//		if (taskInstanceId != null) {
+//			workflowEngineApi.setTaskInstanceVariable(
+//					taskInstanceId,
+//					documentStore.getCodi(),
+//					documentStore.getId());
+//		} else {
+//			workflowEngineApi.setProcessInstanceVariable(
+//					processInstanceId,
+//					documentStore.getCodi(),
+//					documentStore.getId());
+//		}
 
 		return documentStore;
 	}
@@ -1352,29 +1310,21 @@ public class DocumentHelperV3 {
 	}
 
 	public void esborrarDocument(
-			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
-		Object varValor = null;
-		if (taskInstanceId != null) {
-			varValor = workflowEngineApi.getTaskInstanceVariable(
-					taskInstanceId,
-					documentCodi);
-		} else if (processInstanceId != null) {
-			varValor = workflowEngineApi.getProcessInstanceVariable(
-					processInstanceId,
-					documentCodi);
-		}
-		if (varValor != null && varValor instanceof Long) {
+		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
+			null,
+			processInstanceId,
+			null,
+			documentCodi);
+		if (documentStore != null) {
 			esborrarDocument(
-					taskInstanceId,
 					processInstanceId,
-					(Long)varValor);
+					documentStore.getId());
 		}
 	}
 
 	public void esborrarDocument(
-			String taskInstanceId,
 			String processInstanceId,
 			Long documentStoreId) {
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
@@ -1440,30 +1390,29 @@ public class DocumentHelperV3 {
 				}
 			}
 			if (esborrarDocument) {
-				for (DocumentStore parent : new ArrayList<DocumentStore>(documentStore.getZips())) {
+				for (DocumentStore parent : new ArrayList<DocumentStore>(documentStore.getZips()))
 					parent.getContinguts().remove(documentStore);
-				}
 
 				documentStore.getContinguts().clear();
 				documentStoreRepository.flush();
 				documentStoreRepository.deleteById(documentStoreId);
 			}
 
-			if (taskInstanceId != null) {
-				workflowEngineApi.deleteTaskInstanceVariable(
-						taskInstanceId,
-						documentStore.getCodi());
-				String documentCodi = getDocumentCodiPerVariableJbpm(
-						documentStore.getCodi());
-				workflowEngineApi.deleteTaskInstanceVariable(
-						taskInstanceId,
-						BpmnVars.PREFIX_SIGNATURA + documentCodi);
-			}
-			if (processInstanceId != null) {
-				workflowEngineApi.deleteProcessInstanceVariable(
-						processInstanceId,
-						documentStore.getCodi());
-			}
+//			if (taskInstanceId != null) {
+//				workflowEngineApi.deleteTaskInstanceVariable(
+//						taskInstanceId,
+//						documentStore.getCodi());
+//				String documentCodi = getDocumentCodiPerVariableJbpm(
+//						documentStore.getCodi());
+//				workflowEngineApi.deleteTaskInstanceVariable(
+//						taskInstanceId,
+//						BpmnVars.PREFIX_SIGNATURA + documentCodi);
+//			}
+//			if (processInstanceId != null) {
+//				workflowEngineApi.deleteProcessInstanceVariable(
+//						processInstanceId,
+//						documentStore.getCodi());
+//			}
 		}
 	}
 
@@ -1523,18 +1472,6 @@ public class DocumentHelperV3 {
 			return documentRepository.findByDefinicioProcesAndCodi(
 					definicioProces,
 					documentCodi);
-	}
-
-	public static String getDocumentCodiPerVariableJbpm(String var) {
-		if (var.startsWith(BpmnVars.PREFIX_DOCUMENT)) {
-			return var.substring(BpmnVars.PREFIX_DOCUMENT.length());
-		} else if (var.startsWith(BpmnVars.PREFIX_ADJUNT)) {
-			return var.substring(BpmnVars.PREFIX_ADJUNT.length());
-		} else if (var.startsWith(BpmnVars.PREFIX_SIGNATURA)) {
-			return var.substring(BpmnVars.PREFIX_SIGNATURA.length());
-		} else {
-			return var;
-		}
 	}
 
 	public ArxiuDto generarDocumentAmbPlantillaIConvertir(
@@ -2087,9 +2024,6 @@ public class DocumentHelperV3 {
 	}
 
 	/** Mapega el perfil retornat pel plugin de firma al perfil acceptat per l'Arxiu
-	 *
-	 * @param perfilFirmaEni
-	 * @return
 	 */
 	private String mapToPerfilFirmaArxiu(String perfil) {
 		if (mapPerfilsFirma.containsKey(perfil))
@@ -2491,13 +2425,13 @@ public class DocumentHelperV3 {
 			}
 		} else {
 			ed = crearDtoPerAdjuntExpedient(
-					getAdjuntIdDeVariableJbpm(documentStore.getCodi()),
+					documentStore.getCodi(),
 					documentStore,
 					arxiuActiu);
 		}
 		// Consulta els annexos de les anotacions de registre i les guarda en un Map<Long documentStoreId, Anotacio>
 		List<AnotacioAnnex> annexos = anotacioAnnexRepository.findByDocumentStoreId(documentStore.getId());
-		if (annexos.size() > 0) {
+		if (!annexos.isEmpty()) {
 			if (annexos.size() > 1) {
 				logger.warn("S'ha trobat més d'un annex d'anotació pel documentStoreId " + documentStore.getId() );
 			}
@@ -2546,28 +2480,6 @@ public class DocumentHelperV3 {
 			extensioDesti = getExtensioArxiuRegistrat();
 		}
 		return extensioDesti;
-	}
-
-	private String getDocumentCodiDeVariableJbpm(String varName) {
-		return varName.substring(BpmnVars.PREFIX_DOCUMENT.length());
-	}
-	private String getAdjuntIdDeVariableJbpm(String varName) {
-		return varName.substring(BpmnVars.PREFIX_ADJUNT.length());
-	}
-
-	private void filtrarVariablesAmbDocuments(Map<String, Object> variables) {
-		if (variables != null) {
-			variables.remove(BpmnVars.VAR_TASCA_VALIDADA);
-			variables.remove(BpmnVars.VAR_TASCA_DELEGACIO);
-			List<String> codisEsborrar = new ArrayList<String>();
-			for (String codi: variables.keySet()) {
-				if (!codi.startsWith(BpmnVars.PREFIX_DOCUMENT) && !codi.startsWith(BpmnVars.PREFIX_ADJUNT)) {
-					codisEsborrar.add(codi);
-				}
-			}
-			for (String codi: codisEsborrar)
-				variables.remove(codi);
-		}
 	}
 
 	private String getNomArxiuAmbExtensio(
@@ -2862,22 +2774,6 @@ public class DocumentHelperV3 {
 			}
 			if (ambFirma) {
 				String referenciaCustodia = documentStore.getId() + "_" + new Date().getTime();
-//				try {
-//					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-//							referenciaCustodia,
-//							documentStore.getReferenciaFont(),
-//							arxiuNom,
-//							document.getCustodiaCodi(),
-//							firmes.get(0).getContingut());
-//
-//				} catch (Exception ex) {
-//					logger.info(">>> [PSIGN] Processant error custòdia (" + exceptionHelper.getMissageFinalCadenaExcepcions(ex) + ", " + exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (docStoreId=" + documentStore.getId() + ", refCustòdia=" + referenciaCustodia + ")");
-//					if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
-//						referenciaCustodia = documentStore.getId().toString();
-//					} else {
-//						throw new RuntimeException(ex);
-//					}
-//				}
 				if (expedient.isNtiActiu()) {
 					actualitzarNtiFirma(documentStore, null);
 				}
@@ -3344,12 +3240,9 @@ public class DocumentHelperV3 {
 	/** Estableix en nom de l'arxiu a partir del document i l'extensió de l'arxiu. Afegeix una carpeta
 	 * si el procés no és el principal, corregeix els caràcters estranys i vigila que no es repeteixin.
 	 *
-	 * @param expedient Per determinar si és el procés principal
 	 * @param instanciaProces Per determinar si és el procés principal i crear una carpeta en cas contrari.
 	 * @param document Per recuperar el nom per l'arxiu
-	 * @param arxiu Per recuperar l'extensió
 	 * @param nomsArxius Per controlar la llista de noms utilitzats.
-	 * @return
 	 */
 	public String getZipRecursNom(
 			InstanciaProcesDto instanciaProces,

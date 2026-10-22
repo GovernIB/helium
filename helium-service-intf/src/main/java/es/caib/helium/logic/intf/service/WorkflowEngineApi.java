@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.commons.dto.TascaOutcomeDto;
 import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.engine.WDeployment;
 import es.caib.helium.disseny.engine.WExpedientDto;
@@ -26,9 +27,6 @@ import es.caib.helium.disseny.engine.WUserTask;
  *
  */
 public interface WorkflowEngineApi {
-
-	public static final String VAR_TASCA_DELEGACIO = "H3l1um#tasca.delegacio";
-	public static final String VAR_TASCA_VALIDADA = "H3l1um#tasca.validada";
 
 	public enum MostrarTasquesDto {
 		MOSTRAR_TASQUES_TOTS,
@@ -276,6 +274,11 @@ public interface WorkflowEngineApi {
             boolean nomesTasquesPersonals,
             boolean nomesTasquesGrup);
 
+	/**
+	 * Obté les instàncies de procés principals filtrades
+	 */
+	public WProcessInstance findRootProcessInstance(String processInstanceId);
+
 	public Long findExpedientIdByProcessInstanceId(String processInstanceId) throws Exception;
 
 	// Tramitació
@@ -286,13 +289,11 @@ public interface WorkflowEngineApi {
 	 *
 	 * @param actorId
 	 * @param processDefinitionId
-	 * @param variables
 	 * @return
 	 */
 	public WProcessInstance startProcessInstanceById(
             String actorId,
-            String processDefinitionId,
-            Map<String, Object> variables);
+            String processDefinitionId);
 
 	/**
 	 * Envia un disparador extern a una instància de procés
@@ -423,7 +424,12 @@ public interface WorkflowEngineApi {
 	 * @param processInstanceId
 	 * @return
 	 */
-	public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId);
+	public List<WTaskInstance> findTaskInstanceByProcessInstanceId(String processInstanceId);
+
+	/**
+	 *  Obté la instància de tasca per nom d'una instància de procés
+	 */
+	public WTaskInstance findTaskInstanceByProcessInstanceIdAndName(String processInstanceId, String taskName);
 
 	/**
 	 * Obté la instància d0una tasca donat el seu codi
@@ -569,9 +575,9 @@ public interface WorkflowEngineApi {
             String titol,
             String infoCache);
 
-	public List<String> findStartTaskOutcomes(String jbpmId, String taskName);
+	public List<TascaOutcomeDto> findStartTaskOutcomes(String jbpmId, String taskName);
 
-	public List<String> findTaskInstanceOutcomes(String taskInstanceId);
+	public List<TascaOutcomeDto> findTaskInstanceOutcomes(String taskInstanceId);
 
 	// VARIABLES DE TASQUES
 	////////////////////////////////////////////////////////////////////////////////
@@ -788,7 +794,7 @@ public interface WorkflowEngineApi {
 			boolean nomesErrors, boolean nomesTasquesPersonals, boolean nomesTasquesGrup, boolean b, Object object,
 			PaginacioParamsDto paginacioParams, boolean c, boolean nomesErrorsArxiu, Set<Long> idsSeleccionats);
 
-	public WExpedientDto expedientFindByProcessInstanceId(String processInstanceId);
+	//public WExpedientDto expedientFindByProcessInstanceId(String processInstanceId);
 
 	public void deleteProcessInstanceTreeLogs(String processInstanceId);
 
@@ -834,13 +840,13 @@ public interface WorkflowEngineApi {
 	public WProcessDefinition parseProcess(byte[] contingut);
 
 	/** Mètode per cercar la tasca en el procés i completar-la passant una llista de valors per la tasca.
-	 * 
+	 *
 	 * @param processInstanceId
 	 * @param taskName
 	 * @param variables
 	 */
 	public void completeTask(
-			String processInstanceId, 
-			String taskName, 
+			String processInstanceId,
+			String taskName,
 			Map<String, Object> variables);
 }

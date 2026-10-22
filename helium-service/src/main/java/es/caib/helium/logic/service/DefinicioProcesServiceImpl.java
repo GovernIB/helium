@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.disseny.engine.WProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,6 @@ import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
-import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.CampTasca;
@@ -103,8 +103,6 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
 	private CampRegistreRepository campRegistreRepository;
-	@Autowired
-	protected Jbpm3HeliumService jbpm3HeliumService;
 	@Autowired
 	private ExpedientTipusRepository expedientTipusRepository;
 
@@ -188,9 +186,14 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		logger.debug(
 				"Consultant la llista de sub processos per a una definició de procés (" +
 				"definicioProcesId = " + definicioProcesId + ")");
-		List<DefinicioProcesDto> resposta =
-				jbpm3HeliumService.findSubDefinicionsProces(
-						definicioProcesId);
+		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
+		DefinicioProces definicioProces = definicioProcesRepository.getReferenceById(definicioProcesId);
+		for (WProcessDefinition pd : workflowEngineApi.getSubProcessDefinitions(definicioProces.getJbpmId())) {
+			resposta.add(conversioTipusHelper.convertir(
+				definicioProcesRepository.findByJbpmId(pd.getId()),
+				DefinicioProcesDto.class));
+		}
+
 		return resposta;
 	}
 

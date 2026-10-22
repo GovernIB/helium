@@ -25,10 +25,8 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.disseny.engine.WTaskInstance;
-import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.common.bpmn.DominiCodiDescripcio;
-import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.CampAgrupacio;
 import es.caib.helium.persistence.entity.CampRegistre;
@@ -46,7 +44,6 @@ import es.caib.helium.persistence.entity.Tasca;
 import es.caib.helium.persistence.repository.CampRepository;
 import es.caib.helium.persistence.repository.CampTascaRepository;
 import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.TascaRepository;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 
@@ -63,8 +60,6 @@ public class VariableHelper {
 	@Resource
 	private TascaRepository tascaRepository;
 	@Resource
-	private ExpedientRepository expedientRepository;
-	@Resource
 	private CampRepository campRepository;
 	@Resource
 	private CampTascaRepository campTascaRepository;
@@ -74,8 +69,6 @@ public class VariableHelper {
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private DominiHelper dominiHelper;
-	@Resource(name="expedientServiceV3")
-	private ExpedientService expedientService;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
 	@Autowired
@@ -87,17 +80,16 @@ public class VariableHelper {
 	@Resource
 	private ExpedientDadaHelper expedientDadaHelper;
 
-
-
 	public Object getVariableJbpmTascaValor(
 			String taskId,
 			String varCodi) {
-		Object valor = workflowEngineApi.getTaskInstanceVariable(taskId, varCodi);
+		Object valor = expedientDadaHelper.getDada(null, null, taskId, varCodi);
 		return valorVariableJbpmRevisat(valor);
 	}
+
 	public Map<String, Object> getVariablesJbpmTascaValor(
 			String taskId) {
-		Map<String, Object> valors = workflowEngineApi.getTaskInstanceVariables(taskId);
+		Map<String, Object> valors = expedientDadaHelper.getDadesValors(null, null, taskId);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
 		for (String varCodi: valors.keySet()) {
 			Object valor = valors.get(varCodi);
@@ -105,15 +97,17 @@ public class VariableHelper {
 		}
 		return valorsRevisats;
 	}
+
 	public Object getVariableJbpmProcesValor(
 			String processInstanceId,
 			String varCodi) {
-		Object valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, varCodi);
+		Object valor = expedientDadaHelper.getDada(null, processInstanceId, null, varCodi);
 		return valorVariableJbpmRevisat(valor);
 	}
+
 	public Map<String, Object> getVariablesJbpmProcesValor(
 			String processInstanceId) {
-		Map<String, Object> valors = workflowEngineApi.getProcessInstanceVariables(processInstanceId);
+		Map<String, Object> valors = expedientDadaHelper.getDadesValors(null, processInstanceId, null);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
 		if (valors != null) {
 			for (String varCodi: valors.keySet()) {
@@ -165,13 +159,12 @@ public class VariableHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		if (varsInstanciaProces != null) {
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");
-			filtrarVariablesUsIntern(varsInstanciaProces);
 			for (String var: varsInstanciaProces.keySet()) {
 				ExpedientDadaDto dto = null;
 				boolean varAmbContingut = varsInstanciaProces.get(var) != null;
 				Camp camp = campsIndexatsPerCodi.get(var);
 				if (varAmbContingut) {
-					dto = getDadaPerVariableJbpm(
+					dto = getDadaPerVariable(
 						camp,
 						var,
 						varsInstanciaProces.get(var),
@@ -194,7 +187,7 @@ public class VariableHelper {
 				if (varAmbContingut) {
 					resposta.add(dto);
 				} else if (incloureVariablesBuides) {
-					dto = getDadaPerVariableJbpm(
+					dto = getDadaPerVariable(
 						camp,
 						var,
 						null,
@@ -246,13 +239,12 @@ public class VariableHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		if (varsInstanciaProces != null) {
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");
-			filtrarVariablesUsIntern(varsInstanciaProces);
 			for (String var: varsInstanciaProces.keySet()) {
 				ExpedientDadaDto dto = null;
 				boolean varAmbContingut = varsInstanciaProces.get(var) != null;
 				Camp camp = campsIndexatsPerCodi.get(var);
 				if (varAmbContingut) {
-					dto = getDadaPerVariableJbpm(
+					dto = getDadaPerVariable(
 							camp,
 							var,
 							varsInstanciaProces.get(var),
@@ -275,7 +267,7 @@ public class VariableHelper {
 				if (varAmbContingut) {
 					resposta.add(dto);
 				} else if (incloureVariablesBuides) {
-					dto = getDadaPerVariableJbpm(
+					dto = getDadaPerVariable(
 							camp,
 							var,
 							null,
@@ -345,7 +337,7 @@ public class VariableHelper {
 		ExpedientDadaDto dto = null;
 		boolean varAmbContingut = valor != null;
 		if (varAmbContingut) {
-			dto = getDadaPerVariableJbpm(
+			dto = getDadaPerVariable(
 					camp,
 					variableCodi,
 					valor,
@@ -366,7 +358,7 @@ public class VariableHelper {
 			}
 		}
 		if (!varAmbContingut && incloureVariablesBuides) {
-			dto = getDadaPerVariableJbpm(
+			dto = getDadaPerVariable(
 					camp,
 					variableCodi,
 					null,
@@ -381,7 +373,7 @@ public class VariableHelper {
 	public ExpedientDadaDto getDadaBuida(
 			long campId) {
 		Camp camp = campRepository.findById(campId).orElse(null);
-		ExpedientDadaDto dto = getDadaPerVariableJbpm(
+		ExpedientDadaDto dto = getDadaPerVariable(
 					camp,
 					camp.getCodi(),
 					null,
@@ -400,7 +392,7 @@ public class VariableHelper {
 		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(tasca.getTascaId(), expedientTipusId)) {
 			Camp camp = campTasca.getCamp();
 
-			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(
+			ExpedientDadaDto expedientDadaDto = getDadaPerVariable(
 					camp,
 					camp.getCodi(),
 					null,
@@ -463,7 +455,7 @@ public class VariableHelper {
 				camp = sobreescrits.get(camp.getCodi());
 			// Si el camp se sobreescriu llavors es passa el camp sobreescrit
 			Object varValor = varsInstanciaTasca.get(camp.getCodi());
-			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(
+			ExpedientDadaDto expedientDadaDto = getDadaPerVariable(
 					camp,
 					camp.getCodi(),
 					varValor,
@@ -514,12 +506,17 @@ public class VariableHelper {
 		} else {
 			return null;
 		}
-		Object valor = workflowEngineApi.getTaskInstanceVariable(
+
+		Object valor = expedientDadaHelper.getDada(
+				null,
+				null,
 				task.getId(),
 				variableCodi);
 		if (valor == null) {
-			valor = workflowEngineApi.getProcessInstanceVariable(
+			valor = expedientDadaHelper.getDada(
+					null,
 					task.getProcessInstanceId(),
+					null,
 					variableCodi);
 		}
 		boolean varAmbContingut = valor != null;
@@ -528,7 +525,7 @@ public class VariableHelper {
 			varAmbContingut = registreValors.length > 0;
 		}
 		if (varAmbContingut) {
-			ExpedientDadaDto dto = getDadaPerVariableJbpm(
+			ExpedientDadaDto dto = getDadaPerVariable(
 					camp,
 					variableCodi,
 					valor,
@@ -934,15 +931,10 @@ public class VariableHelper {
 	}
 
 	public Object getDescripcioVariable(String taskId, String processInstanceId, String codi) {
-		Object valor = null;
-		if (taskId != null)
-			valor = workflowEngineApi.getTaskInstanceVariable(taskId, BpmnVars.PREFIX_VAR_DESCRIPCIO + codi);
-		if (valor == null)
-			valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, BpmnVars.PREFIX_VAR_DESCRIPCIO + codi);
-		return valor;
+		return expedientDadaHelper.getDada(null, processInstanceId, taskId, codi);
 	}
 
-	private ExpedientDadaDto getDadaPerVariableJbpm(
+	private ExpedientDadaDto getDadaPerVariable(
 			Camp camp,
 			String varCodi,
 			Object varValor,
@@ -998,7 +990,7 @@ public class VariableHelper {
 							if (valorsRegistres != null && valorsRegistres.length>index) {
 								valorsRegistre = valorsRegistres[index];
 							}
-							ExpedientDadaDto dtoRegistre = getDadaPerVariableJbpm(
+							ExpedientDadaDto dtoRegistre = getDadaPerVariable(
 									campRegistre.getMembre(),
 									campRegistre.getMembre().getCodi(),
 									valorsRegistre,
@@ -1052,7 +1044,7 @@ public class VariableHelper {
 					List<ExpedientDadaDto> multipleDades = new ArrayList<ExpedientDadaDto>();
 					if (valorsMultiples != null) {
 						for (Object valor : valorsMultiples) {
-							ExpedientDadaDto dtoMultiple = getDadaPerVariableJbpm(
+							ExpedientDadaDto dtoMultiple = getDadaPerVariable(
 									camp,
 									varCodi,
 									valor,
@@ -1063,7 +1055,7 @@ public class VariableHelper {
 							multipleDades.add(dtoMultiple);
 						}
 					} else {
-						ExpedientDadaDto dtoMultiple = getDadaPerVariableJbpm(
+						ExpedientDadaDto dtoMultiple = getDadaPerVariable(
 								camp,
 								varCodi,
 								null,
@@ -1107,23 +1099,6 @@ public class VariableHelper {
 			return ((DominiCodiDescripcio)valor).getCodi();
 		} else {
 			return valor;
-		}
-	}
-
-	private void filtrarVariablesUsIntern(Map<String, Object> variables) {
-		if (variables != null) {
-			variables.remove(BpmnVars.VAR_TASCA_VALIDADA);
-			variables.remove(BpmnVars.VAR_TASCA_DELEGACIO);
-			List<String> codisEsborrar = new ArrayList<String>();
-			for (String codi: variables.keySet()) {
-				if (	codi.startsWith(BpmnVars.PREFIX_DOCUMENT) ||
-						codi.startsWith(BpmnVars.PREFIX_SIGNATURA) ||
-						codi.startsWith(BpmnVars.PREFIX_ADJUNT) ||
-						codi.startsWith(BpmnVars.PREFIX_VAR_DESCRIPCIO))
-					codisEsborrar.add(codi);
-			}
-			for (String codi: codisEsborrar)
-				variables.remove(codi);
 		}
 	}
 

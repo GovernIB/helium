@@ -41,7 +41,6 @@ import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Area;
 import es.caib.helium.persistence.entity.AreaJbpmId;
 import es.caib.helium.persistence.entity.Carrec;
@@ -60,7 +59,6 @@ import es.caib.helium.persistence.repository.CarrecJbpmIdRepository;
 import es.caib.helium.persistence.repository.CarrecRepository;
 import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.DominiRepository;
-import es.caib.helium.persistence.repository.EntornRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 import es.caib.helium.logic.utils.NombreEnCastella;
 import es.caib.helium.logic.utils.NombreEnCatala;
@@ -101,8 +99,6 @@ public class PlantillaHelper {
 	@Resource
 	private DominiHelper dominiHelper;
 	@Resource
-	private EntornRepository entornRepository;
-	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private AreaRepository areaRepository;
@@ -124,6 +120,8 @@ public class PlantillaHelper {
 	private VariableHelper variableHelper;
 	@Resource
 	private TascaHelper tascaHelper;
+	@Resource
+	private ExpedientDadaHelper expedientDadaHelper;
 
 
 	public ArxiuDto generarDocumentPlantilla(
@@ -362,11 +360,11 @@ public class PlantillaHelper {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
-								Object valor = null;
-								if (taskId != null)
-									valor = workflowEngineApi.getTaskInstanceVariable(taskId, codi);
-								if (valor == null)
-									valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, codi);
+								Object valor = expedientDadaHelper.getDada(
+									null,
+									processInstanceId,
+									taskId,
+									codi);
 								if (valor == null)
 									return new SimpleScalar(null);
 								if (valor instanceof Object[])
@@ -734,14 +732,14 @@ public class PlantillaHelper {
 				"documentInfo",
 				new TemplateMethodModel() {
 					public TemplateModel exec(List args) throws TemplateModelException {
-						if (args.size() >= 1) {
+						if (!args.isEmpty()) {
 							Object arg0 = args.get(0);
 							if ((arg0 != null) && (arg0 instanceof String)) {
 								String codi = (String)arg0;
 								List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(processInstanceId);
 								DocumentDto resposta = null;
 								for (int i = 0; i < documents.size(); i++) {
-									if (documents.get(i).getCodi().equals(BpmnVars.PREFIX_DOCUMENT + codi))
+									if (documents.get(i).getCodi().equals(codi))
 										resposta = documentHelper.toDocumentDto(
 												documents.get(i).getId(),
 												false,

@@ -53,12 +53,12 @@
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
 									<li>
-										<a href='<c:url value="/expedientTipus${expedientTipus.id}/recurs/{{:id}}/descarregar"/>?nom={:nom}' >
+										<a href='<c:url value="/expedientTipus/${expedientTipus.id}/recurs/{{:id}}/descarregar"/>' >
 											<span class="fa fa-download"></span>&nbsp;<spring:message code="definico.proces.recurs.descarregar"/>
 										</a>
 									</li>
 									<li>
-										<a 	href='<c:url value="/expedientTipus${expedientTipus.id}/recurs/{{:id}}/delete"/>'
+										<a 	href='<c:url value="/expedientTipus/${expedientTipus.id}/recurs/{{:id}}/delete"/>'
 											data-toggle="ajax"
 											class="consultar-expedient"
 											data-confirm="<spring:message code="expedient.tipus.recurs.llistat.accio.esborrar.confirmacio"/>">

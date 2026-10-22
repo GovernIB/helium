@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 import es.caib.helium.commons.dto.PersonaDto;
+import es.caib.helium.commons.dto.TascaOutcomeDto;
 import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.engine.*;
 import es.caib.helium.logic.helper.ExpedientTipusRecursHelper;
@@ -348,6 +349,23 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		return null;
 	}
 
+	public WProcessInstance findRootProcessInstance(String processInstanceId) {
+		HistoricProcessInstance pi = processEngine
+				.getHistoryService()
+				.createHistoricProcessInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.singleResult();
+		if(pi != null && pi.getSuperProcessInstanceId() != null) {
+			HistoricProcessInstance superPi = processEngine
+				.getHistoryService()
+				.createHistoricProcessInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.singleResult();
+			return toWProcessInstance(superPi);
+		}
+		return toWProcessInstance(pi);
+	}
+
 	@Override
 	public Long findExpedientIdByProcessInstanceId(String processInstanceId) throws Exception {
 		// TODO Auto-generated method stub
@@ -357,13 +375,12 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	@Override
 	public WProcessInstance startProcessInstanceById(
 		String actorId,
-		String processDefinitionId,
-		Map<String, Object> variables) {
+		String processDefinitionId) {
 		try {
 			Authentication.setAuthenticatedUserId(actorId);
 			ProcessInstance processInstance = processEngine.
 				getRuntimeService().
-				startProcessInstanceById(processDefinitionId, variables);
+				startProcessInstanceById(processDefinitionId);
 			return toWProcessInstance(processInstance);
 		} finally {
 			Authentication.setAuthenticatedUserId(null);
@@ -482,7 +499,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId) {
+	public List<WTaskInstance> findTaskInstanceByProcessInstanceId(String processInstanceId) {
 		List<Task> tasks = this.processEngine
 			.getTaskService()
 			.createTaskQuery()
@@ -490,6 +507,18 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			.includeIdentityLinks()
 			.list();
 		return tasks.stream().map(FlowableEngineImpl::toWTaskInstance).collect(Collectors.toList());
+	}
+
+	@Override
+	public WTaskInstance findTaskInstanceByProcessInstanceIdAndName(String processInstanceId, String taskName) {
+		Task task = this.processEngine
+			.getTaskService()
+			.createTaskQuery()
+			.processInstanceId(processInstanceId)
+			.taskDefinitionKey(taskName)
+			.includeIdentityLinks()
+			.singleResult();
+		return toWTaskInstance(task);
 	}
 
 	@Override
@@ -665,13 +694,13 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<String> findStartTaskOutcomes(String jbpmId, String taskName) {
+	public List<TascaOutcomeDto> findStartTaskOutcomes(String jbpmId, String taskName) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<String> findTaskInstanceOutcomes(String taskInstanceId) {
+	public List<TascaOutcomeDto> findTaskInstanceOutcomes(String taskInstanceId) {
 		TaskEntityImpl task = (TaskEntityImpl) this.processEngine
 			.getTaskService()
 			.createTaskQuery()
@@ -697,16 +726,17 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			taskDefinitionKey =  htask.getTaskDefinitionKey();
 		}
 
-		List<String> outcomes = new ArrayList<String>();
+		List<TascaOutcomeDto> outcomes = new ArrayList<TascaOutcomeDto>();
 		BpmnModel model = processEngine.getRepositoryService().getBpmnModel(processDefinitionId);
 		FlowElement current = model.getMainProcess().getFlowElement(taskDefinitionKey);
 		if(current instanceof FlowNode) {
 			List<SequenceFlow> sequences = ((FlowNode) current).getOutgoingFlows();
 			if(sequences == null)
 				return outcomes;
-
 			for(SequenceFlow sequenceFlow : sequences) {
-				outcomes.add(sequenceFlow.getTargetRef());
+				outcomes.add(new TascaOutcomeDto(
+					sequenceFlow.getTargetRef(),
+					sequenceFlow.getTargetFlowElement().getName()));
 			}
 		}
 
@@ -730,6 +760,8 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public void setTaskInstanceVariables(String taskId, Map<String, Object> variables, boolean deleteFirst) {
+		if(deleteFirst)
+			processEngine.getTaskService().removeVariables(taskId, variables.keySet());
 		processEngine.getTaskService().setVariables(taskId, variables);
 	}
 
@@ -1045,39 +1077,39 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		return new ArrayList<Long>();
 	}
 
-	@Override
-	public WExpedientDto expedientFindByProcessInstanceId(String processInstanceId) {
-		ProcessInstance pi = processEngine
-			.getRuntimeService()
-			.createProcessInstanceQuery()
-			.processInstanceId(processInstanceId)
-			.includeProcessVariables()
-			.singleResult();
-		if (pi != null && pi.getProcessVariables().get("__expedient_id__") != null)
-			return WExpedientDto.builder()
-					.id((Long)pi.getProcessVariables().get("__expedient_id__"))
-					.titol((String)Optional.ofNullable(pi.getProcessVariables().get("__expedient_titol__")).orElse(""))
-					.numero((String)Optional.ofNullable(pi.getProcessVariables().get("__expedient_numero__")).orElse(""))
-					.numeroDefault((String)Optional.ofNullable(pi.getProcessVariables().get("__expedient_numero_default__")).orElse(""))
-					.processInstanceId(processInstanceId)
-					.build();
-
-		HistoricProcessInstance hpi = processEngine.getHistoryService()
-			.createHistoricProcessInstanceQuery()
-			.processInstanceId(processInstanceId)
-			.includeProcessVariables()
-			.singleResult();
-		if(hpi == null || hpi.getProcessVariables().get("__expedient_id__") == null)
-			return null;
-
-		return WExpedientDto.builder()
-			.id((Long)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_id__")).orElse(0L))
-			.titol((String)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_titol__")).orElse(""))
-			.numero((String)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_numero__")).orElse(""))
-			.numeroDefault((String)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_numero_default__")).orElse(""))
-			.processInstanceId(processInstanceId)
-			.build();
-	}
+//	@Override
+//	public WExpedientDto expedientFindByProcessInstanceId(String processInstanceId) {
+//		ProcessInstance pi = processEngine
+//			.getRuntimeService()
+//			.createProcessInstanceQuery()
+//			.processInstanceId(processInstanceId)
+//			.includeProcessVariables()
+//			.singleResult();
+//		if (pi != null && pi.getProcessVariables().get("__expedient_id__") != null)
+//			return WExpedientDto.builder()
+//					.id((Long)pi.getProcessVariables().get("__expedient_id__"))
+//					.titol((String)Optional.ofNullable(pi.getProcessVariables().get("__expedient_titol__")).orElse(""))
+//					.numero((String)Optional.ofNullable(pi.getProcessVariables().get("__expedient_numero__")).orElse(""))
+//					.numeroDefault((String)Optional.ofNullable(pi.getProcessVariables().get("__expedient_numero_default__")).orElse(""))
+//					.processInstanceId(processInstanceId)
+//					.build();
+//
+//		HistoricProcessInstance hpi = processEngine.getHistoryService()
+//			.createHistoricProcessInstanceQuery()
+//			.processInstanceId(processInstanceId)
+//			.includeProcessVariables()
+//			.singleResult();
+//		if(hpi == null || hpi.getProcessVariables().get("__expedient_id__") == null)
+//			return null;
+//
+//		return WExpedientDto.builder()
+//			.id((Long)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_id__")).orElse(0L))
+//			.titol((String)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_titol__")).orElse(""))
+//			.numero((String)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_numero__")).orElse(""))
+//			.numeroDefault((String)Optional.ofNullable(hpi.getProcessVariables().get("__expedient_numero_default__")).orElse(""))
+//			.processInstanceId(processInstanceId)
+//			.build();
+//	}
 
 	@Override
 	public void deleteProcessInstanceTreeLogs(String processInstanceId) {
@@ -1395,8 +1427,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			// Completa la tasca
 			processEngine
 				.getTaskService()
-				.complete(task.getId(), 
-						variables);		
+				.complete(task.getId(), null, variables);
 		}
 	}
 

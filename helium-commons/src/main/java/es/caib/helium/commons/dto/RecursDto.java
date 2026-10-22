@@ -3,6 +3,7 @@
  */
 package es.caib.helium.commons.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +17,6 @@ import java.util.Date;
 @Getter
 @Setter
 public class RecursDto {
-
 	private Long id;
 	private String nom;
 	private boolean classe;
@@ -24,5 +24,5 @@ public class RecursDto {
 	private Date dataCreacio;
 	private Long tipusExpedientId;
 	private Long definicioProcesId;
-
+	private byte[] contingut;
 }

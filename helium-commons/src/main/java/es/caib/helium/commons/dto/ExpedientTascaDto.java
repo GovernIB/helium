@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringEscapeUtils;
 
 
@@ -16,6 +18,8 @@ import org.apache.commons.lang.StringEscapeUtils;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Getter
+@Setter
 public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<ExpedientTascaDto> {
 
 	public enum TascaTipusDto {
@@ -58,7 +62,8 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private boolean completed;
 	private boolean cancelled;
 	private boolean suspended;
-	private List<String> outcomes;
+	private List<TascaOutcomeDto> outcomes;
+	private String groupId;
 
 	private Long tascaId;
 	private String tascaNom;
@@ -109,194 +114,6 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 
 	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
-	public boolean isAmbRepro() {
-		return ambRepro;
-	}
-	public void setAmbRepro(boolean ambRepro) {
-		this.ambRepro = ambRepro;
-	}
-	public boolean isMostrarAgrupacions() {
-		return mostrarAgrupacions;
-	}
-	public void setMostrarAgrupacions(boolean mostrarAgrupacions) {
-		this.mostrarAgrupacions = mostrarAgrupacions;
-	}
-	public Long getExpedientTipusId() {
-		return expedientTipusId;
-	}
-	public void setExpedientTipusId(Long expedientTipusId) {
-		this.expedientTipusId = expedientTipusId;
-	}
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
-	public String getTitol() {
-		return titol;
-	}
-	public void setTitol(String titol) {
-		this.titol = titol;
-	}
-	public String getJbpmName() {
-		return jbpmName;
-	}
-	public void setJbpmName(String jbpmName) {
-		this.jbpmName = jbpmName;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	public String getAssignee() {
-		return assignee;
-	}
-	public void setAssignee(String assignee) {
-		this.assignee = assignee;
-	}
-	public String getOwner() {
-		return owner;
-	}
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
-	public Set<String> getPooledActors() {
-		return pooledActors;
-	}
-	public void setPooledActors(Set<String> pooledActors) {
-		this.pooledActors = pooledActors;
-	}
-	public Date getCreateTime() {
-		return createTime;
-	}
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
-	public Date getStartTime() {
-		return startTime;
-	}
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
-	}
-	public Date getClaimTime(){return claimTime;}
-	public void setClaimTime(Date claimTime) {this.claimTime = claimTime;}
-	public Date getEndTime() {
-		return endTime;
-	}
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
-	public Date getDueDate() {
-		return dueDate;
-	}
-	public void setDueDate(Date dueDate) {
-		this.dueDate = dueDate;
-	}
-	public Long getDuration() {return this.duration;}
-	public Long setDuration(Long duration) {return this.duration = duration;}
-
-	public int getPriority() {
-		return priority;
-	}
-	public void setPriority(int priority) {
-		this.priority = priority;
-	}
-	public boolean isOpen() {
-		return open;
-	}
-	public void setOpen(boolean open) {
-		this.open = open;
-	}
-	public boolean isCompleted() {
-		return completed;
-	}
-	public void setCompleted(boolean completed) {
-		this.completed = completed;
-	}
-	public boolean isCancelled() {
-		return cancelled;
-	}
-	public void setCancelled(boolean cancelled) {
-		this.cancelled = cancelled;
-	}
-	public boolean isSuspended() {
-		return suspended;
-	}
-	public void setSuspended(boolean suspended) {
-		this.suspended = suspended;
-	}
-	public List<String> getOutcomes() {
-		return outcomes;
-	}
-	public void setOutcomes(List<String> outcomes) {
-		this.outcomes = outcomes;
-	}
-	public Long getTascaId() {
-		return tascaId;
-	}
-	public void setTascaId(Long tascaId) {
-		this.tascaId = tascaId;
-	}
-	public String getTascaNom() {
-		return tascaNom;
-	}
-	public void setTascaNom(String tascaNom) {
-		this.tascaNom = tascaNom;
-	}
-	public TascaTipusDto getTascaTipus() {
-		return tascaTipus;
-	}
-	public void setTascaTipus(TascaTipusDto tascaTipus) {
-		this.tascaTipus = tascaTipus;
-	}
-	public String getTascaMissatgeInfo() {
-		return tascaMissatgeInfo;
-	}
-	public void setTascaMissatgeInfo(String tascaMissatgeInfo) {
-		this.tascaMissatgeInfo = tascaMissatgeInfo;
-	}
-	public String getTascaMissatgeWarn() {
-		return tascaMissatgeWarn;
-	}
-	public void setTascaMissatgeWarn(String tascaMissatgeWarn) {
-		this.tascaMissatgeWarn = tascaMissatgeWarn;
-	}
-	public String getTascaRecursForm() {
-		return tascaRecursForm;
-	}
-	public void setTascaRecursForm(String tascaRecursForm) {
-		this.tascaRecursForm = tascaRecursForm;
-	}
-	public String getTascaFormExternCodi() {
-		return tascaFormExternCodi;
-	}
-	public void setTascaFormExternCodi(String tascaFormExternCodi) {
-		this.tascaFormExternCodi = tascaFormExternCodi;
-	}
-	public boolean isTascaDelegable() {
-		return tascaDelegable;
-	}
-	public void setTascaDelegable(boolean tascaDelegable) {
-		this.tascaDelegable = tascaDelegable;
-	}
-	public boolean isTascaTramitacioMassiva() {
-		return tascaTramitacioMassiva;
-	}
-	public void setTascaTramitacioMassiva(boolean tascaTramitacioMassiva) {
-		this.tascaTramitacioMassiva = tascaTramitacioMassiva;
-	}
-	public boolean isTascaFinalitzacioSegonPla() {
-		return tascaFinalitzacioSegonPla;
-	}
-	public void setTascaFinalitzacioSegonPla(boolean tascaFinalitzacioSegonPla) {
-		this.tascaFinalitzacioSegonPla = tascaFinalitzacioSegonPla;
-	}
-	public Date getMarcadaFinalitzar() {
-		return marcadaFinalitzar;
-	}
 	public String getMarcadaFinalitzarFormat() {
 		if (marcadaFinalitzar != null) {
 			return formatter.format(marcadaFinalitzar).toString();
@@ -304,141 +121,13 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 			return "";
 		}
 	}
-	public void setMarcadaFinalitzar(Date marcadaFinalitzar) {
-		this.marcadaFinalitzar = marcadaFinalitzar;
-	}
-	public Date getIniciFinalitzacio() {
-		return iniciFinalitzacio;
-	}
+
 	public String getIniciFinalitzacioFormat() {
 		if (iniciFinalitzacio != null) {
 			return formatter.format(iniciFinalitzacio).toString();
 		} else {
 			return "";
 		}
-	}
-	public void setIniciFinalitzacio(Date iniciFinalitzacio) {
-		this.iniciFinalitzacio = iniciFinalitzacio;
-	}
-	public String getErrorFinalitzacio() {
-		return errorFinalitzacio;
-	}
-	public void setErrorFinalitzacio(String errorFinalitzacio) {
-		this.errorFinalitzacio = errorFinalitzacio;
-	}
-	public boolean isValidada() {
-		return validada;
-	}
-	public void setValidada(boolean validada) {
-		this.validada = validada;
-	}
-	public boolean isDocumentsComplet() {
-		return documentsComplet;
-	}
-	public void setDocumentsComplet(boolean documentsComplet) {
-		this.documentsComplet = documentsComplet;
-	}
-	public boolean isSignaturesComplet() {
-		return signaturesComplet;
-	}
-	public void setSignaturesComplet(boolean signaturesComplet) {
-		this.signaturesComplet = signaturesComplet;
-	}
-	public boolean isAgafada() {
-		return agafada;
-	}
-	public void setAgafada(boolean agafada) {
-		this.agafada = agafada;
-	}
-	public boolean isDelegada() {
-		return delegada;
-	}
-	public void setDelegada(boolean delegada) {
-		this.delegada = delegada;
-	}
-	public boolean isDelegacioOriginal() {
-		return delegacioOriginal;
-	}
-	public void setDelegacioOriginal(boolean delegacioOriginal) {
-		this.delegacioOriginal = delegacioOriginal;
-	}
-	public Date getDelegacioData() {
-		return delegacioData;
-	}
-	public void setDelegacioData(Date delegacioData) {
-		this.delegacioData = delegacioData;
-	}
-	public String getDelegacioComentari() {
-		return delegacioComentari;
-	}
-	public void setDelegacioComentari(String delegacioComentari) {
-		this.delegacioComentari = delegacioComentari;
-	}
-	public boolean isDelegacioSupervisada() {
-		return delegacioSupervisada;
-	}
-	public void setDelegacioSupervisada(boolean delegacioSupervisada) {
-		this.delegacioSupervisada = delegacioSupervisada;
-	}
-	public PersonaDto getDelegacioPersona() {
-		return delegacioPersona;
-	}
-	public void setDelegacioPersona(PersonaDto delegacioPersona) {
-		this.delegacioPersona = delegacioPersona;
-	}
-	public Long getExpedientId() {
-		return expedientId;
-	}
-	public void setExpedientId(Long expedientId) {
-		this.expedientId = expedientId;
-	}
-	public String getExpedientIdentificador() {
-		return expedientIdentificador;
-	}
-	public void setExpedientIdentificador(String expedientIdentificador) {
-		this.expedientIdentificador = expedientIdentificador;
-	}
-	public String getExpedientNumero() {
-		return expedientNumero;
-	}
-	public void setExpedientNumero(String expedientNumero) {
-		this.expedientNumero = expedientNumero;
-	}
-	public String getProcessInstanceId() {
-		return processInstanceId;
-	}
-	public void setProcessInstanceId(String processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
-	public String getExpedientTipusNom() {
-		return expedientTipusNom;
-	}
-	public void setExpedientTipusNom(String expedientTipusNom) {
-		this.expedientTipusNom = expedientTipusNom;
-	}
-	public Long getDefinicioProcesId() {
-		return definicioProcesId;
-	}
-	public void setDefinicioProcesId(Long definicioProcesId) {
-		this.definicioProcesId = definicioProcesId;
-	}
-	public PersonaDto getResponsable() {
-		return responsable;
-	}
-	public void setResponsable(PersonaDto responsable) {
-		this.responsable = responsable;
-	}
-	public List<PersonaDto> getResponsables() {
-		return responsables;
-	}
-	public void setResponsables(List<PersonaDto> responsables) {
-		this.responsables = responsables;
-	}
-	public boolean isAssignadaUsuariActual() {
-		return assignadaUsuariActual;
-	}
-	public void setAssignadaUsuariActual(boolean assignadaUsuariActual) {
-		this.assignadaUsuariActual = assignadaUsuariActual;
 	}
 
 	public TascaEstatDto getEstat() {
@@ -499,7 +188,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 
 	public boolean isTransicioPerDefecte() {
 		if (outcomes != null && !outcomes.isEmpty() && outcomes.size() == 1) {
-			return outcomes.get(0) == null || outcomes.get(0).isEmpty();
+			return outcomes.get(0) == null || outcomes.get(0).getId() == null || outcomes.get(0).getId().isEmpty();
 		} else {
 			return false;
 		}
@@ -507,20 +196,6 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 
 	public boolean isFormExtern() {
 		return (tascaFormExternCodi != null && !tascaFormExternCodi.isEmpty());
-	}
-
-	public String getUnitatOrganitzativaCodiNom() {
-		return unitatOrganitzativaCodiNom;
-	}
-	public void setUnitatOrganitzativaCodiNom(String unitatOrganitzativaCodiNom) {
-		this.unitatOrganitzativaCodiNom = unitatOrganitzativaCodiNom;
-	}
-
-	public boolean isProcedimentComu() {
-		return procedimentComu;
-	}
-	public void setProcedimentComu(boolean procedimentComu) {
-		this.procedimentComu = procedimentComu;
 	}
 
 	private static final long serialVersionUID = 127420079220181365L;

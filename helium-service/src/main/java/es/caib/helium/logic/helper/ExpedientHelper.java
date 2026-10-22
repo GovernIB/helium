@@ -15,7 +15,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Resource;
 import javax.persistence.EntityNotFoundException;
 
-import es.caib.helium.disseny.engine.WExpedientDto;
 import es.caib.helium.persistence.entity.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -135,8 +134,6 @@ public class ExpedientHelper {
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 	@Resource
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
-	@Resource
-	private ExpedientTipusService expedientTipusService;
 
 	@Resource
 	private EntornHelper entornHelper;
@@ -178,9 +175,6 @@ public class ExpedientHelper {
 	private ExpedientInteressatHelper expedientInteressatHelper;
 	@Resource
 	private MailHelper mailHelper;
-	@Autowired
-	@Lazy
-	private HeliumApiFactory heliumApiFactory;
 	@Autowired
 	private HeliumActionHandlerPredefinitFactory heliumActionHandlerPredefinitFactory;
 
@@ -1272,8 +1266,9 @@ public class ExpedientHelper {
 
 		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
 		if(expedient == null) {
-			WExpedientDto e = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
-			expedient = e != null ? expedientRepository.findById(e.getId()).orElse(null) : null;
+			//WExpedientDto e = workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId);
+			WProcessInstance pi = workflowEngineApi.findRootProcessInstance(processInstanceId);
+			expedient = pi != null ? expedientRepository.findByProcessInstanceId(pi.getId()) : null;
 		}
 
 		if (expedient == null) {
@@ -1972,14 +1967,25 @@ public class ExpedientHelper {
 			if (expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
 				processInstance = workflowEngineApi.startProcessInstanceById(
 						IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
-						definicioProces.getJbpmId(),
-						variables);
+						definicioProces.getJbpmId());
 				// Si la definició de procés té tasca inicial completa la primera tasca
 				if (definicioProces.isHasStartTask() && definicioProces.getStartTaskName() != null) {
 					workflowEngineApi.completeTask(
-							processInstance.getId(),
-							definicioProces.getStartTaskName(), 
-							variables);
+						processInstance.getId(),
+						definicioProces.getStartTaskName(),
+						variables);
+//					WTaskInstance taskInstance = workflowEngineApi.findTaskInstanceByProcessInstanceIdAndName(
+//						processInstance.getId(),
+//						definicioProces.getStartTaskName());
+//					workflowEngineApi.setTaskInstanceVariables(
+//							taskInstance.getId(),
+//							variables,
+//							false);
+//					workflowEngineApi.takeTaskInstance(taskInstance.getId(), usuari);
+//					workflowEngineApi.setTaskInstanceVariable(
+//						taskInstance.getId(),
+//						BpmnVars.VAR_TASCA_VALIDADA,
+//						new Date());
 				}
 				expedient.setProcessInstanceId(processInstance.getId());
 			}
@@ -1993,16 +1999,16 @@ public class ExpedientHelper {
 			if(variables != null)
 				expedientDadaHelper.setDades(expedientPerRetornar, expedientPerRetornar.getProcessInstanceId(), null, variables);
 
-			if(expedientPerRetornar.getProcessInstanceId() != null) {
-				if (variables == null)
-					variables = new HashMap<String, Object>();
-				variables.put("__expedient_id__", expedient.getId());
-				variables.put("__expedient_numero__", expedient.getNumero());
-				variables.put("__expedient_numero_default__", expedient.getNumeroDefault());
-				variables.put("__expedient_titol__", expedient.getTitol());
-				variables.put("__expedient_entorn__", entorn.getId());
-				workflowEngineApi.setProcessInstanceVariables(expedientPerRetornar.getProcessInstanceId(), variables);
-			}
+//			if(expedientPerRetornar.getProcessInstanceId() != null) {
+//				if (variables == null)
+//					variables = new HashMap<String, Object>();
+//				variables.put("__expedient_id__", expedient.getId());
+//				variables.put("__expedient_numero__", expedient.getNumero());
+//				variables.put("__expedient_numero_default__", expedient.getNumeroDefault());
+//				variables.put("__expedient_titol__", expedient.getTitol());
+//				variables.put("__expedient_entorn__", entorn.getId());
+//				workflowEngineApi.setProcessInstanceVariables(expedientPerRetornar.getProcessInstanceId(), variables);
+//			}
 			// Verificar la ultima vegada que l'expedient va modificar el seu estat
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 			if(expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {

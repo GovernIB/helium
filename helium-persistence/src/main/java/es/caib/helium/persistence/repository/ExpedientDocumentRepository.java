@@ -35,6 +35,18 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 		@Param("taskId") String taskId,
 		@Param("taskIdIsNull") Boolean taskIdIsNull);
 
+	@Query(" FROM ExpedientDocument ed " +
+		" WHERE " +
+		" ed.expedient.id = :expedientId " +
+		" AND ed.processInstanceId = :processId ")
+	public List<ExpedientDocument> findByExpedientAndProcessInstance(
+		@Param("expedientId") Long expedientId,
+		@Param("processId") String processId);
+
+	@Query( "FROM ExpedientDocument ed" +
+			" WHERE " +
+			" ed.taskId = :taskId")
+	public List<ExpedientDocument> findByTaskId(@Param("taskId") String taskId);
 
 	@Query(" FROM ExpedientDocument ed " +
 		" WHERE " +
@@ -110,4 +122,5 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 		@Param("codi") String codi);
 
 	public void deleteByExpedientId(Long expedientId);
+
 }

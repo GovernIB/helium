@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +21,6 @@ import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.flowable.engine.history.ProcessInstanceHistoryLog;
-import org.flowable.task.api.history.HistoricTaskLogEntry;
-import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -40,22 +36,15 @@ import es.caib.helium.disseny.engine.WNodeLog;
 import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.disseny.engine.WProcessLog;
 import es.caib.helium.disseny.engine.WTaskInstance;
-import es.caib.helium.disseny.engine.WTaskLog;
 import es.caib.helium.disseny.engine.WToken;
 import es.caib.helium.disseny.engine.WTransitionLog;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.common.bpmn.BpmnVars;
-import es.caib.helium.persistence.entity.Camp;
 import es.caib.helium.persistence.entity.CampTasca;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Document;
 import es.caib.helium.persistence.entity.DocumentTasca;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.ExpedientLog;
 import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogAccioTipus;
 import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogEstat;
-import es.caib.helium.persistence.entity.ExpedientLog.LogInfo;
-import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.Tasca;
 import es.caib.helium.persistence.repository.CampRepository;
 import es.caib.helium.persistence.repository.CampTascaRepository;
@@ -113,7 +102,7 @@ public class ExpedientLoggerHelper {
 		WProcessLog pl = workflowEngineApi.getProcessLogById(jbpmLogId);
 		if (pl == null)
 			return null;
-		return (WToken) pl.getToken();
+		return pl.getToken();
 	}
 
 	public long afegirProcessLogInfoExpedient(
@@ -159,6 +148,7 @@ public class ExpedientLoggerHelper {
 	private Collection<LogObjectDto> getAccionsJbpmPerRetrocedir(
 			List<ExpedientLog> expedientLogs,
 			List<WProcessLog> logsSorted) {
+		/*
 		Map<String, LogObjectDto> LogObjectDtos = new HashMap<String, LogObjectDto>();
 		String currentMessageLogId = null;
 		for (WProcessLog plog: logsSorted) {
@@ -238,18 +228,6 @@ public class ExpedientLoggerHelper {
 				}
 				if (plog instanceof HistoricTaskLogEntry)
 					lobj.addAccio(LogObjectDto.LOG_ACTION_START);
-//				if (plog instanceof TaskEndLog)
-//					lobj.addAccio(LogObjectDto.LOG_ACTION_END);
-//				if (plog instanceof TaskAssignLog) {
-//					lobj.addAccio(LogObjectDto.LOG_ACTION_ASSIGN);
-//					lobj.setValorInicial(((TaskAssignLog)plog).getTaskOldActorId());
-//					ExpedientLog expedientLog = getExpedientLogPerJbpmLogId(expedientLogs, currentMessageLogId);
-//					if (expedientLog != null && expedientLog.getAccioTipus().equals(ExpedientLogAccioTipus.TASCA_REASSIGNAR)) {
-//						String params = expedientLog.getAccioParams();
-//						if (params.indexOf("::") != -1)
-//							lobj.setValorInicial(params.substring(0, params.indexOf("::")));
-//					}
-//				}
 			} else if (plog instanceof HistoricVariableInstance) {
 				HistoricVariableInstance variableInstance = ((HistoricVariableInstance)plog);
 				boolean ignored = false;
@@ -257,14 +235,10 @@ public class ExpedientLoggerHelper {
 				// No sé molt bé el motiu
 				// El següent if els descarta
 				if(variableInstance.getProcessInstanceId()!=null){
-
 					// Cerca informació si la variable jbpm correspon a un document o una camp ignorat
 					String codi = variableInstance.getVariableName();
-																				 // variableInstance.getProcessInstance().getProcessDefinition().getId();
 					DefinicioProces pDef = definicioProcesRepository.findByJbpmId(String.valueOf(variableInstance.getProcessInstanceId()));
 
-//					Expedient expedient = expedientRepository.getReferenceById(
-//							variableInstance.getProcessInstance().getExpedient().getId());
 					Expedient expedient = expedientRepository.findByProcessInstanceId(variableInstance.getProcessInstanceId());
 					ExpedientTipus expedientTipus = expedient != null ? expedient.getTipus() : null;
 					Camp camp = null;
@@ -417,7 +391,10 @@ public class ExpedientLoggerHelper {
 					}
 				});
 		Collections.reverse(logsOrdenats);
+
 		return logsOrdenats;
+		*/
+		 return null;
 	}
 
 	private List<ExpedientLog> filtraExpedientsLogPerRetrocedir(

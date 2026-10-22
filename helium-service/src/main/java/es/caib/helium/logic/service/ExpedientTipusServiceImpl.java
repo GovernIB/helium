@@ -2936,17 +2936,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public byte[] getRecursContingut(
+	public RecursDto getRecursContingut(
 		Long expedientTipusId,
 		Long id) throws NoTrobatException {
-		Optional<byte[]> recurs = recursRepository
+		Optional<Recurs> recurs = recursRepository
 									.findContingutByExpedientTipusIdAndDefinicioProcesIdAndId(
 										expedientTipusId,
 										null,
 										id);
 		if(recurs.isEmpty())
 			throw new NoTrobatException(Recurs.class, id);
-		return recurs.get();
+
+		return conversioTipusHelper.convertir(recurs.get(), RecursDto.class);
 	}
 
 	@Override

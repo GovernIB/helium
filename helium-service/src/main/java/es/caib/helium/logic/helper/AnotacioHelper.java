@@ -36,19 +36,15 @@ import es.caib.helium.commons.dto.CanalNotifEnumDto;
 import es.caib.helium.commons.dto.DadesDocumentDto;
 import es.caib.helium.commons.dto.ExpedientDadaDto;
 import es.caib.helium.commons.dto.ExpedientDocumentDto;
-import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.dto.InteressatDocumentTipusEnumDto;
 import es.caib.helium.commons.dto.InteressatTipusEnumDto;
 import es.caib.helium.commons.dto.DadesEnviamentDto.EntregaPostalTipus;
 import es.caib.helium.commons.exception.PermisDenegatException;
-import es.caib.helium.persistence.common.bpmn.BpmnVars;
 import es.caib.helium.persistence.entity.Alerta;
 import es.caib.helium.persistence.entity.Alerta.AlertaPrioritat;
 import es.caib.helium.persistence.entity.Anotacio;
 import es.caib.helium.persistence.entity.AnotacioAnnex;
 import es.caib.helium.persistence.entity.AnotacioInteressat;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.ExpedientLog;
@@ -90,10 +86,6 @@ public class AnotacioHelper {
 	private MapeigSistraRepository mapeigSistraRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
-	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
-	private CampRepository campRepository;
 	@Autowired
 	private DistribucioHelper distribucioHelper;
 	@Resource(name = "documentHelperV3")
@@ -114,8 +106,6 @@ public class AnotacioHelper {
 	private AlertaHelper alertaHelper;
 	@Resource
 	private VariableHelper variableHelper;
-	@Resource
-	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource
@@ -653,7 +643,6 @@ public class AnotacioHelper {
 									&& document.getAnotacioId() != anotacioId)
 							{
 								documentHelper.esborrarDocument(
-										null, //taskInstanceId
 										expedient.getProcessInstanceId(),
 										document.getId());
 								documentExisteix = false;

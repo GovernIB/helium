@@ -20,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import es.caib.helium.commons.dto.*;
 import es.caib.helium.commons.exception.*;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -60,25 +61,7 @@ import es.caib.helium.back.helper.TascaFormHelper;
 import es.caib.helium.back.helper.TascaFormValidatorHelper;
 import es.caib.helium.back.helper.UrlHelper;
 import es.caib.helium.back.mvc.ArxiuView;
-import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.ArxiuFirmaValidacioDetallDto;
-import es.caib.helium.commons.dto.CampAgrupacioDto;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.DocumentTipusFirmaEnumDto;
-import es.caib.helium.commons.dto.EntornDto;
-import es.caib.helium.commons.dto.ExecucioMassivaDto;
 import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.commons.dto.ExpedientTascaDto;
-import es.caib.helium.commons.dto.FirmaResultatDto;
-import es.caib.helium.commons.dto.FirmaTascaDto;
-import es.caib.helium.commons.dto.FormulariExternDto;
-import es.caib.helium.commons.dto.ParellaCodiValorDto;
-import es.caib.helium.commons.dto.PersonaDto;
-import es.caib.helium.commons.dto.ReproDto;
-import es.caib.helium.commons.dto.StatusEnumDto;
-import es.caib.helium.commons.dto.TascaDadaDto;
-import es.caib.helium.commons.dto.TascaDocumentDto;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.DocumentService;
@@ -1465,9 +1448,9 @@ public class TascaTramitacioController extends BaseTascaController {
 			String transicio) {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		String transicioSortida = null;
-		for (String outcome: tasca.getOutcomes()) {
-			if (outcome != null && outcome.equals(transicio)) {
-				transicioSortida = outcome;
+		for (TascaOutcomeDto outcome: tasca.getOutcomes()) {
+			if (outcome != null && outcome.getId().equals(transicio)) {
+				transicioSortida = transicio;
 				break;
 			}
 		}
