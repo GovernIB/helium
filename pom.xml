@@ -104,7 +104,6 @@
 		<module>helium-disseny</module>
 		<module>helium-plugin-api</module>
 		<module>helium-plugin-impl</module>
-		<module>helium-jbpm3</module>
 		<module>helium-core-common</module>
 		<module>helium-core</module>
 		<module>helium-webapp</module>

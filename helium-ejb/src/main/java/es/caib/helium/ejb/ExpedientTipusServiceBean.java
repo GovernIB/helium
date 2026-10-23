@@ -695,8 +695,8 @@ public class ExpedientTipusServiceBean extends AbstractServiceEjb<ExpedientTipus
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ConsultaDto> consultaFindRelacionadesAmbDefinicioProces(Long entornId, Long expedientTipusId,
-			String jbpmKey, int versio) {
-		return delegateService.consultaFindRelacionadesAmbDefinicioProces(entornId, expedientTipusId, jbpmKey, versio);
+																		String bpmKey, int versio) {
+		return delegateService.consultaFindRelacionadesAmbDefinicioProces(entornId, expedientTipusId, bpmKey, versio);
 	}
 
 	@Override

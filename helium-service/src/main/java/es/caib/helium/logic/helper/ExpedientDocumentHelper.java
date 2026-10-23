@@ -901,7 +901,7 @@ public class ExpedientDocumentHelper {
 				} else {
 					codiDocument = document.getCodi();
 					WProcessDefinition jpd = workflowEngineApi.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
-					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
+					DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(jpd.getId());
 					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
 					ExpedientTipus expedientTipus = expedient.getTipus();
 					Document doc;

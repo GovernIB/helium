@@ -619,7 +619,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setDemanaNumero(tipus.getDemanaNumero());
 		exportacio.setDemanaTitol(tipus.getDemanaTitol());
 		exportacio.setExpressioNumero(tipus.getExpressioNumero());
-		exportacio.setJbpmProcessDefinitionKey(tipus.getJbpmProcessDefinitionKey());
+		exportacio.setBpmProcessDefinitionKey(tipus.getBpmProcessDefinitionKey());
 		exportacio.setNom(tipus.getNom());
 		exportacio.setReiniciarCadaAny(tipus.isReiniciarCadaAny());
 		exportacio.setResponsableDefecteCodi(tipus.getResponsableDefecteCodi());
@@ -736,8 +736,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
 		                    (necessitaDadesExternes && camp.getConsulta() != null) ? camp.getConsulta().getCodi() : null,
 		                    (camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
-		                    camp.getDefprocJbpmKey(),
-		                    camp.getJbpmAction(),
+		                    camp.getDefprocBpmKey(),
+		                    camp.getBpmAction(),
 		                    camp.getOrdre(),
 		                    camp.isIgnored(),
 		                    necessitaDadesExternesEntorn);
@@ -772,8 +772,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// Definicions de procés
 		if (command.getDefinicionsProces().size() > 0)
 			for (DefinicioProces definicio: tipus.getDefinicionsProces())
-				if (command.getDefinicionsProces().contains(definicio.getJbpmKey())
-						&& command.getDefinicionsVersions().get(definicio.getJbpmKey()).equals(definicio.getVersio()))
+				if (command.getDefinicionsProces().contains(definicio.getBpmKey())
+						&& command.getDefinicionsVersions().get(definicio.getBpmKey()).equals(definicio.getVersio()))
 					exportacio.getDefinicions().add(
 								definicioProcesHelper.getExportacio(
 									definicio.getId(),
@@ -887,8 +887,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							accio.getNom(),
 							accio.getDescripcio(),
 							accio.getTipus(),
-							accio.getDefprocJbpmKey(),
-							accio.getJbpmAction(),
+							accio.getDefprocBpmKey(),
+							accio.getBpmAction(),
 							accio.getHandlerClasse(),
 							accio.getHandlerDades(),
 							accio.getScript(),
@@ -946,7 +946,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					for (ConsultaCamp consultaCamp: consulta.getCamps()) {
 						ConsultaCampExportacio consultaCampExp = new ConsultaCampExportacio(
 								consultaCamp.getCampCodi(),
-								consultaCamp.getDefprocJbpmKey(),
+								consultaCamp.getDefprocBpmKey(),
 								ConsultaCampDto.TipusConsultaCamp.valueOf(consultaCamp.getTipus().toString()),
 								consultaCamp.getParamTipus() != null?
 										ConsultaCampDto.TipusParamConsultaCamp.valueOf(consultaCamp.getParamTipus().toString())
@@ -1025,7 +1025,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setExpressioNumero(importacio.getExpressioNumero());
 			if (ExpedientTipusTipusEnumDto.FLOW.equals(expedientTipus.getTipus())) {
 				// Si és de tipus flow posa la definició per defecte igual que la importaicó, si no queda amb el codi igual que l'expedient tipus on s'importa
-				expedientTipus.setJbpmProcessDefinitionKey(importacio.getJbpmProcessDefinitionKey());
+				expedientTipus.setBpmProcessDefinitionKey(importacio.getBpmProcessDefinitionKey());
 			}
 			expedientTipus.setReiniciarCadaAny(importacio.isReiniciarCadaAny());
 			expedientTipus.setSequencia(importacio.getSequencia());
@@ -1157,8 +1157,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							accio.setTipus(accioExportat.getTipus());
 						}
 						accio.setDescripcio(accioExportat.getDescripcio());
-						accio.setJbpmAction(accioExportat.getJbpmAction());
-						accio.setDefprocJbpmKey(accioExportat.getDefprocJbpmKey());
+						accio.setBpmAction(accioExportat.getBpmAction());
+						accio.setDefprocBpmKey(accioExportat.getDefprocBpmKey());
 						accio.setScript(accioExportat.getScript());
 						accio.setHandlerClasse(accioExportat.getHandlerClasse());
 						accio.setHandlerDades(accioExportat.getHandlerDades());
@@ -1480,8 +1480,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						camp.setMultiple(campExportat.isMultiple());
 						camp.setOcult(campExportat.isOcult());
 						camp.setDominiIntern(campExportat.isDominiIntern());
-						camp.setDefprocJbpmKey(campExportat.getDefprocJbpmKey());
-						camp.setJbpmAction(campExportat.getJbpmAction());
+						camp.setDefprocBpmKey(campExportat.getDefprocBpmKey());
+						camp.setBpmAction(campExportat.getBpmAction());
 						camp.setOrdre(campExportat.getOrdre());
 
 						// Esborra les validacions existents
@@ -1699,7 +1699,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		DefinicioProces definicioProces;
 		if (!command.getDefinicionsProces().isEmpty()) {
 			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
-				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
+				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getBpmKey())){
 					if (ExpedientTipusTipusEnumDto.FLOW.equals(expedientTipus.getTipus())) {
 						// En el cas dels flow es poden importar i desplegar sobre el nou tipus
 						// Id de la definició de procés sobre la qual s'importa la informacó
@@ -1708,8 +1708,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							// Busca la darrera versió de la definició de procés pel tipus d'expedient
 							if (expedientTipusId != null) {
 								DefinicioProces darreraVersio =
-											definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId,
-													definicioExportat.getDefinicioProcesDto().getJbpmKey());
+											definicioProcesRepository.findDarreraVersioAmbTipusExpedientIBpmKey(expedientTipusId,
+													definicioExportat.getDefinicioProcesDto().getBpmKey());
 								if (darreraVersio != null) {
 									definicioProcesId = darreraVersio.getId();
 								}
@@ -1726,9 +1726,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					} else {
 						// En el cas dels expedients per estats s'actualitzen els handlers sobre la definició existent.ç
 						DefinicioProces definicioProcesEstat =
-								definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+								definicioProcesRepository.findDarreraVersioAmbTipusExpedientIBpmKey(
 										expedientTipus.getId(),
-										expedientTipus.getJbpmProcessDefinitionKey());
+										expedientTipus.getBpmProcessDefinitionKey());
 						this.updateHandlers(
 								definicioProcesEstat,
 								definicioExportat.getContingutDeploy());
@@ -1744,7 +1744,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Map<String, Integer> definicionsProcesVersio = new HashMap<String, Integer>();
 			// Consulta la darrera versió de totes les definicions de procés incloent les heretades i les de l'entorn
 			for (DefinicioProces definicio : definicioProcesHelper.findAllDarreraVersio(entornId, expedientTipus))
-				definicionsProcesVersio.put(definicio.getJbpmKey(), definicio.getVersio());
+				definicionsProcesVersio.put(definicio.getBpmKey(), definicio.getVersio());
 			// Importa la informació de les consultes
 			for(ConsultaExportacio consultaExportat : importacio.getConsultes() )
 				if (command.getConsultes().contains(consultaExportat.getCodi())) {
@@ -1791,9 +1791,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 									ConsultaCamp.TipusConsultaCamp.valueOf(
 											consultaCampExportacio.getTipusConsultaCamp().toString()));
 							consultaCamp.setConsulta(consulta);
-							consultaCamp.setDefprocJbpmKey(consultaCampExportacio.getJbpmKey());
-							if (definicionsProcesVersio.containsKey(consultaCampExportacio.getJbpmKey()))
-								versio = definicionsProcesVersio.get(consultaCampExportacio.getJbpmKey());
+							consultaCamp.setDefprocBpmKey(consultaCampExportacio.getBpmKey());
+							if (definicionsProcesVersio.containsKey(consultaCampExportacio.getBpmKey()))
+								versio = definicionsProcesVersio.get(consultaCampExportacio.getBpmKey());
 							else
 								versio = -1;
 							consultaCamp.setDefprocVersio(versio);
@@ -1826,13 +1826,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			// Herencia
 			List<TascaExportacio> tasquesExportacio;
 			// Informacó de les tasques
-			for ( String definicioProcesJbpmkey : importacio.getHerenciaTasques().keySet()) {
+			for ( String definicioProcesBpmkey : importacio.getHerenciaTasques().keySet()) {
 				// S'han de relacionar els camps, documents i firmes indicats amb la informació inclosa
-				tasquesExportacio = importacio.getHerenciaTasques().get(definicioProcesJbpmkey);
+				tasquesExportacio = importacio.getHerenciaTasques().get(definicioProcesBpmkey);
 				definicioProcesHelper.importarTascaHerencia(
 						expedientTipus,
 						expedientTipusPare,
-						definicioProcesJbpmkey,
+						definicioProcesBpmkey,
 						tasquesExportacio);
 			}
 		}
@@ -1855,7 +1855,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new DeploymentException(
 					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
 		}
-		WProcessDefinition jbpmProcessDefinition = null; //new WProcessDefinition(processDefinition);
 		//TODO HELIUM2 : resoldre l'actualització de handlers
 //		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
 //		@SuppressWarnings("unchecked")
@@ -1879,23 +1878,23 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			ExpedientTipusExportacio importacio) {
 		int numExpRefrescar = 0;
 		for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() ) {
-			if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
+			if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getBpmKey())){
 				DefinicioProces darreraVersio =
-							definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(command.getId(),
-									definicioExportat.getDefinicioProcesDto().getJbpmKey());
+							definicioProcesRepository.findDarreraVersioAmbTipusExpedientIBpmKey(command.getId(),
+									definicioExportat.getDefinicioProcesDto().getBpmKey());
 				try {
 				// Programació de la tasca d'actualització d'expedients actius
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici(new Date());
 				dto.setEnviarCorreu(false);
-				dto.setParam1(definicioExportat.getDefinicioProcesDto().getJbpmKey());
+				dto.setParam1(definicioExportat.getDefinicioProcesDto().getBpmKey());
 				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(darreraVersio.getVersio())));
 				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
 				dto.setProcInstIds(
 						expedientService.findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 											entornId,
 											command.getId(),
-											definicioExportat.getDefinicioProcesDto().getJbpmKey()));
+											definicioExportat.getDefinicioProcesDto().getBpmKey()));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					numExpRefrescar += dto.getProcInstIds().size();
 				} catch(Exception e) {
@@ -2744,12 +2743,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			boolean ambHerencia,
 			boolean incloureGlobals) {
 		logger.debug(
-				"Consultant les jbpmKey de les definicions de processos per al tipus d'expedient (" +
+				"Consultant les bpmKey de les definicions de processos per al tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"ambHerencia=" + ambHerencia + ", " +
 				"incloureGlobals=" + incloureGlobals + ")");
-		return definicioProcesRepository.findJbpmKeys(
+		return definicioProcesRepository.findBpmKeys(
 				entornId,
 				expedientTipusId == null,
 				expedientTipusId,
@@ -2771,7 +2770,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (expedientTipus != null
 				&& definicioProces != null
 				&& expedientTipus.getEntorn().getId().equals(definicioProces.getEntorn().getId())) {
-			expedientTipus.setJbpmProcessDefinitionKey(definicioProces.getJbpmKey());
+			expedientTipus.setBpmProcessDefinitionKey(definicioProces.getBpmKey());
 			ret = true;
 		}
 		return ret;
@@ -3945,9 +3944,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						nova.setTipus(accio.getTipus());
 					}
 					nova.setDescripcio(accio.getDescripcio());
-					nova.setJbpmAction(accio.getJbpmAction());
+					nova.setBpmAction(accio.getBpmAction());
 					nova.setScript(accio.getScript());
-					nova.setDefprocJbpmKey(accio.getDefprocJbpmKey());
+					nova.setDefprocBpmKey(accio.getDefprocBpmKey());
 					nova.setHandlerClasse(accio.getHandlerClasse());
 					nova.setHandlerDades(accio.getHandlerDades());
 					nova.setPublica(accio.isPublica());
@@ -3985,9 +3984,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setMultiple(camp.isMultiple());
 					nou.setOcult(camp.isOcult());
 					nou.setDominiIntern(camp.getDominiIntern());
-					nou.setJbpmAction(camp.getJbpmAction());
+					nou.setBpmAction(camp.getBpmAction());
 					if (camp.getTipus() == CampTipusDto.ACCIO && camp.getDefinicioProces() != null)
-						nou.setDefprocJbpmKey(camp.getDefinicioProces().getJbpmKey());
+						nou.setDefprocBpmKey(camp.getDefinicioProces().getBpmKey());
 					nou.setOrdre(camp.getOrdre());
 
 					if (camp.getEnumeracio() != null && camp.getEnumeracio().getCodi() != null) {
@@ -4422,14 +4421,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<ConsultaDto> consultaFindRelacionadesAmbDefinicioProces(
 			Long entornId,
 			Long expedientTipusId,
-			String jbpmKey,
+			String bpmKey,
 			int versio) {
 
 		return conversioTipusHelper.convertirList(
 				consultaRepository.findRelacionadesAmbDefinicioProces(
 						entornId,
 						expedientTipusId,
-						jbpmKey,
+					bpmKey,
 						versio),
 				ConsultaDto.class);
 	}
@@ -4475,7 +4474,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setConsulta(consultaRepository.findById(consultaId).orElse(null));
 		entity.setTipus(ConsultaCamp.TipusConsultaCamp.valueOf(consultaCamp.getTipus().toString()));
 
-		entity.setDefprocJbpmKey(consultaCamp.getDefprocJbpmKey());
+		entity.setDefprocBpmKey(consultaCamp.getDefprocBpmKey());
 		entity.setDefprocVersio(consultaCamp.getDefprocVersio());
 
 		entity.setOrdre(consultaCampRepository.getNextOrdre(
@@ -4598,10 +4597,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			} else {
 				Consulta consulta = consultaRepository.findById(consultaId).orElse(null);
 				Long expedientTipusId = consulta.getExpedientTipus() != null? consulta.getExpedientTipus().getId() : null;
-				if (consultaCamp.getDefprocJbpmKey() != null) {
+				if (consultaCamp.getDefprocBpmKey() != null) {
 					// camp de la definició de procés
-					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
-							consultaCamp.getDefprocJbpmKey(),
+					DefinicioProces definicioProces = definicioProcesRepository.findByBpmKeyAndVersio(
+							consultaCamp.getDefprocBpmKey(),
 							consultaCamp.getDefprocVersio());
 					if (definicioProces != null) {
 						Camp camp = campRepository.findByDefinicioProcesAndCodi(

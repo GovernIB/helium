@@ -233,7 +233,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		boolean perEstats = false;
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = null;
-		String definicioProcesCodi = command.getDefprocJbpmKey();
+		String definicioProcesCodi = command.getDefprocBpmKey();
 		if (entornActual != null) {
 			expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 					entornActual.getId(),
@@ -241,7 +241,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus());
 			model.addAttribute("perEstats", perEstats);
 			if (perEstats) {
-				definicioProcesCodi = expedientTipus.getJbpmProcessDefinitionKey();
+				definicioProcesCodi = expedientTipus.getBpmProcessDefinitionKey();
 			}
 		}
 		command.setPerEstats(perEstats);
@@ -265,7 +265,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 							false,
 							true));
 			model.addAttribute("accions",
-					this.getAccions(expedientTipusId, command.getDefprocJbpmKey(), command.getJbpmAction()));
+					this.getAccions(expedientTipusId, command.getDefprocBpmKey(), command.getBpmAction()));
 		}
 		// Handlers propis
 		model.addAttribute("handlersPropis",
@@ -399,7 +399,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 				entornActual.getId(),
 				expedientTipusId);
-		DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, expedientTipus.getJbpmProcessDefinitionKey());
+		DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, expedientTipus.getBpmProcessDefinitionKey());
 		parametres = dissenyService.findHandlerParams(definicioProces.getId(), handler);*/
 		parametres = dissenyService.findHandlerRecursParams(expedientTipusId, handler);
 		// Select d'accions
@@ -414,11 +414,11 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable String definicioCodi,
-			@RequestParam(value="jbpmActionActual", required=false) String jbpmActionActual,
+			@RequestParam(value="bpmActionActual", required=false) String bpmActionActual,
 			Model model) {
 
 		// Select d'accions
-		return this.getAccions(expedientTipusId, definicioCodi, jbpmActionActual);
+		return this.getAccions(expedientTipusId, definicioCodi, bpmActionActual);
 	}
 
 	/** Mètode per obtenir els possibles handlers propois per al select de definicions de procés via ajax. */
@@ -440,27 +440,27 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 	 *
 	 * @param expedientTipusId
 	 * @param definicioCodi
-	 * @param jbpmAction
+	 * @param bpmAction
 	 * @return
 	 */
-	private List<ParellaCodiValorDto> getAccions(Long expedientTipusId, String definicioCodi, String jbpmAction) {
+	private List<ParellaCodiValorDto> getAccions(Long expedientTipusId, String definicioCodi, String bpmAction) {
 
 		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
 		List<String> accions = new ArrayList<String>();
 		if(expedientTipusId != null && definicioCodi != null) {
 			// Darrera versió de la definició de procés
 			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, definicioCodi);
-			accions = dissenyService.findAccionsJbpmOrdenades(definicioProces.getId());
+			accions = dissenyService.findAccionsBpmOrdenades(definicioProces.getId());
 		}
 		for (String accio : accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
 		}
-		if (jbpmAction != null
-				&& !jbpmAction.isEmpty()
-				&&	!accions.contains(jbpmAction)) {
+		if (bpmAction != null
+				&& !bpmAction.isEmpty()
+				&&	!accions.contains(bpmAction)) {
 			ret.add(0, new ParellaCodiValorDto(
-					jbpmAction,
-					jbpmAction + " (no existeix en la darrera versió de la definició de procés '" + definicioCodi + "')"));
+					bpmAction,
+					bpmAction + " (no existeix en la darrera versió de la definició de procés '" + definicioCodi + "')"));
 		}
 		return ret;
 	}

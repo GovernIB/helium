@@ -40,7 +40,7 @@ public class HibernateHelper {
 		Map<String,MesuraTemporalDto> resposta = new HashMap<String, MesuraTemporalDto>();
 		Map<String,MesuraTemporalDto> respostaDetallada = new HashMap<String, MesuraTemporalDto>();
 
-		String clauJbpm = exportar?"Consultas Jbpm":"Consultas totales de JBPM";
+		String clauBpm = exportar?"Consultas Bpm":"Consultas totales de BPM";
 		String clauHelium = exportar?"Consultas Helium":"Consultas totales de Helium";
 		Statistics stats = sessionFactory.getStatistics();
 		for (String sQuery: stats.getQueries()) {
@@ -55,7 +55,7 @@ public class HibernateHelper {
 				pasar = false;
 			} else if ("".equals(familia)) {
 				if (sQuery.contains("org.jbpm.")) {
-					clau = clauJbpm;
+					clau = clauBpm;
 				}
 				pasar = false;
 			}
@@ -110,8 +110,8 @@ public class HibernateHelper {
 		}
 
 		if (!"".equals(familia)) {
-			if ("sql_helium".equals(familia) && resposta.containsKey(clauJbpm)) {
-				resposta.remove(clauJbpm);
+			if ("sql_helium".equals(familia) && resposta.containsKey(clauBpm)) {
+				resposta.remove(clauBpm);
 			}
 			if ("sql_jbpm".equals(familia) && resposta.containsKey(clauHelium)) {
 				resposta.remove(clauHelium);

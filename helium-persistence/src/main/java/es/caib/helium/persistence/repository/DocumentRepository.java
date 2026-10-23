@@ -71,7 +71,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	@Query(	"from Document d " +
 		"where " +
 		"  	d.codi = :codi " +
-		"  	and d.definicioProces.jbpmId = :definicioProcesId ")
+		"  	and d.definicioProces.bpmId = :definicioProcesId ")
 	Document findByDefinicioProces(
 		@Param("definicioProcesId") String definicioProcesId,
 		@Param("codi") String codi);
@@ -116,12 +116,12 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"    DocumentTasca dt " +
 			"where " +
 			"    dt.tasca.definicioProces.id=:definicioProcesId " +
-			"and dt.tasca.jbpmName=:jbpmName " +
+			"and dt.tasca.bpmName=:bpmName " +
 			"order by " +
 			"    dt.order")
-	public List<Object[]> findAmbDefinicioProcesITascaJbpmNameOrdenats(
+	public List<Object[]> findAmbDefinicioProcesITascaBpmNameOrdenats(
 			@Param("definicioProcesId") Long definicioProcesId,
-			@Param("jbpmName") String jbpmName);
+			@Param("bpmName") String bpmName);
 
 
 	@Query(	"from Document d " +

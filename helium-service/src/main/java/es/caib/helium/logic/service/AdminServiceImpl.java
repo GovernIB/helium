@@ -440,11 +440,6 @@ public class AdminServiceImpl implements AdminService {
 		updatedRows += usuariPreferenciesRepository.updateCodiUsuariExpedientLog(codiActual, codiNou);
 		updatedRows += usuariPreferenciesRepository.updateCodiUsuariPeticioPinbal(codiActual, codiNou);
 		updatedRows += usuariPreferenciesRepository.updateCodiUsuariAclSid(codiActual, codiNou);
-		updatedRows += usuariPreferenciesRepository.updateCodiUsuariJbpmIdUser(codiActual, codiNou);
-		updatedRows += usuariPreferenciesRepository.updateCodiUsuariJbpmLogTaskActor(codiActual, codiNou);
-		updatedRows += usuariPreferenciesRepository.updateCodiUsuariJbpmLogTaskOldActor(codiActual, codiNou);
-		updatedRows += usuariPreferenciesRepository.updateCodiUsuariJbpmPoolActor(codiActual, codiNou);
-		updatedRows += usuariPreferenciesRepository.updateCodiUsuariJbpmTaskInstance(codiActual, codiNou);
 
 		usuariActualHelper.netejarCacheAcl();
 		usuariActualHelper.netejarCacheUsuariTots();

@@ -31,7 +31,7 @@ public class TascaDadaDto {
 	private boolean campMultiple;
 	private boolean campOcult;
 	private String[] campParams;
-	private String jbpmAction;
+	private String bpmAction;
 	private String observacions;
 	private String definicioProcesKey;
 	private boolean terminiNomesDies = false;

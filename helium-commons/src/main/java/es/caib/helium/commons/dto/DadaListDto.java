@@ -31,7 +31,7 @@ public class DadaListDto {
 	private boolean multiple;
 	private boolean ocult;
 
-	private String jbpmAction;
+	private String bpmAction;
 	private String observacions;
 
 	private String error;

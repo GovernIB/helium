@@ -58,11 +58,11 @@ import es.caib.helium.persistence.entity.Entorn;
 import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.Permis;
 import es.caib.helium.persistence.entity.Usuari;
-import es.caib.helium.persistence.repository.AreaJbpmIdRepository;
+import es.caib.helium.persistence.repository.AreaBpmIdRepository;
 import es.caib.helium.persistence.repository.AreaMembreRepository;
 import es.caib.helium.persistence.repository.AreaRepository;
 import es.caib.helium.persistence.repository.CampRepository;
-import es.caib.helium.persistence.repository.CarrecJbpmIdRepository;
+import es.caib.helium.persistence.repository.CarrecBpmIdRepository;
 import es.caib.helium.persistence.repository.CarrecRepository;
 import es.caib.helium.persistence.repository.EntornRepository;
 import es.caib.helium.persistence.repository.PermisRepository;
@@ -103,7 +103,7 @@ public class DominiHelper {
 	@Resource
 	private AreaRepository areaRepository;
 	@Resource
-	private AreaJbpmIdRepository areaJbpmIdRepository;
+	private AreaBpmIdRepository areaBpmIdRepository;
 	@Resource
 	private AreaMembreRepository areaMembreRepository;
 	@Resource
@@ -113,7 +113,7 @@ public class DominiHelper {
 	@Resource
 	private UsuariRepository usuariRepository;
 	@Resource
-	private CarrecJbpmIdRepository carrecJbpmIdRepository;
+	private CarrecBpmIdRepository carrecBpmIdRepository;
 	@Resource
 	private CampRepository campRepository;
 
@@ -676,7 +676,7 @@ public class DominiHelper {
 				}
 			}
 		} else {
-			for (String personaCodi: carrecJbpmIdRepository.findPersonesCodiByGrupCodi((String)parametres.get("rol"))) {
+			for (String personaCodi: carrecBpmIdRepository.findPersonesCodiByGrupCodi((String)parametres.get("rol"))) {
 				PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi);
 				if (persona != null)
 					resposta.add(novaFilaPersona(persona));
@@ -748,7 +748,7 @@ public class DominiHelper {
 				}
 			}
 		} else {
-			for (String rol: areaJbpmIdRepository.findRolesAmbUsuariCodi((String)parametres.get("persona"))) {
+			for (String rol: areaBpmIdRepository.findRolesAmbUsuariCodi((String)parametres.get("persona"))) {
 				FilaResultat fila = new FilaResultat();
 				fila.addColumna(new ParellaCodiValor("rol", rol));
 				resposta.add(fila);
@@ -770,7 +770,7 @@ public class DominiHelper {
 		Camp camp = null;
 		List<String[]> registresText = new ArrayList<String[]>();
 		if (taskInstanceId != null) {
-//			JbpmTask task = workflowEngineApi.getTaskById(taskInstanceId);
+//			WTask task = workflowEngineApi.getTaskById(taskInstanceId);
 //			TascaDadaDto dada = variableHelper.findDadaPerInstanciaTasca(task, variable);
 //			camp = campRepository.findOne(dada.getCampId());
 //			if (camp.getTipus().equals(CampTipusEnum.REGISTRE)) {
@@ -919,7 +919,7 @@ public class DominiHelper {
 			}
 			return new ArrayList<String>();
 		} else {
-			return carrecJbpmIdRepository.findPersonesCodiByGrupCodi(areaCodi);
+			return carrecBpmIdRepository.findPersonesCodiByGrupCodi(areaCodi);
 		}
 	}
 
@@ -934,7 +934,7 @@ public class DominiHelper {
 			}
 			return resposta;
 		} else {
-			return carrecJbpmIdRepository.findPersonesCodiByCarrecCodi(carrecCodi);
+			return carrecBpmIdRepository.findPersonesCodiByCarrecCodi(carrecCodi);
 		}
 	}
 
@@ -957,7 +957,7 @@ public class DominiHelper {
 			}
 			return null;
 		} else {
-			return carrecJbpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(areaCodi, carrecCodi);
+			return carrecBpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(areaCodi, carrecCodi);
 		}
 	}
 
@@ -965,7 +965,7 @@ public class DominiHelper {
 		if (isHeliumIdentitySource()) {
 			return findAreesMembre(personaCodi);
 		} else {
-			return areaJbpmIdRepository.findAreesJbpmIdMembre(personaCodi);
+			return areaBpmIdRepository.findAreesBpmIdMembre(personaCodi);
 		}
 	}
 
@@ -1015,7 +1015,7 @@ public class DominiHelper {
 	}
 
 	private boolean isHeliumIdentitySource() {
-		String organigramaActiu = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_JBPM_IDENTITY_SOURCE);
+		String organigramaActiu = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BPM_IDENTITY_SOURCE);
 		return "helium".equalsIgnoreCase(organigramaActiu);
 	}
 

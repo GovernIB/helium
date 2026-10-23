@@ -3,7 +3,6 @@
  */
 package es.caib.helium.back.command;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.validation.constraints.NotEmpty;
@@ -48,9 +47,9 @@ public class ExpedientTipusAccioCommand {
 
 	// Tipus handler del flux
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
-	private String defprocJbpmKey;
+	private String defprocBpmKey;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
-	private String jbpmAction;
+	private String bpmAction;
 
 	// Tipus handler propi
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
@@ -116,17 +115,17 @@ public class ExpedientTipusAccioCommand {
 	public void setTipus(AccioTipusEnumDto tipus) {
 		this.tipus = tipus;
 	}
-	public String getDefprocJbpmKey() {
-		return defprocJbpmKey;
+	public String getDefprocBpmKey() {
+		return defprocBpmKey;
 	}
-	public void setDefprocJbpmKey(String defprocJbpmKey) {
-		this.defprocJbpmKey = defprocJbpmKey;
+	public void setDefprocBpmKey(String defprocBpmKey) {
+		this.defprocBpmKey = defprocBpmKey;
 	}
-	public String getJbpmAction() {
-		return jbpmAction;
+	public String getBpmAction() {
+		return bpmAction;
 	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
+	public void setBpmAction(String bpmAction) {
+		this.bpmAction = bpmAction;
 	}
 	public String getHandlerPropi() {
 		return handlerPropi;
@@ -184,8 +183,8 @@ public class ExpedientTipusAccioCommand {
 		dto.setCodi(command.getCodi());
 		dto.setNom(command.getNom());
 		dto.setTipus(command.getTipus());
-		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
-		dto.setJbpmAction(command.getJbpmAction());
+		dto.setDefprocBpmKey(command.getDefprocBpmKey());
+		dto.setBpmAction(command.getBpmAction());
 		dto.setDescripcio(command.getDescripcio());
 		switch(command.getTipus()) {
 			case HANDLER_PROPI:

@@ -27,7 +27,7 @@ import es.caib.helium.commons.exception.ValidacioException;
 import javax.annotation.security.RolesAllowed;
 
 /**
- * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
+ * Servei per a enllaçar les llibreries BPM 3 amb la funcionalitat
  * de Helium.
  *
  * @author Limit Tecnologies <limit@limit.es>
@@ -300,6 +300,14 @@ public interface TascaService {
 			Map<String, Object> variables);
 
 	/**
+	 * refrescar la tasca a la base de dades.
+	 *
+	 * @param taskInstanceId
+	 *            Atribut id de la tasca.
+	 */
+	public void refrescar(String taskInstanceId);
+
+	/**
 	 * Valida el formulari de la tasca.
 	 *
 	 * @param tascaId
@@ -307,10 +315,6 @@ public interface TascaService {
 	 * @param variables
 	 *            Valors del formulari de la tasca.
 	 * @return la tasca validada.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public void validar(
 			String tascaId,

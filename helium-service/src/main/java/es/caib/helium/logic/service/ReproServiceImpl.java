@@ -170,7 +170,7 @@ public class ReproServiceImpl implements ReproService {
 	        String tascaCodi = null;
 	        if (tascaId != null) {
 		        Tasca tasca = tascaRepository.findById(tascaId).orElse(null);
-		        tascaCodi = tasca.getJbpmName();
+		        tascaCodi = tasca.getBpmName();
 	        }
 			if (valors_s.getBytes("UTF-8").length > ReproServiceImpl.MAX_VALOR_LENGTH)
 				throw new ValidacioException("El contingut del formulari és massa llarg");

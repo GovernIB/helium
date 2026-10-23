@@ -18,7 +18,7 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
@@ -50,13 +50,13 @@
 	                if (this.readyState == 4 && this.status == 200 && fileName){
 	                    //this.response is what you're looking for
 	                    console.log(this);
-	                    	                    
+
 	                    var blob = this.response;//new Blob([this.response]);
 	                    var link=document.createElement('a');
 	                    link.href=window.URL.createObjectURL(blob);
 	                    link.download=fileName; // S'afegeix el filename al enllaç del blob
 	                    link.click();
-	                    
+
 	                    window.parent.modalTancar(window.frameElement, false);
 	                } else {
 	                	if(this.response) {
@@ -77,13 +77,13 @@
 	    });
 	</script>
 </head>
-<body>		
+<body>
 	<form:form id="exportar-form" cssClass="form-horizontal" enctype="multipart/form-data" method="post" modelAttribute="command" style="min-height: 500px;">
-		
+
 		<div class="inlineLabels">
 			<script type="text/javascript">
 				// <![CDATA[
-				            
+
 				// Opcions comunes per totes les taules del document
 				$.extend( true, $.fn.dataTable.defaults, {
 				    columnDefs: [ {
@@ -96,9 +96,9 @@
 				    oLanguage: {
 					      sInfo: ""
 				    }
-				});				
+				});
 
-				$(document).ready( function() {					
+				$(document).ready( function() {
 					// Neteja els errors en fer submit
 					$('#exportar-form').submit(function() {
 						$('.has-error').removeClass('has-error');
@@ -110,10 +110,10 @@
 					$('#id').change(function(){
 						recarregaOpcionsExportacio();
 					});
-				}); 		
-				
+				});
+
 				/* Al principi o quan es carrega el contingut de les opcions es lliguen els events ajax. */
-				function actualitzarOpcions() {					
+				function actualitzarOpcions() {
 					$('table').DataTable();
 					// Event per seleccionar o des seleccionar totes les entrades
 					$('.checkAll').change(function(){
@@ -133,12 +133,12 @@
 						if (e.target.type != 'checkbox'){
 							var $checkbox =$('.check', this);
 							$checkbox.prop('checked', !$checkbox.is(':checked')).change();
-						  }						
+						  }
 					});
 					// si canvia un check comprova què fer amb el checkAll
 					$('.check').change(function() {
 						updateMarcador($(this).closest('.agrupacio'))
-					});					
+					});
 					// Per mostrar o ocultar el contingut de les taules
 					$('.agrupacio').on('show.bs.collapse', function () {
 						$(this).find('.fa-chevron-down').hide();
@@ -152,22 +152,22 @@
 					$('.agrupacio').each(function(){
 						if ($(this).find('.taula').length > 0)
 							updateMarcador($(this));
-					});		
+					});
 					// Expandeix els panells que continguin errors
 					$('.has-error').closest('.agrupacio').find('.clicable').click();
 					// Aplica la funció select2 als controls select
 					$('select.form-control').select2({
 					    minimumResultsForSearch: -1
 					});
-				} 		
-				
+				}
+
 				// Actualitza la icona del marcador de selecció del costat del títol de la agrupació
 				function updateMarcador( $agrupacio ) {
 					// amaga els marcadors
 					$agrupacio.find('.marcador').hide();
 					var total = $agrupacio.find('.check').length;
 					var marcats = $agrupacio.find('.check:checked').length;
-					
+
 					if (total == marcats && marcats > 0)
 						$agrupacio.find('.tots').show();
 					else if(marcats == 0)
@@ -176,16 +176,16 @@
 						$agrupacio.find('.algun').show();
 					$agrupacio.find('.marcats').text(marcats);
 					$agrupacio.find('.total').text(total);
-					// botó de checkall					
+					// botó de checkall
 					$agrupacio.find('.checkAll').prop('checked', total == marcats);
 				}
-				
+
 				// Quan canvia la versió recarrega les opcions d'exportació
 				function recarregaOpcionsExportacio() {
 						window.parent.$('button[type="submit"]').attr('disabled', 'disabled');
-						$('#exportarOpcions').empty();						
+						$('#exportarOpcions').empty();
 					    $.ajax({
-					        url: '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/exportar/"/>' + $('#id').val() + '/opcions' ,
+					        url: '<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/exportar/"/>' + $('#id').val() + '/opcions' ,
 					        type: 'GET',
 					        //Ajax events
 					        beforeSend: function(){
@@ -210,10 +210,10 @@
 					    });
 					 }
 				// ]]>
-			</script>			
+			</script>
 		</div>
 		<hel:inputSelect required="false" emptyOption="false" name="id" textKey="definicio.proces.exportar.form.versio" optionItems="${versions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-		
+
 		<div id="exportarOpcions">
 			<%@include file="definicioProcesExportarOpcions.jsp"%>
 		</div>

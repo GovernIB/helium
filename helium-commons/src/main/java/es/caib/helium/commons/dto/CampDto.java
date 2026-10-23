@@ -9,8 +9,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import es.caib.helium.commons.constants.ExpedientCamps;
-
 /**
  * Objecte de domini que representa un camp de la definició de procés.
  *
@@ -55,8 +53,8 @@ public class CampDto extends HeretableDto implements Serializable {
 	private String consultaCampValor;
 
 	// Dades de la acció
-	private String defprocJbpmKey;
-	private String jbpmAction;
+	private String defprocBpmKey;
+	private String bpmAction;
 
 	boolean dominiCacheText;
 
@@ -311,17 +309,17 @@ public class CampDto extends HeretableDto implements Serializable {
 	public void setConsultaCampValor(String consultaCampValor) {
 		this.consultaCampValor = consultaCampValor;
 	}
-	public String getJbpmAction() {
-		return jbpmAction;
+	public String getBpmAction() {
+		return bpmAction;
 	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
+	public void setBpmAction(String bpmAction) {
+		this.bpmAction = bpmAction;
 	}
-	public String getDefprocJbpmKey() {
-		return defprocJbpmKey;
+	public String getDefprocBpmKey() {
+		return defprocBpmKey;
 	}
-	public void setDefprocJbpmKey(String defprocJbpmKey) {
-		this.defprocJbpmKey = defprocJbpmKey;
+	public void setDefprocBpmKey(String defprocBpmKey) {
+		this.defprocBpmKey = defprocBpmKey;
 	}
 	public boolean isDominiCacheText() {
 		return dominiCacheText;

@@ -42,9 +42,9 @@ import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Area;
-import es.caib.helium.persistence.entity.AreaJbpmId;
+import es.caib.helium.persistence.entity.AreaBpmId;
 import es.caib.helium.persistence.entity.Carrec;
-import es.caib.helium.persistence.entity.CarrecJbpmId;
+import es.caib.helium.persistence.entity.CarrecBpmId;
 import es.caib.helium.persistence.entity.Document;
 import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.Domini;
@@ -53,9 +53,9 @@ import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.Persona;
 import es.caib.helium.persistence.entity.UnitatOrganitzativa;
-import es.caib.helium.persistence.repository.AreaJbpmIdRepository;
+import es.caib.helium.persistence.repository.AreaBpmIdRepository;
 import es.caib.helium.persistence.repository.AreaRepository;
-import es.caib.helium.persistence.repository.CarrecJbpmIdRepository;
+import es.caib.helium.persistence.repository.CarrecBpmIdRepository;
 import es.caib.helium.persistence.repository.CarrecRepository;
 import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.DominiRepository;
@@ -103,11 +103,11 @@ public class PlantillaHelper {
 	@Resource
 	private AreaRepository areaRepository;
 	@Resource
-	private AreaJbpmIdRepository areaJbpmIdRepository;
+	private AreaBpmIdRepository areaBpmIdRepository;
 	@Resource
 	private CarrecRepository carrecRepository;
 	@Resource
-	private CarrecJbpmIdRepository carrecJbpmIdRepository;
+	private CarrecBpmIdRepository carrecBpmIdRepository;
 	@Resource
 	private DominiRepository dominiRepository;
 	@Resource
@@ -424,9 +424,9 @@ public class PlantillaHelper {
 											area,
 											new DefaultObjectWrapper());
 								} else {
-									AreaJbpmId area = areaJbpmIdRepository.findByCodi(codi);
+									AreaBpmId area = areaBpmIdRepository.findByCodi(codi);
 									if (area == null)
-										area = new AreaJbpmId("???", "???");
+										area = new AreaBpmId("???", "???");
 									return new BeanModel(
 											area,
 											new DefaultObjectWrapper());
@@ -454,16 +454,16 @@ public class PlantillaHelper {
 												new DefaultObjectWrapper());
 									}
 								} else {
-									CarrecJbpmId carrec = null;
+									CarrecBpmId carrec = null;
 									if (args.size() == 1) {
-										carrec = carrecJbpmIdRepository.findByCodi(carrecCodi);
+										carrec = carrecBpmIdRepository.findByCodi(carrecCodi);
 									} else {
 										Object arg1 = args.get(1);
 										String areaCodi = (String)arg1;
-										carrec = carrecJbpmIdRepository.findByCodiAndGrup(carrecCodi, areaCodi);
+										carrec = carrecBpmIdRepository.findByCodiAndGrup(carrecCodi, areaCodi);
 									}
 									if (carrec == null)
-										carrec = new CarrecJbpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
+										carrec = new CarrecBpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
 									return new BeanModel(
 											carrec,
 											new DefaultObjectWrapper());
@@ -497,7 +497,7 @@ public class PlantillaHelper {
 										}
 									}
 								} else {
-									List<String> personaCodi = carrecJbpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(
+									List<String> personaCodi = carrecBpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(
 											codiArea,
 											codiCarrec);
 									if (personaCodi != null && !personaCodi.isEmpty()) {
@@ -546,15 +546,15 @@ public class PlantillaHelper {
 												new DefaultObjectWrapper());
 									}
 								} else {
-									List<String> carrecCodis = carrecJbpmIdRepository.findCarrecsCodiByPersonaCodiAndGrupCodi(
+									List<String> carrecCodis = carrecBpmIdRepository.findCarrecsCodiByPersonaCodiAndGrupCodi(
 											codiPersona,
 											codiArea);
 									if (carrecCodis != null && carrecCodis.size() > 0) {
-										CarrecJbpmId[] array = new CarrecJbpmId[carrecCodis.size()];
+										CarrecBpmId[] array = new CarrecBpmId[carrecCodis.size()];
 										for (int i = 0; i < carrecCodis.size(); i++) {
-											CarrecJbpmId carrec = carrecJbpmIdRepository.findByCodiAndGrup(carrecCodis.get(i), codiArea);
+											CarrecBpmId carrec = carrecBpmIdRepository.findByCodiAndGrup(carrecCodis.get(i), codiArea);
 											if (carrec == null)
-												carrec = new CarrecJbpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
+												carrec = new CarrecBpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
 											array[i] = carrec;
 										}
 										return new ArrayModel(
@@ -562,7 +562,7 @@ public class PlantillaHelper {
 												new DefaultObjectWrapper());
 									} else {
 										return new ArrayModel(
-												new CarrecJbpmId[0],
+												new CarrecBpmId[0],
 												new DefaultObjectWrapper());
 									}
 								}
@@ -591,9 +591,9 @@ public class PlantillaHelper {
 										}
 									}
 								} else {
-									CarrecJbpmId carrec = carrecJbpmIdRepository.findByCodi(codi);
+									CarrecBpmId carrec = carrecBpmIdRepository.findByCodi(codi);
 									if (carrec != null) {
-										List<String> persones = carrecJbpmIdRepository.findPersonesCodiByCarrecCodi(codi);
+										List<String> persones = carrecBpmIdRepository.findPersonesCodiByCarrecCodi(codi);
 										if (persones != null && persones.size() > 0) {
 											PersonaDto persona = pluginHelper.personaFindAmbCodi(persones.get(0));
 											if (persona == null)
@@ -850,7 +850,7 @@ public class PlantillaHelper {
 	}
 
 	private boolean esIdentitySourceHelium() {
-		String identitySource = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_JBPM_IDENTITY_SOURCE);
+		String identitySource = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BPM_IDENTITY_SOURCE);
 		return (identitySource.equalsIgnoreCase("helium"));
 	}
 

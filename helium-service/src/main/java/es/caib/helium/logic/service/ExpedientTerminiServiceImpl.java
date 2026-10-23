@@ -72,7 +72,7 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	@Resource
 	private EstatRepository estatRepository;
 	@Resource
-	private WorkflowEngineApi jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -551,12 +551,12 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 
 	private void suspendTimers(TerminiIniciat terminiIniciat) {
 		for (long timerId : terminiIniciat.getTimerIdsArray())
-			jbpmHelper.suspendTimer(timerId, new Date(Long.MAX_VALUE));
+			workflowEngineApi.suspendTimer(timerId, new Date(Long.MAX_VALUE));
 
 	}
 	private void resumeTimers(TerminiIniciat terminiIniciat) {
 		for (long timerId : terminiIniciat.getTimerIdsArray())
-			jbpmHelper.resumeTimer(timerId, terminiIniciat.getDataFi());
+			workflowEngineApi.resumeTimer(timerId, terminiIniciat.getDataFi());
 	}
 
 	private Registre crearRegistreTermini(

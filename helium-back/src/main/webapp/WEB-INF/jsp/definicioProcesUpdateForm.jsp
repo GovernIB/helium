@@ -32,7 +32,7 @@
 				// ]]>
 			</script>
 			<hel:inputHidden name="id" />
-			<hel:inputText required="true" name="jbpmKey" textKey="definicio.proces.form.camp.jbpmKey" disabled="true"/>
+			<hel:inputText required="true" name="bpmKey" textKey="definicio.proces.form.camp.bpmKey" disabled="true"/>
 			<hel:inputText name="versio" textKey="definicio.proces.form.camp.versio" disabled="true"/>
 			<hel:inputText required="false" name="etiqueta" textKey="definicio.proces.form.camp.etiqueta" />
 			<hel:inputCheckbox name="hasStartTask" textKey="definicio.proces.form.camp.hasStartTask" info="definicio.proces.form.camp.hasStartTask.info"/>

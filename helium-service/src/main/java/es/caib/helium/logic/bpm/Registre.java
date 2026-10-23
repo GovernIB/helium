@@ -1,4 +1,4 @@
-package es.caib.helium.logic.jbpm;
+package es.caib.helium.logic.bpm;
 
 public class Registre {
 	private String[] columnes;

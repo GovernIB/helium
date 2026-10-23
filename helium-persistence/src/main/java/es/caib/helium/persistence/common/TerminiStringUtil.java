@@ -1,13 +1,13 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.common;
 
 import java.io.Serializable;
 
 /**
- * Classe per guardar un termini a dins jBPM
- * 
+ * Classe per guardar un termini a dins BPM
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class TerminiStringUtil implements Serializable {
@@ -73,7 +73,7 @@ public class TerminiStringUtil implements Serializable {
 		}
 		return sb.toString();
 	}
-	
+
 	public static TerminiStringUtil valueFromString(String valorTermini) {
 		String[] parts = valorTermini.split("/");
 		try {
@@ -85,7 +85,7 @@ public class TerminiStringUtil implements Serializable {
 			return new TerminiStringUtil();
 		}
 	}
-	
+
 	public static String valueFromTermini(TerminiStringUtil valorTermini) {
 		return valorTermini.getAnys() + "/" + valorTermini.getMesos() + "/" + valorTermini.getDies();
 	}

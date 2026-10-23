@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -19,58 +19,58 @@ import es.caib.helium.persistence.entity.Tasca;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a una tasca que està emmagatzemada a dins la base
  * de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface TascaRepository extends JpaRepository<Tasca, Long> {
 
 	public List<Tasca> findByDefinicioProcesIdOrderByNomAsc(Long definicioProcesId);
-	
-	@Query(	"select t.jbpmName, t.nom from " +
+
+	@Query(	"select t.bpmName, t.nom from " +
 			"    Tasca t " +
 			"where " +
 			" t.definicioProces.id in (:ids)" +
 			" order by t.nom asc")
 	public List<Object[]> findIdNomByDefinicioProcesIdsOrderByNomAsc(
 			@Param("ids") List<Long> ids);
-	
-	@Query(	"select t.jbpmName, '[' || t.definicioProces.expedientTipus.nom || ' ] ' || t.nom from " +
+
+	@Query(	"select t.bpmName, '[' || t.definicioProces.expedientTipus.nom || ' ] ' || t.nom from " +
 			"    Tasca t " +
 			"where " +
 			" t.definicioProces.id in (:ids)" +
 			" order by t.definicioProces.expedientTipus.nom asc, t.nom asc")
 	public List<Object[]> findIdNomByExpedientTipusOrderByExpedientTipusNomAndNomAsc(
 			@Param("ids") List<Long> ids);
-	
-	Tasca findByJbpmNameAndDefinicioProces(
-			String jbpmName,
+
+	Tasca findByBpmNameAndDefinicioProces(
+			String bpmName,
 			DefinicioProces definicioProces);
 
 	@Query(	"from " +
 			"    Tasca t " +
 			"where " +
-			"    t.jbpmName = :jbpmName " +
-			"and t.definicioProces.jbpmId = :jbpmId")
-	Tasca findByJbpmNameAndDefinicioProcesJbpmId(
-			@Param("jbpmName") String name,
-			@Param("jbpmId") String jbpmId);
-	
+			"    t.bpmName = :bpmName " +
+			"and t.definicioProces.bpmId = :bpmId")
+	Tasca findByBpmNameAndDefinicioProcesBpmId(
+			@Param("bpmName") String name,
+			@Param("bpmId") String bpmId);
+
 	@Query(	"from " +
 			"    Tasca t " +
 			"where " +
-			"concat(t.jbpmName,'.',t.definicioProces.jbpmId) in (:jbpmNameDefinicioProcesJbpmIdPairs)")
-	List<Tasca> findByJbpmNameAndDefinicioProcesJbpmIdPairs(@Param("jbpmNameDefinicioProcesJbpmIdPairs") List<String> jbpmNameDefinicioProcesJbpmIdPairs);
+			"concat(t.bpmName,'.',t.definicioProces.bpmId) in (:bpmNameDefinicioProcesBpmIdPairs)")
+	List<Tasca> findByBpmNameAndDefinicioProcesBpmIdPairs(@Param("bpmNameDefinicioProcesBpmIdPairs") List<String> bpmNameDefinicioProcesBpmIdPairs);
 
 	@Query(	"from Tasca t " +
 			"where " +
 			"   t.definicioProces.id = :definicioProcesId " +
-			"	and (:esNullFiltre = true or lower(t.jbpmName) like lower('%'||:filtre||'%') or lower(t.nom) like lower('%'||:filtre||'%')) ")
+			"	and (:esNullFiltre = true or lower(t.bpmName) like lower('%'||:filtre||'%') or lower(t.nom) like lower('%'||:filtre||'%')) ")
 	public Page<Tasca> findByFiltrePaginat(
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
-			@Param("filtre") String filtre,		
+			@Param("filtre") String filtre,
 			Pageable pageable);
-	
+
 	@Query(	"from Tasca t " +
 			"where " +
 			"   t.id = :id ")

@@ -67,10 +67,10 @@ public class ConsultaHelper {
 			if (camp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 				// Camp expedient
 				campRes = getCampExpedient(camp.getCampCodi());
-			} else if (camp.getDefprocJbpmKey() != null) {
+			} else if (camp.getDefprocBpmKey() != null) {
 				// Definició de procés
-				definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
-						camp.getDefprocJbpmKey(),
+				definicioProces = definicioProcesRepository.findByBpmKeyAndVersio(
+						camp.getDefprocBpmKey(),
 						camp.getDefprocVersio());
 				if (definicioProces != null) {
 					campRes = campRepository.findByDefinicioProcesAndCodi(
@@ -92,7 +92,7 @@ public class ConsultaHelper {
 				tascaDadaDto = getTascaDadaPerCampsConsulta(camp);
 			}
 			if (definicioProces != null) {
-				tascaDadaDto.setDefinicioProcesKey(definicioProces.getJbpmKey());
+				tascaDadaDto.setDefinicioProcesKey(definicioProces.getBpmKey());
 			}
 			tascaDadaDto.setAmpleCols(camp.getAmpleCols());
 			tascaDadaDto.setBuitCols(camp.getBuitCols());
@@ -226,7 +226,7 @@ public class ConsultaHelper {
 			if (camp != null && (camp.getDefinicioProces() != null || camp.getExpedientTipus() != null)) {
 				if (camp.getExpedientTipus() == null)
 					// Definició de procés
-					dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
+					dadaIndexadaClau = camp.getDefinicioProces().getBpmKey() + "/" + camp.getCodi();
 				else
 					// Tipus d'expedient
 					dadaIndexadaClau = camp.getCodi();

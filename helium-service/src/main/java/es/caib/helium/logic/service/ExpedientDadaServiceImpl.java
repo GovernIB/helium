@@ -77,7 +77,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
-	private WorkflowEngineApi jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -493,7 +493,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				.registre(dadaExp.isCampTipusRegistre())
 				.multiple(camp.isMultiple())
 				.ocult(ocultFinal)
-				.jbpmAction(camp.getJbpmAction())
+				.bpmAction(camp.getBpmAction())
 				.observacions(camp.getObservacions())
 				.error(dadaExp.getError())
 				.agrupacioOrdre(camp.getAgrupacio() != null ? camp.getAgrupacio().getOrdre() : Integer.MAX_VALUE - 1)

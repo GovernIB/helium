@@ -38,8 +38,8 @@ public class CampExportacio implements Serializable {
 	private String codiDomini;
 	private String codiConsulta;
 	private String agrupacioCodi;
-	private String defprocJbpmKey;
-	private String jbpmAction;
+	private String defprocBpmKey;
+	private String bpmAction;
 	private boolean terminiNomesDies;
 	private Integer ordre;
 	private Set<ValidacioExportacio> validacions = new HashSet<ValidacioExportacio>();
@@ -70,8 +70,8 @@ public class CampExportacio implements Serializable {
 			String codiDomini,
 			String codiConsulta,
 			String agrupacioCodi,
-			String defprocJbpmKey,
-			String jbpmAction,
+			String defprocBpmKey,
+			String bpmAction,
 			Integer ordre,
 			boolean isIgnored,
 			boolean dependenciaEntorn) {
@@ -95,8 +95,8 @@ public class CampExportacio implements Serializable {
 		this.codiDomini = codiDomini;
 		this.codiConsulta = codiConsulta;
 		this.agrupacioCodi = agrupacioCodi;
-		this.setDefprocJbpmKey(defprocJbpmKey);
-		this.jbpmAction = jbpmAction;
+		this.setDefprocBpmKey(defprocBpmKey);
+		this.bpmAction = bpmAction;
 		this.ordre = ordre;
 		this.isIgnored = isIgnored;
 		this.dependenciaEntorn = dependenciaEntorn;
@@ -206,19 +206,19 @@ public class CampExportacio implements Serializable {
 	public void setAgrupacioCodi(String agrupacioCodi) {
 		this.agrupacioCodi = agrupacioCodi;
 	}
-	public String getDefprocJbpmKey() {
-		return defprocJbpmKey;
+	public String getDefprocBpmKey() {
+		return defprocBpmKey;
 	}
 
-	public void setDefprocJbpmKey(String defprocJbpmKey) {
-		this.defprocJbpmKey = defprocJbpmKey;
+	public void setDefprocBpmKey(String defprocBpmKey) {
+		this.defprocBpmKey = defprocBpmKey;
 	}
 
-	public String getJbpmAction() {
-		return jbpmAction;
+	public String getBpmAction() {
+		return bpmAction;
 	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
+	public void setBpmAction(String bpmAction) {
+		this.bpmAction = bpmAction;
 	}
 	public Integer getOrdre() {
 		return ordre;

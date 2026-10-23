@@ -9,7 +9,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import es.caib.helium.commons.config.BaseConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -51,16 +50,16 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 		return resposta;
 	}
 
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/terminis")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/terminis")
 	public String documents(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
-					jbmpKey,
+					bpmKey,
 					definicioProcesId,
 					model,
 					"terminis");
@@ -70,7 +69,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getBpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		return "expedientTipusTermini";
 	}

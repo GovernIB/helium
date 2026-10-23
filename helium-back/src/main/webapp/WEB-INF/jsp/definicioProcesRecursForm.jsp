@@ -6,7 +6,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma">ca</c:set>
 
-<c:set var="titol"><spring:message code="definico.proces.recurs.desplegar.form.titol" arguments="${definicioProces.jbpmKey}, ${definicioProces.etiqueta}, ${definicioProces.versio}"/></c:set>
+<c:set var="titol"><spring:message code="definico.proces.recurs.desplegar.form.titol" arguments="${definicioProces.bpmKey}, ${definicioProces.etiqueta}, ${definicioProces.versio}"/></c:set>
 
 <html>
 <head>

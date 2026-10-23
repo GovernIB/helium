@@ -290,10 +290,10 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 						expedientTipus != null && expedientTipus.isAmbInfoPropia();
 				Map<String, TascaExportacio> tasquesMap = new HashMap<String, TascaExportacio>();
 				for (TascaExportacio tasca : exportacio.getTasques())
-					tasquesMap.put(tasca.getJbpmName(), tasca);
+					tasquesMap.put(tasca.getBpmName(), tasca);
 				TascaExportacio tasca;
-				for (String tascaJbpmName : command.getTasques()) {
-					tasca = tasquesMap.get(tascaJbpmName);
+				for (String tascaBpmName : command.getTasques()) {
+					tasca = tasquesMap.get(tascaBpmName);
 					// Variables de la tasca: poden estar lligades a les del TE o les de la DP
 					CampDto campDto;
 					for (CampTascaExportacio tascaCamp : tasca.getCamps()) {
@@ -310,7 +310,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
 												this.codiMissatge + ".tasca.variable.expedientTipus",
-												new Object[] {	tasca.getJbpmName(),
+												new Object[] {	tasca.getBpmName(),
 														tascaCamp.getCampCodi()}))
 								.addNode("tasques")
 								.addConstraintViolation();
@@ -333,7 +333,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(
 													this.codiMissatge + ".tasca.variable",
-													new Object[] {	tasca.getJbpmName(),
+													new Object[] {	tasca.getBpmName(),
 															tascaCamp.getCampCodi()}))
 									.addNode("tasques")
 									.addConstraintViolation();
@@ -355,7 +355,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
 												this.codiMissatge + ".tasca.document.expedientTipus",
-												new Object[] {	tasca.getJbpmName(),
+												new Object[] {	tasca.getBpmName(),
 														documentCamp.getDocumentCodi()}))
 								.addNode("tasques")
 								.addConstraintViolation();
@@ -376,7 +376,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(
 													this.codiMissatge + ".tasca.document",
-													new Object[] {	tasca.getJbpmName(),
+													new Object[] {	tasca.getBpmName(),
 															documentCamp.getDocumentCodi()}))
 									.addNode("tasques")
 									.addConstraintViolation();
@@ -398,7 +398,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
 												this.codiMissatge + ".tasca.firma.expedientTipus",
-												new Object[] {	tasca.getJbpmName(),
+												new Object[] {	tasca.getBpmName(),
 														firmaCamp.getDocumentCodi()}))
 								.addNode("tasques")
 								.addConstraintViolation();
@@ -419,7 +419,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(
 													this.codiMissatge + ".tasca.firma",
-													new Object[] {	tasca.getJbpmName(),
+													new Object[] {	tasca.getBpmName(),
 															firmaCamp.getDocumentCodi()}))
 									.addNode("tasques")
 									.addConstraintViolation();

@@ -13,7 +13,6 @@ import es.caib.helium.back.helper.*;
 import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
 import es.caib.helium.back.mvc.ArxiuView;
-import es.caib.helium.back.mvc.SerialitzarView;
 import es.caib.helium.commons.dto.*;
 import es.caib.helium.commons.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
 import es.caib.helium.commons.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -491,26 +490,26 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("variables", campService.findAllOrdenatsPerCodi(expedientTipusId, null));
 		model.addAttribute("agrupacions", campService.agrupacioFindAll(expedientTipusId, null, false));
 
-		// Map<definicioCodi, List<ParellaCodiValorDto>> map amb les versions agrupades per codi jbpm
+		// Map<definicioCodi, List<ParellaCodiValorDto>> map amb les versions agrupades per codi bpm
 		Map<String, List<Integer>> versionsMap = new HashMap<String, List<Integer>>();
-		// Map<definicioCodi, darrera versió> map amb les darreres versions per codi jbpm
+		// Map<definicioCodi, darrera versió> map amb les darreres versions per codi bpm
 		Map<String, Integer> darreresVersionsMap = new HashMap<String, Integer>();
 		List<Integer> versions;
 		List<DefinicioProcesDto> definicions = new ArrayList<DefinicioProcesDto>();
-		String jbpmKey;
+		String bpmKey;
 		for (DefinicioProcesDto definicio :
 						expedientTipusService.definicioFindAll(expedientTipusId)) {
-			jbpmKey = definicio.getJbpmKey();
-			versions = versionsMap.get(jbpmKey);
+			bpmKey = definicio.getBpmKey();
+			versions = versionsMap.get(bpmKey);
 			if (versions == null) {
 				versions =  new ArrayList<Integer>();
-				versionsMap.put(jbpmKey, versions);
+				versionsMap.put(bpmKey, versions);
 				definicions.add(definicio);
 			}
 			versions.add(definicio.getVersio());
 			// Guarda el valor de la versió major per a la definició de procés
-			if (darreresVersionsMap.get(jbpmKey) == null || definicio.getVersio() > darreresVersionsMap.get(jbpmKey))
-				darreresVersionsMap.put(jbpmKey, definicio.getVersio());
+			if (darreresVersionsMap.get(bpmKey) == null || definicio.getVersio() > darreresVersionsMap.get(bpmKey))
+				darreresVersionsMap.put(bpmKey, definicio.getVersio());
 		}
 		for (List<Integer> v : versionsMap.values())
 			Collections.sort(v);
@@ -742,7 +741,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			for (DefinicioProcesExportacio definicioExportat : exportacio.getDefinicions()) {
 				definicions.add(definicioExportat.getDefinicioProcesDto());
 
-				this.comprovarDocumentsImportacio(request, model, entornId, expedientTipusId, definicioExportat.getDefinicioProcesDto().getJbpmKey(), definicioExportat.getDocuments());
+				this.comprovarDocumentsImportacio(request, model, entornId, expedientTipusId, definicioExportat.getDefinicioProcesDto().getBpmKey(), definicioExportat.getDocuments());
 			}
 			model.addAttribute("definicions", definicions);
 
@@ -765,15 +764,15 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Model model,
 			Long entornId,
 			Long expedientTipusId,
-			String definicioProcesJbpmKey,
+			String definicioProcesBpmKey,
 			List<DocumentExportacio> documents) {
 		List<String> avisosDocuments = new ArrayList<String>();
 		List<String> fluxIds = null;
 		String avisText;
 		Long definicioProcesId = null;
 		if (expedientTipusId != null && documents != null) {
-			if (definicioProcesJbpmKey != null) {
-				DefinicioProcesDto definicioProcesDto = definicioProcesService.findByEntornTipusIdAndJbpmKey(entornId, expedientTipusId, definicioProcesJbpmKey);
+			if (definicioProcesBpmKey != null) {
+				DefinicioProcesDto definicioProcesDto = definicioProcesService.findByEntornTipusIdAndBpmKey(entornId, expedientTipusId, definicioProcesBpmKey);
 				if (definicioProcesDto != null) {
 					definicioProcesId = definicioProcesDto.getId();
 				}
@@ -806,8 +805,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					}
 					if (fluxIds != null && !fluxIds.contains(document.getPortafirmesFluxId())) {
 						avisText = "Avís importació document \"" + document.getCodi() + " - " + document.getNom() + "\"";
-						if (definicioProcesJbpmKey != null) {
-							avisText += " de la definició de procés \"" + definicioProcesJbpmKey + "\"";
+						if (definicioProcesBpmKey != null) {
+							avisText += " de la definició de procés \"" + definicioProcesBpmKey + "\"";
 						}
 						avisText += ". No existeix cap flux de firma definit pel tipus d'expedient amb id " + document.getPortafirmesFluxId();
 						if (document.getPortafirmesFluxNom() != null ) {
@@ -1144,7 +1143,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				dissenyService.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 						entornActual.getId(),
 						id,
-						Long.parseLong(definicioProces.getJbpmId()),
+						Long.parseLong(definicioProces.getBpmId()),
 						paginacioParams),
 				"id");
 	}
@@ -1278,7 +1277,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			seleccio.addAll(dissenyService.findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 					entornActual.getId(),
 					id,
-					Long.parseLong(definicioProces.getJbpmId())));
+					Long.parseLong(definicioProces.getBpmId())));
 		}
 
 		sessionManager.setSeleccioConsultaAfectatsDp(dpId,seleccio);
@@ -1439,7 +1438,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			// Treu el primer resultat que es correspon amb la darrera versió, no cal propagar-la
 			definicio.getListIdAmbEtiqueta().remove(0);
 			// L'objecte de tipus DefinicioProcesExpedientDto ja conté totes les versions
-			if (definicio.getJbpmKey().equals(expedientTipus.getJbpmProcessDefinitionKey()))
+			if (definicio.getBpmKey().equals(expedientTipus.getBpmProcessDefinitionKey()))
 				definicions.add(0, definicio);
 			else
 				definicions.add(definicio);
@@ -1508,7 +1507,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 									request,
 									"expedient.tipus.propagar.handlers.confirmacio",
 									new Object[] {
-											darreraVersio.getJbpmKey(),
+											darreraVersio.getBpmKey(),
 											versionsSeleccionades.size()
 									}));
 
@@ -1517,7 +1516,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 							request,
 							"expedient.tipus.propagar.handlers.error",
 							new Object[] {
-									darreraVersio.getJbpmKey(),
+									darreraVersio.getBpmKey(),
 									e.getMessage()
 							});
     				logger.error(msgErr, e);

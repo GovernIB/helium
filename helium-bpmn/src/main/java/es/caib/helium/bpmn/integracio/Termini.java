@@ -3,7 +3,7 @@ package es.caib.helium.bpmn.integracio;
 import java.io.Serializable;
 
 /**
- * Classe per guardar un termini a dins jBPM
+ * Classe per guardar un termini a dins BPM
  *
  * @author Limit Tecnologies <limit@limit.es>
  */

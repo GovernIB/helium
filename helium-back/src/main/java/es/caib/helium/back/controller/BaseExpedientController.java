@@ -75,11 +75,8 @@ public class BaseExpedientController extends BaseController {
 						instanciaProces.getId());
 				numAccions += accionsTrobades.size();
 			}
-
-			/*WProcessInstance jbpmProcessInstance = jbpmHelper.getProcessInstance(expedient.getProcessInstanceId());
-			model.addAttribute("processInstance", jbpmProcessInstance != null? jbpmProcessInstance.getProcessInstance() : null);*/
-		model.addAttribute("subprocessos", subprocessos);
-		model.addAttribute("numAccions", numAccions);
+			model.addAttribute("subprocessos", subprocessos);
+			model.addAttribute("numAccions", numAccions);
 		}
 		model.addAttribute("numPinbals", consultaPinbalService.findConsultesPinbalPerExpedient(expedientId).size());
 		model.addAttribute("perEstats", ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus()));

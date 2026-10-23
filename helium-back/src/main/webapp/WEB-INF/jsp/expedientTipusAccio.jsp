@@ -40,7 +40,7 @@
 				data-ordering="true"
 				data-default-order="1"
 				data-rowhref-toggle="modal"
-				data-rowhref-template="#rowhrefTemplateAccions" 
+				data-rowhref-template="#rowhrefTemplateAccions"
 				data-botons-template="#tableButtonsAccionsTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -50,7 +50,7 @@
 					<spring:message code="expedient.tipus.accio.llistat.columna.codi"/>
 						<script id="cellExpedientTipusAccioCodiTemplate" type="text/x-jsrender">
 								{{if heretat }}
-									<span class="dada-heretada">{{:codi}}</span> 
+									<span class="dada-heretada">{{:codi}}</span>
 									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.accio.llistat.codi.heretat"/>">R</span>
 								{{else}}
 									{{:codi}}
@@ -78,9 +78,9 @@
 					</th>
 					<c:if test="${not empty expedientTipus && not perEstats}">
 						<!-- Per les accions dels tipus d'expedient es mostra la clau de la definició de procés -->
-						<th data-col-name="defprocJbpmKey"><spring:message code="expedient.tipus.accio.llistat.columna.defprocJbpmKey"/></th>
+						<th data-col-name="defprocBpmKey"><spring:message code="expedient.tipus.accio.llistat.columna.defprocBpmKey"/></th>
 					</c:if>
-					<th data-col-name="handler" data-orderable="false"><spring:message code="expedient.tipus.accio.llistat.columna.jbpmAction"/></th>
+					<th data-col-name="handler" data-orderable="false"><spring:message code="expedient.tipus.accio.llistat.columna.bpmAction"/></th>
 					<th data-col-name="id" data-template="#cellAccionsAccioTemplate" data-orderable="false" width="10%">
 						<script id="cellAccionsAccioTemplate" type="text/x-jsrender">
 						<div class="dropdown">
@@ -102,7 +102,7 @@
 			</thead>
 		</table>
 
-		<script id="rowhrefTemplateAccions" type="text/x-jsrender">${baseUrl}/accio/{{:id}}/update</script>	
+		<script id="rowhrefTemplateAccions" type="text/x-jsrender">${baseUrl}/accio/{{:id}}/update</script>
 
 		<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
@@ -119,9 +119,9 @@
 </c:choose>
 
 <script type="text/javascript">
-// <![CDATA[            
+// <![CDATA[
 $(document).ready(function() {
 
 });
 // ]]>
-</script>			
+</script>

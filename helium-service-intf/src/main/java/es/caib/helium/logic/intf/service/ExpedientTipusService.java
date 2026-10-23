@@ -1345,14 +1345,14 @@ public interface ExpedientTipusService {
 	 * procés concreta. Serveix per avisar de les consultes afectades després d'esborrar una definició de procés.
 	 * @param entornId
 	 * @param expedientTipusId
-	 * @param jbpmKey
+	 * @param bpmKey
 	 * @param versio
 	 * @return Retorna la llista de consultes afectades.
 	 */
 	public List<ConsultaDto> consultaFindRelacionadesAmbDefinicioProces(
 			Long entornId,
 			Long expedientTipusId,
-			String jbpmKey,
+			String bpmKey,
 			int versio);
 
 	/**

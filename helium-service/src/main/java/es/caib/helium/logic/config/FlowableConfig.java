@@ -3,9 +3,9 @@ package es.caib.helium.logic.config;
 import es.caib.helium.logic.classloader.WorkflowEngineApiClassLoader;
 import es.caib.helium.logic.flowable.FlowableTaskEventListener;
 import es.caib.helium.logic.helper.ComandaHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTascaService;
+import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,15 +23,15 @@ import org.springframework.context.annotation.Configuration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
 public class FlowableConfig implements EngineConfigurationConfigurer<SpringProcessEngineConfiguration> {
-
 	private final WorkflowEngineApi workflowEngineApi;
 	private final ComandaHelper comandaHelper;
+	private final TascaService tascaService;
+	private final ExpedientHelper expedientHelper;
 
 	@Override
 	public void configure(SpringProcessEngineConfiguration processEngineConfiguration) {
@@ -39,7 +39,7 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 			new WorkflowEngineApiClassLoader(workflowEngineApi));
 		processEngineConfiguration.setEventListeners(List.of(new CurrentDeploymentIdEventListener(processEngineConfiguration)));
 		List<FlowableEventListener> listeners = ((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().getEventListeners().stream().collect(Collectors.toList());
-		listeners.add(new FlowableTaskEventListener(processEngineConfiguration, comandaHelper));
+		listeners.add(new FlowableTaskEventListener(processEngineConfiguration, comandaHelper, tascaService, expedientHelper));
 		((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().setEventListeners(listeners);
 		processEngineConfiguration.setUseClassForNameClassLoading(false);
 	}

@@ -80,39 +80,39 @@ public class VariableHelper {
 	@Resource
 	private ExpedientDadaHelper expedientDadaHelper;
 
-	public Object getVariableJbpmTascaValor(
+	public Object getVariableBpmTascaValor(
 			String taskId,
 			String varCodi) {
 		Object valor = expedientDadaHelper.getDada(null, null, taskId, varCodi);
-		return valorVariableJbpmRevisat(valor);
+		return valorVariableBpmRevisat(valor);
 	}
 
-	public Map<String, Object> getVariablesJbpmTascaValor(
+	public Map<String, Object> getVariablesBpmTascaValor(
 			String taskId) {
 		Map<String, Object> valors = expedientDadaHelper.getDadesValors(null, null, taskId);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
 		for (String varCodi: valors.keySet()) {
 			Object valor = valors.get(varCodi);
-			valorsRevisats.put(varCodi, valorVariableJbpmRevisat(valor));
+			valorsRevisats.put(varCodi, valorVariableBpmRevisat(valor));
 		}
 		return valorsRevisats;
 	}
 
-	public Object getVariableJbpmProcesValor(
+	public Object getVariableBpmProcesValor(
 			String processInstanceId,
 			String varCodi) {
 		Object valor = expedientDadaHelper.getDada(null, processInstanceId, null, varCodi);
-		return valorVariableJbpmRevisat(valor);
+		return valorVariableBpmRevisat(valor);
 	}
 
-	public Map<String, Object> getVariablesJbpmProcesValor(
+	public Map<String, Object> getVariablesBpmProcesValor(
 			String processInstanceId) {
 		Map<String, Object> valors = expedientDadaHelper.getDadesValors(null, processInstanceId, null);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
 		if (valors != null) {
 			for (String varCodi: valors.keySet()) {
 				Object valor = valors.get(varCodi);
-				valorsRevisats.put(varCodi, valorVariableJbpmRevisat(valor));
+				valorsRevisats.put(varCodi, valorVariableBpmRevisat(valor));
 			}
 		}
 		return valorsRevisats;
@@ -429,7 +429,7 @@ public class VariableHelper {
 		}
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				task.getProcessInstanceId());
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
 		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), expedientTipusId);
@@ -447,7 +447,7 @@ public class VariableHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "1");
 		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getTaskName(), "2");
 		// Només es mostraran les variables donades d'alta al formulari
-		// de la tasca. Les variables jBPM de la tasca que no siguin
+		// de la tasca. Les variables BPM de la tasca que no siguin
 		// al formulari no es mostraran.
 		for (CampTasca campTasca: campsTasca) {
 			Camp camp = campTasca.getCamp();
@@ -484,9 +484,9 @@ public class VariableHelper {
 	public TascaDadaDto findDadaPerInstanciaTasca(
 			WTaskInstance task,
 			String variableCodi) {
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(
 				task.getProcessDefinitionId());
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
 
@@ -723,9 +723,9 @@ public class VariableHelper {
 								campCodi);
 					}
 					if (value == null && taskInstanceId != null)
-						value = getVariableJbpmTascaValor(taskInstanceId, campCodi);
+						value = getVariableBpmTascaValor(taskInstanceId, campCodi);
 					if (value == null && processInstanceId != null)
-						value = getVariableJbpmProcesValor(processInstanceId, campCodi);
+						value = getVariableBpmProcesValor(processInstanceId, campCodi);
 				}
 			}
 			if (value != null)
@@ -776,7 +776,7 @@ public class VariableHelper {
 		tascaDadaDto.setText(expedientDadaDto.getText());
 		tascaDadaDto.setError(expedientDadaDto.getError());
 		tascaDadaDto.setObservacions(expedientDadaDto.getObservacions());
-		tascaDadaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
+		tascaDadaDto.setBpmAction(expedientDadaDto.getBpmAction());
 		tascaDadaDto.setValidacions(expedientDadaDto.getValidacions());
 		if (expedientDadaDto.getMultipleDades() != null) {
 			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
@@ -861,7 +861,7 @@ public class VariableHelper {
 		tascaDto.setText(expedientDadaDto.getText());
 		tascaDto.setError(expedientDadaDto.getError());
 		tascaDto.setObservacions(expedientDadaDto.getObservacions());
-		tascaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
+		tascaDto.setBpmAction(expedientDadaDto.getBpmAction());
 		tascaDto.setValidacions(expedientDadaDto.getValidacions());
 		if (expedientDadaDto.getMultipleDades() != null) {
 			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
@@ -885,7 +885,7 @@ public class VariableHelper {
 		String varCodi;
 		if (TipusConsultaCamp.INFORME.equals(tipus) && camp.getDefinicioProces() != null  && camp.getExpedientTipus() == null ) {
 			// Variable definició de procés
-			varCodi = camp.getDefinicioProces().getJbpmKey()+"/"+camp.getCodi();
+			varCodi = camp.getDefinicioProces().getBpmKey()+"/"+camp.getCodi();
 		} else {
 			// Variable expedient o tipus d'expedient
 			varCodi = camp.getCodi();
@@ -896,7 +896,7 @@ public class VariableHelper {
 		tascaDto.setCampEtiqueta(camp.getEtiqueta());
 		tascaDto.setCampMultiple(camp.isMultiple());
 		tascaDto.setObservacions(camp.getObservacions());
-		tascaDto.setJbpmAction(camp.getJbpmAction());
+		tascaDto.setBpmAction(camp.getBpmAction());
 		tascaDto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
 
 		if (CampTipusDto.SELECCIO.equals(camp.getTipus()) || CampTipusDto.SUGGEST.equals(camp.getTipus())) {
@@ -944,7 +944,7 @@ public class VariableHelper {
 			boolean forsarSimple) {
 		ExpedientDadaDto dto = new ExpedientDadaDto();
 		dto.setVarCodi(varCodi);
-		dto.setVarValor(valorVariableJbpmRevisat(varValor));
+		dto.setVarValor(valorVariableBpmRevisat(varValor));
 		if (camp != null) {
 			dto.setCampId(camp.getId());
 			dto.setVarCodi(camp.getCodi());
@@ -953,7 +953,7 @@ public class VariableHelper {
 			dto.setCampMultiple(camp.isMultiple());
 			dto.setCampOcult(camp.isOcult());
 			dto.setObservacions(camp.getObservacions());
-			dto.setJbpmAction(camp.getJbpmAction());
+			dto.setBpmAction(camp.getBpmAction());
 			if (camp.getOrdre() != null)
 				dto.setOrdre(camp.getOrdre());
 			if (camp.getAgrupacio() != null)
@@ -1094,7 +1094,7 @@ public class VariableHelper {
 		return dto;
 	}
 
-	private Object valorVariableJbpmRevisat(Object valor) {
+	private Object valorVariableBpmRevisat(Object valor) {
 		if (valor instanceof DominiCodiDescripcio) {
 			return ((DominiCodiDescripcio)valor).getCodi();
 		} else {
@@ -1125,11 +1125,11 @@ public class VariableHelper {
 			String campCodi) {
 		Object registreValor = null;
 		if (taskInstanceId != null)
-			registreValor = getVariableJbpmTascaValor(
+			registreValor = getVariableBpmTascaValor(
 					taskInstanceId,
 					registreCamp.getCodi());
 		else if (processInstanceId != null)
-			registreValor = getVariableJbpmProcesValor(
+			registreValor = getVariableBpmProcesValor(
 					processInstanceId,
 					registreCamp.getCodi());
 		if (registreValor != null) {

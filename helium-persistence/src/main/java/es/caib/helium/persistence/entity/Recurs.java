@@ -12,7 +12,7 @@ import java.util.Date;
 
 /**
  * Objecte de domini que representa un recurs associat a un tipus d'expedient o a una instància de procés. Aquests
- * recursos son els que antigament es carregaven amb els fitxers .par al desplegar una instància de procés jBPM.
+ * recursos son els que antigament es carregaven amb els fitxers .par al desplegar una instància de procés BPM.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */

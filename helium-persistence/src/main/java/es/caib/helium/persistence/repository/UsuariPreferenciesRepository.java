@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -14,14 +14,14 @@ import es.caib.helium.persistence.entity.UsuariPreferencies;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a les preferències d'usuari que estan emmagatzemades
  * a dins la base de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface UsuariPreferenciesRepository extends JpaRepository<UsuariPreferencies, Long> {
 
 	UsuariPreferencies findByCodi(String codi);
-	
-	
+
+
 	@Modifying
 	@Query("UPDATE UsuariPreferencies up SET up.codi = :codiNou WHERE up.codi = :codiActual")
 	public int updateCodiUsuariUsuariPreferencies(@Param("codiActual") String codiActual, @Param("codiNou") String codiNou);
@@ -58,24 +58,5 @@ public interface UsuariPreferenciesRepository extends JpaRepository<UsuariPrefer
 	@Query(value = "UPDATE HEL_ACL_SID a SET a.SID = :codiNou WHERE a.SID = :codiActual", nativeQuery = true)
 	public int updateCodiUsuariAclSid(@Param("codiActual") String codiActual, @Param("codiNou") String codiNou);
 
-	@Modifying
-	@Query(value = "UPDATE JBPM_ID_USER j SET j.NAME_ = :codiNou WHERE j.NAME_ = :codiActual", nativeQuery = true)
-	public int updateCodiUsuariJbpmIdUser(@Param("codiActual") String codiActual, @Param("codiNou") String codiNou);
 
-	@Modifying
-	@Query(value = "UPDATE JBPM_LOG j SET j.TASKACTORID_ = :codiNou WHERE j.TASKACTORID_ = :codiActual", nativeQuery = true)
-	public int updateCodiUsuariJbpmLogTaskActor(@Param("codiActual") String codiActual, @Param("codiNou") String codiNou);
-
-	@Modifying
-	@Query(value = "UPDATE JBPM_LOG j SET j.TASKOLDACTORID_ = :codiNou WHERE j.TASKOLDACTORID_ = :codiActual", nativeQuery = true)
-	public int updateCodiUsuariJbpmLogTaskOldActor(@Param("codiActual") String codiActual, @Param("codiNou") String codiNou);
-
-	@Modifying
-	@Query(value = "UPDATE JBPM_POOLEDACTOR j SET j.ACTORID_ = :codiNou WHERE j.ACTORID_ = :codiActual", nativeQuery = true)
-	public int updateCodiUsuariJbpmPoolActor(@Param("codiActual") String codiActual, @Param("codiNou") String codiNou);
-
-	@Modifying
-	@Query(value = "UPDATE JBPM_TASKINSTANCE j SET j.ACTORID_ = :codiNou WHERE j.ACTORID_ = :codiActual", nativeQuery = true)
-	public int updateCodiUsuariJbpmTaskInstance(@Param("codiActual") String codiActual, @Param("codiNou") String codiNou);
-	
 }

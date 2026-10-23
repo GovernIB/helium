@@ -482,7 +482,7 @@ public interface WorkflowEngineApi {
 	 * @param outcome
 	 * @return
 	 */
-	public void endTaskInstance(String taskId, String outcome);
+	public void endTaskInstance(String taskId, String outcome, Map<String, Object> variables);
 //	public ResultatCompleteTask completeTaskInstance(
 //            WTaskInstance task,
 //            String outcome);
@@ -575,7 +575,7 @@ public interface WorkflowEngineApi {
             String titol,
             String infoCache);
 
-	public List<TascaOutcomeDto> findStartTaskOutcomes(String jbpmId, String taskName);
+	public List<TascaOutcomeDto> findStartTaskOutcomes(String bpmId, String taskName);
 
 	public List<TascaOutcomeDto> findTaskInstanceOutcomes(String taskInstanceId);
 
@@ -684,7 +684,7 @@ public interface WorkflowEngineApi {
 			String expression,
 			Map<String, Object> valors);
 
-	public List<String> listActions(String jbpmId);
+	public List<String> listActions(String bpmId);
 	public void executeActionInstanciaProces(
 			String processInstanceId,
 			String actionName,
@@ -776,7 +776,7 @@ public interface WorkflowEngineApi {
 	 */
 	public WProcessDefinition parse(String nomArxiu, byte[] contingut) throws Exception;
 
-	public WProcessLog getProcessLogById(Long jbpmLogId);
+	public WProcessLog getProcessLogById(Long bpmLogId);
 
 	public long addProcessInstanceMessageLog(String processInstanceId, String string);
 

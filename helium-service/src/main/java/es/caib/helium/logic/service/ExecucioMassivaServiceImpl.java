@@ -172,7 +172,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	@Resource
 	private TerminiHelper terminiHelper;
 	@Resource
-	private WorkflowEngineApi jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
@@ -316,7 +316,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				}
 			} else if (dto.getContingutCsv() != null && dto.getContingutCsv().length > 1) {
 				// Alta massiva per CSV
-				DefinicioProces definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(expedientTipus, expedientTipus.getJbpmProcessDefinitionKey());
+				DefinicioProces definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(expedientTipus, expedientTipus.getBpmProcessDefinitionKey());
 				for (int i =0; i<dto.getContingutCsv().length-1; i++) {
 					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(execucioMassiva, definicioProces.getId(), ordre++);
 					execucioMassiva.addExpedient(eme);
@@ -691,7 +691,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		if (!expedients.isEmpty()) {
 			ExecucioMassivaExpedient em = expedients.get(0);
 			if (em.getTascaId() != null) {
-				WTaskInstance task = jbpmHelper.getTaskById(em.getTascaId());
+				WTaskInstance task = workflowEngineApi.getTaskById(em.getTascaId());
 				if (task != null) {
 					if (task.isCacheActiu())
 						tasca = task.getFieldFromDescription("titol");
@@ -733,7 +733,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					titol = messageHelper.getMessage("expedient.massiva.eliminar.dp") + " (" + idPerMostrar + ")";
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.PROPAGAR_PLANTILLES) {
 					titol = expedient.getAuxText() != null ? expedient.getAuxText()
-							: definicioProcesRepository.findById(expedient.getDefinicioProcesId()).orElse(null).getJbpmKey();
+							: definicioProcesRepository.findById(expedient.getDefinicioProcesId()).orElse(null).getBpmKey();
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.PROPAGAR_CONSULTES) {
 					titol = expedient.getAuxText() != null ? expedient.getAuxText()
 							: consultaRepository.findById(expedient.getDefinicioProcesId()).orElse(null).getCodi();
@@ -884,7 +884,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			} else {
 				DefinicioProces definicioProces = getDefinicioProces(execucioMassiva);
 				label = messageHelper.getMessage("expedient.massiva.actualitzar") + (definicioProces == null ? ""
-						: " (" + definicioProces.getJbpmKey() + " v." + definicioProces.getVersio() + ")");
+						: " (" + definicioProces.getBpmKey() + " v." + definicioProces.getVersio() + ")");
 			}
 		} else if (tipus.equals(ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC)) {
 			label = messageHelper.getMessage("expedient.massiva.eliminar.versio.dp") + " ("
@@ -1551,7 +1551,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 							.getArbreInstanciesProces(expedientProcesInstanceId);
 					for (InstanciaProcesDto ip : arbreProcessos) {
 						int versio = findVersioDefProcesActualitzar(keys, subProcesIds,
-								ip.getDefinicioProces().getJbpmKey());
+								ip.getDefinicioProces().getBpmKey());
 						if (versio != -1 && versio != ip.getDefinicioProces().getVersio())
 							expedientService.procesDefinicioProcesActualitzar(ip.getId(), versio);
 					}
@@ -1586,7 +1586,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				Set<ConsultaCamp> llistat = consulta.getCamps();
 				for (ConsultaCamp c : llistat) {
 					if ((definicioProces.getVersio() == c.getDefprocVersio())
-							&& (definicioProces.getJbpmKey().equals(c.getDefprocJbpmKey()))) {
+							&& (definicioProces.getBpmKey().equals(c.getDefprocBpmKey()))) {
 						esborrar = false;
 					}
 				}
@@ -1671,7 +1671,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	@CacheEvict(value = "consultaCache", allEntries = true)
 	private void undeploy(Entorn entorn, Long expedientTipusId, DefinicioProces definicioProces) {
 		if (expedientTipusId == null) {
-			jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
+			workflowEngineApi.esborrarDesplegament(definicioProces.getBpmId());
 			for (Document doc : definicioProces.getDocuments())
 				documentRepository.deleteById(doc.getId());
 			for (Termini termini : definicioProces.getTerminis())
@@ -1679,7 +1679,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			definicioProcesRepository.delete(definicioProces);
 		} else {
 			if (comprovarExpedientTipus(expedientTipusId, definicioProces.getId())) {
-				jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
+				workflowEngineApi.esborrarDesplegament(definicioProces.getBpmId());
 				for (Document doc : definicioProces.getDocuments()) {
 					documentRepository.delete(doc);
 				}
@@ -2088,7 +2088,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				int expedientsActiusCount;
 				// Propaga els documents per a totes les versions anteriors
 				for (DefinicioProces definicioAnterior : definicioProcesRepository
-						.findByExpedientTipusIJpbmKey(expedientTipus.getId(), definicioDarrera.getJbpmKey())) {
+						.findByExpedientTipusIBpmKey(expedientTipus.getId(), definicioDarrera.getBpmKey())) {
 					if (definicioAnterior.getVersio() < definicioDarrera.getVersio()) {
 						expedientsActiusCount = expedientHelper.findByFiltreGeneral(expedientTipus.getEntorn(), null,
 								null, null, null, expedientTipus, null, true, false).size();
@@ -2110,7 +2110,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				}
 			}
 			ome.setAuxText(messageHelper.getMessage("exptipus.info.propagar.plantilles.auxText", new Object[] {
-					definicioDarrera.getJbpmKey(), versionsCount, documentsPlantilles.size(), actualitzacionsCount }));
+					definicioDarrera.getBpmKey(), versionsCount, documentsPlantilles.size(), actualitzacionsCount }));
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
@@ -2277,14 +2277,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			Long expedientTipusId = ome.getExecucioMassiva().getExpedientTipus().getId();
 			// Per cada variable de tipus informe o filtre
 			for (ConsultaCamp consultaCamp : consulta.getCamps()) {
-				if (consultaCamp.getTipus() != TipusConsultaCamp.PARAM && consultaCamp.getDefprocJbpmKey() != null) {
+				if (consultaCamp.getTipus() != TipusConsultaCamp.PARAM && consultaCamp.getDefprocBpmKey() != null) {
 					// Recupera la darrera versió de la definició de procés
 					DefinicioProces definicioDarrera = definicioProcesRepository
-							.findDarreraVersioAmbEntornTipusIJbpmKey(
+							.findDarreraVersioAmbEntornTipusIBpmKey(
 									entorn.getId(),
 									false,
 									expedientTipusId,
-									consultaCamp.getDefprocJbpmKey());
+									consultaCamp.getDefprocBpmKey());
 					if (consultaCamp.getDefprocVersio() != definicioDarrera.getVersio()) {
 						camp = campRepository.findByDefinicioProcesAndCodi(definicioDarrera,
 								consultaCamp.getCampCodi());
@@ -2300,7 +2300,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 
 							errorMsg.append(messageHelper.getMessage("exptipus.info.propagar.consultes.error.camp",
 									new Object[] { consultaCamp.getCampCodi(), consultaCamp.getTipus(),
-											consulta.getCodi(), consultaCamp.getDefprocJbpmKey(),
+											consulta.getCodi(), consultaCamp.getDefprocBpmKey(),
 											consultaCamp.getDefprocVersio(), definicioDarrera.getVersio() }));
 							errorsCount++;
 						}

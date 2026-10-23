@@ -4,7 +4,7 @@ import es.caib.helium.logic.intf.service.BpmnHeliumService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Classe que fa de pont entre jBPM i Helium.
+ * Classe que fa de pont entre BPMN i Helium.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */

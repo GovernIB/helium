@@ -13,7 +13,7 @@
 	</c:when>
 	<c:otherwise>
 		<c:set var="titol"><spring:message code="definicio.proces.tasca.form.titol.visualitzar"/></c:set>
-		<c:set var="formAction">none</c:set>		
+		<c:set var="formAction">none</c:set>
 	</c:otherwise>
 </c:choose>
 <html>
@@ -26,16 +26,16 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
-<body>		
+<body>
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="definicioProcesTascaCommand">
-		<div>        
-		
+		<div>
+
 			<input type="hidden" name="id" value="${definicioProcesTascaCommand.id}"/>
 
-			<hel:inputText name="jbpmName" textKey="definicio.proces.tasca.form.jbpmName" disabled="true" />
+			<hel:inputText name="bpmName" textKey="definicio.proces.tasca.form.bpmName" disabled="true" />
 			<hel:inputText required="true" name="nom" textKey="definicio.proces.tasca.form.nom" />
 			<hel:inputText name="missatgeInfo" textKey="definicio.proces.tasca.form.missatgeInfo" />
 			<hel:inputText name="missatgeWarn" textKey="definicio.proces.tasca.form.missatgeWarn" />
@@ -49,23 +49,23 @@
 			<hel:inputCheckbox name="ambRepro" textKey="expedient.tipus.camp.form.camp.ambrepro" />
 			<hel:inputCheckbox name="mostrarAgrupacions" textKey="expedient.tipus.camp.form.camp.mostraragrupacions" />
 		</div>
-		
+
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			<c:if test="${!heretat}">
 				<button class="btn btn-primary right" type="submit" name="accio" value="modificar">
 					<span class="fa fa-pencil"></span> <spring:message code='comu.boto.modificar' />
-				</button>	
+				</button>
 			</c:if>
 		</div>
-		
+
 	<script type="text/javascript">
 		// <![CDATA[
 		$(document).ready(function() {
 			$('#nomScriptNota').insertAfter('#nomScript');
-		});	
+		});
 		// ]]>
-	</script>			
+	</script>
 
 	</form:form>
 </body>

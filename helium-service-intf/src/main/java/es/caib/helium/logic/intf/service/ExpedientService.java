@@ -747,7 +747,7 @@ public interface ExpedientService {
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 * @throws TramitacioException
-	 *             Si s'ha produit algun error executant el handler jBPM.
+	 *             Si s'ha produit algun error executant el handler BPM.
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
@@ -986,15 +986,15 @@ public interface ExpedientService {
 
 	/**
 	 * Mètode per consulta els ids de les instàncies de procés per a una definició de procés
-	 * identificada per la seva clau JBPM.
+	 * identificada per la seva clau BPM.
 	 * @param entornId
-	 * @param jbpmKey
+	 * @param bpmKey
 	 * @return
 	 */
 	public List<String> findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 			Long entornId,
 			Long expedientTipusId,
-			String jbpmKey);
+			String bpmKey);
 
 	/**
 	 * Mètode per consulta els ids de les instàncies de procés per a una definició de procés
@@ -1014,7 +1014,7 @@ public interface ExpedientService {
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 * @throws TramitacioException
-	 *             Si s'ha produit algun error executant el handler jBPM.
+	 *             Si s'ha produit algun error executant el handler BPM.
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
@@ -1083,7 +1083,7 @@ public interface ExpedientService {
 	public void syncArxiu(Long id, boolean esborrarExpSiError);
 
 	public void syncDocumentsArxiu(Long id, boolean esborrarExpSiError);
-	
+
 	public void syncTancamentArxiu(Long id, boolean esborrarExpSiError);
 
 	public void firmarDocumentServidorPerArxiuFiExpedient(Long documentStoreId);

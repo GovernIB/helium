@@ -299,11 +299,6 @@ public class NotificacioAltaHandler implements es.caib.helium.disseny.handler.No
 					false,
 		false,
 		null);
-//				ExpedientDocumentDto expDocDto = Jbpm3HeliumBridge.getInstanceService().findOneAmbInstanciaProces(expedient.getId(), expedient.getProcessInstanceId(), documentStoreId);
-//				ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().arxiuFindAmbDocument(
-//					expedient.getId(),
-//					expedient.getProcessInstanceId(),
-//					documentStoreId);
 				dadesNotificacio.setDocumentId(documentStoreId);
 				dadesNotificacio.setDocumentArxiuNom(arxiuNom);
 				dadesNotificacio.setDocumentArxiuContingut(contingut);

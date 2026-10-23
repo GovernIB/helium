@@ -142,7 +142,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 		this.processInstanceId = processInstanceId;
 	}
 
-	@Column(name="jbpm_variable", length=255, nullable=false)
+	@Column(name="bpm_variable", length=255, nullable=false)
 	public String getCodi() {
 		return codi;
 	}
@@ -384,10 +384,6 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	@Transient
 	public String getCodiDocument() {
 		return codi;
-//		if (getJbpmVariable() == null || !getJbpmVariable().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
-//			return null;
-//		}
-//		return getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 	}
 	@Transient
 	public boolean isRegistrat() {

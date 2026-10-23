@@ -11,12 +11,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
-import es.caib.helium.commons.dto.AreaJbpmIdDto;
+import es.caib.helium.commons.dto.AreaBpmIdDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.AreaService;
-import es.caib.helium.persistence.entity.AreaJbpmId;
-import es.caib.helium.persistence.repository.AreaJbpmIdRepository;
+import es.caib.helium.persistence.entity.AreaBpmId;
+import es.caib.helium.persistence.repository.AreaBpmIdRepository;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 
@@ -24,85 +24,85 @@ import es.caib.helium.logic.helper.PaginacioHelper;
 public class AreaServiceImpl implements AreaService {
 
 	@Resource
-	private AreaJbpmIdRepository areaJbpmIdRepository;
+	private AreaBpmIdRepository areaBpmIdRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 
 	@Override
-	public AreaJbpmIdDto findAmbId(Long id) {
-		return conversioTipusHelper.convertir(areaJbpmIdRepository.findById(id), AreaJbpmIdDto.class);
+	public AreaBpmIdDto findAmbId(Long id) {
+		return conversioTipusHelper.convertir(areaBpmIdRepository.findById(id), AreaBpmIdDto.class);
 	}
 
 	@Override
-	public AreaJbpmIdDto findAmbCodi(String codi) {
-		return conversioTipusHelper.convertir(areaJbpmIdRepository.findByCodi(codi), AreaJbpmIdDto.class);
+	public AreaBpmIdDto findAmbCodi(String codi) {
+		return conversioTipusHelper.convertir(areaBpmIdRepository.findByCodi(codi), AreaBpmIdDto.class);
 	}
 
 	@Override
-	public PaginaDto<AreaJbpmIdDto> findConfigurades(PaginacioParamsDto paginacioParams) {
+	public PaginaDto<AreaBpmIdDto> findConfigurades(PaginacioParamsDto paginacioParams) {
 		logger.debug("Consultat les arees configurades");
 		String filtre = paginacioParams.getFiltre();
 		return paginacioHelper.toPaginaDto(
-				areaJbpmIdRepository.findByFiltrePaginat(
+				areaBpmIdRepository.findByFiltrePaginat(
 						filtre == null || "".equals(filtre),
 						filtre,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
-				AreaJbpmIdDto.class);
+				AreaBpmIdDto.class);
 	}
 
 	@Override
-	public PaginaDto<AreaJbpmIdDto> findSenseConfigurar(PaginacioParamsDto paginacioParams) {
+	public PaginaDto<AreaBpmIdDto> findSenseConfigurar(PaginacioParamsDto paginacioParams) {
 		logger.debug("Consultat les arees sense configurar");
 		String filtre = paginacioParams.getFiltre();
-		List<String> noConfigurades = areaJbpmIdRepository.findSenseConfigurar(
+		List<String> noConfigurades = areaBpmIdRepository.findSenseConfigurar(
 				filtre == null || "".equals(filtre),
 				filtre
 				);
-		List<AreaJbpmId> arees = new ArrayList<AreaJbpmId>();
+		List<AreaBpmId> arees = new ArrayList<AreaBpmId>();
 		int paginaNum = paginacioParams.getPaginaNum();
 		int tamany = paginacioParams.getPaginaTamany();
 		int inici = paginaNum * tamany;
 		int fi = Math.min(noConfigurades.size(), inici + tamany);
 		for (int foo=inici; foo < fi; foo++) {
-			AreaJbpmId area = new AreaJbpmId();
+			AreaBpmId area = new AreaBpmId();
 			area.setCodi(noConfigurades.get(foo));
 			arees.add(area);
 		}
 
-		Page<AreaJbpmIdDto> page = new PageImpl(arees, paginacioHelper.toSpringDataPageable(paginacioParams), noConfigurades.size());
-		PaginaDto<AreaJbpmIdDto> pagina = paginacioHelper.toPaginaDto(
+		Page<AreaBpmIdDto> page = new PageImpl(arees, paginacioHelper.toSpringDataPageable(paginacioParams), noConfigurades.size());
+		PaginaDto<AreaBpmIdDto> pagina = paginacioHelper.toPaginaDto(
 				page,
-				AreaJbpmIdDto.class);
+				AreaBpmIdDto.class);
 
 		return pagina;
 	}
 
 	@Override
-	public AreaJbpmIdDto create(AreaJbpmIdDto area) {
+	public AreaBpmIdDto create(AreaBpmIdDto area) {
 		logger.debug("Configurant area");
-		AreaJbpmId entity = new AreaJbpmId();
+		AreaBpmId entity = new AreaBpmId();
 		entity.setId(area.getId());
 		entity.setCodi(area.getCodi());
 		entity.setDescripcio(area.getDescripcio());
 		entity.setNom(area.getNom());
-		return conversioTipusHelper.convertir(areaJbpmIdRepository.save(entity), AreaJbpmIdDto.class);
+		return conversioTipusHelper.convertir(areaBpmIdRepository.save(entity), AreaBpmIdDto.class);
 	}
 
 	@Override
-	public AreaJbpmIdDto update(AreaJbpmIdDto area) {
-		AreaJbpmId entity = areaJbpmIdRepository.findById(area.getId()).orElse(null);
+	public AreaBpmIdDto update(AreaBpmIdDto area) {
+		AreaBpmId entity = areaBpmIdRepository.findById(area.getId()).orElse(null);
 		entity.setDescripcio(area.getDescripcio());
 		entity.setNom(area.getNom());
-		return conversioTipusHelper.convertir(areaJbpmIdRepository.save(entity), AreaJbpmIdDto.class);
+		return conversioTipusHelper.convertir(areaBpmIdRepository.save(entity), AreaBpmIdDto.class);
 	}
 
 	@Override
 	public void delete(Long areaId) {
 		logger.debug("Esborrant àrea (areaId=" + areaId + ")");
-		areaJbpmIdRepository.deleteById(areaId);
+		areaBpmIdRepository.deleteById(areaId);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(CarrecServiceImpl.class);

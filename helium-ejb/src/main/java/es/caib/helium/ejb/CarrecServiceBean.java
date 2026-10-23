@@ -6,7 +6,7 @@ import javax.ejb.Stateless;
 import es.caib.helium.ejb.base.AbstractServiceEjb;
 import lombok.experimental.Delegate;
 
-import es.caib.helium.commons.dto.CarrecJbpmIdDto;
+import es.caib.helium.commons.dto.CarrecBpmIdDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.CarrecService;
@@ -29,39 +29,39 @@ public class CarrecServiceBean extends AbstractServiceEjb<CarrecService> impleme
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public PaginaDto<CarrecJbpmIdDto> findConfigurats(PaginacioParamsDto paginacioParams) {
+	public PaginaDto<CarrecBpmIdDto> findConfigurats(PaginacioParamsDto paginacioParams) {
 		return delegateService.findConfigurats(paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public PaginaDto<CarrecJbpmIdDto> findSenseConfigurar(PaginacioParamsDto params) {
+	public PaginaDto<CarrecBpmIdDto> findSenseConfigurar(PaginacioParamsDto params) {
 		// TODO Auto-generated method stub
 		return delegateService.findSenseConfigurar(params);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public CarrecJbpmIdDto findAmbId(Long id) {
+	public CarrecBpmIdDto findAmbId(Long id) {
 		return delegateService.findAmbId(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public CarrecJbpmIdDto findAmbCodi(String codi) {
+	public CarrecBpmIdDto findAmbCodi(String codi) {
 		return delegateService.findAmbCodi(codi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public CarrecJbpmIdDto create(CarrecJbpmIdDto carrec) {
+	public CarrecBpmIdDto create(CarrecBpmIdDto carrec) {
 		// TODO Auto-generated method stub
 		return delegateService.create(carrec);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public CarrecJbpmIdDto update(CarrecJbpmIdDto carrec) {
+	public CarrecBpmIdDto update(CarrecBpmIdDto carrec) {
 		return delegateService.update(carrec);
 	}
 
@@ -72,7 +72,7 @@ public class CarrecServiceBean extends AbstractServiceEjb<CarrecService> impleme
 	}
 
 	@Override
-	public CarrecJbpmIdDto findAmbCodiAndGrup(String codi, String grup) {
+	public CarrecBpmIdDto findAmbCodiAndGrup(String codi, String grup) {
 		return delegateService.findAmbCodiAndGrup(codi, grup);
 	}
 

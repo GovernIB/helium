@@ -33,14 +33,14 @@
 						<td>${recurs}</td>
 						<td style="text-align: center;" width="50px">
 							<c:if test="${recursosEsborrables.contains(recurs)}">
-								<c:url var="esborrarUrl" value="/definicioProces/${jbpmKey}/${definicioProcesId}/recurs/delete">
+								<c:url var="esborrarUrl" value="/definicioProces/${bpmKey}/${definicioProcesId}/recurs/delete">
 									<c:param name="nom" value="${recurs}" />
 								</c:url>
 								<div class="dropdown navbar-right">
 									<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 									<ul class="dropdown-menu">
 										<li>
-											<a href='<c:url value="/definicioProces/${jbpmKey}/${definicioProcesId}/recurs/descarregar"><c:param name="nom" value="${recurs}" /></c:url>' >
+											<a href='<c:url value="/definicioProces/${bpmKey}/${definicioProcesId}/recurs/descarregar"><c:param name="nom" value="${recurs}" /></c:url>' >
 												<span class="fa fa-download"></span>&nbsp;<spring:message code="definico.proces.recurs.descarregar"/>
 											</a>
 										</li>
@@ -57,8 +57,8 @@
 				</c:forEach>
 			</tbody>
 		</table>
-		<a id="nou_recurs" class="btn btn-default" href="<c:url value="/modal/definicioProces/${jbpmKey}/${definicioProcesId}/recurs/new"/>" data-toggle="modal" data-datatable-id="recursos-datatable" style="margin-left: 10px;"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.recurs.llistat.accio.add"/></a>
-		<a id="descarregar_par" class="btn btn-primary" href='<c:url value="/definicioProces/${jbpmKey}/${definicioProcesId}/recurs/par"></c:url>' style="margin-left: 10px;"><span class="fa fa-arrow-down"></span>&nbsp;<spring:message code="definico.proces.recurs.descarregar.par"/></a>
+		<a id="nou_recurs" class="btn btn-default" href="<c:url value="/modal/definicioProces/${bpmKey}/${definicioProcesId}/recurs/new"/>" data-toggle="modal" data-datatable-id="recursos-datatable" style="margin-left: 10px;"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.recurs.llistat.accio.add"/></a>
+		<a id="descarregar_par" class="btn btn-primary" href='<c:url value="/definicioProces/${bpmKey}/${definicioProcesId}/recurs/par"></c:url>' style="margin-left: 10px;"><span class="fa fa-arrow-down"></span>&nbsp;<spring:message code="definico.proces.recurs.descarregar.par"/></a>
 
 	</c:when>
 	<c:otherwise>

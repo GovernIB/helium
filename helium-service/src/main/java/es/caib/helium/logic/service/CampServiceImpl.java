@@ -158,8 +158,8 @@ public class CampServiceImpl implements CampService {
 		entity.setConsultaCampText(camp.getConsultaCampText());
 
 		// Dades de la acció
-		entity.setDefprocJbpmKey(camp.getDefprocJbpmKey());
-		entity.setJbpmAction(camp.getJbpmAction());
+		entity.setDefprocBpmKey(camp.getDefprocBpmKey());
+		entity.setBpmAction(camp.getBpmAction());
 
 		entity.setDominiCacheText(camp.isDominiCacheText());
 
@@ -237,8 +237,8 @@ public class CampServiceImpl implements CampService {
 		entity.setConsultaCampText(camp.getConsultaCampText());
 
 		// Dades de la acció
-		entity.setDefprocJbpmKey(camp.getDefprocJbpmKey());
-		entity.setJbpmAction(camp.getJbpmAction());
+		entity.setDefprocBpmKey(camp.getDefprocBpmKey());
+		entity.setBpmAction(camp.getBpmAction());
 
 		entity.setDominiCacheText(camp.isDominiCacheText());
 
@@ -1001,7 +1001,7 @@ public class CampServiceImpl implements CampService {
 		List<ConsultaCamp> consultaCamps = consultaCampRepository.findPerCamp(
 				expedientTipusId,
 				camp.getCodi() != null? camp.getCodi() : "",
-				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getJbpmKey() : "",
+				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getBpmKey() : "",
 				camp.getDefinicioProces() != null ? camp.getDefinicioProces().getVersio() : -1);
 
 		Map<String, Consulta> mapConsultes = new HashMap<String, Consulta>();

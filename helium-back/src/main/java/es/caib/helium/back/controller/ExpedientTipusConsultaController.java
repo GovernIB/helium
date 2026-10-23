@@ -333,8 +333,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			expedientTipus.setId(consulta.getExpedientTipus().getId());
 
 			for(ConsultaCampDto consultaCamp: consultaCamps) {
-				if(consultaCamp.getDefprocJbpmKey() != null) {
-					DefinicioProcesDto dp  = definicioProcesService.findByJbpmKeyAndVersio(consultaCamp.getDefprocJbpmKey(), consultaCamp.getDefprocVersio());
+				if(consultaCamp.getDefprocBpmKey() != null) {
+					DefinicioProcesDto dp  = definicioProcesService.findByBpmKeyAndVersio(consultaCamp.getDefprocBpmKey(), consultaCamp.getDefprocVersio());
 					CampDto camp = campService.findAmbCodi(null, dp.getId(), consultaCamp.getCampCodi(), true);
 					if(camp != null) {
 						camp.setExpedientTipus(expedientTipus);
@@ -534,7 +534,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
         		DefinicioProcesDto definicioProces = definicioProcesService.findById(command.getOrigen());
         		// Completa les dades de la definicó de procés
         		for (ConsultaCampDto commandDto : commandDtos) {
-	        		commandDto.setDefprocJbpmKey(definicioProces.getJbpmKey());
+	        		commandDto.setDefprocBpmKey(definicioProces.getBpmKey());
 	        		commandDto.setDefprocVersio(definicioProces.getVersio());
         		}
         	}

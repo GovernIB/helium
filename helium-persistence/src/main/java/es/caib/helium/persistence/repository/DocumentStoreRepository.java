@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -13,9 +13,9 @@ import es.caib.helium.persistence.entity.DocumentStore;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
- * informació relativa a un documentStore que està emmagatzemat a dins la 
+ * informació relativa a un documentStore que està emmagatzemat a dins la
  * base de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface DocumentStoreRepository extends JpaRepository<DocumentStore, Long> {
@@ -47,27 +47,27 @@ public interface DocumentStoreRepository extends JpaRepository<DocumentStore, Lo
 			"where ds.id = :documentStoreId ")
 	public List<DocumentStore> findDocumentsContinguts(
 			@Param("documentStoreId") Long documentStoreId);
-	
-	
+
+
 	/** Per trobar tots els identificadors de documents continguts en diferents .zips. */
 	@Query(
-			"select ds.continguts " + 
+			"select ds.continguts " +
 			"from DocumentStore ds "+
 			"where ds.id in (:documentsContinentsIds) ")
 	public List<DocumentStore> findDocumentsContingutsIds(
 			@Param("documentsContinentsIds") List<Long> documentsContinentsIds);
-	
+
 	@Query( value = "SELECT DISTINCT e.ID AS EXP, ds.ID AS DOC " +
 					"FROM " +
 					"HEL_DOCUMENT_STORE ds, " +
-					"JBPM_PROCESSINSTANCE pi, " +
+					"BPM_PROCESSINSTANCE pi, " +
 					"HEL_EXPEDIENT e, " +
-					"JBPM_VARIABLEINSTANCE vi " +
+					"BPM_VARIABLEINSTANCE vi " +
 					"WHERE " +
 						"ds.PROCESS_INSTANCE_ID = pi.ID_ AND " +
 						"pi.EXPEDIENT_ID_ = e.ID AND " +
 						"e.ARXIU_ACTIU  = 1 AND " +
-						"vi.NAME_ = ds.JBPM_VARIABLE AND " +
+						"vi.NAME_ = ds.BPM_VARIABLE AND " +
 						"vi.PROCESSINSTANCE_ = pi.ID_ AND " +
 						"e.ARXIU_UUID IS NOT NULL AND " +
 						"ds.ARXIU_UUID IS NULL AND " +

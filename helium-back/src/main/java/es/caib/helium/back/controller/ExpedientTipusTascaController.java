@@ -150,7 +150,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
 			paginacioParams.setPaginaNum(0);
 			paginacioParams.setPaginaTamany(Integer.MAX_VALUE);
-			paginacioParams.afegirOrdre("jbpmKey", OrdreDireccioDto.ASCENDENT);
+			paginacioParams.afegirOrdre("bpmKey", OrdreDireccioDto.ASCENDENT);
 			List<DefinicioProcesDto> definicions =	definicioProcesService.findPerDatatable(
 							entornActual.getId(),
 							expedientTipusId,
@@ -160,9 +160,9 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 			// Construeix les possibles opcions per la selecció de la definició de procés
 			List<ParellaCodiValorDto> opcionsDefinicions = new ArrayList<ParellaCodiValorDto>();
 			for (DefinicioProcesDto definicio : definicions) {
-				opcionsDefinicions.add(new ParellaCodiValorDto(definicio.getId().toString(), definicio.getJbpmKey()));
+				opcionsDefinicions.add(new ParellaCodiValorDto(definicio.getId().toString(), definicio.getBpmKey()));
 				// Si és la inicial es passa el seu id a la vista per a que la carregui
-				if (definicio.getJbpmKey().equals(expedientTipus.getJbpmProcessDefinitionKey()))
+				if (definicio.getBpmKey().equals(expedientTipus.getBpmProcessDefinitionKey()))
 					model.addAttribute("definicioInical", definicio.getId());
 			}
 			// Informa el model

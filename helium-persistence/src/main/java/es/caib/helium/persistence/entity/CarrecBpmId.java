@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -18,13 +18,13 @@ import es.caib.helium.persistence.entity.Persona.Sexe;
 
 /**
  * Objecte de domini per emmagatzemar la informació d'un càrrec
- * de la taula JBPM_ID_MEMBERSHIP
- * 
+ * de la taula BPM_ID_MEMBERSHIP
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(name="hel_carrec_jbpmid")
-public class CarrecJbpmId implements Serializable, GenericEntity<Long> {
+@Table(name="hel_carrec_bpmid")
+public class CarrecBpmId implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	private String codi;
@@ -36,8 +36,8 @@ public class CarrecJbpmId implements Serializable, GenericEntity<Long> {
 	private String descripcio;
 	private Sexe personaSexe;
 
-	public CarrecJbpmId() {}
-	public CarrecJbpmId(String codi, String nomHome, String nomDona, String tractamentHome, String tractamentDona, Sexe personaSexe) {
+	public CarrecBpmId() {}
+	public CarrecBpmId(String codi, String nomHome, String nomDona, String tractamentHome, String tractamentDona, Sexe personaSexe) {
 		this.codi = codi;
 		this.nomHome = nomHome;
 		this.nomDona = nomDona;
@@ -47,8 +47,8 @@ public class CarrecJbpmId implements Serializable, GenericEntity<Long> {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_carrec_jbpmid")
-	@TableGenerator(name="gen_carrec_jbpmid", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
+	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_carrec_bpmid")
+	@TableGenerator(name="gen_carrec_bpmid", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
 	@Column(name="id")
 	public Long getId() {
 		return id;
@@ -80,7 +80,7 @@ public class CarrecJbpmId implements Serializable, GenericEntity<Long> {
 	public void setNomHome(String nomHome) {
 		this.nomHome = nomHome;
 	}
-	
+
 	@Column(name="nom_dona", length=255, nullable=false)
 	public String getNomDona() {
 		return nomDona;
@@ -88,7 +88,7 @@ public class CarrecJbpmId implements Serializable, GenericEntity<Long> {
 	public void setNomDona(String nomDona) {
 		this.nomDona = nomDona;
 	}
-	
+
 	@Column(name="tractament_home", length=255, nullable=false)
 	public String getTractamentHome() {
 		return tractamentHome;
@@ -96,7 +96,7 @@ public class CarrecJbpmId implements Serializable, GenericEntity<Long> {
 	public void setTractamentHome(String tractamentHome) {
 		this.tractamentHome = tractamentHome;
 	}
-	
+
 	@Column(name="carrec_dona", length=255, nullable=false)
 	public String getTractamentDona() {
 		return tractamentDona;
@@ -164,7 +164,7 @@ public class CarrecJbpmId implements Serializable, GenericEntity<Long> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CarrecJbpmId other = (CarrecJbpmId) obj;
+		CarrecBpmId other = (CarrecBpmId) obj;
 		if (codi == null) {
 			if (other.codi != null)
 				return false;

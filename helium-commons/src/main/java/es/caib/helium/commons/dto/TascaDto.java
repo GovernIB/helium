@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -9,11 +9,11 @@ import java.util.List;
 
 /**
  * DTO amb informació d'una dada de d'una tasca.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class TascaDto extends HeretableDto implements Serializable {
-	
+
 	private static final long serialVersionUID = 3685209683973264851L;
 
 	public enum TipusTascaDto {
@@ -36,15 +36,15 @@ public class TascaDto extends HeretableDto implements Serializable {
 	private boolean ambRepro = false;
 	private boolean mostrarAgrupacions = false;
 
-	private String jbpmName;
+	private String bpmName;
 	private List<CampTascaDto> camps = new ArrayList<CampTascaDto>();
 	private List<DocumentTascaDto> documents = new ArrayList<DocumentTascaDto>();
 	private List<FirmaTascaDto> firmes = new ArrayList<FirmaTascaDto>();
-	
-	
+
+
 	/** Atribut que indica si la tasca és inicial. S'ha de fixar manualment aquest valor a les cerques. */
 	private boolean inicial;
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -117,11 +117,11 @@ public class TascaDto extends HeretableDto implements Serializable {
 	public void setFinalitzacioSegonPla(boolean finalitzacioSegonPla) {
 		this.finalitzacioSegonPla = finalitzacioSegonPla;
 	}
-	public String getJbpmName() {
-		return jbpmName;
+	public String getBpmName() {
+		return bpmName;
 	}
-	public void setJbpmName(String jbpmName) {
-		this.jbpmName = jbpmName;
+	public void setBpmName(String bpmName) {
+		this.bpmName = bpmName;
 	}
 	public List<CampTascaDto> getCamps() {
 		return camps;
@@ -168,5 +168,5 @@ public class TascaDto extends HeretableDto implements Serializable {
 	public void setMostrarAgrupacions(boolean mostrarAgrupacions) {
 		this.mostrarAgrupacions = mostrarAgrupacions;
 	}
-	
+
 }

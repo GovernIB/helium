@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.controller;
 
@@ -42,8 +42,8 @@ import es.caib.helium.commons.exception.PermisDenegatException;
  * Controlador per a la pestanya de d'integració dels tipus d'expedient amb els tràmits de Sistra.
  * També és el controlador pel mapeig de variables, documents i adjunts. Els mapejos es fan
  * sobre una mateixa taula, però en el cas dels adjunts nomès és necessari un camp mentre que per
- * documents i variables és necessària la variable. 
- * 
+ * documents i variables és necessària la variable.
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -68,11 +68,11 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
-			
-			ExpedientTipusIntegracioTramitsCommand command = new ExpedientTipusIntegracioTramitsCommand();			
+
+			ExpedientTipusIntegracioTramitsCommand command = new ExpedientTipusIntegracioTramitsCommand();
 			command.setId(expedientTipusId);
 			command.setActiu(expedientTipus.isSistraActiu());
-			command.setTramitCodi(expedientTipus.getSistraTramitCodi());			
+			command.setTramitCodi(expedientTipus.getSistraTramitCodi());
 			command.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
 			command.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
 			command.setNotificacioOficinaCodi(expedientTipus.getNotificacioOficinaCodi());
@@ -83,22 +83,22 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			command.setNotificacioAvisTextSms(expedientTipus.getNotificacioAvisTextSms());
 			command.setNotificacioOficiTitol(expedientTipus.getNotificacioOficiTitol());
 			command.setNotificacioOficiText(expedientTipus.getNotificacioOficiText());
-			
+
 			model.addAttribute("expedientTipusIntegracioTramitsCommand", command);
 
 			model.addAttribute("tipusMapeigVariable", TipusMapeig.Variable);
 			model.addAttribute("tipusMapeigDocument", TipusMapeig.Document);
 			model.addAttribute("tipusMapeigAdjunt", TipusMapeig.Adjunt);
-			
+
 			Map<TipusMapeig, Long> recomptes = expedientTipusService.mapeigCountsByTipus(expedientTipusId);
 			model.addAttribute("variablesCount" , recomptes.get(TipusMapeig.Variable));
 			model.addAttribute("documentsCount" , recomptes.get(TipusMapeig.Document));
 			model.addAttribute("adjuntsCount" , recomptes.get(TipusMapeig.Adjunt));
 		}
-		
+
 		return "expedientTipusIntegracioTramits";
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits", method = RequestMethod.POST)
 	@ResponseBody
 	public AjaxFormResponse tramitsPost(
@@ -107,18 +107,18 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			@Validated(ExpedientTipusIntegracioTramitsCommand.Modificacio.class) ExpedientTipusIntegracioTramitsCommand command,
 			BindingResult bindingResult,
 			Model model) throws PermisDenegatException, IOException {
-		
+
 		AjaxFormResponse response = AjaxHelper.generarAjaxFormOk();
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		
+
 		if (entornActual != null) {
 			// Validació en el controlador
 			this.validarCommand(expedientTipusId, command, bindingResult, request);
 	        if (bindingResult.hasErrors()) {
 		        MissatgesHelper.error(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"expedient.tipus.integracio.tramits.validacio"));
 	        	response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 	        } else {
@@ -138,64 +138,64 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
         				command.getNotificacioOficiTitol(),
         				command.getNotificacioOficiText());
 		        MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"expedient.tipus.integracio.tramits.controller.guardat"));
 	        }
 		}
     	return response;
-	}	
-	
+	}
+
 
 	/** Per comprovar si un text és null o buit */
 	private boolean isNullOrEmpty(String str) {
 		return str == null? true : "".equals(str.trim());
 	}
 
-	/** Valida els camps del command depenent de les opcions que estiguin actives. 
-	 * @param expedientTipusId 
+	/** Valida els camps del command depenent de les opcions que estiguin actives.
+	 * @param expedientTipusId
 	 * @param bindingResult */
 	private void validarCommand(Long expedientTipusId, ExpedientTipusIntegracioTramitsCommand command, BindingResult bindingResult, HttpServletRequest request) {
-		
+
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(expedientTipusId);
-		
-		
+
+
 		// Comprova que el codi del tràmit estigui informat si està activat i no està integrat amb Distribucio i Sistra2
 		if (command.isActiu()) {
 			if (isNullOrEmpty(command.getTramitCodi())){
 				// tramitCodi
 				if (isNullOrEmpty(command.getTramitCodi())
-						&& (!expedientTipus.isDistribucioActiu() 
+						&& (!expedientTipus.isDistribucioActiu()
 								|| !expedientTipus.isDistribucioSistra())) {
 					bindingResult.rejectValue("tramitCodi", "expedient.tipus.integracio.tramits.tramitCodi.validacio.NotEmpty");
-				}				
+				}
 			}
 		}
 		if (command.isNotificacionsActivades()) {
 			// notificacioOrganCodi
 			if (isNullOrEmpty(command.getNotificacioOrganCodi())) {
 				bindingResult.rejectValue("notificacioOrganCodi", "NotEmpty");
-			}				
+			}
 			// notificacioOficinaCodi
 			if (isNullOrEmpty(command.getNotificacioOficinaCodi())) {
 				bindingResult.rejectValue("notificacioOficinaCodi", "NotEmpty");
-			}				
+			}
 			// notificacioUnitatAdministrativa
 			if (isNullOrEmpty(command.getNotificacioUnitatAdministrativa())) {
 				bindingResult.rejectValue("notificacioUnitatAdministrativa", "NotEmpty");
-			}				
+			}
 			// notificacioCodiProcediment
 			if (isNullOrEmpty(command.getNotificacioCodiProcediment())) {
 				bindingResult.rejectValue("notificacioCodiProcediment", "NotEmpty");
-			}				
+			}
 		}
 		if (!command.isActiu() && expedientTipus.isDistribucioSistra()) {
 			bindingResult.rejectValue("actiu", "expedient.tipus.integracio.tramits.validacio.no.desactivar");
 			 MissatgesHelper.error(
-						request, 
+						request,
 						getMessage(
-								request, 
+								request,
 								"expedient.tipus.integracio.tramits.validacio.no.desactivar"));
 		}
 	}
@@ -216,7 +216,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		command.setExpedientTipusId(expedientTipusId);
 		command.setTipus(tipus);
 		model.addAttribute("expedientTipusIntegracioTramitsMapeigCommand", command);
-		if (tipus != TipusMapeig.Adjunt) 
+		if (tipus != TipusMapeig.Adjunt)
 			model.addAttribute("variables", obtenirParellesVariables(
 					SessionHelper.getSessionManager(request).getEntornActual().getId(),
 					expedientTipusId,
@@ -224,7 +224,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 
 		return "expedientTipusIntegracioTramitsMapeig";
 	}
-	
+
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse mapeigDatatable(
@@ -241,8 +241,8 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 						tipus,
 						paginacioParams),
 				"id");
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}/new", method = RequestMethod.POST)
 	public String mapeigNouPost(
 			HttpServletRequest request,
@@ -254,19 +254,19 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
         if (bindingResult.hasErrors()) {
     		model.addAttribute("expedientTipusId", expedientTipusId);
     		model.addAttribute("tipus", tipus);
-    		if (tipus != TipusMapeig.Adjunt) 
+    		if (tipus != TipusMapeig.Adjunt)
     			model.addAttribute("variables", obtenirParellesVariables(
    					SessionHelper.getSessionManager(request).getEntornActual().getId(),
     				expedientTipusId,
     				command.getTipus()));
         	model.addAttribute("mostraCreate", true);
-        	
+
         	return "expedientTipusIntegracioTramitsMapeig";
         } else {
         	// Verificar permisos
     		expedientTipusService.mapeigCreate(
     				expedientTipusId,
-    				ExpedientTipusIntegracioTramitsMapeigCommand.asMapeigSistraDto(command));    		
+    				ExpedientTipusIntegracioTramitsMapeigCommand.asMapeigSistraDto(command));
 			MissatgesHelper.success(
 					request,
 					getMessage(
@@ -274,8 +274,8 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 							"expedient.tipus.integracio.tramits.mapeig.controller.creat"));
         	return mapeig(request, expedientTipusId, tipus, model);
         }
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}/{id}/update", method = RequestMethod.POST)
 	public String mapeigModificarPost(
 			HttpServletRequest request,
@@ -288,7 +288,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 	    if (bindingResult.hasErrors()) {
     		model.addAttribute("expedientTipusId", expedientTipusId);
     		model.addAttribute("tipus", tipus);
-    		if (tipus != TipusMapeig.Adjunt) 
+    		if (tipus != TipusMapeig.Adjunt)
     			model.addAttribute("variables", obtenirParellesVariables(
    					SessionHelper.getSessionManager(request).getEntornActual().getId(),
     				expedientTipusId,
@@ -305,7 +305,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 							"expedient.tipus.campRegistre.controller.modificat"));
         	return mapeig(request, expedientTipusId, tipus, model);
         }
-	}	
+	}
 
 	@RequestMapping(value = "/{expedientTipusId}/integracioTramits/mapeig/{tipus}/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
@@ -315,15 +315,15 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			@PathVariable TipusMapeig tipus,
 			@PathVariable Long id,
 			Model model) {
-				
+
 		expedientTipusService.mapeigDelete(id);
 		MissatgesHelper.success(
 				request,
 				getMessage(
 						request,
-						"expedient.tipus.integracio.tramits.mapeig.controller.eliminar.success"));			
+						"expedient.tipus.integracio.tramits.mapeig.controller.eliminar.success"));
 		return true;
-	}	
+	}
 	/**
 	 * Retorna les parelles codi i valor per a les possibles variables per als mapejos de variables
 	 * i documents.
@@ -339,15 +339,15 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			TipusMapeig tipus) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
-				entornId, 
+				entornId,
 				expedientTipusId);
 		DefinicioProcesDto definicioProces = null;
-		if (!expedientTipus.isAmbInfoPropia() && expedientTipus.getJbpmProcessDefinitionKey() != null)
-			definicioProces = definicioProcesService.findByEntornTipusIdAndJbpmKey(
+		if (!expedientTipus.isAmbInfoPropia() && expedientTipus.getBpmProcessDefinitionKey() != null)
+			definicioProces = definicioProcesService.findByEntornTipusIdAndBpmKey(
 					entornId,
 					expedientTipusId,
-					expedientTipus.getJbpmProcessDefinitionKey());
-		
+					expedientTipus.getBpmProcessDefinitionKey());
+
 		if (tipus.equals(TipusMapeig.Variable)) {
 			// Variables
 			List<CampDto> variables;
@@ -357,8 +357,8 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			else {
 				if (definicioProces != null)
 					// Obté les variables de la definició de procés del tipus d'expedient
-					variables = campService.findAllOrdenatsPerCodi(null, definicioProces.getId());	
-				else 
+					variables = campService.findAllOrdenatsPerCodi(null, definicioProces.getId());
+				else
 					variables = new ArrayList<CampDto>();
 			}
 			// Crea les parelles de codi i valor
@@ -376,8 +376,8 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			else {
 				if (definicioProces != null)
 					// Obté els documents de la definició de procés del tipus d'expedient
-					documents = documentService.findAll(null, definicioProces.getId());	
-				else 
+					documents = documentService.findAll(null, definicioProces.getId());
+				else
 					documents = new ArrayList<DocumentDto>();
 			}
 			// Crea les parelles de codi i valor
@@ -385,8 +385,8 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 				resposta.add(new ParellaCodiValorDto(
 						document.getCodi() + " / " + document.getNom(),
 						document.getCodi()));
-			}			
+			}
 		}
 		return resposta;
-	}		
+	}
 }

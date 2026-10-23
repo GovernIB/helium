@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -16,7 +16,7 @@ import java.util.Set;
 
 /**
  * DTO amb informació d'una instància de procés
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class InstanciaProcesDto {
@@ -28,13 +28,13 @@ public class InstanciaProcesDto {
 	private DefinicioProcesDto definicioProces;
 	private boolean imatgeDisponible;
 	private boolean documentsPinbal;
-	
+
 	private Set<CampDto> camps;
 
 	private Map<String, Object> variables;
 
 	private Map<String, DocumentDto> varsDocuments;
-	
+
 	public Map<String, Object> getVariables() {
 		return variables;
 	}
@@ -57,7 +57,7 @@ public class InstanciaProcesDto {
 	public String getTitol() {
 		if (titol != null)
 			return titol;
-		return definicioProces.getJbpmKey() + " " + id;
+		return definicioProces.getBpmKey() + " " + id;
 	}
 	public void setTitol(String titol) {
 		this.titol = titol;
@@ -75,7 +75,7 @@ public class InstanciaProcesDto {
 		this.camps = camps;
 	}
 	public Object getVariable(String varName) {
-		if (variables == null) 
+		if (variables == null)
 			return null;
 		return variables.get(varName);
 	}
@@ -119,14 +119,14 @@ public class InstanciaProcesDto {
 	public void setDocumentsPinbal(boolean documentsPinbal) {
 		this.documentsPinbal = documentsPinbal;
 	}
-	
+
 	public Map<String, DocumentDto> getVarsDocuments() {
 		return varsDocuments;
 	}
 	public void setVarsDocuments(Map<String, DocumentDto> varsDocuments) {
 		this.varsDocuments = varsDocuments;
 	}
-	
+
 	public boolean isFinalitzat() {
 		return dataFi != null;
 	}
@@ -156,7 +156,7 @@ public class InstanciaProcesDto {
 			sb.append(o.getClass().getName());
 		}
 	}
-	
+
 	public boolean isImatgeDisponible() {
 		return imatgeDisponible;
 	}

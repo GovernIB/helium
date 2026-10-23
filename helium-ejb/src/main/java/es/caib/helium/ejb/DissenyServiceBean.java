@@ -52,14 +52,14 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId) {
-		return delegateService.findAccionsJbpmOrdenades(definicioProcesId);
+	public List<String> findAccionsBpmOrdenades(Long definicioProcesId) {
+		return delegateService.findAccionsBpmOrdenades(definicioProcesId);
 	}
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-    public List<String> findHandlersJbpmOrdenats(Long definicioProcesId) {
-        return delegateService.findHandlersJbpmOrdenats(definicioProcesId);
+    public List<String> findHandlersBpmOrdenats(Long definicioProcesId) {
+        return delegateService.findHandlersBpmOrdenats(definicioProcesId);
     }
 
     @Override
@@ -207,8 +207,8 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(Long expedientTipusId, String jbpmId) {
-		return delegateService.getSubprocessosByProces(expedientTipusId, jbpmId);
+	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(Long expedientTipusId, String bpmId) {
+		return delegateService.getSubprocessosByProces(expedientTipusId, bpmId);
 	}
 
 	@Override
@@ -320,12 +320,12 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 	public PaginaDto<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 			Long entornId,
 			Long expedientTipusId,
-			Long jbpmId,
+			Long bpmId,
 			PaginacioParamsDto paginacioParams) {
 		return delegateService.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				entornId,
 				expedientTipusId,
-				jbpmId,
+			bpmId,
 				paginacioParams);
 	}
 
@@ -334,11 +334,11 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 	public List<Long> findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 			Long entornId,
 			Long expedientTipusId,
-			Long jbpmId) {
+			Long bpmId) {
 		return delegateService.findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 				entornId,
 				expedientTipusId,
-				jbpmId);
+			bpmId);
 	}
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DominiDto dominiFindAmbCodi(

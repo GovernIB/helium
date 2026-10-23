@@ -61,27 +61,27 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))
 						.addNode("codi")
-						.addConstraintViolation();	
+						.addConstraintViolation();
 				valid = false;
 			}
 		}
 		// Si hi ha expedient tipus informat comprova que la acció pertany a la darrera
 		// versió
 		boolean perEstats = false;
-		if (accio.getExpedientTipusId() != null) { 
+		if (accio.getExpedientTipusId() != null) {
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(accio.getExpedientTipusId());
 			perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus());
-			if (accio.getDefprocJbpmKey() != null && accio.getJbpmAction() != null ) {
+			if (accio.getDefprocBpmKey() != null && accio.getBpmAction() != null ) {
 				// Darrera versió de la definició de procés
 				DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(
 																	accio.getExpedientTipusId(),
-																	accio.getDefprocJbpmKey());
-				List<String> accions = dissenyService.findAccionsJbpmOrdenades(definicioProces.getId());
-				if (!accions.contains(accio.getJbpmAction())) {
+																	accio.getDefprocBpmKey());
+				List<String> accions = dissenyService.findAccionsBpmOrdenades(definicioProces.getId());
+				if (!accions.contains(accio.getBpmAction())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(this.codiMissatge + ".accio.no.existeix", null))
-							.addNode("jbpmAction")
-							.addConstraintViolation();	
+							.addNode("bpmAction")
+							.addConstraintViolation();
 					valid = false;
 				}
 			}
@@ -90,48 +90,48 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 			context.buildConstraintViolationWithTemplate(
 					MessageHelper.getInstance().getMessage(this.codiMissatge + ".tipus.null", null))
 					.addNode("tipus")
-					.addConstraintViolation();	
+					.addConstraintViolation();
 			valid = false;
-		} else {				
+		} else {
 			if (AccioTipusEnumDto.ACCIO.equals(accio.getTipus())) {
-				if ((accio.getDefprocJbpmKey() == null || accio.getDefprocJbpmKey().trim().isEmpty())) {
+				if ((accio.getDefprocBpmKey() == null || accio.getDefprocBpmKey().trim().isEmpty())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty", null))
-							.addNode("defprocJbpmKey")
-							.addConstraintViolation();	
+							.addNode("defprocBpmKey")
+							.addConstraintViolation();
 					valid = false;
 				}
-				if (accio.getJbpmAction() == null || accio.getJbpmAction().trim().isEmpty()) {
+				if (accio.getBpmAction() == null || accio.getBpmAction().trim().isEmpty()) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty", null))
-							.addNode("jbpmAction")
-							.addConstraintViolation();	
+							.addNode("bpmAction")
+							.addConstraintViolation();
 					valid = false;
 				}
 			} else if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
-				
-				if (!perEstats && (accio.getDefprocJbpmKey() == null || accio.getDefprocJbpmKey().trim().isEmpty())) {
+
+				if (!perEstats && (accio.getDefprocBpmKey() == null || accio.getDefprocBpmKey().trim().isEmpty())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty", null))
-							.addNode("defprocJbpmKey")
-							.addConstraintViolation();	
+							.addNode("defprocBpmKey")
+							.addConstraintViolation();
 					valid = false;
 				}
 				if (accio.getHandlerPropi() == null || accio.getHandlerPropi().trim().isEmpty()) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty", null))
 							.addNode("handlerPropi")
-							.addConstraintViolation();	
+							.addConstraintViolation();
 					valid = false;
 				}
-				
+
 			} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
 				if (accio.getHandlerPredefinit() == null || accio.getHandlerPredefinit().isEmpty()) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty", null))
 							.addNode("handlerPredefinit")
-							.addConstraintViolation();	
-					valid = false;					
+							.addConstraintViolation();
+					valid = false;
 				} else {
 					HandlerDto handler = null;
 					for (HandlerDto h : dissenyService.getHandlersPredefinits()) {
@@ -144,17 +144,17 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(this.codiMissatge + ".handler.classe.no.existeix", new Object[] { accio.getHandlerPredefinit()}))
 								.addNode("handlerPredefinit")
-								.addConstraintViolation();	
+								.addConstraintViolation();
 						valid = false;
 					} else {
 						// Comprova que tots els paràmetres obligatoris estiguin informats
 						List<String> parametresObligatoris = new ArrayList<String>();
 						for (HandlerParametreDto parametre : handler.getParametres()) {
-							if (parametre.isObligatori() 
-								&& (!accio.getHandlerDades().containsKey(parametre.getParam()) 
-										|| accio.getHandlerDades().get(parametre.getParam()) == null)  
-								&& (!accio.getHandlerDades().containsKey(parametre.getVarParam()) 
-										|| accio.getHandlerDades().get(parametre.getVarParam()) == null)) 
+							if (parametre.isObligatori()
+								&& (!accio.getHandlerDades().containsKey(parametre.getParam())
+										|| accio.getHandlerDades().get(parametre.getParam()) == null)
+								&& (!accio.getHandlerDades().containsKey(parametre.getVarParam())
+										|| accio.getHandlerDades().get(parametre.getVarParam()) == null))
 							{
 								parametresObligatoris.add(parametre.getNom());
 							}
@@ -163,20 +163,20 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(this.codiMissatge + ".handler.parametres.obligatoris", new Object[] { parametresObligatoris}))
 									.addNode("handlerPredefinit")
-									.addConstraintViolation();	
+									.addConstraintViolation();
 							valid = false;
 						}
 					}
 				}
-				
-			} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus()) 
+
+			} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())
 					&& (accio.getScript() == null || accio.getScript().trim().isEmpty())) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage("NotEmpty", null))
 						.addNode("script")
-						.addConstraintViolation();	
+						.addConstraintViolation();
 				valid = false;
-			} 
+			}
 		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();

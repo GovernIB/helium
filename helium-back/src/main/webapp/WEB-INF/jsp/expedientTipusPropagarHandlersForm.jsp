@@ -18,7 +18,7 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
@@ -32,13 +32,13 @@
 		}
 	</style>
 </head>
-<body>		
+<body>
 	<form:form id="propagar-form" cssClass="form-horizontal" action="propagarHandlers" enctype="multipart/form-data" method="post" modelAttribute="command" style="min-height: 500px;">
-	
+
 		<div class="inlineLabels">
 			<script type="text/javascript">
 				// <![CDATA[
-				            
+
 				// Opcions comunes per totes les taules del document
 				$.extend( true, $.fn.dataTable.defaults, {
 				    columnDefs: [ {
@@ -50,9 +50,9 @@
 				    oLanguage: {
 					      sInfo: ""
 				    }
-				});				
+				});
 
-				$(document).ready( function() {					
+				$(document).ready( function() {
 					$('table').DataTable();
 					// Event per seleccionar o des seleccionar totes les entrades
 					$('.checkAll').change(function(){
@@ -72,12 +72,12 @@
 						if (e.target.type != 'checkbox'){
 							var $checkbox =$('.check', this);
 							$checkbox.prop('checked', !$checkbox.is(':checked')).change();
-						  }						
+						  }
 					});
 					// si canvia un check comprova què fer amb el checkAll
 					$('.check').change(function() {
 						updateMarcador($(this).closest('.agrupacio'))
-					});					
+					});
 					// Per mostrar o ocultar el contingut de les taules
 					$('.agrupacio').on('show.bs.collapse', function () {
 						$(this).find('.fa-chevron-down').hide();
@@ -91,7 +91,7 @@
 					$('.agrupacio').each(function(){
 						if ($(this).find('.taula').length > 0)
 							updateMarcador($(this));
-					});		
+					});
 					// Expandeix els panells que continguin errors
 					$('.has-error').closest('.agrupacio').find('.clicable').click();
 
@@ -100,15 +100,15 @@
 						$('.has-error').removeClass('has-error');
 						$('p.help-block').remove();
 					});
-				}); 				
-				
+				});
+
 				// Actualitza la icona del marcador de selecció del costat del títol de la agrupació
 				function updateMarcador( $agrupacio ) {
 					// amaga els marcadors
 					$agrupacio.find('.marcador').hide();
 					var total = $agrupacio.find('.check').length;
 					var marcats = $agrupacio.find('.check:checked').length;
-					
+
 					if (total == marcats && marcats > 0)
 						$agrupacio.find('.tots').show();
 					else if(marcats == 0)
@@ -117,28 +117,28 @@
 						$agrupacio.find('.algun').show();
 					$agrupacio.find('.marcats').text(marcats);
 					$agrupacio.find('.total').text(total);
-					// botó de checkall					
+					// botó de checkall
 					$agrupacio.find('.checkAll').prop('checked', total == marcats);
 				}
 				// ]]>
-			</script>			
+			</script>
 		</div>
-	
+
 		<div class="alert alert-info">
 			<span class="fa fa-info-circle"></span>
 			<spring:message code="expedient.tipus.propagar.handlers.form.info" />
 		</div>
-		
+
 		<c:forEach var="definicio" items="${definicions}">
-			
-			<div id="${definicio.jbpmKey}" class="agrupacio">
-				<div class="panel-heading clicable" data-toggle="collapse" data-target="#panel_${definicio.jbpmKey}">
+
+			<div id="${definicio.bpmKey}" class="agrupacio">
+				<div class="panel-heading clicable" data-toggle="collapse" data-target="#panel_${definicio.bpmKey}">
 					<span class="marcador tots fa fa-check-square-o"></span>
 					<span class="marcador algun fa fa-check-square-o text-muted" style="display: none;"></span>
 					<span class="marcador cap fa fa-square-o" style="display: none;"></span>
 					${definicio.etiqueta}
-					<c:if test="${expedientTipus.jbpmProcessDefinitionKey == definicio.jbpmKey }">
-						(*<spring:message code="expedient.tipus.definicioProces.llistat.columna.inicial"></spring:message>) 
+					<c:if test="${expedientTipus.bpmProcessDefinitionKey == definicio.bpmKey }">
+						(*<spring:message code="expedient.tipus.definicioProces.llistat.columna.inicial"></spring:message>)
 					</c:if>
 					[<span class="marcats">0</span>/<span class="total">0</span>]
 					<div class="pull-right">
@@ -146,10 +146,10 @@
 						<span class="fa fa-chevron-up" style="display: inline-block;"></span>
 					</div>
 				</div>
-				<div id="panel_${definicio.jbpmKey}" class="taula collapse in">
+				<div id="panel_${definicio.bpmKey}" class="taula collapse in">
 				<c:choose>
 				    <c:when test="${fn:length(definicio.listIdAmbEtiqueta) > 0}">
-						<table id="${definicio.jbpmKey}-taula"
+						<table id="${definicio.bpmKey}-taula"
 								class="table table-striped table-bordered table-hover">
 							<thead>
 								<tr>
@@ -161,27 +161,27 @@
 								<c:forEach var="idAmbEtiqueta" items="${definicio.listIdAmbEtiqueta}" >
 									<tr class="row_checkbox">
 										<td>
-											<input type="checkbox" class="check" id="${definicio.jbpmKey}_${idAmbEtiqueta.id}" name="definicionsSeleccionades" value="${idAmbEtiqueta.id}" <c:if test="${inici or fn:contains(definicionsSeleccionades, idAmbEtiqueta.id)}">checked="checked"</c:if> />
+											<input type="checkbox" class="check" id="${definicio.bpmKey}_${idAmbEtiqueta.id}" name="definicionsSeleccionades" value="${idAmbEtiqueta.id}" <c:if test="${inici or fn:contains(definicionsSeleccionades, idAmbEtiqueta.id)}">checked="checked"</c:if> />
 										</td>
 										<td>${idAmbEtiqueta.etiqueta}</td>
 									</tr>
-								</c:forEach>			
+								</c:forEach>
 							</tbody>
 						</table>
-				    </c:when>    
+				    </c:when>
 				    <c:otherwise>
 				    	<div class="alert alert-warning">
 							<span class="fa fa-info-circle"></span>
 							<spring:message code="expedient.tipus.propagar.handlers.cap.versio.anterior" arguments="${definicio.etiqueta}"/>
-						</div>						
+						</div>
 				    </c:otherwise>
 				</c:choose>
 				</div>
 			</div>
-			
+
 		</c:forEach>
-	
-	
+
+
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.cancelar"/>

@@ -463,12 +463,12 @@ dd.subproc {
 					<c:if test="${!perEstats}">
 						<dt><spring:message code="expedient.info.camp.defproc"/></dt>
 						<dd class="proces">
-							<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
+							<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesBpm').toggle();" style="display: none !important; cursor: pointer"></span>
 							&nbsp;<label id="desc_def_proc"><c:out value="${definicioProces.etiqueta}"/></label>&nbsp;
-	<%-- 						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span></c:if> --%>
+	<%-- 						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesBpm').toggleClass('hide');" style="cursor: pointer"></span></c:if> --%>
 							<c:if test="${expedient.permisDefprocUpdate}"><a id="canviversio" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true" href="<c:url value="/modal/expedient/${expedientId}/canviVersio"/>"><span class="fa fa-pencil edita"></span></a></c:if>
 							<%--
-							<div id="imgDefinicioProcesJbpm" class="hide">
+							<div id="imgDefinicioProcesBpm" class="hide">
 								<img src="<c:url value="/expedient/${expedientId}/imatgeDefProces"/>"/>
 							</div>
 							--%>

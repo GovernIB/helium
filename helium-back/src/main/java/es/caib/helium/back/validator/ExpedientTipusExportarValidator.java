@@ -84,13 +84,13 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 				dominisGlobalsIds.add(d.getId());
 
 			// Definició de procés inicial
-			if (expedientTipus.getJbpmProcessDefinitionKey() != null
+			if (expedientTipus.getBpmProcessDefinitionKey() != null
 					&& !herencia
-					&& !command.getDefinicionsProces().contains(expedientTipus.getJbpmProcessDefinitionKey())) {
+					&& !command.getDefinicionsProces().contains(expedientTipus.getBpmProcessDefinitionKey())) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(
 								this.codiMissatge + ".definicio.inicial",
-								new Object[] {expedientTipus.getJbpmProcessDefinitionKey()}))
+								new Object[] {expedientTipus.getBpmProcessDefinitionKey()}))
 				.addNode("definicionsProces")
 				.addConstraintViolation();
 				valid = false;
@@ -128,11 +128,11 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						}
 				} else if (camp.getTipus() == CampTipusDto.ACCIO) {
 					// Comprova que la definició de procés també s'exporti
-					if (!command.getDefinicionsProces().contains(camp.getDefprocJbpmKey())) {
+					if (!command.getDefinicionsProces().contains(camp.getDefprocBpmKey())) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(
 										this.codiMissatge + ".variable.accio",
-										new Object[] {camp.getCodi(), camp.getDefprocJbpmKey()}))
+										new Object[] {camp.getCodi(), camp.getDefprocBpmKey()}))
 						.addNode("variables")
 						.addConstraintViolation();
 						valid = false;
@@ -209,15 +209,15 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 				for (ConsultaCampDto consultaCamp : campsConsulta)
 					if (consultaCamp.getTipus() != TipusConsultaCamp.PARAM
 							&& ! consultaCamp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
-						if (consultaCamp.getDefprocJbpmKey() != null) {
+						if (consultaCamp.getDefprocBpmKey() != null) {
 							// variable lligada a una variable de la definició de procés
-							if (!command.getDefinicionsProces().contains(consultaCamp.getDefprocJbpmKey())) {
+							if (!command.getDefinicionsProces().contains(consultaCamp.getDefprocBpmKey())) {
 								context.buildConstraintViolationWithTemplate(
 										MessageHelper.getInstance().getMessage(
 												this.codiMissatge + ".consulta.variable.definicioProces.versio",
 												new Object[] {	consulta.getCodi(),
 																consultaCamp.getCampCodi(),
-																consultaCamp.getDefprocJbpmKey(),
+																consultaCamp.getDefprocBpmKey(),
 																consultaCamp.getDefprocVersio()}))
 								.addNode("consultes")
 								.addConstraintViolation();
@@ -244,8 +244,8 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 
 			// Comprovació de les defincions de procés i les seves dependències amb el tipus d'expedient
 			for (DefinicioProcesDto definicioProces : expedientTipusService.definicioFindAll(command.getId()))
-				if (command.getDefinicionsProces().contains(definicioProces.getJbpmKey())
-						&& command.getDefinicionsVersions().get(definicioProces.getJbpmKey()).equals(definicioProces.getVersio()))
+				if (command.getDefinicionsProces().contains(definicioProces.getBpmKey())
+						&& command.getDefinicionsVersions().get(definicioProces.getBpmKey()).equals(definicioProces.getVersio()))
 				valid = isDefinicioProcesValida(
 							definicioProces,
 							command,
@@ -357,7 +357,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						MessageHelper.getInstance().getMessage(
 								this.codiMissatge + ".definicio.variable.consulta",
 								new Object[] {	campDp.getCodi(),
-												definicioProces.getJbpmKey(),
+												definicioProces.getBpmKey(),
 												campDp.getConsulta().getCodi()}))
 				.addNode("definicionsProces")
 				.addConstraintViolation();
@@ -371,7 +371,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(
 								this.codiMissatge + ".definicio.variable.seleccio.enumeracio.tipexp",
-								new Object[] {campDp.getCodi(), definicioProces.getJbpmKey(), campDp.getEnumeracio().getCodi()}))
+								new Object[] {campDp.getCodi(), definicioProces.getBpmKey(), campDp.getEnumeracio().getCodi()}))
 				.addNode("definicionsProces")
 				.addConstraintViolation();
 			}
@@ -384,7 +384,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(
 								this.codiMissatge + ".definicio.variable.seleccio.domini.tipexp",
-								new Object[] {campDp.getCodi(), definicioProces.getJbpmKey(), campDp.getDomini().getCodi()}))
+								new Object[] {campDp.getCodi(), definicioProces.getBpmKey(), campDp.getDomini().getCodi()}))
 				.addNode("definicionsProces")
 				.addConstraintViolation();
 			}
@@ -399,8 +399,8 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(
 									this.codiMissatge + ".definicio.tasca.variable.tipexp",
-									new Object[] {	tasca.getJbpmName(),
-													definicioProces.getJbpmKey(),
+									new Object[] {	tasca.getBpmName(),
+													definicioProces.getBpmKey(),
 													campTasca.getCamp().getCodi()}))
 					.addNode("definicionsProces")
 					.addConstraintViolation();
@@ -414,8 +414,8 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(
 									this.codiMissatge + ".definicio.tasca.document.tipexp",
-									new Object[] {	tasca.getJbpmName(),
-													definicioProces.getJbpmKey(),
+									new Object[] {	tasca.getBpmName(),
+													definicioProces.getBpmKey(),
 													documentTasca.getDocument().getCodi()}))
 					.addNode("definicionsProces")
 					.addConstraintViolation();
@@ -429,8 +429,8 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(
 									this.codiMissatge + ".definicio.tasca.signatura.tipexp",
-									new Object[] {	tasca.getJbpmName(),
-													definicioProces.getJbpmKey(),
+									new Object[] {	tasca.getBpmName(),
+													definicioProces.getBpmKey(),
 													firmaTasca.getDocument().getCodi()}))
 					.addNode("definicionsProces")
 					.addConstraintViolation();

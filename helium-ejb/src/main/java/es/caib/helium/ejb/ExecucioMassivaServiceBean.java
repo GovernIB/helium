@@ -14,7 +14,7 @@ import es.caib.helium.commons.dto.ExecucioMassivaListDto;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 
 /**
- * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
+ * Servei per a enllaçar les llibreries BPM amb la funcionalitat
  * de Helium.
  *
  * @author Limit Tecnologies <limit@limit.es>

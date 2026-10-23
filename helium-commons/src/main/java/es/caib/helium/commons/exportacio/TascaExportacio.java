@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.exportacio;
 
@@ -13,7 +13,7 @@ import es.caib.helium.commons.dto.TascaDto.TipusTascaDto;
 
 /**
  * DTO amb informació d'una tasca per exportar
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class TascaExportacio implements Serializable {
@@ -23,7 +23,7 @@ public class TascaExportacio implements Serializable {
 	private String missatgeInfo;
 	private String missatgeWarn;
 	private String nomScript;
-	private String jbpmName;
+	private String bpmName;
 	private String expressioDelegacio;
 	private String recursForm;
 	private String formExtern;
@@ -31,7 +31,7 @@ public class TascaExportacio implements Serializable {
 	private boolean finalitzacioSegonPla;
 	private boolean ambRepro;
 	private boolean mostrarAgrupacions = false;
-	
+
 
 	private Set<CampTascaExportacio> camps = new HashSet<CampTascaExportacio>();
 	private Set<DocumentTascaExportacio> documents = new HashSet<DocumentTascaExportacio>();
@@ -43,10 +43,10 @@ public class TascaExportacio implements Serializable {
 	public TascaExportacio(
 			String nom,
 			TipusTascaDto tipus,
-			String jbpmName) {
+			String bpmName) {
 		this.nom = nom;
 		this.tipus = tipus;
-		this.jbpmName = jbpmName;
+		this.bpmName = bpmName;
 	}
 
 	public String getNom() {
@@ -79,11 +79,11 @@ public class TascaExportacio implements Serializable {
 	public void setNomScript(String nomScript) {
 		this.nomScript = nomScript;
 	}
-	public String getJbpmName() {
-		return jbpmName;
+	public String getBpmName() {
+		return bpmName;
 	}
-	public void setJbpmName(String jbpmName) {
-		this.jbpmName = jbpmName;
+	public void setBpmName(String bpmName) {
+		this.bpmName = bpmName;
 	}
 	public String getExpressioDelegacio() {
 		return expressioDelegacio;
@@ -120,7 +120,7 @@ public class TascaExportacio implements Serializable {
 	public void setAmbRepro(boolean ambRepro) {
 		this.ambRepro = ambRepro;
 	}
-	
+
 	public boolean isMostrarAgrupacions() {
 		return mostrarAgrupacions;
 	}

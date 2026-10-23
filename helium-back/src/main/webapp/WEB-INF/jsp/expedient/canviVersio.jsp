@@ -10,8 +10,8 @@
 <head>
 	<title><spring:message code="expedient.massiva.actualitzar"/></title>
 	<hel:modalHead/>
-	<meta name="title" content="<spring:message code="expedient.massiva.actualitzar"/>"/>	
-	
+	<meta name="title" content="<spring:message code="expedient.massiva.actualitzar"/>"/>
+
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 
@@ -19,7 +19,7 @@
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	
+
 	<script type="text/javascript">
 		// <![CDATA[
 		function confirmarCanviVersio(e) {
@@ -39,7 +39,7 @@
 		.panel-body-grup {margin: -1px;}
 		.panel-default a, .panel-default a:HOVER {text-decoration: none;}
 		.table {margin-bottom: 5px;}
-		.form-horizontal .control-label.col-xs-4 {width: 22.333%;}		
+		.form-horizontal .control-label.col-xs-4 {width: 22.333%;}
 		.label-titol .control-label {padding: 20px;}
 /* 		.label-titol {background-color: #fefefe; border: 1px solid #e3e3e3; border-radius: 4px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset; margin-bottom: 20px; min-height: 20px; padding: 19px;} */
 		#s2id_definicioProcesId, #subDefinicionsProces .select2-container {margin-bottom:25px;}
@@ -66,7 +66,7 @@
 					<div class="ctrlHolder">
 						<h4 style="font-weight: bold;"><spring:message code="expedient.massiva.proces.principal"/>:</h4>
 					</div>
-					<label>${definicioProces.jbpmKey}</label>					
+					<label>${definicioProces.bpmKey}</label>
 					<select name="definicioProcesId" id="definicioProcesId">
 						<c:forEach var="df" items="${definicioProces.listIdAmbEtiqueta}" varStatus="status">
 							<option value="${df.id}">${df.etiqueta}</option>
@@ -84,13 +84,13 @@
 						</div>
 						<div id="subDefinicionsProces" class="form-group">
 							<c:forEach var="subProces" items="${subDefinicioProces}" varStatus="status">
-								<label>${subProces.jbpmKey}</label>								
+								<label>${subProces.bpmKey}</label>
 								<select id="subprocesId[${status.index}]" name="subprocesId">
 									<c:forEach var="item" items="${subProces.listIdAmbEtiqueta}">
 										<option value="${item.id}">${item.etiqueta}</option>
 									</c:forEach>
 								</select>
-								
+
 								<script>
 									$(document).ready(function() {
 										$("select[name='subprocesId']").select2({
@@ -109,11 +109,11 @@
 											iframe.height(height + 'px');
 										});
 									});
-								</script>								
+								</script>
 							</c:forEach>
 						</div>
 					</c:if>
-					
+
 					<div id="modal-botons">
 						<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel">
 							<spring:message code="comu.boto.cancelar"/>
@@ -122,7 +122,7 @@
 							<spring:message code='comuns.canviar_versio' />
 						</button>
 					</div>
-				</form:form>	
+				</form:form>
 			</div>
 		</div>
 	</div>

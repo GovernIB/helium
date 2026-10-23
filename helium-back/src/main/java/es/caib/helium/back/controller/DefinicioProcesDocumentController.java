@@ -82,9 +82,9 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getBpmKey() + "/" + definicioProces.getId().toString()));
 		}
-		model.addAttribute("jbpmKey", jbmpKey);
+		model.addAttribute("bpmKey", jbmpKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 
 		return "expedientTipusDocument";

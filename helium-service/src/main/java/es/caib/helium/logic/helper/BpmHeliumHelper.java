@@ -211,43 +211,43 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 	}
 
 	@Override
-	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIProcessInstanceId(
-		String jbpmKey,
+	public DefinicioProcesDto getDefinicioProcesAmbBpmKeyIProcessInstanceId(
+		String bpmKey,
 		String processInstanceId) {
-		log.debug("Obtenint la darrera versió de la definició de procés donat el codi jBPM i el processInstanceId (jbpmKey=" + jbpmKey + ", processInstanceId=" + processInstanceId +")");
+		log.debug("Obtenint la darrera versió de la definició de procés donat el codi BPM i el processInstanceId (bpmKey=" + bpmKey + ", processInstanceId=" + processInstanceId +")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
 		DefinicioProces defincioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
 			expedient.getTipus(),
-			jbpmKey);
+			bpmKey);
 		return conversioTipusHelper.convertir(
 			defincioProces,
 			DefinicioProcesDto.class);
 	}
 
 	@Override
-	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIVersio(
-		String jbpmKey,
+	public DefinicioProcesDto getDefinicioProcesAmbBpmKeyIVersio(
+		String bpmKey,
 		int version) {
-		log.debug("Obtenint la definició de procés donat el codi jBPM i la versió (jbpmKey=" + jbpmKey + ", version=" + version +")");
+		log.debug("Obtenint la definició de procés donat el codi BPM i la versió (bpmKey=" + bpmKey + ", version=" + version +")");
 		return conversioTipusHelper.convertir(
-			definicioProcesRepository.findByJbpmKeyAndVersio(
-				jbpmKey,
+			definicioProcesRepository.findByBpmKeyAndVersio(
+				bpmKey,
 				version),
 			DefinicioProcesDto.class);
 	}
 
 	@Override
-	public DefinicioProcesDto getDarreraVersioAmbEntornIJbpmKey(
+	public DefinicioProcesDto getDarreraVersioAmbEntornIBpmKey(
 		Long entornId,
 		Long expedientTipusId,
-		String jbpmKey) {
-		log.debug("Obtenint la darrera versió de la definició de procés donat l'entorn, tipus i el codi jBPM (entornId=" + entornId + ", expedientTipusId=" + expedientTipusId + ", jbpmKey=" + jbpmKey + ")");
+		String bpmKey) {
+		log.debug("Obtenint la darrera versió de la definició de procés donat l'entorn, tipus i el codi BPM (entornId=" + entornId + ", expedientTipusId=" + expedientTipusId + ", bpmKey=" + bpmKey + ")");
 		return conversioTipusHelper.convertir(
-			definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
+			definicioProcesRepository.findDarreraVersioAmbEntornTipusIBpmKey(
 				entornId,
 				expedientTipusId == null,
 				expedientTipusId != null? expedientTipusId : 0L,
-				jbpmKey),
+				bpmKey),
 			DefinicioProcesDto.class);
 	}
 
@@ -940,7 +940,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 	}
 
 	@Override
-	public void configurarTerminiIniciatAmbDadesJbpm(
+	public void configurarTerminiIniciatAmbDadesBpm(
 		Long terminiIniciatId,
 		String taskInstanceId,
 		Long timerId) {
@@ -1260,11 +1260,11 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 		WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 		if (task == null)
 			throw new NoTrobatException(WTaskInstance.class, taskInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(
 			task.getProcessDefinitionId());
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, task.getProcessDefinitionId());
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProces(
 			task.getTaskName(),
 			definicioProces);
 		if (tasca == null)
@@ -1284,11 +1284,11 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 		WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 		if (task == null)
 			throw new NoTrobatException(WTaskInstance.class, taskInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(
 			task.getProcessDefinitionId());
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, task.getProcessDefinitionId());
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProces(
 			task.getTaskName(),
 			definicioProces);
 		if (tasca == null)
@@ -1728,7 +1728,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 					scspAtributos.getIdPeticion(),
 					cal.getTime());
 
-				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Cream sempre un nou documentStore, que s'associará a la variable BPM.
 				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
 				documentStoreJusificantId = documentHelper.setDocument(
 					null,
@@ -1775,7 +1775,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			}
 
 			if(justificant!=null) {
-				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Cream sempre un nou documentStore, que s'associará a la variable BPM.
 				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
 				documentStoreJusificantId = documentHelper.setDocument(
 					null,
@@ -1878,7 +1878,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 					scspAtributos.getIdPeticion(),
 					cal.getTime());
 
-				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Cream sempre un nou documentStore, que s'associará a la variable BPM.
 				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
 				documentStoreJusificantId = documentHelper.setDocument(
 					null,
@@ -1924,7 +1924,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 					null);
 			}
 			if(justificant!=null) {
-				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Cream sempre un nou documentStore, que s'associará a la variable BPM.
 				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
 				documentStoreJusificantId = documentHelper.setDocument(
 					null,
@@ -2052,7 +2052,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 					scspAtributos.getIdPeticion(),
 					cal.getTime());
 
-				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Cream sempre un nou documentStore, que s'associará a la variable BPM.
 				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
 				documentStoreJusificantId = documentHelper.setDocument(
 					null,
@@ -2100,7 +2100,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			}
 
 			if(justificant!=null) {
-				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Cream sempre un nou documentStore, que s'associará a la variable BPM.
 				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
 				documentStoreJusificantId = documentHelper.setDocument(
 					null,
@@ -2196,7 +2196,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 					scspAtributos.getIdPeticion(),
 					cal.getTime());
 
-				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Cream sempre un nou documentStore, que s'associará a la variable BPM.
 				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
 				documentStoreJusificantId = documentHelper.setDocument(
 					null,
@@ -2244,7 +2244,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			}
 
 			if(justificant!=null) {
-				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Cream sempre un nou documentStore, que s'associará a la variable BPM.
 				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
 				documentStoreJusificantId = documentHelper.setDocument(
 					null,
@@ -2984,8 +2984,8 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 		} else {
 			// Troba la definició de procés principial
 			for (DefinicioProces definicioProces : expedientTipus.getDefinicionsProces())
-				if (expedientTipus.getJbpmProcessDefinitionKey() != null
-					&& expedientTipus.getJbpmProcessDefinitionKey().equals(definicioProces.getJbpmKey())) {
+				if (expedientTipus.getBpmProcessDefinitionKey() != null
+					&& expedientTipus.getBpmProcessDefinitionKey().equals(definicioProces.getBpmKey())) {
 					camps = definicioProces.getCamps();
 					break;
 				}
@@ -3126,7 +3126,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 		if (processInstance == null)
 			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
 
-		return definicioProcesRepository.findByJbpmId(
+		return definicioProcesRepository.findByBpmId(
 			processInstance.getProcessDefinitionId());
 	}
 
@@ -3143,9 +3143,9 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 	public List<DefinicioProcesDto> findSubDefinicionsProces(Long definicioProcesId) {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
 		DefinicioProces definicioProces = definicioProcesRepository.getReferenceById(definicioProcesId);
-		for (WProcessDefinition pd : workflowEngineApi.getSubProcessDefinitions(definicioProces.getJbpmId())) {
+		for (WProcessDefinition pd : workflowEngineApi.getSubProcessDefinitions(definicioProces.getBpmId())) {
 			resposta.add(conversioTipusHelper.convertir(
-				definicioProcesRepository.findByJbpmId(pd.getId()),
+				definicioProcesRepository.findByBpmId(pd.getId()),
 				DefinicioProcesDto.class));
 		}
 		return resposta;
@@ -3689,7 +3689,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 	public void refreshComandaTasca(String taskId, TascaEstat estat) {
 		try {
 			WTaskInstance task = workflowEngineApi.getTaskById(taskId);
-			Tasca tasca = tascaHelper.findTascaByJbpmTaskId(taskId);
+			Tasca tasca = tascaHelper.findTascaByBpmTaskId(taskId);
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 			comandaHelper.upsertTasca(
 				taskId,

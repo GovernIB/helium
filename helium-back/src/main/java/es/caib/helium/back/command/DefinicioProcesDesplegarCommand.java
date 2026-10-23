@@ -21,7 +21,7 @@ import es.caib.helium.back.validator.DefinicioProcesDesplegar;
 @DefinicioProcesDesplegar(groups = {Desplegament.class})
 public class DefinicioProcesDesplegarCommand {
 
-	/** Enumeració per distingir la acció a realitzar amb el desplegament JBPM. */
+	/** Enumeració per distingir la acció a realitzar amb el desplegament BPM. */
 	public enum ACCIO_PROCES {
 		// Realitza un desplegament normal
 		PROCES_DESPLEGAR,

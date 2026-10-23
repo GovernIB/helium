@@ -1,20 +1,20 @@
 package es.caib.helium.commons.dto;
 
-public class CarrecJbpmIdDto {
-	
+public class CarrecBpmIdDto {
+
 	private Long id;
 	private String codi;
 	private String descripcio;
 	private String grup;
 	private String nomDona;
 	private String nomHome;
-	private Sexe personaSexe; 
+	private Sexe personaSexe;
 	private String carrecDona;
 	private String  tractamentHome;
 	private String  tractamentDona;
-	
+
 	private int personaSexeId;
-	
+
 	public int getPersonaSexeId() {
 		return personaSexeId;
 	}
@@ -22,7 +22,7 @@ public class CarrecJbpmIdDto {
 		this.personaSexeId = personaSexeId;
 	}
 
-	
+
 	public Sexe getPersonaSexe() {
 		return personaSexe;
 	}
@@ -86,5 +86,5 @@ public class CarrecJbpmIdDto {
 	public void setTractamentDona(String tractamentDona) {
 		this.tractamentDona = tractamentDona;
 	}
-	
+
 }

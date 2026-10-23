@@ -11,8 +11,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-//import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import es.caib.helium.disseny.engine.WExpedientDto;
 import es.caib.helium.disseny.engine.WProcessInstance;
 import es.caib.helium.persistence.entity.*;
 import org.springframework.security.acls.model.Permission;

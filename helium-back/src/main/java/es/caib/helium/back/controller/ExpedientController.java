@@ -342,7 +342,7 @@ public class ExpedientController extends BaseExpedientController {
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
-			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId());
+			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getBpmId());
 			CanviVersioProcesCommand canviVersioProcesCommand = new CanviVersioProcesCommand();
 			canviVersioProcesCommand.setDefinicioProcesId(definicioProces.getId());
 
@@ -370,7 +370,7 @@ public class ExpedientController extends BaseExpedientController {
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
-			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getJbpmId());
+			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(expedient.getTipus().getId(), definicioProces.getBpmId());
 			expedientService.procesDefinicioProcesCanviVersio(
 					expedientId,
 					command.getDefinicioProcesId(),

@@ -653,8 +653,8 @@ public class ExpedientServiceBean extends AbstractServiceEjb<ExpedientService> i
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<String> findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(Long entornId, Long expedientTipusId, String jbpmKey) {
-		return delegateService.findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(entornId, expedientTipusId, jbpmKey);
+	public List<String> findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(Long entornId, Long expedientTipusId, String bpmKey) {
+		return delegateService.findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(entornId, expedientTipusId, bpmKey);
 	}
 
 	@Override

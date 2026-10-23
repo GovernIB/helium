@@ -3,7 +3,6 @@ package es.caib.helium.logic.helper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -127,9 +126,9 @@ public class TascaHelper {
 			Expedient expedient) {
 		if (expedient == null)
 			expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(
 				task.getProcessDefinitionId());
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
 		if (tasca == null) {
@@ -137,7 +136,7 @@ public class TascaHelper {
 					Tasca.class,
 					"(taskName=" + task.getTaskName() + ", " +
 					"definicioProcesId=" + definicioProces.getId() + ", " +
-					"definicioProcesJbpmKey=" + definicioProces.getJbpmKey() + ", " +
+					"definicioProcesBpmKey=" + definicioProces.getBpmKey() + ", " +
 					"definicioProcesVersio=" + definicioProces.getVersio() + ")");
 
 		}
@@ -172,8 +171,8 @@ public class TascaHelper {
 				"tramitacioMassiva",
 				new Boolean(tasca.isTramitacioMassiva()).toString());
 		task.setFieldFromDescription(
-				"definicioProcesJbpmKey",
-				tasca.getDefinicioProces().getJbpmKey());
+				"definicioProcesbpmKey",
+				tasca.getDefinicioProces().getBpmKey());
 		task.setCacheActiu();
 		workflowEngineApi.describeTaskInstance(
 				task.getId(),
@@ -194,7 +193,7 @@ public class TascaHelper {
 				task.getFieldFromDescription("expedientTipusNom"),
 				task.getFieldFromDescription("processInstanceId"),
 				new Boolean(task.getFieldFromDescription("tramitacioMassiva")).booleanValue(),
-				task.getFieldFromDescription("definicioProcesJbpmKey"));
+				task.getFieldFromDescription("definicioProcesBpmKey"));
 	}
 
 	public class DadesCacheTasca {
@@ -207,7 +206,7 @@ public class TascaHelper {
 		private String expedientTipusNom;
 		private String processInstanceId;
 		private boolean tramitacioMassiva;
-		private String definicioProcesJbpmKey;
+		private String definicioProcesBpmKey;
 		public DadesCacheTasca(
 				Long entornId,
 				String titol,
@@ -218,7 +217,7 @@ public class TascaHelper {
 				String expedientTipusNom,
 				String processInstanceId,
 				boolean tramitacioMassiva,
-				String definicioProcesJbpmKey) {
+				String definicioProcesBpmKey) {
 			this.entornId = entornId;
 			this.titol = titol;
 			this.identificador = identificador;
@@ -228,7 +227,7 @@ public class TascaHelper {
 			this.expedientTipusNom = expedientTipusNom;
 			this.processInstanceId = processInstanceId;
 			this.tramitacioMassiva = tramitacioMassiva;
-			this.definicioProcesJbpmKey = definicioProcesJbpmKey;
+			this.definicioProcesBpmKey = definicioProcesBpmKey;
 		}
 		public Long getEntornId() {
 			return entornId;
@@ -257,8 +256,8 @@ public class TascaHelper {
 		public boolean isTramitacioMassiva() {
 			return tramitacioMassiva;
 		}
-		public String getDefinicioProcesJbpmKey() {
-			return definicioProcesJbpmKey;
+		public String getDefinicioProcesBpmKey() {
+			return definicioProcesBpmKey;
 		}
 	}
 
@@ -287,18 +286,18 @@ public class TascaHelper {
 
 	public ExpedientTascaDto toTascaInicialDto(
 			String startTaskName,
-			String jbpmId,
+			String bpmId,
 			Map<String, Object> valors) {
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProcesBpmId(
 				startTaskName,
-				jbpmId);
+				bpmId);
 		ExpedientTascaDto dto = new ExpedientTascaDto();
 		dto.setTitol(tasca.getNom());
 		dto.setTascaTipus(
 				conversioTipusHelper.convertir(
 						tasca.getTipus(),
 						ExpedientTascaDto.TascaTipusDto.class));
-		dto.setJbpmName(tasca.getJbpmName());
+		dto.setBpmName(tasca.getBpmName());
 		dto.setValidada(false);
 		dto.setDocumentsComplet(false);
 		dto.setTascaId(tasca.getId());
@@ -306,7 +305,7 @@ public class TascaHelper {
 		/*dto.setDefinicioProces(
 				conversioTipusHelper.convertir(
 						tasca.getDefinicioProces(), DefinicioProcesDto.class));*/
-		dto.setOutcomes(workflowEngineApi.findStartTaskOutcomes(jbpmId, startTaskName));
+		dto.setOutcomes(workflowEngineApi.findStartTaskOutcomes(bpmId, startTaskName));
 		dto.setTascaFormExternCodi(tasca.getFormExtern());
 		return dto;
 	}
@@ -372,13 +371,13 @@ public class TascaHelper {
 		setTascaCache(task, null);
 	}
 
-	public Tasca findTascaByJbpmTaskId(
-			String jbpmTaskId) {
-		return findTascaByJbpmTask(workflowEngineApi.getTaskById(jbpmTaskId));
+	public Tasca findTascaByBpmTaskId(
+			String bpmTaskId) {
+		return findTascaByBpmTask(workflowEngineApi.getTaskById(bpmTaskId));
 	}
-	public Tasca findTascaByJbpmTask(
+	public Tasca findTascaByBpmTask(
 			WTaskInstance task) {
-		return tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+		return tascaRepository.findByBpmNameAndDefinicioProcesBpmId(
 				task.getTaskName(),
 				task.getProcessDefinitionId());
 	}
@@ -459,9 +458,9 @@ public class TascaHelper {
 			boolean perTramitacio,
 			boolean ambPermisos) {
 		ExpedientTascaDto dto = new ExpedientTascaDto();
-		DefinicioProces defp = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
+		DefinicioProces defp = definicioProcesRepository.findByBpmId(task.getProcessDefinitionId());
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Tasca t = tascaRepository.findByJbpmNameAndDefinicioProces(task.getTaskName(), defp);
+		Tasca t = tascaRepository.findByBpmNameAndDefinicioProces(task.getTaskName(), defp);
 		if (t != null) {
 			dto.setAmbRepro(t.isAmbRepro());
 			dto.setMostrarAgrupacions(t.isMostrarAgrupacions());
@@ -472,7 +471,7 @@ public class TascaHelper {
 				task,
 				expedient);
 		dto.setTitol(dadesCacheTasca.getTitol());
-		dto.setJbpmName(task.getTaskName());
+		dto.setBpmName(task.getTaskName());
 		dto.setDescription(task.getDescription());
 
 		if(task.getRols() != null && !task.getRols().isEmpty())
@@ -489,7 +488,7 @@ public class TascaHelper {
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
 		dto.setTascaTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
-		Tasca tasca = findTascaByJbpmTask(task);
+		Tasca tasca = findTascaByBpmTask(task);
 		if (tasca != null) {
 			dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
 			if (tasca.isFinalitzacioSegonPla() &&
@@ -527,7 +526,7 @@ public class TascaHelper {
 			dto.setDocumentsComplet(isDocumentsComplet(task));
 			dto.setSignaturesComplet(isSignaturesComplet(task));
 
-			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
+			DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(task.getProcessDefinitionId());
 			if (definicioProces != null) {
 				dto.setDefinicioProcesId(definicioProces.getId());
 			}
@@ -635,7 +634,7 @@ public class TascaHelper {
 	}
 
 	public boolean isTascaValidada(Object task) {
-		Tasca tasca = findTascaByJbpmTask((WTaskInstance)task);
+		Tasca tasca = findTascaByBpmTask((WTaskInstance)task);
 		boolean hiHaCampsModificables = false;
 		if (tasca == null)
 			return false;
@@ -649,11 +648,12 @@ public class TascaHelper {
 			return true;
 
 		ExpedientTasca expedientTasca = expedientTascaRepository.findByTaskId(((WTaskInstance)task).getId());
-		Boolean valor = expedientTasca.getValidated();
-		return valor != null && valor;
+		// Boolean valor = expedientTasca != null? expedientTasca.getValidated() : null;
+		// Boolean valor = expedientTasca.getValidated();
+		return expedientTasca.getValidated() != null && expedientTasca.getValidated();
 	}
 	public boolean isDocumentsComplet(Object task) {
-		Tasca tasca = findTascaByJbpmTask((WTaskInstance)task);
+		Tasca tasca = findTascaByBpmTask((WTaskInstance)task);
 		List<ExpedientDocument> tascaDocuments = expedientDocumentRepository.findByTaskId(((WTaskInstance)task).getId());
 		List<String> tascaDocumentsCodis = tascaDocuments.stream().map(ExpedientDocument::getCodi).collect(Collectors.toList());
 		for (DocumentTasca docTasca: tasca.getDocuments()) {
@@ -664,7 +664,7 @@ public class TascaHelper {
 	}
 
 	public boolean isSignaturesComplet(Object task) {
-		Tasca tasca = findTascaByJbpmTask((WTaskInstance)task);
+		Tasca tasca = findTascaByBpmTask((WTaskInstance)task);
 		List<ExpedientDocument> tascaDocuments = expedientDocumentRepository.findByTaskId(((WTaskInstance)task).getId());
 		List<String> tascaDocumentsCodis = tascaDocuments.stream().map(ExpedientDocument::getCodi).collect(Collectors.toList());
 		for (FirmaTasca firmaTasca: tasca.getFirmes()) {
@@ -832,7 +832,7 @@ public class TascaHelper {
 					.build();
 			}
 
-			tasca = expedientTascaRepository.save(tasca);
+			tasca = expedientTascaRepository.saveAndFlush(tasca);
 			List<TascaCandidate> candidats = tascaCandidateRepository.findByTasca(tasca);
 			Set<String> candidatsExistents = candidats
 				.stream()

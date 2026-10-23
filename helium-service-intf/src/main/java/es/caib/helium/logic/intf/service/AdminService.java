@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.logic.intf.service;
 
@@ -21,16 +21,16 @@ import es.caib.helium.commons.dto.UsuariPreferenciesDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 
 /**
- * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
+ * Servei per a enllaçar les llibreries BPM amb la funcionalitat
  * de Helium.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface AdminService {
 
 	/**
 	 * Retorna un string en format JSON amb les mètriques de l'aplicació.
-	 * 
+	 *
 	 * @return l'string amb les mètriques
 	 */
 	public String getMetrics();
@@ -42,21 +42,21 @@ public interface AdminService {
 
 	/**
 	 * Retorna el llistat de les integracions disponibles.
-	 * 
+	 *
 	 * @return la llista d'integracions
 	 */
 	public List<IntegracioDto> monitorIntegracioFindAll();
-	
+
 	/**
 	 * Retorna el llistat de les integracions disponibles del entorn acual.
-	 * 
+	 *
 	 * @return la llista d'integracions
 	 */
 	public List<IntegracioDto> monitorIntegracioFindAllEntronActual();
 
 	/**
 	 * Retorna les darreres accions de la integració especificada.
-	 * 
+	 *
 	 * @param integracioCodi el codi de la integració a consultar
 	 * @return
 	 */
@@ -65,15 +65,15 @@ public interface AdminService {
 
 	/**
 	 * Retorna les darreres accions de la integració especificada del entorn actual.
-	 * 
+	 *
 	 * @param integracioCodi el codi de la integració a consultar
 	 * @return
 	 */
 	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornsAdmin(String integracioCodi);
-	
+
 	/**
 	 * Retorna la llista de dominis d'un entorn
-	 * 
+	 *
 	 * @param entornId l'id del entorn que es vol consultar, si es null
 	 * retorna tots els dominis
 	 * @return la llista de dominis
@@ -83,7 +83,7 @@ public interface AdminService {
 
 	/**
 	 * Retorna la llista de les darreres accions d'un domini
-	 * 
+	 *
 	 * @param dominiId l'id del domini que es vol consultar
 	 * @return la llista d'accions
 	 */
@@ -91,7 +91,7 @@ public interface AdminService {
 			Long dominiId) throws NoTrobatException;
 
 	/** Mètode per afegir una acció des de la capa de la vista a través del servei
-	 * 
+	 *
 	 * @param integracioCodi
 	 * @param descripcio
 	 * @param tipus
@@ -107,10 +107,10 @@ public interface AdminService {
 			String errorDescripcio,
 			Throwable throwable,
 			List<IntegracioParametreDto> parametres);
-	
+
 	/**
 	 * Consulta les mesures temporals per família.
-	 * 
+	 *
 	 * @param familia la familia per a la consulta (pot ser null)
 	 * @param ambDetall indica si el resultat es retorna amb més detalls
 	 * @return el llistat de mesures temporals
@@ -127,14 +127,14 @@ public interface AdminService {
 
 	/**
 	 * Retorna la llista de mesures temporals dels tipus d'expedient.
-	 * 
+	 *
 	 * @return el llistat de mesures temporals
 	 */
 	public List<MesuraTemporalDto> mesuraTemporalFindByTasca();
 
 	/**
 	 * Retorna el llistat de famílies de les mesures temporals.
-	 * 
+	 *
 	 * @return el llistat de famílies
 	 */
 	public Set<String> mesuraTemporalFindFamiliesAll();
@@ -187,13 +187,13 @@ public interface AdminService {
 	public abstract void deleteReassignacio(Long id);
 
 	public abstract ReassignacioDto findReassignacioById(Long id);
-	
+
 	public abstract List<TascaCompleteDto> getTasquesCompletarAdminEntorn();
-	
+
 	/**
-	 * 
-	 * Modifica el codi d'usuari de tots els registres on s'utilitza 
-	 *  
+	 *
+	 * Modifica el codi d'usuari de tots els registres on s'utilitza
+	 *
 	 * @param codiActual
 	 * @param codiNou
 	 * @throws Exception

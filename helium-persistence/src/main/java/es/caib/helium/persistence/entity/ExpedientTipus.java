@@ -53,7 +53,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private Long id;
 	private String codi;
 	private String nom;
-	private String jbpmProcessDefinitionKey;
+	private String bpmProcessDefinitionKey;
 	private Boolean teNumero;
 	private Boolean teTitol;
 	private Boolean demanaNumero;
@@ -167,10 +167,10 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.nom = nom;
 		this.entorn = entorn;
 	}
-	public ExpedientTipus(String codi, String nom, String jbpmProcessDefinitionKey, Entorn entorn) {
+	public ExpedientTipus(String codi, String nom, String bpmProcessDefinitionKey, Entorn entorn) {
 		this.codi = codi;
 		this.nom = nom;
-		this.jbpmProcessDefinitionKey = jbpmProcessDefinitionKey;
+		this.bpmProcessDefinitionKey = bpmProcessDefinitionKey;
 		this.entorn = entorn;
 	}
 
@@ -201,12 +201,12 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.nom = nom;
 	}
 
-	@Column(name="jbpm_pd_key", length=255, nullable=true)
-	public String getJbpmProcessDefinitionKey() {
-		return jbpmProcessDefinitionKey;
+	@Column(name="bpm_pd_key", length=255, nullable=true)
+	public String getBpmProcessDefinitionKey() {
+		return bpmProcessDefinitionKey;
 	}
-	public void setJbpmProcessDefinitionKey(String jbpmProcessDefinitionKey) {
-		this.jbpmProcessDefinitionKey = jbpmProcessDefinitionKey;
+	public void setBpmProcessDefinitionKey(String bpmProcessDefinitionKey) {
+		this.bpmProcessDefinitionKey = bpmProcessDefinitionKey;
 	}
 
 	@Column(name="te_numero")

@@ -8,7 +8,7 @@
 <head>
 	<title><spring:message code="defproc.llistat.llistar.afectats.titol"/></title>
 	<meta name="title" content="<spring:message code="defproc.llistat.llistar.afectats.titol"
-       arguments="${definicioProces.jbpmKey};${definicioProces.versio}"
+       arguments="${definicioProces.bpmKey};${definicioProces.versio}"
        htmlEscape="false"
        argumentSeparator=";"/>"/>
 	<meta name="screen" content="expedients afectats dp no us"/>

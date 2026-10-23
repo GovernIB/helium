@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -11,15 +11,15 @@ import java.util.TreeMap;
 
 /**
  * DTO amb informació d'un tipus d'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ExpedientTipusDto extends ControlPermisosDto implements Serializable {
-	
+
 	private Long id;
 	private String codi;
 	private String nom;
-	private String jbpmProcessDefinitionKey;
+	private String bpmProcessDefinitionKey;
 	private boolean teNumero;
 	private boolean teTitol;
 	private boolean demanaNumero;
@@ -69,20 +69,20 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	// Integració amb tràmits Sistra
 	private boolean sistraActiu;
 	private String sistraTramitCodi;
-	
+
 	private boolean ntiActiu;
 	private String ntiOrgano;
 	private String ntiClasificacion;
 	private String ntiSerieDocumental;
 	private boolean procedimentComu;
 	private String unitatOrganitzativaCodiNom;
-	
+
 	//Integració amb Pinbal
 	private boolean pinbalActiu;
 	private String pinbalNifCif;
-		
+
 	private boolean arxiuActiu;
-	
+
 	// Integració NOTIB
 	private Boolean notibActiu;
 	private String notibEmisor;
@@ -120,11 +120,11 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
-	public String getJbpmProcessDefinitionKey() {
-		return jbpmProcessDefinitionKey;
+	public String getBpmProcessDefinitionKey() {
+		return bpmProcessDefinitionKey;
 	}
-	public void setJbpmProcessDefinitionKey(String jbpmProcessDefinitionKey) {
-		this.jbpmProcessDefinitionKey = jbpmProcessDefinitionKey;
+	public void setBpmProcessDefinitionKey(String bpmProcessDefinitionKey) {
+		this.bpmProcessDefinitionKey = bpmProcessDefinitionKey;
 	}
 	public boolean isTeNumero() {
 		return teNumero;
@@ -446,7 +446,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setDistribucioCodiProcediment(String distribucioCodiProcediment) {
 		this.distribucioCodiProcediment = distribucioCodiProcediment;
 	}
-	
+
 	public String getDistribucioCodiAssumpte() {
 		return distribucioCodiAssumpte;
 	}
@@ -478,14 +478,14 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setPinbalActiu(boolean pinbalActiu) {
 		this.pinbalActiu = pinbalActiu;
 	}
-	
+
 	public String getPinbalNifCif() {
 		return pinbalNifCif;
 	}
 	public void setPinbalNifCif(String pinbalNifCif) {
 		this.pinbalNifCif = pinbalNifCif;
 	}
-	
+
 	public String getManualAjudaNom() {
 		return manualAjudaNom;
 	}
@@ -513,14 +513,14 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setProcedimentComu(boolean procedimentComu) {
 		this.procedimentComu = procedimentComu;
 	}
-	
+
 	public String getUnitatOrganitzativaCodiNom() {
 		return unitatOrganitzativaCodiNom;
 	}
 	public void setUnitatOrganitzativaCodiNom(String unitatOrganitzativaCodiNom) {
 		this.unitatOrganitzativaCodiNom = unitatOrganitzativaCodiNom;
 	}
-		
+
 	public boolean isEnviarCorreuAnotacions() {
 		return enviarCorreuAnotacions;
 	}

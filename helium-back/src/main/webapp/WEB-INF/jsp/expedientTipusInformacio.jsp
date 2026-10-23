@@ -92,7 +92,7 @@
 						</c:if>
 						<c:if test="${expedientTipus.tipus eq 'FLOW' && not empty definicioProcesInicial}">
 							<dt><spring:message code="expedient.tipus.info.camp.definicio.proces.inicial"/></dt>
-							<dd>${definicioProcesInicial.jbpmKey}</dd>
+							<dd>${definicioProcesInicial.bpmKey}</dd>
 						</c:if>
 
 						<c:if test="${expedientTipus.restringirPerGrup == true}">
@@ -152,30 +152,30 @@
 
 $(document).ready(function() {
 
-	var jbpmProcessDefinitionKey = "${expedientTipus.jbpmProcessDefinitionKey}";
+	var bpmProcessDefinitionKey = "${expedientTipus.bpmProcessDefinitionKey}";
 
 	$('#expedientTipusDefinicioProces').on('draw.dt', function() {
 		// Mira si la definicio de proces coincideix amb la del tipus d'expedient
 		$("tr", this).each(function(){
 			if ($(this).find("td").length > 0) {
-				$jbpmKey = $(this).find("td:nth-child(4)");
-				if ($jbpmKey.html() == jbpmProcessDefinitionKey)
-					$jbpmKey.html("<spring:message code='comu.true'></spring:message>");
+				$bpmKey = $(this).find("td:nth-child(4)");
+				if ($bpmKey.html() == bpmProcessDefinitionKey)
+					$bpmKey.html("<spring:message code='comu.true'></spring:message>");
 				else
-					$jbpmKey.html("<spring:message code='comu.false'></spring:message>");
+					$bpmKey.html("<spring:message code='comu.false'></spring:message>");
 			}
 		});
 		// Botó per marcar com a inicial una definicó de procés
 		$("#expedientTipusDefinicioProces a.btn-inicial").click(function(e) {
 			var getUrl = $(this).attr('href');
-			var jbpmKey = $(this).data('jbpmkey');
+			var bpmKey = $(this).data('bpmkey');
 			$.ajax({
 				type: 'GET',
 				url: getUrl,
 				async: true,
 				success: function(result) {
 					if (result) {
-						jbpmProcessDefinitionKey = jbpmKey;
+						bpmProcessDefinitionKey = bpmKey;
 						refrescaTaula();
 					}
 				},

@@ -58,7 +58,7 @@ public class DocumentHelper {
 			byte[] arxiuContingut,
 			boolean isAdjunt) {
 		DocumentStore documentStore = null;
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi, isAdjunt);
+		Long documentStoreId = getDocumentStoreIdDeVariableBpm(taskInstanceId, processInstanceId, documentCodi, isAdjunt);
 		if (documentStoreId != null)
 			documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
 		if (documentStore == null) {
@@ -97,7 +97,7 @@ public class DocumentHelper {
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(
+		Long documentStoreId = getDocumentStoreIdDeVariableBpm(
 				taskInstanceId,
 				processInstanceId,
 				documentCodi);
@@ -128,19 +128,6 @@ public class DocumentHelper {
 				}
 				documentStoreRepository.deleteById(documentStoreId);
 			}
-//			if (taskInstanceId != null) {
-//				jbpmDao.deleteTaskInstanceVariable(
-//						taskInstanceId,
-//						getVarPerDocumentCodi(documentCodi, false));
-//				jbpmDao.deleteTaskInstanceVariable(
-//						taskInstanceId,
-//						JbpmVars.PREFIX_SIGNATURA + documentCodi);
-//			}
-//			if (processInstanceId != null) {
-//				jbpmDao.deleteProcessInstanceVariable(
-//						processInstanceId,
-//						getVarPerDocumentCodi(documentCodi, false));
-//			}
 		}
 	}
 
@@ -164,14 +151,14 @@ public class DocumentHelper {
 		return null;
 	}
 
-	private Long getDocumentStoreIdDeVariableJbpm(
+	private Long getDocumentStoreIdDeVariableBpm(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
-		return getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId,documentCodi, false);
+		return getDocumentStoreIdDeVariableBpm(taskInstanceId, processInstanceId,documentCodi, false);
 	}
 
-	private Long getDocumentStoreIdDeVariableJbpm(
+	private Long getDocumentStoreIdDeVariableBpm(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi,

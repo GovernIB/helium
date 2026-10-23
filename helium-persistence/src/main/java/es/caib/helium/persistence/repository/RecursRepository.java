@@ -103,10 +103,10 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 		"SELECT r.contingut " +
 			"FROM Recurs r " +
 			"WHERE " +
-			"    r.definicioProces.jbpmId = :jbpmId " +
+			"    r.definicioProces.bpmId = :bpmId " +
 			"AND r.nom = :nom ")
 	Optional<byte[]> findContingutByDefinicioProcesBpmnIdAndName(
-		@Param("jbpmId") String bpmnId,
+		@Param("bpmId") String bpmnId,
 		@Param("nom") String nom);
 
 	Recurs findByDefinicioProcesIdAndNom(Long definicioProcesId, String nom);

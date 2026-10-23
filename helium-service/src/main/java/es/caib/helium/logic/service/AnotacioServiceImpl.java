@@ -171,7 +171,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
-	private WorkflowEngineApi jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource

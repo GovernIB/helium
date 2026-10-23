@@ -562,11 +562,11 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void endTaskInstance(String taskId, String outcome) {
+	public void endTaskInstance(String taskId, String outcome, Map<String, Object> variables) {
 		if(outcome == null) {
 			processEngine
 				.getTaskService()
-				.complete(taskId);
+				.complete(taskId, null, variables);
 			return;
 		}
 		TaskEntityImpl task = (TaskEntityImpl) processEngine
@@ -694,7 +694,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<TascaOutcomeDto> findStartTaskOutcomes(String jbpmId, String taskName) {
+	public List<TascaOutcomeDto> findStartTaskOutcomes(String bpmId, String taskName) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -837,7 +837,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<String> listActions(String jbpmId) {
+	public List<String> listActions(String bpmId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1014,7 +1014,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public WProcessLog getProcessLogById(Long jbpmLogId) {
+	public WProcessLog getProcessLogById(Long bpmLogId) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -37,10 +37,10 @@
 		<thead>
 			<tr>
 				<th data-col-name="id" data-visible="false"/>
-				<th data-col-name="jbpmKey"><spring:message code="expedient.tipus.definicioProces.llistat.columna.nom"/></th>
+				<th data-col-name="bpmKey"><spring:message code="expedient.tipus.definicioProces.llistat.columna.nom"/></th>
 				<th data-col-name="versio"><spring:message code="expedient.tipus.definicioProces.llistat.columna.versio"/></th>
 				<th data-col-name="dataCreacio" data-converter="datetime"><spring:message code="expedient.tipus.definicioProces.llistat.columna.dataVersio"/></th>
-			
+
 				<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
 				<spring:message code="expedient.info.relacionats"/>
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
@@ -60,6 +60,6 @@
 		</div>
 	</script>
 	<a href="<c:url value="/expedientTipus"/>" class="btn btn-default pull-right"><span class="fa fa-arrow-left"></span> <spring:message code="comu.boto.tornar"/></a>
-	
+
 </body>
 </html>

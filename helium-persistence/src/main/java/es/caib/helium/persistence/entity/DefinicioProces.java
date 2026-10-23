@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -30,7 +30,7 @@ import org.hibernate.annotations.ForeignKey;
 
 /**
  * Objecte de domini que representa una definició de procés.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
@@ -38,8 +38,8 @@ import org.hibernate.annotations.ForeignKey;
 public class DefinicioProces implements Serializable, GenericEntity<Long> {
 
 	private Long id;
-	private String jbpmId;
-	private String jbpmKey;
+	private String bpmId;
+	private String bpmKey;
 	private int versio = -1;
 	private String etiqueta;
 	private Date dataCreacio = new Date();
@@ -55,9 +55,9 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	private String startTaskName;
 
 	public DefinicioProces() {}
-	public DefinicioProces(String jbpmId, String jbpmKey, String etiqueta, int versio, Entorn entorn) {
-		this.jbpmId = jbpmId;
-		this.jbpmKey = jbpmKey;
+	public DefinicioProces(String bpmId, String bpmKey, String etiqueta, int versio, Entorn entorn) {
+		this.bpmId = bpmId;
+		this.bpmKey = bpmKey;
 		this.etiqueta = etiqueta;
 		this.versio = versio;
 		this.entorn = entorn;
@@ -74,20 +74,20 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 		this.id = id;
 	}
 
-	@Column(name="jbpm_id", length=255, nullable=false, unique=true)
-	public String getJbpmId() {
-		return jbpmId;
+	@Column(name="bpm_id", length=255, nullable=false, unique=true)
+	public String getBpmId() {
+		return bpmId;
 	}
-	public void setJbpmId(String jbpmId) {
-		this.jbpmId = jbpmId;
+	public void setBpmId(String bpmId) {
+		this.bpmId = bpmId;
 	}
 
-	@Column(name="jbpm_key", length=255, nullable=false)
-	public String getJbpmKey() {
-		return jbpmKey;
+	@Column(name="bpm_key", length=255, nullable=false)
+	public String getBpmKey() {
+		return bpmKey;
 	}
-	public void setJbpmKey(String jbpmKey) {
-		this.jbpmKey = jbpmKey;
+	public void setBpmKey(String bpmKey) {
+		this.bpmKey = bpmKey;
 	}
 
 	@Column(name="versio")
@@ -223,9 +223,9 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	@Transient
 	public String getIdPerMostrar() {
 		if (etiqueta != null) {
-			return etiqueta + " (" + jbpmKey + " v." + versio + ")";
+			return etiqueta + " (" + bpmKey + " v." + versio + ")";
 		} else {
-			return jbpmKey + " v." + versio;
+			return bpmKey + " v." + versio;
 		}
 	}
 
@@ -247,12 +247,12 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 		this.startTaskName = startTaskName;
 	}
 
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((jbpmId == null) ? 0 : jbpmId.hashCode());
+		result = prime * result + ((bpmId == null) ? 0 : bpmId.hashCode());
 		return result;
 	}
 	@Override
@@ -264,14 +264,14 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 		if (getClass() != obj.getClass())
 			return false;
 		DefinicioProces other = (DefinicioProces) obj;
-		if (jbpmId == null) {
-			if (other.jbpmId != null)
+		if (bpmId == null) {
+			if (other.bpmId != null)
 				return false;
-		} else if (!jbpmId.equals(other.jbpmId))
+		} else if (!bpmId.equals(other.bpmId))
 			return false;
 		return true;
 	}
-	
+
 
 	private static final long serialVersionUID = 1L;
 

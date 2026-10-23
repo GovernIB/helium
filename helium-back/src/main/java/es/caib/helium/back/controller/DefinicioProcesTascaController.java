@@ -48,31 +48,31 @@ import es.caib.helium.commons.exception.PermisDenegatException;
 public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
 	/** Pipella del tasques. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca")
 	public String tasques(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
-					jbpmKey,
+					bpmKey,
 					definicioProcesId,
 					model,
 					"tasques");
 		}
-		model.addAttribute("jbpmKey", jbpmKey);
+		model.addAttribute("bpmKey", bpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 
 		return "definicioProcesTasques";
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/datatable")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/datatable")
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
@@ -89,10 +89,10 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 				"id");
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/update", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/update", method = RequestMethod.GET)
 	public String modificar(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -102,10 +102,10 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		return "definicioProcesTascaForm";
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@Validated(DefinicioProcesTascaCommand.Modificacio.class) DefinicioProcesTascaCommand command,
@@ -130,13 +130,13 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	 *
 	 */
 	private void omplirModelComu(
-			String jbpmKey,
+			String bpmKey,
 			Long definicioProcesId,
 			Long tascaId,
 			Model model) {
 
 		// Especifica les URLs per la pàgina
-		String basicUrl = "definicioProces/" + jbpmKey + "/" + definicioProcesId.toString() + "/tasca/" + tascaId;
+		String basicUrl = "definicioProces/" + bpmKey + "/" + definicioProcesId.toString() + "/tasca/" + tascaId;
 		model.addAttribute("basicUrl", basicUrl);
 		model.addAttribute("baseUrl", BaseConfig.BACK_CONTEXT_PREFIX + "/" + basicUrl);
 
@@ -145,10 +145,10 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	// Manteniment de variables de la tasca
 
 	/** Modal per veure els camps de la tasca de tipus filtre. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/variable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{id}/variable", method = RequestMethod.GET)
 	public String variables(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
@@ -163,7 +163,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			command.setExpedientTipusId(definicioProces.getExpedientTipus().getId());
 		model.addAttribute("definicioProcesTascaVariableCommand", command);
 
-		omplirModelVariables(jbpmKey, definicioProcesId, id, model);
+		omplirModelVariables(bpmKey, definicioProcesId, id, model);
 
 		return "definicioProcesTascaVariable";
 	}
@@ -171,10 +171,10 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	// Manteniment de variables de la tasca
 
 	/** Modal per veure els camps de la tasca de tipus filtre. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/variable/disseny", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{id}/variable/disseny", method = RequestMethod.GET)
 	public String variablesDisseny(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
@@ -187,16 +187,16 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		command.setBuitCols(0);
 		model.addAttribute("definicioProcesTascaVariableCommand", command);
 
-		omplirModelVariables(jbpmKey, definicioProcesId, id, model);
+		omplirModelVariables(bpmKey, definicioProcesId, id, model);
 
 		return "definicioProcesTascaVariableDisseny";
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/all", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/all", method = RequestMethod.GET)
 	@ResponseBody
 	List<CampTascaDto> variablesAll(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -208,11 +208,11 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	}
 
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse variablesDatatable(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -228,10 +228,10 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 				"id");
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/variable/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{id}/variable/new", method = RequestMethod.POST)
 	public String variableNouPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@Validated(DefinicioProcesTascaVariableCommand.Creacio.class) DefinicioProcesTascaVariableCommand command,
@@ -240,7 +240,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
         if (bindingResult.hasErrors()) {
 
 
-    		omplirModelVariables(jbpmKey, definicioProcesId, id, model);
+    		omplirModelVariables(bpmKey, definicioProcesId, id, model);
     		return "definicioProcesTascaVariable";
         } else {
         	// Verificar permisos
@@ -252,15 +252,15 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 					getMessage(
 							request,
 							"definicio.proces.tasca.controller.variable.creat"));
-        	return variables(request, jbpmKey, definicioProcesId, id, model);
+        	return variables(request, bpmKey, definicioProcesId, id, model);
         }
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/{campTascaId}/{propietat}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/{campTascaId}/{propietat}", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean variableUpdatePropietat(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long campTascaId,
@@ -286,11 +286,11 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		return true;
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean variableDelete(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -315,11 +315,11 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/{id}/moure/{posicio}")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/{id}/moure/{posicio}")
 	@ResponseBody
 	public boolean variableMourePosicio(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -335,11 +335,11 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	}
 
 	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/select", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/select", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> variablesSelect(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -357,15 +357,15 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 
 	/** Omple el model de dades per la pàgina de camps de les tasques. */
 	private void omplirModelVariables(
-			String jbpmKey,
+			String bpmKey,
 			Long definicioProcesId,
 			Long tascaId,
 			Model model) {
-		model.addAttribute("jbpmKey", jbpmKey);
+		model.addAttribute("bpmKey", bpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(null, tascaId));
 
-		this.omplirModelComu(jbpmKey, definicioProcesId, tascaId, model);
+		this.omplirModelComu(bpmKey, definicioProcesId, tascaId, model);
 
 		// Obté el llistat de variables
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
@@ -400,10 +400,10 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	// Manteniment de documents de la tasca
 
 	/** Modal per veure els documents de la tasca de tipus filtre. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/document", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{id}/document", method = RequestMethod.GET)
 	public String documents(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
@@ -412,16 +412,16 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		command.setTascaId(id);
 		model.addAttribute("definicioProcesTascaDocumentCommand", command);
 
-		omplirModelDocuments(jbpmKey, definicioProcesId, id, model);
+		omplirModelDocuments(bpmKey, definicioProcesId, id, model);
 
 		return "definicioProcesTascaDocument";
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/document/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse documentsDatatable(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -437,10 +437,10 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 				"id");
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/document/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{id}/document/new", method = RequestMethod.POST)
 	public String documentNouPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@Validated(DefinicioProcesTascaDocumentCommand.Creacio.class) DefinicioProcesTascaDocumentCommand command,
@@ -448,7 +448,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			Model model) {
         if (bindingResult.hasErrors()) {
 
-    		omplirModelDocuments(jbpmKey, definicioProcesId, id, model);
+    		omplirModelDocuments(bpmKey, definicioProcesId, id, model);
 
     		return "definicioProcesTascaDocument";
         } else {
@@ -461,15 +461,15 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 					getMessage(
 							request,
 							"definicio.proces.tasca.controller.document.creat"));
-        	return documents(request, jbpmKey, definicioProcesId, id, model);
+        	return documents(request, bpmKey, definicioProcesId, id, model);
         }
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/{documentTascaId}/{propietat}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/document/{documentTascaId}/{propietat}", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean documentUpdatePropietat(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long documentTascaId,
@@ -487,11 +487,11 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		return true;
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/document/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean documentDelete(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -516,11 +516,11 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/{id}/moure/{posicio}")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/document/{id}/moure/{posicio}")
 	@ResponseBody
 	public boolean documentMourePosicio(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -537,11 +537,11 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	}
 
 	/** Mètode per obtenir les possibles documents per al select a l'edició d'un registre via ajax. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/select", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/document/select", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> documentsSelect(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -557,16 +557,16 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	}
 
 	private void omplirModelDocuments(
-			String jbpmKey,
+			String bpmKey,
 			Long definicioProcesId,
 			Long tascaId,
 			Model model) {
 
-		model.addAttribute("jbpmKey", jbpmKey);
+		model.addAttribute("bpmKey", bpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(null, tascaId));
 
-		this.omplirModelComu(jbpmKey, definicioProcesId, tascaId, model);
+		this.omplirModelComu(bpmKey, definicioProcesId, tascaId, model);
 
 		// Obté el llistat de documents
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
@@ -602,10 +602,10 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	// Manteniment de firmes de la tasca
 
 	/** Modal per veure les firmes de la tasca de tipus filtre. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/firma", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{id}/firma", method = RequestMethod.GET)
 	public String firmes(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
@@ -614,16 +614,16 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		command.setTascaId(id);
 		model.addAttribute("definicioProcesTascaFirmaCommand", command);
 
-		omplirModelFirmes(jbpmKey, definicioProcesId, id, model);
+		omplirModelFirmes(bpmKey, definicioProcesId, id, model);
 
 		return "definicioProcesTascaFirma";
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse firmesDatatable(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -639,10 +639,10 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 				"id");
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/firma/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{id}/firma/new", method = RequestMethod.POST)
 	public String firmaNouPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@Validated(DefinicioProcesTascaFirmaCommand.Creacio.class) DefinicioProcesTascaFirmaCommand command,
@@ -650,7 +650,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 			Model model) {
         if (bindingResult.hasErrors()) {
 
-    		omplirModelFirmes(jbpmKey, definicioProcesId, id, model);
+    		omplirModelFirmes(bpmKey, definicioProcesId, id, model);
 
     		return "definicioProcesTascaFirma";
         } else {
@@ -663,15 +663,15 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 					getMessage(
 							request,
 							"definicio.proces.tasca.controller.firma.creat"));
-        	return firmes(request, jbpmKey, definicioProcesId, id, model);
+        	return firmes(request, bpmKey, definicioProcesId, id, model);
         }
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/{firmaTascaId}/{propietat}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/{firmaTascaId}/{propietat}", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean firmaUpdatePropietat(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long firmaTascaId,
@@ -686,11 +686,11 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		return true;
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean firmaDelete(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -715,11 +715,11 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/{id}/moure/{posicio}")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/{id}/moure/{posicio}")
 	@ResponseBody
 	public boolean firmaMourePosicio(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			@PathVariable Long id,
@@ -735,11 +735,11 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	}
 
 	/** Mètode per obtenir els possibles firmes per al select a l'edició d'un registre via ajax. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/select", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/select", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> firmesSelect(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long tascaId,
 			Model model) {
@@ -758,16 +758,16 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	}
 
 	private void omplirModelFirmes(
-			String jbpmKey,
+			String bpmKey,
 			Long definicioProcesId,
 			Long tascaId,
 			Model model) {
 
-		model.addAttribute("jbpmKey", jbpmKey);
+		model.addAttribute("bpmKey", bpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 		model.addAttribute("tasca", definicioProcesService.tascaFindAmbId(null, tascaId));
 
-		this.omplirModelComu(jbpmKey, definicioProcesId, tascaId, model);
+		this.omplirModelComu(bpmKey, definicioProcesId, tascaId, model);
 
 		// Obté el llistat de documents
 		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);

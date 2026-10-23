@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -17,16 +17,15 @@ import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 /**
  * Objecte de domini que representa una camp d'una consulta d'expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
 @Table(name="hel_consulta_camp",
-		uniqueConstraints={@UniqueConstraint(columnNames={"consulta_id", "camp_codi", "defproc_jbpmkey", "defproc_versio", "tipus"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"consulta_id", "camp_codi", "defproc_bpmkey", "defproc_versio", "tipus"})})
 public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 
 	public enum TipusConsultaCamp {
@@ -45,7 +44,7 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 	private Long id;
 	private String campCodi;
 	private String campDescripcio;
-	private String defprocJbpmKey;
+	private String defprocBpmKey;
 	private int defprocVersio = -1;
 	private TipusConsultaCamp tipus;
 	private TipusParamConsultaCamp paramTipus;
@@ -87,12 +86,12 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 		this.campDescripcio = campDescripcio;
 	}
 
-	@Column(name="defproc_jbpmkey", length=255)
-	public String getDefprocJbpmKey() {
-		return defprocJbpmKey;
+	@Column(name="defproc_bpmkey", length=255)
+	public String getDefprocBpmKey() {
+		return defprocBpmKey;
 	}
-	public void setDefprocJbpmKey(String defprocJbpmKey) {
-		this.defprocJbpmKey = defprocJbpmKey;
+	public void setDefprocBpmKey(String defprocBpmKey) {
+		this.defprocBpmKey = defprocBpmKey;
 	}
 
 	@Column(name="defproc_versio")
@@ -134,7 +133,7 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 	public void setAmpleCols(int ampleCols) {
 		this.ampleCols = ampleCols;
 	}
-	
+
 	@Column(name="buit_cols")
 	public int getBuitCols() {
 		return buitCols;
@@ -161,7 +160,7 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 		result = prime * result
 				+ ((consulta == null) ? 0 : consulta.hashCode());
 		result = prime * result
-				+ ((defprocJbpmKey == null) ? 0 : defprocJbpmKey.hashCode());
+				+ ((defprocBpmKey == null) ? 0 : defprocBpmKey.hashCode());
 		result = prime * result + defprocVersio;
 		result = prime * result + ((tipus == null) ? 0 : tipus.hashCode());
 		return result;
@@ -185,10 +184,10 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 				return false;
 		} else if (!consulta.equals(other.consulta))
 			return false;
-		if (defprocJbpmKey == null) {
-			if (other.defprocJbpmKey != null)
+		if (defprocBpmKey == null) {
+			if (other.defprocBpmKey != null)
 				return false;
-		} else if (!defprocJbpmKey.equals(other.defprocJbpmKey))
+		} else if (!defprocBpmKey.equals(other.defprocBpmKey))
 			return false;
 		if (defprocVersio != other.defprocVersio)
 			return false;

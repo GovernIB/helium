@@ -134,8 +134,8 @@ public class ConversioTipusHelper {
 						target.setConsultaCampText(source.getConsultaCampText());
 
 						// Dades accio
-						target.setDefprocJbpmKey(source.getDefprocJbpmKey());
-						target.setJbpmAction(source.getJbpmAction());
+						target.setDefprocBpmKey(source.getDefprocBpmKey());
+						target.setBpmAction(source.getBpmAction());
 
 						target.setDominiCacheText(source.isDominiCacheText());
 
@@ -246,7 +246,7 @@ public class ConversioTipusHelper {
 								target.getConsultes().add(consulte);
 							}
 						}
-						target.setJbpmProcessDefinitionKey(source.getJbpmProcessDefinitionKey());
+						target.setBpmProcessDefinitionKey(source.getBpmProcessDefinitionKey());
 						target.setNom(source.getNom());
 						target.setReiniciarCadaAny(source.isReiniciarCadaAny());
 						target.setResponsableDefecteCodi(source.getResponsableDefecteCodi());
@@ -340,7 +340,7 @@ public class ConversioTipusHelper {
 						target.setEstats(convertirList(source.getEstats(), Estat.class));
 						target.setExpressioNumero(source.getExpressioNumero());
 						target.setId(source.getId());
-						target.setJbpmProcessDefinitionKey(source.getJbpmProcessDefinitionKey());
+						target.setBpmProcessDefinitionKey(source.getBpmProcessDefinitionKey());
 						target.setNom(source.getNom());
 						target.setReiniciarCadaAny(source.isReiniciarCadaAny());
 						target.setResponsableDefecteCodi(source.getResponsableDefecteCodi());
@@ -442,7 +442,7 @@ public class ConversioTipusHelper {
 						target.setCampDescripcio(source.getCampDescripcio());
 						if (source.getParamTipus() != null)
 							target.setParamTipus(ConsultaCampDto.TipusParamConsultaCamp.valueOf(source.getParamTipus().toString()));
-						target.setDefprocJbpmKey(source.getDefprocJbpmKey());
+						target.setDefprocBpmKey(source.getDefprocBpmKey());
 						target.setDefprocVersio(source.getDefprocVersio());
 						target.setOrdre(source.getOrdre());
 						target.setAmpleCols(source.getAmpleCols());
@@ -528,7 +528,7 @@ public class ConversioTipusHelper {
 
 					target.setId(source.getTaskId());
 					target.setTitol(source.getName());
-					target.setJbpmName(source.getTaskCode());
+					target.setBpmName(source.getTaskCode());
 					target.setExpedientId(source.getExpedient().getId());
 					target.setExpedientIdentificador(source.getExpedient().getNumeroDefault());
 					target.setExpedientNumero(source.getExpedient().getNumero());

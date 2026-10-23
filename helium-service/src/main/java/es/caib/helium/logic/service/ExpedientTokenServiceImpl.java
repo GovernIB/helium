@@ -46,7 +46,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 	private RegistreRepository registreRepository;
 
 	@Resource
-	private WorkflowEngineApi jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -65,7 +65,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 		logger.debug("Consultant tokens d'una instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ")");
-		List<WToken> jbpmTokens = new ArrayList<WToken>();
+		List<WToken> bpmTokens = new ArrayList<WToken>();
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
@@ -73,12 +73,12 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if (expedient != null){
-			Map<String, WToken> tokens = jbpmHelper.getAllTokens(processInstanceId);
+			Map<String, WToken> tokens = workflowEngineApi.getAllTokens(processInstanceId);
 			for (String tokenName: tokens.keySet()) {
-				jbpmTokens.add(tokens.get(tokenName));
+				bpmTokens.add(tokens.get(tokenName));
 			}
 			Collections.sort(
-					jbpmTokens,
+					bpmTokens,
 					new Comparator<WToken>() {
 						@Override
 					    public int compare(WToken o1, WToken o2) {
@@ -86,7 +86,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 					    }
 					});
 		}
-		return conversioTipusHelper.convertirList(jbpmTokens, TokenDto.class);
+		return conversioTipusHelper.convertirList(bpmTokens, TokenDto.class);
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if( expedient!= null)
-			return jbpmHelper.tokenActivar(tokenId, activar);
+			return workflowEngineApi.tokenActivar(tokenId, activar);
 		else
 			return false;
 	}
@@ -136,7 +136,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if( expedient!= null)
-			return jbpmHelper.findArrivingNodeNames(tokenId);
+			return workflowEngineApi.findArrivingNodeNames(tokenId);
 		else
 			return null;
 	}
@@ -162,7 +162,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if( expedient != null)
-			return conversioTipusHelper.convertir(jbpmHelper.getTokenById(tokenId), TokenDto.class);
+			return conversioTipusHelper.convertir(workflowEngineApi.getTokenById(tokenId), TokenDto.class);
 		else
 			return null;
 	}
@@ -191,12 +191,12 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 		if( expedient != null){
-			WToken token = jbpmHelper.getTokenById(tokenId);
+			WToken token = workflowEngineApi.getTokenById(tokenId);
 			if (token == null)
 				throw new NoTrobatException(WToken.class, tokenId);
 
 			String nodeNameVell = token.getNodeName();
-			jbpmHelper.tokenRedirect(new Long(tokenId).longValue(), nodeName, cancelTasks, true, false);
+			workflowEngineApi.tokenRedirect(new Long(tokenId).longValue(), nodeName, cancelTasks, true, false);
 
 			crearRegistreRetrocedirToken(
 					expedientId,

@@ -62,18 +62,18 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 		if (camp.getTipus() != null) {
 				if (camp.getTipus().equals(CampTipusDto.ACCIO)) {
 					if (! perEstats) {
-						if (camp.getDefinicioProcesId() == null &&  (camp.getDefprocJbpmKey() == null || "".equals(camp.getDefprocJbpmKey().trim()))) {
+						if (camp.getDefinicioProcesId() == null &&  (camp.getDefprocBpmKey() == null || "".equals(camp.getDefprocBpmKey().trim()))) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage("NotEmpty", null))
-									.addNode("defprocJbpmKey")
+									.addNode("defprocBpmKey")
 									.addConstraintViolation();
 							valid = false;
 						}
 					}
-					if(camp.getJbpmAction() == null || "".equals(camp.getJbpmAction().trim())) {
+					if(camp.getBpmAction() == null || "".equals(camp.getBpmAction().trim())) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage("NotEmpty", null))
-								.addNode("jbpmAction")
+								.addNode("bpmAction")
 								.addConstraintViolation();
 						valid = false;
 					}

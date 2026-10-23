@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.command;
 
@@ -12,13 +12,13 @@ import es.caib.helium.back.validator.Agrupacio;
 import es.caib.helium.back.validator.Codi;
 
 /**
- * Command per editar la informació de les agrupacions de variables dels tipus d'expedient 
- * 
+ * Command per editar la informació de les agrupacions de variables dels tipus d'expedient
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Agrupacio(groups = {Creacio.class, Modificacio.class})
 public class AgrupacioCommand {
-	
+
 	private Long expedientTipusId;
 	private Long definicioProcesId;
 	private Long id;
@@ -34,7 +34,7 @@ public class AgrupacioCommand {
 	// Dades consulta
 	// Dades accio
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
-	private String jbpmAction;
+	private String bpmAction;
 
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -73,11 +73,11 @@ public class AgrupacioCommand {
 		this.descripcio = descripcio;
 	}
 
-	public String getJbpmAction() {
-		return jbpmAction;
+	public String getBpmAction() {
+		return bpmAction;
 	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
+	public void setBpmAction(String bpmAction) {
+		this.bpmAction = bpmAction;
 	}
 
 	public interface Creacio {}

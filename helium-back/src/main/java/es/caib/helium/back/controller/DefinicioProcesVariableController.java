@@ -66,29 +66,29 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	private ValidacioService validacioService;
 
 	/** Pipella del tasques. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable")
 	public String variable(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioDefinicioProcesPerPipelles(request, jbpmKey, definicioProcesId, model, "variables");
+			return mostrarInformacioDefinicioProcesPerPipelles(request, bpmKey, definicioProcesId, model, "variables");
 		}
 
 		omplirModelVariablesPestanya(request, definicioProcesId, model);
 
-		model.addAttribute("jbpmKey", jbpmKey);
+		model.addAttribute("bpmKey", bpmKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 
 		return "expedientTipusVariable";
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/datatable")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/datatable")
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
@@ -108,10 +108,10 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				"id");
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/new", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/new", method = RequestMethod.GET)
 	public String nou(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
@@ -128,10 +128,10 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				model);
 		return "expedientTipusVariableForm";
 	}
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/new", method = RequestMethod.POST)
 	public String nouPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@Validated(CampCommand.Creacio.class) CampCommand command,
 			BindingResult bindingResult,
@@ -160,10 +160,10 @@ public class DefinicioProcesVariableController extends BaseVariableController {
         }
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{id}/update", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{id}/update", method = RequestMethod.GET)
 	public String modificar(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
@@ -177,7 +177,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		command.setEnumeracioId(dto.getEnumeracio() != null? dto.getEnumeracio().getId() : null);
 		command.setDominiId(dto.getDomini() != null? dto.getDomini().getId() : null);
 		command.setConsultaId(dto.getConsulta() != null? dto.getConsulta().getId() : null);
-		command.setJbpmAction(dto.getJbpmAction());
+		command.setBpmAction(dto.getBpmAction());
 
 		model.addAttribute("campCommand", command);
 		this.omplirModelVariableForm(
@@ -188,10 +188,10 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				model);
 		return "expedientTipusVariableForm";
 	}
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{id}/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@Validated(CampCommand.Modificacio.class) CampCommand command,
@@ -228,11 +228,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{id}/moure/{posicio}")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{id}/moure/{posicio}")
 	@ResponseBody
 	public boolean mourePosicio(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@PathVariable int posicio) {
@@ -240,11 +240,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		return campService.mourePosicio(id, posicio);
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{id}/agrupar/{agrupacioId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{id}/agrupar/{agrupacioId}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean agrupar(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@PathVariable Long agrupacioId,
@@ -253,11 +253,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		return campService.afegirAgrupacio(id, agrupacioId);
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{id}/desagrupar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{id}/desagrupar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean desagrupar(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
@@ -265,11 +265,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		return campService.remoureAgrupacio(id);
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public String delete(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
@@ -301,15 +301,15 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 
 	// Mètodes pel manteniment de validacions de variables
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/validacio", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/validacio", method = RequestMethod.GET)
 	public String validacions(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			Model model) {
 
-		omplirModelValidacionsForm(jbpmKey, definicioProcesId, campId, model);
+		omplirModelValidacionsForm(bpmKey, definicioProcesId, campId, model);
 
 		ValidacioCommand command = new ValidacioCommand();
 		command.setDefinicioProcesId(definicioProcesId);
@@ -319,11 +319,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		return "expedientTipusValidacio";
 	}
 
-	@RequestMapping(value="/{jbpmKey}/{definicioProcesId}/variable/{campId}/validacio/datatable", method = RequestMethod.GET)
+	@RequestMapping(value="/{bpmKey}/{definicioProcesId}/variable/{campId}/validacio/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse validacioDatatable(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			Model model) {
@@ -338,10 +338,10 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				"id");
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/validacio/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/validacio/new", method = RequestMethod.POST)
 	public String validacioNovaPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@Validated(ValidacioCommand.Creacio.class) ValidacioCommand command,
@@ -349,7 +349,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			Model model) {
 		model.addAttribute("camp", campService.findAmbId(null, campId));
         if (bindingResult.hasErrors()) {
-    		omplirModelValidacionsForm(jbpmKey, definicioProcesId, campId, model);
+    		omplirModelValidacionsForm(bpmKey, definicioProcesId, campId, model);
         	model.addAttribute("mostraCreate", true);
         	return "expedientTipusValidacio";
         } else {
@@ -364,14 +364,14 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 					getMessage(
 							request,
 							"expedient.tipus.campValidacio.controller.creat"));
-        	return validacions(request, jbpmKey, definicioProcesId, campId, model);
+        	return validacions(request, bpmKey, definicioProcesId, campId, model);
         }
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/validacio/{id}/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/validacio/{id}/update", method = RequestMethod.POST)
 	public String validacioModificarPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@PathVariable Long id,
@@ -380,7 +380,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			Model model) {
 		model.addAttribute("camp", campService.findAmbId(null, campId));
         if (bindingResult.hasErrors()) {
-    		omplirModelValidacionsForm(jbpmKey, definicioProcesId, campId, model);
+    		omplirModelValidacionsForm(bpmKey, definicioProcesId, campId, model);
         	model.addAttribute("mostraUpdate", true);
         	return "expedientTipusValidacio";
         } else {
@@ -393,15 +393,15 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 					getMessage(
 							request,
 							"expedient.tipus.campValidacio.controller.modificat"));
-			return validacions(request, jbpmKey, definicioProcesId, campId, model);
+			return validacions(request, bpmKey, definicioProcesId, campId, model);
         }
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/validacio/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/validacio/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean validacioDelete(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@PathVariable Long id,
@@ -437,11 +437,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/validacio/{id}/moure/{posicio}")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/validacio/{id}/moure/{posicio}")
 	@ResponseBody
 	public boolean validacioMourePosicio(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@PathVariable Long id,
@@ -490,28 +490,28 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			model.addAttribute("consultes", definicioProcesService.consultaFindByEntorn(entornId));
 		}
 		// Accions
-		model.addAttribute("accions", this.getAccionsFlux(definicioProcesId, command.getJbpmAction()));
+		model.addAttribute("accions", this.getAccionsFlux(definicioProcesId, command.getBpmAction()));
 	}
 
 	/** Consulta la llista d'accions per la definició per id de la definició de procés.
 	 *
 	 * @param definicioProcesId
-	 * @param jbpmAction
+	 * @param bpmAction
 	 * @return
 	 */
-	private List<ParellaCodiValorDto> getAccionsFlux(long definicioProcesId, String jbpmAction) {
+	private List<ParellaCodiValorDto> getAccionsFlux(long definicioProcesId, String bpmAction) {
 
 		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
-		List<String> accions = dissenyService.findAccionsJbpmOrdenades(definicioProcesId);
+		List<String> accions = dissenyService.findAccionsBpmOrdenades(definicioProcesId);
 		for (String accio : accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
 		}
-		if (jbpmAction != null
-				&& !jbpmAction.isEmpty()
-				&&	!accions.contains(jbpmAction)) {
+		if (bpmAction != null
+				&& !bpmAction.isEmpty()
+				&&	!accions.contains(bpmAction)) {
 			ret.add(0, new ParellaCodiValorDto(
-					jbpmAction,
-					jbpmAction + " (no existeix a la definició de procés)"));
+					bpmAction,
+					bpmAction + " (no existeix a la definició de procés)"));
 		}
 		return ret;
 	}
@@ -522,7 +522,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getBpmKey() + "/" + definicioProces.getId().toString()));
 			// agrupacions heretades
 			model.addAttribute("agrupacionsHeretadesIds", new ArrayList<Long>());
 			model.addAttribute("agrupacionsSobreescriuenIds", new ArrayList<Long>());
@@ -531,11 +531,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	}
 
 	private void omplirModelValidacionsForm(
-			String jbpmKey,
+			String bpmKey,
 			Long definicioProcesId,
 			Long campId,
 			Model model) {
-		model.addAttribute("basicUrl", ("definicioProces" + "/" + jbpmKey + "/" + definicioProcesId.toString()));
+		model.addAttribute("basicUrl", ("definicioProces" + "/" + bpmKey + "/" + definicioProcesId.toString()));
 		model.addAttribute("definicioProcesId", definicioProcesId);
 		model.addAttribute("camp", campService.findAmbId(null, campId));
 	}
@@ -543,36 +543,36 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	// Mètodes pel manteniment d'agrupacions
 
 	/** Obre una modal amb un llistat per reordenar les agrupacions. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/agrupacio", method = RequestMethod.GET)
 	public String agrupacions(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 
 		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("baseUrl", "definicioProces/" + jbpmKey + "/" + definicioProcesId);
+		model.addAttribute("baseUrl", "definicioProces/" + bpmKey + "/" + definicioProcesId);
 
 		return "expedientTipusAgrupacio";
 	}
 
 	/** Mètode per obtenir les agrupacions per al select. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio/select", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/agrupacio/select", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> agrupacionsSelect(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 		return obtenirParellesAgrupacions(request, null, definicioProcesId, false);
 	}
 
 	/** Obre una modal amb un llistat per reordenar les agrupacions. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/agrupacio/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse agrupacioDatatable(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 
@@ -587,10 +587,10 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio/new", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/agrupacio/new", method = RequestMethod.GET)
 	public String agrupacioNova(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 		AgrupacioCommand command = new AgrupacioCommand();
@@ -599,10 +599,10 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		return "expedientTipusAgrupacioForm";
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/agrupacio/new", method = RequestMethod.POST)
 	public String agrupacioNovaPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@Validated(AgrupacioCommand.Creacio.class) AgrupacioCommand command,
 			BindingResult bindingResult, Model model) {
@@ -619,10 +619,10 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		}
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio/{id}/update", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/agrupacio/{id}/update", method = RequestMethod.GET)
 	public String agrupacioModificar(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			Model model) {
@@ -633,10 +633,10 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		return "expedientTipusAgrupacioForm";
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio/{id}/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/agrupacio/{id}/update", method = RequestMethod.POST)
 	public String agrupacioModificarPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id,
 			@Validated(AgrupacioCommand.Modificacio.class) AgrupacioCommand command,
@@ -650,11 +650,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		}
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/agrupacio/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean agrupacioDelete(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id, Model model) {
 
@@ -685,11 +685,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/agrupacio/{id}/moure/{posicio}")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/agrupacio/{id}/moure/{posicio}")
 	@ResponseBody
 	public boolean agrupacioMourePosicio(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id, @PathVariable int posicio) {
 
@@ -698,15 +698,15 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 
 	// Mètodes pel manteniment dels camps de variables de tipus registre
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/campRegistre", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/campRegistre", method = RequestMethod.GET)
 	public String campsRegistre(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			Model model) {
 
-		omplirModelCampsRegistreForm(jbpmKey, definicioProcesId, campId, model);
+		omplirModelCampsRegistreForm(bpmKey, definicioProcesId, campId, model);
 
 		ExpedientTipusCampRegistreCommand command = new ExpedientTipusCampRegistreCommand();
 		command.setDefinicioProcesId(definicioProcesId);
@@ -719,11 +719,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		return "expedientTipusCampRegistre";
 	}
 
-	@RequestMapping(value="/{jbpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/datatable", method = RequestMethod.GET)
+	@RequestMapping(value="/{bpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse campRegistreDatatable(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			Model model) {
@@ -738,17 +738,17 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				"id");
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/new", method = RequestMethod.POST)
 	public String campRegistreNouPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@Validated(ExpedientTipusCampRegistreCommand.Creacio.class) ExpedientTipusCampRegistreCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		omplirModelCampsRegistreForm(jbpmKey, definicioProcesId, campId, model);
+    		omplirModelCampsRegistreForm(bpmKey, definicioProcesId, campId, model);
     		model.addAttribute("variables", obtenirParellesCampRegistre(
     				definicioProcesId,
     				campId,
@@ -767,14 +767,14 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 					getMessage(
 							request,
 							"expedient.tipus.campRegistre.controller.creat"));
-        	return campsRegistre(request, jbpmKey, definicioProcesId, campId, model);
+        	return campsRegistre(request, bpmKey, definicioProcesId, campId, model);
         }
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/{id}/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/{id}/update", method = RequestMethod.POST)
 	public String campRegistreModificarPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@PathVariable Long id,
@@ -783,7 +783,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			Model model) {
 		model.addAttribute("camp", campService.findAmbId(null, campId));
         if (bindingResult.hasErrors()) {
-    		omplirModelCampsRegistreForm(jbpmKey, definicioProcesId, campId, model);
+    		omplirModelCampsRegistreForm(bpmKey, definicioProcesId, campId, model);
     		model.addAttribute("variables", obtenirParellesCampRegistre(
     				definicioProcesId,
     				campId,
@@ -800,15 +800,15 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 					getMessage(
 							request,
 							"expedient.tipus.campRegistre.controller.modificat"));
-        	return campsRegistre(request, jbpmKey, definicioProcesId, campId, model);
+        	return campsRegistre(request, bpmKey, definicioProcesId, campId, model);
         }
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean campRegistreDelete(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@PathVariable Long id,
@@ -844,11 +844,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/{id}/moure/{posicio}")
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/{id}/moure/{posicio}")
 	@ResponseBody
 	public boolean campRegistreMourePosicio(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@PathVariable Long id,
@@ -858,11 +858,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 	}
 
 	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
-	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/select", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/variable/{campId}/campRegistre/select", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> campRegistreSelect(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long campId,
 			@RequestParam(required=false) Long membreId,
@@ -872,11 +872,11 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 
 
 	private void omplirModelCampsRegistreForm(
-			String jbpmKey,
+			String bpmKey,
 			Long definicioProcesId,
 			Long campId,
 			Model model) {
-		model.addAttribute("basicUrl", ("definicioProces" + "/" + jbpmKey + "/" + definicioProcesId.toString()));
+		model.addAttribute("basicUrl", ("definicioProces" + "/" + bpmKey + "/" + definicioProcesId.toString()));
 		model.addAttribute("definicioProcesId", definicioProcesId);
 		model.addAttribute("camp", campService.findAmbId(null, campId));
 	}

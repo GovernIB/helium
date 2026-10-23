@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * DTO amb informació d'una definició de procés.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class DefinicioProcesDto extends HeretableDto implements Serializable {
@@ -19,17 +19,17 @@ public class DefinicioProcesDto extends HeretableDto implements Serializable {
 
 	private Long id;
 	private EntornDto entorn;
-	private String jbpmId;
-	private String jbpmKey;
-	
+	private String bpmId;
+	private String bpmKey;
+
 	private int versio = -1;
 	private String etiqueta;
 	private Date dataCreacio = new Date();
 
-	private String jbpmName;
+	private String bpmName;
 	private Long[] idsWithSameKey;
 	private String[] idsMostrarWithSameKey;
-	private String[] jbpmIdsWithSameKey;
+	private String[] bpmIdsWithSameKey;
 	private Boolean[] hasStartTaskWithSameKey;
 	private boolean lastVersion;
 	private boolean hasStartTask;
@@ -51,7 +51,7 @@ public class DefinicioProcesDto extends HeretableDto implements Serializable {
 
 
 	private ExpedientTipusDto expedientTipus;
-	
+
 	/** Comptador per mostrar el número de versions al llistat de definicions de procés. */
 	private Long versioCount;
 
@@ -67,24 +67,24 @@ public class DefinicioProcesDto extends HeretableDto implements Serializable {
 	public void setEntorn(EntornDto entorn) {
 		this.entorn = entorn;
 	}
-	public String getJbpmId() {
-		return jbpmId;
+	public String getBpmId() {
+		return bpmId;
 	}
-	public void setJbpmId(String jbpmId) {
-		this.jbpmId = jbpmId;
+	public void setBpmId(String bpmId) {
+		this.bpmId = bpmId;
 	}
-	public String getJbpmKey() {
-		return jbpmKey;
+	public String getBpmKey() {
+		return bpmKey;
 	}
-	public void setJbpmKey(String jbpmKey) {
-		this.jbpmKey = jbpmKey;
+	public void setBpmKey(String bpmKey) {
+		this.bpmKey = bpmKey;
 	}
 
-	public String getJbpmName() {
-		return jbpmName;
+	public String getBpmName() {
+		return bpmName;
 	}
-	public void setJbpmName(String jbpmName) {
-		this.jbpmName = jbpmName;
+	public void setBpmName(String bpmName) {
+		this.bpmName = bpmName;
 	}
 
 	public Long[] getIdsWithSameKey() {
@@ -101,11 +101,11 @@ public class DefinicioProcesDto extends HeretableDto implements Serializable {
 		this.idsMostrarWithSameKey = idsMostrarWithSameKey;
 	}
 
-	public String[] getJbpmIdsWithSameKey() {
-		return jbpmIdsWithSameKey;
+	public String[] getBpmIdsWithSameKey() {
+		return bpmIdsWithSameKey;
 	}
-	public void setJbpmIdsWithSameKey(String[] jbpmIdsWithSameKey) {
-		this.jbpmIdsWithSameKey = jbpmIdsWithSameKey;
+	public void setBpmIdsWithSameKey(String[] bpmIdsWithSameKey) {
+		this.bpmIdsWithSameKey = bpmIdsWithSameKey;
 	}
 
 	public Boolean[] getHasStartTaskWithSameKey() {
@@ -137,9 +137,9 @@ public class DefinicioProcesDto extends HeretableDto implements Serializable {
 	}
 
 	public int getNumIdsWithSameKey() {
-		if (jbpmIdsWithSameKey == null)
+		if (bpmIdsWithSameKey == null)
 			return 0;
-		return jbpmIdsWithSameKey.length;
+		return bpmIdsWithSameKey.length;
 	}
 
 	public ExpedientTipusDto getExpedientTipus() {
@@ -149,10 +149,10 @@ public class DefinicioProcesDto extends HeretableDto implements Serializable {
 		this.expedientTipus = expedientTipus;
 	}
 
-	public List<JbpmIdAmbDescripcio> getJbpmIdsAmbDescripcio() {
-		List<JbpmIdAmbDescripcio> resposta = new ArrayList<JbpmIdAmbDescripcio>();
+	public List<BpmIdAmbDescripcio> getBpmIdsAmbDescripcio() {
+		List<BpmIdAmbDescripcio> resposta = new ArrayList<BpmIdAmbDescripcio>();
 		for (int i = 0; i < getNumIdsWithSameKey(); i++) {
-			resposta.add(new JbpmIdAmbDescripcio(
+			resposta.add(new BpmIdAmbDescripcio(
 					getIdsWithSameKey()[i],
 					getIdsMostrarWithSameKey()[i]));
 		}
@@ -170,24 +170,24 @@ public class DefinicioProcesDto extends HeretableDto implements Serializable {
 
 	public String getIdPerMostrar() {
 		if (etiqueta != null) {
-			return etiqueta + " (" + jbpmKey + " v." + versio + ")";
+			return etiqueta + " (" + bpmKey + " v." + versio + ")";
 		} else {
-			return jbpmKey + " v." + versio;
+			return bpmKey + " v." + versio;
 		}
 	}
 
-	public class JbpmIdAmbDescripcio {
-		private Long jbpmId;
+	public class BpmIdAmbDescripcio {
+		private Long bpmId;
 		private String descripcio;
-		public JbpmIdAmbDescripcio(Long jbpmId, String descripcio)  {
-			this.jbpmId = jbpmId;
+		public BpmIdAmbDescripcio(Long bpmId, String descripcio)  {
+			this.bpmId = bpmId;
 			this.descripcio = descripcio;
 		}
-		public Long getJbpmId() {
-			return jbpmId;
+		public Long getBpmId() {
+			return bpmId;
 		}
-		public void setJbpmId(Long jbpmId) {
-			this.jbpmId = jbpmId;
+		public void setBpmId(Long bpmId) {
+			this.bpmId = bpmId;
 		}
 		public String getDescripcio() {
 			return descripcio;

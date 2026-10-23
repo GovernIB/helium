@@ -101,7 +101,7 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 			}
 			// Tasques
 			for (TascaDto tasca : definicioProcesService.tascaFindAll(command.getId())) {
-				if (command.getTasques().contains(tasca.getJbpmName())) {
+				if (command.getTasques().contains(tasca.getBpmName())) {
 					// variables de la tasca
 					for (CampTascaDto campTasca : tasca.getCamps())
 						if (campTasca.getCamp().getExpedientTipus() == null
@@ -109,7 +109,7 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
 											this.codiMissatge + ".tasca.variable",
-											new Object[] {	tasca.getJbpmName(),
+											new Object[] {	tasca.getBpmName(),
 													campTasca.getCamp().getCodi()}))
 							.addNode("tasques")
 							.addConstraintViolation();
@@ -122,7 +122,7 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
 											this.codiMissatge + ".tasca.document",
-											new Object[] {	tasca.getJbpmName(),
+											new Object[] {	tasca.getBpmName(),
 													documentTasca.getDocument().getCodi()}))
 							.addNode("tasques")
 							.addConstraintViolation();
@@ -135,7 +135,7 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
 											this.codiMissatge + ".tasca.firma",
-											new Object[] {	tasca.getJbpmName(),
+											new Object[] {	tasca.getBpmName(),
 													firma.getDocument().getCodi()}))
 							.addNode("tasques")
 							.addConstraintViolation();

@@ -44,7 +44,7 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 		mappableAttributes.clear();
 		if (defaultMappableAttributes != null)
 			mappableAttributes.addAll(defaultMappableAttributes);
-		String source = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_JBPM_IDENTITY_SOURCE);
+		String source = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BPM_IDENTITY_SOURCE);
 		if (source.equalsIgnoreCase("helium")) {
 //			for (Permis permis: permisService.findAll()) {
 //				String codi = permis.getCodi();
@@ -52,7 +52,7 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 //					mappableAttributes.add(codi);
 //			}
 		} else {
-//			for (AreaJbpmId group: organitzacioService.findDistinctJbpmGroups()) {
+//			for (AreaBpmId group: organitzacioService.findDistinctBpmGroups()) {
 //				if (group != null && !mappableAttributes.contains(group.getCodi()))
 //					mappableAttributes.add(group.getCodi());
 //			}

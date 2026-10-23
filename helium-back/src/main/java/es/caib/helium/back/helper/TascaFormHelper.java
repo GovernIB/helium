@@ -6,7 +6,6 @@ package es.caib.helium.back.helper;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -206,7 +205,7 @@ public abstract class TascaFormHelper {
 		tascaDto.setText(expedientDadaDto.getText());
 		tascaDto.setError(expedientDadaDto.getError());
 		tascaDto.setObservacions(expedientDadaDto.getObservacions());
-		tascaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
+		tascaDto.setBpmAction(expedientDadaDto.getBpmAction());
 		tascaDto.setTerminiNomesDies(expedientDadaDto.isTerminiNomesDies());
 		tascaDto.setValidacions(expedientDadaDto.getValidacions());
 		if (expedientDadaDto.getMultipleDades() != null) {

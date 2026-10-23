@@ -418,7 +418,7 @@
 										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/entorn"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
-									<c:if test="${propJbpmIdentitySource == 'jbpm'}">
+									<c:if test="${propBpmIdentitySource == 'bpm'}">
 										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/carrec"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
 										<c:if test="${dadesPersona.admin}"><li><a href="<c:url value="/area"/>"><spring:message code='comuns.arees' /></a></li></c:if>
 									</c:if>

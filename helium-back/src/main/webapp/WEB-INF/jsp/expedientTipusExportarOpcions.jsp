@@ -11,7 +11,7 @@
 	<input type="hidden" name="expedientTipusPare"
 		value="${command.expedientTipusPare}" />
 	<input type="hidden" name="ntiActiu" value="${command.ntiActiu}" />
-		
+
 
 	<c:set var="estatsErrors">
 		<form:errors path="estats" />
@@ -216,23 +216,23 @@
 						varStatus="procesosStatus">
 						<tr class="row_checkbox">
 							<td><input type="checkbox" class="check"
-								id="definicions_${definicio.jbpmKey }" name="definicionsProces"
-								value="${definicio.jbpmKey}"
-								<c:if test="${inici or fn:contains(command.definicionsProces, definicio.jbpmKey)}">checked="checked"</c:if> />
+								id="definicions_${definicio.bpmKey }" name="definicionsProces"
+								value="${definicio.bpmKey}"
+								<c:if test="${inici or fn:contains(command.definicionsProces, definicio.bpmKey)}">checked="checked"</c:if> />
 							</td>
-							<td>${definicio.jbpmKey}</td>
+							<td>${definicio.bpmKey}</td>
 							<td><c:if test="${definicionsVersions != null}">
 									<select class="form-control"
-										name="definicionsVersions['${definicio.jbpmKey}']"
-										<c:if test="${not inici and not fn:contains(command.definicionsProces, definicio.jbpmKey)}">disabled="disabled"</c:if>>
-										<option value="${darreresVersions[definicio.jbpmKey]}">
+										name="definicionsVersions['${definicio.bpmKey}']"
+										<c:if test="${not inici and not fn:contains(command.definicionsProces, definicio.bpmKey)}">disabled="disabled"</c:if>>
+										<option value="${darreresVersions[definicio.bpmKey]}">
 											<spring:message
 												code="expedient.tipus.definicioProces.incorporar.versio.placeholder" />
 										</option>
 										<c:forEach var="versio"
-											items="${definicionsVersions[definicio.jbpmKey]}">
+											items="${definicionsVersions[definicio.bpmKey]}">
 											<option
-												<c:if test="${command.definicionsVersions[definicio.jbpmKey] == versio}">selected</c:if>
+												<c:if test="${command.definicionsVersions[definicio.bpmKey] == versio}">selected</c:if>
 												value="${versio}">${versio}</option>
 										</c:forEach>
 									</select>
@@ -541,7 +541,7 @@
 		</div>
 	</div>
 
-	<!-- Herència de tipus d'expedients -->
+	<!-- Herï¿½ncia de tipus d'expedients -->
 	<c:if test="${not empty command.expedientTipusPare}">
 		<div id="tasques" class="agrupacio">
 			<div class="panel-heading clicable" data-toggle="collapse"

@@ -5,20 +5,20 @@ import java.io.Serializable;
 /**
  * Objecte de domini que representa un document de la definició
  * de procés
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class AccioDto extends HeretableDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private Long id;
 	private String codi;
 	private String nom;
 	private String descripcio;
 	private AccioTipusEnumDto tipus;
-	private String defprocJbpmKey;
-	private String jbpmAction;
+	private String defprocBpmKey;
+	private String bpmAction;
 	private String handlerClasse;
 	private String handlerDades;
 	private String script;
@@ -74,20 +74,20 @@ public class AccioDto extends HeretableDto implements Serializable {
 		this.oculta = oculta;
 	}
 
-	public String getJbpmAction() {
-		return jbpmAction;
+	public String getBpmAction() {
+		return bpmAction;
 	}
 
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
+	public void setBpmAction(String bpmAction) {
+		this.bpmAction = bpmAction;
 	}
 
-	public String getDefprocJbpmKey() {
-		return defprocJbpmKey;
+	public String getDefprocBpmKey() {
+		return defprocBpmKey;
 	}
 
-	public void setDefprocJbpmKey(String defprocJbpmKey) {
-		this.defprocJbpmKey = defprocJbpmKey;
+	public void setDefprocBpmKey(String defprocBpmKey) {
+		this.defprocBpmKey = defprocBpmKey;
 	}
 
 	public String getDescripcio() {
@@ -112,7 +112,7 @@ public class AccioDto extends HeretableDto implements Serializable {
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
 	}
-	
+
 	public String getHandlerDades() {
 		return handlerDades;
 	}
@@ -128,12 +128,12 @@ public class AccioDto extends HeretableDto implements Serializable {
 	public void setScript(String script) {
 		this.script = script;
 	}
-	
+
 	public String getHandler() {
 		String handler;
 		switch(this.tipus) {
 		case ACCIO:
-			handler = this.jbpmAction;
+			handler = this.bpmAction;
 			break;
 		case HANDLER_PROPI:
 		case HANDLER_PREDEFINIT:
@@ -142,7 +142,7 @@ public class AccioDto extends HeretableDto implements Serializable {
 		case SCRIPT:
 		default:
 			handler = "";
-			break;		
+			break;
 		}
 		return handler;
 	}

@@ -51,11 +51,11 @@
 			<hel:inputSelect required="true" name="tipus" textKey="expedient.tipus.accio.form.accio.tipus" placeholderKey="expedient.tipus.accio.form.accio.tipus" optionItems="${tipus}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 
 			<div id="rowDefProc">
-				<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
+				<hel:inputSelect required="true" name="defprocBpmKey" textKey="expedient.tipus.accio.form.accio.defprocBpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocBpmKey.placeholder" optionItems="${definicionsProces}" />
 			</div>
 			<div id="rowAccio">
 				<c:if test="${not empty expedientTipusAccioCommand.expedientTipusId}">
-					<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.jbpmAction" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+					<hel:inputSelect required="true" name="bpmAction" textKey="expedient.tipus.accio.form.accio.bpmAction" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.bpmAction" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</c:if>
 			</div>
 			<div id="rowHandlerPropi">
@@ -150,7 +150,7 @@
 			}).change();
 
 			// Canvi en la selecció de la definicion
-			$('#defprocJbpmKey').change(function() {
+			$('#defprocBpmKey').change(function() {
 				refrescaAccions();
 				refrescaHandlersPropis();
 			});
@@ -165,7 +165,7 @@
 			$("#rowDefProc").hide();
 			//</c:if>
 
-			$('#jbpmAction').val('${expedientTipusAccioCommand.jbpmAction}');
+			$('#bpmAction').val('${expedientTipusAccioCommand.bpmAction}');
 
 			$('#handlerPropi').change(function() {
 				carregarParametresHandler();
@@ -176,36 +176,36 @@
 
 
 		function refrescaAccions() {
-			var definicioProcesId = $("#defprocJbpmKey").val();
-			var jbpmActionActual = $('#jbpmAction').val();
+			var definicioProcesId = $("#defprocBpmKey").val();
+			var bpmActionActual = $('#bpmAction').val();
 			if (definicioProcesId != "") {
 				var getUrl = '<c:url value="/expedientTipus/${expedientTipusAccioCommand.expedientTipusId}/definicio/"/>' + definicioProcesId + '/accions/select';
 				$.ajax({
 					type: 'GET',
 					url: getUrl,
-					data: {jbpmActionActual: jbpmActionActual},
+					data: {bpmActionActual: bpmActionActual},
 					async: true,
 					success: function(data) {
-						$("#jbpmAction option").each(function(){
+						$("#bpmAction option").each(function(){
 						    $(this).remove();
 						});
-						$("#jbpmAction").append($("<option/>"));
+						$("#bpmAction").append($("<option/>"));
 						for (i = 0; i < data.length; i++) {
-							$("#jbpmAction").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
+							$("#bpmAction").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
 						}
-						$("#jbpmAction").val(definicioProcesId).change();
+						$("#bpmAction").val(definicioProcesId).change();
 					},
 					error: function(e) {
 						console.log("Error obtenint les accions de les definicions de procés per l' id " + definicioProcesId + ": " + e);
 					}
 				});
 			} else {
-				$('#jbpmAction').val('').change();
+				$('#bpmAction').val('').change();
 			}
 		}
 
 		function refrescaHandlersPropis() {
-			var definicioProcesId = $("#defprocJbpmKey").val();
+			var definicioProcesId = $("#defprocBpmKey").val();
 			var handlerPropiActual = $('#handlerPropi').val();
 			if (definicioProcesId != "") {
 				var getUrl = '<c:url value="/expedientTipus/${expedientTipusAccioCommand.expedientTipusId}/definicio/"/>' + definicioProcesId + '/handlersPropis/select';

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.exportacio;
 
@@ -10,13 +10,13 @@ import es.caib.helium.commons.dto.ConsultaCampDto.TipusParamConsultaCamp;
 
 /**
  * DTO amb informació d'un camp d'una consulta per exportar
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ConsultaCampExportacio implements Serializable {
 
 	private String campCodi;
-	private String jbpmKey;
+	private String bpmKey;
 	private TipusConsultaCamp tipusConsultaCamp;
 	private TipusParamConsultaCamp tipusParamConsultaCamp;
 	private String campDescripcio;
@@ -26,15 +26,15 @@ public class ConsultaCampExportacio implements Serializable {
 
 	public ConsultaCampExportacio(
 			String campCodi,
-			String jbpmKey,
+			String bpmKey,
 			TipusConsultaCamp tipusConsultaCamp,
 			TipusParamConsultaCamp tipusParamConsultaCamp,
 			String campDescripcio,
-			int ordre, 
+			int ordre,
 			int ampleCols,
 			int buitCols) {
 		this.campCodi = campCodi;
-		this.jbpmKey = jbpmKey;
+		this.bpmKey = bpmKey;
 		this.tipusConsultaCamp = tipusConsultaCamp;
 		this.tipusParamConsultaCamp = tipusParamConsultaCamp;
 		this.campDescripcio = campDescripcio;
@@ -49,11 +49,11 @@ public class ConsultaCampExportacio implements Serializable {
 	public void setCampCodi(String codi) {
 		this.campCodi = codi;
 	}
-	public String getJbpmKey() {
-		return jbpmKey;
+	public String getBpmKey() {
+		return bpmKey;
 	}
-	public void setJbpmKey(String jbpmKey) {
-		this.jbpmKey = jbpmKey;
+	public void setBpmKey(String bpmKey) {
+		this.bpmKey = bpmKey;
 	}
 	public TipusConsultaCamp getTipusConsultaCamp() {
 		return tipusConsultaCamp;
@@ -72,7 +72,7 @@ public class ConsultaCampExportacio implements Serializable {
 	}
 	public void setTipusParamConsultaCamp(TipusParamConsultaCamp tipusParamConsultaCamp) {
 		this.tipusParamConsultaCamp = tipusParamConsultaCamp;
-	}	
+	}
 	public String getCampDescripcio() {
 		return campDescripcio;
 	}

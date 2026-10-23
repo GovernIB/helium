@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -20,15 +20,15 @@ import es.caib.helium.persistence.entity.ExpedientTipus;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a un camp que està emmagatzemada a dins la base
  * de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 
 	Optional<Consulta> findById(Long id);
-	
+
 	List<Consulta> findByEntorn(Entorn entorn);
-	
+
 	@Query("select c from Consulta c, Expedient e where c.id = e.numero and e.id = :expedientId")
 	Consulta findByIdExpedient(@Param("expedientId") Long id);
 
@@ -37,16 +37,16 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 			+ "and expedientTipus.id = :expedientTipusId "
 			+ "order by ordre")
 	List<Consulta> findConsultesAmbEntornIExpedientTipusOrdenat(
-			@Param("entornId") Long entornId, 
+			@Param("entornId") Long entornId,
 			@Param("expedientTipusId") Long expedientTipusId);
-	
+
 	@Query(	"select c from Consulta c " +
 			"where entorn.id = :entornId " +
 			"and expedientTipus.id = :expedientTipusId " +
 			"and c.ocultarActiu = false " +
 			"order by ordre")
 	List<Consulta> findConsultesActivesAmbEntornIExpedientTipusOrdenat(
-			@Param("entornId") Long entornId, 
+			@Param("entornId") Long entornId,
 			@Param("expedientTipusId") Long expedientTipusId);
 
 	@Query("select c from " +
@@ -56,8 +56,8 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 			"order by " +
 			"    ordre")
 	List<Consulta> findAmbExpedientTipus(
-			@Param("expedientTipusId") Long expedientTipusId);	
-	
+			@Param("expedientTipusId") Long expedientTipusId);
+
 	Consulta findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 
 	@Query(	"from Consulta c " +
@@ -70,7 +70,7 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullFiltre") boolean esNullFiltre,
-			@Param("filtre") String filtre,		
+			@Param("filtre") String filtre,
 			Pageable pageable);
 
 	/** Consulta el següent valor per a ordre de les agrupacions. */
@@ -90,16 +90,16 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 			"group by c.consulta.id, c.tipus")
 	List<Object[]> countCamps( @Param("consultaIds") List<Long> consultaIds);
 
-	@Query( "select camp.consulta " + 
+	@Query( "select camp.consulta " +
 			"from ConsultaCamp camp " +
 			"where camp.consulta.entorn.id = :entornId " +
-			"      and camp.consulta.expedientTipus.id = :expedientTipusId " + 
-			"	   and camp.defprocJbpmKey = :jbpmKey " +
+			"      and camp.consulta.expedientTipus.id = :expedientTipusId " +
+			"	   and camp.defprocBpmKey = :bpmKey " +
 			"      and camp.defprocVersio = :versio")
 	List<Consulta> findRelacionadesAmbDefinicioProces(
-			@Param("entornId") Long entornId, 
-			@Param("expedientTipusId") Long expedientTipusId, 
-			@Param("jbpmKey") String jbpmKey, 
+			@Param("entornId") Long entornId,
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("bpmKey") String bpmKey,
 			@Param("versio") int versio);
-	
+
 }

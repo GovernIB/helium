@@ -370,16 +370,16 @@ public class ExpedientLlistatController extends BaseExpedientController {
 
 			List<DefinicioProcesDto> definicionsProces = expedientTipusService.definicioFindDefinicionsProcDarreraVersio(expTipus, entornActual);
 			for(DefinicioProcesDto defProc : definicionsProces) {
-				String sheetName = defProc.getJbpmKey();
+				String sheetName = defProc.getBpmKey();
 				XSSFSheet sheet = wb.createSheet(sheetName);
-				if(defProc.getJbpmKey().equals(expTipus.getJbpmProcessDefinitionKey())){
+				if(defProc.getBpmKey().equals(expTipus.getBpmProcessDefinitionKey())){
 					wb.setSheetOrder(sheetName, 0);//Primera fulla la del procés principal
 				}
 				createBook(sheetName, sheet, wb, expedientsConsultaDissenyDto, dStyle, iStyle, bdStyle, cellDateStyle);
 			}
 		}
 		else {
-			String sheetName = expTipus.getJbpmProcessDefinitionKey();
+			String sheetName = expTipus.getBpmProcessDefinitionKey();
 			XSSFSheet sheet = wb.createSheet(sheetName != null? sheetName : expTipus.getCodi());
 			createBook(sheetName, sheet, wb, expedientsConsultaDissenyDto, dStyle, iStyle, bdStyle, cellDateStyle);
 		}

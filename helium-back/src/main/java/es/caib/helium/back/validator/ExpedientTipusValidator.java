@@ -65,10 +65,10 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 					if(repetit != null && (command.getId() == null || !command.getId().equals(repetit.getId()))) {
 						entornTipusRepetit = entornService.findOne(repetit.getEntorn().getId());
 						context.buildConstraintViolationWithTemplate(
-								MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit.entorn", 
+								MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit.entorn",
 										new Object[] {entornTipusRepetit.getCodi(),entornTipusRepetit.getNom()}))
 								.addNode("codi")
-								.addConstraintViolation();			
+								.addConstraintViolation();
 					}
 				}
 				valid = false;
@@ -81,7 +81,7 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".heretable.i.heretat", null))
 						.addNode("ambInfoPropia")
-						.addConstraintViolation();	
+						.addConstraintViolation();
 				valid = false;
 			}
 		} else {
@@ -90,14 +90,14 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".heretable.sense.info.propia", null))
 						.addNode("heretable")
-						.addConstraintViolation();	
+						.addConstraintViolation();
 				valid = false;
 			}
 			if (command.getExpedientTipusPareId() != null) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".heretat.sense.info.propia", null))
 						.addNode("expedientTipusPareId")
-						.addConstraintViolation();	
+						.addConstraintViolation();
 				valid = false;
 			}
 		}
@@ -107,10 +107,10 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 			if (heretats.size() > 0) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(
-								this.codiMissatge + ".no.heretable.amb.heretats", 
+								this.codiMissatge + ".no.heretable.amb.heretats",
 								new Object[] {heretats.size()}))
 						.addNode("heretable")
-						.addConstraintViolation();	
+						.addConstraintViolation();
 				valid = false;
 			}
 		}
@@ -130,18 +130,18 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 				for (TascaDto t : definicioProcesService.tascaFindAll(dp.getId())) {
 					// Revisa les variables
 					for (CampTascaDto tc : definicioProcesService.tascaCampFindAll(command.getId(), t.getId())){
-						if (tc.getCamp().getExpedientTipus() != null 
+						if (tc.getCamp().getExpedientTipus() != null
 								&& !tc.getCamp().getExpedientTipus().getId().equals(dto.getId()))
 							variablesHeretades++;
 					}
 					// Revisa els documents
 					for (DocumentTascaDto td : definicioProcesService.tascaDocumentFindAll(command.getId(), t.getId()))
-						if (td.getDocument().getExpedientTipus() != null 
+						if (td.getDocument().getExpedientTipus() != null
 							&& !td.getDocument().getExpedientTipus().getId().equals(dto.getId()))
 							documentsHeretats++;
 					// Revisa les firmes
 					for (FirmaTascaDto tf : definicioProcesService.tascaFirmaFindAll(command.getId(), t.getId()))
-						if (tf.getDocument().getExpedientTipus() != null 
+						if (tf.getDocument().getExpedientTipus() != null
 							&& !tf.getDocument().getExpedientTipus().getId().equals(dto.getId()))
 							firmesHeretades++;
 					if (variablesHeretades > 0 || documentsHeretats > 0 || firmesHeretades > 0)
@@ -150,10 +150,10 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 				if (tasquesAmbProblemes > 0) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(
-									this.codiMissatge + ".heretada.definicio.tasques", 
-									new Object[] {dp.getJbpmKey(), tasquesAmbProblemes, variablesHeretades, documentsHeretats, firmesHeretades }))
+									this.codiMissatge + ".heretada.definicio.tasques",
+									new Object[] {dp.getBpmKey(), tasquesAmbProblemes, variablesHeretades, documentsHeretats, firmesHeretades }))
 							.addNode("heretable")
-							.addConstraintViolation();	
+							.addConstraintViolation();
 					valid = false;
 				}
 			}
@@ -170,7 +170,7 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(this.codiMissatge + ".seq.any.repetit", null))
 								.addNode("reiniciarCadaAny")
-								.addConstraintViolation();	
+								.addConstraintViolation();
 						valid = false;
 					} else {
 						anys.add(any);
@@ -179,7 +179,7 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(this.codiMissatge + ".seq.any", null))
 							.addNode("reiniciarCadaAny")
-							.addConstraintViolation();	
+							.addConstraintViolation();
 					valid = false;
 				}
 			}
@@ -191,7 +191,7 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(this.codiMissatge + ".seq.valor", null))
 							.addNode("reiniciarCadaAny")
-							.addConstraintViolation();	
+							.addConstraintViolation();
 					valid = false;
 				}
 			}
@@ -202,21 +202,21 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".ambInfoPropia", null))
 						.addNode("ambInfoPropia")
-						.addConstraintViolation();	
+						.addConstraintViolation();
 				valid = false;
 			}
 			if (command.isAmbRetroaccio()) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".ambRetroaccio", null))
 						.addNode("ambRetroaccio")
-						.addConstraintViolation();	
+						.addConstraintViolation();
 				valid = false;
 			}
 		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();
 
-		
+
 		return valid;
 	}
 

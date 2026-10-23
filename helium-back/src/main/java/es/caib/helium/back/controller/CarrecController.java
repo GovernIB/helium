@@ -21,7 +21,7 @@ import es.caib.helium.back.command.CarrecCommand.Modificacio;
 import es.caib.helium.back.helper.ConversioTipus;
 import es.caib.helium.back.helper.DatatablesHelper;
 import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
-import es.caib.helium.commons.dto.CarrecJbpmIdDto;
+import es.caib.helium.commons.dto.CarrecBpmIdDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.Sexe;
 import es.caib.helium.commons.dto.SexeDto;
@@ -29,31 +29,31 @@ import es.caib.helium.logic.intf.service.CarrecService;
 
 /**
  * Controlador per a la gestió de càrrecs
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 
 @Controller(value = "carrecControllerV3")
 @RequestMapping("/carrec")
 public class CarrecController extends BaseController {
-	
+
 	@Autowired
 	private CarrecService carrecService;
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
 		return "carrecPipelles";
 	}
-	
+
 	@RequestMapping(value = "/configurats", method = RequestMethod.GET)
 	public String configurats(
 			HttpServletRequest request,
 			Model model) {
 		return "carrecsConfigurats";
 	}
-	
+
 	@RequestMapping(value="configurats/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
@@ -65,7 +65,7 @@ public class CarrecController extends BaseController {
 				null,
 				carrecService.findConfigurats(paginacioParams));
 	}
-	
+
 
 	@RequestMapping(value = "/sense/configurar", method = RequestMethod.GET)
 	public String senseConfigurar(
@@ -85,7 +85,7 @@ public class CarrecController extends BaseController {
 				null,
 				carrecService.findSenseConfigurar(paginacioParams));
 	}
-	
+
 	private void prepararSexe(Model model) {
 		List<SexeDto> sexes = new ArrayList<SexeDto>();
 		SexeDto sexe = new SexeDto();
@@ -98,13 +98,13 @@ public class CarrecController extends BaseController {
 		sexes.add(sexe);
 		model.addAttribute("sexes", sexes);
 	}
- 	
+
 	@RequestMapping(value = "{codi}/{grup}/new", method = RequestMethod.GET)
-	public String newGet(HttpServletRequest request, 
+	public String newGet(HttpServletRequest request,
 			@PathVariable String codi,
 			@PathVariable String grup,
 			Model model) {
-		
+
 		prepararSexe(model);
 		CarrecCommand command = new CarrecCommand();
 		command.setCodi(codi);
@@ -112,30 +112,30 @@ public class CarrecController extends BaseController {
 		model.addAttribute("carrecCommand", command);
 		return "carrecConfigurarForm";
 	}
-	
+
 	@RequestMapping(value = "{codi}/{grup}/new", method = RequestMethod.POST)
 	public String newPost(HttpServletRequest request, @Validated(Creacio.class) CarrecCommand command,
 			BindingResult bindingResult, Model model) {
-		
+
 		if (bindingResult.hasErrors()) {
 			return "carrecConfigurarForm";
 		}
-		
-		carrecService.create(ConversioTipus.convertir(command, CarrecJbpmIdDto.class));
+
+		carrecService.create(ConversioTipus.convertir(command, CarrecBpmIdDto.class));
 		return getModalControllerReturnValueSuccess(request, "redirect:/carrec", "carrec.controller.creat");
 	}
-	
+
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.GET)
 	public String modificar(HttpServletRequest request, @PathVariable Long id, Model model) {
 
-		CarrecJbpmIdDto dto = carrecService.findAmbId(id);
+		CarrecBpmIdDto dto = carrecService.findAmbId(id);
 		CarrecCommand command = ConversioTipus.convertir(dto, CarrecCommand.class);
 		command.setPersonaSexeId(dto.getPersonaSexe().ordinal() == 0 ? 0l : 1l);
 		prepararSexe(model);
 		model.addAttribute("carrecCommand", command);
 		return "carrecConfigurarForm";
 	}
-	
+
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
@@ -145,13 +145,13 @@ public class CarrecController extends BaseController {
 			Model model) {
         if (bindingResult.hasErrors()) {
         	return "carrecConfigurarForm";
-        } 
-        
-    	carrecService.update(ConversioTipus.convertir(command, CarrecJbpmIdDto.class));
+        }
+
+    	carrecService.update(ConversioTipus.convertir(command, CarrecBpmIdDto.class));
 		return getModalControllerReturnValueSuccess(request, "redirect:/carrec", "carrec.controller.modificat");
 	}
-	
-	
+
+
 	@RequestMapping(value ="{carrecId}/delete", method = RequestMethod.GET)
 	public String delete(HttpServletRequest request,
 			@PathVariable Long carrecId,

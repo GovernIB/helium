@@ -98,8 +98,8 @@ public class ExpedientLoggerHelper {
 	private DocumentRepository documentRepository;
 
 
-	public WToken getTokenByJbpmLogId(Long jbpmLogId){
-		WProcessLog pl = workflowEngineApi.getProcessLogById(jbpmLogId);
+	public WToken getTokenByBpmLogId(Long bpmLogId){
+		WProcessLog pl = workflowEngineApi.getProcessLogById(bpmLogId);
 		if (pl == null)
 			return null;
 		return pl.getToken();
@@ -110,10 +110,10 @@ public class ExpedientLoggerHelper {
 			String processInstanceId,
 			String message) {
 		if (ambRetroaccio) {
-			long jbpmLogId = workflowEngineApi.addProcessInstanceMessageLog(
+			long bpmLogId = workflowEngineApi.addProcessInstanceMessageLog(
 					processInstanceId,
 					MESSAGE_LOGINFO_PREFIX + "::" + message);
-			return jbpmLogId;
+			return bpmLogId;
 		} else {
 			return -1;
 		}
@@ -134,18 +134,18 @@ public class ExpedientLoggerHelper {
 				processInstanceId,
 				tipus);
 		expedientLog.setProcessInstanceId(processInstanceId);
-		Long jbpmLogId = workflowEngineApi.addProcessInstanceMessageLog(
+		Long bpmLogId = workflowEngineApi.addProcessInstanceMessageLog(
 				expedientLog.getExpedient().getProcessInstanceId(),
 				getMessageLogPerTipus(tipus));
-		expedientLog.setJbpmLogId(jbpmLogId);
+		expedientLog.setBpmLogId(bpmLogId);
 		if (accioParams != null)
 			expedientLog.setAccioParams(accioParams);
-		expedientLog.setJbpmLogId(jbpmLogId);
+		expedientLog.setBpmLogId(bpmLogId);
 		expedientLoggerRepository.save(expedientLog);
 		return expedientLog;
 	}
 
-	private Collection<LogObjectDto> getAccionsJbpmPerRetrocedir(
+	private Collection<LogObjectDto> getAccionsBpmPerRetrocedir(
 			List<ExpedientLog> expedientLogs,
 			List<WProcessLog> logsSorted) {
 		/*
@@ -235,9 +235,9 @@ public class ExpedientLoggerHelper {
 				// No sé molt bé el motiu
 				// El següent if els descarta
 				if(variableInstance.getProcessInstanceId()!=null){
-					// Cerca informació si la variable jbpm correspon a un document o una camp ignorat
+					// Cerca informació si la variable bpm correspon a un document o una camp ignorat
 					String codi = variableInstance.getVariableName();
-					DefinicioProces pDef = definicioProcesRepository.findByJbpmId(String.valueOf(variableInstance.getProcessInstanceId()));
+					DefinicioProces pDef = definicioProcesRepository.findByBpmId(String.valueOf(variableInstance.getProcessInstanceId()));
 
 					Expedient expedient = expedientRepository.findByProcessInstanceId(variableInstance.getProcessInstanceId());
 					ExpedientTipus expedientTipus = expedient != null ? expedient.getTipus() : null;
@@ -412,8 +412,8 @@ public class ExpedientLoggerHelper {
 				found = true;
 				incloure = true;
 				if (/*retrocedirPerTasques  && */elog.isTargetTasca()) {
-					WToken jbpmTokenRetroces = getTokenByJbpmLogId(elog.getJbpmLogId());
-					if (jbpmTokenRetroces != null) tokenRetroces = jbpmTokenRetroces;
+					WToken bpmTokenRetroces = getTokenByBpmLogId(elog.getBpmLogId());
+					if (bpmTokenRetroces != null) tokenRetroces = bpmTokenRetroces;
 				}
 			}
 			// Obtenim els logs a retrocedir
@@ -428,8 +428,8 @@ public class ExpedientLoggerHelper {
 							 incloure = true;
 						 } else {
 							WToken tokenActual = null;
-							WToken jbpmTokenActual = getTokenByJbpmLogId(elog.getJbpmLogId());
-							if (jbpmTokenActual != null) {
+							WToken bpmTokenActual = getTokenByBpmLogId(elog.getBpmLogId());
+							if (bpmTokenActual != null) {
 
 								if ((tokenActual.isRoot() && tokenActual.getSuperRootTokenId() == null)
 										|| tokenActual.equals(tokenRetroces)) {
@@ -480,32 +480,32 @@ public class ExpedientLoggerHelper {
 		return t;
 	}
 
-	private List<WProcessLog> getLogsJbpmPerRetrocedir(List<ExpedientLog> expedientLogs) {
-		List<WProcessLog> logsJbpm = new ArrayList<WProcessLog>();
+	private List<WProcessLog> getLogsBpmPerRetrocedir(List<ExpedientLog> expedientLogs) {
+		List<WProcessLog> logsBpm = new ArrayList<WProcessLog>();
 
 		// Utilitzam un set per a evitar repetits
-		Set<WProcessLog> setlogsJbpm = new HashSet<WProcessLog>();
+		Set<WProcessLog> setlogsBpm = new HashSet<WProcessLog>();
 		for (ExpedientLog elog: expedientLogs) {
-			List<WProcessLog> logsJbpmPerAfegir = getLogsJbpmPerExpedientLog(elog);
-			if (logsJbpmPerAfegir != null)
-				setlogsJbpm.addAll(logsJbpmPerAfegir);
+			List<WProcessLog> logsBpmPerAfegir = getLogsBpmPerExpedientLog(elog);
+			if (logsBpmPerAfegir != null)
+				setlogsBpm.addAll(logsBpmPerAfegir);
 		}
 		// Passam els logs a una llista, i la ordenam
-		logsJbpm.addAll(setlogsJbpm);
+		logsBpm.addAll(setlogsBpm);
 		Collections.sort(
-				logsJbpm,
+				logsBpm,
 				new Comparator<WProcessLog>() {
 					public int compare(WProcessLog l1, WProcessLog l2) {
 						return new Long(l1.getId()).compareTo(new Long(l2.getId()));
 					}
 				});
 
-		return logsJbpm;
+		return logsBpm;
 	}
 
-	private List<WProcessLog> getJbpmLogsPerInstanciaProces(String processInstanceId, boolean asc) {
+	private List<WProcessLog> getBpmLogsPerInstanciaProces(String processInstanceId, boolean asc) {
 
-		List<WProcessLog> logsJbpm = new ArrayList<WProcessLog>();
+		List<WProcessLog> logsBpm = new ArrayList<WProcessLog>();
 
 		WProcessInstance pi = workflowEngineApi.getRootProcessInstance(processInstanceId.toString());
 		List<WProcessInstance> processos = workflowEngineApi.getProcessInstanceTree(pi.getId().toString());
@@ -514,13 +514,13 @@ public class ExpedientLoggerHelper {
 					proces.getId().toString());
 			for (WToken token: logsPerInstanciaProces.keySet()) {
 				for (WProcessLog plog: logsPerInstanciaProces.get(token))
-					logsJbpm.add(plog);
+					logsBpm.add(plog);
 			}
 		}
 
 		if (asc) {
 			Collections.sort(
-				logsJbpm,
+				logsBpm,
 				new Comparator<WProcessLog>() {
 					public int compare(WProcessLog l1, WProcessLog l2) {
 
@@ -529,7 +529,7 @@ public class ExpedientLoggerHelper {
 				});
 		} else {
 			Collections.sort(
-				logsJbpm,
+				logsBpm,
 				new Comparator<WProcessLog>() {
 					public int compare(WProcessLog l1, WProcessLog l2) {
 						return Long.valueOf(l2.getId()).compareTo(Long.valueOf(l1.getId()));
@@ -537,24 +537,24 @@ public class ExpedientLoggerHelper {
 				});
 		}
 
-		return logsJbpm;
+		return logsBpm;
 	}
 
-	private List<WProcessLog> getLogsJbpmPerExpedientLog(ExpedientLog expedientLog) {
-		List<WProcessLog> logsJbpm = new ArrayList<WProcessLog>();
-		List<WProcessLog> logsJbpmAfegir = new ArrayList<WProcessLog>();
-		if (expedientLog.getJbpmLogId() != null && expedientLog.getEstat().equals(ExpedientLogEstat.NORMAL)) {
-			// Obtenim els logs jBPM associats a la instància de procés i als seus
+	private List<WProcessLog> getLogsBpmPerExpedientLog(ExpedientLog expedientLog) {
+		List<WProcessLog> logsBpm = new ArrayList<WProcessLog>();
+		List<WProcessLog> logsBpmAfegir = new ArrayList<WProcessLog>();
+		if (expedientLog.getBpmLogId() != null && expedientLog.getEstat().equals(ExpedientLogEstat.NORMAL)) {
+			// Obtenim els logs BPM associats a la instància de procés i als seus
 			// subprocessos
-			logsJbpm = getJbpmLogsPerInstanciaProces(expedientLog.getProcessInstanceId(), true);
+			logsBpm = getBpmLogsPerInstanciaProces(expedientLog.getProcessInstanceId(), true);
 
 			int indexInici = -1;
 			int indexFi = -1;
 			int index = 0;
 			WNode join = null;
-			for (WProcessLog plog: logsJbpm) {
-				// L'índex inicial correspon al lloc a on es troba el log marcat per jbpmLogId
-				if (plog.getId() == expedientLog.getJbpmLogId().toString()) {
+			for (WProcessLog plog: logsBpm) {
+				// L'índex inicial correspon al lloc a on es troba el log marcat per bpmLogId
+				if (plog.getId() == expedientLog.getBpmLogId().toString()) {
 					indexInici = index;
 				} else if (indexInici != -1 && plog instanceof WTransitionLog) {
 					// Comprovam si hi ha hagut una transició a un join
@@ -572,17 +572,17 @@ public class ExpedientLoggerHelper {
 				index++;
 			}
 			if (indexFi == -1)
-				indexFi = logsJbpm.size();
-			logsJbpmAfegir = logsJbpm.subList(indexInici, indexFi);
+				indexFi = logsBpm.size();
+			logsBpmAfegir = logsBpm.subList(indexInici, indexFi);
 
 			// Si hi ha hagut una transició cap a un join, obtenim els logs de la continuació del join
 			if (join == null) {
-				return logsJbpmAfegir;
+				return logsBpmAfegir;
 			} else {
 				indexInici = -1;
 				indexFi = -1;
 				index = 0;
-				for (WProcessLog plog: logsJbpm) {
+				for (WProcessLog plog: logsBpm) {
 					// L'índex inicial correspon al log del node del Join
 					if (plog instanceof WNodeLog) {
 						WNodeLog nlog = (WNodeLog)plog;
@@ -600,10 +600,10 @@ public class ExpedientLoggerHelper {
 
 				if (indexInici != -1) {
 					if (indexFi == -1)
-						indexFi = logsJbpm.size();
-					logsJbpmAfegir.addAll(logsJbpm.subList(indexInici, indexFi));
+						indexFi = logsBpm.size();
+					logsBpmAfegir.addAll(logsBpm.subList(indexInici, indexFi));
 				}
-				return logsJbpmAfegir;
+				return logsBpmAfegir;
 			}
 		} else {
 			return null;
@@ -648,15 +648,15 @@ public class ExpedientLoggerHelper {
 
 	public void imprimirLogs(Long expedientId) {
 //		List<ExpedientLog> expedientLogs = expedientLoggerRepository.findAmbExpedientIdOrdenatsPerData(expedientId);
-//		List<ProcessLog> logsJbpm = getJbpmLogsPerInstanciaProces(expedientLogs);
+//		List<ProcessLog> logsBpm = getBpmLogsPerInstanciaProces(expedientLogs);
 
 //		Expedient expedient = expedientRepository.getReferenceById(expedientId);
 //		String processInstanceId = expedient.getProcessInstanceId();
 
-//		List<ProcessLog> logsJbpm = getJbpmLogsPerInstanciaProces(Long.parseLong(processInstanceId), true);
-//		printLogs(logsJbpm);
+//		List<ProcessLog> logsBpm = getBpmLogsPerInstanciaProces(Long.parseLong(processInstanceId), true);
+//		printLogs(logsBpm);
 
-//		List<JbpmProcessInstance> instanciesPoces = workflowEngineApi.getProcessInstanceTree(processInstanceId);
+//		List<BpmProcessInstance> instanciesPoces = workflowEngineApi.getProcessInstanceTree(processInstanceId);
 //		Set <ProcessLog>
 
 	}
@@ -665,7 +665,7 @@ public class ExpedientLoggerHelper {
 //		boolean debugRetroces = true;
 //
 ////		ExpedientLog expedientLog = expedientLoggerRepository.getById(expedientLogId, false);
-//		JbpmTask jtask = workflowEngineApi.getTaskById(expedientLog.getTargetId());
+//		BpmTask jtask = workflowEngineApi.getTaskById(expedientLog.getTargetId());
 //
 //		// Variables per a desar la informació per a executar el node enter al final de tot
 ////		long nodeEnterObjectId = 0;
@@ -679,14 +679,14 @@ public class ExpedientLoggerHelper {
 //		expedientLogs = filtraExpedientsLogPerRetrocedir(expedientLogs, expedientLog.getId(), retrocedirPerTasques);
 //		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "filtraExpedientsLogPerRetrocedir");
 //
-//		// Retrocedeix els canvis al jBPM relacionats amb els logs
-//		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getLogsJbpmPerRetrocedir");
-//		List<ProcessLog> logsJbpm = getLogsJbpmPerRetrocedir(expedientLogs); //, expedientLogId);
-//		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getLogsJbpmPerRetrocedir");
+//		// Retrocedeix els canvis al BPM relacionats amb els logs
+//		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getLogsBpmPerRetrocedir");
+//		List<ProcessLog> logsBpm = getLogsBpmPerRetrocedir(expedientLogs); //, expedientLogId);
+//		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getLogsBpmPerRetrocedir");
 //
 //		// Primer i últim log (rang a retrocedir)
-//		long beginLogId = logsJbpm.get(0).getId();
-//		long endLogId = logsJbpm.get(logsJbpm.size() - 1).getId();
+//		long beginLogId = logsBpm.get(0).getId();
+//		long endLogId = logsBpm.get(logsBpm.size() - 1).getId();
 //
 //		// Info log actual
 //		Token currentToken = null;
@@ -695,16 +695,16 @@ public class ExpedientLoggerHelper {
 //		boolean tascaActual = false;
 //
 //		if (debugRetroces)
-//			printLogs(logsJbpm);
+//			printLogs(logsBpm);
 //		workflowEngineApi.addProcessInstanceMessageLog(
 //				expedientLog.getExpedient().getProcessInstanceId(),
 //				getMessageLogPerTipus(retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR));
-//		if (logsJbpm != null && !logsJbpm.isEmpty()) {
-//			mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getAccionsJbpmPerRetrocedir");
-//			// Recull totes les accions executades a jBPM relacionats amb els logs
-//			Collection<LogObjectDto> LogObjectDtos = getAccionsJbpmPerRetrocedir(
+//		if (logsBpm != null && !logsBpm.isEmpty()) {
+//			mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getAccionsBpmPerRetrocedir");
+//			// Recull totes les accions executades a BPM relacionats amb els logs
+//			Collection<LogObjectDto> LogObjectDtos = getAccionsBpmPerRetrocedir(
 //					expedientLogs,
-//					logsJbpm);
+//					logsBpm);
 //			if (debugRetroces) {
 //				for (LogObjectDto logo: LogObjectDtos) {
 //					String logInfo = ">>> [RETPRN] ";
@@ -739,7 +739,7 @@ public class ExpedientLoggerHelper {
 //					logger.info(logInfo);
 //				}
 //			}
-//			mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getAccionsJbpmPerRetrocedir");
+//			mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getAccionsBpmPerRetrocedir");
 //			mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "obtenir dades per retroces");
 //
 //			// Emmagatzema els paràmetres per a retrocedir cada acció per parella [processInstanceId, action_name]
@@ -776,8 +776,8 @@ public class ExpedientLoggerHelper {
 //
 //			// comprovam si estem retrocedint únicament la tasca actual
 //			if (jtask != null) {
-//				JbpmProcessInstance pi = workflowEngineApi.getProcessInstance(String.valueOf(expedientLog.getProcessInstanceId()));
-//				currentToken = workflowEngineApi.getProcessLogById(expedientLog.getJbpmLogId()).getToken();
+//				WProcessInstance pi = workflowEngineApi.getProcessInstance(String.valueOf(expedientLog.getProcessInstanceId()));
+//				currentToken = workflowEngineApi.getProcessLogById(expedientLog.getBpmLogId()).getToken();
 //				Collection<TaskInstance> tis = pi.getProcessInstance().getTaskMgmtInstance().getUnfinishedTasks(currentToken);
 //				for (TaskInstance ti: tis) {
 //					if (ti.getId() == jtask.getTask().getId()){
@@ -810,7 +810,7 @@ public class ExpedientLoggerHelper {
 //						if (debugRetroces)
 //							logger.info(">>> [RETLOG] Desfer finalitzar procés (" + logo.getName() + ")");
 //						workflowEngineApi.revertProcessInstanceEnd(logo.getObjectId());
-//						JbpmProcessInstance jpi = workflowEngineApi.getProcessInstance(String.valueOf(logo.getProcessInstanceId()));
+//						WProcessInstance jpi = workflowEngineApi.getProcessInstance(String.valueOf(logo.getProcessInstanceId()));
 //						if (debugRetroces)
 //							logger.info(">>> [RETLOG] Desfer finalitzar token (" + jpi.getProcessInstance().getRootToken().getFullName() + ")");
 //						workflowEngineApi.revertTokenEnd(jpi.getProcessInstance().getRootToken().getId());
@@ -818,7 +818,7 @@ public class ExpedientLoggerHelper {
 //					break;
 //				case LogObjectDto.LOG_OBJECT_TOKEN:
 //					if (debugRetroces) {
-//						JbpmToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
+//						WToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
 //						logger.info(">>> [LOGTOKEN] Inici Retroces token (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 //					}
 //					if (started && !ended) {
@@ -827,7 +827,7 @@ public class ExpedientLoggerHelper {
 //						workflowEngineApi.cancelToken(logo.getObjectId());
 //
 //						if (debugRetroces) {
-//							JbpmToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
+//							WToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
 //							logger.info(">>> [LOGTOKEN] Retroces token cancelat (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 //						}
 //					} else if (!started && ended) {
@@ -836,7 +836,7 @@ public class ExpedientLoggerHelper {
 //						workflowEngineApi.revertTokenEnd(logo.getObjectId());
 //
 //						if (debugRetroces) {
-//							JbpmToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
+//							WToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
 //							logger.info(">>> [LOGTOKEN] Retroces revert token end (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 //						}
 //					}
@@ -852,12 +852,12 @@ public class ExpedientLoggerHelper {
 //						}
 //
 //						if (debugRetroces) {
-//							JbpmToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
+//							WToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
 //							logger.info(">>> [LOGTOKEN] Retroces abans token redirect (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 //						}
 //
 ////						boolean enterNode = (nodeRetrocedir == logo.getLogId());
-////						JbpmTask jtask = workflowEngineApi.getTaskById(expedientLog.getTargetId());
+////						WTask jtask = workflowEngineApi.getTaskById(expedientLog.getTargetId());
 //						Node ndesti = workflowEngineApi.getNodeByName(logo.getProcessInstanceId(), desti);
 //						boolean enterNode = retrocedirPerTasques && (jtask != null && ndesti.getId() == jtask.getTask().getTask().getTaskNode().getId()); // és la tasca a la que volem retrocedir!!
 //						boolean executeNode = (!workflowEngineApi.isProcessStateNodeJoinOrFork( //(!workflowEngineApi.isProcessStateNode(
@@ -877,7 +877,7 @@ public class ExpedientLoggerHelper {
 //								executeNode);
 //
 //						if (debugRetroces) {
-//							JbpmToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
+//							WToken jtok = workflowEngineApi.getTokenById(String.valueOf(logo.getObjectId()));
 //							logger.info(">>> [LOGTOKEN] Retroces després token redirect (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 //						}
 //					}
@@ -885,7 +885,7 @@ public class ExpedientLoggerHelper {
 //				case LogObjectDto.LOG_OBJECT_TASK:
 //					boolean tascaStarted = workflowEngineApi.hasStartBetweenLogs(beginLogId, endLogId, logo.getObjectId());
 //					if (!tascaStarted && assigned) {
-//						JbpmTask task = workflowEngineApi.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
+//						WTask task = workflowEngineApi.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
 //						String valor = (String)logo.getValorInicial();
 //						if (valor != null && !"".equals(valor)) {
 //							if (debugRetroces)
@@ -902,7 +902,7 @@ public class ExpedientLoggerHelper {
 //							}
 //						}
 //					} else if (!tascaStarted && ended) {
-//						JbpmTask task = workflowEngineApi.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
+//						WTask task = workflowEngineApi.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
 //						if (debugRetroces)
 //							logger.info(">>> [RETLOG] Copiar variables de la tasca (id=" + logo.getObjectId() + ") a la tasca (id=" + task.getId() + ")");
 //						Map<String, Object> vars = workflowEngineApi.getTaskInstanceVariables(new Long(logo.getObjectId()).toString());
@@ -1324,18 +1324,18 @@ public class ExpedientLoggerHelper {
 
 	private List<DocumentTasca> getDocumentsPerTaskInstance(WTaskInstance taskInstance) {
 		String processDefinitionId = taskInstance.getProcessDefinitionId();
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProcesBpmId(
 				taskInstance.getTaskName(),
 				processDefinitionId);
 		return tasca.getDocuments();
 	}
 
 	private WNode getForkNode(String processInstanceId, Object joinNode) {
-		List<WProcessLog> logsJbpm = getJbpmLogsPerInstanciaProces(processInstanceId, false);
-		if (logsJbpm != null && logsJbpm.size() > 0) {
+		List<WProcessLog> logsBpm = getBpmLogsPerInstanciaProces(processInstanceId, false);
+		if (logsBpm != null && logsBpm.size() > 0) {
 			boolean trobat = false;
 			WToken token = null;
-			for (WProcessLog plog: logsJbpm) {
+			for (WProcessLog plog: logsBpm) {
 				if (plog instanceof WTransitionLog
 						&& ((WTransitionLog) plog).getSourceNode().equals(joinNode)) {
 					token = plog.getToken();
@@ -1397,17 +1397,17 @@ public class ExpedientLoggerHelper {
 
 	private List<CampTasca> getCampsPerTaskInstance(WTaskInstance taskInstance) {
 		String processDefinitionId = taskInstance.getProcessDefinitionId();
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProcesBpmId(
 				taskInstance.getTaskName(),
 				processDefinitionId);
 		return tasca.getCamps();
 	}
 
-	private ExpedientLog getExpedientLogPerJbpmLogId(
+	private ExpedientLog getExpedientLogPerBpmLogId(
 			List<ExpedientLog> expedientLogs,
-			long jbpmLogId) {
+			long bpmLogId) {
 		for (ExpedientLog elog: expedientLogs) {
-			if (elog.getJbpmLogId() != null && elog.getJbpmLogId().longValue() == jbpmLogId)
+			if (elog.getBpmLogId() != null && elog.getBpmLogId().longValue() == bpmLogId)
 				return elog;
 		}
 		return null;
@@ -1443,9 +1443,9 @@ public class ExpedientLoggerHelper {
 			expedient = expedientRepository.getReferenceById(expedientId);
 		}
 
-		Long jbpmLogId = null;
+		Long bpmLogId = null;
 		if (expedient.isAmbRetroaccio()) {
-			jbpmLogId = workflowEngineApi.addTaskInstanceMessageLog(
+			bpmLogId = workflowEngineApi.addTaskInstanceMessageLog(
 					taskInstanceId,
 					getMessageLogPerTipus(tipus));
 		}
@@ -1462,7 +1462,7 @@ public class ExpedientLoggerHelper {
 				taskInstanceId,
 				tipus);
 		expedientLog.setProcessInstanceId(task.getProcessInstanceId());
-		expedientLog.setJbpmLogId(jbpmLogId);
+		expedientLog.setBpmLogId(bpmLogId);
 		if (accioParams != null)
 			expedientLog.setAccioParams(accioParams);
 		expedientLoggerRepository.save(expedientLog);
@@ -1475,9 +1475,9 @@ public class ExpedientLoggerHelper {
 			ExpedientLogAccioTipus tipus,
 			String accioParams) {
 		Expedient expedient = expedientHelper.findById(expedientId);
-		Long jbpmLogId = null;
+		Long bpmLogId = null;
 		if (expedient.isAmbRetroaccio()) {
-			jbpmLogId = workflowEngineApi.addProcessInstanceMessageLog(
+			bpmLogId = workflowEngineApi.addProcessInstanceMessageLog(
 					processInstanceId,
 					getMessageLogPerTipus(tipus));
 		}
@@ -1491,7 +1491,7 @@ public class ExpedientLoggerHelper {
 				processInstanceId,
 				tipus);
 		expedientLog.setProcessInstanceId(processInstanceId);
-		expedientLog.setJbpmLogId(jbpmLogId);
+		expedientLog.setBpmLogId(bpmLogId);
 		if (accioParams != null)
 			expedientLog.setAccioParams(accioParams);
 		expedientLoggerRepository.save(expedientLog);
@@ -1505,9 +1505,9 @@ public class ExpedientLoggerHelper {
 
 		Expedient expedient = expedientHelper.findById(expedientId);
 
-		Long jbpmLogId = null;
+		Long bpmLogId = null;
 		if (expedient.isAmbRetroaccio()) {
-			jbpmLogId = workflowEngineApi.addProcessInstanceMessageLog(
+			bpmLogId = workflowEngineApi.addProcessInstanceMessageLog(
 				expedient.getProcessInstanceId(),
 				getMessageLogPerTipus(tipus));
 		}
@@ -1521,7 +1521,7 @@ public class ExpedientLoggerHelper {
 			expedient.getProcessInstanceId(),
 			tipus);
 		expedientLog.setProcessInstanceId(expedient.getProcessInstanceId());
-		expedientLog.setJbpmLogId(jbpmLogId);
+		expedientLog.setBpmLogId(bpmLogId);
 		if (accioParams != null)
 			expedientLog.setAccioParams(accioParams);
 		expedientLoggerRepository.save(expedientLog);

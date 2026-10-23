@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -12,26 +12,26 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import es.caib.helium.persistence.entity.CarrecJbpmId;
+import es.caib.helium.persistence.entity.CarrecBpmId;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
- * informació relativa a un carrecJbpmId que està emmagatzemat a dins la base
+ * informació relativa a un carrecBpmId que està emmagatzemat a dins la base
  * de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface CarrecJbpmIdRepository extends JpaRepository<CarrecJbpmId, Long> {
-	
-	@Query(	"from CarrecJbpmId c " +
+public interface CarrecBpmIdRepository extends JpaRepository<CarrecBpmId, Long> {
+
+	@Query(	"from CarrecBpmId c " +
 			"where " +
 			"    :esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') "
 			+ "		or lower(c.nomHome) like lower('%'||:filtre||'%')"
 			+ "		or lower(c.nomDona) like lower('%'||:filtre||'%')"
 			+ " 	or lower(c.descripcio) like lower('%'||:filtre||'%') ")
-	Page<CarrecJbpmId> findConfigurats(
+	Page<CarrecBpmId> findConfigurats(
 			@Param("esNullFiltre") boolean esNullFiltre,
-			@Param("filtre") String filtre,		
+			@Param("filtre") String filtre,
 			Pageable pageable);
 
 	@Query("select " +
@@ -50,16 +50,16 @@ public interface CarrecJbpmIdRepository extends JpaRepository<CarrecJbpmId, Long
 				"            c.codi," +
 				"            c.grup " +
 				"        from " +
-				"            CarrecJbpmId c) ")
+				"            CarrecBpmId c) ")
 	List<Object[]> findSenseConfigurar(
 			@Param("esNullFiltre") boolean esNullFiltre,
-			@Param("filtre") String filtre);		
-	
-	Optional<CarrecJbpmId> findById(Long id);
+			@Param("filtre") String filtre);
 
-	CarrecJbpmId findByCodi(String codi);
+	Optional<CarrecBpmId> findById(Long id);
 
-	CarrecJbpmId findByCodiAndGrup(
+	CarrecBpmId findByCodi(String codi);
+
+	CarrecBpmId findByCodiAndGrup(
 			String codi,
 			String grup);
 

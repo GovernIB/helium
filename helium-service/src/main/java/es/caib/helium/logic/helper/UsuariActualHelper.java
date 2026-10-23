@@ -23,7 +23,7 @@ import es.caib.helium.commons.dto.EntornDto;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.persistence.entity.AreaMembre;
 import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.persistence.repository.AreaJbpmIdRepository;
+import es.caib.helium.persistence.repository.AreaBpmIdRepository;
 import es.caib.helium.persistence.repository.AreaMembreRepository;
 import es.caib.helium.persistence.repository.EntornRepository;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
@@ -39,7 +39,7 @@ public class UsuariActualHelper {
 	@Resource
 	private EntornRepository entornRepository;
 	@Resource
-	private AreaJbpmIdRepository areaJbpmIdRepository;
+	private AreaBpmIdRepository areaBpmIdRepository;
 	@Resource
 	private AreaMembreRepository areaMembreRepository;
 
@@ -141,14 +141,14 @@ public class UsuariActualHelper {
 			}
 			areesGrups = codisArea.toArray(new String[membres.size()]);
 		} else {
-			List<String> codisArea = areaJbpmIdRepository.findRolesAmbUsuariCodi(usuariCodi);
+			List<String> codisArea = areaBpmIdRepository.findRolesAmbUsuariCodi(usuariCodi);
 			areesGrups = codisArea.toArray(new String[codisArea.size()]);
 		}
 		return areesGrups;
 	}
 
 	private boolean esIdentitySourceHelium() {
-		String identitySource = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_JBPM_IDENTITY_SOURCE);
+		String identitySource = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BPM_IDENTITY_SOURCE);
 		return (identitySource.equalsIgnoreCase("helium"));
 	}
 

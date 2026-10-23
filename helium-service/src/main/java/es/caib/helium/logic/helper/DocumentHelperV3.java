@@ -580,9 +580,9 @@ public class DocumentHelperV3 {
 				tascaId,
 				true,
 				true);
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(
 				task.getProcessDefinitionId());
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
 		Document document = documentRepository.findById(docId).orElse(null);
@@ -595,12 +595,12 @@ public class DocumentHelperV3 {
 	}
 
 	public List<TascaDocumentDto> findDocumentsPerInstanciaTasca(WTaskInstance task) {
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(
 				task.getProcessDefinitionId());
 		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		Long expedientTipusId = exp != null ? exp.getTipus().getId() : null;
 		ExpedientTipus expedientTipus = exp != null? expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId()) : null;
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
 
@@ -631,22 +631,22 @@ public class DocumentHelperV3 {
 	}
 
 	public boolean hasDocumentsPerInstanciaTasca(WTaskInstance task) {
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(
 				task.getProcessDefinitionId());
 		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
 
-		return documentTascaRepository.countAmbDefinicioProcesITascaJbpmName(
+		return documentTascaRepository.countAmbDefinicioProcesITascaBpmName(
 				definicioProces.getId(),
 				task.getTaskName(),
 				expedientTipusId) > 0;
 	}
 
 	public boolean hasDocumentsNotReadOnlyPerInstanciaTasca(WTaskInstance task) {
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(
 				task.getProcessDefinitionId());
 		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
 
-		return documentTascaRepository.countAmbDefinicioProcesITascaJbpmNameINotReadOnly(
+		return documentTascaRepository.countAmbDefinicioProcesITascaBpmNameINotReadOnly(
 				definicioProces.getId(),
 				task.getTaskName(),
 				expedientTipusId) > 0;
@@ -655,12 +655,12 @@ public class DocumentHelperV3 {
 	public List<TascaDocumentDto> findDocumentsPerInstanciaTascaSignar(WTaskInstance task) {
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
 
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(
 				task.getProcessDefinitionId());
 		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		Long expedientTipusId = exp != null ? exp.getTipus().getId() : null;
 		ExpedientTipus expedientTipus = exp != null? expedientTipusHelper.findAmbProcessInstanceId(task.getProcessInstanceId()) : null;
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
 
@@ -796,7 +796,7 @@ public class DocumentHelperV3 {
 					null);
 
 
-			// Guarda el valor en una variable jbpm
+			// Guarda el valor en una variable bpm
 			WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 					tascaId,
 					true,
@@ -993,7 +993,7 @@ public class DocumentHelperV3 {
 			}
 		}
 
-		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar
+		// Guarda la referència al nou document a dins el BPM, és necessari fer-ho fora del postProcessar
 		// sino en cas que falli arxiu, el document no es veurá a la pipella de documents del expedient.
 //		if (taskInstanceId != null) {
 //			workflowEngineApi.setTaskInstanceVariable(
@@ -1173,7 +1173,7 @@ public class DocumentHelperV3 {
 			documentStore.setDocumentError("No està sincronitzat amb l'arxiu.");
 		}
 
-		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar
+		// Guarda la referència al nou document a dins el BPM, és necessari fer-ho fora del postProcessar
 		// sino en cas que falli arxiu, el document no es veurá a la pipella de documents del expedient.
 //		if (taskInstanceId != null) {
 //			workflowEngineApi.setTaskInstanceVariable(
@@ -1402,7 +1402,7 @@ public class DocumentHelperV3 {
 //				workflowEngineApi.deleteTaskInstanceVariable(
 //						taskInstanceId,
 //						documentStore.getCodi());
-//				String documentCodi = getDocumentCodiPerVariableJbpm(
+//				String documentCodi = getDocumentCodiPerVariableBpm(
 //						documentStore.getCodi());
 //				workflowEngineApi.deleteTaskInstanceVariable(
 //						taskInstanceId,
@@ -1456,10 +1456,10 @@ public class DocumentHelperV3 {
 		DefinicioProces definicioProces = null;
 		if (taskInstanceId != null) {
 			WTaskInstance taskInstance = workflowEngineApi.getTaskById(taskInstanceId);
-			definicioProces = definicioProcesRepository.findByJbpmId(taskInstance.getProcessDefinitionId());
+			definicioProces = definicioProcesRepository.findByBpmId(taskInstance.getProcessDefinitionId());
 		} else {
-//			JbpmProcessInstance processInstance = workflowEngineApi.getProcessInstance(processInstanceId);
-//			definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
+//			BpmProcessInstance processInstance = workflowEngineApi.getProcessInstance(processInstanceId);
+//			definicioProces = definicioProcesRepository.findByBpmId(processInstance.getProcessDefinitionId());
 		}
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
@@ -1584,7 +1584,7 @@ public class DocumentHelperV3 {
 					WProcessDefinition jpd = workflowEngineApi.findProcessDefinitionWithProcessInstanceId(documentStore.getProcessInstanceId());
 					DefinicioProces definicioProces = null;
 					if(jpd != null)
-						definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
+						definicioProces = definicioProcesRepository.findByBpmKeyAndVersio(
 																					jpd.getKey(),
 																					jpd.getVersion());
 					ExpedientTipus expedientTipus = expedient.getTipus();

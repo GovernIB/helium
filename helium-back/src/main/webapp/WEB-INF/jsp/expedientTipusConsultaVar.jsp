@@ -22,7 +22,7 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
@@ -31,12 +31,12 @@
 
 	<hel:modalHead/>
 </head>
-<body>		
+<body>
 
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 	</div>
-	
+
 	<form:form id="consulta-var-form" cssClass="form-horizontal" action="${baseUrlModal}/new" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusConsultaVarCommand">
 				<input type="hidden" name="expedientTipusId" id="inputExpedientTipusId" value="${expedientTipusConsultaVarCommand.expedientTipusId}"/>
 				<input type="hidden" name="consultaId" id="inputConsultaId" value="${expedientTipusConsultaVarCommand.consultaId}"/>
@@ -52,8 +52,8 @@
 								<option value="-1" ${expedientTipusConsultaVarCommand.origen == -1? "selected='selected'" : ""}><spring:message code="expedient.tipus.consulta.vars.origen.tipus.expedient"/></option>
 								<optgroup label="<spring:message code='expedient.tipus.consulta.vars.origen.definicions.proces'/>">
 									<c:forEach items="${definicionsProces}" var="definicioProces">
-										<option value="${definicioProces.id}" ${expedientTipusConsultaVarCommand.origen == definicioProces.id? "selected='selected'" : ""} >${definicioProces.jbpmKey} v.${definicioProces.versio}</option>
-									</c:forEach>									
+										<option value="${definicioProces.id}" ${expedientTipusConsultaVarCommand.origen == definicioProces.id? "selected='selected'" : ""} >${definicioProces.bpmKey} v.${definicioProces.versio}</option>
+									</c:forEach>
 								</optgroup>
 							</select>
 						</div>
@@ -70,7 +70,7 @@
 			</div>
 		</div>
 	</form:form>
-	
+
 	<form id="consultaVarFiltre">
 		<input type=hidden name="tipus" value="${tipus}"/>
 	</form>
@@ -94,11 +94,11 @@
 					<th data-col-name="codiEtiqueta" data-orderable="false"><spring:message code="expedient.tipus.consulta.vars.llistat.columna.variable"/></th>
 					<th data-col-name="campTipus" data-orderable="false"><spring:message code="expedient.tipus.consulta.vars.llistat.columna.tipus"/></th>
 					<th data-col-name="defprocVersio" data-visible="false"/>
-					<th data-col-name="defprocJbpmKey" data-orderable="true" data-template="#cellConsultaVarCodiEtiquetaTemplate">
+					<th data-col-name="defprocBpmKey" data-orderable="true" data-template="#cellConsultaVarCodiEtiquetaTemplate">
 						<spring:message code="expedient.tipus.consulta.vars.llistat.columna.defincioProces"/>
 						<script id="cellConsultaVarCodiEtiquetaTemplate" type="text/x-jsrender">
 							{{if defprocVersio >= 0}}
-								{{:defprocJbpmKey}} v.{{:defprocVersio}}
+								{{:defprocBpmKey}} v.{{:defprocVersio}}
 							{{/if}}
 						</script>
 					</th>
@@ -131,19 +131,19 @@
 			<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>"></span><span class="sr-only">&hellip;</span>
 		</span>
 	</div>
-	
+
 	<script type="text/javascript">
 	// <![CDATA[
-	            
+
 	$(document).ready(function() {
-		
+
 		// Quan es repinta la taula aplica la reordenació
 		$('#consultaVar').on('draw.dt', function() {
 			$('#origen').select2();
 			// Posa la taula com a ordenable
 			$("#consultaVar").tableDnD({
 		    	onDragClass: "drag",
-		    	onDrop: function(table, row) {	        	
+		    	onDrop: function(table, row) {
 		        	var pos = row.rowIndex - 1;
 		        	var id= obtenirId(pos);
 		        	if (pos != filaMovem)
@@ -157,7 +157,7 @@
 		        $(this.cells[0]).addClass('showDragHandle');
 		    }, function() {
 		        $(this.cells[0]).removeClass('showDragHandle');
-		    });	
+		    });
 		    // botons d'esborrar
 			$(".ajax-delete", this).click(function(e) {
 				var getUrl = $(this).attr('href');
@@ -178,13 +178,13 @@
 					}
 				});
 				e.stopImmediatePropagation();
-				return false;				
-			});	
+				return false;
+			});
 			// Si es modifica un camp numèric, s'actualitza el registre
 		    $("input[type=number]", this).change(function() {
 		    	updateNumeric(this);
 		    });
-		  });		
+		  });
 		// Quan es canvia la selecció de l'origen s'actualitzen les variables
 		$('#origen').change(function() {
 			$('#campCodi').select2('data', null);
@@ -208,7 +208,7 @@
 		}
 		return buit;
 	}
-	
+
 	/* Actualitza un valor numèric del camp de la tasca. */
 	function updateNumeric(input) {
 		var variableId = $(input).data('variableid');
@@ -218,27 +218,27 @@
 			.clone()
 			.show()
 			.insertAfter(input);
-		
+
 		var valor = $(input).val();
 		if (propietat == 'ampleCols') {
 			if (valor == undefined || valor == '' || valor > 12)
 				valor = 12;
-			else if (valor <= 0) 
+			else if (valor <= 0)
 				valor = 0;
-			
+
 			$("#buitCols_" + variableId).val(definirAmpleBuit(valor, $("#buitCols_" + variableId).val()));
 		} else {
 			if (valor == undefined || valor == '')
 				valor = 0;
-			else if (valor > 12) 
+			else if (valor > 12)
 				valor = 12;
 			else if (valor < -12)
 				valor = -12;
-			
+
 			valor = definirAmpleBuit($("#ampleCols_" + variableId).val(), valor);
-			
+
 		}
-		
+
 		$(input).hide();
 		$.ajax({
 			type: 'POST',
@@ -260,7 +260,7 @@
 			}
 		});
 	}
-	
+
 	function canviarPosicioConsultaVar( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
 		$('#consultaVar').DataTable().order([5, 'asc']);
@@ -276,7 +276,7 @@
 				console.log("Error canviant l'ordre: " + e);
 				$('#consultaVar').webutilDatatable('refresh');
 			}
-		});	
+		});
 	}
 
 	function obtenirId(pos){
@@ -290,19 +290,19 @@
 				var fila = filaMovem - (filaMovem-pos)+1;
 			}
 		}
-		id = $("#consultaVar tr:eq("+fila+")").attr("id");	
+		id = $("#consultaVar tr:eq("+fila+")").attr("id");
 		id2 = id.split("_");
 		return id2[1] ;
 	}
-		
+
 	function refrescaVariables() {
 		var getUrl = '<c:url value="/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var/select"/>';
 		$.ajax({
 			type: 'GET',
 			url: getUrl,
 			dataType: "json",
-			data: { 
-					tipus: '${tipus}' , 
+			data: {
+					tipus: '${tipus}' ,
 					origen: $('#origen').val() },
 			async: true,
 			success: function(data) {
@@ -318,11 +318,11 @@
 				console.log("Error obtenint variables: " + e);
 			}
 		});
-	}	
+	}
 	function refrescaTaula() {
 		$('#consultaVar').webutilDatatable('refresh');
-	}	
+	}
 	// ]]>
-	</script>	
+	</script>
 </body>
-		
+

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -19,7 +19,7 @@ import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a un camp que està emmagatzemada a dins la base
  * de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ConsultaCampRepository extends JpaRepository<ConsultaCamp, Long> {
@@ -30,7 +30,7 @@ public interface ConsultaCampRepository extends JpaRepository<ConsultaCamp, Long
 			"and cc.tipus = :tipus " +
 			"order by cc.ordre asc ")
 	List<ConsultaCamp> findCampsConsulta(
-			@Param("consultaId") Long consultaId, 
+			@Param("consultaId") Long consultaId,
 			@Param("tipus") TipusConsultaCamp tipus);
 
 	@Query("from ConsultaCamp cc " +
@@ -40,10 +40,10 @@ public interface ConsultaCampRepository extends JpaRepository<ConsultaCamp, Long
 			"order by " +
 			"    cc.ordre")
 	List<ConsultaCamp> findAmbConsultaIdOrdenats(
-			@Param("consultaId") Long consultaId, 
+			@Param("consultaId") Long consultaId,
 			@Param("tipus") TipusConsultaCamp tipus);
 
-	
+
 	@Query(	"from ConsultaCamp cc " +
 			"where " +
 			"   cc.consulta.id = :consultaId " +
@@ -62,15 +62,15 @@ public interface ConsultaCampRepository extends JpaRepository<ConsultaCamp, Long
 	Integer getNextOrdre(@Param("consultaId") Long consultaId,
 			@Param("tipus") TipusConsultaCamp tipus);
 
-	
+
 	/** Mètode per trobar un camp de la consulta per consulta, codi i tipus per validar la repetició. */
 	ConsultaCamp findByConsultaAndTipusAndCampCodi(
 			Consulta consulta,
-			TipusConsultaCamp tipus, 
-			String campCodi);	
-	
+			TipusConsultaCamp tipus,
+			String campCodi);
+
 	/** Mètode per consultar totes les consultes que contenen un camp determinat per un tipus d'expedient
-	 * 
+	 *
 	 * @param expedientTipusId
 	 * @param campCodi
 	 * @param defProckey
@@ -80,10 +80,10 @@ public interface ConsultaCampRepository extends JpaRepository<ConsultaCamp, Long
 	@Query(	"from ConsultaCamp cc " +
 			"where cc.consulta.expedientTipus.id = :expedientTipusId " +
 			"	and cc.campCodi = :campCodi " +
-			"	and ((cc.defprocJbpmKey is null and :defProckey is null) or (cc.defprocJbpmKey = :defProckey)) " +
+			"	and ((cc.defprocBpmKey is null and :defProckey is null) or (cc.defprocBpmKey = :defProckey)) " +
 			" 	and cc.defprocVersio = :defProcVersio ")
 	List<ConsultaCamp> findPerCamp(
-			@Param("expedientTipusId") Long expedientTipusId, 
+			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("campCodi") String campCodi,
 			@Param("defProckey") String defProckey,
 			@Param("defProcVersio") int defProcVersio);

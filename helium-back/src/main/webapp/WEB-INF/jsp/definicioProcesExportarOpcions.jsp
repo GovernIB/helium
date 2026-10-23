@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 		<c:if test="${command != null}">
-		
+
 		<c:set var="tasquesErrors"><form:errors path="tasques"/></c:set>
 		<c:set var="variablesErrors"><form:errors path="variables"/></c:set>
 		<c:set var="documentsErrors"><form:errors path="documents"/></c:set>
@@ -37,12 +37,12 @@
 						<c:forEach items="${tasques}" var="tasca" varStatus="procesosStatus">
 						<tr class="row_checkbox">
 							<td>
-								<input type="checkbox" class="check" id="tasques_${tasca.jbpmName }" name="tasques" value="${tasca.jbpmName}" <c:if test="${inici or fn:contains(command.tasques, tasca.jbpmName)}">checked="checked"</c:if>/>
+								<input type="checkbox" class="check" id="tasques_${tasca.bpmName }" name="tasques" value="${tasca.bpmName}" <c:if test="${inici or fn:contains(command.tasques, tasca.bpmName)}">checked="checked"</c:if>/>
 							</td>
-							<td>${tasca.jbpmName}</td>
+							<td>${tasca.bpmName}</td>
 							<td>${tasca.nom}</td>
 						</tr>
-						</c:forEach>			
+						</c:forEach>
 					</tbody>
 				</table>
 			</div>
@@ -84,7 +84,7 @@
 							<td>${variable.tipus}</td>
 							<td><c:if test="${variable.agrupacio != null}">${variable.agrupacio.codi}</c:if></td>
 						</tr>
-						</c:forEach>			
+						</c:forEach>
 					</tbody>
 				</table>
 			</div>
@@ -121,7 +121,7 @@
 							<td>${agrupacio.codi}</td>
 							<td>${agrupacio.nom}</td>
 						</tr>
-						</c:forEach>			
+						</c:forEach>
 					</tbody>
 				</table>
 			</div>
@@ -160,7 +160,7 @@
 							<td>${document.codi}</td>
 							<td>${document.nom}</td>
 						</tr>
-						</c:forEach>			
+						</c:forEach>
 					</tbody>
 				</table>
 			</div>
@@ -197,7 +197,7 @@
 							<td>${termini.codi}</td>
 							<td>${termini.nom}</td>
 						</tr>
-						</c:forEach>			
+						</c:forEach>
 					</tbody>
 				</table>
 			</div>
@@ -234,11 +234,10 @@
 							<td>${accio.codi}</td>
 							<td>${accio.nom}</td>
 						</tr>
-						</c:forEach>			
+						</c:forEach>
 					</tbody>
 				</table>
 			</div>
 		</div>
 
 	</c:if>
-		

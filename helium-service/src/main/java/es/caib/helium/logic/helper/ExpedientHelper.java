@@ -21,7 +21,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -70,7 +69,6 @@ import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.bpmn.HeliumActionHandlerPredefinitFactory;
 import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.common.ThreadLocalInfo;
@@ -750,11 +748,11 @@ public class ExpedientHelper {
 				ExpedientLogAccioTipus.EXPEDIENT_ATURAR,
 				motiu);
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-//		List<JbpmProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(
+//		List<BpmProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(
 //				expedient.getProcessInstanceId());
 //		String[] ids = new String[processInstancesTree.size()];
 //		int i = 0;
-//		for (JbpmProcessInstance pi: processInstancesTree)
+//		for (BpmProcessInstance pi: processInstancesTree)
 //			ids[i++] = pi.getId();
 //		workflowEngineApi.suspendProcessInstances(ids);
 		expedient.setInfoAturat(motiu);
@@ -779,11 +777,11 @@ public class ExpedientHelper {
 				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
 				null);
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-//		List<JbpmProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(
+//		List<BpmProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(
 //				expedient.getProcessInstanceId());
 //		String[] ids = new String[processInstancesTree.size()];
 //		int i = 0;
-//		for (JbpmProcessInstance pi: processInstancesTree)
+//		for (BpmProcessInstance pi: processInstancesTree)
 //			ids[i++] = pi.getId();
 //		workflowEngineApi.resumeProcessInstances(ids);
 		expedient.setInfoAturat(null);
@@ -1247,7 +1245,7 @@ public class ExpedientHelper {
 //		if (piexp.getId() != expedient.getId().longValue()) {
 //				processInstanceId);
 //			throw new NoTrobatException(
-//					JbpmProcessInstance.class,
+//					BpmProcessInstance.class,
 //					new Long(processInstanceId));
 //		}
 //		return piexp;
@@ -1302,7 +1300,7 @@ public class ExpedientHelper {
 	public DefinicioProces findDefinicioProcesByProcessInstanceId(
 			String processInstanceId) {
 		String processDefinitionId = workflowEngineApi.getProcessInstance(processInstanceId).getProcessDefinitionId();
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(processDefinitionId);
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(processDefinitionId);
 		if (definicioProces == null) {
 			throw new NoTrobatException(
 					DefinicioProces.class,
@@ -1499,7 +1497,7 @@ public class ExpedientHelper {
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
 		if (pi.getDescription() != null && pi.getDescription().length() > 0)
 			dto.setTitol(pi.getDescription());
-		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
+		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByBpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
 		return dto;
 	}
 
@@ -1951,7 +1949,7 @@ public class ExpedientHelper {
 
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
 
-			// Inicia l'instància de procés jBPM
+			// Inicia l'instància de procés BPM
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 
 			ThreadLocalInfo.setExpedient(expedient);
@@ -1961,13 +1959,13 @@ public class ExpedientHelper {
 			} else {
 				definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
 						expedientTipus,
-						expedientTipus.getJbpmProcessDefinitionKey());
+						expedientTipus.getBpmProcessDefinitionKey());
 			}
 			WProcessInstance processInstance = null;
 			if (expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
 				processInstance = workflowEngineApi.startProcessInstanceById(
 						IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
-						definicioProces.getJbpmId());
+						definicioProces.getBpmId());
 				// Si la definició de procés té tasca inicial completa la primera tasca
 				if (definicioProces.isHasStartTask() && definicioProces.getStartTaskName() != null) {
 					workflowEngineApi.completeTask(
@@ -2426,7 +2424,7 @@ public class ExpedientHelper {
 			if (AccioTipusEnumDto.ACCIO.equals(accio.getTipus())) {
 				workflowEngineApi.executeActionInstanciaProces(
 					processInstanceId,
-					accio.getJbpmAction(),
+					accio.getBpmAction(),
 					herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
 			} else if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
 				workflowEngineApi.executeHandler(
@@ -2533,7 +2531,7 @@ public class ExpedientHelper {
 			String recurs = this.handlerToResource(classe);
 			DefinicioProces dp = findDefinicioProcesByProcessInstanceId(processInstanceId);
 			byte[] handlerContingut = workflowEngineApi.getResourceBytes(
-				dp.getJbpmId(),
+				dp.getBpmId(),
 				recurs);
 			ClassPool cp = ClassPool.getDefault();
 			CtClass ctClass = cp.makeClass(new ByteArrayInputStream(handlerContingut));

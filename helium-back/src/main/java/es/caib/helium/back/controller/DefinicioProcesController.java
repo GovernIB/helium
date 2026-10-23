@@ -121,10 +121,10 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	}
 
 	/** Mètode per esborrar una versió específica des del disseny de la definició de procés. */
-	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{bpmKey}/{definicioProcesId}/delete", method = RequestMethod.GET)
 	public String delete(
 			HttpServletRequest request,
-			@PathVariable String jbmpKey,
+			@PathVariable String bpmKey,
 			@PathVariable Long definicioProcesId,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -138,11 +138,11 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 
 			this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
 
-			// Cerca la darrera definició de procés per codi jbpm i expedient Tipus
-			definicioProces = definicioProcesService.findByEntornTipusIdAndJbpmKey(
+			// Cerca la darrera definició de procés per codi bpm i expedient Tipus
+			definicioProces = definicioProcesService.findByEntornTipusIdAndBpmKey(
 					entornActual.getId(),
 					expedientTipusId,
-					jbmpKey);
+					bpmKey);
 
 			// Si no es troba la definició de procés anterior torna al llistat
 			if (definicioProces == null) {
@@ -154,7 +154,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}), e);
 		}
 		// Retorna a la pàgina de pipelles
-		return "redirect:/definicioProces/"+jbmpKey + (definicioProcesAnteriorId != null ? "/" + definicioProcesAnteriorId : "");
+		return "redirect:/definicioProces/"+bpmKey + (definicioProcesAnteriorId != null ? "/" + definicioProcesAnteriorId : "");
 	}
 
 	/** Mètode privat compartit per esborrar una definició de procés.
@@ -170,7 +170,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			List<ConsultaDto> consultes = expedientTipusService.consultaFindRelacionadesAmbDefinicioProces(
 					entornId,
 					definicioProces.getExpedientTipus().getId(),
-					definicioProces.getJbpmKey(),
+					definicioProces.getBpmKey(),
 					definicioProces.getVersio());
 			Set<Long> consultesAvisades = new HashSet<Long>();
 			for(ConsultaDto consulta : consultes )
@@ -194,13 +194,13 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					definicioProces.getId());
 			MissatgesHelper.success(request, getMessage(request, "definicio.proces.delete.success",
 					new Object[] {
-							definicioProces.getJbpmKey(),
+							definicioProces.getBpmKey(),
 							definicioProces.getVersio()}));
 			success = true;
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error.processos",
 						new Object[] {
-								definicioProces.getJbpmKey(),
+								definicioProces.getBpmKey(),
 								definicioProces.getVersio(),
 								processosCount}));
 		}
@@ -249,7 +249,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		DefinicioProcesUpdateCommand command = new DefinicioProcesUpdateCommand();
 		command.setId(definicioProcesId);
 		command.setEtiqueta(dto.getEtiqueta());
-		command.setJbpmKey(dto.getJbpmKey());
+		command.setBpmKey(dto.getBpmKey());
 		command.setHasStartTask(dto.isHasStartTask());
 		command.setVersio(dto.getVersio());
 		model.addAttribute("definicioProcesUpdateCommand", command);
@@ -270,7 +270,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
     				entornActual.getId(),
     				definicioProcesId);
     		command.setId(definicioProcesId);
-    		command.setJbpmKey(dto.getJbpmKey());
+    		command.setBpmKey(dto.getBpmKey());
     		command.setVersio(dto.getVersio());
     		model.addAttribute("definicioProcesUpdateCommand", command);
         	return "definicioProcesUpdateForm";
@@ -291,7 +291,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         	} catch(Exception e) {
         		if (dto != null) {
             		command.setId(definicioProcesId);
-            		command.setJbpmKey(dto.getJbpmKey());
+            		command.setBpmKey(dto.getBpmKey());
             		command.setVersio(dto.getVersio());
         		}
         		model.addAttribute("definicioProcesUpdateCommand", command);
@@ -317,7 +317,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					model,
 					"detall");
 		}
-		model.addAttribute("jbpmKey", jbmpKey);
+		model.addAttribute("bpmKey", jbmpKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		DefinicioProcesDto definicioProces = null;
@@ -347,7 +347,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					model,
 					"recurs");
 		}
-		model.addAttribute("jbpmKey", jbmpKey);
+		model.addAttribute("bpmKey", jbmpKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		DefinicioProcesDto definicioProces = null;
@@ -407,7 +407,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		command.setDefinicioProcesId(definicioProcesId);
 		command.setEntornId(entornActual.getId());
 		command.setAccio(ACCIO_PROCES.PROCES_DESPLEGAR);
-		model.addAttribute("jbpmKey", jbmpKey);
+		model.addAttribute("bpmKey", jbmpKey);
 		model.addAttribute("definicioProces", definicioProces);
 		model.addAttribute("command", command);
 		return "definicioProcesRecursForm";
@@ -450,7 +450,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			}
 		}
 		if (error) {
-			model.addAttribute("jbpmKey", jbmpKey);
+			model.addAttribute("bpmKey", jbmpKey);
 			model.addAttribute("definicioProces", definicioProcesService.findById(definicioProcesId));
 			return "definicioProcesRecursForm";
 		} else {
@@ -501,7 +501,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		if (entornActual != null) {
 			definicioProces = definicioProcesService.findById(definicioProcesId);
 			if (definicioProces != null) {
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, definicioProces.getJbpmKey() + "_v." + definicioProces.getVersio() + ".par");
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, definicioProces.getBpmKey() + "_v." + definicioProces.getVersio() + ".par");
 				model.addAttribute(
 						ArxiuView.MODEL_ATTRIBUTE_DATA,
 						dissenyService.getParContingut(definicioProcesId));
@@ -569,10 +569,10 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		return "definicioProcesExportarOpcions";
 	}
 
-	@RequestMapping(value = "/{jbpmKey}/exportar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{bpmKey}/exportar", method = RequestMethod.POST)
 	public String exportarPost(
 			HttpServletRequest request,
-			@PathVariable String jbpmKey,
+			@PathVariable String bpmKey,
 			@ModelAttribute("command")
 			@Validated(Exportacio.class) DefinicioProcesExportarCommand command,
 			BindingResult bindingResult,
@@ -589,7 +589,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			return "definicioProcesExportarForm";
         } else {
         	try {
-        		model.addAttribute("filename", dto.getJbpmKey() +"_v" + dto.getVersio() + ".exp");
+        		model.addAttribute("filename", dto.getBpmKey() +"_v" + dto.getVersio() + ".exp");
         		DefinicioProcesExportacio definicioProcesExportacio =
         				definicioProcesService.exportar(
         						entornActual.getId(),
@@ -752,7 +752,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	    		return modalUrlTancar();
         	else {
         		// retorna la redirecció
-        		model.addAttribute("redireccioUrl",  request.getContextPath() + "/definicioProces/" + definicioProces.getJbpmKey());
+        		model.addAttribute("redireccioUrl",  request.getContextPath() + "/definicioProces/" + definicioProces.getBpmKey());
             	return "definicioProcesImportarOpcions";
         	}
         }
@@ -770,7 +770,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			// avisa si el codi de la exportació és diferent del codi al qual s'importa
 			if (exportacio != null
 					&& dto != null
-					&& ! dto.getJbpmKey().equals(exportacio.getDefinicioProcesDto().getJbpmKey())) {
+					&& ! dto.getBpmKey().equals(exportacio.getDefinicioProcesDto().getBpmKey())) {
 				model.addAttribute("exportacio", exportacio);
 				model.addAttribute("avisImportacioDefinicioProcesDiferent", true);
 			}
@@ -787,7 +787,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		}
 	}
 
-	/** Modal per desplegar una definició de procés des d'un arxiu d'exportació .par de JBPM.
+	/** Modal per desplegar una definició de procés des d'un arxiu d'exportació .par de BPM.
 	 * Si el paràmetre definicioProcesId està informat llavors el que s'està realitzant és un desplegament
 	 * sobre una definició de procés existent i es permetrà sobre escriure els handlers.
 	 * Si definicioProcesId és null i el paràmetre expedientTipusId està informat llavors el que s'està realitzant
@@ -844,10 +844,10 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					exportacio.setHasStartTask(command.isHasStartTask());
         			// Guarda la darrera per copiar dades
         			DefinicioProcesDto darreraDefinicioProces =
-        					definicioProcesService.findByEntornTipusIdAndJbpmKey(
+        					definicioProcesService.findByEntornTipusIdAndBpmKey(
         							entornActual.getId(),
         							command.getExpedientTipusId(),
-        							exportacio.getDefinicioProcesDto().getJbpmKey());
+        							exportacio.getDefinicioProcesDto().getBpmKey());
         			// Realitza la importació com a una nova versió
         			exportacio.getDefinicioProcesDto().setEtiqueta(command.getEtiqueta());
         			DefinicioProcesDto definicioProces = definicioProcesService.importar(
@@ -871,14 +871,14 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		        			ExecucioMassivaDto dto = new ExecucioMassivaDto();
 		    				dto.setDataInici(new Date());
 		    				dto.setEnviarCorreu(false);
-		    				dto.setParam1(definicioProces.getJbpmKey());
+		    				dto.setParam1(definicioProces.getBpmKey());
 		    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(definicioProces.getVersio())));
 		    				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
 		    				dto.setProcInstIds(
 		    						expedientService.findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 							    						entornActual.getId(),
 							    						definicioProces.getExpedientTipus() != null? definicioProces.getExpedientTipus().getId() : null,
-							    						definicioProces.getJbpmKey()));
+							    						definicioProces.getBpmKey()));
 		        			try {
 		        				execucioMassivaService.crearExecucioMassiva(dto);
 		        				MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {dto.getProcInstIds().size()}));
@@ -909,7 +909,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	                						request,
 	                						"definicio.proces.actualitzar.confirmacio.expedientTipus",
 	                						new Object[] {
-	                								definicioProces.getJbpmKey(),
+	                								definicioProces.getBpmKey(),
 	                								definicioProces.getVersio(),
 	                								definicioProces.getExpedientTipus().getCodi(),
 	                								definicioProces.getExpedientTipus().getNom() }));
@@ -919,7 +919,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	                						request,
 	                						"definicio.proces.actualitzar.confirmacio.global",
 	                						new Object[] {
-	                								definicioProces.getJbpmKey(),
+	                								definicioProces.getBpmKey(),
 	                								definicioProces.getVersio() }));
 
         			} catch (Exception e) {
@@ -991,10 +991,10 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					exportacio.setHasStartTask(command.isHasStartTask());
 					// Guarda la darrera per copiar dades
 					DefinicioProcesDto darreraDefinicioProces =
-						definicioProcesService.findByEntornTipusIdAndJbpmKey(
+						definicioProcesService.findByEntornTipusIdAndBpmKey(
 							entornActual.getId(),
 							command.getExpedientTipusId(),
-							exportacio.getDefinicioProcesDto().getJbpmKey());
+							exportacio.getDefinicioProcesDto().getBpmKey());
 					// Realitza la importació com a una nova versió
 					exportacio.getDefinicioProcesDto().setEtiqueta(command.getEtiqueta());
 					DefinicioProcesDto definicioProces = definicioProcesService.importar(
@@ -1018,14 +1018,14 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 						ExecucioMassivaDto dto = new ExecucioMassivaDto();
 						dto.setDataInici(new Date());
 						dto.setEnviarCorreu(false);
-						dto.setParam1(definicioProces.getJbpmKey());
+						dto.setParam1(definicioProces.getBpmKey());
 						dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(definicioProces.getVersio())));
 						dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
 						dto.setProcInstIds(
 							expedientService.findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 								entornActual.getId(),
 								definicioProces.getExpedientTipus() != null? definicioProces.getExpedientTipus().getId() : null,
-								definicioProces.getJbpmKey()));
+								definicioProces.getBpmKey()));
 						try {
 							execucioMassivaService.crearExecucioMassiva(dto);
 							MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {dto.getProcInstIds().size()}));
@@ -1054,7 +1054,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 									request,
 									"definicio.proces.actualitzar.confirmacio.expedientTipus",
 									new Object[] {
-										definicioProces.getJbpmKey(),
+										definicioProces.getBpmKey(),
 										definicioProces.getVersio(),
 										definicioProces.getExpedientTipus().getCodi(),
 										definicioProces.getExpedientTipus().getNom() }));
@@ -1064,7 +1064,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 									request,
 									"definicio.proces.actualitzar.confirmacio.global",
 									new Object[] {
-										definicioProces.getJbpmKey(),
+										definicioProces.getBpmKey(),
 										definicioProces.getVersio() }));
 
 					} catch (Exception e) {
@@ -1150,7 +1150,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 					collect(Collectors.toList()));
 		}
 
-		// Select de les accions jbpm
+		// Select de les accions bpm
 		List<ParellaCodiValorDto> accions = new ArrayList<ParellaCodiValorDto>();
 		accions.add(new ParellaCodiValorDto(
 				DefinicioProcesDesplegarCommand.ACCIO_PROCES.PROCES_DESPLEGAR.toString(),

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -23,7 +23,7 @@ import org.hibernate.annotations.ForeignKey;
 
 /**
  * Objecte de domini que representa una entrada de log d'un expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
@@ -31,7 +31,7 @@ import org.hibernate.annotations.ForeignKey;
 public class ExpedientLog implements Serializable, GenericEntity<Long> {
 
 	private static int MAX_PARAMETERS_LENGTH = 2048;
-	
+
 	public enum ExpedientLogAccioTipus {
 		PROCES_VARIABLE_CREAR,			// 0
 		PROCES_VARIABLE_MODIFICAR,
@@ -73,7 +73,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		ANOTACIO_RELACIONAR,
 		PROCES_DOCUMENT_FIRMAR,
 		EXPEDIENT_ESTAT_CANVIAR
-		}			
+		}
 
 	public enum ExpedientLogEstat {
 		NORMAL,
@@ -81,7 +81,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		IGNORAR,
 		BLOCAR,
 		RETROCEDIT_TASQUES}
-	
+
 	public enum LogInfo {
 		NUMERO,
 		TITOL,
@@ -99,7 +99,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	private String accioParams;
 	private Date data = new Date();
 	private String targetId;
-	private Long jbpmLogId;
+	private Long bpmLogId;
 	private String processInstanceId;
 	private ExpedientLogEstat estat = ExpedientLogEstat.NORMAL;
 	private ExpedientLogAccioTipus accioTipus;
@@ -169,12 +169,12 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		this.targetId = targetId;
 	}
 
-	@Column(name="jbpm_logid")
-	public Long getJbpmLogId() {
-		return jbpmLogId;
+	@Column(name="bpm_logid")
+	public Long getBpmLogId() {
+		return bpmLogId;
 	}
-	public void setJbpmLogId(Long jbpmLogId) {
-		this.jbpmLogId = jbpmLogId;
+	public void setBpmLogId(Long bpmLogId) {
+		this.bpmLogId = bpmLogId;
 	}
 
 	@Column(name="process_instance_id")
@@ -218,7 +218,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	public void setIniciadorRetroces(Long iniciadorRetroces) {
 		this.iniciadorRetroces = iniciadorRetroces;
 	}
-	
+
 	@Transient
 	public boolean isTargetTasca() {
 		return	accioTipus.equals(ExpedientLogAccioTipus.TASCA_REASSIGNAR) ||

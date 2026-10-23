@@ -12,7 +12,7 @@ abstract class AbstractHeliumActionHandler{ // implements HeliumActionHandler {
 			expedient = BpmHeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(
 				getProcessInstanceId(executionContext));
 		} catch(NoTrobatException nte) {
-			expedient = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
+			expedient = Bpm3HeliumBridge.getInstanceService().getExpedientIniciant();
 			if (expedient == null) {
 				throw nte;
 			}
@@ -24,24 +24,24 @@ abstract class AbstractHeliumActionHandler{ // implements HeliumActionHandler {
 		ExecutionContext executionContext,
 		String numero) {
 		ExpedientDto expedient = getExpedientActual(executionContext);
-		return Jbpm3HeliumBridge.getInstanceService().findExpedientAmbMateixTipusINumero(
+		return Bpm3HeliumBridge.getInstanceService().findExpedientAmbMateixTipusINumero(
 			expedient.getEntorn().getId(),
 			expedient.getTipus().getId(),
 			numero);
 	}
 
 	DefinicioProcesDto getDefinicioProces(ExecutionContext executionContext) {
-		return Jbpm3HeliumBridge.getInstanceService().getDefinicioProcesPerProcessInstanceId(
+		return Bpm3HeliumBridge.getInstanceService().getDefinicioProcesPerProcessInstanceId(
 			getProcessInstanceId(executionContext));
 	}
 
 	TerminiDto getTerminiAmbCodi(ExecutionContext executionContext, String codi) {
 		try {
-			return Jbpm3HeliumBridge.getInstanceService().getTerminiAmbProcessInstanceICodi(
+			return Bpm3HeliumBridge.getInstanceService().getTerminiAmbProcessInstanceICodi(
 				getProcessInstanceId(executionContext),
 				codi);
 		} catch (Exception ex) {
-			throw new JbpmException("No s'ha trobat el termini amb codi: " + codi);
+			throw new BpmException("No s'ha trobat el termini amb codi: " + codi);
 		}
 	}
 	TerminiIniciatDto getTerminiIniciatAmbCodi(
@@ -51,7 +51,7 @@ abstract class AbstractHeliumActionHandler{ // implements HeliumActionHandler {
 			executionContext,
 			codi);
 		if (termini != null) {
-			return Jbpm3HeliumBridge.getInstanceService().getTerminiIniciatAmbProcessInstanceITerminiCodi(
+			return Bpm3HeliumBridge.getInstanceService().getTerminiIniciatAmbProcessInstanceITerminiCodi(
 				getProcessInstanceId(executionContext),
 				termini.getCodi());
 		} else {
@@ -63,13 +63,13 @@ abstract class AbstractHeliumActionHandler{ // implements HeliumActionHandler {
 		ExecutionContext executionContext,
 		String documentCodi,
 		boolean ambArxiu) {
-		String varCodi = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(documentCodi);
+		String varCodi = Bpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(documentCodi);
 		Object valor = executionContext.getVariable(varCodi);
 		if (valor == null)
 			return null;
 		if (valor instanceof Long) {
 			Long id = (Long) valor;
-			DocumentDto document = Jbpm3HeliumBridge.getInstanceService().getDocumentInfo(id);
+			DocumentDto document = Bpm3HeliumBridge.getInstanceService().getDocumentInfo(id);
 			if (document == null)
 				return null;
 			DocumentInfo resposta = new DocumentInfo();
@@ -96,16 +96,16 @@ abstract class AbstractHeliumActionHandler{ // implements HeliumActionHandler {
 				resposta.setRegistreEntrada(document.isRegistreEntrada());
 			}
 			if (ambArxiu) {
-//				ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(id);
+//				ArxiuDto arxiu = Bpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(id);
 				//Versió original enlloc de imprimible
 				Long expedientId = executionContext.getProcessInstance().getExpedient().getId();
-				ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuVersioOriginal(expedientId,id);
+				ArxiuDto arxiu = Bpm3HeliumBridge.getInstanceService().getArxiuVersioOriginal(expedientId,id);
 				resposta.setArxiuNom(arxiu.getNom());
 				resposta.setArxiuContingut(arxiu.getContingut());
 			}
 			return resposta;
 		} else {
-			throw new JbpmException("La referencia al document \""
+			throw new BpmException("La referencia al document \""
 				+ documentCodi + "\" no es del tipus correcte");
 		}
 	}
@@ -124,7 +124,7 @@ abstract class AbstractHeliumActionHandler{ // implements HeliumActionHandler {
 			throw new NoTrobatException(Date.class, var);
 		if (obj instanceof Date)
 			return (Date) obj;
-		throw new JbpmException("La variable amb el codi '" + var + "' no és de tipus Date");
+		throw new BpmException("La variable amb el codi '" + var + "' no és de tipus Date");
 	}
 
 	protected Object getValorOVariable(ExecutionContext executionContext,

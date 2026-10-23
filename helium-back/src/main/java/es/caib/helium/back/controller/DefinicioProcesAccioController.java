@@ -69,7 +69,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", (BaseConfig.BACK_CONTEXT_PREFIX + "/definicioProces/" + definicioProces.getBpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		return "expedientTipusAccio";
 	}
@@ -100,7 +100,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			Model model) {
 		ExpedientTipusAccioCommand command = new ExpedientTipusAccioCommand();
 		command.setDefinicioProcesId(definicioProcesId);
-		command.setDefprocJbpmKey(jbmpKey);
+		command.setDefprocBpmKey(jbmpKey);
 		model.addAttribute("expedientTipusAccioCommand", command);
 		this.omplirModelFormulariAccio(
 				request,
@@ -268,9 +268,9 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 
 		// Accions
 		model.addAttribute("definicionsProces",
-				Arrays.asList(new String[] {definicioProces.getJbpmKey()}));
+				Arrays.asList(new String[] {definicioProces.getBpmKey()}));
 		model.addAttribute("accions",
-				this.getAccions(definicioProcesId, command.getJbpmAction()));
+				this.getAccions(definicioProcesId, command.getBpmAction()));
 		// Handlers propis
 		model.addAttribute("handlersPropis",
 				this.getHandlersPropis(definicioProcesId, command.getHandlerPropi()));
@@ -301,24 +301,23 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 
 	/** Consulta la llista d'accions per la definició de procés.
 	 *
-	 * @param expedientTipusId
-	 * @param definicioCodi
-	 * @param jbpmAction
+	 * @param definicioProcesId
+	 * @param bpmAction
 	 * @return
 	 */
-	private List<ParellaCodiValorDto> getAccions(Long definicioProcesId, String jbpmAction) {
+	private List<ParellaCodiValorDto> getAccions(Long definicioProcesId, String bpmAction) {
 
 		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
-		List<String> accions = dissenyService.findAccionsJbpmOrdenades(definicioProcesId);
+		List<String> accions = dissenyService.findAccionsBpmOrdenades(definicioProcesId);
 		for (String accio : accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
 		}
-		if (jbpmAction != null
-				&& !jbpmAction.isEmpty()
-				&&	!accions.contains(jbpmAction)) {
+		if (bpmAction != null
+				&& !bpmAction.isEmpty()
+				&&	!accions.contains(bpmAction)) {
 			ret.add(0, new ParellaCodiValorDto(
-					jbpmAction,
-					jbpmAction + " (no existeix en la darrera versió de la definició de procés '" + definicioProcesId + "')"));
+					bpmAction,
+					bpmAction + " (no existeix en la darrera versió de la definició de procés '" + definicioProcesId + "')"));
 		}
 		return ret;
 	}
@@ -333,7 +332,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 	private List<ParellaCodiValorDto> getHandlersPropis(Long definicioProcesId, String handlerPropi) {
 
 		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
-		List<String> accions = dissenyService.findHandlersJbpmOrdenats(definicioProcesId);
+		List<String> accions = dissenyService.findHandlersBpmOrdenats(definicioProcesId);
 		for (String accio : accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
 		}

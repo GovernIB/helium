@@ -141,25 +141,25 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public DefinicioProcesDto findByEntornTipusIdAndJbpmKey(
+	public DefinicioProcesDto findByEntornTipusIdAndBpmKey(
 			Long entornId,
 			Long expedientTipusId,
-			String jbpmKey) {
+			String bpmKey) {
 		logger.debug(
-				"Consultant darrera versió definicio proces amb entornId, expedientTipusId i jbpmKey (" +
+				"Consultant darrera versió definicio proces amb entornId, expedientTipusId i bpmKey (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
-				"jbmpKey = " + jbpmKey + ")");
+				"jbmpKey = " + bpmKey + ")");
 
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
 
-		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
+		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIBpmKey(
 				entorn.getId(),
 				expedientTipusId == null,
 				expedientTipusId != null ? expedientTipusId : 0L,
-				jbpmKey);
+			bpmKey);
 
 		DefinicioProcesDto dto = null;
 		if (definicioProces != null) {
@@ -188,9 +188,9 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"definicioProcesId = " + definicioProcesId + ")");
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
 		DefinicioProces definicioProces = definicioProcesRepository.getReferenceById(definicioProcesId);
-		for (WProcessDefinition pd : workflowEngineApi.getSubProcessDefinitions(definicioProces.getJbpmId())) {
+		for (WProcessDefinition pd : workflowEngineApi.getSubProcessDefinitions(definicioProces.getBpmId())) {
 			resposta.add(conversioTipusHelper.convertir(
-				definicioProcesRepository.findByJbpmId(pd.getId()),
+				definicioProcesRepository.findByBpmId(pd.getId()),
 				DefinicioProcesDto.class));
 		}
 
@@ -259,25 +259,25 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 
 		// Consulta els valors pels comptadors
 		// List< Object[String jbpmKey, Long count]>
-		List<String> paginaJbpmKeys = new ArrayList<String>();
+		List<String> paginaBpmKeys = new ArrayList<String>();
 		for (DefinicioProcesDto d : pagina.getContingut()) {
-					paginaJbpmKeys.add(d.getJbpmKey());
+					paginaBpmKeys.add(d.getBpmKey());
 		}
-		if (paginaJbpmKeys.size() > 0) {
+		if (paginaBpmKeys.size() > 0) {
 			// <[jbpmKey, expedientTipusId, count]>
 			List<Object[]> countVersions = definicioProcesRepository.countVersions(
 					entornId,
-					paginaJbpmKeys);
+					paginaBpmKeys);
 			// Omple els comptadors de tipus de camps
-			String jbpmKey;
+			String bpmKey;
 			Long etId;
 			Long count;
 			List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
 			for (DefinicioProcesDto definicio: pagina.getContingut()) {
 				for (Object[] countVersio: countVersions) {
-					jbpmKey = (String) countVersio[0];
+					bpmKey = (String) countVersio[0];
 					etId = (Long) countVersio[1];
-					if (definicio.getJbpmKey().equals(jbpmKey)
+					if (definicio.getBpmKey().equals(bpmKey)
 							&& (
 								(definicio.getExpedientTipus() == null && etId == null)
 								|| (definicio.getExpedientTipus() != null && definicio.getExpedientTipus().getId().equals(etId)))) {
@@ -304,11 +304,11 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 					Set<String> sobreescritsCodis = new HashSet<String>();
 					for (DefinicioProces dp : definicioProcesRepository.findSobreescrits(
 							expedientTipus.getId()))
-						sobreescritsCodis.add(dp.getJbpmKey());
+						sobreescritsCodis.add(dp.getBpmKey());
 					// Completa l'informació del dto
 					for (DefinicioProcesDto dto: pagina.getContingut()) {
 						// Sobreescriu, les globals no es marquen sobreescrites
-						if (dto.getExpedientTipus() != null && sobreescritsCodis.contains(dto.getJbpmKey()))
+						if (dto.getExpedientTipus() != null && sobreescritsCodis.contains(dto.getBpmKey()))
 							dto.setSobreescriu(true);
 						// Heretat
 						if (heretatsIds.contains(dto.getId()) && ! dto.isSobreescriu())
@@ -330,7 +330,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		if (definicioProces != null) {
 			try {
-				return workflowEngineApi.getXml(definicioProces.getJbpmId());
+				return workflowEngineApi.getXml(definicioProces.getBpmId());
 			} catch (IOException ex) {
 				logger.error("Error obtenint l'XML de la definició de procés (" +
 					"definicioProcesId=" + definicioProcesId + ")",
@@ -427,21 +427,21 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 
 		workflowEngineApi.esborrarDesplegament(
-				definicioProces.getJbpmId());
+				definicioProces.getBpmId());
 		//
 		definicioProcesRepository.delete(definicioProces);
 		if (definicioProces.getExpedientTipus() != null) {
 			ExpedientTipus expedientTipus = expedientTipusRepository.findById(definicioProces.getExpedientTipus().getId()).orElse(null);
 			// Si era darrera versió de la definició de procés inicial del tipus d'expedient posa la propietat a null
-			if (definicioProces.getJbpmKey().equals(definicioProces.getExpedientTipus().getJbpmProcessDefinitionKey())) {
+			if (definicioProces.getBpmKey().equals(definicioProces.getExpedientTipus().getBpmProcessDefinitionKey())) {
 				// Troba la darrera definició de procés
-				definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
+				definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIBpmKey(
 						expedientTipus.getEntorn().getId(),
 						expedientTipusId == null,
 						expedientTipusId != null ? expedientTipusId : 0L,
-						definicioProces.getJbpmKey());
+						definicioProces.getBpmKey());
 				if (definicioProces == null) {
-					expedientTipus.setJbpmProcessDefinitionKey(null);
+					expedientTipus.setBpmProcessDefinitionKey(null);
 					expedientTipusRepository.save(expedientTipus);
 				}
 			} else {
@@ -511,7 +511,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			String startTaskName = definicioProces.getStartTaskName();
 			if (startTaskName != null)
 				for (TascaDto tasca : pagina.getContingut())
-					if(tasca.getJbpmName().equals(startTaskName)) {
+					if(tasca.getBpmName().equals(startTaskName)) {
 						tasca.setInicial(true);
 						break;
 					}
@@ -1582,16 +1582,16 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"processInstanceId = " + processInstanceId + ")");
 
 		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
-		DefinicioProces dp = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
+		DefinicioProces dp = definicioProcesRepository.findByBpmId(pi.getProcessDefinitionId());
 		return conversioTipusHelper.convertir(dp, DefinicioProcesDto.class);
 	}
 	@Override
 	@Transactional(readOnly = true)
-	public DefinicioProcesDto findByJbpmKeyAndVersio(String defprocKey, int versio) {
+	public DefinicioProcesDto findByBpmKeyAndVersio(String defprocBpmKey, int versio) {
 		logger.debug(
 				"Consultant la definició de procés a partir del codi i versió (" +
-				"defprocKey = " + defprocKey + ", versio = " + versio + ")");
-		DefinicioProces dp = definicioProcesRepository.findByJbpmKeyAndVersio(defprocKey, versio);
+				"defprocKey = " + defprocBpmKey + ", versio = " + versio + ")");
+		DefinicioProces dp = definicioProcesRepository.findByBpmKeyAndVersio(defprocBpmKey, versio);
 		return conversioTipusHelper.convertir(dp, DefinicioProcesDto.class);
 	}
 
@@ -1616,7 +1616,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		entity.setEtiqueta(etiqueta);
 		if (hasStartTask) {
 			// Recupera la tasca inicial del flux i l'informa, si no en té llença excepció
-			String startTaskName = workflowEngineApi.getStartTaskName(entity.getJbpmId());
+			String startTaskName = workflowEngineApi.getStartTaskName(entity.getBpmId());
 			if (startTaskName == null) {
 				throw new RuntimeException("El flux associat a la definició de procés " + entity.getIdPerMostrar() + " no té tasca inicial.");
 			}
@@ -1643,7 +1643,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		if (entity == null) {
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
 		}
-		String tartTaskName = workflowEngineApi.getStartTaskName(entity.getJbpmId());
+		String tartTaskName = workflowEngineApi.getStartTaskName(entity.getBpmId());
 		return tartTaskName;
 	}
 

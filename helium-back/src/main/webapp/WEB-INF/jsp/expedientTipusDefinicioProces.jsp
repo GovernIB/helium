@@ -36,14 +36,14 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="jbpmKey" width="20%" data-template="#cellExpedientTipusDefinicioJbpmkeyTemplate">
+					<th data-col-name="bpmKey" width="20%" data-template="#cellExpedientTipusDefinicioBpmkeyTemplate">
 					<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom"/>
-						<script id="cellExpedientTipusDefinicioJbpmkeyTemplate" type="text/x-jsrender">
+						<script id="cellExpedientTipusDefinicioBpmkeyTemplate" type="text/x-jsrender">
 								{{if heretat }}
-									<span class="dada-heretada">{{:jbpmKey}}</span>
+									<span class="dada-heretada">{{:bpmKey}}</span>
 									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom.heretat"/>">R</span>
 								{{else}}
-									{{:jbpmKey}}
+									{{:bpmKey}}
 									{{if sobreescriu }}
 										<span class="label label-warning herencia" title="<spring:message code="expedient.tipus.definicioProces.llistat.columna.nom.sobreescriu"/>">S</span>
 									{{/if}}
@@ -53,10 +53,10 @@
 					<th data-col-name="versioCount" data-orderable="false"><spring:message code="expedient.tipus.definicioProces.llistat.columna.versions"/></th>
 					<th data-col-name="dataCreacio" data-converter="datetime"><spring:message code="expedient.tipus.definicioProces.llistat.columna.dataDarreraVersio"/></th>
 					<th data-col-name="versio" data-orderable="true"><spring:message code="definicio.proces.llistat.columna.versio"/></th>
-					<th data-col-name="jbpmKey" data-template="#cellexpedientTipusDefinicioProcesInicialTemplate">
+					<th data-col-name="bpmKey" data-template="#cellexpedientTipusDefinicioProcesInicialTemplate">
 					<spring:message code="expedient.tipus.definicioProces.llistat.columna.inicial"/>
 						<script id="cellexpedientTipusDefinicioProcesInicialTemplate" type="text/x-jsrender">
-						{{if ~inicial(jbpmKey) && expedientTipus != null }}
+						{{if ~inicial(bpmKey) && expedientTipus != null }}
 							<spring:message code="comu.check"></spring:message>
 						{{/if}}
 						</script>
@@ -74,13 +74,13 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a href="../definicioProces/{{:jbpmKey}}/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.dissenyar"/></a></li>
+								<li><a href="../definicioProces/{{:bpmKey}}/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.dissenyar"/></a></li>
 								{{if ${!heretat && potDissenyarExpedientTipusAdmin} }}
-									<li><a data-toggle="ajax" class="btn-inicial" data-jbpmkey="{{:jbpmKey}}" href="${expedientTipus.id}/definicionsProces/{{:id}}/inicial"><span class="fa fa-flag-checkered"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.inicial"/></a></li>
+									<li><a data-toggle="ajax" class="btn-inicial" data-bpmkey="{{:bpmKey}}" href="${expedientTipus.id}/definicionsProces/{{:id}}/inicial"><span class="fa fa-flag-checkered"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.inicial"/></a></li>
 									<li><a data-toggle="modal" href="${expedientTipus.id}/definicionsProces/{{:id}}/incorporar"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.incorporar"/></a></li>
-									<li><a data-toggle="modal" href="../definicioProces/{{:jbpmKey}}/exportar?definicioProcesId={{:id}}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
+									<li><a data-toggle="modal" href="../definicioProces/{{:bpmKey}}/exportar?definicioProcesId={{:id}}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
 									<li><a data-toggle="modal" href="../definicioProces/importar?definicioProcesId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
-									<li><a data-toggle="ajax" class="btn-delete" href="../definicioProces/{{:jbpmKey}}/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar"/></a></li>
+									<li><a data-toggle="ajax" class="btn-delete" href="../definicioProces/{{:bpmKey}}/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar"/></a></li>
 								{{/if}}
 							</ul>
 						</div>
@@ -91,7 +91,7 @@
 				</tr>
 			</thead>
 		</table>
-		<script id="rowhrefTemplate" type="text/x-jsrender">../definicioProces/{{:jbpmKey}}/{{:id}}</script>
+		<script id="rowhrefTemplate" type="text/x-jsrender">../definicioProces/{{:bpmKey}}/{{:id}}</script>
 		<script id="tableExpedientTipusDefinicioProcesButtonsTemplate" type="text/x-jsrender">
 			{{if ${potDissenyarExpedientTipusAdmin} }}
 				<div class="botons-titol text-right">
@@ -110,12 +110,12 @@
 
 <script type="text/javascript">
 // <![CDATA[
-// Valor jbpmKey de la DP inicial del TE
-var jbpmProcessDefinitionKey = "${expedientTipus.jbpmProcessDefinitionKey}";
+// Valor bpmKey de la DP inicial del TE
+var bpmProcessDefinitionKey = "${expedientTipus.bpmProcessDefinitionKey}";
 
 // Funció per al template de la columna inicial per comparar amb la variable javascript anterior
-function inicialFunction(jbpmKey) {
-	return jbpmProcessDefinitionKey == jbpmKey;
+function inicialFunction(bpmKey) {
+	return bpmProcessDefinitionKey == bpmKey;
 }
 
 $(document).ready(function() {

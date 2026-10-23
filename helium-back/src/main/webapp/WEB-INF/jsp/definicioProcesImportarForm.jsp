@@ -8,7 +8,7 @@
 
 <c:choose>
 	<c:when test="${not empty command.id}"><
-		<c:set var="titol"><spring:message code="definicio.proces.importar.form.titol.definicio" arguments="${definicioProces.jbpmKey}, ${definicioProces.etiqueta}, ${definicioProces.versio}"/></c:set>
+		<c:set var="titol"><spring:message code="definicio.proces.importar.form.titol.definicio" arguments="${definicioProces.bpmKey}, ${definicioProces.etiqueta}, ${definicioProces.versio}"/></c:set>
 	</c:when>
 	<c:when test="${not empty command.expedientTipusId}"><
 		<c:set var="titol"><spring:message code="definicio.proces.importar.form.titol.tipus" arguments="${expedientTipus.codi}, ${expedientTipus.nom}"/></c:set>

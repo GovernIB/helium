@@ -87,7 +87,7 @@ public class MesuresTempsController extends BaseController {
 				mesures.addAll(listStatistics);
 			}
 			llistatFamilies.add("sql_helium");
-			llistatFamilies.add("sql_jbpm");
+			llistatFamilies.add("sql_bpm");
 		}
 
 		Map mfamilies = new LinkedHashMap();
@@ -253,7 +253,7 @@ public class MesuresTempsController extends BaseController {
 				cell.setCellStyle(dStyle);
 
 				// Series
-				if ("Consultas Helium".equals(mesura.getClau()) || "Consultas Jbpm".equals(mesura.getClau())) {
+				if ("Consultas Helium".equals(mesura.getClau()) || "Consultas bpm".equals(mesura.getClau())) {
 
 					int rowNumSeries = 0;
 					XSSFSheet sheetSeries;
@@ -298,8 +298,8 @@ public class MesuresTempsController extends BaseController {
 					List<MesuraTemporalDto> listStatistics = new ArrayList<MesuraTemporalDto>();
 					if ("Consultas Helium".equals(mesura.getClau())) {
 						listStatistics = adminService.getHibernateStatistics("sql_helium", true);
-					} else if ("Consultas Jbpm".equals(mesura.getClau())) {
-						listStatistics = adminService.getHibernateStatistics("sql_jbpm", true);
+					} else if ("Consultas Bpm".equals(mesura.getClau())) {
+						listStatistics = adminService.getHibernateStatistics("sql_bpm", true);
 					}
 					for (MesuraTemporalDto mesuraStats : listStatistics) {
 						xlsRow = sheetSeries.createRow(rowNumSeries++);

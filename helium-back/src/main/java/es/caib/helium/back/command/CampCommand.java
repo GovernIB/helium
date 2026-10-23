@@ -74,10 +74,10 @@ public class CampCommand {
 	// Dades de la acció
 	//@NotEmpty(groups = {AltaMassiva.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
-	private String defprocJbpmKey;
+	private String defprocBpmKey;
 	//@NotEmpty(groups = {AltaMassiva.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
-	private String jbpmAction;
+	private String bpmAction;
 
 	boolean dominiCacheText;
 
@@ -225,17 +225,17 @@ public class CampCommand {
 	public void setConsultaCampValor(String consultaCampValor) {
 		this.consultaCampValor = consultaCampValor;
 	}
-	public String getDefprocJbpmKey() {
-		return defprocJbpmKey;
+	public String getDefprocBpmKey() {
+		return defprocBpmKey;
 	}
-	public void setDefprocJbpmKey(String defprocJbpmKey) {
-		this.defprocJbpmKey = defprocJbpmKey;
+	public void setDefprocBpmKey(String defprocBpmKey) {
+		this.defprocBpmKey = defprocBpmKey;
 	}
-	public String getJbpmAction() {
-		return jbpmAction;
+	public String getBpmAction() {
+		return bpmAction;
 	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
+	public void setBpmAction(String bpmAction) {
+		this.bpmAction = bpmAction;
 	}
 	public boolean isDominiCacheText() {
 		return dominiCacheText;
@@ -298,8 +298,8 @@ public class CampCommand {
 		dto.setConsultaCampValor(command.getConsultaCampValor());
 
 		// Dades de la acció
-		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
-		dto.setJbpmAction(command.getJbpmAction());
+		dto.setDefprocBpmKey(command.getDefprocBpmKey());
+		dto.setBpmAction(command.getBpmAction());
 
 		dto.setDominiCacheText(command.isDominiCacheText());
 

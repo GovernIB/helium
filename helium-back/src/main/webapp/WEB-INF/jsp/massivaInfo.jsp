@@ -9,8 +9,8 @@
 <html>
 <head>
 	<title><spring:message code="expedient.massiva.titol"/></title>
-	<meta name="title" content="<spring:message code="expedient.massiva.titol"/>"/>	
-	
+	<meta name="title" content="<spring:message code="expedient.massiva.titol"/>"/>
+
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
@@ -22,12 +22,12 @@
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
 	<script src="<c:url value="/webjars/select2/3.4.8/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	
+
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	
+
 	<script type="text/javascript">
 		// <![CDATA[
 		var docPlantilla = {
@@ -57,7 +57,7 @@
 			e.cancelBubble = true;
 			if (e.stopPropagation) e.stopPropagation();
 			return confirm("<spring:message code='expedient.eines.confirm_anular_proces' />");
-		}		
+		}
 		function confirmarAturar(e) {
 			var e = e || window.event;
 			e.cancelBubble = true;
@@ -111,7 +111,7 @@
 				locale: moment.locale('${idioma}'),
 				minDate: new Date(),
 				format: "DD/MM/YYYY HH:mm"
-		    });			
+		    });
             $("#inici_timer").on("dp.change",function (e) {
 				$("form").each(function(){
 					if (!$(this).find('#inici').length)
@@ -146,8 +146,8 @@
 				var docId = $("#docId").val();
 				if (docId != "") {
 					doc = "d_" + docId;
-				} 
-			 	
+				}
+
 				if (docId == "") {
 			 		$("button[value='document_esborrar']").prop('disabled', true);
 			 		$("a[name='document_modificar']").addClass('disabled');
@@ -161,9 +161,9 @@
 			});
 			$("button[value='document_esborrar']").prop('disabled', true);
 			$("button[value='document_generar']").prop('disabled', true);
-			$("a[name='document_modificar']").addClass('disabled');			
-			$("a[name='modificar_variable']").addClass('disabled');		
-			
+			$("a[name='document_modificar']").addClass('disabled');
+			$("a[name='modificar_variable']").addClass('disabled');
+
 			$('#grup-default-titol').click( function() {
 				var icona = $(this).find('.icona-collapse');
 				icona.toggleClass('fa-chevron-down');
@@ -183,7 +183,7 @@
 		.panel-body-grup {margin: -1px;}
 		.panel-default a, .panel-default a:HOVER {text-decoration: none;}
 		.table {margin-bottom: 5px;}
-		.form-horizontal .control-label.col-xs-4 {width: 22.333%;}		
+		.form-horizontal .control-label.col-xs-4 {width: 22.333%;}
 		.label-titol .control-label {padding-bottom: 20px;}
 		.label-titol {background-color: #fefefe; border: 1px solid #e3e3e3; border-radius: 4px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset; margin-bottom: 20px; min-height: 20px; padding: 19px;}
 		#opciones .label-titol {padding-bottom: 0px;}
@@ -248,12 +248,12 @@
 		                    </script>
 				    	</div>
 					</div>
-					
+
 					<div class="control-group form-group control-group-mid">
 						<input type="checkbox" id="correu" name="correu" value="${correu}"/>
 						<label for="correu"><spring:message code="expedient.massiva.correu"/></label>
 					</div>
-					
+
 					<div class="control-group">
 						<label><spring:message code="expedient.tramitacio.massiva"/></label>
 						<select name="opciones_tramitaci">
@@ -287,7 +287,7 @@
 									var iframe = $('.modal-body iframe', window.parent.document);
 									var height = $('html').height();
 									iframe.height(height + 'px');
-								});								
+								});
 
 								$("select[name='opciones_tramitaci']").on('change', function() {
 									$('.opcionMasiva').hide();
@@ -301,7 +301,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="opcionMasiva control-group right">
 		<div class="label-titol">
 			<label class="control-label"><spring:message code='expedient.massiva.aturar' /></label>
@@ -311,7 +311,7 @@
 					<button class="btn btn-primary right" type="submit" name="accio" value="aturar">
 						<spring:message code='comuns.aturar' />
 					</button>
-				</form:form>	
+				</form:form>
 			</div>
 		</div>
 	</div>
@@ -325,11 +325,11 @@
 					<button class="btn btn-primary right" type="submit" name="accio" value="executar">
 						<spring:message code='comuns.executar' />
 					</button>
-				</form:form>	
+				</form:form>
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="opcionMasiva control-group right">
 		<div class="label-titol">
 			<label class="control-label"><spring:message code='expedient.eines.anular_expedients' /></label>
@@ -352,7 +352,7 @@
 					<div class="ctrlHolder">
 						<h4 style="font-weight: bold;"><spring:message code="expedient.massiva.proces.principal"/>:</h4>
 					</div>
-					<label>${definicioProces.jbpmKey}</label>					
+					<label>${definicioProces.bpmKey}</label>
 					<select name="definicioProcesId" id="definicioProcesId">
 						<c:forEach var="df" items="${definicioProces.listIdAmbEtiqueta}" varStatus="status">
 							<option value="${df.id}">${df.etiqueta}</option>
@@ -370,14 +370,14 @@
 						</div>
 						<div id="subDefinicionsProces" class="form-group">
 							<c:forEach var="subProces" items="${subDefinicioProces}" varStatus="status">
-								<label>${subProces.jbpmKey}</label>								
+								<label>${subProces.bpmKey}</label>
 								<select id="subprocesId[${status.index}]" name="subprocesId">
 									<c:forEach var="item" items="${subProces.listIdAmbEtiqueta}">
-<%-- 										<option value="${item.jbpmId}">${item.etiqueta}</option> --%>
+<%-- 										<option value="${item.bpmId}">${item.etiqueta}</option> --%>
 										<option value="${item.id}">${item.etiqueta}</option>
 									</c:forEach>
 								</select>
-								
+
 								<script>
 									$(document).ready(function() {
 										$("select[name='subprocesId']").select2({
@@ -396,15 +396,15 @@
 											iframe.height(height + 'px');
 										});
 									});
-								</script>								
+								</script>
 							</c:forEach>
 						</div>
 					</c:if>
-					
+
 					<button class="btn btn-primary right" type="submit" name="accio" value="canviar_versio">
 						<spring:message code='comuns.canviar_versio' />
 					</button>
-				</form:form>	
+				</form:form>
 			</div>
 		</div>
 	</div>
@@ -416,7 +416,7 @@
 				<c:if test="${not empty accions}">
 					<form:form cssClass="form-horizontal form-tasca" id="massivaExecutarAccio" name="massivaExecutarAccio" action="massiva/massivaExecutarAccio" method="post" modelAttribute="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)">
 						<hel:inputSelect inline="true" name="accioCodi" textKey="expedient.massiva.exec_accio" placeholderKey="expedient.massiva.exec_accio" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="nom"/>
-						
+
 						<button class="btn btn-primary right" type="submit" name="accio" value="executar_accio">
 							<spring:message code='comuns.executar' />
 						</button>
@@ -428,7 +428,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="opcionMasiva control-group right">
 		<div class="label-titol">
 			<label class="control-label"><spring:message code='expedient.eines.buidarlog.expedients' /></label>
@@ -441,7 +441,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="opcionMasiva control-group right">
 		<div class="label-titol">
 			<label class="control-label"><spring:message code='expedient.eines.reprendre_expedients' /></label>
@@ -454,7 +454,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="opcionMasiva control-group right">
 		<div class="label-titol">
 			<label class="control-label"><spring:message code='expedient.eines.migrar_expedients' /></label>
@@ -467,7 +467,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="opcionMasiva control-group right">
 		<div class="label-titol">
 			<label class="control-label"><spring:message code='expedient.eines.finalitzar_expedients' /></label>
@@ -500,12 +500,12 @@
 				<c:if test="${not empty documents}">
 					<form:form cssClass="form-horizontal form-tasca" id="documentMas" name="documentMas" action="massiva/documentMas" method="post" modelAttribute="documentExpedientCommand" onsubmit="return confirmarModificarDocument(event)">
 						<form:hidden path="expedientId"/>
-						
+
 						<form:hidden path="expedientId"/>
 						<hel:inputSelect inline="true" name="docId" textKey="expedient.massiva.documents" placeholderKey="expedient.consulta.select.document" optionItems="${documents}" optionValueAttribute="id" optionTextAttribute="documentNom" required="true" emptyOption="true"/>
 
 						<a data-rdt-link-modal-min-height="500" class="btn btn-primary right" name="document_modificar" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar' /></a>
-						
+
 						<button class="btn btn-primary right" type="submit" name="accio" value="document_generar">
 							<spring:message code='tasca.doc.generar' />
 						</button>
@@ -517,7 +517,7 @@
 				</c:if>
 				<c:if test="${empty documents}">
 					<spring:message code="expedient.document.info.sensedocuments"/>
-				</c:if>	
+				</c:if>
 			</div>
 		</div>
 	</div>

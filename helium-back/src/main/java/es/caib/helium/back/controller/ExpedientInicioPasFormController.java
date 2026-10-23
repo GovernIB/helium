@@ -50,7 +50,7 @@ import es.caib.helium.logic.intf.service.ReproService;
 
 /**
  * Controlador pel pas de formulari de l'inici d'expedient
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -67,7 +67,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 	@SuppressWarnings("unchecked")
 	@ModelAttribute("command")
 	protected Object populateCommand(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
 			Model model,
@@ -148,12 +148,12 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			//mapegem les dades de l'anotació a la pantalla d'inici
 			Map<String,Object> variables = resultatMapeig.getDades();
 			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model, variables));
-		} 
+		}
 		if (!model.containsAttribute("command") || model.asMap().get("command") == null)
 			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model,null));
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 		List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(expedientTipusId, tasca);
-		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getJbpmName());
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getBpmName());
 		model.addAttribute("tasca", tasca);
 		model.addAttribute("dades", dades);
 		model.addAttribute("repros", repros);
@@ -167,13 +167,13 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 
 	@RequestMapping(value = "/iniciarForm/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.POST)
 	public String iniciarFormPost(
-			HttpServletRequest request, 
-			@RequestParam(value = "id", required = false) String id, 
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) String id,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
 			@Valid @ModelAttribute("command") Object command,
-			BindingResult result, 
-			SessionStatus status, 
+			BindingResult result,
+			SessionStatus status,
 			Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
@@ -203,7 +203,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			model.addAttribute(command);
 			model.addAttribute("tasca", tasca);
 			model.addAttribute("dades", tascaDades);
-			model.addAttribute("repros", reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getJbpmName()));
+			model.addAttribute("repros", reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getBpmName()));
 			model.addAttribute("entornId", entorn.getId());
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
@@ -231,7 +231,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 						(Integer)request.getSession().getAttribute(CLAU_SESSIO_ANY),
 						valors,
 						anotacioAcceptarCommand);
-				
+
 			} catch (Exception ex) {
 				if (ex instanceof ValidacioException) {
 					MissatgesHelper.error(
@@ -248,16 +248,16 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 				} else {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.iniciar.expedient") + ": " + 
+		        			getMessage(request, "error.iniciar.expedient") + ": " +
 		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
 							ex);
 		        }
-				
+
 				logger.error("No s'ha pogut iniciar l'expedient", ex);
 				model.addAttribute(command);
 				model.addAttribute("tasca", tasca);
 				model.addAttribute("dades", tascaDades);
-				model.addAttribute("repros", reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getJbpmName()));
+				model.addAttribute("repros", reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId(), tasca.getBpmName()));
 				model.addAttribute("entornId", entorn.getId());
 				model.addAttribute("expedientTipus", expedientTipus);
 				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
@@ -290,7 +290,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 		}
 		model.addAttribute("definicioProces", definicioProces);
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -315,9 +315,9 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 				Object.class,
 				new ObjectTypeEditorHelper());
 	}
-	
+
 	/** Mètode per retornar l'HTML d'una nova fila per una variable de tipus registre múltiple
-	 * 
+	 *
 	 */
 	@RequestMapping(value = "/iniciarForm/{expedientTipusId}/afegir/{campId}", method = RequestMethod.GET)
 	public String afegir(
@@ -327,7 +327,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			@PathVariable String varCodi,
 			@PathVariable String campId,
 			Model model) {
-		
+
 //		try {
 //			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 //			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();

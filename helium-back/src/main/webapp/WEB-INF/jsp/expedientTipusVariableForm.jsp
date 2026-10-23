@@ -76,16 +76,16 @@
 			<legend><spring:message code="expedient.tipus.camp.form.fieldset.accio"></spring:message></legend>
 			<c:choose>
 				<c:when test="${perEstats}">
-					<hel:inputHidden name="defprocJbpmKey" />
+					<hel:inputHidden name="defprocBpmKey" />
 				</c:when>
 				<c:when test="${not empty campCommand.definicioProcesId}">
-					<!-- Per camps definits a la definició de procés no cal el camp defprocJbpmKey -->
+					<!-- Per camps definits a la definició de procés no cal el camp defprocBpmKey -->
 				</c:when>
 				<c:otherwise>
-					<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
+					<hel:inputSelect required="true" name="defprocBpmKey" textKey="expedient.tipus.accio.form.accio.defprocBpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocBpmKey.placeholder" optionItems="${definicionsProces}" />
 				</c:otherwise>
 			</c:choose>
-			<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" emptyOption="true" optionItems="${accions}" placeholderKey="expedient.tipus.camp.form.camp.jbpmAction.placeholder" optionValueAttribute="codi" optionTextAttribute="valor"/>
+			<hel:inputSelect required="true" name="bpmAction" textKey="expedient.tipus.accio.form.accio.bpmAction" emptyOption="true" optionItems="${accions}" placeholderKey="expedient.tipus.camp.form.camp.bpmAction.placeholder" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		</fieldset>
 
 		<fieldset id="dadesTermini" class="dades termini" style="display:none;">
@@ -150,7 +150,7 @@
 			});
 
 			// Canvi en la selecció de la definicion
-			$('#defprocJbpmKey').change(function() {
+			$('#defprocBpmKey').change(function() {
 				refrescaAccions();
 			});
 
@@ -192,31 +192,31 @@
 		}
 
 		function refrescaAccions() {
-			var definicioProcesId = $("#defprocJbpmKey").val();
-			var jbpmActionActual = $('#jbpmAction').val();
+			var definicioProcesId = $("#defprocBpmKey").val();
+			var bpmActionActual = $('#bpmAction').val();
 			if (definicioProcesId != "") {
 				var getUrl = '<c:url value="/expedientTipus/${campCommand.expedientTipusId}/definicio/"/>' + definicioProcesId + '/accions/select';
 				$.ajax({
 					type: 'GET',
 					url: getUrl,
-					data: {jbpmActionActual: jbpmActionActual},
+					data: {bpmActionActual: bpmActionActual},
 					async: true,
 					success: function(data) {
-						$("#jbpmAction option").each(function(){
+						$("#bpmAction option").each(function(){
 						    $(this).remove();
 						});
-						$("#jbpmAction").append($("<option/>"));
+						$("#bpmAction").append($("<option/>"));
 						for (i = 0; i < data.length; i++) {
-							$("#jbpmAction").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
+							$("#bpmAction").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
 						}
-						$("#jbpmAction").val(definicioProcesId).change();
+						$("#bpmAction").val(definicioProcesId).change();
 					},
 					error: function(e) {
 						console.log("Error obtenint les accions de les definicions de procés per l' id " + definicioProcesId + ": " + e);
 					}
 				});
 			} else {
-				$('#jbpmAction').val('').change();
+				$('#bpmAction').val('').change();
 			}
 		}
 

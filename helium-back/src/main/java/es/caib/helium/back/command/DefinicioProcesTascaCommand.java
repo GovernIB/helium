@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.command;
 
@@ -9,16 +9,16 @@ import javax.validation.constraints.Size;
 import es.caib.helium.commons.dto.TascaDto;
 /**
  * Command per editar la informació de les tasques de les definicions
- * de proces. 
- * 
+ * de proces.
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class DefinicioProcesTascaCommand {
-	
+
 	private Long definicioProcesId;
 	private Long id;
-	/** Per mostrar el nom deshabilitat en el formulari. */ 
-	private String jbpmName;
+	/** Per mostrar el nom deshabilitat en el formulari. */
+	private String bpmName;
 	@NotEmpty(groups = {Modificacio.class})
 	@Size(max = 255, groups = {Modificacio.class})
 	private String nom;
@@ -37,8 +37,8 @@ public class DefinicioProcesTascaCommand {
 	private boolean finalitzacioSegonPla = false;
 	private boolean ambRepro = false;
 	private boolean mostrarAgrupacions = false;
-	
-	
+
+
 	public boolean isMostrarAgrupacions() {
 		return mostrarAgrupacions;
 	}
@@ -63,11 +63,11 @@ public class DefinicioProcesTascaCommand {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getJbpmName() {
-		return this.jbpmName;
+	public String getBpmName() {
+		return this.bpmName;
 	}
-	public void setJbpmName(String jbpmName) {
-		this.jbpmName = jbpmName;
+	public void setBpmName(String bpmName) {
+		this.bpmName = bpmName;
 	}
 	public String getNom() {
 		return nom;
@@ -123,16 +123,16 @@ public class DefinicioProcesTascaCommand {
 	public void setFinalitzacioSegonPla(boolean finalitzacioSegonPla) {
 		this.finalitzacioSegonPla = finalitzacioSegonPla;
 	}
-	
+
 	public static TascaDto asTascaDto(DefinicioProcesTascaCommand command) {
 		TascaDto dto = new TascaDto();
-		
+
 		dto.setId(command.getId());
 		dto.setNom(command.getNom());
 		dto.setMissatgeInfo(command.getMissatgeInfo());
 		dto.setMissatgeWarn(command.getMissatgeWarn());
 		dto.setNomScript(command.getNomScript());
-		dto.setExpressioDelegacio(command.isExpressioDelegacio() ? "on" : ""); 
+		dto.setExpressioDelegacio(command.isExpressioDelegacio() ? "on" : "");
 		dto.setRecursForm(command.getRecursForm());
 		dto.setFormExtern(command.getFormExtern());
 		dto.setTramitacioMassiva(command.isTramitacioMassiva());
@@ -141,13 +141,13 @@ public class DefinicioProcesTascaCommand {
 		dto.setMostrarAgrupacions(command.isMostrarAgrupacions());
 		return dto;
 	}
-	
+
 	public static DefinicioProcesTascaCommand toDefinicioProcesTascaCommand(TascaDto dto) {
 		DefinicioProcesTascaCommand command = new DefinicioProcesTascaCommand();
-		
+
 		command.setId(dto.getId());
 		command.setDefinicioProcesId(dto.getDefinicioProcesId());
-		command.setJbpmName(dto.getJbpmName());
+		command.setBpmName(dto.getBpmName());
 		command.setNom(dto.getNom());
 		command.setMissatgeInfo(dto.getMissatgeInfo());
 		command.setMissatgeWarn(dto.getMissatgeWarn());

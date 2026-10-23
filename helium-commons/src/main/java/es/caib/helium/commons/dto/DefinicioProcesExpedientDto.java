@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.dto;
 
@@ -8,14 +8,14 @@ import java.util.List;
 
 /**
  * DTO amb informació d'una versió d'una definició de procés.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class DefinicioProcesExpedientDto {
 
 	private Long id;
-	private String jbpmId;
-	private String jbpmKey;
+	private String bpmId;
+	private String bpmKey;
 	private int versio = -1;
 	private String etiqueta;
 	private List<IdAmbEtiqueta> listIdAmbEtiqueta;
@@ -24,15 +24,15 @@ public class DefinicioProcesExpedientDto {
 		private boolean hasStartTask;
 		private boolean demanaNumeroTitol;
 		private String etiqueta;
-		private String jbpmId;
+		private String bpmId;
 		private Long id;
-		
-		public IdAmbEtiqueta(Long id, String etiqueta, String jbpmId, boolean hasStartTask, boolean demanaNumeroTitol)  {
+
+		public IdAmbEtiqueta(Long id, String etiqueta, String bpmId, boolean hasStartTask, boolean demanaNumeroTitol)  {
 			this.setId(id);
-			this.setJbpmId(jbpmId);
+			this.setBpmId(bpmId);
 			this.setEtiqueta(etiqueta);
 			this.setHasStartTask(hasStartTask);
-			this.setDemanaNumeroTitol(demanaNumeroTitol);			
+			this.setDemanaNumeroTitol(demanaNumeroTitol);
 		}
 
 		public String getEtiqueta() {
@@ -67,12 +67,12 @@ public class DefinicioProcesExpedientDto {
 			this.demanaNumeroTitol = demanaNumeroTitol;
 		}
 
-		public String getJbpmId() {
-			return jbpmId;
+		public String getBpmId() {
+			return bpmId;
 		}
 
-		public void setJbpmId(String jbpmId) {
-			this.jbpmId = jbpmId;
+		public void setBpmId(String bpmId) {
+			this.bpmId = bpmId;
 		}
 	}
 
@@ -100,8 +100,8 @@ public class DefinicioProcesExpedientDto {
 		this.versio = versio;
 	}
 
-	public void addIdAmbEtiquetaId(Long id, String etiqueta, String jbpmId, boolean hasStartTask, boolean demanaNumeroTitol) {
-		getListIdAmbEtiqueta().add(new IdAmbEtiqueta(id, jbpmId, etiqueta, hasStartTask, demanaNumeroTitol));
+	public void addIdAmbEtiquetaId(Long id, String etiqueta, String bpmId, boolean hasStartTask, boolean demanaNumeroTitol) {
+		getListIdAmbEtiqueta().add(new IdAmbEtiqueta(id, bpmId, etiqueta, hasStartTask, demanaNumeroTitol));
 	}
 
 	public List<IdAmbEtiqueta> getListIdAmbEtiqueta() {
@@ -110,19 +110,19 @@ public class DefinicioProcesExpedientDto {
 		return listIdAmbEtiqueta;
 	}
 
-	public String getJbpmId() {
-		return jbpmId;
+	public String getBpmId() {
+		return bpmId;
 	}
 
-	public void setJbpmId(String jbpmId) {
-		this.jbpmId = jbpmId;
+	public void setBpmId(String bpmId) {
+		this.bpmId = bpmId;
 	}
 
-	public String getJbpmKey() {
-		return jbpmKey;
+	public String getBpmKey() {
+		return bpmKey;
 	}
 
-	public void setJbpmKey(String jbpmKey) {
-		this.jbpmKey = jbpmKey;
+	public void setBpmKey(String bpmKey) {
+		this.bpmKey = bpmKey;
 	}
 }

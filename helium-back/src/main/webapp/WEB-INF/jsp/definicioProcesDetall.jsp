@@ -38,7 +38,7 @@
 </style>
 
 <c:choose>
-	<c:when test="${not empty definicioProces}">		
+	<c:when test="${not empty definicioProces}">
 		<form class="well">
 			<div id="definicioProces-info" class="row">
 				<div class="col-md-12">
@@ -46,26 +46,26 @@
 						<dt><spring:message code="definicio.proces.detall.camp.id"/></dt>
 						<dd>${definicioProces.idPerMostrar}</dd>
 						<dt><spring:message code="definicio.proces.detall.camp.codi"/></dt>
-						<dd>${definicioProces.jbpmKey}</dd>				
+						<dd>${definicioProces.bpmKey}</dd>
 						<dt><spring:message code="definicio.proces.detall.camp.versio"/></dt>
 						<dd>${definicioProces.versio}</dd>
 						<c:if test="${not empty definicioProces.etiqueta}">
 							<dt><spring:message code="definicio.proces.detall.camp.etiqueta"></spring:message></dt>
 							<dd>${definicioProces.etiqueta}</dd>
-						</c:if>										
+						</c:if>
 						<c:if test="${not empty definicioProces.expedientTipus}">
 							<dt><spring:message code="definicio.proces.detall.camp.tipus.expedient"></spring:message></dt>
 							<dd><a href='<c:url value="/expedientTipus/${definicioProces.expedientTipus.id}"/>'>
 									${definicioProces.expedientTipus.codi} - ${definicioProces.expedientTipus.nom}
 								</a></dd>
-						</c:if>										
+						</c:if>
 						<c:if test="${not empty definicioProces.startTaskName}">
 							<dt><spring:message code="definicio.proces.detall.camp.startTaskName"></spring:message></dt>
 							<dd>${definicioProces.startTaskName}</dd>
-						</c:if>										
+						</c:if>
 						<dt><spring:message code="definicio.proces.detall.camp.dataCreacio"/></dt>
 						<dd><fmt:formatDate value="${definicioProces.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></dd>
-						<!-- sub definicions de procés -->				
+						<!-- sub definicions de procés -->
 						<c:if test="${fn:length(subDefinicionsProces) gt 0}">
 							<dt><spring:message code="definicio.proces.detall.subdef"/></dt>
 							<dd>
@@ -78,8 +78,8 @@
 						<div id="expedientTipus-info-accio" class="dropdown">
 							<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/expedientTipus/${expedientTipus.id}}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.eines"/>&nbsp;<span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" href="<c:url value="/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/update"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="definicio.proces.accio.modificar"/></a></li>
-								<li><a id="accioEsborrar" href='<c:url value="/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/delete"/>' data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+								<li><a data-toggle="modal" href="<c:url value="/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/update"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="definicio.proces.accio.modificar"/></a></li>
+								<li><a id="accioEsborrar" href='<c:url value="/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/delete"/>' data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
 							</ul>
 						</div>
 					</c:if>
@@ -93,10 +93,10 @@
 </c:choose>
 
 <script type="text/javascript">
-// <![CDATA[            
+// <![CDATA[
 
-$(document).ready(function() {		
+$(document).ready(function() {
 });
 
 // ]]>
-</script>			
+</script>

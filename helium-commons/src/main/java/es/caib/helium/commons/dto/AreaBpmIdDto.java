@@ -1,7 +1,7 @@
 package es.caib.helium.commons.dto;
 
-public class AreaJbpmIdDto {
-	
+public class AreaBpmIdDto {
+
 	private Long id;
 	private String codi;
 	private String descripcio;

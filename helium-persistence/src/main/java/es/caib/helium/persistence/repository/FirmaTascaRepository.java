@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -16,11 +16,11 @@ import es.caib.helium.persistence.entity.FirmaTasca;
 
 /**
  * Dao pels objectes de tipus firma de tasca
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
-	
+
 	/** Consulta el següent valor per a ordre de les agrupacions. */
 	@Query(	"select coalesce( max( ft.order), -1) + 1 " +
 			"from FirmaTasca ft " +
@@ -36,9 +36,9 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			" 		  (ft.tasca.definicioProces.expedientTipus is null) " +
 			"       ) ")
 	public Integer getNextOrdre(@Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
-	
+
 	/** Consulta les firmes de la tasca.
-	 * 
+	 *
 	 * @param tascaId Identificador de la tasca.
 	 * @param expedientTipusId Si s'informa llavors es filtren els camps que estiguin relacionats amb aquest tipus d'expedient.
 	 * @return
@@ -57,16 +57,16 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			"order by ft.order")
 	public List<FirmaTasca> findAmbTascaIdOrdenats(
 			@Param("tascaId") Long tascaId,
-			@Param("expedientTipusId") Long expedientTipusId);	
+			@Param("expedientTipusId") Long expedientTipusId);
 
 	@Query("select count(ft) from " +
 			"    FirmaTasca ft " +
 			"where " +
-			"   ft.tasca.jbpmName=:jbpmName " +
-			"	and ft.tasca.definicioProces.jbpmId=:jbpmId")
+			"   ft.tasca.bpmName=:bpmName " +
+			"	and ft.tasca.definicioProces.bpmId=:bpmId")
 	Long countAmbTasca(
-			@Param("jbpmName") String name,
-			@Param("jbpmId") String jbpmId);
+			@Param("bpmName") String name,
+			@Param("bpmId") String bpmId);
 
 	@Query("select ft from " +
 			"    FirmaTasca ft " +
@@ -83,7 +83,7 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			" 		  (ft.tasca.definicioProces.expedientTipus is null) " +
 			"       ) ")
 	FirmaTasca findAmbDocumentTasca(@Param("documentId") Long documentId, @Param("tascaId") Long tascaId, @Param("expedientTipusId") Long expedientTipusId);
-	
+
 	@Query(	"from FirmaTasca ft " +
 			"where " +
 			"   ft.tasca.id = :tascaId " +
@@ -99,7 +99,7 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			"	and (:esNullFiltre = true or lower(ft.document.codi) like lower('%'||:filtre||'%') or lower(ft.document.nom) like lower('%'||:filtre||'%')) ")
 	public Page<FirmaTasca> findByFiltrePaginat(
 			@Param("tascaId") Long tascaId,
-			@Param("expedientTipusId") Long expedientTipusId, 
+			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,
 			Pageable pageable);

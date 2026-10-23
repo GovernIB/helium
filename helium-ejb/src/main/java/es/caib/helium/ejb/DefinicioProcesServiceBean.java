@@ -40,8 +40,8 @@ public class DefinicioProcesServiceBean extends AbstractServiceEjb<DefinicioProc
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto findByEntornTipusIdAndJbpmKey(Long entornId, Long expedientTipusId, String jbpmKey) {
-		return delegateService.findByEntornTipusIdAndJbpmKey(entornId, expedientTipusId, jbpmKey);
+	public DefinicioProcesDto findByEntornTipusIdAndBpmKey(Long entornId, Long expedientTipusId, String bpmKey) {
+		return delegateService.findByEntornTipusIdAndBpmKey(entornId, expedientTipusId, bpmKey);
 	}
 
 	@Override
@@ -325,8 +325,8 @@ public class DefinicioProcesServiceBean extends AbstractServiceEjb<DefinicioProc
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto findByJbpmKeyAndVersio(String defprocJbpmKey, int defprocVersio) {
-		return delegateService.findByJbpmKeyAndVersio(defprocJbpmKey, defprocVersio);
+	public DefinicioProcesDto findByBpmKeyAndVersio(String defprocBpmKey, int defprocVersio) {
+		return delegateService.findByBpmKeyAndVersio(defprocBpmKey, defprocVersio);
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.commons.exportacio;
 
@@ -16,7 +16,7 @@ import es.caib.helium.commons.dto.SequenciaDefaultAnyDto;
 
 /**
  * DTO amb informació d'un tipus d'expedient per a la exportació.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ExpedientTipusExportacio implements Serializable {
@@ -24,7 +24,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private Long id;
 	private String codi;
 	private String nom;
-	private String jbpmProcessDefinitionKey;
+	private String bpmProcessDefinitionKey;
 	private boolean teNumero;
 	private boolean teTitol;
 	private boolean demanaNumero;
@@ -51,7 +51,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String manualAjudaNom;
 	private byte[] manualAjudaContent;
 
-	
+
 	// integració amb forms
 	private String formextUrl;
 	private String formextUsuari;
@@ -59,7 +59,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	// Integració amb tràmits Sistra
 	private String sistraTramitCodi;
 	private List<MapeigSistraExportacio> sistraMapejos = new ArrayList<MapeigSistraExportacio>();
-	
+
 	// Dades NTI i Arxiu
 	private boolean ntiActiu;
 	private String ntiOrgano;
@@ -67,11 +67,11 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String ntiSerieDocumental;
 	private boolean arxiuActiu;
 	private boolean procedimentComu;
-	
+
 	//Integracio PINBAL
 	private boolean pinbalActiu;
 	private String pinbalNifCif;
-	
+
 	// Integració DISTRIBUCIO
 	private boolean distribucioActiu;
 	private String distribucioCodiProcediment;
@@ -79,13 +79,13 @@ public class ExpedientTipusExportacio implements Serializable {
 	private Boolean distribucioPresencial;
 	private boolean distribucioProcesAuto;
 	private boolean distribucioSistra;
-	
+
 	// Integració amb NOTIB
 	private Boolean notibActiu;
 	private String notibEmisor;
 	private String notibCodiProcediment;
-	
-	
+
+
 	private List<EstatExportacio> estats = new ArrayList<EstatExportacio>();
 	private List<CampExportacio> camps = new ArrayList<CampExportacio>();
 	private List<AgrupacioExportacio> agrupacions = new ArrayList<AgrupacioExportacio>();
@@ -96,11 +96,11 @@ public class ExpedientTipusExportacio implements Serializable {
 	private List<AccioExportacio> accions = new ArrayList<AccioExportacio>();
 	private List<DominiExportacio> dominis = new ArrayList<DominiExportacio>();
 	private List<ConsultaExportacio> consultes = new ArrayList<ConsultaExportacio>();
-	
+
 	/** Informació de camps i tasques relacionats amb les definicions de procés en cas de ser un tipus d'expedient que hereta. Conté una llista
 	 * d'informació de tasques per la clau segons el codi de la definició de procés*/
 	private Map<String, List<TascaExportacio>> herenciaTasques;
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -119,11 +119,11 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
-	public String getJbpmProcessDefinitionKey() {
-		return jbpmProcessDefinitionKey;
+	public String getBpmProcessDefinitionKey() {
+		return bpmProcessDefinitionKey;
 	}
-	public void setJbpmProcessDefinitionKey(String jbpmProcessDefinitionKey) {
-		this.jbpmProcessDefinitionKey = jbpmProcessDefinitionKey;
+	public void setBpmProcessDefinitionKey(String bpmProcessDefinitionKey) {
+		this.bpmProcessDefinitionKey = bpmProcessDefinitionKey;
 	}
 	public boolean isTeNumero() {
 		return teNumero;
@@ -306,20 +306,20 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setNtiClasificacion(String ntiClasificacion) {
 		this.ntiClasificacion = ntiClasificacion;
 	}
-	
+
 	public String getNtiSerieDocumental() {
 		return ntiSerieDocumental;
 	}
 	public void setNtiSerieDocumental(String ntiSerieDocumental) {
 		this.ntiSerieDocumental = ntiSerieDocumental;
 	}
-	
+
 	public boolean isArxiuActiu() {
 		return arxiuActiu;
 	}
-	
+
 	// Integració DISTRIBUCIO
-	
+
 	public boolean isDistribucioActiu() {
 		return distribucioActiu;
 	}
@@ -375,7 +375,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setNotibCodiProcediment(String notibCodiProcediment) {
 		this.notibCodiProcediment = notibCodiProcediment;
 	}
-	
+
 	public void setArxiuActiu(boolean arxiuActiu) {
 		this.arxiuActiu = arxiuActiu;
 	}
@@ -456,7 +456,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setPinbalActiu(boolean pinbalActiu) {
 		this.pinbalActiu = pinbalActiu;
 	}
-	
+
 	public String getPinbalNifCif() {
 		return pinbalNifCif;
 	}

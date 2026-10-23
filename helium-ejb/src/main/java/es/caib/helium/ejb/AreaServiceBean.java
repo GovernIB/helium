@@ -6,7 +6,7 @@ import javax.ejb.Stateless;
 import es.caib.helium.ejb.base.AbstractServiceEjb;
 import lombok.experimental.Delegate;
 
-import es.caib.helium.commons.dto.AreaJbpmIdDto;
+import es.caib.helium.commons.dto.AreaBpmIdDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.AreaService;
@@ -28,31 +28,31 @@ public class AreaServiceBean extends AbstractServiceEjb<AreaService> implements 
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public AreaJbpmIdDto findAmbId(Long id) {
+	public AreaBpmIdDto findAmbId(Long id) {
 		return delegateService.findAmbId(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public AreaJbpmIdDto findAmbCodi(String codi) {
+	public AreaBpmIdDto findAmbCodi(String codi) {
 		return delegateService.findAmbCodi(codi);
 	}
 
 	@Override
 
-	public PaginaDto<AreaJbpmIdDto> findConfigurades(PaginacioParamsDto paginacioParams) {
+	public PaginaDto<AreaBpmIdDto> findConfigurades(PaginacioParamsDto paginacioParams) {
 		return delegateService.findConfigurades(paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public PaginaDto<AreaJbpmIdDto> findSenseConfigurar(PaginacioParamsDto paginacioParams) {
+	public PaginaDto<AreaBpmIdDto> findSenseConfigurar(PaginacioParamsDto paginacioParams) {
 		return delegateService.findSenseConfigurar(paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public AreaJbpmIdDto create(AreaJbpmIdDto area) {
+	public AreaBpmIdDto create(AreaBpmIdDto area) {
 		return delegateService.create(area);
 	}
 
@@ -64,7 +64,7 @@ public class AreaServiceBean extends AbstractServiceEjb<AreaService> implements 
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public AreaJbpmIdDto update(AreaJbpmIdDto area) {
+	public AreaBpmIdDto update(AreaBpmIdDto area) {
 		return delegateService.update(area);
 	}
 

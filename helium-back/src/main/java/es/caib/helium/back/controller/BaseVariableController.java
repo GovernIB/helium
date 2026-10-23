@@ -34,16 +34,16 @@ import es.caib.helium.logic.intf.service.CampService;
 /**
  * Controlador base per als controladors de les variables del tipus d'expedient
  * i de les definicions de procés.
- * 
+ *
  */
 public class BaseVariableController extends BaseDissenyController {
-	
-	public final Long AGRUPACIO_TOTES = -2L;	
-	public final Long AGRUPACIO_SENSE = -1L;	
-	
+
+	public final Long AGRUPACIO_TOTES = -2L;
+	public final Long AGRUPACIO_SENSE = -1L;
+
 	@Autowired
-	protected CampService campService;	
-	
+	protected CampService campService;
+
 	/** Mètode per validar si una variable (camp) es pot esborrar o s'utilitza en registres,
 	 * tasques o consultes.
 	 */
@@ -57,31 +57,31 @@ public class BaseVariableController extends BaseDissenyController {
 		if (tasques.size() > 0) {
 			if( camp.getExpedientTipus() == null)
 				MissatgesHelper.error(
-						request, 
+						request,
 						getMessage(
 								request,
 								"expedient.tipus.camp.llistat.accio.esborrar.validacio.tasca",
-								new Object[] {llistaToString(tasques, "jbpmName")}));
-			else 
+								new Object[] {llistaToString(tasques, "bpmName")}));
+			else
 			{
 				// Esbrina de quines defincions són les tasques i construeix el missatge de validació
 				List<String> tasquesList = new ArrayList<String>();
 				DefinicioProcesDto definicio;
 				ExpedientTipusDto expedientTipus;
-				for (TascaDto tasca : tasques) {					
+				for (TascaDto tasca : tasques) {
 					definicio = definicioProcesService.tascaFindDefinicioProcesDeTasca(tasca.getId());
 					expedientTipus = null;
 					for (CampTascaDto ct : tasca.getCamps())
 						if (ct.getCamp().getId().equals(id)){
 							if (ct.getExpedientTipusId() != null)
 								expedientTipus = expedientTipusService.findAmbId(ct.getExpedientTipusId());
-							else 
+							else
 								expedientTipus = definicio.getExpedientTipus();
 						}
-					tasquesList.add((expedientTipus != null ? expedientTipus.getCodi() + "." : "") + definicio.getIdPerMostrar() + "." + tasca.getJbpmName());
+					tasquesList.add((expedientTipus != null ? expedientTipus.getCodi() + "." : "") + definicio.getIdPerMostrar() + "." + tasca.getBpmName());
 				}
 				MissatgesHelper.error(
-						request, 
+						request,
 						getMessage(
 								request,
 								"expedient.tipus.camp.llistat.accio.esborrar.validacio.tasca",
@@ -93,22 +93,22 @@ public class BaseVariableController extends BaseDissenyController {
 		List<ConsultaDto> consultes = campService.findConsultesPerCamp(expedientTipusId, id);
 		if (consultes.size() > 0) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					getMessage(
 							request,
 							"expedient.tipus.camp.llistat.accio.esborrar.validacio.consulta",
-							new Object[] {llistaToString(consultes, "codi")}));			
+							new Object[] {llistaToString(consultes, "codi")}));
 			valid = false;
 		}
 		// Valida que no pertany a cap registre
 		List<CampDto> registres = campService.findRegistresPerCamp(id);
 		if (registres.size() > 0) {
 			MissatgesHelper.error(
-					request, 
+					request,
 					getMessage(
 							request,
 							"expedient.tipus.camp.llistat.accio.esborrar.validacio.registre",
-							new Object[] {llistaToString(registres, "codi")}));			
+							new Object[] {llistaToString(registres, "codi")}));
 			valid = false;
 		}
 		return valid;
@@ -132,8 +132,8 @@ public class BaseVariableController extends BaseDissenyController {
 				}
 			}
 		return llistaToString(textList);
-	}	
-	
+	}
+
 	/** Mètode per retornar un string amb una llista separada per comes */
 	private String llistaToString(List<String> textList) {
 		StringBuilder str = new StringBuilder();
@@ -144,18 +144,18 @@ public class BaseVariableController extends BaseDissenyController {
 			if (i++ < N)
 				str.append(", ");
 		}
-		return str.toString();		
+		return str.toString();
 	}
-	
+
 	protected void omplirModelAgrupacions(
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Long definicioProcesId,
 			Model model,
 			boolean herencia) {
-		model.addAttribute("agrupacions", obtenirParellesAgrupacions(request, expedientTipusId, definicioProcesId, herencia));		
+		model.addAttribute("agrupacions", obtenirParellesAgrupacions(request, expedientTipusId, definicioProcesId, herencia));
 	}
-	
+
 	/** Obté la llista de parelles codi-valor per les possibles agrupacions. A més també afegeix a l'inici
 	 * les opcions de totes les variables (-2) o sensa grupació (-1).
 	 * @param request
@@ -165,7 +165,7 @@ public class BaseVariableController extends BaseDissenyController {
 	 * @return
 	 */
 	protected List<ParellaCodiValorDto> obtenirParellesAgrupacions(
-			HttpServletRequest request, 
+			HttpServletRequest request,
 			Long expedientTipusId,
 			Long definicioProcesId,
 			boolean herencia) {
@@ -178,8 +178,8 @@ public class BaseVariableController extends BaseDissenyController {
 		}
 		return resposta;
 	}
-	
-	
+
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -203,8 +203,8 @@ public class BaseVariableController extends BaseDissenyController {
 		binder.registerCustomEditor(
 				Object.class,
 				new ObjectTypeEditorHelper());
-	}	
-	
+	}
+
 	private static final Log logger = LogFactory.getLog(BaseVariableController.class);
-	
+
 }

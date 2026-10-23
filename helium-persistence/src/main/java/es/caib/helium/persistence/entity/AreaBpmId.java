@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -18,29 +18,29 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Objecte de domini per emmagatzemar la informació d'una àrea
- * de la taula JBPM_ID_GROUP
- * 
+ * de la taula BPM_ID_GROUP
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(name="hel_area_jbpmid")
-public class AreaJbpmId implements Serializable, GenericEntity<Long> {
+@Table(name="hel_area_bpmid")
+public class AreaBpmId implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	private String codi;
 	private String nom;
 	private String descripcio;
 
-	public AreaJbpmId() {}
-	public AreaJbpmId(String codi, String nom) {
+	public AreaBpmId() {}
+	public AreaBpmId(String codi, String nom) {
 		this.codi = codi;
 		this.nom = nom;
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_area_jbpmid")
-	@TableGenerator(name="gen_area_jbpmid", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
+	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_area_bpmid")
+	@TableGenerator(name="gen_area_bpmid", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
 	@Column(name="id")
 	public Long getId() {
 		return id;
@@ -90,7 +90,7 @@ public class AreaJbpmId implements Serializable, GenericEntity<Long> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AreaJbpmId other = (AreaJbpmId) obj;
+		AreaBpmId other = (AreaBpmId) obj;
 		if (codi == null) {
 			if (other.codi != null)
 				return false;

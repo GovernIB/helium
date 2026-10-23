@@ -27,6 +27,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.codahale.metrics.Counter;
@@ -605,7 +606,7 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				true,
 				true);
-		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+		Tasca tasca = tascaHelper.findTascaByBpmTask(task);
 		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
 
 		return campTascaRepository.countAmbTasca(
@@ -769,7 +770,7 @@ public class TascaServiceImpl implements TascaService {
 					true,
 					true);
 			// Comprova si el camp pertany a la tasca
-			Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+			Tasca tasca = tascaHelper.findTascaByBpmTask(task);
 			boolean trobat = false;
 			for (CampTasca campTasca: tasca.getCamps()) {
 				if (campTasca.getCamp().equals(camp)) {
@@ -1098,7 +1099,7 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
 				null,
 				usuari);
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProcesBpmId(
 				task.getTaskName(),
 				task.getProcessDefinitionId());
 		Map<String, Object> variablesProcessades = new HashMap<String, Object>(variables);
@@ -1122,6 +1123,12 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void refrescar(String taskInstanceId) {
+		tascaHelper.refreshExpedientTasca(taskInstanceId);
+	}
+
+	@Override
 	@Transactional
 	public void validar(
 			String taskInstanceId,
@@ -1142,12 +1149,11 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientLogAccioTipus.TASCA_FORM_VALIDAR,
 				null,
 				usuari);
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProcesBpmId(
 				task.getTaskName(),
 				task.getProcessDefinitionId());
 		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);
 		workflowEngineApi.startTaskInstance(taskInstanceId);
-		//workflowEngineApi.setTaskInstanceVariables(taskInstanceId, variables, false);
 		tascaHelper.refreshExpedientTasca(taskInstanceId, true);
 
 		Registre registre = new Registre(
@@ -1157,7 +1163,6 @@ public class TascaServiceImpl implements TascaService {
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
 				taskInstanceId);
-//		registre.setMissatge("Validar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 		registre.setMissatge("Validar \"" + task.getTaskName() + "\"");
 		registreRepository.save(registre);
 	}
@@ -1250,7 +1255,7 @@ public class TascaServiceImpl implements TascaService {
 		}
 
 		//A partir d'aquí distingirem si la tasca s'ha d'executar en segon pla o no
-		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+		Tasca tasca = tascaHelper.findTascaByBpmTask(task);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		if (tasca.isFinalitzacioSegonPla()) {
 			//cridar command per a marcar la tasca per a finalitzar en segón pla
@@ -1414,9 +1419,10 @@ public class TascaServiceImpl implements TascaService {
 					ExpedientLogAccioTipus.TASCA_COMPLETAR,
 					outcome,
 					usuari);
-			//workflowEngineApi.startTaskInstance(tascaId);
+
+			Map<String, Object> variablesTasca = expedientDadaHelper.getDadesValors(null, null, tascaId);
 			WDelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
-			workflowEngineApi.endTaskInstance(tascaId, outcome);
+			workflowEngineApi.endTaskInstance(tascaId, outcome, variablesTasca);
 			tascaHelper.refreshExpedientTasca(tascaId);
 			// checkCompletarTasca(tascaId);
 			// Accions per a una tasca delegada
@@ -1438,7 +1444,7 @@ public class TascaServiceImpl implements TascaService {
 			mouDadesDocumentsAProcess(tascaId);
 			expedientHelper.verificarFinalitzacioExpedient(
 					expedientLog.getExpedient());
-			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+			Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProcesBpmId(
 					task.getTaskName(),
 					task.getProcessDefinitionId());
 			Registre registre = new Registre(
@@ -1515,7 +1521,7 @@ public class TascaServiceImpl implements TascaService {
 		ExpedientTipus expedientTipus = expedientTipusHelper.findAmbTaskId(
 				tascaId);
 
-		Tasca tasca = tascaHelper.findTascaByJbpmTaskId(tascaId);
+		Tasca tasca = tascaHelper.findTascaByBpmTaskId(tascaId);
 		return formulariExternHelper.iniciar(
 				tascaId,
 				tasca,
@@ -1658,7 +1664,7 @@ public class TascaServiceImpl implements TascaService {
 			Object valor) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		WTaskInstance task = workflowEngineApi.getTaskById(taskId);
-		Object valorVell = variableHelper.getVariableJbpmTascaValor(task.getId(), codiVariable);
+		Object valorVell = variableHelper.getVariableBpmTascaValor(task.getId(), codiVariable);
 //		Map<String, Object> variables = new HashMap<String, Object>();
 //		variables.put(codiVariable, valor);
 //		workflowEngineApi.setTaskInstanceVariables(task.getId(), variables, false);
@@ -1731,17 +1737,17 @@ public class TascaServiceImpl implements TascaService {
 		if (definicioProcesId != null) {
 			definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		} else {
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIBpmKey(
 					expedientTipus.getEntorn().getId(),
 					false,
 					expedientTipusId,
-					expedientTipus.getJbpmProcessDefinitionKey());
+					expedientTipus.getBpmProcessDefinitionKey());
 		}
 		if (definicioProcesId == null && definicioProces == null) {
-			logger.error("No s'ha trobat la definició de procés (entorn=" + expedientTipus.getEntorn().getCodi() + ", jbpmKey=" + expedientTipus.getJbpmProcessDefinitionKey() + ")");
+			logger.error("No s'ha trobat la definició de procés (entorn=" + expedientTipus.getEntorn().getCodi() + ", bpmKey=" + expedientTipus.getBpmProcessDefinitionKey() + ")");
 		}
 		String starTaskName = definicioProces.getStartTaskName();
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(starTaskName, definicioProces);
+		Tasca tasca = tascaRepository.findByBpmNameAndDefinicioProces(starTaskName, definicioProces);
 		FormulariExternDto dto = formulariExternHelper.iniciar(
 				tascaIniciId,
 				tasca,

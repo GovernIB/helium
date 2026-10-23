@@ -31,7 +31,7 @@ public class ConsultaCampDto implements Serializable {
 	private String campCodi;
 	private String campEtiqueta;
 	private String campDescripcio;
-	private String defprocJbpmKey;
+	private String defprocBpmKey;
 	private int defprocVersio = -1;
 	private TipusConsultaCamp tipus;
 	private int ordre;
@@ -77,11 +77,11 @@ public class ConsultaCampDto implements Serializable {
 	public void setCampDescripcio(String campDescripcio) {
 		this.campDescripcio = campDescripcio;
 	}
-	public String getDefprocJbpmKey() {
-		return defprocJbpmKey;
+	public String getDefprocBpmKey() {
+		return defprocBpmKey;
 	}
-	public void setDefprocJbpmKey(String defprocJbpmKey) {
-		this.defprocJbpmKey = defprocJbpmKey;
+	public void setDefprocBpmKey(String defprocBpmKey) {
+		this.defprocBpmKey = defprocBpmKey;
 	}
 	public int getDefprocVersio() {
 		return defprocVersio;

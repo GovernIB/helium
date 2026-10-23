@@ -92,7 +92,7 @@ public class ExpedientDadaHelperTest {
 		expedientTipus.setCodi("TIPUS_001");
 		expedientTipus.setNom("Tipus d'Expedient de Prova");
 
-		expedientTipus.setJbpmProcessDefinitionKey("process-definition-key");
+		expedientTipus.setBpmProcessDefinitionKey("process-definition-key");
 
 		expedientTipus.setTeNumero(true);
 		expedientTipus.setTeTitol(true);

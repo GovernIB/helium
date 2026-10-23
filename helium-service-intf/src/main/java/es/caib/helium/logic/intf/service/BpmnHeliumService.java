@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
+ * Servei per a enllaçar les llibreries BPM amb la funcionalitat
  * de Helium.
  *
  * @author Limit Tecnologies <limit@limit.es>
@@ -40,7 +40,7 @@ public interface BpmnHeliumService {
 	public ExpedientDto getExpedientIniciant();
 
 	/**
-	 * Rellena el campo de descripción de la tabla de JBPM_TASKINSTANCE
+	 * Rellena el campo de descripción de la tabla de BPM_TASKINSTANCE
 	 *
 	 * @param id
 	 */
@@ -61,7 +61,7 @@ public interface BpmnHeliumService {
 		String numero) throws NoTrobatException;
 
 	/**
-	 * Obté l'expedient arrel donada una instància de procés jBPM.
+	 * Obté l'expedient arrel donada una instància de procés BPM.
 	 *
 	 * @param processInstanceId
 	 * @return
@@ -71,7 +71,7 @@ public interface BpmnHeliumService {
 		String processInstanceId) throws NoTrobatException;
 
 	/**
-	 * Obté l'entorn donada una instància de procés jBPM.
+	 * Obté l'entorn donada una instància de procés BPM.
 	 *
 	 * @param processInstanceId
 	 * @return
@@ -81,41 +81,41 @@ public interface BpmnHeliumService {
 		String processInstanceId) throws NoTrobatException;
 
 	/**
-	 * Obté la definició de procés donada la seva clau jBPM i la versió.
+	 * Obté la definició de procés donada la seva clau BPM i la versió.
 	 *
-	 * @param jbpmKey la clau jBPM.
+	 * @param bpmKey la clau BPM.
 	 * @param version la versió.
 	 * @return La definició de procés o null si no s'ha trobat.
 	 */
-	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIVersio(
-		String jbpmKey,
+	public DefinicioProcesDto getDefinicioProcesAmbBpmKeyIVersio(
+		String bpmKey,
 		int version);
 
 	/**
-	 * Obté la definició de procés donada la seva clau jBPM i el processInstanceId.
+	 * Obté la definició de procés donada la seva clau BPM i el processInstanceId.
 	 *
-	 * @param jbpmKey la clau jBPM.
+	 * @param bpmKey la clau BPM.
 	 * @param processInstanceId
 	 * @return La definició de procés o null si no s'ha trobat.
 	 */
-	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIProcessInstanceId(
-		String jbpmKey,
+	public DefinicioProcesDto getDefinicioProcesAmbBpmKeyIProcessInstanceId(
+		String bpmKey,
 		String processInstanceId);
 
 	/**
 	 * Obté la darrera versió d'una definició de procés donat el
-	 * seu entorn i la clau jBPM.
+	 * seu entorn i la clau BPM.
 	 *
 	 * @param entornId
 	 * @param expedientTipusId
-	 * @param jbpmKey
+	 * @param bpmKey
 	 * @return
 	 * @throws NoTrobatException
 	 */
-	public DefinicioProcesDto getDarreraVersioAmbEntornIJbpmKey(
+	public DefinicioProcesDto getDarreraVersioAmbEntornIBpmKey(
 		Long entornId,
 		Long expedientTipusId,
-		String jbpmKey) throws NoTrobatException;
+		String bpmKey) throws NoTrobatException;
 
 	/**
 	 * Obté la definició de procés donada una instància de procés.
@@ -374,7 +374,7 @@ public interface BpmnHeliumService {
 	 * @param timerId
 	 * @throws NoTrobatException
 	 */
-	public void configurarTerminiIniciatAmbDadesJbpm(
+	public void configurarTerminiIniciatAmbDadesBpm(
 		Long terminiIniciatId,
 		String taskInstanceId,
 		Long timerId) throws NoTrobatException;

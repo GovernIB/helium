@@ -61,8 +61,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private String consultaCampValor;
 	private boolean dominiCacheText = false;
 	private boolean dominiIntern;
-	private String defprocJbpmKey;
-	private String jbpmAction;
+	private String defprocBpmKey;
+	private String bpmAction;
 	private boolean multiple;
 	private boolean ocult;
 	private boolean ignored;
@@ -183,20 +183,20 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		this.dominiCacheText = dominiCacheText;
 	}
 
-	@Column(name="defproc_jbpmkey", length=255)
-	public String getDefprocJbpmKey() {
-		return defprocJbpmKey;
+	@Column(name="defproc_bpmkey", length=255)
+	public String getDefprocBpmKey() {
+		return defprocBpmKey;
 	}
-	public void setDefprocJbpmKey(String defprocJbpmKey) {
-		this.defprocJbpmKey = defprocJbpmKey;
+	public void setDefprocBpmKey(String defprocBpmKey) {
+		this.defprocBpmKey = defprocBpmKey;
 	}
 
-	@Column(name="jbpm_action", length=255)
-	public String getJbpmAction() {
-		return jbpmAction;
+	@Column(name="bpm_action", length=255)
+	public String getBpmAction() {
+		return bpmAction;
 	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
+	public void setBpmAction(String bpmAction) {
+		this.bpmAction = bpmAction;
 	}
 
 	@Column(name="multiple")
@@ -565,7 +565,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 
 	@Override
 	public String toString() {
-		return "Camp [id=" + id + ", codi=" + codi + ", tipus=" + tipus + ", DP= "+ (this.definicioProces!=null?this.definicioProces.getJbpmKey():"null")  +"]";
+		return "Camp [id=" + id + ", codi=" + codi + ", tipus=" + tipus + ", DP= "+ (this.definicioProces!=null?this.definicioProces.getBpmKey():"null")  +"]";
 	}
 
 	@ManyToOne(optional=true)
@@ -584,14 +584,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		else {
 			if(definicioProces != null) {
 				try {
-					return (definicioProces.getJbpmKey()!=null ? definicioProces.getJbpmKey() + "/"  : "" ) +
+					return (definicioProces.getBpmKey()!=null ? definicioProces.getBpmKey() + "/"  : "" ) +
 							codi;
 				} catch (Exception ex) {
 					return null;
 				}
 			}else {
-				return (expedientTipus.getJbpmProcessDefinitionKey() !=null ?
-						expedientTipus.getJbpmProcessDefinitionKey()  + "/" : "") +
+				return (expedientTipus.getBpmProcessDefinitionKey() !=null ?
+						expedientTipus.getBpmProcessDefinitionKey()  + "/" : "") +
 						codi;
 			}
 		}

@@ -9,7 +9,7 @@
 <xs:element minOccurs="0" name="dominiId" type="xs:string" />
 <xs:element minOccurs="0" name="dominiParams" type="xs:string" />
 <xs:element minOccurs="0" name="etiqueta" type="xs:string" />
-<xs:element minOccurs="0" name="jbpmAction" type="xs:string" />
+<xs:element minOccurs="0" name="bpmAction" type="xs:string" />
 <xs:element name="multiple" type="xs:boolean" />
 <xs:element minOccurs="0" name="observacions" type="xs:string" />
 <xs:element name="ocult" type="xs:boolean" />
@@ -35,7 +35,7 @@
 <xs:element minOccurs="0" name="dominiId" type="xs:string" />
 <xs:element minOccurs="0" name="dominiParams" type="xs:string" />
 <xs:element minOccurs="0" name="etiqueta" type="xs:string" />
-<xs:element minOccurs="0" name="jbpmAction" type="xs:string" />
+<xs:element minOccurs="0" name="bpmAction" type="xs:string" />
 <xs:element name="multiple" type="xs:boolean" />
 <xs:element minOccurs="0" name="observacions" type="xs:string" />
 <xs:element name="ocult" type="xs:boolean" />

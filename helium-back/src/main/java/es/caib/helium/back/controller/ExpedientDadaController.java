@@ -27,7 +27,6 @@ import javax.validation.Valid;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFPatternFormatting;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -143,7 +142,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			String procesId = expedient.getProcessInstanceId();
 			ExpedientDadaDto dadaAccio = expedientDadaService.findOnePerInstanciaProces(expedientId, procesId, varCodi);
-			this.executarDadaAccio(request, expedientId, procesId, varCodi, dadaAccio.getJbpmAction());
+			this.executarDadaAccio(request, expedientId, procesId, varCodi, dadaAccio.getBpmAction());
 		} catch(Exception e) {
 			String errMsg = "Error no controlat: " + e.getMessage();
 			logger.error(errMsg, e);

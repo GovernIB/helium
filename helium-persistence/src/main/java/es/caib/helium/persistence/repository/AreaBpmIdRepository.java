@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -12,24 +12,24 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import es.caib.helium.persistence.entity.AreaJbpmId;
+import es.caib.helium.persistence.entity.AreaBpmId;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
- * informació relativa a un areaJbpmId que està emmagatzemat a dins la base
+ * informació relativa a un areaBpmId que està emmagatzemat a dins la base
  * de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface AreaJbpmIdRepository extends JpaRepository<AreaJbpmId, Long> {
-	
-	@Query(	"from AreaJbpmId a " +
+public interface AreaBpmIdRepository extends JpaRepository<AreaBpmId, Long> {
+
+	@Query(	"from AreaBpmId a " +
 			"where " +
 			"    (:esNullFiltre = true or lower(a.codi) like lower('%'||:filtre||'%')) "
 			+ " 	or lower(a.descripcio) like lower('%'||:filtre||'%') ")
-	Page<AreaJbpmId> findByFiltrePaginat(
+	Page<AreaBpmId> findByFiltrePaginat(
 			@Param("esNullFiltre") boolean esNullFiltre,
-			@Param("filtre") String filtre,		
+			@Param("filtre") String filtre,
 			Pageable pageable);
 
 	@Query("select " +
@@ -43,15 +43,15 @@ public interface AreaJbpmIdRepository extends JpaRepository<AreaJbpmId, Long> {
 			"        select " +
 			"            a.codi " +
 			"        from " +
-			"            AreaJbpmId a) ")
+			"            AreaBpmId a) ")
 	List<String> findSenseConfigurar(
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre);
 
-	Optional<AreaJbpmId> findById(Long id);
-	
-	AreaJbpmId findByCodi(String codi);
-	
+	Optional<AreaBpmId> findById(Long id);
+
+	AreaBpmId findByCodi(String codi);
+
 	@Query( "select " +
 			"    g.name " +
 			"from " +
@@ -59,9 +59,9 @@ public interface AreaJbpmIdRepository extends JpaRepository<AreaJbpmId, Long> {
 			"    join org.flowable.idm.engine.impl.persistence.entity.GroupEntityImpl g on g.id = m.groupId " +
 			"where " +
 			"    m.userId = :usuariCodi")
-	List<String> findAreesJbpmIdMembre(
+	List<String> findAreesBpmIdMembre(
 			@Param("usuariCodi") String usuariCodi);
-	
+
 	@Query( "select distinct " +
 			"    m.name " +
 			"from " +

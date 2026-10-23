@@ -216,7 +216,7 @@ public interface DissenyService {
 
  	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId);
 
-	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(Long expedientTipusId, String jbpmId) throws NoTrobatException;
+	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(Long expedientTipusId, String bpmId) throws NoTrobatException;
 
 	public AreaDto findAreaById(Long areaId) throws NoTrobatException;
 
@@ -276,8 +276,8 @@ public interface DissenyService {
 	 *            Atribut id de l'entorn.
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
-	 * @param jbpmId
-	 *            Atribut jbpmId de la definició de procés.
+	 * @param bpmId
+	 *            Atribut bpmId de la definició de procés.
 	 * @return expedients relacionats amb la definició de procés no utilitzada
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -287,7 +287,7 @@ public interface DissenyService {
 	public PaginaDto<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 			Long entornId,
 			Long expedientTipusId,
-			Long jbpmId,
+			Long bpmId,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 
 	/**
@@ -297,8 +297,8 @@ public interface DissenyService {
 	 *            Atribut id de l'entorn.
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
-	 * @param jbpmId
-	 *            Atribut jbpmId de la definició de procés.
+	 * @param bpmId
+	 *            Atribut bpmId de la definició de procés.
 	 * @return ids dels expedients relacionats amb la definició de procés no utilitzada
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -308,7 +308,7 @@ public interface DissenyService {
 	public List<Long> findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 			Long entornId,
 			Long expedientTipusId,
-			Long jbpmId) throws NoTrobatException, PermisDenegatException;
+			Long bpmId) throws NoTrobatException, PermisDenegatException;
 
 	/** Cerca el domini global dins l'entorn. Retorna null si no hi és. */
 	public DominiDto dominiFindAmbCodi(
@@ -319,7 +319,7 @@ public interface DissenyService {
 	 * de procés existent a l'entorn amb la informació dels handlers continguda a l'arxiu .par.
 	 * @param entornId
 	 * @param nomArxiu Nom per comprovar que acabi amb ar.
-	 * @param contingut Contingut del fitxe d'exportació jbpm que conté entre altra informació els handlers
+	 * @param contingut Contingut del fitxe d'exportació bpm que conté entre altra informació els handlers
 	 * per actualitzar.
 	 * @return La definició de procés actualitzada si tot ha anat bé.
 	 */
@@ -355,7 +355,7 @@ public interface DissenyService {
 
 	/** Obté el contingut d'una exportació donat el nom del fitxer amb la extensió i el contingut del mateix.
 	 *
-	 * @param fitxer Nom del fitxer. Si acaba amb .*ar o .xml és una exportació JBPM i si acaba en .exp és una
+	 * @param fitxer Nom del fitxer. Si acaba amb .*ar o .xml és una exportació BPM i si acaba en .exp és una
 	 * exportació d'Helium.
 	 * @param contingut
 	 * Contingut del fitxer exportat.
@@ -366,12 +366,12 @@ public interface DissenyService {
 			String fitxer,
 			byte[] contingut);
 
-	/** Retorna el nom de les accions JBPM de la definició de procés ordenades alfabèticament.
+	/** Retorna el nom de les accions BPM de la definició de procés ordenades alfabèticament.
 	 * Serveix per tenir una lllista dels noms dels seus handlers.
 	 */
-	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId);
+	public List<String> findAccionsBpmOrdenades(Long definicioProcesId);
 
-	public List<String> findHandlersJbpmOrdenats(Long definicioProcesId);
+	public List<String> findHandlersBpmOrdenats(Long definicioProcesId);
 
 	public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler);
 

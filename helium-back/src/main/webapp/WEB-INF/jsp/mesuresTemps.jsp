@@ -11,15 +11,15 @@
 	<hel:modalHead/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.flot.min.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.flot.time.min.js"/>"></script>
-	
-	<style type="text/css">	
+
+	<style type="text/css">
 		.table > tbody > tr > td {
 			margin-bottom: 0px;
 			margin-top: 0px !important;
 			padding-bottom: 0px;
 		    padding-top: 0px;
-			border-bottom: 1px solid #cccccc; 
-			overflow: auto; 
+			border-bottom: 1px solid #cccccc;
+			overflow: auto;
 			padding: 2px 10px !important;
 		}
 		.table {
@@ -43,7 +43,7 @@
 			float: left;
 			width: calc(100% - 625px);
 		}
-		
+
 		.temps_legend td {
 			padding: 3px;
 		}
@@ -69,12 +69,12 @@
 			});
 			carregaMesuresTemps();
 		});
-	    
+
 		function carregaMesuresTempsFamilia(familia) {
 			fam = familia;
 			carregaMesuresTemps();
 		}
-		
+
 		function plotAccordingToChoices() {
 			var data = [];
 
@@ -104,7 +104,7 @@
 	                });
 	        $("#placeholder").bind("plothover", plotHover);
 		}
-		
+
 		function showTooltip(x, y, contents) {
 	        $("<div id='tooltip'>" + contents + "</div>").css({
 	            position: "absolute",
@@ -119,7 +119,7 @@
 	            opacity: 0.80
 	        }).appendTo("body").fadeIn(200);
 	    }
-	    
+
 	    function plotHover (event, pos, item) {
 	        if (item) {
 	            if (previousPoint != item.dataIndex) {
@@ -130,14 +130,14 @@
 	            }
 	        } else {
 	            $("#tooltip").remove();
-	            previousPoint = null;           
+	            previousPoint = null;
 	        }
 	    }
 		function carregaMesuresTemps() {
 			$('button[name="submit"]',parent.document).prop('disabled',true);
             $('button[name="export"]',parent.document).prop('disabled',true);
             $('button[name="refrescar"]',parent.document).prop('disabled',true);
-			
+
 			$('button[name="refrescar"] > span',parent.document).remove();
 			$('button[name="refrescar"]',parent.document).prepend('<i class="fa fa-refresh fa-spin"></i>');
 	        $.ajax({
@@ -147,8 +147,8 @@
 	            async: false,
 	            success: function(data){
 	                var length = 0;
-	                var consultaBBDD = (fam == "sql_jbpm" || fam == "sql_helium");
-	               
+	                var consultaBBDD = (fam == "sql_bpm" || fam == "sql_helium");
+
 	                var content =     '<ul id="temps_tabnav" class="nav nav-tabs">';
 	                if (fam == "") {
 	                    content +=    '<li class="active"><a href="javascript:carregaMesuresTempsFamilia(\'\');"><spring:message code="temps.familia.tot"/></a></li>';
@@ -169,9 +169,9 @@
 	                            "<div class='no-element'><spring:message code='execucions.mesura.temps.bbdd.no'/></div>");
 	                    $("#temps_contens").html(content);
 	                } else {
-	                   
+
 	                    length = data.clau.length;
-	                   
+
 	                    content +=  '<table id="mesures_temps" class="table table-striped table-bordered table-hover dataTable">' +
 	                                '<thead>' +
 	                                '<th class="first-element"></th>' +
@@ -204,9 +204,9 @@
 	                                '<div class="temps_legend" id="temps_legend" '+noMostrar+'></div>' +
 	                                '</div>' +
 	                                '</div>';
-	                   
+
 	                    $("#temps_contens").html(content);
-	               
+
 	                    datasets = data.series;
 	                    var i = 0;
 	                    $.each(datasets, function(key, val) {
@@ -215,7 +215,7 @@
 	                    });
 	                    series = [];
 	                    for (var key in data.series) {
-	                        if (!(key == 'Consultas totales de JBPM' || key == 'Consultas totales de Helium')) {
+	                        if (!(key == 'Consultas totales de BPM' || key == 'Consultas totales de Helium')) {
 	                            series.push(data.series[key]);
 	                        }
 	                    }
@@ -253,7 +253,7 @@
 	            $('button[name="submit"]',parent.document).prop('disabled',false);
 	            $('button[name="export"]',parent.document).prop('disabled',false);
 	            $('button[name="refrescar"]',parent.document).prop('disabled',false);
-	            
+
 	            $('button[name="refrescar"] > i',parent.document).remove();
 				$('button[name="refrescar"]',parent.document).prepend('<span class="fa fa-refresh"></span>');
 	        });
@@ -261,7 +261,7 @@
 	</script>
 </head>
 <body>
-	
+
 	<div id="temps_contens"><div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div></div>
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>

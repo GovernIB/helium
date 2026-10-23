@@ -23,23 +23,6 @@ import es.caib.helium.commons.exportacio.DefinicioProcesExportacioCommandDto;
  */
 public interface DefinicioProcesService {
 
-	/** Codi del flux jbpm pels expedients basats en estats. */
-	public static String HELIUM_JBPM_FLOW = "PD_ESTATS_";
-	public final static String PROCESS_DEFINITION_XML =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"\n" +
-			"<process-definition \n" +
-			"  xmlns=\"urn:jbpm.org:jpdl-3.2\"\n" +
-			"  name=\"[PD_NAME]\">\n" +
-			"   <start-state name=\"inici\">\n" +
-			"      <transition name=\"to_stat\" to=\"estat\"></transition>\n" +
-			"   </start-state>\n" +
-			"   <state name=\"estat\">\n" +
-			"      <transition name=\"to_fi\" to=\"fi\"></transition>\n" +
-			"   </state>\n" +
-			"   <end-state name=\"fi\"></end-state>\n" +
-			"</process-definition>";
-
 	/** Tasca la definició de proces per identificador.
 	 *
 	 * @param definicioProcesId
@@ -49,15 +32,15 @@ public interface DefinicioProcesService {
 
 	/**
 	 * Retorna la darrera versió de la definició de procés donat l'identificador de l'entorn, l'identificador del tipus d'expedient i
-	 * i l'identificador jbpm.
+	 * i l'identificador bpm.
 	 * @param entornId
-	 * @param jbpmKey
+	 * @param bpmKey
 	 * @return
 	 */
-	public DefinicioProcesDto findByEntornTipusIdAndJbpmKey(
+	public DefinicioProcesDto findByEntornTipusIdAndBpmKey(
 			Long entornId,
 			Long expedientTipusId,
-			String jbpmKey);
+			String bpmKey);
 
 	/**
 	 * Retorna la llista de sub definicions de processos per a la definició de procés especificada.
@@ -621,15 +604,15 @@ public interface DefinicioProcesService {
 
 	/** Consulta la definició de procés a partir del codi i la versió
 	 *
-	 * @param defprocJbpmKey
+	 * @param defprocBpmKey
 	 * @param defprocVersio
 	 * @return
 	 */
-	public DefinicioProcesDto findByJbpmKeyAndVersio(String defprocJbpmKey, int defprocVersio);
+	public DefinicioProcesDto findByBpmKeyAndVersio(String defprocBpmKey, int defprocVersio);
 
 	/** Mètode per actualitzar algunes dades d'una definició de procés a Helium com l'etiqueta o si té tasca inicial.
-	 * 
-	 * @param entornId 
+	 *
+	 * @param entornId
 	 * @param definicioProcesId
 	 * @param etiqueta
 	 * @param hasStartTask
@@ -638,9 +621,9 @@ public interface DefinicioProcesService {
 	public DefinicioProcesDto update(long entornId, long definicioProcesId, String etiqueta, boolean hasStartTask);
 
 	/** Mètode per consultar si el flux associat a la definició de procés té una tasca inicial.
-	 * 
+	 *
 	 * @param definicioProcesId
-	 * 
+	 *
 	 * @return Retorna el codi de la tasca en cas de tenir una tasca inicial.
 	 */
 	public String checkTascaInicial(long definicioProcesId);

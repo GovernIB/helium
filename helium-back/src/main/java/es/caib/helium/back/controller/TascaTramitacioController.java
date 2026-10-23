@@ -197,7 +197,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			Model model) throws Exception {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getBpmName());
 		model.addAttribute("repros", repros);
 
 		Map<String,Object> valors = null;

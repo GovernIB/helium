@@ -12,13 +12,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.caib.helium.commons.dto.CarrecJbpmIdDto;
+import es.caib.helium.commons.dto.CarrecBpmIdDto;
 import es.caib.helium.commons.dto.PaginaDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.CarrecService;
-import es.caib.helium.persistence.entity.CarrecJbpmId;
+import es.caib.helium.persistence.entity.CarrecBpmId;
 import es.caib.helium.persistence.entity.Persona.Sexe;
-import es.caib.helium.persistence.repository.CarrecJbpmIdRepository;
+import es.caib.helium.persistence.repository.CarrecBpmIdRepository;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 
@@ -26,70 +26,70 @@ import es.caib.helium.logic.helper.PaginacioHelper;
 public class CarrecServiceImpl implements CarrecService {
 
 	@Resource
-	private CarrecJbpmIdRepository carrecJbpmIdRepository;
+	private CarrecBpmIdRepository carrecBpmIdRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 
 	@Transactional(readOnly = true)
-	public PaginaDto<CarrecJbpmIdDto> findConfigurats(PaginacioParamsDto paginacioParams) {
+	public PaginaDto<CarrecBpmIdDto> findConfigurats(PaginacioParamsDto paginacioParams) {
 		String filtre = paginacioParams.getFiltre();
 		logger.debug("Consultant càrrecs configurats per la datatable (filtre= " + filtre + ", paginacioParams=" + paginacioParams + ")");
 		return paginacioHelper.toPaginaDto(
-				carrecJbpmIdRepository.findConfigurats(
+				carrecBpmIdRepository.findConfigurats(
 						filtre == null || "".equals(filtre),
 						filtre,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
-				CarrecJbpmIdDto.class);
+				CarrecBpmIdDto.class);
 	}
 
 	@Override
-	public PaginaDto<CarrecJbpmIdDto> findSenseConfigurar(PaginacioParamsDto paginacioParams) {
+	public PaginaDto<CarrecBpmIdDto> findSenseConfigurar(PaginacioParamsDto paginacioParams) {
 		logger.debug("Consultant els càrrecs sense configurar");
 		String filtre = paginacioParams.getFiltre();
-		List<Object[]> noConfigurats = carrecJbpmIdRepository.findSenseConfigurar(
+		List<Object[]> noConfigurats = carrecBpmIdRepository.findSenseConfigurar(
 						filtre == null || "".equals(filtre),
 				filtre);
-		List<CarrecJbpmId> carrecs = new ArrayList<CarrecJbpmId>();
+		List<CarrecBpmId> carrecs = new ArrayList<CarrecBpmId>();
 		int paginaNum = paginacioParams.getPaginaNum();
 		int tamany = paginacioParams.getPaginaTamany();
 		int inici = paginaNum * tamany;
 		int fi = Math.min(noConfigurats.size(), inici + tamany);
 		for (int foo=inici; foo < fi; foo++) {
-			CarrecJbpmId carrec = new CarrecJbpmId();
+			CarrecBpmId carrec = new CarrecBpmId();
 			carrec.setCodi((String)noConfigurats.get(foo)[0]);
 			carrec.setGrup((String)noConfigurats.get(foo)[1]);
 			carrecs.add(carrec);
 		}
-		Page<CarrecJbpmIdDto> page = new PageImpl(carrecs, paginacioHelper.toSpringDataPageable(paginacioParams), noConfigurats.size());
-		PaginaDto<CarrecJbpmIdDto> pagina = paginacioHelper.toPaginaDto(
+		Page<CarrecBpmIdDto> page = new PageImpl(carrecs, paginacioHelper.toSpringDataPageable(paginacioParams), noConfigurats.size());
+		PaginaDto<CarrecBpmIdDto> pagina = paginacioHelper.toPaginaDto(
 				page,
-				CarrecJbpmIdDto.class);
+				CarrecBpmIdDto.class);
 
 		return pagina;
 	}
 
 	@Override
-	public CarrecJbpmIdDto findAmbId(Long id) {
-		return conversioTipusHelper.convertir(carrecJbpmIdRepository.findById(id), CarrecJbpmIdDto.class);
+	public CarrecBpmIdDto findAmbId(Long id) {
+		return conversioTipusHelper.convertir(carrecBpmIdRepository.findById(id), CarrecBpmIdDto.class);
 	}
 
 	@Override
-	public CarrecJbpmIdDto findAmbCodi(String codi) {
-		return conversioTipusHelper.convertir(carrecJbpmIdRepository.findByCodi(codi), CarrecJbpmIdDto.class);
+	public CarrecBpmIdDto findAmbCodi(String codi) {
+		return conversioTipusHelper.convertir(carrecBpmIdRepository.findByCodi(codi), CarrecBpmIdDto.class);
 	}
 
 	@Override
-	public CarrecJbpmIdDto findAmbCodiAndGrup(String codi, String grup) {
-		return conversioTipusHelper.convertir(carrecJbpmIdRepository.findByCodiAndGrup(codi, grup), CarrecJbpmIdDto.class);
+	public CarrecBpmIdDto findAmbCodiAndGrup(String codi, String grup) {
+		return conversioTipusHelper.convertir(carrecBpmIdRepository.findByCodiAndGrup(codi, grup), CarrecBpmIdDto.class);
 	}
 
 	@Override
-	public CarrecJbpmIdDto create(CarrecJbpmIdDto carrec) {
+	public CarrecBpmIdDto create(CarrecBpmIdDto carrec) {
 		logger.debug("Configurant càrrec");
-		CarrecJbpmId entity = new CarrecJbpmId();
+		CarrecBpmId entity = new CarrecBpmId();
 		entity.setId(carrec.getId());
 		entity.setCodi(carrec.getCodi());
 		entity.setGrup(carrec.getGrup());
@@ -99,25 +99,25 @@ public class CarrecServiceImpl implements CarrecService {
 		entity.setTractamentDona(carrec.getTractamentDona());
 		entity.setPersonaSexe(carrec.getPersonaSexeId() == 0 ? Sexe.SEXE_HOME : Sexe.SEXE_DONA);
 		entity.setDescripcio(carrec.getDescripcio());
-		return conversioTipusHelper.convertir(carrecJbpmIdRepository.save(entity), CarrecJbpmIdDto.class);
+		return conversioTipusHelper.convertir(carrecBpmIdRepository.save(entity), CarrecBpmIdDto.class);
 	}
 
 	@Override
-	public CarrecJbpmIdDto update(CarrecJbpmIdDto carrec) {
-		CarrecJbpmId entity = carrecJbpmIdRepository.findById(carrec.getId()).orElse(null);
+	public CarrecBpmIdDto update(CarrecBpmIdDto carrec) {
+		CarrecBpmId entity = carrecBpmIdRepository.findById(carrec.getId()).orElse(null);
 		entity.setNomHome(carrec.getNomHome());
 		entity.setNomDona(carrec.getNomDona());
 		entity.setTractamentHome(carrec.getTractamentHome());
 		entity.setTractamentDona(carrec.getTractamentDona());
 		entity.setPersonaSexe(carrec.getPersonaSexeId() == 0 ? Sexe.SEXE_HOME : Sexe.SEXE_DONA);
 		entity.setDescripcio(carrec.getDescripcio());
-		return conversioTipusHelper.convertir(carrecJbpmIdRepository.save(entity), CarrecJbpmIdDto.class);
+		return conversioTipusHelper.convertir(carrecBpmIdRepository.save(entity), CarrecBpmIdDto.class);
 	}
 
 	@Override
 	public void delete(Long carrecId) {
 		logger.debug("Esborrant càrrec (càrrecId=" + carrecId + ")");
-		carrecJbpmIdRepository.deleteById(carrecId);
+		carrecBpmIdRepository.deleteById(carrecId);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(CarrecServiceImpl.class);

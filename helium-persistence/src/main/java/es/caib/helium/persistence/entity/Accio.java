@@ -20,7 +20,6 @@ import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 import es.caib.helium.commons.dto.AccioTipusEnumDto;
 
@@ -41,14 +40,14 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	private String nom;
 	private String descripcio;
 	private AccioTipusEnumDto tipus;
-	private String jbpmAction;
+	private String bpmAction;
 	private boolean publica;
 	private boolean oculta;
 	private String rols;
 	private String cron;
 	private DefinicioProces definicioProces;
 	private ExpedientTipus expedientTipus;
-	private String defprocJbpmKey;
+	private String defprocBpmKey;
 	private String handlerClasse;
 	@Lob
 	private String handlerDades;
@@ -121,12 +120,12 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.tipus = tipus;
 	}
 
-	@Column(name="jbpm_action", length=255, nullable=false)
-	public String getJbpmAction() {
-		return jbpmAction;
+	@Column(name="bpm_action", length=255, nullable=false)
+	public String getBpmAction() {
+		return bpmAction;
 	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
+	public void setBpmAction(String bpmAction) {
+		this.bpmAction = bpmAction;
 	}
 
     @Column(name="script")
@@ -189,12 +188,12 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.expedientTipus = expedientTipus;
 	}
 
-	@Column(name="defproc_jbpmkey", length=255)
-	public String getDefprocJbpmKey() {
-		return defprocJbpmKey;
+	@Column(name="defproc_bpmkey", length=255)
+	public String getDefprocBpmKey() {
+		return defprocBpmKey;
 	}
-	public void setDefprocJbpmKey(String defprocJbpmKey) {
-		this.defprocJbpmKey = defprocJbpmKey;
+	public void setDefprocBpmKey(String defprocBpmKey) {
+		this.defprocBpmKey = defprocBpmKey;
 	}
 
 	@Column(name="handler_classe", length=255)
@@ -225,7 +224,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		result = prime * result
 				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());
 		result = prime * result
-				+ ((defprocJbpmKey == null) ? 0 : defprocJbpmKey.hashCode());
+				+ ((defprocBpmKey == null) ? 0 : defprocBpmKey.hashCode());
 		result = prime * result
 				+ ((handlerClasse == null) ? 0 : handlerClasse.hashCode());
 		return result;
@@ -259,10 +258,10 @@ public class Accio implements Serializable, GenericEntity<Long> {
 				return false;
 		} else if (!expedientTipus.equals(other.expedientTipus))
 			return false;
-		if (defprocJbpmKey == null) {
-			if (other.defprocJbpmKey != null)
+		if (defprocBpmKey == null) {
+			if (other.defprocBpmKey != null)
 				return false;
-		} else if (!defprocJbpmKey.equals(other.defprocJbpmKey))
+		} else if (!defprocBpmKey.equals(other.defprocBpmKey))
 			return false;
 		if (handlerClasse == null) {
 			if (other.handlerClasse != null)

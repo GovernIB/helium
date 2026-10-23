@@ -57,7 +57,7 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
-	private WorkflowEngineApi jbpmHelper;
+	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
@@ -166,7 +166,7 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 		Map<String, ExpedientTascaDto> tasquesPerLogs = new HashMap<String, ExpedientTascaDto>();
 		for (ExpedientLog log: logs) {
 			if (log.isTargetTasca()) {
-				WTaskInstance task = jbpmHelper.getTaskById(log.getTargetId());
+				WTaskInstance task = workflowEngineApi.getTaskById(log.getTargetId());
 				if (task != null) {
 					tasquesPerLogs.put(
 							log.getTargetId(),
@@ -228,7 +228,7 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 						ExtendedPermission.LOG_MANAGE,
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
-		jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
+		workflowEngineApi.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
 	}
 
 	/**
@@ -300,8 +300,8 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 			boolean detall) {
 		// Obtenim el token de cada registre
 		WToken token = null;
-		if (log.getJbpmLogId() != null) {
-			token = expedientLoggerHelper.getTokenByJbpmLogId(log.getJbpmLogId());
+		if (log.getBpmLogId() != null) {
+			token = expedientLoggerHelper.getTokenByBpmLogId(log.getBpmLogId());
 		}
 		String tokenName = null;
 		String processInstanceId = null;

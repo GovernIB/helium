@@ -46,7 +46,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 
 	private String id;
 	private String titol;
-	private String jbpmName;
+	private String bpmName;
 	private String description;
 	private String owner;
 	private String assignee;

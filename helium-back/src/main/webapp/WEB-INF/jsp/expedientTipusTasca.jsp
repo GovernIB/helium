@@ -16,7 +16,7 @@
 
 <c:choose>
 	<c:when test="${not empty expedientTipus || not empty definicioProcesId}">
-				
+
 		<form class="well">
 			<div class="row">
 				<div class="col-sm-6">
@@ -38,19 +38,19 @@
 				data-default-order="1"
 				data-length-menu='[[10,25,50,-1],["10","25","50","<spring:message code="comu.totes"/>"]]'
 				data-rowhref-toggle="modal"
-				data-rowhref-template="#rowhrefTemplateTasques" 
+				data-rowhref-template="#rowhrefTemplateTasques"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="jbpmName" width="20%" data-template="#cellExpedientTipusTascaJbpmKeyTemplate">
+					<th data-col-name="bpmName" width="20%" data-template="#cellExpedientTipusTascaBpmKeyTemplate">
 					<spring:message code="expedient.tipus.camp.llistat.columna.codi"/>
-						<script id="cellExpedientTipusTascaJbpmKeyTemplate" type="text/x-jsrender">
+						<script id="cellExpedientTipusTascaBpmKeyTemplate" type="text/x-jsrender">
 								{{if heretat }}
-									<span class="dada-heretada">{{:jbpmName}}</span> 
+									<span class="dada-heretada">{{:bpmName}}</span>
 									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.tasca.llistat.codi.heretat"/>">R</span>
 								{{else}}
-									{{:jbpmName}}
+									{{:bpmName}}
 									{{if sobreescriu }}
 										<span class="label label-warning herencia" title="<spring:message code="expedient.tipus.tasca.llistat.codi.sobreescriu"/>">S</span>
 									{{/if}}
@@ -96,7 +96,7 @@
 				</tr>
 			</thead>
 		</table>
-		<script id="rowhrefTemplateTasques" type="text/x-jsrender">${baseUrl}/tasca/{{:id}}/update</script>	
+		<script id="rowhrefTemplateTasques" type="text/x-jsrender">${baseUrl}/tasca/{{:id}}/update</script>
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
@@ -104,7 +104,7 @@
 </c:choose>
 
 <script type="text/javascript">
-// <![CDATA[            
+// <![CDATA[
 // Llistat d'identificadors de definicions heretades
 var definicionsHeretadesIds =  ${definicionsHeretadesIds};
 //Llistat d'identificadors de definicions que sobreescriuen
@@ -119,16 +119,16 @@ function formatDefinicioSelectHerencia(item) {
 		res = item.text + " <span class='label label-primary'>R</span>";
 	else if(item.id && definicionsSobreescriuenIds.indexOf(parseInt(item.id)) >= 0)
 		res = item.text + " <span class='label label-warning'>S</span>";
-	else 
+	else
 		res = item.text;
     return res;
   }
-   
+
 $(document).ready(function() {
 
 	// Posa el text "Totes" pel botó de selecció de totes les variables
 	$('#expedientTipusTasca_length button[value="-1"]').text('<spring:message code="comu.totes"/>');
-	
+
 	// Canvi en la selecció de les definicions
 	$('#definicions').change(function() {
 		refrescaVersions();
@@ -143,7 +143,7 @@ $(document).ready(function() {
         formatResult: formatDefinicioSelectHerencia,
         formatSelection: formatDefinicioSelectHerencia
     });
-	
+
 	// Carrega la definició inicial en la selecció
 	if (definicioInical)
 		$("#definicions").val(definicioInical).change();
@@ -152,7 +152,7 @@ $(document).ready(function() {
 
 function refrescaTaula() {
 	var definicioProcesId = $("#versions").val();
-	$('#expedientTipusTasca').webutilDatatable('refresh-url', '${baseUrl}/tasca/datatable?definicioProcesId='+definicioProcesId);		
+	$('#expedientTipusTasca').webutilDatatable('refresh-url', '${baseUrl}/tasca/datatable?definicioProcesId='+definicioProcesId);
 }
 
 function refrescaVersions() {
@@ -176,9 +176,9 @@ function refrescaVersions() {
 			console.log("Error obtenint les versions de les definicions de procés per l' id " + definicioProcesId + ": " + e);
 		}
 	});
-}	
+}
 
 
 
 // ]]>
-</script>			
+</script>

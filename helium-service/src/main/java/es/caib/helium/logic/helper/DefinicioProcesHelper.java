@@ -170,7 +170,7 @@ public class DefinicioProcesHelper {
 		if ( ! definicioProcesExisteix) {
 
 			// Nova definició de procés
-			definicio = this.desplegarJbpm(
+			definicio = this.desplegarBpm(
 					importacio.getNomDeploy(),
 					importacio.getContingutDeploy(),
 					entorn,
@@ -248,8 +248,8 @@ public class DefinicioProcesHelper {
 						camp.setMultiple(campExportat.isMultiple());
 						camp.setOcult(campExportat.isOcult());
 						camp.setDominiIntern(campExportat.isDominiIntern());
-						camp.setDefprocJbpmKey(campExportat.getDefprocJbpmKey());
-						camp.setJbpmAction(campExportat.getJbpmAction());
+						camp.setDefprocBpmKey(campExportat.getDefprocBpmKey());
+						camp.setBpmAction(campExportat.getBpmAction());
 						camp.setOrdre(campExportat.getOrdre());
 
 						// Esborra les validacions existents
@@ -445,10 +445,10 @@ public class DefinicioProcesHelper {
 							accioRepository.save(accio);
 						} else {
 							accio.setNom(accioExportat.getNom());
-							accio.setJbpmAction(accioExportat.getJbpmAction());
+							accio.setBpmAction(accioExportat.getBpmAction());
 						}
 						accio.setDescripcio(accioExportat.getDescripcio());
-						accio.setJbpmAction(accioExportat.getJbpmAction());
+						accio.setBpmAction(accioExportat.getBpmAction());
 						accio.setScript(accioExportat.getScript());
 						accio.setHandlerClasse(accioExportat.getHandlerClasse());
 						accio.setHandlerDades(accioExportat.getHandlerDades());
@@ -462,8 +462,8 @@ public class DefinicioProcesHelper {
 		Tasca tasca;
 		if (importAll || command.getTasques().size() > 0)
 			for(TascaExportacio tascaExportat : importacio.getTasques() )
-				if (importAll || command.getTasques().contains(tascaExportat.getJbpmName())){
-					tasca = tascaRepository.findByJbpmNameAndDefinicioProces(tascaExportat.getJbpmName(), definicio);
+				if (importAll || command.getTasques().contains(tascaExportat.getBpmName())){
+					tasca = tascaRepository.findByBpmNameAndDefinicioProces(tascaExportat.getBpmName(), definicio);
 					if (tasca != null && (!definicioProcesExisteix || sobreEscriure)) {
 						tasca.setNom(tascaExportat.getNom());
 						tasca.setTipus(TipusTasca.valueOf(tascaExportat.getTipus().toString()));
@@ -551,8 +551,8 @@ public class DefinicioProcesHelper {
 				}
 		if (expedientTipus != null && definicio != null) {
 			// Si el tipus d'expedient no tenia cap definició de procés inicial llavors la marca com inicial
-			if (expedientTipus.getJbpmProcessDefinitionKey() == null) {
-				expedientTipus.setJbpmProcessDefinitionKey(definicio.getJbpmKey());
+			if (expedientTipus.getBpmProcessDefinitionKey() == null) {
+				expedientTipus.setBpmProcessDefinitionKey(definicio.getBpmKey());
 				expedientTipusRepository.save(expedientTipus);
 			}
 			expedientTipus.getDefinicionsProces().add(definicio);
@@ -560,7 +560,7 @@ public class DefinicioProcesHelper {
 		return definicio;
 	}
 
-	public DefinicioProces desplegarJbpm(
+	public DefinicioProces desplegarBpm(
 			String nomDeploy,
 			byte[] contingutDeploy,
 			Entorn entorn,
@@ -582,7 +582,7 @@ public class DefinicioProcesHelper {
 					entorn);
 			if (hasStartTask) {
 				// Recupera la tasca inicial del flux i l'informa, si no en té llença excepció
-				String startTaskName = workflowEngineApi.getStartTaskName(definicio.getJbpmId());
+				String startTaskName = workflowEngineApi.getStartTaskName(definicio.getBpmId());
 				if (startTaskName == null) {
 					throw new RuntimeException("El flux associat a la definició de procés " + definicio.getIdPerMostrar() + " no té tasca inicial.");
 				}
@@ -597,7 +597,7 @@ public class DefinicioProcesHelper {
 				expedientTipus.getDefinicionsProces().add(definicio);
 			definicio = definicioProcesRepository.saveAndFlush(definicio);
 			// Crea les tasques publicades
-			for (WUserTask userTask: workflowEngineApi.getUserTasksFromDeployedProcessDefinition(definicio.getJbpmKey(), definicio.getVersio())) {
+			for (WUserTask userTask: workflowEngineApi.getUserTasksFromDeployedProcessDefinition(definicio.getBpmKey(), definicio.getVersio())) {
 				Tasca tasca = new Tasca(
 						definicio,
 						userTask.getId(),
@@ -855,9 +855,9 @@ public class DefinicioProcesHelper {
 				conversioTipusHelper.convertir(
 						definicio,
 						DefinicioProcesDto.class));
-		exportacio.setNomDeploy(definicio.getJbpmKey() + ".zip");
+		exportacio.setNomDeploy(definicio.getBpmKey() + ".zip");
 
-		WProcessDefinition pd = workflowEngineApi.getProcessDefinition(definicio.getJbpmId());
+		WProcessDefinition pd = workflowEngineApi.getProcessDefinition(definicio.getBpmId());
 		Set<String> resourceNames = workflowEngineApi.getResourceNames(pd.getDeploymentId());
 		if (resourceNames != null && !resourceNames.isEmpty()) {
 			try {
@@ -882,7 +882,7 @@ public class DefinicioProcesHelper {
 			} catch (Exception ex) {
 				String errMsg = messageHelper.getMessage(
 						"error.dissenyService.generantContingut.definicioProces",
-						new Object[] {definicio.getJbpmKey() + " v." + definicio.getVersio()});
+						new Object[] {definicio.getBpmKey() + " v." + definicio.getVersio()});
 				logger.error(errMsg, ex);
 				throw new ExportException(errMsg, ex);
 			}
@@ -890,11 +890,11 @@ public class DefinicioProcesHelper {
 		// Tasques
 		if (exportAll || !command.getTasques().isEmpty())
 			for (Tasca tasca : definicio.getTasques())
-				if (exportAll || command.getTasques().contains(tasca.getJbpmName())) {
+				if (exportAll || command.getTasques().contains(tasca.getBpmName())) {
 					TascaExportacio tascaExportacio = new TascaExportacio(
 							tasca.getNom(),
 							TascaDto.TipusTascaDto.valueOf(tasca.getTipus().toString()),
-							tasca.getJbpmName());
+							tasca.getBpmName());
 					tascaExportacio.setMissatgeInfo(tasca.getMissatgeInfo());
 					tascaExportacio.setMissatgeWarn(tasca.getMissatgeWarn());
 					tascaExportacio.setNomScript(tasca.getNomScript());
@@ -983,8 +983,8 @@ public class DefinicioProcesHelper {
 		                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
 		                    (necessitaDadesExternes && camp.getConsulta() != null) ? camp.getConsulta().getCodi() : null,
 		                    (camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
-		                    camp.getDefprocJbpmKey(),
-		                    camp.getJbpmAction(),
+		                    camp.getDefprocBpmKey(),
+		                    camp.getBpmAction(),
 		                    camp.getOrdre(),
 		                    camp.isIgnored(),
 		                    necessitaDadesExternesEntorn);
@@ -1106,8 +1106,8 @@ public class DefinicioProcesHelper {
 							accio.getNom(),
 							accio.getDescripcio(),
 							accio.getTipus(),
-							accio.getDefprocJbpmKey(),
-							accio.getJbpmAction(),
+							accio.getDefprocBpmKey(),
+							accio.getBpmAction(),
 							accio.getHandlerClasse(),
 							accio.getHandlerDades(),
 							accio.getScript(),
@@ -1153,7 +1153,7 @@ public class DefinicioProcesHelper {
 					accio.getNom(),
 					accio.getTipus());
 			nova.setDescripcio(accio.getDescripcio());
-			nova.setJbpmAction(accio.getJbpmAction());
+			nova.setBpmAction(accio.getBpmAction());
 			nova.setScript(accio.getScript());
 			nova.setHandlerClasse(accio.getHandlerClasse());
 			nova.setHandlerDades(accio.getHandlerDades());
@@ -1180,7 +1180,7 @@ public class DefinicioProcesHelper {
 			nou.setDominiParams(camp.getDominiParams());
 			nou.setDominiIntern(camp.getDominiIntern());
 			nou.setEnumeracio(camp.getEnumeracio());
-			nou.setJbpmAction(camp.getJbpmAction());
+			nou.setBpmAction(camp.getBpmAction());
 			nou.setOrdre(camp.getOrdre());
 			nou.setIgnored(camp.isIgnored());
 			campRepository.save(nou);
@@ -1261,9 +1261,9 @@ public class DefinicioProcesHelper {
 		Map<String, Tasca> tasquesOrigen = new HashMap<String, Tasca>();
 		Tasca tascaOrigen;
 		for (Tasca t : origen.getTasques())
-			tasquesOrigen.put(t.getJbpmName(), t);
+			tasquesOrigen.put(t.getBpmName(), t);
 		for (Tasca tascaDesti : desti.getTasques()) {
-			tascaOrigen = tasquesOrigen.get(tascaDesti.getJbpmName());
+			tascaOrigen = tasquesOrigen.get(tascaDesti.getBpmName());
 			if (tascaOrigen != null) {
 				tascaDesti.setNom(tascaOrigen.getNom());
 				tascaDesti.setTipus(tascaOrigen.getTipus());
@@ -1338,52 +1338,51 @@ public class DefinicioProcesHelper {
 	 * 3- Definicions de procés de l'entorn
 	 * Així doncs aquest mètode té en compte l'herència, la sobreescriptura i les definicions
 	 * de procés globals.
-	 * @param entornId
 	 * @param expedientTipus
-	 * @param jbpmKey
+	 * @param bpmKey
 	 * @return
 	 */
 	public DefinicioProces findDarreraVersioDefinicioProces(
 			ExpedientTipus expedientTipus,
-			String jbpmKey) {
+			String bpmKey) {
 		DefinicioProces definicioProces = null;
 		Long expedientTipusId = null;
 		if (expedientTipus != null) {
 			expedientTipusId = expedientTipus.getId();
 			// Cerca la darrera versió de la definició de procés per codi pel tipus d'expedient
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIBpmKey(
 					expedientTipusId,
-					jbpmKey);
+					bpmKey);
 			// Si no la troba i hi ha herència la cerca al pare
 			if (definicioProces == null && expedientTipus.getExpedientTipusPare() != null)
-				definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+				definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIBpmKey(
 						expedientTipus.getExpedientTipusPare().getId(),
-						jbpmKey);
+						bpmKey);
 		}
 		// Si no la trova cerca a l'entorn
 		if (definicioProces == null && expedientTipus != null)
-			definicioProces = definicioProcesRepository.findDarreraVersioGlobalAmbJbpmKey(
+			definicioProces = definicioProcesRepository.findDarreraVersioGlobalAmbBpmKey(
 					expedientTipus.getEntorn().getId(),
-					jbpmKey);
+					bpmKey);
 		return definicioProces;
 	}
 
-	public List<DefinicioProces> findVersionsDefinicioProces(Long entornId, ExpedientTipus expedientTipus, String jbpmKey) {
+	public List<DefinicioProces> findVersionsDefinicioProces(Long entornId, ExpedientTipus expedientTipus, String bpmKey) {
 		List<DefinicioProces> versions = null;
 
 		if (expedientTipus != null) {
 			// Relacionades amb el tipus d'expedient
-			versions = definicioProcesRepository.findByExpedientTipusIJpbmKey( expedientTipus.getId(),
-																jbpmKey);
+			versions = definicioProcesRepository.findByExpedientTipusIBpmKey( expedientTipus.getId(),
+																bpmKey);
 			// Heretades
 			if ((versions == null || versions.isEmpty()) && expedientTipus.getExpedientTipusPare() != null)
-				versions = definicioProcesRepository.findByExpedientTipusIJpbmKey( expedientTipus.getExpedientTipusPare().getId(),
-																jbpmKey);
+				versions = definicioProcesRepository.findByExpedientTipusIBpmKey( expedientTipus.getExpedientTipusPare().getId(),
+																bpmKey);
 		}
 		// De l'entorn
 		if ((versions == null || versions.isEmpty()))
-			versions = definicioProcesRepository.findByEntornIJbpmKey(entornId,
-																	jbpmKey);
+			versions = definicioProcesRepository.findByEntornIBpmKey(entornId,
+																	bpmKey);
 		return versions;
 	}
 
@@ -1406,8 +1405,8 @@ public class DefinicioProcesHelper {
 				false,
 				expedientTipus.getId(),
 				false))
-			if (!definicionsProces.containsKey(dp.getJbpmKey()))
-				definicionsProces.put(dp.getJbpmKey(), dp);
+			if (!definicionsProces.containsKey(dp.getBpmKey()))
+				definicionsProces.put(dp.getBpmKey(), dp);
 		// Cerca les definicions de procés heretades
 		if (expedientTipus.getExpedientTipusPare() != null)
 			for (DefinicioProces dp : definicioProcesRepository.findDarreresVersionsBy(
@@ -1415,16 +1414,16 @@ public class DefinicioProcesHelper {
 					false,
 					expedientTipus.getExpedientTipusPare().getId(),
 					false))
-				if (!definicionsProces.containsKey(dp.getJbpmKey()))
-					definicionsProces.put(dp.getJbpmKey(), dp);
+				if (!definicionsProces.containsKey(dp.getBpmKey()))
+					definicionsProces.put(dp.getBpmKey(), dp);
 		// Cerca les definicions de procés de l'entorn
 		for (DefinicioProces dp : definicioProcesRepository.findDarreresVersionsBy(
 				expedientTipus.getEntorn().getId(),
 				false,
 				0L,
 				true))
-			if (!definicionsProces.containsKey(dp.getJbpmKey()))
-				definicionsProces.put(dp.getJbpmKey(), dp);
+			if (!definicionsProces.containsKey(dp.getBpmKey()))
+				definicionsProces.put(dp.getBpmKey(), dp);
 
 		// Retorna totes les definicions de procés trobades
 		return new ArrayList<DefinicioProces>(definicionsProces.values());
@@ -1511,13 +1510,13 @@ public class DefinicioProcesHelper {
 			tascaExportacio = new TascaExportacio(
 									tasca.getNom(),
 									TascaDto.TipusTascaDto.valueOf(tasca.getTipus().toString()),
-									tasca.getJbpmName());
+									tasca.getBpmName());
 			// La afegeix al map de tasques utilitzades recentment
 			tascaMap.put(tasca.getId(), tascaExportacio);
 			// La afegeix al map per retornar
-			if (!herenciaTasques.containsKey(tasca.getDefinicioProces().getJbpmKey()))
-				herenciaTasques.put(tasca.getDefinicioProces().getJbpmKey(), new ArrayList<TascaExportacio>());
-			herenciaTasques.get(tasca.getDefinicioProces().getJbpmKey()).add(tascaExportacio);
+			if (!herenciaTasques.containsKey(tasca.getDefinicioProces().getBpmKey()))
+				herenciaTasques.put(tasca.getDefinicioProces().getBpmKey(), new ArrayList<TascaExportacio>());
+			herenciaTasques.get(tasca.getDefinicioProces().getBpmKey()).add(tascaExportacio);
 		}
 		return tascaExportacio;
 	}
@@ -1630,27 +1629,27 @@ public class DefinicioProcesHelper {
 	 *
 	 * @param expedientTipus
 	 * @param expedientTipusPare
-	 * @param definicioProcesJbpmkey
+	 * @param definicioProcesBpmkey
 	 * @param tasquesExportacio
 	 */
 	@Transactional
 	public void importarTascaHerencia(
 			ExpedientTipus expedientTipus,
 			ExpedientTipus expedientTipusPare,
-			String definicioProcesJbpmkey,
+			String definicioProcesBpmkey,
 			List<TascaExportacio> tasquesExportacio) {
 		// Troba la definició de procés
-		DefinicioProces definicioProces = this.findDarreraVersioDefinicioProces(expedientTipusPare, definicioProcesJbpmkey);
+		DefinicioProces definicioProces = this.findDarreraVersioDefinicioProces(expedientTipusPare, definicioProcesBpmkey);
 
 		// Per cada tasca
 		Tasca tasca;
 		for (TascaExportacio tascaExportacio : tasquesExportacio) {
 			// Troba la tasca
-			tasca = tascaRepository.findByJbpmNameAndDefinicioProces(tascaExportacio.getJbpmName(), definicioProces);
+			tasca = tascaRepository.findByBpmNameAndDefinicioProces(tascaExportacio.getBpmName(), definicioProces);
 			if (tasca == null)
 				throw new DeploymentException(messageHelper.getMessage(
 						"exportar.validacio.tasca.no.trobada",
-						new Object[] {tascaExportacio.getJbpmName(), definicioProces.getIdPerMostrar()}));
+						new Object[] {tascaExportacio.getBpmName(), definicioProces.getIdPerMostrar()}));
 			// Per cada camp de la exportació
 			// Camps de la tasca
 			for (CampTascaExportacio campExportat : tascaExportacio.getCamps()) {
@@ -1755,16 +1754,16 @@ public class DefinicioProcesHelper {
 //		Map<String, DefinicioProces> darreresDefinicionsProces = new HashMap<String, DefinicioProces>();
 //		DefinicioProces aux;
 //		for (DefinicioProces dp: definicionsProces) {
-//			aux = darreresDefinicionsProces.get(dp.getJbpmKey());
+//			aux = darreresDefinicionsProces.get(dp.getBpmKey());
 //			if (aux == null || (aux.getVersio() < dp.getVersio()))
-//				darreresDefinicionsProces.put(dp.getJbpmKey(), dp);
+//				darreresDefinicionsProces.put(dp.getBpmKey(), dp);
 //		}
 //		// Relaciona les darreres
 //		for (DefinicioProces dp1: darreresDefinicionsProces.values())
 //			for (DefinicioProces dp2 : darreresDefinicionsProces.values())
 //				workflowEngineApi.updateSubprocessDefinition(
-//						workflowEngineApi.getProcessDefinition(dp1.getJbpmId()).getProcessDefinition(),
-//						workflowEngineApi.getProcessDefinition(dp2.getJbpmId()).getProcessDefinition());
+//						workflowEngineApi.getProcessDefinition(dp1.getBpmId()).getProcessDefinition(),
+//						workflowEngineApi.getProcessDefinition(dp2.getBpmId()).getProcessDefinition());
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesHelper.class);

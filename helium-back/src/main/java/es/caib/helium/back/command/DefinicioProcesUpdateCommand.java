@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.back.command;
 
@@ -11,14 +11,14 @@ import es.caib.helium.back.validator.DefinicioProcesUpdate;
 
 /**
  * Command per editar la informació d'una definició de procés des de la pipella d'informació de la definició de procés.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @DefinicioProcesUpdate(groups = {Modificacio.class})
 public class DefinicioProcesUpdateCommand {
 
 	private Long id;
-	private String jbpmKey;
+	private String bpmKey;
 	private int versio = -1;
 	@NotEmpty(groups = {Modificacio.class})
 	@Size(max = 64, groups = {Modificacio.class})
@@ -31,11 +31,11 @@ public class DefinicioProcesUpdateCommand {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getJbpmKey() {
-		return jbpmKey;
+	public String getBpmKey() {
+		return bpmKey;
 	}
-	public void setJbpmKey(String jbpmKey) {
-		this.jbpmKey = jbpmKey;
+	public void setBpmKey(String bpmKey) {
+		this.bpmKey = bpmKey;
 	}
 	public int getVersio() {
 		return versio;

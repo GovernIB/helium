@@ -80,7 +80,7 @@ public class PortafirmesFluxServiceImpl implements PortafirmesFluxService {
 				filtre.append(", tipus=|").append(definicioProces.getExpedientTipus().getCodi()).append("|");
 			} else {
 				// Definició de procés global
-				filtre.append(", definicio=|").append(definicioProces.getJbpmKey()).append("|");
+				filtre.append(", definicio=|").append(definicioProces.getBpmKey()).append("|");
 			}
 		} else if (expedientTipusId != null) {
 			ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId).orElse(null);

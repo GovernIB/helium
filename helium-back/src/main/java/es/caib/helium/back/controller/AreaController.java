@@ -18,30 +18,30 @@ import es.caib.helium.back.command.AreaCommand.Modificacio;
 import es.caib.helium.back.helper.ConversioTipus;
 import es.caib.helium.back.helper.DatatablesHelper;
 import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
-import es.caib.helium.commons.dto.AreaJbpmIdDto;
+import es.caib.helium.commons.dto.AreaBpmIdDto;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.service.AreaService;
 
 /**
  * Controlador per a la gestió de d'arees
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 
 @Controller(value = "areaControllerV3")
 @RequestMapping("/area")
 public class AreaController extends BaseController {
-	
+
 	@Autowired
 	private AreaService areaService;
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
 		return "areaPipelles";
 	}
-	
+
 	@RequestMapping(value = "/configurades", method = RequestMethod.GET)
 	public String configurades(
 			HttpServletRequest request,
@@ -79,37 +79,37 @@ public class AreaController extends BaseController {
 				null,
 				areaService.findSenseConfigurar(paginacioParams));
 	}
-	
+
 	@RequestMapping(value = "{codi}/new", method = RequestMethod.GET)
 	public String newGet(HttpServletRequest request, @PathVariable String codi, Model model) {
-	
+
 		AreaCommand command = new AreaCommand();
 		command.setCodi(codi);
 		model.addAttribute("areaCommand", command);
 		return "areaConfigurarForm";
 	}
-	
+
 	@RequestMapping(value = "{codi}/new", method = RequestMethod.POST)
 	public String newPost(HttpServletRequest request, @Validated(Creacio.class) AreaCommand command,
 			BindingResult bindingResult, Model model) {
-		
+
 		if (bindingResult.hasErrors()) {
 			return "areaConfigurarForm";
 		}
-		
-		areaService.create(ConversioTipus.convertir(command, AreaJbpmIdDto.class));
+
+		areaService.create(ConversioTipus.convertir(command, AreaBpmIdDto.class));
 		return getModalControllerReturnValueSuccess(request, "redirect:/area", "area.controller.creada");
 	}
-	
+
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.GET)
 	public String modificar(HttpServletRequest request, @PathVariable Long id, Model model) {
 
-		AreaJbpmIdDto dto = areaService.findAmbId(id);
+		AreaBpmIdDto dto = areaService.findAmbId(id);
 		AreaCommand command = ConversioTipus.convertir(dto, AreaCommand.class);
 		model.addAttribute("areaCommand", command);
 		return "areaConfigurarForm";
 	}
-	
+
 	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
@@ -119,12 +119,12 @@ public class AreaController extends BaseController {
 			Model model) {
         if (bindingResult.hasErrors()) {
         	return "areaConfigurarForm";
-        } 
-        
-    	areaService.update(ConversioTipus.convertir(command, AreaJbpmIdDto.class));
+        }
+
+    	areaService.update(ConversioTipus.convertir(command, AreaBpmIdDto.class));
 		return getModalControllerReturnValueSuccess(request, "redirect:/area", "area.controller.modificada");
 	}
-	
+
 	@RequestMapping(value ="{areaId}/delete", method = RequestMethod.GET)
 	public String delete(HttpServletRequest request,
 			@PathVariable Long areaId,
@@ -135,5 +135,5 @@ public class AreaController extends BaseController {
 				"redirect:/area",
 				"area.controller.esborrada");
 	}
-		
+
 }

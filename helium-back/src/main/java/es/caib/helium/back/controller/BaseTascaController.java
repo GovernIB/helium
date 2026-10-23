@@ -34,7 +34,7 @@ import es.caib.helium.logic.intf.service.TascaService;
 
 /**
  * Controlador base per al llistat d'expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class BaseTascaController extends BaseController {
@@ -48,7 +48,7 @@ public class BaseTascaController extends BaseController {
 	protected DissenyService dissenyService;
 	@Autowired
 	private ReproService reproService;
-	
+
 
 	protected String mostrarInformacioTascaPerPipelles(
 			HttpServletRequest request,
@@ -58,22 +58,22 @@ public class BaseTascaController extends BaseController {
 			Map<String, Object> valorsFormulariExtern
 			) {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getBpmName());
 		model.addAttribute("tasca", tasca);
 		model.addAttribute("expedientId", tasca.getExpedientId());
 		model.addAttribute("repros", repros);
 		List<Object> nomesLectura = new ArrayList<Object>();
-		
+
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
 		Iterator<TascaDadaDto> itDades = dades.iterator();
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
-			if (dada.isReadOnly()) {				
+			if (dada.isReadOnly()) {
 				setErrorValidate(request, tascaId, dada);
 				nomesLectura.add(dada);
 			}
 		}
-		
+
 		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
 		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
 		while (itDocuments.hasNext()) {
@@ -82,9 +82,9 @@ public class BaseTascaController extends BaseController {
 				nomesLectura.add(document);
 			}
 		}
-		
-		model.addAttribute("nomesLectura", nomesLectura);		
-		
+
+		model.addAttribute("nomesLectura", nomesLectura);
+
 		String pipellaPerDefecte = null;
 		if (tascaService.hasFormulari(tascaId)) {
 			model.addAttribute(
@@ -114,19 +114,19 @@ public class BaseTascaController extends BaseController {
 			model.addAttribute("pipellaActiva", pipellaPerDefecte != null ? pipellaPerDefecte : "form");
 		}
 		model.addAttribute("isModal", ModalHelper.isModal(request));
-		
+
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
 			model.addAttribute("tasquesTramitar", datosTramitacionMasiva.get("tasquesTramitar"));
 		}
-		
+
 		//Si tenim error d'execució en segón pla, el mostrarem
 		if (tasca.getErrorFinalitzacio() != null && pipellaActiva != null) {
 			MissatgesHelper.error(request, "Error execució segon pla: " + tasca.getErrorFinalitzacio());
 		}
-		
-		if (pipellaActiva != null && 
-				(pipellaActiva.equalsIgnoreCase("document") && request.getMethod().equalsIgnoreCase("POST")) || 
+
+		if (pipellaActiva != null &&
+				(pipellaActiva.equalsIgnoreCase("document") && request.getMethod().equalsIgnoreCase("POST")) ||
 				request.getRequestURI().split("/")[request.getRequestURI().split("/").length -1].equalsIgnoreCase("esborrar")){
 			if (ModalHelper.isModal(request)) {
 				return "redirect:/modal/tasca/" + tascaId + "/" + pipellaActiva;
@@ -134,10 +134,10 @@ public class BaseTascaController extends BaseController {
 				return "redirect:/tasca/" + tascaId + "/" + pipellaActiva;
 			}
 		}else{
-			return "tascaPipelles";	
+			return "tascaPipelles";
 		}
 	}
-	
+
 	protected String mostrarInformacioTascaPerPipellesAmbCommand(
 			HttpServletRequest request,
 			String tascaId,
@@ -145,22 +145,22 @@ public class BaseTascaController extends BaseController {
 			Object command,
 			String pipellaActiva) {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getBpmName());
 		model.addAttribute("tasca", tasca);
 		model.addAttribute("expedientId", tasca.getExpedientId());
 		model.addAttribute("repros", repros);
 		List<Object> nomesLectura = new ArrayList<Object>();
-		
+
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
 		Iterator<TascaDadaDto> itDades = dades.iterator();
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
-			if (dada.isReadOnly()) {				
+			if (dada.isReadOnly()) {
 				setErrorValidate(request, tascaId, dada);
 				nomesLectura.add(dada);
 			}
 		}
-		
+
 		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
 		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
 		while (itDocuments.hasNext()) {
@@ -169,9 +169,9 @@ public class BaseTascaController extends BaseController {
 				nomesLectura.add(document);
 			}
 		}
-		
-		model.addAttribute("nomesLectura", nomesLectura);		
-		
+
+		model.addAttribute("nomesLectura", nomesLectura);
+
 		String pipellaPerDefecte = null;
 		if (tascaService.hasFormulari(tascaId)) {
 			model.addAttribute(
@@ -201,23 +201,23 @@ public class BaseTascaController extends BaseController {
 			model.addAttribute("pipellaActiva", pipellaPerDefecte != null ? pipellaPerDefecte : "form");
 		}
 		model.addAttribute("isModal", ModalHelper.isModal(request));
-		
+
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
 			model.addAttribute("tasquesTramitar", datosTramitacionMasiva.get("tasquesTramitar"));
 		}
-		
+
 		if (command != null) {
 			model.addAttribute("command", command);
 		}
-		
+
 		//Si tenim error d'execució en segón pla, el mostrarem
 		if (tasca.getErrorFinalitzacio() != null && pipellaActiva != null) {
 			MissatgesHelper.error(request, "Error execució segon pla: " + tasca.getErrorFinalitzacio());
 		}
-		
-		if (pipellaActiva != null && 
-				(pipellaActiva.equalsIgnoreCase("document") && request.getMethod().equalsIgnoreCase("POST")) || 
+
+		if (pipellaActiva != null &&
+				(pipellaActiva.equalsIgnoreCase("document") && request.getMethod().equalsIgnoreCase("POST")) ||
 				request.getRequestURI().split("/")[request.getRequestURI().split("/").length -1].equalsIgnoreCase("esborrar")){
 			if (ModalHelper.isModal(request)) {
 				return "redirect:/modal/tasca/" + tascaId + "/" + pipellaActiva;
@@ -225,11 +225,11 @@ public class BaseTascaController extends BaseController {
 				return "redirect:/tasca/" + tascaId + "/" + pipellaActiva;
 			}
 		}else{
-			return "tascaPipelles";	
+			return "tascaPipelles";
 		}
 	}
 
-	private void setErrorValidate(HttpServletRequest request, String tascaId, TascaDadaDto dada) {		
+	private void setErrorValidate(HttpServletRequest request, String tascaId, TascaDadaDto dada) {
 		Object bindingResult = SessionHelper.getAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
 		if (bindingResult != null && ((BindingResult) bindingResult).hasErrors()) {
 			for (FieldError error : ((BindingResult) bindingResult).getFieldErrors()) {
@@ -238,7 +238,7 @@ public class BaseTascaController extends BaseController {
 					break;
 				}
 			}
-		}	
+		}
 	}
 
 	protected String getReturnUrl(
@@ -253,7 +253,7 @@ public class BaseTascaController extends BaseController {
 	}
 
 	protected String guardarDatosTramitacionMasiva(HttpServletRequest request, Set<Long> seleccio, String inici, Boolean correu) {
-		Map<String, Object> camps = new HashMap<String, Object>();		
+		Map<String, Object> camps = new HashMap<String, Object>();
 		String[] tascaIds = new String[seleccio.size()];
 		int i = 0;
 		for (Long tId : seleccio) {
@@ -267,14 +267,14 @@ public class BaseTascaController extends BaseController {
 				iniciMassiva = sdf.parse(inici);
 			} catch (ParseException e) {}
 		}
-		
+
 		camps.put("inici", iniciMassiva);
 		camps.put("correu", correu);
 		camps.put("tasquesTramitar", tascaIds);
 		SessionHelper.setAttribute(request,VARIABLE_TRAMITACIO_MASSIVA, camps);
 		return tascaIds[0];
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected Map<String, Object> getDatosTramitacionMasiva(HttpServletRequest request) {
 		Object obj = SessionHelper.getAttribute(request, VARIABLE_TRAMITACIO_MASSIVA);
@@ -296,7 +296,7 @@ public class BaseTascaController extends BaseController {
 		}
 		return params;
 	}
-	
+
 	protected Set<Long> getSeleccioConsultaTasca(HttpServletRequest request) {
 		Map<String, Object> dadesTramitacio = getDatosTramitacionMasiva(request);
 		String[] ids = (String[]) dadesTramitacio.get("tasquesTramitar");
@@ -306,7 +306,7 @@ public class BaseTascaController extends BaseController {
 		}
 		return mySet;
 	}
-	
+
 	protected void esborrarSeleccio(HttpServletRequest request) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();

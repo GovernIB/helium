@@ -126,7 +126,7 @@ public class FormulariExternHelper {
 
 	private List<ParellaCodiValor> getVariablesPerIniciFormulari(
 			String taskId) {
-		Map<String, Object> varsTasca = variableHelper.getVariablesJbpmTascaValor(taskId);
+		Map<String, Object> varsTasca = variableHelper.getVariablesBpmTascaValor(taskId);
 		List<ParellaCodiValor> varsForm = new ArrayList<ParellaCodiValor>();
 		if (varsTasca != null) {
 			for (String key: varsTasca.keySet()) {

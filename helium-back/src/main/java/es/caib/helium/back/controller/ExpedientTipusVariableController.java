@@ -690,12 +690,12 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 
 		if (perEstats) {
 			// Accions definides al tipus d'expedient
-			command.setDefprocJbpmKey(expedientTipus.getJbpmProcessDefinitionKey());
+			command.setDefprocBpmKey(expedientTipus.getBpmProcessDefinitionKey());
 			model.addAttribute("accions",
 					this.getAccions(
 							request,
 							expedientTipusId,
-							command.getJbpmAction()));
+							command.getBpmAction()));
 		} else {
 			//Accions
 			model.addAttribute("definicionsProces",
@@ -706,8 +706,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 							true));
 			model.addAttribute("accions",
 					this.getAccionsFlux(expedientTipusId,
-							command.getDefprocJbpmKey(),
-							command.getJbpmAction()));
+							command.getDefprocBpmKey(),
+							command.getBpmAction()));
 		}
 
 	}
@@ -960,27 +960,27 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 	 *
 	 * @param expedientTipusId
 	 * @param definicioCodi
-	 * @param jbpmAction
+	 * @param bpmAction
 	 * @return
 	 */
-	private List<ParellaCodiValorDto> getAccionsFlux(Long expedientTipusId, String definicioCodi, String jbpmAction) {
+	private List<ParellaCodiValorDto> getAccionsFlux(Long expedientTipusId, String definicioCodi, String bpmAction) {
 
 		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
 		List<String> accions = new ArrayList<String>();
 		if(expedientTipusId != null && definicioCodi != null) {
 			// Darrera versió de la definició de procés
 			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, definicioCodi);
-			accions = dissenyService.findAccionsJbpmOrdenades(definicioProces.getId());
+			accions = dissenyService.findAccionsBpmOrdenades(definicioProces.getId());
 		}
 		for (String accio : accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
 		}
-		if (jbpmAction != null
-				&& !jbpmAction.isEmpty()
-				&&	!accions.contains(jbpmAction)) {
+		if (bpmAction != null
+				&& !bpmAction.isEmpty()
+				&&	!accions.contains(bpmAction)) {
 			ret.add(0, new ParellaCodiValorDto(
-					jbpmAction,
-					jbpmAction + " (no existeix en la darrera versió de la definició de procés '" + definicioCodi + "')"));
+					bpmAction,
+					bpmAction + " (no existeix en la darrera versió de la definició de procés '" + definicioCodi + "')"));
 		}
 		return ret;
 	}

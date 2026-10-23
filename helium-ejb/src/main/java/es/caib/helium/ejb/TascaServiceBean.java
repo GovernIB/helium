@@ -29,7 +29,7 @@ import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.TascaService;
 
 /**
- * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat de Helium.
+ * Servei per a enllaçar les llibreries BPM amb la funcionalitat de Helium.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -196,6 +196,12 @@ public class TascaServiceBean extends AbstractServiceEjb<TascaService> implement
 		delegateService.guardar(
 				taskId,
 				variables);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void refrescar(String taskInstanceId) {
+		delegateService.refrescar(taskInstanceId);
 	}
 
 	@Override

@@ -30,7 +30,7 @@
 <head>
 	<title><spring:message code="definicio.proces.pipelles.titol"/></title>
 	<meta name="title" content="<spring:message code="definicio.proces.pipelles.titol"/>"/>
-	<meta name="subtitle" content="${fn:escapeXml(definicioProces.jbpmKey)} ${fn:escapeXml(expedientTipusCodi)}"/>
+	<meta name="subtitle" content="${fn:escapeXml(definicioProces.bpmKey)} ${fn:escapeXml(expedientTipusCodi)}"/>
 	<meta name="title-icon-class" content="fa fa-folder-open"/>
 	<script src="<c:url value="/webjars/datatables.net/1.10.25/js/jquery.dataTables.min.js"/>"></script>
 	<script src="<c:url value="/webjars/datatables.net-bs/1.10.19/js/dataTables.bootstrap.min.js"/>"></script>
@@ -224,10 +224,10 @@
 						<div id="versioAccions" class="dropdown" style="margin-right: -10px;">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a id="accioExportar" data-toggle="modal" data-modal-id="accioExportarDiv" href='<c:url value="/definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId=${definicioProces.id}"/>'><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
+								<li><a id="accioExportar" data-toggle="modal" data-modal-id="accioExportarDiv" href='<c:url value="/definicioProces/${definicioProces.bpmKey}/exportar?definicioProcesId=${definicioProces.id}"/>'><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
 								<li><a id="accioImportar" data-toggle="modal" data-modal-id="accioImportarDiv" href='<c:url value="/definicioProces/importar?definicioProcesId=${definicioProces.id}"/>'><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
-								<li><a id="accioModificar" data-toggle="modal" href="<c:url value="/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/update"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="definicio.proces.accio.modificar"/></a></li>
-								<li><a id="accioEsborrar" href='<c:url value="/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/delete"/>' data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+								<li><a id="accioModificar" data-toggle="modal" href="<c:url value="/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/update"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="definicio.proces.accio.modificar"/></a></li>
+								<li><a id="accioEsborrar" href='<c:url value="/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/delete"/>' data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
 							</ul>
 						</div>
 					</c:if>
@@ -256,28 +256,28 @@
 				</ul>
 			</div>
 			<div class="tab-content">
-				<div id="contingut-detall" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/detall"/>">
+				<div id="contingut-detall" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/detall"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/tasca"/>">
+				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/tasca"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-variables" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/variable"/>">
+				<div id="contingut-variables" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/variable"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/documents"/>">
+				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/documents"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/terminis"/>">
+				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/terminis"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/accions"/>">
+				<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/accions"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-editor" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/editor"/>">
+				<div id="contingut-editor" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/editor"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-recursos" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/recurs"/>">
+				<div id="contingut-recursos" class="tab-pane" data-href="<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/${definicioProces.id}/recurs"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 			</div>
@@ -290,20 +290,20 @@
 				$('#versions').change(function() {
 					// adapta els enllaços
 					const definicioProcesId = $(this).val();
-					$('#contingut-detall').data('href', '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/detall');
-					$('#contingut-tasques').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/tasca');
-					$('#contingut-variables').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/variable');
-					$('#contingut-documents').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/documents');
-					$('#contingut-terminis').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/terminis');
-					$('#contingut-accions').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/accions');
-					$('#contingut-editor').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/editor');
-					$('#contingut-recursos').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/recurs');
+					$('#contingut-detall').data('href', '<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/"/>'+definicioProcesId+'/detall');
+					$('#contingut-tasques').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/"/>'+definicioProcesId+'/tasca');
+					$('#contingut-variables').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/"/>'+definicioProcesId+'/variable');
+					$('#contingut-documents').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/"/>'+definicioProcesId+'/documents');
+					$('#contingut-terminis').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/"/>'+definicioProcesId+'/terminis');
+					$('#contingut-accions').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/"/>'+definicioProcesId+'/accions');
+					$('#contingut-editor').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/"/>'+definicioProcesId+'/editor');
+					$('#contingut-recursos').data('href',  '<c:url value="/nodeco/definicioProces/${definicioProces.bpmKey}/"/>'+definicioProcesId+'/recurs');
 					$('#accioExportarDiv').remove();
-					$('#accioExportar').attr('href',  '<c:url value="/definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId="/>'+definicioProcesId );
+					$('#accioExportar').attr('href',  '<c:url value="/definicioProces/${definicioProces.bpmKey}/exportar?definicioProcesId="/>'+definicioProcesId );
 					$('#accioImportarDiv').remove();
 					$('#accioImportar').attr('href',  '<c:url value="/definicioProces/importar?definicioProcesId="/>'+definicioProcesId );
-					$('#accioEsborrar').attr('href',  '<c:url value="/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/delete' );
-					window.history.pushState(null, null, '<c:url value="/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId);
+					$('#accioEsborrar').attr('href',  '<c:url value="/definicioProces/${definicioProces.bpmKey}/"/>'+definicioProcesId+'/delete' );
+					window.history.pushState(null, null, '<c:url value="/definicioProces/${definicioProces.bpmKey}/"/>'+definicioProcesId);
 					// recarrega la pestanya activa
 					carregaTab($('#definicioProces-pipelles li#'+$('.active').attr('id')+' a').attr('href'));
 				});

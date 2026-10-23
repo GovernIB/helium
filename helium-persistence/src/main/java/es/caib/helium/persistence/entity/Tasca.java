@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.entity;
 
@@ -23,16 +23,15 @@ import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 
 /**
  * Objecte de domini que representa una definició de tasca.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
 @Table(	name="hel_tasca",
-		uniqueConstraints={@UniqueConstraint(columnNames={"jbpm_name", "definicio_proces_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"bpm_name", "definicio_proces_id"})})
 public class Tasca implements Serializable, GenericEntity<Long> {
 
 	public enum TipusTasca {
@@ -48,7 +47,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	private String missatgeWarn;
 	private String nomScript;
 	private String expressioDelegacio;
-	private String jbpmName;
+	private String bpmName;
 	private String recursForm;
 	private String formExtern;
 	private boolean tramitacioMassiva = false;
@@ -62,9 +61,9 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	private List<Validacio> validacions = new ArrayList<Validacio>();
 
 	public Tasca() {}
-	public Tasca(DefinicioProces definicioProces, String jbpmName, String nom, TipusTasca tipus) {
+	public Tasca(DefinicioProces definicioProces, String bpmName, String nom, TipusTasca tipus) {
 		this.definicioProces = definicioProces;
-		this.jbpmName = jbpmName;
+		this.bpmName = bpmName;
 		this.nom = nom;
 		this.tipus = tipus;
 	}
@@ -128,12 +127,12 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 		this.expressioDelegacio = expressioDelegacio;
 	}
 
-	@Column(name="jbpm_name", length=255, nullable=false)
-	public String getJbpmName() {
-		return jbpmName;
+	@Column(name="bpm_name", length=255, nullable=false)
+	public String getBpmName() {
+		return bpmName;
 	}
-	public void setJbpmName(String jbpmName) {
-		this.jbpmName = jbpmName;
+	public void setBpmName(String bpmName) {
+		this.bpmName = bpmName;
 	}
 
 	@Column(name="recurs_form", length=255)
@@ -167,7 +166,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	public void setFinalitzacioSegonPla(boolean finalitzacioSegonPla) {
 		this.finalitzacioSegonPla = finalitzacioSegonPla;
 	}
-	
+
 	@Column(name="amb_repro")
 	public boolean isAmbRepro() {
 		return ambRepro;
@@ -183,7 +182,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	public void setMostrarAgrupacions(boolean mostrarAgrupacions) {
 		this.mostrarAgrupacions = mostrarAgrupacions;
 	}
-	
+
 	@ManyToOne(optional=false)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_tasca_fk")
@@ -263,7 +262,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 		result = prime * result
 				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
 		result = prime * result
-				+ ((jbpmName == null) ? 0 : jbpmName.hashCode());
+				+ ((bpmName == null) ? 0 : bpmName.hashCode());
 		return result;
 	}
 	@Override
@@ -280,10 +279,10 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 				return false;
 		} else if (!definicioProces.equals(other.definicioProces))
 			return false;
-		if (jbpmName == null) {
-			if (other.jbpmName != null)
+		if (bpmName == null) {
+			if (other.bpmName != null)
 				return false;
-		} else if (!jbpmName.equals(other.jbpmName))
+		} else if (!bpmName.equals(other.bpmName))
 			return false;
 		return true;
 	}

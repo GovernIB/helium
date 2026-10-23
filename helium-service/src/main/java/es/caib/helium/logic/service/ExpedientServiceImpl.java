@@ -501,6 +501,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					anotacioInteressatsAssociar,
 					backofficeUtils);
 
+			// Crea les tasques de l'expedient a HEL_TASCA_EXPEDIENT
+//			if(expedient.getTipus().getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
+//				for(WTaskInstance taskInstance : workflowEngineApi.findTaskInstanceByProcessInstanceId(expedient.getProcessInstanceId()))
+//					tascaHelper.refreshExpedientTasca(taskInstance.getId());
+//			}
+
 			if (anotacioId != null) {
 				if (resultatMapeig != null && resultatMapeig.isError()) {
 					Alerta alerta = alertaHelper.crearAlerta(
@@ -1194,7 +1200,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		imatge.setNom(resourceName);
 		imatge.setContingut(
 				workflowEngineApi.getResourceBytes(
-						definicioProces.getJbpmId(),
+						definicioProces.getBpmId(),
 						resourceName));
 		return imatge;
 	}
@@ -2034,7 +2040,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					expedientId,
 					processInstanceId,
 					ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
-					accio.getJbpmAction());
+					accio.getBpmAction());
 			try {
 				this.executarAccio(processInstanceId, accio, expedient);
 			} catch (Exception ex) {
@@ -2416,7 +2422,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
 		if (pi.getDescription() != null && !pi.getDescription().isEmpty())
 			dto.setTitol(pi.getDescription());
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
+		DefinicioProces definicioProces = definicioProcesRepository.findByBpmId(pi.getProcessDefinitionId());
 		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class));
 		List<ExpedientDocumentDto> documents = documentHelper.findDocumentsPerInstanciaProces(processInstanceId);
 		Map<String, DocumentDto> documentsDto = new HashMap<String, DocumentDto>();
@@ -2788,16 +2794,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 
 		if (definicioProces == null){
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIBpmKey(
 					expedientTipus.getId(),
-					expedientTipus.getJbpmProcessDefinitionKey());
+					expedientTipus.getBpmProcessDefinitionKey());
 		}
 		if (definicioProcesId == null && definicioProces == null) {
-			logger.error("No s'ha trobat la definició de procés (entorn=" + entornId + ", jbpmKey=" + expedientTipus.getJbpmProcessDefinitionKey() + ")");
+			logger.error("No s'ha trobat la definició de procés (entorn=" + entornId + ", bpmKey=" + expedientTipus.getBpmProcessDefinitionKey() + ")");
 		}
 		String startTaskName = definicioProces.getStartTaskName();
 		if (startTaskName != null) {
-			return tascaHelper.toTascaInicialDto(startTaskName, definicioProces.getJbpmId(), valors);
+			return tascaHelper.toTascaInicialDto(startTaskName, definicioProces.getBpmId(), valors);
 		}
 		return null;
 	}
@@ -3156,7 +3162,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			Map<String, Object> valors,
 			List<Camp> campsFiltre) {
 		for (Camp camp: campsFiltre) {
-			String campFiltreCodi = camp.getDefinicioProces()!= null ? camp.getDefinicioProces().getJbpmKey() + "." + camp.getCodi() : camp.getCodi();
+			String campFiltreCodi = camp.getDefinicioProces()!= null ? camp.getDefinicioProces().getBpmKey() + "." + camp.getCodi() : camp.getCodi();
 			if (consulta.getMapValorsPredefinits().containsKey(camp.getCodi())
 					&& !valors.containsKey(campFiltreCodi)) {
 				valors.put(
@@ -3181,7 +3187,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private int findVersioDefProcesActualitzar(List<DefinicioProcesExpedientDto> definicionsProces, Long[] definicionsProcesId, String key) {
 		int versio = -1;
 		int i = 0;
-		while (i < definicionsProces.size() && !definicionsProces.get(i).getJbpmKey().equals(key))
+		while (i < definicionsProces.size() && !definicionsProces.get(i).getBpmKey().equals(key))
 			i++;
 		if (i < definicionsProces.size() && definicionsProcesId[i] != null) {
 			DefinicioProces definicioProces = definicioProcesRepository.findById(definicionsProcesId[i]).orElse(null);
@@ -3299,17 +3305,17 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	public List<String> findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 			Long entornId,
 			Long expedientTipusId,
-			String jbpmKey) {
+			String bpmKey) {
 		logger.debug("Consultant instancies de procés amb entorn, tipus i process definition name(" +
 				"entornId = " + entornId +
 			", expedientTipusId = " + expedientTipusId +
-			", jbpmKey = " + jbpmKey + ")");
+			", bpmKey = " + bpmKey + ")");
 		List<String> processInstancesIds = new ArrayList<String>();
 
 		// Consulta totes les instàncies de procés per
 		for (WProcessInstance pi :
 			workflowEngineApi.findProcessInstancesWithProcessDefinitionName(
-					jbpmKey)) {
+				bpmKey)) {
 			if (pi.getEndTime() == null) {
 				// Recupera l'expedient i si és del tipus que toca afegegeix l'id a la llista
 				Expedient expedient = expedientRepository.findByProcessInstanceId(pi.getRootProcessInstanceId());
@@ -3334,7 +3340,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		long count = 0;
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
 		if (definicioProces != null) {
-			count = workflowEngineApi.countProcessInstancesWithProcessDefinitionId(definicioProces.getJbpmId());
+			count = workflowEngineApi.countProcessInstancesWithProcessDefinitionId(definicioProces.getBpmId());
 		}
 		return count;
 	}

@@ -39,20 +39,20 @@
 		<thead>
 			<tr>
 				<th data-col-name="id" data-visible="false"/>
-				<th data-col-name="jbpmKey" width="20%"><spring:message code="definicio.proces.llistat.columna.jbpmKey"/></th>
+				<th data-col-name="bpmKey" width="20%"><spring:message code="definicio.proces.llistat.columna.bpmKey"/></th>
 				<th data-col-name="versioCount" data-orderable="false"><spring:message code="definicio.proces.llistat.columna.versions"/></th>
 				<th data-col-name="dataCreacio" data-converter="datetime"><spring:message code="definicio.proces.llistat.columna.dataDarreraVersio"/></th>
 				<th data-col-name="versio" data-orderable="true"><spring:message code="definicio.proces.llistat.columna.versio"/></th>
 				<th data-col-name="expedientTipus.codi"><spring:message code="definicio.proces.llistat.columna.expedientTipus"/></th>
-				<th data-col-name="jbpmKey" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
+				<th data-col-name="bpmKey" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu pull-right">
-								<li><a href="definicioProces/{{:jbpmKey}}/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="definicio.proces.llistat.accio.dissenyar"/></a></li>
-								<li><a data-toggle="modal" href="definicioProces/{{:jbpmKey}}/exportar?definicioProcesId={{:id}}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
+								<li><a href="definicioProces/{{:bpmKey}}/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="definicio.proces.llistat.accio.dissenyar"/></a></li>
+								<li><a data-toggle="modal" href="definicioProces/{{:bpmKey}}/exportar?definicioProcesId={{:id}}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
 								<li><a data-toggle="modal" href="definicioProces/importar?definicioProcesId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
-								<li><a href="definicioProces/{{:jbpmKey}}/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="definicio.proces.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="definicio.proces.llistat.accio.esborrar"/></a></li>
+								<li><a href="definicioProces/{{:bpmKey}}/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="definicio.proces.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="definicio.proces.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
 					</script>
@@ -60,7 +60,7 @@
 			</tr>
 		</thead>
 	</table>
-	<script id="rowhrefTemplate" type="text/x-jsrender">definicioProces/{{:jbpmKey}}/{{:id}}</script>
+	<script id="rowhrefTemplate" type="text/x-jsrender">definicioProces/{{:bpmKey}}/{{:id}}</script>
 
 	<script>
 		function callbackModaldefinicionsProces() {
