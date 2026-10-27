@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -375,153 +376,59 @@ public class ExpedientHelper {
 					permisos);
 		}
 		ExpedientTipus expedientTipus = expedient.getTipus();
-		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipus.getId());
 		boolean tePermisUO = false;
-		List<PermisDto> permisosAmbUOList  = new ArrayList<PermisDto>();
-		if(expTipUnitOrgList!=null) {
-			for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgList) {
-				permisosAmbUOList.addAll(permisosHelper.findPermisos(
-						etuo.getId(),
-						ExpedientTipusUnitatOrganitzativa.class));
-			}
-		}
+		Set<Permission> permisosList = new HashSet<Permission>();
 		
 		if (comprovarPermisRead) {
-			permisos = new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION};		
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);			
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth) &&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.READ);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisWrite) {
-			permisos = new Permission[] {
-					ExtendedPermission.WRITE,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);		
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth) &&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.WRITE);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisDelete) {
-			permisos = new Permission[] {
-					ExtendedPermission.DELETE,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);		
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth) &&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.DELETE);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisSupervision) {
-			permisos = new Permission[] {
-					ExtendedPermission.SUPERVISION,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);		
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth) &&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.SUPERVISION);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisReassignment) {
-			permisos = new Permission[] {
-					ExtendedPermission.REASSIGNMENT,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);		
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth) &&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.REASSIGNMENT);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisAdministration) {
-			permisos = new Permission[] {
-					ExtendedPermission.ADMINISTRATION};
-			//En el cas d'administració no té sentit mirar si té permisos per la UO ja que no és possible
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth)) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisReassignmentOrWrite) {
-			permisos = new Permission[] {
-					ExtendedPermission.WRITE,
-					ExtendedPermission.REASSIGNMENT,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);		
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth)&&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.WRITE);
+			permisosList.add(ExtendedPermission.REASSIGNMENT);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
+		
+		permisos = permisosList.toArray(new Permission[] {});
+		
+		if(expedient.getUnitatOrganitzativa() != null) {
+			tePermisUO = tePermisosSobreUnitatOrganitzativaOrParents(
+				expedientTipus.getId(), 
+				expedient.getUnitatOrganitzativa().getCodi(), 
+				permisos);
+		}
+		
+		if (!permisosHelper.isGrantedAny(
+				expedientTipus.getId(),
+				ExpedientTipus.class,
+				permisos,
+				auth) &&
+				!tePermisUO) {
+			throw new PermisDenegatException(
+					id,
+					Expedient.class,
+					permisos);
+		}
+		
 		return expedient;
 	}
 
@@ -552,6 +459,45 @@ public class ExpedientHelper {
 		return tePermis;
 	}
 	
+	public boolean tePermisosSobreUnitatOrganitzativaOrParents(Long expedientTipusId, String unitatOrganitzativaCodi, Permission[] permissions) {
+		ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
+				expedientTipusId, 
+				unitatOrganitzativaCodi);
+		List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgUnitatsSuperiors = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
+		List<PermisDto> permisos = new ArrayList<PermisDto>();
+		//mirem les unitats superiors fins a l'arrel i si l'user té permís sobre aquestes
+		UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
+		String arrel = uo.getCodiUnitatArrel();
+		List<UnitatOrganitzativaDto> unitatsSuperiors = unitatOrganitzativaHelper.findPath(arrel,uo.getCodiUnitatSuperior());
+		if(unitatsSuperiors!=null && !unitatsSuperiors.isEmpty()) {
+			for (UnitatOrganitzativaDto uoSuperior : unitatsSuperiors) {
+				ExpedientTipusUnitatOrganitzativa expTipusUnitOrgSup = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
+						expedientTipusId, 
+						uoSuperior.getCodi());
+				if(expTipusUnitOrgSup!=null)
+					expTipusUnitOrgUnitatsSuperiors.add(expTipusUnitOrgSup);		
+			}
+		}
+		if(!expTipusUnitOrgUnitatsSuperiors.isEmpty()) {
+			for(ExpedientTipusUnitatOrganitzativa etuo: expTipusUnitOrgUnitatsSuperiors) {
+				permisos.addAll(permisosHelper.findPermisos(
+						etuo.getId(),
+						ExpedientTipusUnitatOrganitzativa.class));	
+			}
+		}
+		if(expTipusUnitOrg!=null)
+			permisos.addAll(permisosHelper.findPermisos(
+					expTipusUnitOrg.getId(),
+					ExpedientTipusUnitatOrganitzativa.class));	
+		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();		
+		for(PermisDto permis: permisos) {
+			if (expedientTipusHelper.comprovarPermisosAndRoleOrUser(permis, authOriginal, permissions)) {
+				return true;
+			}
+		}		
+		return false;
+	}
+	
 	/**
 	 * Retornará true si s'ha pogut actualitzar tant a BBDD com a Axiu.
 	 * False si només s'ha pogut actualitzar parcialment.
@@ -569,6 +515,7 @@ public class ExpedientHelper {
 			Double geoPosY,
 			String geoReferencia,
 			String grupCodi,
+			String unitatOrganitzativaCodi,
 			boolean execucioDinsHandler) {
 		boolean ambRetroaccio = expedient.isAmbRetroaccio();
 		boolean atributsArxiuCanviats = false;
@@ -649,6 +596,27 @@ public class ExpedientHelper {
 					LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
 			expedient.setEstat(null);
 		}
+		
+		if (unitatOrganitzativaCodi != null) {
+			if (expedient.getUnitatOrganitzativa() == null || !expedient.getUnitatOrganitzativa().getCodi().equals(unitatOrganitzativaCodi)) {
+				expedientLoggerHelper.afegirProcessLogInfoExpedient(
+						ambRetroaccio,
+						expedient.getProcessInstanceId(), 
+						LogInfo.UNITAT_ORGANITZATIVA + "#@#" + "---");
+				UnitatOrganitzativa unitatOrganitzativa = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
+				if(unitatOrganitzativa == null)
+					throw new NoTrobatException(UnitatOrganitzativa.class, unitatOrganitzativaCodi);
+				expedient.setUnitatOrganitzativa(unitatOrganitzativa);
+			}
+		} else if (expedient.getUnitatOrganitzativa() != null) {
+			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
+					expedient.getProcessInstanceId(), 
+					LogInfo.UNITAT_ORGANITZATIVA + "#@#" + expedient.getUnitatOrganitzativa().getCodi());
+			expedient.setUnitatOrganitzativa(null);
+		}
+		
+		
 		// Geoposició
 		if (expedient.getGeoPosX() != geoPosX) {
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(

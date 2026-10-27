@@ -2570,42 +2570,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional(readOnly = true)
 	public boolean tePermisosSobreUnitatOrganitzativaOrParents(Long expedientTipusId, String unitatOrganitzativaCodi, Permission[] permissions) {
-		ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
-				expedientTipusId, 
-				unitatOrganitzativaCodi);
-		List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgUnitatsSuperiors = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
-		List<PermisDto> permisos = new ArrayList<PermisDto>();
-		//mirem les unitats superiors fins a l'arrel i si l'user té permís sobre aquestes
-		UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
-		String arrel = uo.getCodiUnitatArrel();
-		List<UnitatOrganitzativaDto> unitatsSuperiors = unitatOrganitzativaHelper.findPath(arrel,uo.getCodiUnitatSuperior());
-		if(unitatsSuperiors!=null && !unitatsSuperiors.isEmpty()) {
-			for (UnitatOrganitzativaDto uoSuperior : unitatsSuperiors) {
-				ExpedientTipusUnitatOrganitzativa expTipusUnitOrgSup = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
+		return expedientHelper
+				.tePermisosSobreUnitatOrganitzativaOrParents(
 						expedientTipusId, 
-						uoSuperior.getCodi());
-				if(expTipusUnitOrgSup!=null)
-					expTipusUnitOrgUnitatsSuperiors.add(expTipusUnitOrgSup);		
-			}
-		}
-		if(!expTipusUnitOrgUnitatsSuperiors.isEmpty()) {
-			for(ExpedientTipusUnitatOrganitzativa etuo: expTipusUnitOrgUnitatsSuperiors) {
-				permisos.addAll(permisosHelper.findPermisos(
-						etuo.getId(),
-						ExpedientTipusUnitatOrganitzativa.class));	
-			}
-		}
-		if(expTipusUnitOrg!=null)
-			permisos.addAll(permisosHelper.findPermisos(
-					expTipusUnitOrg.getId(),
-					ExpedientTipusUnitatOrganitzativa.class));	
-		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();		
-		for(PermisDto permis: permisos) {
-			if (expedientTipusHelper.comprovarPermisosAndRoleOrUser(permis, authOriginal, permissions)) {
-				return true;
-			}
-		}		
-		return false;
+						unitatOrganitzativaCodi, 
+						permissions);
 	}
 	
 	/** Mètode per afegir el rol d'administrador al context en el cas que l'usuari sigui administrador de
