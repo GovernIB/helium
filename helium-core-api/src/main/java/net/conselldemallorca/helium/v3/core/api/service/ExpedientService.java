@@ -170,6 +170,8 @@ public interface ExpedientService {
 	 *            Codi de la georeferència de l'expedient.
 	 * @param grupCodi
 	 *            Codi del grup al qual pertany l'expedient.
+	 * @param unitatOrganitzativaCodi
+	 *            Codi de la unitat organitzativa al que pertany l'expedient.
 	 * @param execucioDinsHandler
 	 *            Indica si la invocació prové d'un handler.
 	 * @throws NotFoundException
@@ -189,6 +191,7 @@ public interface ExpedientService {
 			Double geoPosY,
 			String geoReferencia,
 			String grupCodi,
+			String unitatOrganitzativaCodi,
 			boolean execucioDinsHandler) throws NoTrobatException;
 
 	/**

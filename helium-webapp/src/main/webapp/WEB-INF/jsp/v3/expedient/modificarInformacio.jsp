@@ -25,14 +25,35 @@
 	
 	<style type="text/css">
 		.form-group {width: 100%;}
-		.fila_reducida {width: 100%;}		
-		.col-xs-4 {width: 20%;}		
+		.fila_reducida {width: 100%;}
+		.col-xs-4 {width: 20%;}
 		.col-xs-8 {width: 77%;}
 		.col-xs-8 .form-group {margin-left: 0px;margin-right: 0px;}
 		.col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
 		.col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
 		#s2id_estatId {width: 100% !important;}
 	</style>
+	
+	<script type="text/javascript">
+		$(function() {
+			$('#unitatOrganitzativaCodiError').hide();
+			$('#unitatOrganitzativaCodi').on('change', function() {
+				$('#unitatOrganitzativaCodiError').hide();
+				var unitatOrganitzativaCodi = $(this).val();
+				$.ajax({
+					url: '<c:url value="/v3/expedient/${expedient.id}/uo/"/>' + unitatOrganitzativaCodi + '/permis',
+					async: false,
+					success: function(tePermis){
+						if(!tePermis) {
+							$('#unitatOrganitzativaCodiError').show();
+						}
+					}
+				}).always(function() {
+					$("body").removeClass("loading");
+				});
+			});
+		});
+	</script>
 </head>
 <body>
 	<form:form cssClass="form-horizontal form-tasca" id="modificarInformacio" name="modificarInformacio" action="modificar" method="post" commandName="expedientEditarCommand">
@@ -83,6 +104,24 @@
 				</c:otherwise>
 			</c:choose>
 		</div>
+		
+		<div class="control-group fila_reducida">
+			<c:url var="uoSuggestInici" value="/v3/unitatOrganitzativa/suggestInici" />
+			<c:url var="uoSuggest" value="/v3/unitatOrganitzativa/suggest" />
+			<hel:inputSuggest 
+				name="unitatOrganitzativaCodi" 
+				urlConsultaInicial="${uoSuggestInici}" 
+				urlConsultaLlistat="${uoSuggest}" 
+				textKey="expedient.tipus.permis.form.camp.unitat.organitzativa" 
+				placeholderKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
+				labelSize="4"/>
+		</div>
+		
+		<div id="unitatOrganitzativaCodiError" class="alert alert-warning" role="alert">
+			<span class="fa fa-exclamation-triangle"></span>
+			<spring:message code="error.expedient.permis.unitat.organitzativa"/>
+		</div>
+		
 		<div class="control-group fila_reducida">
 			<hel:inputText name="grupCodi" textKey="expedient.editar.grup_codi" placeholderKey="expedient.editar.grup_codi"/>
 		</div>
@@ -94,6 +133,6 @@
 				<span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.accio.modificar.boto.modificar"/>
 			</button>
 		</div>
-	</form:form> 		
+	</form:form>
 </body>
 </html>

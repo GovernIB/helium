@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -25,7 +26,9 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -52,6 +55,8 @@ public class ExpedientInformacioController extends BaseExpedientController {
 	private ExpedientService expedientService;
 	@Autowired
 	private AplicacioService aplicacioService;
+//	@Autowired
+//	private UnitatOrganitzativaService unitatOrganitzativaService;
 
 	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.GET)
 	public String get(
@@ -66,6 +71,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 //		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
 		estats.add(new EstatDto(ESTAT_FINALITZAT_ID, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 		model.addAttribute("estats", estats);
+		
 		model.addAttribute(getCommandModificar(request, expedient));
 		return "v3/expedient/modificarInformacio";
 	}
@@ -99,6 +105,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 				command.getGeoPosY(),
 				command.getGeoReferencia(),
 				command.getGrupCodi(),
+				command.getUnitatOrganitzativaCodi(),
 				false);
 		
 		if (fullActualitzat) {
@@ -107,6 +114,21 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			MissatgesHelper.warning(request, getMessage(request, "info.informacio.modificat.err"));
 		}
 		return modalUrlTancar();
+	}
+	
+	@RequestMapping(value = "/{expedientId}/uo/{unitatOrganitzativaCodi}/permis", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean tePermisUo(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String unitatOrganitzativaCodi,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		return expedientTipusService.tePermisosSobreUnitatOrganitzativaOrParents(
+				expedient.getTipus().getId(), 
+				unitatOrganitzativaCodi, 
+				new Permission[] {
+					ExtendedPermission.READ});
 	}
 	
 	private class ExpedientEditarValidator implements Validator {
@@ -144,6 +166,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		expedientEditarCommand.setGeoReferencia(expedient.getGeoReferencia());
 		expedientEditarCommand.setGrupCodi(expedient.getGrupCodi());
 		expedientEditarCommand.setIniciadorCodi(expedient.getIniciadorCodi());
+		expedientEditarCommand.setUnitatOrganitzativaCodi(expedient.getUnitatOrganitzativa() != null? expedient.getUnitatOrganitzativa().getCodi() : null);
 		PersonaDto personaResponsable = null;
 		if (expedient.getResponsableCodi() != null) {
 			try {

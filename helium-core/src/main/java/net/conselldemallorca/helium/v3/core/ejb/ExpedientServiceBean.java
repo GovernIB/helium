@@ -141,6 +141,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			Double geoPosY,
 			String geoReferencia,
 			String grupCodi,
+			String unitatOrganitzativaCodi,
 			boolean execucioDinsHandler) {
 		return delegate.update(
 				id,
@@ -154,6 +155,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				geoPosY,
 				geoReferencia,
 				grupCodi,
+				unitatOrganitzativaCodi,
 				execucioDinsHandler);
 	}
 

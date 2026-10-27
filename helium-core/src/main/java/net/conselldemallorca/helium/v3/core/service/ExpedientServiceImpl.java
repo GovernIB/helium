@@ -628,6 +628,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			Double geoPosY,
 			String geoReferencia,
 			String grupCodi,
+			String unitatOrganitzativaCodi,
 			boolean execucioDinsHandler) {
 		logger.debug(
 				"Modificar informació de l'expedient (" +
@@ -641,7 +642,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				"geoPosX=" + geoPosX + ", " +
 				"geoPosY=" + geoPosY + ", " +
 				"geoReferencia=" + geoReferencia + ", " +
-				"grupCodi=" + grupCodi + ")");
+				"grupCodi=" + grupCodi + ", " + 
+				"unitatOrganitzativaCodi=" + unitatOrganitzativaCodi + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				false,
@@ -677,6 +679,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				geoPosY,
 				geoReferencia,
 				grupCodi,
+				unitatOrganitzativaCodi,
 				execucioDinsHandler);
 	}
 

@@ -54,6 +54,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
@@ -98,11 +99,21 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			Model model) {
-		return mostrarInformacioExpedientPerPipella(
-				request,
-				expedientId,
-				model,
-				null);
+		try {
+			return mostrarInformacioExpedientPerPipella(
+					request,
+					expedientId,
+					model,
+					null);
+		} catch(PermisDenegatException e) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"error.permisos.consultar.expedient"),
+					e);
+			return "redirect:/v3/expedient";
+		}
 	}
 	
 	@RequestMapping(value = "/proces/{processInstanceId}", method = RequestMethod.GET)

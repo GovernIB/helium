@@ -28,6 +28,7 @@ public class ExpedientEditarCommand {
 	private Double geoPosY;
 	private String geoReferencia;
 	private String grupCodi;
+	private String unitatOrganitzativaCodi;
 
 	public Long getExpedientId() {
 		return expedientId;
@@ -107,7 +108,13 @@ public class ExpedientEditarCommand {
 	public void setResponsableNomSencer(String responsableNomSencer) {
 		this.responsableNomSencer = responsableNomSencer;
 	}
-	
+	public String getUnitatOrganitzativaCodi() {
+		return unitatOrganitzativaCodi;
+	}
+	public void setUnitatOrganitzativaCodi(String unitatOrganitzativaCodi) {
+		this.unitatOrganitzativaCodi = unitatOrganitzativaCodi;
+	}
+
 	public interface Editar {};
 
 }
