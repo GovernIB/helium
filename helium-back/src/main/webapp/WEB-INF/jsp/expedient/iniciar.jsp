@@ -52,7 +52,7 @@ function confirmar(e, form) {
 		return true;
 }
 
-$(document).ready( function() {	
+$(document).ready( function() {
 	// Botó per redirigir al formulari d'alta massiva per CSV
 	$("button[name=altaMassiva]").click(function() {
 		window.location.href = "<c:url value="/modal/expedient/altaMassiva"></c:url>";
@@ -61,7 +61,7 @@ $(document).ready( function() {
 		paginate : false,
 		language: {
 			url: webutilContextPath() + '/js/datatables/i18n/datatables.' + '${idioma}' + '.json'
-		}, 
+		},
 	}).on('draw', function() {
 		$('#registre_filter').find('input').focus();
 	});
@@ -96,7 +96,7 @@ $(document).ready( function() {
 		});
 	</script>
 	<div id="modal-botons" class="well">
-		<c:if test="${dadesPersona.admin || potExecutarScripts}">
+		<c:if test="${dadesPersona.admin || potProcessarAnotacions}">
 			<button type="button" class="btn btn-primary" name="altaMassiva" value="altaMassiva"><i class="fa fa-file-o"></i> <spring:message code="expedient.iniciar.alta.csv"></spring:message> ...</button>
 		</c:if>
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
