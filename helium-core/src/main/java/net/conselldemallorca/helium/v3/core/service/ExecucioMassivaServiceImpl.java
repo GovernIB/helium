@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
@@ -51,11 +52,14 @@ import com.codahale.metrics.Timer;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.AnotacioHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -80,6 +84,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsu
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
@@ -210,6 +215,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	private AnotacioHelper anotacioHelper;
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
+	@Autowired
+	private DominiHelper dominiHelper;
 	
 	@Autowired
 	private TascaService tascaService;
@@ -2402,17 +2409,23 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			String valor;
 			Object valorHelium;
 			List<String> variablesErronies = new ArrayList<String>();
-			
+			List<String> errors = new ArrayList<String>();
 			for (int i = 3; i < contingutCsv[0].length; i++) {
 				codi = contingutCsv[0][i];
 				valor = contingutCsv[index][i];
 				try {
 					valorHelium = this.getValorSimpleHelium(expedientTipus, definicioProces, codi, valor);
 					variables.put(codi, valorHelium);
+				} catch(NoTrobatException e) {
+					errors.add(e.getMessage());
 				} catch (Exception e) {
 					variablesErronies.add(codi);
 				}
 			}
+			
+			if(!errors.isEmpty())
+				throw new Exception("[" + numero + "] \n" + StringUtils.join(errors, ",\n"));
+			
 			if (errText.length() > 0  || variablesErronies.size() > 0) {
 				// Informar variables errònies al resultat.
 				estat = ExecucioMassivaEstat.ESTAT_ERROR;
@@ -2537,9 +2550,45 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					valorHelium = Long.parseLong(valor);
 					break;
 				case STRING:
+				case TEXTAREA:
+					valorHelium = valor;
+					break;
 				case SELECCIO:
 				case SUGGEST:
-				case TEXTAREA:
+					if(camp.getEnumeracio() != null) {
+						boolean existeix = false;
+						for(EnumeracioValors eValor : camp.getEnumeracio().getEnumeracioValors()) {
+							if(eValor.getCodi().equals(valor)) {
+								existeix = true;
+								break;
+							}
+						}
+						
+						if(!existeix)
+							throw new NoTrobatException("No s'ha trobat el valor " + valor + " pel enumerat \"" + camp.getEnumeracio().getCodi() + "\" per la variable \"" + codi + "\"");
+						
+					} else if(camp.getDomini() != null) {
+						boolean existeix = false;
+						List<FilaResultat> dominiResult = dominiHelper.consultar(
+								camp.getDomini(), 
+								camp.getDominiId(), 
+								null);
+						
+						for(FilaResultat fila : dominiResult) {
+							for(ParellaCodiValor val : fila.getColumnes()) {
+								if( val.getCodi().equalsIgnoreCase(camp.getDominiCampValor()) 
+									&& val.getValor().toString().equals(valor)) {
+									existeix = true;
+									break;
+								}
+							}
+							if(existeix)
+								break;
+						}
+						
+						if(!existeix)
+							throw new NoTrobatException("No s'ha trobat el valor " + valor + " pel domini \"" + camp.getDomini().getCodi() + "\" per la variable \"" + codi + "\"");
+					}
 					valorHelium = valor;
 					break;
 				default:
