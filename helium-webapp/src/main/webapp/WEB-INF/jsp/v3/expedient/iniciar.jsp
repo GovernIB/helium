@@ -85,7 +85,7 @@ $(document).ready( function() {
 		});
 	</script>
 	<div id="modal-botons" class="well">
-		<c:if test="${dadesPersona.admin || potExecutarScripts}">
+		<c:if test="${dadesPersona.admin || potProcessarAnotacions}">
 			<button type="button" class="btn btn-primary" name="altaMassiva" value="altaMassiva"><i class="fa fa-file-o"></i> <spring:message code="expedient.iniciar.alta.csv"></spring:message> ...</button>
 		</c:if>
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
