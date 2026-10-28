@@ -52,8 +52,8 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 	/** Informa el model dels expedients tipus permesos. */
 	@ModelAttribute("expedientTipusPermesos")
 	public List<ExpedientTipusDto> modelExpedientTipusPermesos() {
-		// Buscar tipus d'expedient amb permís d'administració o execució d'scripts
-		List<ExpedientTipusDto> expedientTipusPermesos = expedientTipusService.findAmbEntornPermisExecucioScript(EntornActual.getEntornId());
+		// Buscar tipus d'expedient amb permís d'administració o relació
+		List<ExpedientTipusDto> expedientTipusPermesos = expedientTipusService.findAmbEntornPermisAnotacio(EntornActual.getEntornId());
 		return expedientTipusPermesos;
 	}
 

@@ -2121,7 +2121,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						entornId, 
 						new Permission[] {
 								BasePermission.ADMINISTRATION,
-								ExtendedPermission.RELATE},
+								ExtendedPermission.SCRIPT_EXE},
 						true),
 				ExpedientTipusDto.class);
 	}
