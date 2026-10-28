@@ -169,12 +169,12 @@ public interface ExpedientService {
 	 *            Codi de la georeferència de l'expedient.
 	 * @param grupCodi
 	 *            Codi del grup al qual pertany l'expedient.
+	 * @param unitatOrganitzativaCodi
+	 * 			  Codi de la unitat organitzativa al que pertany l'expedient.
 	 * @param execucioDinsHandler
 	 *            Indica si la invocació prové d'un handler.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
 	 */
 	public boolean update(
 			Long id,
@@ -188,6 +188,7 @@ public interface ExpedientService {
 			Double geoPosY,
 			String geoReferencia,
 			String grupCodi,
+			String unitatOrganitzativaCodi,
 			boolean execucioDinsHandler) throws NoTrobatException;
 
 	/**

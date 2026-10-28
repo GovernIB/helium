@@ -8,10 +8,13 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.security.ExtendedPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -21,10 +24,7 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import es.caib.helium.back.command.ExpedientEditarCommand;
 import es.caib.helium.back.command.ExpedientEditarCommand.Editar;
@@ -38,7 +38,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
@@ -47,11 +47,13 @@ public class ExpedientInformacioController extends BaseExpedientController {
 
 	/** Constant per indicar l'id de l'estat finalitzat. */
 	private static final Long ESTAT_FINALITZAT_ID = -1L;
-	
+
 	@Autowired
 	private ExpedientService expedientService;
 	@Autowired
 	private AplicacioService aplicacioService;
+	@Autowired
+	private ExpedientTipusHelper expedientTipusHelper;
 
 	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.GET)
 	public String get(
@@ -72,8 +74,8 @@ public class ExpedientInformacioController extends BaseExpedientController {
 
 	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.POST)
 	public String modificar(
-			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
 			@Validated(Editar.class) ExpedientEditarCommand command,
 			BindingResult bindingResult,
 			Model model) {
@@ -86,7 +88,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			model.addAttribute("estats", estats);
 			return "expedient/modificarInformacio";
 		}
-		
+
 		boolean fullActualitzat = expedientService.update(
 				command.getExpedientId(),
 				command.getNumero(),
@@ -99,8 +101,9 @@ public class ExpedientInformacioController extends BaseExpedientController {
 				command.getGeoPosY(),
 				command.getGeoReferencia(),
 				command.getGrupCodi(),
+				command.getUnitatOrganitzativaCodi(),
 				false);
-		
+
 		if (fullActualitzat) {
 			MissatgesHelper.success(request, getMessage(request, "info.informacio.modificat"));
 		} else {
@@ -108,7 +111,22 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		}
 		return modalUrlTancar();
 	}
-	
+
+	@RequestMapping(value = "/{expedientId}/uo/{unitatOrganitzativaCodi}/permis", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean tePermisUo(
+		HttpServletRequest request,
+		@PathVariable Long expedientId,
+		@PathVariable String unitatOrganitzativaCodi,
+		Model model) {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		return expedientTipusHelper.tePermisosSobreUnitatOrganitzativaOrParents(
+			expedient.getTipus().getId(),
+			unitatOrganitzativaCodi,
+			new Permission[] {
+				ExtendedPermission.READ});
+	}
+
 	private class ExpedientEditarValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
@@ -129,9 +147,9 @@ public class ExpedientInformacioController extends BaseExpedientController {
 				command.setEstatId(ESTAT_FINALITZAT_ID);
 			}
 		}
-	}	
+	}
 
-	private ExpedientEditarCommand getCommandModificar(HttpServletRequest request, ExpedientDto expedient) {		
+	private ExpedientEditarCommand getCommandModificar(HttpServletRequest request, ExpedientDto expedient) {
 		ExpedientEditarCommand expedientEditarCommand = new ExpedientEditarCommand();
 		expedientEditarCommand.setNumero(expedient.getNumero());
 		expedientEditarCommand.setTitol(expedient.getTitol());
@@ -144,6 +162,8 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		expedientEditarCommand.setGeoReferencia(expedient.getGeoReferencia());
 		expedientEditarCommand.setGrupCodi(expedient.getGrupCodi());
 		expedientEditarCommand.setIniciadorCodi(expedient.getIniciadorCodi());
+		if(expedient.getUnitatOrganitzativa() != null)
+			expedientEditarCommand.setUnitatOrganitzativaCodi(expedient.getUnitatOrganitzativa().getCodi());
 		PersonaDto personaResponsable = null;
 		if (expedient.getResponsableCodi() != null) {
 			try {
@@ -167,7 +187,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		return expedientEditarCommand;
 	}
 
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(

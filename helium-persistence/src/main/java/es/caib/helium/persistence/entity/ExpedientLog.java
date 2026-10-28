@@ -92,7 +92,8 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		GEOPOSICIOX,
 		GEOPOSICIOY,
 		GEOREFERENCIA,
-		GRUP}
+		GRUP,
+		UNITAT_ORGANITZATIVA}
 
 	private Long id;
 	private String usuari;

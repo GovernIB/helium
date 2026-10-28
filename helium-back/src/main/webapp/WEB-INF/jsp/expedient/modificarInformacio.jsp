@@ -33,6 +33,28 @@
 		.col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
 		#s2id_estatId {width: 100% !important;}
 	</style>
+
+	<script type="text/javascript">
+		$(function() {
+			$('#unitatOrganitzativaCodiError').hide();
+			$('#unitatOrganitzativaCodi').on('change', function() {
+				$('#unitatOrganitzativaCodiError').hide();
+				var unitatOrganitzativaCodi = $(this).val();
+				$.ajax({
+					url: '<c:url value="/expedient/${expedient.id}/uo/"/>' + unitatOrganitzativaCodi + '/permis',
+					async: false,
+					success: function(tePermis){
+						if(!tePermis) {
+							$('#unitatOrganitzativaCodiError').show();
+						}
+					}
+				}).always(function() {
+					$("body").removeClass("loading");
+				});
+			});
+		});
+	</script>
+
 </head>
 <body>
 	<form:form cssClass="form-horizontal form-tasca" id="modificarInformacio" name="modificarInformacio" action="modificar" method="post" modelAttribute="expedientEditarCommand">
@@ -83,6 +105,19 @@
 				</c:otherwise>
 			</c:choose>
 		</div>
+
+		<div class="control-group fila_reducida">
+			<c:url var="uoSuggestInici" value="/unitatOrganitzativa/suggestInici" />
+			<c:url var="uoSuggest" value="/unitatOrganitzativa/suggest" />
+			<hel:inputSuggest
+				name="unitatOrganitzativaCodi"
+				urlConsultaInicial="/unitatOrganitzativa/suggestInici"
+				urlConsultaLlistat="/unitatOrganitzativa/suggest"
+				textKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
+				placeholderKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
+				labelSize="4"/>
+		</div>
+
 		<div class="control-group fila_reducida">
 			<hel:inputText name="grupCodi" textKey="expedient.editar.grup_codi" placeholderKey="expedient.editar.grup_codi"/>
 		</div>

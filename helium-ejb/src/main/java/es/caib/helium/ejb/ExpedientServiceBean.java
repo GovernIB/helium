@@ -141,6 +141,7 @@ public class ExpedientServiceBean extends AbstractServiceEjb<ExpedientService> i
 			Double geoPosY,
 			String geoReferencia,
 			String grupCodi,
+			String unitatOrganitzativaCodi,
 			boolean execucioDinsHandler) {
 		return delegateService.update(
 				id,
@@ -154,6 +155,7 @@ public class ExpedientServiceBean extends AbstractServiceEjb<ExpedientService> i
 				geoPosY,
 				geoReferencia,
 				grupCodi,
+				unitatOrganitzativaCodi,
 				execucioDinsHandler);
 	}
 

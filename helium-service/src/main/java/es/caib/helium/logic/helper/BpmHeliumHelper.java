@@ -626,6 +626,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			expedient.getGeoPosY(),
 			expedient.getGeoReferencia(),
 			expedient.getGrupCodi(),
+			expedient.getUnitatOrganitzativa() != null? expedient.getUnitatOrganitzativa().getCodi() : null,
 			false);
 	}
 
@@ -649,6 +650,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			expedient.getGeoPosY(),
 			expedient.getGeoReferencia(),
 			expedient.getGrupCodi(),
+			expedient.getUnitatOrganitzativa() != null? expedient.getUnitatOrganitzativa().getCodi() : null,
 			true);
 	}
 
@@ -676,6 +678,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			posy,
 			referencia,
 			expedient.getGrupCodi(),
+			expedient.getUnitatOrganitzativa() != null? expedient.getUnitatOrganitzativa().getCodi() : null,
 			false);
 	}
 
@@ -699,6 +702,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			expedient.getGeoPosY(),
 			expedient.getGeoReferencia(),
 			grupCodi,
+			expedient.getUnitatOrganitzativa() != null? expedient.getUnitatOrganitzativa().getCodi() : null,
 			false);
 	}
 
@@ -722,6 +726,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			expedient.getGeoPosY(),
 			expedient.getGeoReferencia(),
 			expedient.getGrupCodi(),
+			expedient.getUnitatOrganitzativa() != null? expedient.getUnitatOrganitzativa().getCodi() : null,
 			false);
 	}
 
@@ -747,6 +752,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			expedient.getGeoPosY(),
 			expedient.getGeoReferencia(),
 			expedient.getGrupCodi(),
+			expedient.getUnitatOrganitzativa() != null? expedient.getUnitatOrganitzativa().getCodi() : null,
 			false);
 	}
 
@@ -770,6 +776,7 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			expedient.getGeoPosY(),
 			expedient.getGeoReferencia(),
 			expedient.getGrupCodi(),
+			expedient.getUnitatOrganitzativa() != null? expedient.getUnitatOrganitzativa().getCodi() : null,
 			false);
 	}
 

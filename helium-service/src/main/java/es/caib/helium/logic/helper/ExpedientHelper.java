@@ -449,6 +449,7 @@ public class ExpedientHelper {
 			Double geoPosY,
 			String geoReferencia,
 			String grupCodi,
+			String unitatOrganitzativaCodi,
 			boolean execucioDinsHandler) {
 		boolean ambRetroaccio = expedient.isAmbRetroaccio();
 		boolean atributsArxiuCanviats = false;
@@ -529,6 +530,26 @@ public class ExpedientHelper {
 					LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
 			expedient.setEstat(null);
 		}
+
+		if (unitatOrganitzativaCodi != null) {
+			if (expedient.getUnitatOrganitzativa() == null || !expedient.getUnitatOrganitzativa().getCodi().equals(unitatOrganitzativaCodi)) {
+				expedientLoggerHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
+					expedient.getProcessInstanceId(),
+					LogInfo.UNITAT_ORGANITZATIVA + "#@#" + "---");
+				UnitatOrganitzativa unitatOrganitzativa = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
+				if(unitatOrganitzativa == null)
+					throw new NoTrobatException(UnitatOrganitzativa.class, unitatOrganitzativaCodi);
+				expedient.setUnitatOrganitzativa(unitatOrganitzativa);
+			}
+		} else if (expedient.getUnitatOrganitzativa() != null) {
+			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+				ambRetroaccio,
+				expedient.getProcessInstanceId(),
+				LogInfo.UNITAT_ORGANITZATIVA + "#@#" + expedient.getUnitatOrganitzativa().getCodi());
+			expedient.setUnitatOrganitzativa(null);
+		}
+
 		// Geoposició
 		if (expedient.getGeoPosX() != geoPosX) {
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(
