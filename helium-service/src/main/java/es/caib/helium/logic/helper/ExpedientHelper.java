@@ -2,14 +2,7 @@ package es.caib.helium.logic.helper;
 
 import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
@@ -356,153 +349,59 @@ public class ExpedientHelper {
 					permisos);
 		}
 		ExpedientTipus expedientTipus = expedient.getTipus();
-		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipus.getId());
 		boolean tePermisUO = false;
-		List<PermisDto> permisosAmbUOList  = new ArrayList<PermisDto>();
-		if(expTipUnitOrgList!=null) {
-			for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgList) {
-				permisosAmbUOList.addAll(permisosHelper.findPermisos(
-						etuo.getId(),
-						ExpedientTipusUnitatOrganitzativa.class));
-			}
-		}
+		Set<Permission> permisosList = new HashSet<Permission>();
 
 		if (comprovarPermisRead) {
-			permisos = new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth) &&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.READ);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisWrite) {
-			permisos = new Permission[] {
-					ExtendedPermission.WRITE,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth) &&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.WRITE);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisDelete) {
-			permisos = new Permission[] {
-					ExtendedPermission.DELETE,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth) &&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.DELETE);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisSupervision) {
-			permisos = new Permission[] {
-					ExtendedPermission.SUPERVISION,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth) &&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.SUPERVISION);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisReassignment) {
-			permisos = new Permission[] {
-					ExtendedPermission.REASSIGNMENT,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth) &&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.REASSIGNMENT);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisAdministration) {
-			permisos = new Permission[] {
-					ExtendedPermission.ADMINISTRATION};
-			//En el cas d'administració no té sentit mirar si té permisos per la UO ja que no és possible
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth)) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
 		if (comprovarPermisReassignmentOrWrite) {
-			permisos = new Permission[] {
-					ExtendedPermission.WRITE,
-					ExtendedPermission.REASSIGNMENT,
-					ExtendedPermission.ADMINISTRATION};
-			tePermisUO = tePermisUO(
-					permisos,
-					expTipUnitOrgList,
-					auth);
-			if (!permisosHelper.isGrantedAny(
-					expedientTipus.getId(),
-					ExpedientTipus.class,
-					permisos,
-					auth)&&
-					!tePermisUO) {
-				throw new PermisDenegatException(
-						id,
-						Expedient.class,
-						permisos);
-			}
+			permisosList.add(ExtendedPermission.WRITE);
+			permisosList.add(ExtendedPermission.REASSIGNMENT);
+			permisosList.add(ExtendedPermission.ADMINISTRATION);
 		}
+
+		permisos = permisosList.toArray(new Permission[] {});
+
+		if(expedient.getUnitatOrganitzativa() != null) {
+			tePermisUO = expedientTipusHelper.tePermisosSobreUnitatOrganitzativaOrParents(
+				expedientTipus.getId(),
+				expedient.getUnitatOrganitzativa().getCodi(),
+				permisos);
+		}
+
+		if (!permisosHelper.isGrantedAny(
+			expedientTipus.getId(),
+			ExpedientTipus.class,
+			permisos,
+			auth) &&
+			!tePermisUO) {
+			throw new PermisDenegatException(
+				id,
+				Expedient.class,
+				permisos);
+		}
+
 		return expedient;
 	}
 
