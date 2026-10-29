@@ -7,10 +7,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -135,7 +133,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 							
 							if(!columnesInvalidesRegistre.isEmpty()) {
 								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage("expedient.alta.massiva.validacio.arxiu.columnes.invalides.registre", new Object[] {StringUtils.join(columnesInvalidesRegistre.toArray())}))
+										MessageHelper.getInstance().getMessage("expedient.alta.massiva.validacio.arxiu.columnes.invalides.registre", new Object[] {StringUtils.join(columnesInvalidesRegistre.toArray(), ", ")}))
 								.addNode("file")
 								.addConstraintViolation();
 								valid = false;
@@ -144,7 +142,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 							if (columnesInvalides.size() > 0) {
 								// El CSV conté columnes que no estan definides com a camps de l'expedient
 								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.columnes.invalides", new Object[] {StringUtils.join(columnesInvalides.toArray())}))
+										MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.columnes.invalides", new Object[] {StringUtils.join(columnesInvalides.toArray(), ", ")}))
 								.addNode("file")
 								.addConstraintViolation();
 								valid = false;							

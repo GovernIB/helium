@@ -74,6 +74,7 @@ import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
@@ -217,6 +218,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Autowired
 	private DominiHelper dominiHelper;
+	@Autowired
+	private VariableHelper variableHelper;
 	
 	@Autowired
 	private TascaService tascaService;
@@ -2572,7 +2575,13 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 						List<FilaResultat> dominiResult = dominiHelper.consultar(
 								camp.getDomini(), 
 								camp.getDominiId(), 
-								null);
+								variableHelper.getParamsConsulta(
+										null, 
+										null, 
+										camp,
+										null,
+										null,
+										null));
 						
 						for(FilaResultat fila : dominiResult) {
 							for(ParellaCodiValor val : fila.getColumnes()) {
