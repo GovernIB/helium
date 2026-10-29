@@ -19,9 +19,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.domini.FilaResultat;
+import es.caib.helium.commons.domini.ParellaCodiValor;
+import es.caib.helium.logic.helper.*;
+import es.caib.helium.persistence.entity.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -74,23 +79,6 @@ import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.commons.utils.ThreadUtilsHelium;
 import es.caib.helium.disseny.engine.WTaskInstance;
-import es.caib.helium.logic.helper.AnotacioHelper;
-import es.caib.helium.logic.helper.ConversioTipusHelper;
-import es.caib.helium.logic.helper.DefinicioProcesHelper;
-import es.caib.helium.logic.helper.DistribucioHelper;
-import es.caib.helium.logic.helper.DocumentHelperV3;
-import es.caib.helium.logic.helper.EntornHelper;
-import es.caib.helium.logic.helper.ExceptionHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.MailHelper;
-import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.helper.PermisosHelper;
-import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.logic.helper.TerminiHelper;
-import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
@@ -101,23 +89,9 @@ import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTascaService;
 import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.entity.Accio;
-import es.caib.helium.persistence.entity.Anotacio;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.Consulta;
-import es.caib.helium.persistence.entity.ConsultaCamp;
 import es.caib.helium.persistence.entity.ConsultaCamp.TipusConsultaCamp;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.persistence.entity.ExecucioMassiva;
 import es.caib.helium.persistence.entity.ExecucioMassiva.ExecucioMassivaTipus;
-import es.caib.helium.persistence.entity.ExecucioMassivaExpedient;
 import es.caib.helium.persistence.entity.ExecucioMassivaExpedient.ExecucioMassivaEstat;
-import es.caib.helium.persistence.entity.Expedient;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.Persona;
-import es.caib.helium.persistence.entity.Termini;
 import es.caib.helium.persistence.repository.AccioRepository;
 import es.caib.helium.persistence.repository.AnotacioRepository;
 import es.caib.helium.persistence.repository.CampRepository;
@@ -222,6 +196,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	private ExpedientRegistreService expedientRegistreService;
 	@Autowired
 	private AnotacioService anotacioService;
+	@Autowired
+	private DominiHelper dominiHelper;
 
 	@Transactional
 	@Override
@@ -2366,6 +2342,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			String valor;
 			Object valorHelium;
 			List<String> variablesErronies = new ArrayList<String>();
+			List<String> errors = new ArrayList<String>();
 
 			for (int i = 3; i < contingutCsv[0].length; i++) {
 				codi = contingutCsv[0][i];
@@ -2373,10 +2350,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				try {
 					valorHelium = this.getValorSimpleHelium(expedientTipus, definicioProces, codi, valor);
 					variables.put(codi, valorHelium);
+				} catch(NoTrobatException e) {
+					errors.add(e.getMessage());
 				} catch (Exception e) {
 					variablesErronies.add(codi);
 				}
 			}
+
+			if(!errors.isEmpty())
+				throw new Exception("[" + numero + "] \n" + String.join(",\n", errors));
+
 			if (errText.length() > 0  || variablesErronies.size() > 0) {
 				// Informar variables errònies al resultat.
 				estat = ExecucioMassivaEstat.ESTAT_ERROR;
@@ -2501,9 +2484,45 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					valorHelium = Long.parseLong(valor);
 					break;
 				case STRING:
+				case TEXTAREA:
+					valorHelium = valor;
+					break;
 				case SELECCIO:
 				case SUGGEST:
-				case TEXTAREA:
+					if(camp.getEnumeracio() != null) {
+						boolean existeix = false;
+						for(EnumeracioValors eValor : camp.getEnumeracio().getEnumeracioValors()) {
+							if(eValor.getCodi().equals(valor)) {
+								existeix = true;
+								break;
+							}
+						}
+
+						if(!existeix)
+							throw new NoTrobatException("No s'ha trobat el valor " + valor + " pel enumerat \"" + camp.getEnumeracio().getCodi() + "\" per la variable \"" + codi + "\"");
+
+					} else if(camp.getDomini() != null) {
+						boolean existeix = false;
+						List<FilaResultat> dominiResult = dominiHelper.consultar(
+							camp.getDomini(),
+							camp.getDominiId(),
+							null);
+
+						for(FilaResultat fila : dominiResult) {
+							for(ParellaCodiValor val : fila.getColumnes()) {
+								if( val.getCodi().equalsIgnoreCase(camp.getDominiCampValor())
+									&& val.getValor().toString().equals(valor)) {
+									existeix = true;
+									break;
+								}
+							}
+							if(existeix)
+								break;
+						}
+
+						if(!existeix)
+							throw new NoTrobatException("No s'ha trobat el valor " + valor + " pel domini \"" + camp.getDomini().getCodi() + "\" per la variable \"" + codi + "\"");
+					}
 					valorHelium = valor;
 					break;
 				default:

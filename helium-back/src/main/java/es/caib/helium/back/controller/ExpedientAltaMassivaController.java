@@ -49,12 +49,12 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
 
-	/** Informa el model dels expedients tipus permesos. 
+	/** Informa el model dels expedients tipus permesos.
 	 * @param request */
 	@ModelAttribute("expedientTipusPermesos")
 	public List<ExpedientTipusDto> modelExpedientTipusPermesos(HttpServletRequest request) {
 		// Buscar tipus d'expedient amb permís d'administració o execució d'scripts
-		List<ExpedientTipusDto> expedientTipusPermesos = expedientTipusService.findAmbEntornPermisExecucioScript(SessionHelper.getSessionManager(request).getEntornActual().getId());
+		List<ExpedientTipusDto> expedientTipusPermesos = expedientTipusService.findAmbEntornPermisAnotacio(SessionHelper.getSessionManager(request).getEntornActual().getId());
 		return expedientTipusPermesos;
 	}
 

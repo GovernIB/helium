@@ -2,17 +2,12 @@ package es.caib.helium.back.validator;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import es.caib.helium.commons.dto.CampTipusDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,16 +107,36 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 							valid = false;
 						} else {
 							// Valida la primera fila
-							Set<String> camps = this.getCamps(command.getExpedientTipusId());
-							List<String> columnesInvalides = new ArrayList<String>();
-							for (int i = 3; i < nColumnes; i++) {
-								if (!camps.contains(contingutCsv[0][i]))
-									columnesInvalides.add(contingutCsv[0][i]);
+							List<CampDto> campsList = this.getCamps(command.getExpedientTipusId());
+							Map<String, CampDto> campPerCodi = new HashMap<String, CampDto>();
+							for (CampDto camp : campsList) {
+								campPerCodi.put(camp.getCodi(), camp);
 							}
-							if (columnesInvalides.size() > 0) {
+							List<String> columnesInvalides = new ArrayList<String>();
+							List<String> columnesInvalidesRegistre = new ArrayList<String>();
+
+							for (int i = 3; i < nColumnes; i++) {
+								String codi = contingutCsv[0][i];
+								if (!campPerCodi.containsKey(codi)) {
+									columnesInvalides.add(codi);
+								} else if(campPerCodi.get(codi).getTipus() == CampTipusDto.REGISTRE) {
+									// No es permeten els camps de tipus registre
+									columnesInvalidesRegistre.add(codi);
+								}
+							}
+
+							if(!columnesInvalidesRegistre.isEmpty()) {
+								context.buildConstraintViolationWithTemplate(
+										MessageHelper.getInstance().getMessage("expedient.alta.massiva.validacio.arxiu.columnes.invalides.registre", new Object[] {StringUtils.join(columnesInvalidesRegistre.toArray(), ", ")}))
+									.addNode("file")
+									.addConstraintViolation();
+								valid = false;
+							}
+
+							if (!columnesInvalides.isEmpty()) {
 								// El CSV conté columnes que no estan definides com a camps de l'expedient
 								context.buildConstraintViolationWithTemplate(
-										MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.columnes.invalides", new Object[] {StringUtils.join(columnesInvalides.toArray())}))
+										MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.columnes.invalides", new Object[] {StringUtils.join(columnesInvalides.toArray(), ", ")}))
 								.addNode("file")
 								.addConstraintViolation();
 								valid = false;
@@ -201,19 +216,14 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 	 * @param expedientTipusId
 	 * @return
 	 */
-	private Set<String> getCamps(Long expedientTipusId) {
-		Set<String> camps = new HashSet<String>();
+	private List<CampDto> getCamps(Long expedientTipusId) {
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(expedientTipusId);
 		Long definicioProcesId = expedientTipus.isAmbInfoPropia() ?
 				null
 				: dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId).getId();
-		for (CampDto camp : dissenyService.findCampsOrdenatsPerCodi(
-																expedientTipusId,
-																definicioProcesId,
-																expedientTipus.isAmbHerencia())) {
-			camps.add(camp.getCodi());
-		}
-		return camps;
+		return dissenyService.findCampsOrdenatsPerCodi(expedientTipusId,
+													   definicioProcesId,
+													   expedientTipus.isAmbHerencia());
 	}
 
 }
