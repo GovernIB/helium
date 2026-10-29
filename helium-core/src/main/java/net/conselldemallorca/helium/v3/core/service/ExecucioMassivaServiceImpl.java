@@ -52,6 +52,7 @@ import com.codahale.metrics.Timer;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
+import es.caib.distribucio.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.AnotacioHelper;
@@ -2421,6 +2422,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					variables.put(codi, valorHelium);
 				} catch(NoTrobatException e) {
 					errors.add(e.getMessage());
+				} catch(SistemaExternException se) {
+					errors.add(se.getMessage());
 				} catch (Exception e) {
 					variablesErronies.add(codi);
 				}
@@ -2568,20 +2571,25 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 						}
 						
 						if(!existeix)
-							throw new NoTrobatException("No s'ha trobat el valor " + valor + " pel enumerat \"" + camp.getEnumeracio().getCodi() + "\" per la variable \"" + codi + "\"");
+							throw new NoTrobatException("No s'ha trobat el valor \"" + valor + "\" pel enumerat \"" + camp.getEnumeracio().getCodi() + "\" per la variable \"" + codi + "\"");
 						
 					} else if(camp.getDomini() != null) {
 						boolean existeix = false;
-						List<FilaResultat> dominiResult = dominiHelper.consultar(
-								camp.getDomini(), 
-								camp.getDominiId(), 
-								variableHelper.getParamsConsulta(
-										null, 
-										null, 
-										camp,
-										null,
-										null,
-										null));
+						List<FilaResultat> dominiResult;
+						try {
+							dominiResult = dominiHelper.consultar(
+									camp.getDomini(), 
+									camp.getDominiId(), 
+									variableHelper.getParamsConsulta(
+											null, 
+											null, 
+											camp,
+											null,
+											null,
+											null));
+						} catch(Exception e) {
+							throw new SistemaExternException("Error consultant el valor \"" + valor + "\" pel domini \"" + camp.getDomini().getCodi() + "\" per la variable \"" + codi + "\": " + e.getMessage());
+						}
 						
 						for(FilaResultat fila : dominiResult) {
 							for(ParellaCodiValor val : fila.getColumnes()) {
@@ -2596,7 +2604,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 						}
 						
 						if(!existeix)
-							throw new NoTrobatException("No s'ha trobat el valor " + valor + " pel domini \"" + camp.getDomini().getCodi() + "\" per la variable \"" + codi + "\"");
+							throw new NoTrobatException("No s'ha trobat el valor \"" + valor + "\" pel domini \"" + camp.getDomini().getCodi() + "\" per la variable \"" + codi + "\"");
 					}
 					valorHelium = valor;
 					break;
