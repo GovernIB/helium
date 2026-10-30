@@ -2933,39 +2933,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				ExtendedPermission.READ,
 				ExtendedPermission.ADMINISTRATION};
 		unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entorn.getId(),expTipUnitOrgList, permisosRequerits);
-		List<Long> expedientsIds = workflowEngineApi.expedientFindByFiltre(
-				entorn.getId(),
-				auth.getName(),
-				tipusPermesosIds,
-				unitatsPerTipusComu,
-				null,
-				null,
-				null,//unitatOrganitzativaCodi
-				expedientTipus.getId(),
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				false,
-				false,
-				MostrarAnulatsDto.SI.equals(mostrarAnulats),
-				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-				nomesAlertes,
-				nomesErrors,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				nomesMeves,
-				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entorn.getId())? null : usuariActualHelper.getAreesGrupsUsuariActual(),
-				new PaginacioParamsDto(),
-				false,
-				nomesErrorsArxiu,
-				null //idsSeleccionats
-				);
+		
 		// Obte la llista d'ids de lucene passant els expedients permesos
 		// com a paràmetres
 		List<Camp> filtreCamps = consultaHelper.toListCamp(

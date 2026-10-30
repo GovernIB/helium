@@ -132,26 +132,11 @@ public class UsuariActualHelper {
 	public String[] getAreesGrupsUsuariActual() {
 		String[] areesGrups;
 		String usuariCodi = getUsuariActual();
-		if (esIdentitySourceHelium()) {
-			List<AreaMembre> membres = areaMembreRepository.findByCodi(usuariCodi);
-
-			List<String> codisArea = new ArrayList<String>();
-			for (AreaMembre membre: membres) {
-				codisArea.add(membre.getArea().getCodi());
-			}
-			areesGrups = codisArea.toArray(new String[membres.size()]);
-		} else {
-			List<String> codisArea = areaBpmIdRepository.findRolesAmbUsuariCodi(usuariCodi);
-			areesGrups = codisArea.toArray(new String[codisArea.size()]);
-		}
+		//TODO: veure d'on surten les àrees
+		List<String> codisArea = areaBpmIdRepository.findRolesAmbUsuariCodi(usuariCodi);
+		areesGrups = codisArea.toArray(new String[codisArea.size()]);
 		return areesGrups;
 	}
-
-	private boolean esIdentitySourceHelium() {
-		String identitySource = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BPM_IDENTITY_SOURCE);
-		return (identitySource.equalsIgnoreCase("helium"));
-	}
-
 
 	/** Consulta si l'usuari actual és administrador d'Helium */
 	public boolean isAdministrador() {

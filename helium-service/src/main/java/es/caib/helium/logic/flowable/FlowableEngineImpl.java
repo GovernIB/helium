@@ -1065,17 +1065,6 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		return wTask;
 	}
 
-	@Override
-	public List<Long> expedientFindByFiltre(Long entornId, String name, List<Long> tipusPermesosIds,
-			Map<Long, List<Long>> unitatsPerTipusComu, String titol, String numero, Long unitatOrganitzativaId,
-			Long expedientTipusId, Date dataInici1, Date dataInici2, Date dataFi1, Date dataFi2, Long estatId,
-			Double geoPosX, Double geoPosY, String geoReferencia, String registreNumero, boolean equals,
-			boolean equals2, boolean equals3, boolean equals4, boolean nomesAlertes, boolean nomesErrors,
-			boolean nomesTasquesPersonals, boolean nomesTasquesGrup, boolean b, Object object,
-			PaginacioParamsDto paginacioParams, boolean c, boolean nomesErrorsArxiu, Set<Long> idsSeleccionats) {
-		// TODO Auto-generated method stub
-		return new ArrayList<Long>();
-	}
 
 //	@Override
 //	public WExpedientDto expedientFindByProcessInstanceId(String processInstanceId) {

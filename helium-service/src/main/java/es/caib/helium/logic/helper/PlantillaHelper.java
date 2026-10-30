@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,7 +16,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.commons.config.PropertyConfig;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -38,12 +36,11 @@ import es.caib.helium.commons.dto.Sexe;
 import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.exception.HeliumException;
 import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.disseny.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.entity.Area;
+import es.caib.helium.logic.utils.NombreEnCastella;
+import es.caib.helium.logic.utils.NombreEnCatala;
 import es.caib.helium.persistence.entity.AreaBpmId;
-import es.caib.helium.persistence.entity.Carrec;
 import es.caib.helium.persistence.entity.CarrecBpmId;
 import es.caib.helium.persistence.entity.Document;
 import es.caib.helium.persistence.entity.DocumentStore;
@@ -60,8 +57,6 @@ import es.caib.helium.persistence.repository.CarrecRepository;
 import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.DominiRepository;
 import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
-import es.caib.helium.logic.utils.NombreEnCastella;
-import es.caib.helium.logic.utils.NombreEnCatala;
 import freemarker.core.Environment;
 import freemarker.core.NonStringException;
 import freemarker.ext.beans.ArrayModel;
@@ -416,21 +411,13 @@ public class PlantillaHelper {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
-								if (esIdentitySourceHelium()) {
-									Area area = areaRepository.findByEntornAndCodi(entorn, codi);
-									if (area == null)
-										area = new Area("???", "???", new Entorn());
-									return new BeanModel(
-											area,
-											new DefaultObjectWrapper());
-								} else {
-									AreaBpmId area = areaBpmIdRepository.findByCodi(codi);
-									if (area == null)
-										area = new AreaBpmId("???", "???");
-									return new BeanModel(
-											area,
-											new DefaultObjectWrapper());
-								}
+								//TODO: veure d'on surten les àrees
+								AreaBpmId area = areaBpmIdRepository.findByCodi(codi);
+								if (area == null)
+									area = new AreaBpmId("???", "???");
+								return new BeanModel(
+										area,
+										new DefaultObjectWrapper());
 							}
 						}
 						return new SimpleScalar("[Arguments incorrectes]");
@@ -444,30 +431,20 @@ public class PlantillaHelper {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String carrecCodi = (String)arg0;
-								if (esIdentitySourceHelium()) {
-									if (args.size() == 1) {
-										Carrec carrec = carrecRepository.findByEntornAndCodi(entorn, carrecCodi);
-										if (carrec == null)
-											carrec = new Carrec("???", "???", "???", "???", "???", new Entorn());
-										return new BeanModel(
-												carrec,
-												new DefaultObjectWrapper());
-									}
+								//TODO: veure d'on surten les àrees
+								CarrecBpmId carrec = null;
+								if (args.size() == 1) {
+									carrec = carrecBpmIdRepository.findByCodi(carrecCodi);
 								} else {
-									CarrecBpmId carrec = null;
-									if (args.size() == 1) {
-										carrec = carrecBpmIdRepository.findByCodi(carrecCodi);
-									} else {
-										Object arg1 = args.get(1);
-										String areaCodi = (String)arg1;
-										carrec = carrecBpmIdRepository.findByCodiAndGrup(carrecCodi, areaCodi);
-									}
-									if (carrec == null)
-										carrec = new CarrecBpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
-									return new BeanModel(
-											carrec,
-											new DefaultObjectWrapper());
+									Object arg1 = args.get(1);
+									String areaCodi = (String)arg1;
+									carrec = carrecBpmIdRepository.findByCodiAndGrup(carrecCodi, areaCodi);
 								}
+								if (carrec == null)
+									carrec = new CarrecBpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
+								return new BeanModel(
+										carrec,
+										new DefaultObjectWrapper());
 							}
 						}
 						return new SimpleScalar("[Arguments incorrectes]");
@@ -483,30 +460,16 @@ public class PlantillaHelper {
 							if (arg0 != null && arg0 instanceof String && arg1 != null && arg1 instanceof String) {
 								String codiCarrec = (String)arg0;
 								String codiArea = (String)arg1;
-								if (esIdentitySourceHelium()) {
-									Carrec carrec = carrecRepository.findByEntornAndAreaAndCodi(
-											entorn,
-											areaRepository.findByEntornAndCodi(entorn, codiArea),
-											codiCarrec);
-									if (carrec != null) {
-										if (carrec.getPersonaCodi() != null) {
-											PersonaDto persona = pluginHelper.personaFindAmbCodi(carrec.getPersonaCodi());
-											return new BeanModel(
-													persona,
-													new DefaultObjectWrapper());
-										}
-									}
-								} else {
-									List<String> personaCodi = carrecBpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(
-											codiArea,
-											codiCarrec);
-									if (personaCodi != null && !personaCodi.isEmpty()) {
-										PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi.get(0));
-										if (persona != null)
-											return new BeanModel(
-													persona,
-													new DefaultObjectWrapper());
-									}
+								//TODO: veure d'on surten les àrees
+								List<String> personaCodi = carrecBpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(
+										codiArea,
+										codiCarrec);
+								if (personaCodi != null && !personaCodi.isEmpty()) {
+									PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi.get(0));
+									if (persona != null)
+										return new BeanModel(
+												persona,
+												new DefaultObjectWrapper());
 								}
 								return new BeanModel(
 										new PersonaDto("???", "???", "???", Sexe.SEXE_HOME),
@@ -526,45 +489,25 @@ public class PlantillaHelper {
 							if (arg0 != null && arg0 instanceof String && arg1 != null && arg1 instanceof String) {
 								String codiPersona = (String)arg0;
 								String codiArea = (String)arg1;
-								if (esIdentitySourceHelium()) {
-									Area area = areaRepository.findByEntornAndCodi(entorn, codiArea);
-									List<Carrec> carrecs = new ArrayList<Carrec>();
-									for (Carrec car: area.getCarrecs()) {
-										if (codiPersona.equals(car.getPersonaCodi()))
-											carrecs.add(car);
+								//TODO: veure d'on surten les àrees
+								List<String> carrecCodis = carrecBpmIdRepository.findCarrecsCodiByPersonaCodiAndGrupCodi(
+										codiPersona,
+										codiArea);
+								if (carrecCodis != null && carrecCodis.size() > 0) {
+									CarrecBpmId[] array = new CarrecBpmId[carrecCodis.size()];
+									for (int i = 0; i < carrecCodis.size(); i++) {
+										CarrecBpmId carrec = carrecBpmIdRepository.findByCodiAndGrup(carrecCodis.get(i), codiArea);
+										if (carrec == null)
+											carrec = new CarrecBpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
+										array[i] = carrec;
 									}
-									if (carrecs.size() > 0) {
-										Carrec[] array = new Carrec[carrecs.size()];
-										for (int i = 0; i < carrecs.size(); i++)
-											array[i] = carrecs.get(i);
-										return new ArrayModel(
-												array,
-												new DefaultObjectWrapper());
-									} else {
-										return new ArrayModel(
-												new Carrec[0],
-												new DefaultObjectWrapper());
-									}
+									return new ArrayModel(
+											array,
+											new DefaultObjectWrapper());
 								} else {
-									List<String> carrecCodis = carrecBpmIdRepository.findCarrecsCodiByPersonaCodiAndGrupCodi(
-											codiPersona,
-											codiArea);
-									if (carrecCodis != null && carrecCodis.size() > 0) {
-										CarrecBpmId[] array = new CarrecBpmId[carrecCodis.size()];
-										for (int i = 0; i < carrecCodis.size(); i++) {
-											CarrecBpmId carrec = carrecBpmIdRepository.findByCodiAndGrup(carrecCodis.get(i), codiArea);
-											if (carrec == null)
-												carrec = new CarrecBpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
-											array[i] = carrec;
-										}
-										return new ArrayModel(
-												array,
-												new DefaultObjectWrapper());
-									} else {
-										return new ArrayModel(
-												new CarrecBpmId[0],
-												new DefaultObjectWrapper());
-									}
+									return new ArrayModel(
+											new CarrecBpmId[0],
+											new DefaultObjectWrapper());
 								}
 							}
 						}
@@ -580,28 +523,17 @@ public class PlantillaHelper {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
-								if (esIdentitySourceHelium()) {
-									Carrec carrec = carrecRepository.findByEntornAndCodi(entorn, codi);
-									if (carrec != null) {
-										if (carrec.getPersonaCodi() != null) {
-											PersonaDto persona = pluginHelper.personaFindAmbCodi(carrec.getPersonaCodi());
-											return new BeanModel(
-													persona,
-													new DefaultObjectWrapper());
-										}
-									}
-								} else {
-									CarrecBpmId carrec = carrecBpmIdRepository.findByCodi(codi);
-									if (carrec != null) {
-										List<String> persones = carrecBpmIdRepository.findPersonesCodiByCarrecCodi(codi);
-										if (persones != null && persones.size() > 0) {
-											PersonaDto persona = pluginHelper.personaFindAmbCodi(persones.get(0));
-											if (persona == null)
-												persona = new PersonaDto("???", "???", "???", Sexe.SEXE_HOME);
-											return new BeanModel(
-													persona,
-													new DefaultObjectWrapper());
-										}
+								//TODO: veure d'on surten les àrees
+								CarrecBpmId carrec = carrecBpmIdRepository.findByCodi(codi);
+								if (carrec != null) {
+									List<String> persones = carrecBpmIdRepository.findPersonesCodiByCarrecCodi(codi);
+									if (persones != null && persones.size() > 0) {
+										PersonaDto persona = pluginHelper.personaFindAmbCodi(persones.get(0));
+										if (persona == null)
+											persona = new PersonaDto("???", "???", "???", Sexe.SEXE_HOME);
+										return new BeanModel(
+												persona,
+												new DefaultObjectWrapper());
 									}
 								}
 								return new BeanModel(
@@ -847,11 +779,6 @@ public class PlantillaHelper {
 
 	private void deshabilitarLogging() throws ClassNotFoundException {
 		Logger.selectLoggerLibrary(Logger.LIBRARY_NONE);
-	}
-
-	private boolean esIdentitySourceHelium() {
-		String identitySource = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BPM_IDENTITY_SOURCE);
-		return (identitySource.equalsIgnoreCase("helium"));
 	}
 
 	private String getArxiuNomPerDocumentGenerat(

@@ -44,19 +44,6 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 		mappableAttributes.clear();
 		if (defaultMappableAttributes != null)
 			mappableAttributes.addAll(defaultMappableAttributes);
-		String source = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BPM_IDENTITY_SOURCE);
-		if (source.equalsIgnoreCase("helium")) {
-//			for (Permis permis: permisService.findAll()) {
-//				String codi = permis.getCodi();
-//				if (!mappableAttributes.contains(codi))
-//					mappableAttributes.add(codi);
-//			}
-		} else {
-//			for (AreaBpmId group: organitzacioService.findDistinctBpmGroups()) {
-//				if (group != null && !mappableAttributes.contains(group.getCodi()))
-//					mappableAttributes.add(group.getCodi());
-//			}
-		}
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RolesBasedMappableAttributesRetriever.class);

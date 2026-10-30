@@ -6,11 +6,4 @@
 	<Resource	name="mail/HeliumSession" auth="Container"
 				type="javax.mail.Session"
 				mail.smtp.host="mail.limit.es"/>
-	<Realm		className="org.apache.catalina.realm.JDBCRealm"
-				connectionName="helium" connectionPassword="helium"
-				connectionURL="jdbc:oracle:thin:@192.168.0.1:1521:orcl"
-				driverName="oracle.jdbc.driver.OracleDriver"
-				userTable="hel_usuari" userRoleTable="hel_usuari_permis"
-				userNameCol="codi" userCredCol="contrasenya" roleNameCol="permis"
-				digest="MD5"/>
 </Context>

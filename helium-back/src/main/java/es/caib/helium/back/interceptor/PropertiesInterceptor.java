@@ -46,9 +46,6 @@ public class PropertiesInterceptor implements HandlerInterceptor {
 				"propExpedientMonitor",
 				globalProperties.getProperty(PropertyConfig.PROP_EXPEDIENT_MONITOR));
 			request.setAttribute(
-				"propBpmIdentitySource",
-				globalProperties.getProperty(PropertyConfig.PROP_BPM_IDENTITY_SOURCE));
-			request.setAttribute(
 				"propGeorefActiu",
 				globalProperties.getProperty(PropertyConfig.PROP_GEOREF_ACTIU));
 			request.setAttribute(

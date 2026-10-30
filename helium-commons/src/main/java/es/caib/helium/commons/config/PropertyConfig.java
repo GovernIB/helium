@@ -31,7 +31,6 @@ public class PropertyConfig {
 	public static final String PROP_WS_CLIENT_CHUNKED = PROPERTY_PREFIX + "ws.client.chunked";
 	public static final String PROP_CALENDARI_NOLABS = PROPERTY_PREFIX + "calendari.nolabs";
 	public static final String PROP_GIS_PLUGIN_SITIBSA_URL_VISOR = PROPERTY_PREFIX + "gis.plugin.sitibsa.url.visor";
-	public static final String PROP_BPM_IDENTITY_SOURCE = PROPERTY_PREFIX + "bpm.identity.source";
 	public static final String PROP_NTI_CSV_DEFINICIO = PROPERTY_PREFIX + "nti.csv.definicio";
 	public static final String PROP_CAPSALERA_COLOR_LLETRA = PROPERTY_PREFIX + "capsalera.color.lletra";
 	public static final String PROP_CAPSALERA_COLOR_FONS = PROPERTY_PREFIX + "capsalera.color.fons";

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.naming.Context;
@@ -14,7 +15,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import es.caib.helium.commons.config.PropertyConfig;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +31,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.domini.DominiHelium;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
@@ -43,10 +44,11 @@ import es.caib.helium.commons.dto.IntegracioParametreDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.Sexe;
 import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
-import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.SistemaExternTimeoutException;
 import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.logic.helper.WsClientHelper.WsClientAuth;
+import es.caib.helium.logic.utils.ws.RestClient;
 import es.caib.helium.persistence.entity.Area;
 import es.caib.helium.persistence.entity.AreaMembre;
 import es.caib.helium.persistence.entity.Camp;
@@ -56,8 +58,6 @@ import es.caib.helium.persistence.entity.Domini;
 import es.caib.helium.persistence.entity.Domini.TipusAuthDomini;
 import es.caib.helium.persistence.entity.Entorn;
 import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.Permis;
-import es.caib.helium.persistence.entity.Usuari;
 import es.caib.helium.persistence.repository.AreaBpmIdRepository;
 import es.caib.helium.persistence.repository.AreaMembreRepository;
 import es.caib.helium.persistence.repository.AreaRepository;
@@ -65,10 +65,6 @@ import es.caib.helium.persistence.repository.CampRepository;
 import es.caib.helium.persistence.repository.CarrecBpmIdRepository;
 import es.caib.helium.persistence.repository.CarrecRepository;
 import es.caib.helium.persistence.repository.EntornRepository;
-import es.caib.helium.persistence.repository.PermisRepository;
-import es.caib.helium.persistence.repository.UsuariRepository;
-import es.caib.helium.logic.helper.WsClientHelper.WsClientAuth;
-import es.caib.helium.logic.utils.ws.RestClient;
 import net.sf.ehcache.Element;
 
 /**
@@ -108,10 +104,6 @@ public class DominiHelper {
 	private AreaMembreRepository areaMembreRepository;
 	@Resource
 	private CarrecRepository carrecRepository;
-	@Resource
-	private PermisRepository permisRepository;
-	@Resource
-	private UsuariRepository usuariRepository;
 	@Resource
 	private CarrecBpmIdRepository carrecBpmIdRepository;
 	@Resource
@@ -664,23 +656,10 @@ public class DominiHelper {
 
 	public List<FilaResultat> usuarisPerRol(Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
-		if (isHeliumIdentitySource()) {
-			Permis rol = permisRepository.findById((String)parametres.get("rol")).orElse(null);
-			if (rol != null) {
-				for (Usuari usuari: rol.getUsuaris()) {
-					try {
-						PersonaDto persona = pluginHelper.personaFindAmbCodi(usuari.getCodi());
-						if (persona != null)
-							resposta.add(novaFilaPersona(persona));
-					} catch (NoTrobatException nte) {}
-				}
-			}
-		} else {
-			for (String personaCodi: carrecBpmIdRepository.findPersonesCodiByGrupCodi((String)parametres.get("rol"))) {
-				PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi);
-				if (persona != null)
-					resposta.add(novaFilaPersona(persona));
-			}
+		
+		for (PersonaDto persona: pluginHelper.personaFindAmbGrup((String)parametres.get("rol"))) {
+			if (persona != null)
+				resposta.add(novaFilaPersona(persona));
 		}
 		return resposta;
 	}
@@ -738,21 +717,15 @@ public class DominiHelper {
 
 	public List<FilaResultat> rolsPerUsuari(Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
-		if (isHeliumIdentitySource()) {
-			Usuari usuari = usuariRepository.findById((String)parametres.get("persona")).orElse(null);
-			if (usuari != null) {
-				for (Permis rol: usuari.getPermisos()) {
-					FilaResultat fila = new FilaResultat();
-					fila.addColumna(new ParellaCodiValor("rol", rol.getCodi()));
-					resposta.add(fila);
-				}
-			}
-		} else {
-			for (String rol: areaBpmIdRepository.findRolesAmbUsuariCodi((String)parametres.get("persona"))) {
+		String personaCodi = (String)parametres.get("persona");
+		try {
+			for (String rol : pluginHelper.personaFindRolsAmbCodi(personaCodi)) {
 				FilaResultat fila = new FilaResultat();
 				fila.addColumna(new ParellaCodiValor("rol", rol));
 				resposta.add(fila);
 			}
+		} catch (Exception e) {
+			throw new RuntimeException("Error consultant els rols per l'usuari \"" + personaCodi + "\"");
 		}
 		return resposta;
 	}
@@ -910,63 +883,28 @@ public class DominiHelper {
 	}
 
 	private List<String> getPersonesPerArea(String entornCodi, String areaCodi) {
-		if (isHeliumIdentitySource()) {
-			Entorn entorn = entornRepository.findByCodi(entornCodi);
-			if (entorn != null) {
-				Area area = areaRepository.findByEntornAndCodi(entorn, areaCodi);
-				if (area != null)
-					return findCodisPersonaAmbArea(area.getId());
-			}
-			return new ArrayList<String>();
-		} else {
-			return carrecBpmIdRepository.findPersonesCodiByGrupCodi(areaCodi);
-		}
+		return pluginHelper.personaFindAmbGrup(areaCodi).stream()
+					.map(p -> p.getCodi())
+					.collect(Collectors.toList());
 	}
 
 	private List<String> getPersonesPerCarrec(String entornCodi, String carrecCodi) {
-		if (isHeliumIdentitySource()) {
-			List<String> resposta = new ArrayList<String>();
-			Entorn entorn = entornRepository.findByCodi(entornCodi);
-			if (entorn != null) {
-				Carrec carrec = carrecRepository.findByEntornAndCodi(entorn, carrecCodi);
-				if (carrec != null)
-					resposta.add(carrec.getPersonaCodi());
-			}
-			return resposta;
-		} else {
-			return carrecBpmIdRepository.findPersonesCodiByCarrecCodi(carrecCodi);
-		}
+		return pluginHelper.personaFindAmbGrup(carrecCodi).stream()
+				.map(p -> p.getCodi())
+				.collect(Collectors.toList());
 	}
 
 	private List<String> getPersonesPerAreaCarrec(
 			String entornCodi,
 			String areaCodi,
 			String carrecCodi) {
-		if (isHeliumIdentitySource()) {
-			Entorn entorn = entornRepository.findByCodi(entornCodi);
-			if (entorn != null) {
-				Carrec carrec = carrecRepository.findByEntornAndAreaCodiAndCodi(
-						entorn,
-						areaCodi,
-						carrecCodi);
-				if (carrec != null) {
-					List<String> resposta = new ArrayList<String>();
-					resposta.add(carrec.getPersonaCodi());
-					return resposta;
-				}
-			}
-			return null;
-		} else {
-			return carrecBpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(areaCodi, carrecCodi);
-		}
+		//TODO: veure com resoldre àrees i càrrecs
+		return carrecBpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(areaCodi, carrecCodi);
 	}
 
 	private List<String> getGrupsPerPersona(String personaCodi) {
-		if (isHeliumIdentitySource()) {
-			return findAreesMembre(personaCodi);
-		} else {
-			return areaBpmIdRepository.findAreesBpmIdMembre(personaCodi);
-		}
+		//TODO: veure com resoldre àrees i càrrecs
+		return areaBpmIdRepository.findAreesBpmIdMembre(personaCodi);
 	}
 
 	private List<Area> getAreesAmbPare(String entornCodi, String areaCodi) {
@@ -977,15 +915,7 @@ public class DominiHelper {
 	public List<Carrec> getCarrecsAmbPersonaCodi(
 			String entornCodi,
 			String personaCodi) {
-		if (isHeliumIdentitySource()) {
-			Entorn entorn = entornRepository.findByCodi(entornCodi);
-			if (entorn != null) {
-				return carrecRepository.findByEntornAndPersonaCodi(entorn, personaCodi);
-			}
-			return new ArrayList<Carrec>();
-		} else {
-			return new ArrayList<Carrec>(); // TODO
-		}
+		return new ArrayList<Carrec>(); // TODO
 	}
 
 	private List<String> findCodisPersonaAmbArea(Long areaId) {
@@ -1012,11 +942,6 @@ public class DominiHelper {
 				resposta.put(parella.getCodi(), parella.getValor());
 		}
 		return resposta;
-	}
-
-	private boolean isHeliumIdentitySource() {
-		String organigramaActiu = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_BPM_IDENTITY_SOURCE);
-		return "helium".equalsIgnoreCase(organigramaActiu);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(DominiHelper.class);
