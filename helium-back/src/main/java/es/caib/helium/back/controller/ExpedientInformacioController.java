@@ -8,13 +8,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import es.caib.helium.logic.helper.ExpedientTipusHelper;
-import es.caib.helium.logic.security.ExtendedPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -52,8 +49,6 @@ public class ExpedientInformacioController extends BaseExpedientController {
 	private ExpedientService expedientService;
 	@Autowired
 	private AplicacioService aplicacioService;
-	@Autowired
-	private ExpedientTipusHelper expedientTipusHelper;
 
 	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.GET)
 	public String get(
@@ -120,11 +115,9 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		@PathVariable String unitatOrganitzativaCodi,
 		Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		return expedientTipusHelper.tePermisosSobreUnitatOrganitzativaOrParents(
-			expedient.getTipus().getId(),
-			unitatOrganitzativaCodi,
-			new Permission[] {
-				ExtendedPermission.READ});
+		return expedientTipusService.tePermisLecturaSobreUnitatOrganitzativaOrParents(
+				expedient.getTipus().getId(),
+				unitatOrganitzativaCodi);
 	}
 
 	private class ExpedientEditarValidator implements Validator {

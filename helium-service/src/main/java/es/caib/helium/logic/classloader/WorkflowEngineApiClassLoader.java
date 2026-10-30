@@ -4,6 +4,7 @@ import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.exception.HeliumHandlerException;
 import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.bpmn.HeliumApiImpl;
+import es.caib.helium.logic.helper.*;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import lombok.SneakyThrows;
 import net.bytebuddy.ByteBuddy;
@@ -36,16 +37,57 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 	private static final ThreadLocal<String> deploymentId = new ThreadLocal<>();
 
 	private final WorkflowEngineApi workflowEngineApi;
+	private final ExpedientDadaHelper expedientDadaHelper;
+	private final ExpedientHelper expedientHelper;
+	private final ExpedientDocumentHelper expedientDocumentHelper;
+	private final DocumentHelperV3 documentHelperV3;
+	private final PluginHelper pluginHelper;
+	private final AlertaHelper alertaHelper;
+	private final ExpedientInteressatHelper expedientInteressatHelper;
+	private final MailHelper mailHelper;
 	private final Map<String, Class<?>> loadedClasses = new ConcurrentHashMap<>();
 
-	public WorkflowEngineApiClassLoader(WorkflowEngineApi workflowEngineApi, ClassLoader parent) {
+	public WorkflowEngineApiClassLoader(WorkflowEngineApi workflowEngineApi,
+										ExpedientDadaHelper expedientDadaHelper,
+										ExpedientHelper expedientHelper,
+										ExpedientDocumentHelper expedientDocumentHelper,
+										DocumentHelperV3 documentHelperV3,
+										PluginHelper pluginHelper,
+										AlertaHelper alertaHelper,
+										ExpedientInteressatHelper expedientInteressatHelper,
+										MailHelper mailHelper,
+										ClassLoader parent) {
 		super(parent);
 		this.workflowEngineApi = workflowEngineApi;
+		this.expedientDadaHelper = expedientDadaHelper;
+		this.expedientHelper = expedientHelper;
+		this.expedientDocumentHelper = expedientDocumentHelper;
+		this.documentHelperV3 = documentHelperV3;
+		this.pluginHelper = pluginHelper;
+		this.alertaHelper = alertaHelper;
+		this.expedientInteressatHelper = expedientInteressatHelper;
+		this.mailHelper = mailHelper;
 	}
 
-	public WorkflowEngineApiClassLoader(WorkflowEngineApi workflowEngineApi) {
+	public WorkflowEngineApiClassLoader(WorkflowEngineApi workflowEngineApi,
+										ExpedientDadaHelper expedientDadaHelper,
+										ExpedientHelper expedientHelper,
+										ExpedientDocumentHelper expedientDocumentHelper,
+										DocumentHelperV3 documentHelperV3,
+										PluginHelper pluginHelper,
+										AlertaHelper alertaHelper,
+										ExpedientInteressatHelper expedientInteressatHelper,
+										MailHelper mailHelper) {
 		super();
 		this.workflowEngineApi = workflowEngineApi;
+		this.expedientDadaHelper = expedientDadaHelper;
+		this.expedientHelper = expedientHelper;
+		this.expedientDocumentHelper = expedientDocumentHelper;
+		this.documentHelperV3 = documentHelperV3;
+		this.pluginHelper = pluginHelper;
+		this.alertaHelper = alertaHelper;
+		this.expedientInteressatHelper = expedientInteressatHelper;
+		this.mailHelper = mailHelper;
 	}
 
 	public static void setDeploymentId(String value) {
@@ -109,7 +151,16 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 			.defineConstructor(Visibility.PUBLIC)
 			.intercept(MethodCall.invoke(Object.class.getDeclaredConstructor())
 				.andThen(FieldAccessor.ofField("interceptor")
-					.setsValue(new JavaDelegateInterceptor(handlerClass))))
+					.setsValue(new JavaDelegateInterceptor(
+						handlerClass,
+						expedientDadaHelper,
+						expedientHelper,
+						expedientDocumentHelper,
+						documentHelperV3,
+						pluginHelper,
+						alertaHelper,
+						expedientInteressatHelper,
+						mailHelper))))
 			.method(ElementMatchers.named("execute")
 				.and(ElementMatchers.takesArguments(DelegateExecution.class)))
 			.intercept(MethodDelegation.toField("interceptor"));
@@ -145,8 +196,35 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 	public static class JavaDelegateInterceptor {
 		private final Class<? extends HeliumBpmnHandler> handlerClass;
 		private final Map<String, Object> pendingFieldValues = new ConcurrentHashMap<>();
-		public JavaDelegateInterceptor(Class<? extends HeliumBpmnHandler> handlerClass) {
+		private final ExpedientDadaHelper expedientDadaHelper;
+		private final ExpedientHelper expedientHelper;
+		private final ExpedientDocumentHelper expedientDocumentHelper;
+		private final DocumentHelperV3 documentHelperV3;
+		private final PluginHelper pluginHelper;
+		private final AlertaHelper alertaHelper;
+		private final ExpedientInteressatHelper expedientInteressatHelper;
+		private final MailHelper mailHelper;
+
+		public JavaDelegateInterceptor(
+				Class<? extends HeliumBpmnHandler> handlerClass,
+				ExpedientDadaHelper expedientDadaHelper,
+				ExpedientHelper expedientHelper,
+				ExpedientDocumentHelper expedientDocumentHelper,
+				DocumentHelperV3 documentHelperV3,
+				PluginHelper pluginHelper,
+				AlertaHelper alertaHelper,
+				ExpedientInteressatHelper expedientInteressatHelper,
+				MailHelper mailHelper
+			) {
 			this.handlerClass = handlerClass;
+			this.expedientDadaHelper = expedientDadaHelper;
+			this.expedientHelper = expedientHelper;
+			this.expedientDocumentHelper = expedientDocumentHelper;
+			this.documentHelperV3 = documentHelperV3;
+			this.pluginHelper = pluginHelper;
+			this.alertaHelper = alertaHelper;
+			this.expedientInteressatHelper = expedientInteressatHelper;
+			this.mailHelper = mailHelper;
 		}
 		// Cridat pels setters generats a la classe proxy (un per cada setXxx detectat)
 		public void setField(String setterName, Object value) {
@@ -188,18 +266,17 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 		}
 		private HeliumApi buildHeliumApi(DelegateExecution execution) {
 			return new HeliumApiImpl(
-				null,
+				expedientHelper.findExpedientByProcessInstanceId(execution.getProcessInstanceId()),
 				execution.getProcessInstanceId(),
 				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null);
+				this.expedientHelper,
+				this.expedientDadaHelper,
+				this.expedientDocumentHelper,
+				this.documentHelperV3,
+				this.pluginHelper,
+				this.alertaHelper,
+				this.expedientInteressatHelper,
+				this.mailHelper);
 		}
 	}
 

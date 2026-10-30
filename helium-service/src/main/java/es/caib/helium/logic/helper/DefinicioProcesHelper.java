@@ -6,17 +6,14 @@ package es.caib.helium.logic.helper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -47,38 +44,7 @@ import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.disseny.engine.WUserTask;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.entity.Accio;
-import es.caib.helium.persistence.entity.Camp;
-import es.caib.helium.persistence.entity.CampAgrupacio;
-import es.caib.helium.persistence.entity.CampRegistre;
-import es.caib.helium.persistence.entity.CampTasca;
-import es.caib.helium.persistence.entity.DefinicioProces;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentTasca;
-import es.caib.helium.persistence.entity.Domini;
-import es.caib.helium.persistence.entity.Entorn;
-import es.caib.helium.persistence.entity.Enumeracio;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.FirmaTasca;
-import es.caib.helium.persistence.entity.Tasca;
 import es.caib.helium.persistence.entity.Tasca.TipusTasca;
-import es.caib.helium.persistence.entity.Termini;
-import es.caib.helium.persistence.entity.Validacio;
-import es.caib.helium.persistence.repository.AccioRepository;
-import es.caib.helium.persistence.repository.CampAgrupacioRepository;
-import es.caib.helium.persistence.repository.CampRegistreRepository;
-import es.caib.helium.persistence.repository.CampRepository;
-import es.caib.helium.persistence.repository.CampTascaRepository;
-import es.caib.helium.persistence.repository.CampValidacioRepository;
-import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.persistence.repository.DocumentRepository;
-import es.caib.helium.persistence.repository.DocumentTascaRepository;
-import es.caib.helium.persistence.repository.DominiRepository;
-import es.caib.helium.persistence.repository.EnumeracioRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusRepository;
-import es.caib.helium.persistence.repository.FirmaTascaRepository;
-import es.caib.helium.persistence.repository.TascaRepository;
-import es.caib.helium.persistence.repository.TerminiRepository;
 
 /**
  * Helper per a les definicions de procés.
@@ -118,6 +84,8 @@ public class DefinicioProcesHelper {
 	private DocumentTascaRepository documentTascaRepository;
 	@Resource
 	private FirmaTascaRepository firmaTascaRepository;
+	@Resource
+	private RecursRepository recursRepository;
 
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -1330,6 +1298,24 @@ public class DefinicioProcesHelper {
 				tascaRepository.save(tascaDesti);
 			}
 		}
+
+		List<Recurs> recursosOrigen = recursRepository.findByDefinicioProcesId(origenId);
+		if(!recursosOrigen.isEmpty()) {
+			List<Recurs> recursosDesti = new ArrayList<Recurs>();
+			for(Recurs recursOrigen : recursosOrigen) {
+				recursosDesti.add(Recurs.builder()
+								.nom(recursOrigen.getNom())
+								.classe(recursOrigen.isClasse())
+								.handler(recursOrigen.isHandler())
+								.dataCreacio(recursOrigen.getDataCreacio())
+								.contingut(recursOrigen.getContingut())
+								.expedientTipus(recursOrigen.getExpedientTipus())
+								.definicioProces(desti)
+								.build());
+			}
+			recursRepository.saveAll(recursosDesti);
+		}
+
 	}
 
 	/** Cerca la darrera versió de la definició de procés per codi en:

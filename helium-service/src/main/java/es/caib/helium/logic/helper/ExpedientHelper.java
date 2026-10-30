@@ -44,7 +44,6 @@ import es.caib.helium.commons.dto.ExpedientTipusDto;
 import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.dto.InteressatDto;
-import es.caib.helium.commons.dto.PermisDto;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.Sexe;
 import es.caib.helium.commons.dto.UnitatOrganitzativaDto;
@@ -1886,25 +1885,6 @@ public class ExpedientHelper {
 				processInstance = workflowEngineApi.startProcessInstanceById(
 						IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
 						definicioProces.getBpmId());
-				// Si la definició de procés té tasca inicial completa la primera tasca
-				if (definicioProces.isHasStartTask() && definicioProces.getStartTaskName() != null) {
-					workflowEngineApi.completeTask(
-						processInstance.getId(),
-						definicioProces.getStartTaskName(),
-						variables);
-//					WTaskInstance taskInstance = workflowEngineApi.findTaskInstanceByProcessInstanceIdAndName(
-//						processInstance.getId(),
-//						definicioProces.getStartTaskName());
-//					workflowEngineApi.setTaskInstanceVariables(
-//							taskInstance.getId(),
-//							variables,
-//							false);
-//					workflowEngineApi.takeTaskInstance(taskInstance.getId(), usuari);
-//					workflowEngineApi.setTaskInstanceVariable(
-//						taskInstance.getId(),
-//						BpmnVars.VAR_TASCA_VALIDADA,
-//						new Date());
-				}
 				expedient.setProcessInstanceId(processInstance.getId());
 			}
 
@@ -1913,6 +1893,17 @@ public class ExpedientHelper {
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 			expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+
+			// Si la definició de procés té tasca inicial completa la primera tasca
+			if (definicioProces != null &&
+				definicioProces.isHasStartTask() &&
+				definicioProces.getStartTaskName() != null) {
+				workflowEngineApi.completeTask(
+					processInstance.getId(),
+					definicioProces.getStartTaskName(),
+					variables);
+			}
+
 
 			if(variables != null)
 				expedientDadaHelper.setDades(expedientPerRetornar, expedientPerRetornar.getProcessInstanceId(), null, variables);
@@ -2269,6 +2260,13 @@ public class ExpedientHelper {
 	    return "ES_" + org + "_" + any + "_EXP_HEL" + id;
 	}
 
+	public Estat expedientEstatModificar(Expedient expedient, String codi) {
+		Estat estat = estatRepository.findByExpedientTipusIdAndCodi(expedient.getTipus().getId(), codi);
+		if (estat != null)
+			expedient.setEstat(estat);
+		return estat;
+	}
+
 	public Estat estatCanviar(Expedient expedient, Long estatId, boolean retrocedir) {
 		Estat estatActual = expedient.getEstat();
 		Estat estatFutur = estatRepository.findById(estatId).orElse(null);
@@ -2364,7 +2362,6 @@ public class ExpedientHelper {
 						expedient,
 						processInstanceId,
 						null,
-						estatRepository,
 						this,
 						expedientDadaHelper,
 						expedientDocumentHelper,
@@ -2387,7 +2384,6 @@ public class ExpedientHelper {
 						expedient,
 						processInstanceId,
 						null,
-						estatRepository,
 						this,
 						expedientDadaHelper,
 						expedientDocumentHelper,
@@ -2411,7 +2407,6 @@ public class ExpedientHelper {
 						expedient,
 						processInstanceId,
 						null,
-						estatRepository,
 						this,
 						expedientDadaHelper,
 						expedientDocumentHelper,

@@ -90,7 +90,7 @@ public class ExpedientDadaHelper {
 			expedientDadesEntity.setProcessId(processId);
 			expedientDadesEntity.setTaskId(taskId);
 			expedientDadesEntity.setPrincipal(taskId == null);
-			expedientDadesRepository.save(expedientDadesEntity);
+			expedientDadesRepository.saveAndFlush(expedientDadesEntity);
 		}
 
 		try {
@@ -102,6 +102,7 @@ public class ExpedientDadaHelper {
 			}
 			dades.put(varCodi, varValor != null ? new DadesValor(valorPerJson(varValor), DadaTipusEnum.getTipusByClass(varValor.getClass())) : null);
 			expedientDadesEntity.setDades(mapToDades(dades));
+			expedientDadesRepository.saveAndFlush(expedientDadesEntity);
 		} catch(Exception e) {
 			throw new RuntimeException("Error fixant valor json a les dades per conversió de les dades.", e);
 		}
@@ -129,6 +130,9 @@ public class ExpedientDadaHelper {
 
 		try {
 			Map<String, DadesValor> dades = new HashMap<String, DadesValor>();
+			if(expedientDadesEntity.getDades() != null)
+				dades = dadesToMap(expedientDadesEntity.getDades());
+
 			for(Map.Entry<String, Object> variable :  variablesProcessades.entrySet()) {
 				Object varValor = variable.getValue();
 				dades.put(variable.getKey(), new DadesValor(valorPerJson(varValor), DadaTipusEnum.getTipusByClass(varValor == null? String.class : varValor.getClass())));

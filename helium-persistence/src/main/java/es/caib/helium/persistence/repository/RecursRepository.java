@@ -63,6 +63,7 @@ public interface RecursRepository extends JpaRepository<Recurs, Long> {
 	List<Recurs> findByExpedientTipusIdAndHandler(Long expedientTipusId, boolean handler);
 
 	List<Recurs> findByDefinicioProcesIdAndHandler(Long definicioProcesId, boolean handler);
+	List<Recurs> findByDefinicioProcesId(Long definicioProcesId);
 
 	@Query(
 		"FROM Recurs r " +

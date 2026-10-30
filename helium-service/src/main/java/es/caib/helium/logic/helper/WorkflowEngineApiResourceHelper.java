@@ -25,6 +25,14 @@ import java.util.*;
 public class WorkflowEngineApiResourceHelper {
 
 	private final WorkflowEngineApi workflowEngineApi;
+	private final ExpedientDadaHelper expedientDadaHelper;
+	private final ExpedientHelper expedientHelper;
+	private final ExpedientDocumentHelper expedientDocumentHelper;
+	private final DocumentHelperV3 documentHelperV3;
+	private final PluginHelper pluginHelper;
+	private final AlertaHelper alertaHelper;
+	private final ExpedientInteressatHelper expedientInteressatHelper;
+	private final MailHelper mailHelper;
 
 	/**
 	 * Carrega la classe amb el nom especificat des del classloader.
@@ -156,7 +164,15 @@ public class WorkflowEngineApiResourceHelper {
 	}
 
 	private ClassLoader getRepositoryClassLoader(String deploymentId) {
-		WorkflowEngineApiClassLoader classLoader = new WorkflowEngineApiClassLoader(workflowEngineApi);
+		WorkflowEngineApiClassLoader classLoader = new WorkflowEngineApiClassLoader(workflowEngineApi,
+																					expedientDadaHelper,
+																					expedientHelper,
+																					expedientDocumentHelper,
+																					documentHelperV3,
+																					pluginHelper,
+																					alertaHelper,
+																					expedientInteressatHelper,
+																					mailHelper);
 		WorkflowEngineApiClassLoader.setDeploymentId(deploymentId);
 		return classLoader;
 	}

@@ -2,9 +2,7 @@ package es.caib.helium.logic.config;
 
 import es.caib.helium.logic.classloader.WorkflowEngineApiClassLoader;
 import es.caib.helium.logic.flowable.FlowableTaskEventListener;
-import es.caib.helium.logic.helper.ComandaHelper;
-import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.TascaHelper;
+import es.caib.helium.logic.helper.*;
 import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +30,27 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 	private final ComandaHelper comandaHelper;
 	private final TascaService tascaService;
 	private final ExpedientHelper expedientHelper;
+	private final ExpedientDadaHelper expedientDadaHelper;
+	private final ExpedientDocumentHelper expedientDocumentHelper;
+	private final DocumentHelperV3 documentHelperV3;
+	private final PluginHelper pluginHelper;
+	private final AlertaHelper alertaHelper;
+	private final ExpedientInteressatHelper expedientInteressatHelper;
+	private final MailHelper mailHelper;
 
 	@Override
 	public void configure(SpringProcessEngineConfiguration processEngineConfiguration) {
 		processEngineConfiguration.setClassLoader(
-			new WorkflowEngineApiClassLoader(workflowEngineApi));
+			new WorkflowEngineApiClassLoader(
+					workflowEngineApi,
+					expedientDadaHelper,
+					expedientHelper,
+					expedientDocumentHelper,
+					documentHelperV3,
+					pluginHelper,
+					alertaHelper,
+					expedientInteressatHelper,
+					mailHelper));
 		processEngineConfiguration.setEventListeners(List.of(new CurrentDeploymentIdEventListener(processEngineConfiguration)));
 		List<FlowableEventListener> listeners = ((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().getEventListeners().stream().collect(Collectors.toList());
 		listeners.add(new FlowableTaskEventListener(processEngineConfiguration, comandaHelper, tascaService, expedientHelper));

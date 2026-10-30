@@ -1856,7 +1856,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			expedient,
 			processInstanceId,
 			null,
-			estatRepository,
 			expedientHelper,
 			expedientDadaHelper,
 			expedientDocumentHelper,

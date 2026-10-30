@@ -11,7 +11,6 @@ import es.caib.helium.disseny.model.ExpedientInfo;
 import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.persistence.entity.*;
-import es.caib.helium.persistence.repository.EstatRepository;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.EntityNotFoundException;
@@ -34,7 +33,6 @@ public class HeliumApiImpl implements HeliumApi {
 	private final Expedient expedient;
 	private final String processId;
 	private final String taskId;
-	private final EstatRepository estatRepository;
 	private final ExpedientHelper expedientHelper;
 	private final ExpedientDadaHelper expedientDadaHelper;
 	private final ExpedientDocumentHelper expedientDocumentHelper;
@@ -358,12 +356,8 @@ public class HeliumApiImpl implements HeliumApi {
 
 	@Override
 	public void expedientEstatModificar(String codi) {
-		Estat estat = estatRepository.findByExpedientTipusIdAndCodi(
-			expedient.getTipus().getId(),
-			codi);
-		if (estat != null) {
-			expedient.setEstat(estat);
-		} else {
+		Estat estat = expedientHelper.expedientEstatModificar(expedient, codi);
+		if (estat == null) {
 			throw new EntityNotFoundException(
 				"Estat no trobat (" +
 					"expedientTipusId=" + expedient.getTipus().getId() + ", " +
@@ -699,6 +693,7 @@ public class HeliumApiImpl implements HeliumApi {
 			processId,
 			taskId,
 			documentCodi);
+
 		DocumentDto docV3 = documentHelperV3.toDocumentDto(
 			documentStore.getId(),
 			false,
