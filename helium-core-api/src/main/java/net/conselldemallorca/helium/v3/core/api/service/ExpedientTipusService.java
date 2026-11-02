@@ -306,6 +306,16 @@ public interface ExpedientTipusService {
 	 */
 	public List<ExpedientTipusDto> findAmbEntornPermisExecucioScript(
 			Long entornId) throws NoTrobatException;
+	
+	/**
+	 * Retorna els tipus d'expedient d'un entorn sobre els quals l'usuari pot donar d'alta expedients per CSV.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @return Els tipus d'expedient amb permisos per donar d'alta expedients per CSV.
+	 */
+	public List<ExpedientTipusDto> findAmbEntornPermisAltaCsv(
+			Long entornId) throws NoTrobatException;
 
 	/**
 	 * Retorna un tipus d'expedient donat el seu id per a dissenyar.

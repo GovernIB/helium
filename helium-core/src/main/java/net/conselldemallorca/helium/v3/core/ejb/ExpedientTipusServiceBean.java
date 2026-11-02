@@ -183,6 +183,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long entornId) throws NoTrobatException {
 		return findAmbEntornPermisExecucioScript(entornId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findAmbEntornPermisAltaCsv(
+			Long entornId) throws NoTrobatException {
+		return delegate.findAmbEntornPermisAltaCsv(entornId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

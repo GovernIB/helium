@@ -36,6 +36,7 @@ public class SessionHelper {
 	public static final String VARIABLE_PERMIS_ANOTACIONS_PROCESSAR = "potProcessarAnotacions";
 	public static final String VARIABLE_PERMIS_AVISOS_DISSENY = "potDissenyarAvisos";
 	public static final String VARIABLE_PERMIS_SCRIPTS_EXECUTAR = "potExecutarScripts";
+	public static final String VARIABLE_PERMIS_ALTA_CSV = "potDonarAltaCsv";
 	public static final String VARIABLE_HIHA_TRAMITS_INICIABLES = "hiHaTramitsPerIniciar";
 
 	public static final String VARIABLE_FILTRE_CONSULTA_GENERAL = "filtreConsultaGeneral";

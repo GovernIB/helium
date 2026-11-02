@@ -2126,6 +2126,60 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 
+	@Override
+	@Transactional
+	public List<ExpedientTipusDto> findAmbEntornPermisAltaCsv(
+			Long entornId) throws NoTrobatException {
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (!UsuariActualHelper.isAdministrador(auth)) {
+			permisosHelper.filterGrantedAllOr(
+					tipuss,
+					new ObjectIdentifierExtractor<ExpedientTipus>() {
+						@Override
+						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+							return expedientTipus.getId();
+						}
+					},
+					ExpedientTipus.class,
+					new Permission[] {
+							BasePermission.CREATE,
+							ExtendedPermission.RELATE},
+					new Permission[] {BasePermission.ADMINISTRATION},
+					auth);
+		}
+		//Afegim els expedientTipus amb procediment comú permesos depenent de permisos amb UOs
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
+		if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()){	
+			permisosHelper.filterGrantedAllOr(
+					expTipUnitOrgList,
+					new ObjectIdentifierExtractor<ExpedientTipusUnitatOrganitzativa>() {
+						@Override
+						public Long getObjectIdentifier(ExpedientTipusUnitatOrganitzativa expedientTipusUnitatOrganitzativa) {
+							return expedientTipusUnitatOrganitzativa.getId();
+						}
+					},
+					ExpedientTipusUnitatOrganitzativa.class,
+					new Permission[] {
+							BasePermission.CREATE,
+							ExtendedPermission.RELATE},
+					new Permission[] {BasePermission.ADMINISTRATION},
+					auth);
+			List<ExpedientTipus> expedientTipusIdsPermesosProcedimetComu = expedientTipusHelper.expedientsTipusComunsPermesos(expTipUnitOrgList);
+			//Convinem les llistes sense que hi hagi duplicats
+			if(expedientTipusIdsPermesosProcedimetComu!=null && !expedientTipusIdsPermesosProcedimetComu.isEmpty()) {
+				Set<ExpedientTipus> set = new LinkedHashSet<ExpedientTipus>(tipuss);
+				set.addAll(expedientTipusIdsPermesosProcedimetComu);
+				tipuss=new ArrayList<ExpedientTipus>(set);
+				Collections.sort(tipuss, new ComparadorExpedientTipusCodi());
+			}
+		}
+		return conversioTipusHelper.convertirList(tipuss, ExpedientTipusDto.class);
+		
+	}
 	
 	private List<ExpedientTipus> findTotsExpTipusAmbPermisos(Long entornId, Permission[] permissions, boolean orderByCodiAsc){
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
