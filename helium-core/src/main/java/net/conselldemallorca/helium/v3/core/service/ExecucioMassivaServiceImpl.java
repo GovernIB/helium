@@ -38,9 +38,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.google.common.collect.Lists;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
@@ -76,6 +81,7 @@ import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
@@ -91,6 +97,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
@@ -2379,6 +2386,36 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		StringBuilder errText = new StringBuilder();
 		try {
 			ExpedientTipus expedientTipus = ome.getExecucioMassiva().getExpedientTipus();
+			List<ExpedientTipus> expedientTipusPermes = Lists.newArrayList(expedientTipus);
+			
+			UserDetails principal = new User(
+					ome.getExecucioMassiva().getUsuari(), 
+					"", 
+					ome.getExecucioMassiva().getAuthenticationRoles());
+			Authentication auth = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+			
+			permisosHelper.filterGrantedAllOr(
+					expedientTipusPermes,
+					new ObjectIdentifierExtractor<ExpedientTipus>() {
+						@Override
+						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+							return expedientTipus.getId();
+						}
+					},
+					ExpedientTipus.class,
+					new Permission[] {
+							BasePermission.CREATE,
+							ExtendedPermission.RELATE},
+					new Permission[] {BasePermission.ADMINISTRATION},
+					auth);
+			
+			if(expedientTipusPermes.isEmpty()) {
+				estat = ExecucioMassivaEstat.ESTAT_ERROR;
+				String errMsg = "L'usuari " + ome.getExecucioMassiva().getUsuari() + " no te permisos sobre el tipus d'expedient " + expedientTipus.getCodi() + " (" + expedientTipus.getId() + ") ";
+				errText.append(errMsg);
+				throw new Exception(errMsg);
+			}
+			
 			DefinicioProces definicioProces = null;
 			if (!expedientTipus.isAmbInfoPropia() && ome.getDefinicioProcesId() != null) {
 				definicioProces = definicioProcesRepository.findById(ome.getDefinicioProcesId());
@@ -2386,7 +2423,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			String [][] contingutCsv;
 			try {
 				CsvHelper csvHelper = new CsvHelper();
-				contingutCsv = csvHelper.parse(ome.getExecucioMassiva().getParam2());				
+				contingutCsv = csvHelper.parse(ome.getExecucioMassiva().getParam2());
 			} catch(Exception e) {
 				logger.error("Alta masiva CSV error :" + ome.getId()
 				+ ". No s'ha pogut recuperar el contingut del CSV: " + e.getMessage());
