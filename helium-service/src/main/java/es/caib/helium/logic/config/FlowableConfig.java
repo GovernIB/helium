@@ -1,23 +1,20 @@
 package es.caib.helium.logic.config;
 
-import es.caib.helium.logic.classloader.WorkflowEngineApiClassLoader;
 import es.caib.helium.logic.flowable.FlowableTaskEventListener;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.logic.intf.service.TascaService;
-import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.common.engine.api.delegate.event.*;
 import org.flowable.engine.ProcessEngineConfiguration;
-import org.flowable.engine.RepositoryService;
 import org.flowable.engine.impl.TaskServiceImpl;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
-import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.flowable.spring.boot.EngineConfigurationConfigurer;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,33 +23,14 @@ import java.util.stream.Collectors;
 @Configuration
 @RequiredArgsConstructor
 public class FlowableConfig implements EngineConfigurationConfigurer<SpringProcessEngineConfiguration> {
-	private final WorkflowEngineApi workflowEngineApi;
 	private final ComandaHelper comandaHelper;
 	private final TascaService tascaService;
 	private final ExpedientHelper expedientHelper;
-	private final ExpedientDadaHelper expedientDadaHelper;
-	private final ExpedientDocumentHelper expedientDocumentHelper;
-	private final DocumentHelperV3 documentHelperV3;
-	private final PluginHelper pluginHelper;
-	private final AlertaHelper alertaHelper;
-	private final ExpedientInteressatHelper expedientInteressatHelper;
-	private final MailHelper mailHelper;
 
 	@Override
 	public void configure(SpringProcessEngineConfiguration processEngineConfiguration) {
-		processEngineConfiguration.setClassLoader(
-			new WorkflowEngineApiClassLoader(
-					workflowEngineApi,
-					expedientDadaHelper,
-					expedientHelper,
-					expedientDocumentHelper,
-					documentHelperV3,
-					pluginHelper,
-					alertaHelper,
-					expedientInteressatHelper,
-					mailHelper));
 		processEngineConfiguration.setEventListeners(List.of(new CurrentDeploymentIdEventListener(processEngineConfiguration)));
-		List<FlowableEventListener> listeners = ((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().getEventListeners().stream().collect(Collectors.toList());
+		List<FlowableEventListener> listeners = new ArrayList<>(((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().getEventListeners());
 		listeners.add(new FlowableTaskEventListener(processEngineConfiguration, comandaHelper, tascaService, expedientHelper));
 		((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().setEventListeners(listeners);
 		processEngineConfiguration.setUseClassForNameClassLoading(false);
@@ -97,15 +75,15 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 			if (processDefinitionId == null) {
 				return;
 			}
-			try {
-				RepositoryService repositoryService = processEngineConfiguration.getRepositoryService();
-				ProcessDefinition processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
-				if (processDefinition != null) {
-					WorkflowEngineApiClassLoader.setDeploymentId(processDefinition.getDeploymentId());
-				}
-			} catch (Exception ex) {
-				log.warn("No s'ha pogut resoldre el deploymentId pel processDefinitionId={}", processDefinitionId, ex);
-			}
+//			try {
+//				RepositoryService repositoryService = processEngineConfiguration.getRepositoryService();
+//				ProcessDefinition processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
+//				if (processDefinition != null) {
+//					WorkflowEngineApiClassLoader.setDeploymentId(processDefinition.getDeploymentId());
+//				}
+//			} catch (Exception ex) {
+//				log.warn("No s'ha pogut resoldre el deploymentId pel processDefinitionId={}", processDefinitionId, ex);
+//			}
 		}
 		@Override
 		public boolean isFailOnException() {

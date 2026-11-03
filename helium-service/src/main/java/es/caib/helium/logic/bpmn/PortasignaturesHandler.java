@@ -14,7 +14,7 @@ import java.util.List;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class PortasignaturesHandler implements es.caib.helium.disseny.handler.PortasignaturesHandler {
+public class PortasignaturesHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.PortasignaturesHandler {
 
 	private String varResponsableCodi;
 	private String responsableCodi;

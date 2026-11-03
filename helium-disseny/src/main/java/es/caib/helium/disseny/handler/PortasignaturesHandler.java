@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface PortasignaturesHandler extends HeliumBpmnHandler {
+public interface PortasignaturesHandler {
 
 	void setVarResponsableCodi(String varResponsableCodi);
 

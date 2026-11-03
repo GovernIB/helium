@@ -276,7 +276,8 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 				this.pluginHelper,
 				this.alertaHelper,
 				this.expedientInteressatHelper,
-				this.mailHelper);
+				this.mailHelper,
+				execution);
 		}
 	}
 

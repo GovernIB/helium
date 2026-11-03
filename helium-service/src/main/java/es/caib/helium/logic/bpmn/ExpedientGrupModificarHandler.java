@@ -10,7 +10,7 @@ import lombok.Setter;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class ExpedientGrupModificarHandler implements es.caib.helium.disseny.handler.ExpedientGrupModificarHandler {
+public class ExpedientGrupModificarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientGrupModificarHandler {
 
 	private String grup;
 	private String varGrup;

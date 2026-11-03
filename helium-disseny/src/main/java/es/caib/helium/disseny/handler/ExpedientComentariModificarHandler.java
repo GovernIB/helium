@@ -1,13 +1,16 @@
 package es.caib.helium.disseny.handler;
 
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.common.engine.impl.el.FixedValue;
+
 /**
  * Handler per a modificar el comentari de l'expedient.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ExpedientComentariModificarHandler extends HeliumBpmnHandler {
+public interface ExpedientComentariModificarHandler {
 
-	void setComentari(String comentari);
-	void setVarComentari(String varComentari);
+	void setComentari(FixedValue comentari);
+	void setVarComentari(FixedValue varComentari);
 
 }

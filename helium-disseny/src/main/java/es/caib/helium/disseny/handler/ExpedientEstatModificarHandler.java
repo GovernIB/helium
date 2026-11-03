@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ExpedientEstatModificarHandler extends HeliumBpmnHandler {
+public interface ExpedientEstatModificarHandler {
 
 	void setEstatCodi(String estatCodi);
 	void setVarEstatCodi(String varEstatCodi);

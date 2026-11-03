@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ExpedientTitolModificarHandler extends HeliumBpmnHandler {
+public interface ExpedientTitolModificarHandler {
 
 	void setTitol(String titol);
 	void setVarTitol(String varTitol);

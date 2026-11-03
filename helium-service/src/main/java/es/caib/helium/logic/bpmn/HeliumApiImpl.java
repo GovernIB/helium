@@ -12,6 +12,7 @@ import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.persistence.entity.*;
 import lombok.RequiredArgsConstructor;
+import org.flowable.engine.delegate.DelegateExecution;
 
 import javax.persistence.EntityNotFoundException;
 import java.text.ParseException;
@@ -41,6 +42,7 @@ public class HeliumApiImpl implements HeliumApi {
 	private final AlertaHelper alertaHelper;
 	private final ExpedientInteressatHelper expedientInteressatHelper;
 	private final MailHelper mailHelper;
+	private final DelegateExecution executionContext;
 
 	@Override
 	public <T> T getVariable(String codi) {
@@ -682,6 +684,11 @@ public class HeliumApiImpl implements HeliumApi {
 		return null;
 	}
 
+	@Override
+	public DelegateExecution getExecutionContext() {
+		return executionContext;
+	}
+
 	private DocumentDto toPortafirmesDocumentDto(String documentCodi) {
 		DocumentDto document = new DocumentDto();
 		Document documentDisseny = expedientDocumentHelper.findDocument(
@@ -758,5 +765,6 @@ public class HeliumApiImpl implements HeliumApi {
 			throw new HeliumHandlerException("Document store no trobat pel codi: " + documentCodi);
 		}
 	}
+
 
 }

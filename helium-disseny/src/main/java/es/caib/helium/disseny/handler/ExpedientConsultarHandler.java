@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ExpedientConsultarHandler extends HeliumBpmnHandler {
+public interface ExpedientConsultarHandler {
 
 	void setVarRegistreNumero(String varRegistreNumero);
 	void setVarTitol(String varTitol);

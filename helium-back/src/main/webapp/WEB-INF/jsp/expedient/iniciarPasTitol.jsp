@@ -71,7 +71,7 @@
     	<c:set var="defProcSuffix">${definicioProces.id}</c:set>
 	</c:if>
 
-	<c:url value="/expedient/iniciarTitol/${expedientTipus.id}/${defProcSuffix}" var="actionUrl"/>
+	<c:url value="/modal/expedient/iniciarTitol/${expedientTipus.id}/${defProcSuffix}" var="actionUrl"/>
 
 	<form:form method="post" action="${actionUrl}" id="command" name="command" cssClass="form-horizontal form-tasca" modelAttribute="expedientInicioPasTitolCommand" onsubmit="return confirmar(event)">
 		<form:hidden path="responsableCodi"/>

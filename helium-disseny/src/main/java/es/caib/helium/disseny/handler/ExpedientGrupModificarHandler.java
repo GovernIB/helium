@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ExpedientGrupModificarHandler extends HeliumBpmnHandler {
+public interface ExpedientGrupModificarHandler {
 
 	void setGrup(String grup);
 	void setVarGrup(String varGrup);

@@ -10,7 +10,7 @@ import lombok.Setter;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class DocumentEsborrarHandler implements es.caib.helium.disseny.handler.DocumentEsborrarHandler {
+public class DocumentEsborrarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.DocumentEsborrarHandler {
 
 	private String documentCodi;
 	private String varDocumentCodi;

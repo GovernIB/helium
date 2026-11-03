@@ -33,6 +33,10 @@ public class GlobalProperties implements ApplicationContextAware {
 		return gp;
 	}
 
+	public static ApplicationContext getApplicationContext() {
+		return applicationContext;
+	}
+
 	public String getProperty(String key) {
 		return environment.getProperty(key);
 	}

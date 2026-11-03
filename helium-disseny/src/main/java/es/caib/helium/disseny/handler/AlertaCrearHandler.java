@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface AlertaCrearHandler extends HeliumBpmnHandler {
+public interface AlertaCrearHandler {
 
 	void setUsuari(String usuari);
 	void setVarUsuari(String varUsuari);

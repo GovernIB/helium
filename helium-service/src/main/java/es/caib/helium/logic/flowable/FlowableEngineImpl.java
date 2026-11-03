@@ -574,7 +574,9 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			.createTaskQuery()
 			.taskId(taskId)
 			.singleResult();
-		processEngine.getRuntimeService().createChangeActivityStateBuilder()
+		processEngine
+			.getRuntimeService()
+			.createChangeActivityStateBuilder()
 			.processInstanceId(task.getProcessDefinitionId())
 			.moveExecutionToActivityId(task.getExecutionId(), outcome)
 			.changeState();

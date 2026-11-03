@@ -2,6 +2,7 @@ package es.caib.helium.logic.bpmn;
 
 import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.exception.HeliumHandlerException;
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
 import lombok.Setter;
 
 /**
@@ -10,7 +11,7 @@ import lombok.Setter;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class AlertaCrearHandler implements es.caib.helium.disseny.handler.AlertaCrearHandler {
+public class AlertaCrearHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.AlertaCrearHandler {
 
 	private String usuari;
 	private String varUsuari;

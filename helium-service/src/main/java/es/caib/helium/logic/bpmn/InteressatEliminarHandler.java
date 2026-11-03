@@ -10,7 +10,7 @@ import lombok.Setter;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class InteressatEliminarHandler implements es.caib.helium.disseny.handler.InteressatEliminarHandler {
+public class InteressatEliminarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.InteressatEliminarHandler {
 
 	private String codi;
 	private String varCodi;

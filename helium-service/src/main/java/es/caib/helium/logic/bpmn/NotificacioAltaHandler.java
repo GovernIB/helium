@@ -22,7 +22,7 @@ import java.util.zip.ZipOutputStream;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class NotificacioAltaHandler implements es.caib.helium.disseny.handler.NotificacioAltaHandler {
+public class NotificacioAltaHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.NotificacioAltaHandler {
 
 	private String caducitat;
 	private String varCaducitat;

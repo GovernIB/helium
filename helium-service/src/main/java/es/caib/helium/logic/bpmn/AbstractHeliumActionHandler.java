@@ -3,9 +3,23 @@ package es.caib.helium.logic.bpmn;
 import es.caib.helium.commons.dto.TerminiDto;
 import es.caib.helium.commons.dto.TerminiIniciatDto;
 import es.caib.helium.commons.exception.NoTrobatException;
+import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.exception.BpmnException;
+import es.caib.helium.disseny.exception.HeliumHandlerException;
+import es.caib.helium.disseny.handler.HeliumBpmnHandler;
+import es.caib.helium.logic.helper.AlertaHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.ExpedientDadaHelper;
+import es.caib.helium.logic.helper.ExpedientDocumentHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientInteressatHelper;
+import es.caib.helium.logic.helper.MailHelper;
+import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.persistence.common.bpmn.DominiCodiDescripcio;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.springframework.context.ApplicationContext;
 
 import java.util.Date;
 
@@ -14,8 +28,38 @@ import java.util.Date;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-@SuppressWarnings("serial")
-abstract class AbstractHeliumActionHandler {
+abstract class AbstractHeliumActionHandler implements JavaDelegate, HeliumBpmnHandler {
+
+	@Override
+	public void execute(DelegateExecution execution) {
+		try {
+			this.execute(buildHeliumApi(execution));
+		} catch (BpmnException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private HeliumApi buildHeliumApi(DelegateExecution execution) {
+		ApplicationContext context = GlobalProperties.getApplicationContext();
+		ExpedientHelper expedientHelper = context.getBean(ExpedientHelper.class);
+		return HeliumApiFactory.createInstance(
+			expedientHelper.findExpedientByProcessInstanceId(execution.getProcessInstanceId()),
+			execution.getProcessInstanceId(),
+			null,
+			expedientHelper,
+			context.getBean(ExpedientDadaHelper.class),
+			context.getBean(ExpedientDocumentHelper.class),
+			context.getBean(DocumentHelperV3.class),
+			context.getBean(PluginHelper.class),
+			context.getBean(AlertaHelper.class),
+			context.getBean(ExpedientInteressatHelper.class),
+			context.getBean(MailHelper.class),
+			execution);
+	}
+
+	@Override
+	public abstract void execute(HeliumApi heliumApi) throws HeliumHandlerException, BpmnException;
+
 	protected Object getValorOVariable(HeliumApi executionContext, Object value, String var) {
 		if (value != null)
 			return value;

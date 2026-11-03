@@ -10,7 +10,7 @@ import lombok.Setter;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class DocumentAdjuntarHandler implements es.caib.helium.disseny.handler.DocumentAdjuntarHandler {
+public class DocumentAdjuntarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.DocumentAdjuntarHandler {
 
 	private String documentOrigen;
 	private String varDocumentOrigen;

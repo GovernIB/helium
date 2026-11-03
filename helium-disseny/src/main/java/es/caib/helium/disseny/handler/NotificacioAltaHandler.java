@@ -5,7 +5,7 @@ package es.caib.helium.disseny.handler;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface NotificacioAltaHandler extends HeliumBpmnHandler {
+public interface NotificacioAltaHandler {
 	public void setEmisorDir3Codi(String emisorDir3Codi);
 	public void setVarEmisorDir3Codi(String varEmisorDir3Codi);
 	public void setEnviamentTipus(String enviamentTipus);

@@ -10,7 +10,7 @@ import lombok.Setter;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class ExpedientDesfinalitzarHandler implements es.caib.helium.disseny.handler.ExpedientDesfinalitzarHandler {
+public class ExpedientDesfinalitzarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientDesfinalitzarHandler {
 
 	private String reprendre;
 	private String varReprendre;

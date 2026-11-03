@@ -10,7 +10,7 @@ import lombok.Setter;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class ExpedientFinalitzarHandler implements es.caib.helium.disseny.handler.ExpedientFinalitzarHandler {
+public class ExpedientFinalitzarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientFinalitzarHandler {
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {

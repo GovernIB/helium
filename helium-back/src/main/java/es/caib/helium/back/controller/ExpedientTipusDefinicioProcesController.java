@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import es.caib.helium.commons.dto.*;
+import es.caib.helium.commons.dto.handlers.HandlerDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -230,27 +231,33 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 		return "definicioProcesEditor";
 	}
 
-//	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/data", method = RequestMethod.GET)
-//	@ResponseBody
-//	public Map<String, Object> definicionsProcesData(HttpServletRequest request, @PathVariable Long expedientTipusId) {
-//		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-//		Map<String, Object> response = new HashMap<String, Object>();
-//		if (entornActual != null) {
-//			// Select dels tipus d'expedient de l'entorn
-//			List<ExpedientTipusDto> expedientsTipus = expedientTipusService.findAmbEntornPermisDissenyar(entornActual.getId());
-//			// Retorna només els que son de tipus FLUX.
-//			response.put(
-//				"expedientsTipus",
-//				expedientsTipus.stream().
-//					filter(et -> ExpedientTipusTipusEnumDto.FLOW.equals(et.getTipus())).
-//					map(te -> CodiNom.builder().codi(te.getId().toString()).nom(te.getNom()).build()).
-//					collect(Collectors.toList()));
-//		} else {
-//			response.put("expedientsTipus", new ArrayList<CodiNom>());
-//		}
-//		return response;
-//	}
-
+	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/handlers", method = RequestMethod.GET)
+	@ResponseBody
+	public List<HandlerDto> handlers(HttpServletRequest request, @PathVariable Long expedientTipusId) {
+		List<HandlerDto> handlers = new ArrayList<>();
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entornActual != null) {
+			// Handlers predefinits
+			try {
+				handlers.addAll(dissenyService.getHandlersPredefinits());
+			} catch (Exception e) {
+				logger.error("Error carregant els handlers predefinits: " + e.getMessage(), e);
+			}
+			// Handlers propis (pujats com a JAR/class)
+			try {
+				List<String> handlersPropis = dissenyService.findHandlersRecursos(expedientTipusId);
+				for (String classe : handlersPropis) {
+					HandlerDto dto = new HandlerDto();
+					dto.setClasse(classe);
+					dto.setNom(classe);
+					handlers.add(dto);
+				}
+			} catch (Exception e) {
+				logger.error("Error carregant els handlers propis: " + e.getMessage(), e);
+			}
+		}
+		return handlers;
+	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientTipusDefinicioProcesController.class);
 }

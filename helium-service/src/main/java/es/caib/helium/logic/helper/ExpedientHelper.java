@@ -11,6 +11,9 @@ import javax.persistence.EntityNotFoundException;
 import es.caib.helium.persistence.entity.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,6 +170,8 @@ public class ExpedientHelper {
 	private MailHelper mailHelper;
 	@Autowired
 	private HeliumActionHandlerPredefinitFactory heliumActionHandlerPredefinitFactory;
+	@Autowired
+	private ProcessEngine processEngine;
 
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
 
@@ -2338,7 +2343,20 @@ public class ExpedientHelper {
 					ex);
 			}
 		}
+
+
+		DelegateExecution delegateExecution = null;
+
 		if (ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
+			// TODO: S'ha de llevar aquest codi per a que sigui agnostic al motor de workflow usat
+			Execution e = processEngine
+				.getRuntimeService()
+				.createExecutionQuery()
+				.processInstanceId(processInstanceId)
+				.onlyProcessInstanceExecutions()
+				.singleResult();
+			delegateExecution = (DelegateExecution) e;
+
 			if (AccioTipusEnumDto.ACCIO.equals(accio.getTipus())) {
 				workflowEngineApi.executeActionInstanciaProces(
 					processInstanceId,
@@ -2369,7 +2387,8 @@ public class ExpedientHelper {
 						pluginHelper,
 						alertaHelper,
 						expedientInteressatHelper,
-						mailHelper),
+						mailHelper,
+						delegateExecution),
 					accio.getScript());
 			}
 		} else {
@@ -2380,6 +2399,7 @@ public class ExpedientHelper {
 						null,
 						accio.getHandlerClasse(),
 						dades);
+
 					handler.execute(HeliumApiFactory.createInstance(
 						expedient,
 						processInstanceId,
@@ -2391,7 +2411,8 @@ public class ExpedientHelper {
 						pluginHelper,
 						alertaHelper,
 						expedientInteressatHelper,
-						mailHelper));
+						mailHelper,
+						delegateExecution));
 				} catch (Exception ex) {
 					throw new RuntimeException(
 						"No s'ha pogut crear la instància del handler propi " + accio.getHandlerClasse() + " per l'acció (" +
@@ -2403,6 +2424,7 @@ public class ExpedientHelper {
 					HeliumBpmnHandler handler = heliumActionHandlerPredefinitFactory.createInstance(
 						accio.getHandlerClasse(),
 						dades);
+
 					handler.execute(HeliumApiFactory.createInstance(
 						expedient,
 						processInstanceId,
@@ -2414,7 +2436,8 @@ public class ExpedientHelper {
 						pluginHelper,
 						alertaHelper,
 						expedientInteressatHelper,
-						mailHelper));
+						mailHelper,
+						delegateExecution));
 				} catch (Exception ex) {
 					throw new RuntimeException(
 						"No s'ha pogut crear la instància del handler predefinit " + accio.getHandlerClasse() + " per l'acció (" +

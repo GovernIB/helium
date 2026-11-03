@@ -10,7 +10,7 @@ import lombok.Setter;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class ExpedientNumeroModificarHandler implements es.caib.helium.disseny.handler.ExpedientNumeroModificarHandler {
+public class ExpedientNumeroModificarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientNumeroModificarHandler {
 
 	private String numero;
 	private String varNumero;

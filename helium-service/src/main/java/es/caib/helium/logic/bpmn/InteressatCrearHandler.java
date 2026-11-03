@@ -10,7 +10,7 @@ import lombok.Setter;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class InteressatCrearHandler implements es.caib.helium.disseny.handler.InteressatCrearHandler {
+public class InteressatCrearHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.InteressatCrearHandler {
 
 	private String codi;
 	private String varCodi;
