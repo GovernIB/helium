@@ -86,6 +86,29 @@
                 { "name": "collection", "isAttr": true, "type": "String" },
                 { "name": "elementVariable", "isAttr": true, "type": "String" }
             ]
+        },
+        {
+            "name": "Field",
+            "superClass": ["Element"],
+            "properties": [
+                { "name": "name", "isAttr": true, "type": "String" },
+                { "name": "stringValue", "isAttr": true, "type": "String" },
+                { "name": "expression", "isAttr": true, "type": "String" }
+            ]
+        },
+        {
+            "name": "String",
+            "superClass": ["Element"],
+            "properties": [
+                { "name": "body", "isBody": true, "type": "String" }
+            ]
+        },
+        {
+            "name": "Expression",
+            "superClass": ["Element"],
+            "properties": [
+                { "name": "body", "isBody": true, "type": "String" }
+            ]
         }
     ]
 }

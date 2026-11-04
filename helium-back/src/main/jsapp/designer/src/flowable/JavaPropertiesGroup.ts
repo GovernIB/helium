@@ -5,9 +5,19 @@ import {
     isSelectEntryEdited,
 } from '@bpmn-io/properties-panel';
 import { useService } from 'bpmn-js-properties-panel';
+import { getHandlersSync, type HandlerDto } from './handlers';
 
 type BpmnElement = {
     businessObject: any;
+};
+
+type Modeling = {
+    updateProperties: (element: BpmnElement, properties: Record<string, any>) => void;
+    updateModdleProperties: (
+        element: BpmnElement,
+        moddleElement: any,
+        properties: Record<string, any>
+    ) => void;
 };
 
 type PropertiesEntryProps = {
@@ -27,6 +37,30 @@ const getTypeValue = (businessObject: any) => {
             : undefined;
 };
 
+const fillFieldsFromHandler = (element: BpmnElement, modeling: Modeling, handler: HandlerDto) => {
+    const moddle = element.businessObject.$model;
+    const bpmnElement = element.businessObject;
+    let extensionElements = bpmnElement.extensionElements;
+    if (!extensionElements) {
+        debugger
+        extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] });
+        modeling.updateProperties(element, { extensionElements });
+    }
+    debugger;
+    const nonFieldValues = extensionElements.values?.filter((v: any) => v.$type !== 'flowable:Field') ?? [];
+    const fields = (handler.parametres || []).map((p) => {
+        const field = moddle.create('flowable:Field', {
+            name: p.codi || p.nom || '',
+            stringValue: '',
+        });
+        field.$parent = extensionElements;
+        return field;
+    });
+    modeling.updateModdleProperties(element, extensionElements, {
+        values: [...nonFieldValues, ...fields],
+    });
+};
+
 export const createJavaPropertiesGroup = (element: BpmnElement) => {
     const entries: any[] = [
         {
@@ -40,7 +74,7 @@ export const createJavaPropertiesGroup = (element: BpmnElement) => {
         entries.push({
             id: 'flowable-java-group-class',
             component: FlowableJavaClassField,
-            isEdited: isTextFieldEntryEdited,
+            isEdited: isSelectEntryEdited,
         });
     }
     if (typeValue === 'expression') {
@@ -97,20 +131,58 @@ const FlowableJavaTypeField = (props: PropertiesEntryProps) => {
 const FlowableJavaClassField = (props: PropertiesEntryProps) => {
     const { element } = props;
     const modeling = useService('modeling');
-    const debounce = useService('debounceInput');
-    return TextFieldEntry({
+    const translate = useService('translate');
+    const currentValue = element.businessObject.get('flowable:class');
+    return SelectEntry({
         element,
         id: 'flowable-java-class',
-        label: 'Java class',
+        label: translate('Java class'),
         getValue: () => {
             return element.businessObject.get('flowable:class');
         },
         setValue: (value: string) => {
+            const previousClass = element.businessObject.get('flowable:class');
             modeling.updateProperties(element, {
                 'flowable:class': value,
             });
+            if (value && value !== previousClass) {
+                const handler = getHandlersSync().find((h) => h.classe === value);
+                if (handler?.parametres?.length) {
+                    fillFieldsFromHandler(element, modeling, handler);
+                }
+            }
         },
-        debounce,
+        getOptions: () => {
+            const handlers = getHandlersSync();
+
+            const options= [];
+            let agrupacio = null;
+            for (const handler of handlers) {
+                if(handler.agrupacio != agrupacio) {
+                    agrupacio = handler.agrupacio;
+                    options.push({
+                        value: null,
+                        label: handler.agrupacio,
+                        disabled: true
+                    });
+                }
+
+                options.push({
+                    value: handler.classe,
+                    label: handler.nom || handler.classe,
+                });
+            }
+            // const options = handlers.map((h) => ({
+            //     value: h.classe,
+            //     label: h.nom || h.classe,
+            // }));
+
+            // Ensure current value is always in the options list
+            if (currentValue && !options.some((o) => o.value === currentValue)) {
+                options.unshift({ value: currentValue, label: currentValue });
+            }
+            return [{ value: '', label: '<none>' }, ...options];
+        },
     });
 };
 

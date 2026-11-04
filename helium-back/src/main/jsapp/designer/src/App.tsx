@@ -8,15 +8,18 @@ import './app.css';
 import {
     BpmnPropertiesPanelModule,
     BpmnPropertiesProviderModule,
-    CamundaPlatformPropertiesProviderModule,
+    //CamundaPlatformPropertiesProviderModule,
 } from 'bpmn-js-properties-panel';
 import FlowablePropertiesProviderModule from './flowable/FlowablePropertiesProviderModule';
+import {fetchHandlers} from './flowable/handlers';
 
 import Modal from './components/Modal';
 import Toolbar from './components/Toolbar';
 import LoadingOverlay from "./components/LoadingOverlay";
 
 import flowableModdle from './flowable/flowable.json';
+//import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
+
 import {useCallback} from "react";
 import UploadIcon from "./components/UploadIcon.tsx";
 import type {ModdleElement} from "bpmn-js/lib/model/Types";
@@ -24,7 +27,7 @@ import type {ModdleElement} from "bpmn-js/lib/model/Types";
 interface DeployFormType {
     expedientTipusId: string;
     etiqueta: string;
-	hasStartTask: boolean;
+    hasStartTask: boolean;
     actualitzarExpedientsActius: boolean;
     errors: string[];
 }
@@ -52,10 +55,17 @@ const App = () => {
     const config = window.__APP_CONFIG__ || {};
     const isNew: boolean = config.isNew;
 
+    const initializedRef = React.useRef<boolean>(false);
+    const canvasRef = React.useRef<HTMLDivElement | null>(null);
+    const propertiesRef = React.useRef<HTMLDivElement | null>(null);
+    const modelerRef = React.useRef<BpmnJS | null>(null);
+    const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [isDirty, setIsDirty] = React.useState<boolean>(false);
     const [modalOpen, setModalOpen] = React.useState<boolean>(false);
     const [modalDespOpen, setModalDespOpen] = React.useState<boolean>(false);
     const [modalContent, setModalContent] = React.useState<string>();
-    const [isLoading, setIsLoading] = React.useState(true);
     const [isDragging, setIsDragging] = React.useState(false);
     const [data, setData] = React.useState<ProcessDefinitionDataType>({
         expedientsTipus: []
@@ -64,17 +74,10 @@ const App = () => {
     const [deployForm, setDeployForm] = React.useState<DeployFormType>({
         expedientTipusId: config.expedientTipusId,
         etiqueta: config.definicioProcesEtiqueta,
-		hasStartTask: !!config.hasStartTask,
-        actualitzarExpedientsActius:  false,
+        hasStartTask: !!config.hasStartTask,
+        actualitzarExpedientsActius: false,
         errors: []
     });
-
-    const canvasRef = React.useRef<HTMLDivElement | null>(null);
-    const propertiesRef = React.useRef<HTMLDivElement | null>(null);
-    const modelerRef = React.useRef<BpmnJS | null>(null);
-    const inputRef = React.useRef<HTMLInputElement | null>(null);
-
-    const [isDirty, setIsDirty] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         const handleBeforeUnload = (event: Event) => {
@@ -89,19 +92,16 @@ const App = () => {
     }, [isDirty]);
 
     React.useEffect(() => {
+        if(initializedRef.current)
+            return;
         setIsLoading(true);
         init().finally(() => {
             setIsLoading(false);
-        })
+        });
+        initializedRef.current = true;
     }, []);
 
     const init = async () => {
-
-        console.log({
-            CamundaPlatformPropertiesProviderModule,
-            //camundaModdle
-        });
-
         if (!canvasRef.current) return;
         const modeler = new BpmnJS({
             container: canvasRef.current,
@@ -111,8 +111,8 @@ const App = () => {
             additionalModules: [
                 BpmnPropertiesPanelModule,
                 BpmnPropertiesProviderModule,
-                CamundaPlatformPropertiesProviderModule,
                 FlowablePropertiesProviderModule,
+                //CamundaPlatformPropertiesProviderModule
             ],
             moddleExtensions: {
                 //camunda: camundaModdle,
@@ -120,7 +120,7 @@ const App = () => {
             },
         });
 
-        const eventBus:any = modeler.get('eventBus');
+        const eventBus: any = modeler.get('eventBus');
         const handleCommandStackChange = () => {
             const commandStack: any = modeler.get('commandStack');
             setIsDirty(commandStack.canUndo());
@@ -133,13 +133,14 @@ const App = () => {
             expedientTipusId: config.expedientTipusId,
             etiqueta: config.definicioProcesEtiqueta,
             hasStartTask: config.hasStartTask,
-            actualitzarExpedientsActius:  false,
+            actualitzarExpedientsActius: false,
             errors: []
         });
 
         await loadData();
+        await fetchHandlers();
 
-        if(isNew) {
+        if (isNew) {
             await modelerRef.current.createDiagram();
         } else {
             await loadDiagram();
@@ -151,7 +152,7 @@ const App = () => {
     }
 
     const showCode = () => {
-        modelerRef.current?.saveXML({ format: true }).then((response) => {
+        modelerRef.current?.saveXML({format: true}).then((response) => {
             setModalOpen(true);
             setModalContent(response.xml);
         });
@@ -159,9 +160,9 @@ const App = () => {
 
     const download = () => {
         setIsLoading(true);
-        modelerRef.current?.saveXML({ format: true }).then((response) => {
+        modelerRef.current?.saveXML({format: true}).then((response) => {
             if (!response.error) {
-                const blob = new Blob([response.xml ?? ''], { type: 'text/plain' });
+                const blob = new Blob([response.xml ?? ''], {type: 'text/plain'});
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
@@ -170,16 +171,23 @@ const App = () => {
                 URL.revokeObjectURL(url);
             }
         })
-        .finally(() => {setIsLoading(false);});
+            .finally(() => {
+                setIsLoading(false);
+            });
     };
 
     const save = async () => {
         // Comprovar que te tasca inicial
-        const base: any =  modelerRef.current!.getDefinitions();
-        const startEvent: ModdleElement = base.rootElements[0].flowElements[0];
+        const base: any = modelerRef.current!.getDefinitions();
+        const rootElement: any = base.rootElements[0];
+        const startEvent: ModdleElement = rootElement.flowElements[0];
+        if (!rootElement.name)
+            rootElement.name = rootElement.id;
+
+        console.log({base});
         const hasStartTask: boolean = startEvent.outgoing?.length == 1 &&
-                                      startEvent.outgoing[0].$type == 'bpmn:SequenceFlow' &&
-                                      startEvent.outgoing[0].targetRef.$type == 'bpmn:UserTask';
+            startEvent.outgoing[0].$type == 'bpmn:SequenceFlow' &&
+            startEvent.outgoing[0].targetRef.$type == 'bpmn:UserTask';
 
         setDeployForm({...deployForm, hasStartTask, errors: []});
         setModalDespOpen(true);
@@ -218,11 +226,11 @@ const App = () => {
                 method: 'POST',
                 body: formData,
             });
-            if(!saveResponse.ok) {
+            if (!saveResponse.ok) {
                 const formResponse: FormResponse = await saveResponse.json();
                 const errorsGlobals = formResponse.errorsGlobals?.map((err) => `${err.camp}: ${err.missatge}`);
                 const errorsCamps = formResponse.errorsCamps?.map((err) => `${err.camp}: ${err.missatge}`);
-                setDeployForm({...deployForm, errors: [...(errorsGlobals||[]), ...(errorsCamps||[])]});
+                setDeployForm({...deployForm, errors: [...(errorsGlobals || []), ...(errorsCamps || [])]});
                 alert('Error desant definició de procès \n' + (await saveResponse.text()));
                 return;
             }
@@ -234,14 +242,20 @@ const App = () => {
     }
 
     const loadData = async () => {
-        const response = await fetch(config.baseUrl + '/definicioProces/editor/data');
-        setData(await response.json());
+        // const response = await fetch(config.baseUrl + '/definicioProces/editor/data');
+        // setData(await response.json());
+        setData({
+            expedientsTipus: [{
+                codi: "",
+                nom: "",
+            }]
+        });
     }
 
     const loadFile = async (f: File) => {
-        if(f == null)
+        if (f == null)
             return;
-        if(!f.name.endsWith('.bpmn')) {
+        if (!f.name.endsWith('.bpmn')) {
             alert(`Fitxer no valid, Només s\'accepten ".bpmn"`);
             return;
         }
@@ -255,10 +269,10 @@ const App = () => {
     const handleDrop = useCallback(
         async (e: React.DragEvent<HTMLDivElement>) => {
             e.preventDefault();
-            if(!isNew) return;
+            if (!isNew) return;
             setIsDragging(false);
             const flist: FileList = e.dataTransfer.files;
-            if(flist.length > 0) {
+            if (flist.length > 0) {
                 loadFile(flist.item(0)!);
             }
         },
@@ -267,18 +281,18 @@ const App = () => {
 
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
-        if(!isNew) return;
+        if (!isNew) return;
         setIsDragging(true);
     }, []);
 
     const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
-        if(!isNew) return;
+        if (!isNew) return;
         setIsDragging(false);
     }, [modelerRef.current]);
 
     const onFileChange = async (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
-        if(e.target.files && e.target.files.length > 0)
+        if (e.target.files && e.target.files.length > 0)
             loadFile(e.target.files?.item(0)!)
     }
 
@@ -289,14 +303,14 @@ const App = () => {
                 type="file"
                 multiple={false}
                 onChange={onFileChange}
-                style={{ display: "none" }}
+                style={{display: "none"}}
             />
             <LoadingOverlay isLoading={isLoading}/>
             <div
                 style={{
                     display: 'flex',
                     border: `${isDragging ? "2px dashed  #3b82f6" : "none"}`,
-                    zIndex:999,
+                    zIndex: 999,
                 }}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -316,15 +330,16 @@ const App = () => {
                 }}>
                     <UploadIcon animate={true} scale={5}></UploadIcon>
                 </div>)}
-                <Toolbar showCode={showCode} download={download} save={save} upload={isNew? upload: undefined} />
-                <div id="canvas" ref={canvasRef} style={{ flexGrow: 1, height: '100vh' }}></div>
-                <div id="properties" ref={propertiesRef} style={{ width: '340px' }}></div>
+                <Toolbar showCode={showCode} download={download} save={save} upload={isNew ? upload : undefined}/>
+                <div id="canvas" ref={canvasRef} style={{flexGrow: 1, height: '100vh'}}></div>
+                <div id="properties" ref={propertiesRef} style={{width: '340px'}}></div>
             </div>
 
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Codi BPMN">
-                <pre style={{ whiteSpace: 'pre-wrap' }}>{modalContent}</pre>
+                <pre style={{whiteSpace: 'pre-wrap'}}>{modalContent}</pre>
             </Modal>
-            <Modal width="40vw" isOpen={modalDespOpen} onClose={() => setModalDespOpen(false)} title="Desplegar definició de process">
+            <Modal width="40vw" isOpen={modalDespOpen} onClose={() => setModalDespOpen(false)}
+                   title="Desplegar definició de process">
                 {deployForm.errors.length > 0 && <div style={styles.errorContainer}>
                     {
                         deployForm.errors.map((e, i) => (
@@ -332,33 +347,41 @@ const App = () => {
                         ))
                     }
                 </div>}
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{display: 'flex', flexDirection: 'column'}}>
                     <div style={styles.formGroup}>
                         <label style={styles.label} htmlFor="etiqueta">Etiqueta</label>
-                        <input style={styles.input} id="etiqueta" value={deployForm.etiqueta} onChange={(e) => setDeployForm({...deployForm, etiqueta: e.target.value})} />
+                        <input style={styles.input} id="etiqueta" value={deployForm.etiqueta}
+                               onChange={(e) => setDeployForm({...deployForm, etiqueta: e.target.value})}/>
                     </div>
-					<div style={styles.formGroup}>
-					    <label htmlFor="hasStartTask" style={styles.label}>
-							<input id="hasStartTask" type={'checkbox'} checked={deployForm.hasStartTask} onChange={(e) => {
-                                setDeployForm({...deployForm, hasStartTask: e.target.checked});
-                            }}/>
-							<span>Amb tasca inicial?</span>
-					    </label>
-					</div>
+                    <div style={styles.formGroup}>
+                        <label htmlFor="hasStartTask" style={styles.label}>
+                            <input id="hasStartTask" type={'checkbox'} checked={deployForm.hasStartTask}
+                                   onChange={(e) => {
+                                       setDeployForm({...deployForm, hasStartTask: e.target.checked});
+                                   }}/>
+                            <span>Amb tasca inicial?</span>
+                        </label>
+                    </div>
                     <div style={styles.formGroup}>
                         <label style={styles.label} htmlFor="expedientTipusId">Tipus d'expedient</label>
-                        <select style={styles.input} id="expedientTipusId" onChange={(e) => setDeployForm({...deployForm, expedientTipusId: e.target.value})} >
+                        <select style={styles.input} id="expedientTipusId"
+                                onChange={(e) => setDeployForm({...deployForm, expedientTipusId: e.target.value})}>
                             <option></option>
                             {
                                 data.expedientsTipus.map((te, i) => (
-                                    <option key={i} selected={deployForm.expedientTipusId == te.codi} value={te.codi}>{te.nom}</option>
+                                    <option key={i} selected={deployForm.expedientTipusId == te.codi}
+                                            value={te.codi}>{te.nom}</option>
                                 ))
                             }
                         </select>
                     </div>
                     <div style={styles.formGroup}>
                         <label htmlFor="actualitzarExpedientsActius" style={styles.label}>
-							<input id="actualitzarExpedientsActius" type={'checkbox'} checked={deployForm.actualitzarExpedientsActius} onChange={(e) => setDeployForm({...deployForm, actualitzarExpedientsActius: e.target.checked})}/>
+                            <input id="actualitzarExpedientsActius" type={'checkbox'}
+                                   checked={deployForm.actualitzarExpedientsActius} onChange={(e) => setDeployForm({
+                                ...deployForm,
+                                actualitzarExpedientsActius: e.target.checked
+                            })}/>
                             <span>Actualitzar expedients actius?</span>
                         </label>
                     </div>
