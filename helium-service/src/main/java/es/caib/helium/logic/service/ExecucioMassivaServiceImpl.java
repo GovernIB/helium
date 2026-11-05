@@ -198,6 +198,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	private AnotacioService anotacioService;
 	@Autowired
 	private DominiHelper dominiHelper;
+	@Autowired
+	private VariableHelper variableHelper;
 
 	@Transactional
 	@Override
@@ -2506,7 +2508,13 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 						List<FilaResultat> dominiResult = dominiHelper.consultar(
 							camp.getDomini(),
 							camp.getDominiId(),
-							null);
+							variableHelper.getParamsConsulta(
+								null,
+								null,
+								camp,
+								null,
+								null,
+								null));
 
 						for(FilaResultat fila : dominiResult) {
 							for(ParellaCodiValor val : fila.getColumnes()) {
