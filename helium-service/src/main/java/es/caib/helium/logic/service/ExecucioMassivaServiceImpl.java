@@ -23,9 +23,11 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Lists;
 import es.caib.helium.commons.domini.FilaResultat;
 import es.caib.helium.commons.domini.ParellaCodiValor;
 import es.caib.helium.logic.helper.*;
+import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.entity.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -40,9 +42,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -2310,6 +2316,37 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		StringBuilder errText = new StringBuilder();
 		try {
 			ExpedientTipus expedientTipus = ome.getExecucioMassiva().getExpedientTipus();
+
+			List<ExpedientTipus> expedientTipusPermes = Lists.newArrayList(expedientTipus);
+
+			UserDetails principal = new User(
+				ome.getExecucioMassiva().getUsuari(),
+				"",
+				ome.getExecucioMassiva().getAuthenticationRoles());
+			Authentication auth = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+
+			permisosHelper.filterGrantedAllOr(
+				expedientTipusPermes,
+				new PermisosHelper.ObjectIdentifierExtractor<ExpedientTipus>() {
+					@Override
+					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+					BasePermission.CREATE,
+					ExtendedPermission.RELATE},
+				new Permission[] {BasePermission.ADMINISTRATION},
+				auth);
+
+			if(expedientTipusPermes.isEmpty()) {
+				estat = ExecucioMassivaEstat.ESTAT_ERROR;
+				String errMsg = "L'usuari " + ome.getExecucioMassiva().getUsuari() + " no te permisos sobre el tipus d'expedient " + expedientTipus.getCodi() + " (" + expedientTipus.getId() + ") ";
+				errText.append(errMsg);
+				throw new Exception(errMsg);
+			}
+
 			DefinicioProces definicioProces = null;
 			if (!expedientTipus.isAmbInfoPropia() && ome.getDefinicioProcesId() != null) {
 				definicioProces = definicioProcesRepository.findById(ome.getDefinicioProcesId()).orElse(null);

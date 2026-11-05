@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import es.caib.helium.commons.utils.EntornActual;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,8 +54,8 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 	 * @param request */
 	@ModelAttribute("expedientTipusPermesos")
 	public List<ExpedientTipusDto> modelExpedientTipusPermesos(HttpServletRequest request) {
-		// Buscar tipus d'expedient amb permís d'administració o execució d'scripts
-		List<ExpedientTipusDto> expedientTipusPermesos = expedientTipusService.findAmbEntornPermisAnotacio(SessionHelper.getSessionManager(request).getEntornActual().getId());
+		// Buscar tipus d'expedient amb permís d'administració o relació + creació
+		List<ExpedientTipusDto> expedientTipusPermesos = expedientTipusService.findAmbEntornPermisAltaCsv(EntornActual.getEntornId());
 		return expedientTipusPermesos;
 	}
 
