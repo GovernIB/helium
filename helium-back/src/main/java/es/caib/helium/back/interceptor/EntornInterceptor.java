@@ -276,6 +276,10 @@ public class EntornInterceptor implements HandlerInterceptor {
 				SessionHelper.VARIABLE_PERMIS_SCRIPTS_EXECUTAR,
 				!expedientTipusService.findAmbEntornPermisExecucioScript(entorn.getId()).isEmpty());
 		SessionHelper.setAttribute(
+			request,
+			SessionHelper.VARIABLE_PERMIS_ALTA_CSV,
+			!expedientTipusService.findAmbEntornPermisAltaCsv(entorn.getId()).isEmpty());
+		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_PREFERENCIES_USUARI,
 				aplicacioService.getUsuariPreferencies());

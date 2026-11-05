@@ -16,7 +16,7 @@ import es.caib.helium.commons.dto.UsuariPreferenciesDto;
 
 /**
  * Helper per a gestionar les dades de la sessió d'usuari.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class SessionHelper {
@@ -36,6 +36,7 @@ public class SessionHelper {
 	public static final String VARIABLE_PERMIS_ANOTACIONS_PROCESSAR = "potProcessarAnotacions";
 	public static final String VARIABLE_PERMIS_AVISOS_DISSENY = "potDissenyarAvisos";
 	public static final String VARIABLE_PERMIS_SCRIPTS_EXECUTAR = "potExecutarScripts";
+	public static final String VARIABLE_PERMIS_ALTA_CSV = "potDonarAltaCsv";
 	public static final String VARIABLE_HIHA_TRAMITS_INICIABLES = "hiHaTramitsPerIniciar";
 
 	public static final String VARIABLE_FILTRE_CONSULTA_GENERAL = "filtreConsultaGeneral";
@@ -143,7 +144,7 @@ public class SessionHelper {
 					VARIABLE_PERMIS_EXPTIP_DISSENY,
 					potDissenyarExpedientTipus);
 		}
-		
+
 		public Boolean getPotDissenyarAvisos() {
 			return (Boolean)getAttribute(
 					request,
@@ -155,7 +156,7 @@ public class SessionHelper {
 					VARIABLE_PERMIS_AVISOS_DISSENY,
 					potDissenyarAvisos);
 		}
-		
+
 		public Boolean getPotProcessarAnotacions() {
 			return (Boolean)getAttribute(
 					request,
@@ -188,7 +189,7 @@ public class SessionHelper {
 					request,
 					VARIABLE_PERMIS_ENTORN_DESIGN,
 					potDissenyarEntorn);
-		}	
+		}
 		public Boolean getPotAdministrarEntorn() {
 			return (Boolean)getAttribute(
 					request,
@@ -377,7 +378,7 @@ public class SessionHelper {
 					request,
 					VARIABLE_SELECCIO_MASSIVES);
 		}
-		
+
 		public UnitatOrganitzativaCommand getFiltreUnitatOrganitzativa() {
 			return (UnitatOrganitzativaCommand)getAttribute(
 					request,
@@ -401,8 +402,8 @@ public class SessionHelper {
 					VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS,
 					expedientsTipus);
 		}
-		
-		
+
+
 	}
 
 }

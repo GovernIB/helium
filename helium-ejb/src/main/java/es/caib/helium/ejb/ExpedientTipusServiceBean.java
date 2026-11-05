@@ -169,6 +169,13 @@ public class ExpedientTipusServiceBean extends AbstractServiceEjb<ExpedientTipus
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findAmbEntornPermisAltaCsv(
+		Long entornId) throws NoTrobatException {
+		return delegateService.findAmbEntornPermisAltaCsv(entornId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findAmbIdPermisDissenyar(
 			Long entornId,
 			Long expedientTipusId) {
