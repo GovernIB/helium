@@ -515,7 +515,8 @@ public class JbpmHelper {
 				// Recorre totes les classes i mira si alguna de les seves super classes és un HeliumActionHandler
 				handlerNames = new HashSet<String>();
 				for(String className : classes.keySet()) {
-					if (this.isHeliumActionHandler(className, classes)) {
+					if (this.isHeliumActionHandler(className, classes) 
+						|| this.isBasicActionHandler(className, classes)) {
 						handlerNames.add(className);
 					}
 				}
@@ -545,6 +546,24 @@ public class JbpmHelper {
 		}
 		return isHeliumActionHandler;
 	}
+	
+	/** Comprova si per nom de classe extén o alguna de les seves super classes extén de BasicActionHandler. */
+	private boolean isBasicActionHandler(String className, Map<String, ClassReader> classes) {
+		boolean isBasicActionHandler = false;
+		boolean end = false;
+		while (!isBasicActionHandler && !end) {
+			ClassReader cr = classes.get(className);
+			if (cr != null) {
+				isBasicActionHandler = "net/conselldemallorca/helium/jbpm3/handlers/BasicActionHandler".equalsIgnoreCase(cr.getSuperName());
+				// Recorre cap a les super classes
+				className = cr.getSuperName();
+			} else {
+				end = true;
+			}
+		}
+		return isBasicActionHandler;
+	}
+	
 	public byte[] getResourceBytes(String jbpmId, String resourceName) {
 		//adminService.mesuraIniciar("jBPM getResourceBytes", "jbpmDao");
 		final long pdid = Long.parseLong(jbpmId);

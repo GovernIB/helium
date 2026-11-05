@@ -18,6 +18,7 @@ import org.jbpm.instantiation.ProcessClassLoader;
 
 import net.conselldemallorca.helium.jbpm3.api.HeliumApi;
 import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;
+import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 
 /**
  * Command per executar una acció global a dins una instància de procés jBPM
@@ -61,9 +62,14 @@ public class ExecuteHandlerCommand extends AbstractGetObjectBaseCommand {
 				}
 			}
 		}
-
-		Method executeMethod = handlerClass.getMethod("execute", HeliumApi.class);
-		executeMethod.invoke(handler, new HeliumApiImpl(context));
+		if(BasicActionHandler.class.isInstance(handler)) {
+			Method executeMethod = handlerClass.getMethod("execute", ExecutionContext.class);
+			executeMethod.invoke(handler, context);
+		} else {
+			Method executeMethod = handlerClass.getMethod("execute", HeliumApi.class);
+			executeMethod.invoke(handler, new HeliumApiImpl(context));
+		}
+		
 		return null;
 	}
 
