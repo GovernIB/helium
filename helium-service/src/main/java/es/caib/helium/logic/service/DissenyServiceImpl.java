@@ -26,6 +26,8 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import es.caib.helium.commons.dto.handlers.HandlerAgrupacioEnum;
+import es.caib.helium.commons.dto.handlers.HandlerParametreDto;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.impl.util.IoUtil;
 import org.slf4j.Logger;
@@ -218,7 +220,7 @@ public class DissenyServiceImpl implements DissenyService {
 
     @Override
 	@Transactional(readOnly = true)
-    public List<String> findHandlersBpmOrdenats(Long definicioProcesId) {
+    public List<String> findNomHandlersBpmOrdenats(Long definicioProcesId) {
 		Set<String> recursosNom = getHandlersNom(definicioProcesId);
 		List<String> handlers = new ArrayList<String>();
 		for (String recurs : recursosNom) {
@@ -227,6 +229,21 @@ public class DissenyServiceImpl implements DissenyService {
 		java.util.Collections.sort(handlers);
 		return handlers;
     }
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<HandlerDto> findHandlersBpmOrdenats(Long definicioProcesId) {
+		List<HandlerDto> handlers = new ArrayList<HandlerDto>();
+		List<Recurs> recursos = recursRepository.findByDefinicioProcesIdAndHandler(definicioProcesId, true);
+		for(Recurs recurs : recursos){
+			HandlerDto handler = new HandlerDto();
+			handler.setClasse(recurs.getNomClasse());
+			handler.setNom(recurs.getNom());
+			handler.setParametres(getHandlerParameters(recurs.getContingut()));
+			handlers.add(handler);
+		}
+		return handlers;
+	}
 
     @Override
     public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler) {
@@ -251,9 +268,24 @@ public class DissenyServiceImpl implements DissenyService {
     }
 
 	@Override
-	public List<String> findHandlersRecursos(Long expedientTipusId) {
+	public List<String> findNomHandlersRecursos(Long expedientTipusId) {
 		List<Recurs> handlers = recursRepository.findByExpedientTipusIdAndHandler(expedientTipusId, true);
 		return handlers.stream().map(Recurs::getNomClasse).collect(Collectors.toList());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<HandlerDto> findHandlersRecursos(Long expedientTipusId) {
+		List<HandlerDto> handlers = new ArrayList<HandlerDto>();
+		List<Recurs> recursos = recursRepository.findByExpedientTipusIdAndHandler(expedientTipusId, true);
+		for(Recurs recurs : recursos){
+			HandlerDto handler = new HandlerDto();
+			handler.setClasse(recurs.getNomClasse());
+			handler.setNom(recurs.getNom());
+			handler.setParametres(getHandlerParameters(recurs.getContingut()));
+			handlers.add(handler);
+		}
+		return handlers;
 	}
 
 	@Override
@@ -1559,6 +1591,24 @@ public class DissenyServiceImpl implements DissenyService {
 	public List<ExpedientTipusDto> findExpedientTipusBySistraTramitCodi(String sistraTramitCodi) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	private List<HandlerParametreDto> getHandlerParameters(byte[] contingut) {
+		List<HandlerParametreDto> handlerParams = new ArrayList<HandlerParametreDto>();
+		try {
+			ClassPool cp = ClassPool.getDefault();
+			CtClass ctClass = cp.makeClass(new ByteArrayInputStream(contingut));
+			CtField[] declaredFields = ctClass.getDeclaredFields();
+			for (CtField declaredField: declaredFields) {
+				HandlerParametreDto param = new HandlerParametreDto();
+				param.setCodi(declaredField.getName());
+				handlerParams.add(param);
+			}
+			ctClass.detach();
+		} catch (Exception e) {
+			// TODO: gestionar error
+		}
+		return handlerParams;
 	}
 
 }

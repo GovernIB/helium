@@ -371,17 +371,39 @@ public interface DissenyService {
 	 */
 	public List<String> findAccionsBpmOrdenades(Long definicioProcesId);
 
-	public List<String> findHandlersBpmOrdenats(Long definicioProcesId);
+	/**
+	 * Retorna la llista de noms de recursos de la definició de process que son classes i handlers.
+	 *
+	 * @param definicioProcesId L'id de la definició de process.
+	 * @return la llista de noms de classe dels handlers.
+	 */
+	public List<String> findNomHandlersBpmOrdenats(Long definicioProcesId);
+
+	/**
+	 * Retorna la llista de recursos de la definició de process que son classes i handlers.
+	 *
+	 * @param definicioProcesId L'id de la definició de process.
+	 * @return la llista de handlers.
+	 */
+	public List<HandlerDto> findHandlersBpmOrdenats(Long definicioProcesId);
 
 	public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler);
+
+	/**
+	 * Retorna la llista de noms de recursos del tipus d'expedient que son classes i handlers.
+	 *
+	 * @param expedientTipusId L'id del tipus d'expedient.
+	 * @return la llista de noms de classe dels handlers.
+	 */
+	public List<String> findNomHandlersRecursos(Long expedientTipusId);
 
 	/**
 	 * Retorna la llista de recursos del tipus d'expedient que son classes i handlers.
 	 *
 	 * @param expedientTipusId L'id del tipus d'expedient.
-	 * @return la llista de noms de classe dels handlers.
+	 * @return la llista de handlers.
 	 */
-	public List<String> findHandlersRecursos(Long expedientTipusId);
+	public List<HandlerDto> findHandlersRecursos(Long expedientTipusId);
 
 	/**
 	 * Retorna la llista de paràmetres d'un recurs que és un handler.

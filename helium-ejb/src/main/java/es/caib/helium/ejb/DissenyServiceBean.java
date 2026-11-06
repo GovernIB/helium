@@ -58,9 +58,15 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-    public List<String> findHandlersBpmOrdenats(Long definicioProcesId) {
-        return delegateService.findHandlersBpmOrdenats(definicioProcesId);
+    public List<String> findNomHandlersBpmOrdenats(Long definicioProcesId) {
+        return delegateService.findNomHandlersBpmOrdenats(definicioProcesId);
     }
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<HandlerDto> findHandlersBpmOrdenats(Long definicioProcesId) {
+		return delegateService.findHandlersBpmOrdenats(definicioProcesId);
+	}
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -70,7 +76,13 @@ public class DissenyServiceBean extends AbstractServiceEjb<DissenyService> imple
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<String> findHandlersRecursos(Long expedientTipusId) {
+	public List<String> findNomHandlersRecursos(Long expedientTipusId) {
+		return delegateService.findNomHandlersRecursos(expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<HandlerDto> findHandlersRecursos(Long expedientTipusId) {
 		return delegateService.findHandlersRecursos(expedientTipusId);
 	}
 

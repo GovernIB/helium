@@ -332,7 +332,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 	private List<ParellaCodiValorDto> getHandlersPropis(Long definicioProcesId, String handlerPropi) {
 
 		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
-		List<String> accions = dissenyService.findHandlersBpmOrdenats(definicioProcesId);
+		List<String> accions = dissenyService.findNomHandlersBpmOrdenats(definicioProcesId);
 		for (String accio : accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
 		}

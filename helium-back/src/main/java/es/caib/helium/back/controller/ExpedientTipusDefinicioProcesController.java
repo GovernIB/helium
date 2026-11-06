@@ -4,10 +4,7 @@
 package es.caib.helium.back.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -245,13 +242,7 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 			}
 			// Handlers propis (pujats com a JAR/class)
 			try {
-				List<String> handlersPropis = dissenyService.findHandlersRecursos(expedientTipusId);
-				for (String classe : handlersPropis) {
-					HandlerDto dto = new HandlerDto();
-					dto.setClasse(classe);
-					dto.setNom(classe);
-					handlers.add(dto);
-				}
+				handlers.addAll(dissenyService.findHandlersRecursos(expedientTipusId));
 			} catch (Exception e) {
 				logger.error("Error carregant els handlers propis: " + e.getMessage(), e);
 			}

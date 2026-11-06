@@ -84,13 +84,7 @@ public class DefinicioProcesEditorController extends BaseDefinicioProcesControll
 			}
 			// Handlers propis (pujats com a JAR/class)
 			try {
-				List<String> handlersPropis = dissenyService.findHandlersBpmOrdenats(definicioProcesId);
-				for (String classe : handlersPropis) {
-					HandlerDto dto = new HandlerDto();
-					dto.setClasse(classe);
-					dto.setNom(classe);
-					handlers.add(dto);
-				}
+				handlers.addAll(dissenyService.findHandlersBpmOrdenats(definicioProcesId));
 			} catch (Exception e) {
 				logger.error("Error carregant els handlers propis: " + e.getMessage(), e);
 			}

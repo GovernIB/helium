@@ -242,14 +242,8 @@ const App = () => {
     }
 
     const loadData = async () => {
-        // const response = await fetch(config.baseUrl + '/definicioProces/editor/data');
-        // setData(await response.json());
-        setData({
-            expedientsTipus: [{
-                codi: "",
-                nom: "",
-            }]
-        });
+        const response = await fetch(config.baseUrl + '/definicioProces/editor/data');
+        setData(await response.json());
     }
 
     const loadFile = async (f: File) => {

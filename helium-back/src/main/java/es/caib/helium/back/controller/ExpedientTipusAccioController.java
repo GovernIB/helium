@@ -478,7 +478,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		List<ParellaCodiValorDto> ret = new ArrayList<>();
 		List<String> accions = new ArrayList<>();
 		if (expedientTipusId != null) {
-			accions = dissenyService.findHandlersRecursos(expedientTipusId);
+			accions = dissenyService.findNomHandlersRecursos(expedientTipusId);
 		}
 		for (String accio: accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));

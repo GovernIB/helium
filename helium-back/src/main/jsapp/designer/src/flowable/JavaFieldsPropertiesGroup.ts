@@ -77,12 +77,6 @@ export const createJavaFieldsPropertiesGroup = (element: BpmnElement, modeling: 
                     isEdited: isTextFieldEntryEdited,
                     flowableField: field.element,
                 },
-                // {
-                //     id: `field-type-${field.id}`,
-                //     component: FlowableJavaFieldTypeField,
-                //     isEdited: isSelectEntryEdited,
-                //     flowableField: field.element,
-                // },
                 {
                     id: `field-string-${field.id}`,
                     component: FlowableJavaFieldStringField,
@@ -113,7 +107,6 @@ const FlowableJavaFieldNameField = (props: PropertiesEntryProps) => {
     const { element, flowableField } = props;
     const modeling = useService('modeling');
     const debounce = useService('debounceInput');
-    debugger;
     return TextFieldEntry({
         element,
         id: props.id,
@@ -126,29 +119,6 @@ const FlowableJavaFieldNameField = (props: PropertiesEntryProps) => {
     });
 };
 
-// const FlowableJavaFieldTypeField = (props: PropertiesEntryProps) => {
-//     const { element, flowableField } = props;
-//     return SelectEntry({
-//         element,
-//         id: 'field-type-${item.id}',
-//         label: 'Type',
-//         getValue: () => flowableField?.type || 'string',
-//         setValue: (value: string) => {
-//             console.log('>>> setValue', value, flowableField?.type);
-//             // TODO revisar
-//             /*if (item.element) {
-//                 item.element.type = value;
-//                 modeling.updateProperties(element, {});
-//             }*/
-//             //flowableField
-//         },
-//         getOptions: () => [
-//             { value: 'string', label: 'String' },
-//             { value: 'expression', label: 'Expression' },
-//         ],
-//     });
-// };
-
 const FlowableJavaFieldStringField = (props: PropertiesEntryProps) => {
     const { element, flowableField } = props;
     const modeling = useService('modeling');
@@ -156,7 +126,7 @@ const FlowableJavaFieldStringField = (props: PropertiesEntryProps) => {
     return TextFieldEntry({
         element,
         id: 'field-string-${item.id}',
-        label: 'String',
+        label: 'Value',
         getValue: () => flowableField?.stringValue || '',
         setValue: (value: string) => {
             modeling.updateModdleProperties(element, flowableField, { stringValue: value });
