@@ -11,6 +11,8 @@ import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.graph.exe.ProcessInstance;
 
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+
 /**
  * Command per obtenir la definició de procés de jBPM 3 donat el seu id
  * 
@@ -30,9 +32,13 @@ public class GetProcessInstancesTreeCommand extends AbstractGetObjectBaseCommand
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		List<ProcessInstance> resposta = new ArrayList<ProcessInstance>();
+		ProcessInstance processInstance = jbpmContext.getProcessInstance(id);
+		if(processInstance == null)
+			throw new NoTrobatException(ProcessInstance.class, id);
+		
 		afegirProcessInstanceAmbFills(
 				jbpmContext.getSession(),
-				jbpmContext.getProcessInstance(id),
+				processInstance,
 				resposta);
 		return resposta;
 	}

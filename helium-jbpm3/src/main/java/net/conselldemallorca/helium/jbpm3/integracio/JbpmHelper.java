@@ -759,6 +759,7 @@ public class JbpmHelper {
 		List<JbpmProcessInstance> resultat = new ArrayList<JbpmProcessInstance>();
 		final long id = Long.parseLong(processDefinitionId);
 		GetProcessInstancesCommand command = new GetProcessInstancesCommand();
+		command.onlyRunning(false);
 		command.setProcessInstanceId(id); // Això està bé, el command agafa setProcessInstanceId com si fos setProcessDefinitionId
 		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
 			resultat.add(new JbpmProcessInstance(pd));
@@ -1100,6 +1101,8 @@ public class JbpmHelper {
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand();
 		command.setProcessInstanceId(id);
 		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
+		if(pi == null)
+			return resultat;
 		for (TaskInstance ti : pi.getTaskMgmtInstance().getTaskInstances())
 			resultat.add(new JbpmTask(ti));
 		//adminService.mesuraCalcular("jBPM findTaskInstancesForProcessInstance", "jbpmDao");

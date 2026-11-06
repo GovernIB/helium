@@ -740,7 +740,15 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false,
 				true,
 				false);
-		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+		List<JbpmProcessInstance> processInstancesTree = null;
+		
+		// S'afegiex aquest try catch per evitar errors al esborrar expedient que fan referencia a definicions de process esborrades amb versions anteriors
+		// Issue: https://github.com/GovernIB/helium/issues/2089
+		try {
+			processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+		} catch(Exception e) {
+			processInstancesTree = new ArrayList<JbpmProcessInstance>();
+		}
 		if (expedient.isArxiuActiu() && !isPropagarEsbExp()) {
 			// Si l'expedient està emmagatzemat a dins l'arxiu comprovam que
 			// l'expedient no contengui documents firmats abans d'esborrar-lo.
