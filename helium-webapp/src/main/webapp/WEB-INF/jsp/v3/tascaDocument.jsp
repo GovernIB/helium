@@ -321,18 +321,28 @@
 			$(this).parent().find('input[type="file"]').click();
 		});
 		$('.generar_plantilla').click(function(e) {
+			e.stopPropagation();
+			e.preventDefault();
 			
-			if (confirm('<spring:message code='expedient.tasca.doc.generar.confirm' />')) {
-				try {
-					$('.div-dades-carregant', window.parent.document).show();
-				} catch(e) {
-					console.error('No es troba el .div-dades-carregant: ' + e);				
-				}	
-			} else {
-				e.stopPropagation();
-				e.preventDefault();
-				return false;
-			}
+			$('.div-dades-carregant', window.parent.document).show();
+			fetch($(this).attr('href'))
+			.then(async function(data) {
+				var contentType = data.headers.get('content-type');
+				if(contentType.includes("application/octet-stream")) {
+					var contentDisposition = data.headers.get('content-disposition');
+					var fileName = contentDisposition.substring(contentDisposition.indexOf('"')+1, contentDisposition.lastIndexOf('"'));
+					var blob = await data.blob()
+					var a = document.createElement('a');
+					a.href = URL.createObjectURL(blob);
+					a.download = fileName;
+					a.click();
+					URL.revokeObjectURL(a.href);
+				} else {
+					window.location.reload();
+				}
+			}).finally(function() {
+				$('.div-dades-carregant', window.parent.document).hide();
+			});
 		});
 		$('input[type=checkbox][name=ambFirma]').on('change', function() {
 			var form= $(this).closest('form')
