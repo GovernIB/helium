@@ -2433,17 +2433,21 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			// Any
 			Integer any = null;
 			try {
-				if (contingutCsv[index][0] != null && !contingutCsv[index][0].isEmpty())
-					any = Integer.parseInt(contingutCsv[index][0]);
+				if (contingutCsv[index][1] != null && !contingutCsv[index][1].isEmpty())
+					any = Integer.parseInt(contingutCsv[index][1]);
 			} catch (Exception e) {
 				errText.append("Error en el format de l'any de l'expedient. ");
 				logger.error("Alta masiva CSV error :" + ome.getId()
-				+ ". Error convertint \"" + contingutCsv[index][0] + "\" a enter per l'any d'inici de l'expedient: " + e.getMessage());
+				+ ". Error convertint \"" + contingutCsv[index][1] + "\" a enter per l'any d'inici de l'expedient: " + e.getMessage());
 			}
 			// Número
-			String numero = contingutCsv[index][1];
+			String numero = contingutCsv[index][2];
 			// Títol
-			String titol = contingutCsv[index][2];
+			String titol = contingutCsv[index][3];
+			// Codi d'unitat organitzativa
+			String dir3UO = null;
+			if(contingutCsv[index][4] != null && !contingutCsv[index][4].isEmpty())
+				dir3UO = contingutCsv[index][4];
 			// Variables
 			Map<String, Object> variables = new HashMap<String, Object>();
 			String codi;
@@ -2451,7 +2455,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			Object valorHelium;
 			List<String> variablesErronies = new ArrayList<String>();
 			List<String> errors = new ArrayList<String>();
-			for (int i = 3; i < contingutCsv[0].length; i++) {
+			for (int i = 5; i < contingutCsv[0].length; i++) {
 				codi = contingutCsv[0][i];
 				valor = contingutCsv[index][i];
 				try {
@@ -2490,7 +2494,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 						ome.getDefinicioProcesId(), 
 						any, 
 						numero,
-						null,//unitat organitzativa codi
+						dir3UO, //unitat organitzativa codi
 						titol, 
 						null, 
 						null, 

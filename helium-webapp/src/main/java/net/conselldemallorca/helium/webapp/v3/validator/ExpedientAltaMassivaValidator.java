@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientAltaMassivaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 
@@ -41,6 +42,8 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 	ExecucioMassivaService execucioMassivaService;
 	@Autowired
 	DissenyService dissenyService;
+	@Autowired
+	UnitatOrganitzativaService unitatOrganitzativaService;
 	
 	/** Màxim de 1500 expedients per alta programada. */
 	private int MAX_EXPEDIENTS = 1500; 
@@ -99,21 +102,53 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 			} else {
 				// Valida l'Arxiu
 				try {
+					ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(command.getExpedientTipusId());
+					String expedientTipusCodi = expedientTipus.getCodi();
+					
 					CsvHelper csvHelper = new CsvHelper();
 					contingutCsv = csvHelper.parse(command.getFile().getBytes());
 					if (contingutCsv.length > 1) {
 						// Valida el número de columnes
 						int nColumnes = contingutCsv[0].length;
-						if (nColumnes < 3) {
-							// El CSV ha de tenir com a mínim les 3 primeres columnes
+						if (nColumnes < 4) {
+							// El CSV ha de tenir com a mínim les 4 primeres columnes
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.minim.columnes"))
 							.addNode("file")
 							.addConstraintViolation();
 							valid = false;
 						} else {
+							for(int row = 1; row < contingutCsv.length; row++) {
+								String[] columnes = contingutCsv[row];
+								String unitatOrganitzativaCodi = columnes[4];
+								if(expedientTipus.isProcedimentComu() 
+								&& (unitatOrganitzativaCodi == null 
+									|| unitatOrganitzativaCodi.trim().isEmpty()
+									|| unitatOrganitzativaService.findByCodiExterna(unitatOrganitzativaCodi) == null)) {
+									context.buildConstraintViolationWithTemplate(
+											MessageHelper
+											.getInstance()
+											.getMessage("expedient.alta.massiva.validacio.arxiu.columnes.uo"))
+									.addNode("file")
+									.addConstraintViolation();
+									valid = false;
+									break;
+								}
+								
+								if(columnes.length == 0 
+								|| columnes[0] == null 
+								|| !expedientTipusCodi.equals(columnes[0])) {
+									context.buildConstraintViolationWithTemplate(
+											MessageHelper.getInstance().getMessage("expedient.alta.massiva.validacio.arxiu.columnes.tipus.codi"))
+									.addNode("file")
+									.addConstraintViolation();
+									valid = false;
+									break;
+								}
+							}
+							
 							// Valida la primera fila
-							List<CampDto> campsList = this.getCamps(command.getExpedientTipusId());
+							List<CampDto> campsList = this.getCamps(expedientTipus);
 							Map<String, CampDto> campPerCodi = new HashMap<String, CampDto>();
 							for (CampDto camp : campsList) {
 								campPerCodi.put(camp.getCodi(), camp);
@@ -121,7 +156,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 							
 							List<String> columnesInvalides = new ArrayList<String>();
 							List<String> columnesInvalidesRegistre = new ArrayList<String>();
-							for (int i = 3; i < nColumnes; i++) {
+							for (int i = 5; i < nColumnes; i++) {
 								String codi = contingutCsv[0][i];
 								if (!campPerCodi.containsKey(codi)) {
 									columnesInvalides.add(codi);
@@ -219,17 +254,16 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 
 	/** Mètode per obtenir el conjunt de codis de camps per un tipus d'expedient.
 	 * 
-	 * @param expedientTipusId
+	 * @param expedientTipus
 	 * @return
 	 */
-	private List<CampDto> getCamps(Long expedientTipusId) {
-		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(expedientTipusId);
+	private List<CampDto> getCamps(ExpedientTipusDto expedientTipus) {
 		Long definicioProcesId = expedientTipus.isAmbInfoPropia() ? 
 				null 
-				: dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId).getId();
+				: dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId()).getId();
 		
 		return dissenyService.findCampsOrdenatsPerCodi(
-				expedientTipusId, 
+				expedientTipus.getId(), 
 				definicioProcesId, 
 				expedientTipus.isAmbHerencia());
 	}
