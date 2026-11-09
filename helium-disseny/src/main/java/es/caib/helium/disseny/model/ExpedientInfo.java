@@ -1,10 +1,9 @@
 package es.caib.helium.disseny.model;
 
-import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
+import java.util.Date;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 /**
  * Informació d'un expedient.
@@ -15,21 +14,51 @@ import java.util.Date;
 @Setter
 public class ExpedientInfo {
 
+	public enum IniciadorTipus {
+		INTERN,
+		SISTRA}
+
 	private Long id;
 	private String titol;
 	private String numero;
+	private String numeroDefault;
 	private Date dataInici;
 	private Date dataFi;
-	private String avisosMobil;
-	private String avisosEmail;
-	private String numeroIdentificador;
-	private String tramitExpedientIdentificador;
-	private String ntiIdentificador;
-	private String processInstanceId;
+	private String comentari;
+	private String infoAturat;
+	private String comentariAnulat;
+	private IniciadorTipus iniciadorTipus;
+	private String iniciadorCodi;
+	private String responsableCodi;
 
-	private Long entornId;
-	private Long tipusId;
-	private ExpedientTipusTipusEnumDto tipus;
-	private String notibEmisor;
-	private String notibCodiProcediment;
+	private Double geoPosX;
+	private Double geoPosY;
+	private String geoReferencia;
+	private String registreNumero;
+	private Date registreData;
+	private Long unitatAdministrativa;
+	private String idioma;
+	private boolean autenticat;
+	private String tramitadorNif;
+	private String tramitadorNom;
+	private String interessatNif;
+	private String interessatNom;
+	private String representantNif;
+	private String representantNom;
+	private boolean avisosHabilitats;
+	private String avisosEmail;
+	private String avisosMobil;
+	private boolean notificacioTelematicaHabilitada;
+	private String tramitExpedientIdentificador;
+	private String tramitExpedientClau;
+
+	private String estatCodi;
+	private String estatNom;
+	private String expedientTipusCodi;
+	private String expedientTipusNom;
+	private String entornCodi;
+	private String entornNom;
+
+	private long processInstanceId;
+	private boolean ambRetroaccio;
 }

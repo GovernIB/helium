@@ -8,7 +8,6 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Informació d'una notificació per al seu enviament.

@@ -1,12 +1,12 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.commons.dto.TerminiIniciatDto;
+import java.util.Date;
+
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.disseny.api.HeliumApi;
 import es.caib.helium.disseny.exception.BpmnException;
 import es.caib.helium.disseny.exception.HeliumHandlerException;
-
-import java.util.Date;
+import es.caib.helium.disseny.model.TerminiInfo;
 
 /**
  * Handler per pausar un termini.
@@ -38,7 +38,7 @@ public class TerminiPausarHandler extends AbstractHeliumActionHandler implements
 	@Override
 	public void execute(HeliumApi executionContext) throws HeliumHandlerException {
 
-		TerminiIniciatDto termini = null;
+		TerminiInfo termini = null;
 		try {
 			termini = getTerminiIniciatAmbCodi(
 				executionContext,

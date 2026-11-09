@@ -29,11 +29,11 @@
 		<portafib.version>1.1</portafib.version>
 		<openapi.version>1.7.0</openapi.version>
 		<comanda.version>1.0.0</comanda.version>
-		<java.compiler.version>11</java.compiler.version>
-		<maven.compiler.target>${java.compiler.version}</maven.compiler.target>
-		<maven.compiler.source>${java.compiler.version}</maven.compiler.source>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<implementation.vendor>Límit Tecnologies</implementation.vendor>
+		<helium-disseny.version>4.0.0</helium-disseny.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>

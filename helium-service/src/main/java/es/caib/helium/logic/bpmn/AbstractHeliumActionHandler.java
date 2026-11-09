@@ -1,7 +1,8 @@
 package es.caib.helium.logic.bpmn;
 
+import java.util.Date;
+
 import es.caib.helium.commons.dto.TerminiDto;
-import es.caib.helium.commons.dto.TerminiIniciatDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.disseny.api.HeliumApi;
@@ -16,12 +17,11 @@ import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientInteressatHelper;
 import es.caib.helium.logic.helper.MailHelper;
 import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.disseny.model.TerminiInfo;
 import es.caib.helium.persistence.common.bpmn.DominiCodiDescripcio;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.context.ApplicationContext;
-
-import java.util.Date;
 
 /**
  * Handler base amb accés a la funcionalitat de Helium
@@ -74,7 +74,7 @@ abstract class AbstractHeliumActionHandler implements JavaDelegate, HeliumBpmnHa
 		return null;
 	}
 
-	TerminiIniciatDto getTerminiIniciatAmbCodi(HeliumApi executionContext, String codi) throws BpmnException {
+	TerminiInfo getTerminiIniciatAmbCodi(HeliumApi executionContext, String codi) throws BpmnException {
 		TerminiDto termini = getTerminiAmbCodi(
 			executionContext,
 			codi);

@@ -1,20 +1,5 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.engine.WProcessInstance;
-import es.caib.helium.disseny.engine.WTaskInstance;
-import es.caib.helium.disseny.exception.HeliumHandlerException;
-import es.caib.helium.disseny.model.DocumentInfo;
-import es.caib.helium.commons.dto.*;
-import es.caib.helium.disseny.model.ExpedientInfo;
-import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
-import es.caib.helium.logic.helper.*;
-import es.caib.helium.persistence.entity.*;
-import lombok.RequiredArgsConstructor;
-import org.flowable.engine.delegate.DelegateExecution;
-
-import javax.persistence.EntityNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,6 +7,46 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.persistence.EntityNotFoundException;
+
+import org.flowable.engine.delegate.DelegateExecution;
+
+import es.caib.helium.commons.dto.ArxiuDto;
+import es.caib.helium.commons.dto.DadesEnviamentDto;
+import es.caib.helium.commons.dto.DadesNotificacioDto;
+import es.caib.helium.commons.dto.DocumentDto;
+import es.caib.helium.commons.dto.InteressatDocumentTipusEnumDto;
+import es.caib.helium.commons.dto.InteressatDto;
+import es.caib.helium.commons.dto.InteressatTipusEnumDto;
+import es.caib.helium.commons.dto.PortafirmesFluxBlocDto;
+import es.caib.helium.commons.dto.PortafirmesSimpleTipusEnumDto;
+import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
+import es.caib.helium.commons.exception.SistemaExternException;
+import es.caib.helium.disseny.api.HeliumApi;
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
+import es.caib.helium.disseny.exception.HeliumHandlerException;
+import es.caib.helium.disseny.model.DadesNotificacio;
+import es.caib.helium.disseny.model.DocumentInfo;
+import es.caib.helium.disseny.model.ExpedientInfo;
+import es.caib.helium.disseny.model.TerminiInfo;
+import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
+import es.caib.helium.logic.helper.AlertaHelper;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.ExpedientDadaHelper;
+import es.caib.helium.logic.helper.ExpedientDocumentHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientInteressatHelper;
+import es.caib.helium.logic.helper.MailHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.persistence.entity.Document;
+import es.caib.helium.persistence.entity.DocumentStore;
+import es.caib.helium.persistence.entity.Estat;
+import es.caib.helium.persistence.entity.Expedient;
+import es.caib.helium.persistence.entity.Interessat;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Implementació de HeliumApi per a passar com a argument a l'execució de handlers BPMN.
@@ -126,16 +151,7 @@ public class HeliumApiImpl implements HeliumApi {
 		expedientInfo.setDataFi(expedient.getDataFi());
 		expedientInfo.setAvisosMobil(expedient.getAvisosMobil());
 		expedientInfo.setAvisosEmail(expedient.getAvisosEmail());
-		expedientInfo.setNumeroIdentificador(expedient.getNumeroIdentificador());
 		expedientInfo.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
-		expedientInfo.setNtiIdentificador(expedient.getNtiIdentificador());
-		expedientInfo.setProcessInstanceId(expedient.getProcessInstanceId());
-		expedientInfo.setEntornId(expedient.getEntorn().getId());
-
-		expedientInfo.setTipusId(expedient.getTipus().getId());
-		expedientInfo.setTipus(expedient.getTipus().getTipus());
-		expedientInfo.setNotibEmisor(expedient.getTipus().getNotibEmisor());
-		expedientInfo.setNotibCodiProcediment(expedient.getTipus().getNotibCodiProcediment());
 		return expedientInfo;
 	}
 
@@ -628,7 +644,10 @@ public class HeliumApiImpl implements HeliumApi {
 			PortafirmesTipusEnumDto.SIMPLE);
 	}
 
-	public void notificacioCrear(DadesNotificacioDto notificacio) {
+	public void notificacioCrear(long expedientId, DadesNotificacio dadesNotificacio) {
+
+		DadesNotificacioDto notificacio = ConversioTipusHelper.toDadesNotificacioDto(expedientId, dadesNotificacio);
+
 		RespostaEnviar respostaPlugin = pluginHelper.altaNotificacio(this.expedient, notificacio);
 		if (respostaPlugin.isError()) {
 			throw new SistemaExternException(
@@ -680,11 +699,10 @@ public class HeliumApiImpl implements HeliumApi {
 	}
 
 	@Override
-	public TerminiIniciatDto getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi) {
+	public TerminiInfo getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi) {
 		return null;
 	}
 
-	@Override
 	public DelegateExecution getExecutionContext() {
 		return executionContext;
 	}
@@ -765,6 +783,5 @@ public class HeliumApiImpl implements HeliumApi {
 			throw new HeliumHandlerException("Document store no trobat pel codi: " + documentCodi);
 		}
 	}
-
 
 }

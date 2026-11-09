@@ -3,6 +3,7 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,14 +12,64 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import es.caib.helium.commons.dto.*;
-import es.caib.helium.persistence.entity.*;
 import org.springframework.stereotype.Component;
 
+import es.caib.helium.commons.dto.CampAgrupacioDto;
+import es.caib.helium.commons.dto.CampDto;
+import es.caib.helium.commons.dto.CampRegistreDto;
+import es.caib.helium.commons.dto.CampTascaDto;
+import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.ConsultaCampDto;
+import es.caib.helium.commons.dto.ConsultaDto;
+import es.caib.helium.commons.dto.DadesEnviamentDto;
+import es.caib.helium.commons.dto.DadesNotificacioDto;
+import es.caib.helium.commons.dto.DocumentDto;
+import es.caib.helium.commons.dto.DocumentFinalitzarDto;
+import es.caib.helium.commons.dto.DocumentListDto;
+import es.caib.helium.commons.dto.DocumentTascaDto;
+import es.caib.helium.commons.dto.DominiDto;
+import es.caib.helium.commons.dto.EntornDto;
+import es.caib.helium.commons.dto.EnumeracioDto;
+import es.caib.helium.commons.dto.EnviamentTipusEnumDto;
+import es.caib.helium.commons.dto.EstatDto;
+import es.caib.helium.commons.dto.ExpedientDocumentDto;
+import es.caib.helium.commons.dto.ExpedientTascaDto;
+import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.dto.FirmaTascaDto;
+import es.caib.helium.commons.dto.IdiomaEnumDto;
+import es.caib.helium.commons.dto.InteressatTipusEnumDto;
+import es.caib.helium.commons.dto.PersonaDto;
+import es.caib.helium.commons.dto.PortafirmesEstatEnum;
+import es.caib.helium.commons.dto.PortasignaturesDto;
+import es.caib.helium.commons.dto.SequenciaAnyDto;
+import es.caib.helium.commons.dto.SequenciaDefaultAnyDto;
+import es.caib.helium.commons.dto.ServeiTipusEnumDto;
 import es.caib.helium.commons.dto.regles.EstatReglaDto;
+import es.caib.helium.disseny.model.DadesEnviament;
+import es.caib.helium.disseny.model.DadesNotificacio;
+import es.caib.helium.disseny.model.PersonaInfo;
 import es.caib.helium.integracio.plugins.notificacio.InteressatTipusEnum;
 import es.caib.helium.integracio.plugins.notificacio.Persona;
+import es.caib.helium.persistence.entity.AnotacioAnnex;
+import es.caib.helium.persistence.entity.Camp;
+import es.caib.helium.persistence.entity.CampRegistre;
+import es.caib.helium.persistence.entity.CampTasca;
+import es.caib.helium.persistence.entity.Consulta;
+import es.caib.helium.persistence.entity.ConsultaCamp;
+import es.caib.helium.persistence.entity.Document;
+import es.caib.helium.persistence.entity.DocumentStore;
+import es.caib.helium.persistence.entity.DocumentTasca;
+import es.caib.helium.persistence.entity.Entorn;
+import es.caib.helium.persistence.entity.Enumeracio;
+import es.caib.helium.persistence.entity.Estat;
+import es.caib.helium.persistence.entity.EstatRegla;
+import es.caib.helium.persistence.entity.ExpedientTasca;
+import es.caib.helium.persistence.entity.ExpedientTipus;
+import es.caib.helium.persistence.entity.FirmaTasca;
+import es.caib.helium.persistence.entity.Portasignatures;
 import es.caib.helium.persistence.entity.Portasignatures.Transicio;
+import es.caib.helium.persistence.entity.SequenciaAny;
+import es.caib.helium.persistence.entity.SequenciaDefaultAny;
 import ma.glasnost.orika.CustomConverter;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -633,4 +684,121 @@ public class ConversioTipusHelper {
 		return mapperFactory.getMapperFacade();
 	}
 
+	
+	public static DadesNotificacioDto toDadesNotificacioDto(Long expedientId, DadesNotificacio dadesNotificacio) {
+		DadesNotificacioDto notificacio = new DadesNotificacioDto();
+		notificacio.setExpedientId(expedientId);
+		notificacio.setEmisorDir3Codi(dadesNotificacio.getEmisorDir3Codi());
+		if (dadesNotificacio.getEnviamentTipus() != null)
+			notificacio.setEnviamentTipus(EnviamentTipusEnumDto.valueOf(dadesNotificacio.getEnviamentTipus().name()));
+		notificacio.setConcepte(dadesNotificacio.getConcepte());
+		notificacio.setDescripcio(dadesNotificacio.getDescripcio());
+		notificacio.setEnviamentDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
+		notificacio.setRetard(dadesNotificacio.getRetard());
+		notificacio.setCaducitat(dadesNotificacio.getCaducitat());
+		notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
+		notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
+		notificacio.setDocumentArxiuUuid(dadesNotificacio.getDocumentArxiuUuid());
+		notificacio.setDocumentId(dadesNotificacio.getDocumentId());
+		notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
+		if (dadesNotificacio.getIdioma() != null)
+			notificacio.setIdioma(IdiomaEnumDto.valueOf(dadesNotificacio.getIdioma().toString()));
+
+		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
+		for (DadesEnviament dadesEnviament : dadesNotificacio.getEnviaments()) {
+			DadesEnviamentDto enviament = new DadesEnviamentDto();
+
+			PersonaInfo dadesTitular = dadesEnviament.getTitular();
+			PersonaDto titular = new PersonaDto();
+			if (InteressatTipusEnumDto.FISICA.toString().equals(dadesTitular.getTipus())) {
+				titular.setNom(retallaString(dadesTitular.getNom(), 30));
+			} else {
+				// InteressatTipusEnumDto.ADMINISTRACIO OR InteressatTipusEnumDto.JURIDICA
+				titular.setRaoSocial(retallaString(dadesTitular.getNom(), 30));
+				titular.setNom(retallaString(dadesTitular.getNom(), 30));
+			}
+			titular.setLlinatge1(dadesTitular.getLlinatge1());
+			titular.setLlinatge2(dadesTitular.getLlinatge2());
+			titular.setDni(dadesTitular.getDni());
+			titular.setTelefon(dadesTitular.getTelefon());
+			;
+			titular.setEmail(dadesTitular.getEmail());
+			titular.setCodiDir3(dadesTitular.getCodiDir3());
+			titular.setTipus(InteressatTipusEnumDto.valueOf(dadesTitular.getTipus()));
+			enviament.setTitular(titular);
+
+			List<PersonaDto> destinataris = new ArrayList<PersonaDto>();
+			for (PersonaInfo dadesDestinatari : dadesEnviament.getDestinataris()) {
+
+				PersonaDto destinatari = new PersonaDto();
+				if (InteressatTipusEnumDto.FISICA.toString().equals(dadesDestinatari.getTipus())) {
+					destinatari.setNom(retallaString(dadesDestinatari.getNom(), 30));
+				} else {
+					// InteressatTipusEnumDto.ADMINISTRACIO OR InteressatTipusEnumDto.JURIDICA
+					destinatari.setRaoSocial(retallaString(dadesDestinatari.getNom(), 30));
+					destinatari.setNom(retallaString(dadesDestinatari.getNom(), 30));
+
+				}
+				destinatari.setLlinatge1(dadesDestinatari.getLlinatge1());
+				destinatari.setLlinatge2(dadesDestinatari.getLlinatge2());
+				destinatari.setDni(dadesDestinatari.getDni());
+				destinatari.setTelefon(dadesDestinatari.getTelefon());
+				;
+				destinatari.setEmail(dadesDestinatari.getEmail());
+				destinatari.setCodiDir3(dadesDestinatari.getCodiDir3());
+				destinatari.setTipus(InteressatTipusEnumDto.valueOf(dadesDestinatari.getTipus()));
+				destinataris.add(destinatari);
+			}
+			enviament.setDestinataris(destinataris);
+			enviament.setEntregaPostalActiva(false); // Forcem false issue #1675
+			if (dadesEnviament.getEntregaPostalTipus() != null)
+				enviament.setEntregaPostalTipus(
+						DadesEnviamentDto.EntregaPostalTipus.valueOf(dadesEnviament.getEntregaPostalTipus().name()));
+			if (dadesEnviament.getEntregaPostalViaTipus() != null)
+				enviament.setEntregaPostalViaTipus(DadesEnviamentDto.EntregaPostalViaTipus
+						.valueOf(dadesEnviament.getEntregaPostalViaTipus().name()));
+			enviament.setEntregaPostalViaNom(dadesEnviament.getEntregaPostalViaNom());
+			enviament.setEntregaPostalNumeroCasa(dadesEnviament.getEntregaPostalNumeroCasa());
+			enviament.setEntregaPostalNumeroQualificador(dadesEnviament.getEntregaPostalNumeroQualificador());
+			enviament.setEntregaPostalPuntKm(dadesEnviament.getEntregaPostalPuntKm());
+			enviament.setEntregaPostalApartatCorreus(dadesEnviament.getEntregaPostalApartatCorreus());
+			enviament.setEntregaPostalPortal(dadesEnviament.getEntregaPostalPortal());
+			enviament.setEntregaPostalEscala(dadesEnviament.getEntregaPostalEscala());
+			enviament.setEntregaPostalPlanta(dadesEnviament.getEntregaPostalPlanta());
+			enviament.setEntregaPostalPorta(dadesEnviament.getEntregaPostalPorta());
+			enviament.setEntregaPostalBloc(dadesEnviament.getEntregaPostalBloc());
+			enviament.setEntregaPostalComplement(dadesEnviament.getEntregaPostalComplement());
+			enviament.setEntregaPostalCodiPostal(dadesEnviament.getEntregaPostalCodiPostal());
+			enviament.setEntregaPostalPoblacio(dadesEnviament.getEntregaPostalPoblacio());
+			enviament.setEntregaPostalMunicipiCodi(dadesEnviament.getEntregaPostalMunicipiCodi());
+			enviament.setEntregaPostalProvinciaCodi(dadesEnviament.getEntregaPostalProvinciaCodi());
+			enviament.setEntregaPostalPaisCodi(dadesEnviament.getEntregaPostalPaisCodi());
+			enviament.setEntregaPostalLinea1(dadesEnviament.getEntregaPostalLinea1());
+			enviament.setEntregaPostalLinea2(dadesEnviament.getEntregaPostalLinea2());
+			enviament.setEntregaPostalCie(dadesEnviament.getEntregaPostalCie());
+			enviament.setEntregaPostalFormatSobre(dadesEnviament.getEntregaPostalFormatSobre());
+			enviament.setEntregaPostalFormatFulla(dadesEnviament.getEntregaPostalFormatFulla());
+			enviament.setEntregaDehActiva(dadesEnviament.isEntregaDehActiva());
+			enviament.setEntregaDehObligat(dadesEnviament.isEntregaDehObligat());
+			enviament.setEntregaDehProcedimentCodi(dadesEnviament.getEntregaDehProcedimentCodi());
+
+			// Per defecte tipus de servei normal.
+			enviament.setServeiTipusEnum(dadesNotificacio.getServeiTipus() != null
+					? ServeiTipusEnumDto.valueOf(dadesNotificacio.getServeiTipus())
+					: ServeiTipusEnumDto.NORMAL);
+
+			enviaments.add(enviament);
+		}
+		notificacio.setEnviaments(enviaments);
+
+		return notificacio;
+	}
+	
+	private static String retallaString(String in, int midaMax) {
+		if (in!=null && in.length()>midaMax) {
+			return in.substring(0, midaMax);
+		} else {
+			return in;
+		}
+	}
 }

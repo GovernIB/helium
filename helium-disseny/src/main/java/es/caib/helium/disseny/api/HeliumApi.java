@@ -1,15 +1,14 @@
 package es.caib.helium.disseny.api;
 
-import es.caib.helium.commons.dto.DadesNotificacioDto;
-import es.caib.helium.commons.dto.TerminiIniciatDto;
-import es.caib.helium.disseny.engine.WProcessInstance;
-import es.caib.helium.disseny.engine.WTaskInstance;
-import es.caib.helium.disseny.model.DocumentInfo;
-import es.caib.helium.disseny.model.ExpedientInfo;
-import org.flowable.engine.delegate.DelegateExecution;
-
 import java.util.Date;
 import java.util.List;
+
+import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.disseny.engine.WTaskInstance;
+import es.caib.helium.disseny.model.DadesNotificacio;
+import es.caib.helium.disseny.model.DocumentInfo;
+import es.caib.helium.disseny.model.ExpedientInfo;
+import es.caib.helium.disseny.model.TerminiInfo;
 
 public interface HeliumApi {
 
@@ -139,7 +138,7 @@ public interface HeliumApi {
 		String transicioKO,
 		String portafirmesFluxId);
 
-	public void notificacioCrear(DadesNotificacioDto notificacio);
+	public void notificacioCrear(long expedientId, DadesNotificacio notificacio);
 
 	public void enviarEmail(
 		List<String> recipients,
@@ -151,6 +150,5 @@ public interface HeliumApi {
 
 	public WProcessInstance getProcessInstance();
 	public WTaskInstance getTaskInstance();
-	public TerminiIniciatDto getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi);
-	public DelegateExecution getExecutionContext();
+	public TerminiInfo getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi);
 }

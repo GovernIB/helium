@@ -700,10 +700,11 @@ public class VariableHelper {
 				value = (String)GlobalProperties.getInstance().getProperty(campCodi.substring(1));
 			} else if (campCodi.startsWith("#{")) {
 				if (processInstanceId != null) {
+					//TODO: mirar realment si ho ha d'avaluar el motor
 					value = workflowEngineApi.evaluateExpression(
 							taskInstanceId,
 							processInstanceId,
-							campCodi,
+							campCodi.substring(2, campCodi.length()-1), // Treu el #{ de l'inici i el } del final.
 							null);
 				} else if (campCodi.startsWith("#{'")) {
 					int index = campCodi.lastIndexOf("'");
