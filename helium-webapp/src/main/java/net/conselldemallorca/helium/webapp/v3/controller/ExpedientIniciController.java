@@ -135,7 +135,10 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 								true);
 			}
 			return redirectByModal(request, "/v3/expedient/iniciarForm/" + expedientTipusId + "/" + definicioProces.getId());
-		} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
+		} else if (expedientTipus.isDemanaNumero()
+				|| expedientTipus.isDemanaTitol()
+				|| expedientTipus.isSeleccionarAny()
+				|| expedientTipus.isProcedimentComu()) {
 			return redirectByModal(request, "/v3/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProces.getId());
 		} else {
 			// Si no requereix cap pas addicional inicia l'expedient directament
