@@ -92,13 +92,13 @@
 						{{/if}}
 						</script>
 					</th>
-					<c:if test="${expedientTipus.tipus != 'ESTAT' }">
+					<%-- <c:if test="${expedientTipus.tipus != 'ESTAT' }"> --%>
 						<th data-col-name="validacioCount" data-template="#cellValidacionsTemplate" data-orderable="false" width="13%">
 							<script id="cellValidacionsTemplate" type="text/x-jsrender">
 								<a href="${baseUrl}/variable/{{:id}}/validacio" data-toggle="modal" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.validacions"/>&nbsp;<span class="badge">{{:validacioCount}}</span></a>
 							</script>
 						</th>
-					</c:if>
+					<%-- </c:if> --%>
 					<th data-col-name="campRegistreCount" data-template="#cellMembresTemplate" data-orderable="false" width="13%">
 						<script id="cellMembresTemplate" type="text/x-jsrender">
 						{{if tipus == "REGISTRE" }}

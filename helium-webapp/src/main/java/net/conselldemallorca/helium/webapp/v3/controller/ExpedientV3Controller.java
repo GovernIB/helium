@@ -25,6 +25,9 @@ import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.Errors;
+import org.springframework.validation.MapBindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -40,17 +43,20 @@ import com.google.common.base.Strings;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
@@ -65,6 +71,8 @@ import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -691,6 +699,49 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		if (!variablesObligatories.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.dades.obligatories", new Object[] {variablesObligatories.size(), variablesObligatories}));
 			correcte = false;
+		}
+		Map<String, Object> variables = new HashMap<String, Object>();
+		List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
+		List<ExpedientDadaDto> expedientDades = expedientDadaService.findAmbInstanciaProces(expedient.getId(), null);
+		for(ExpedientDadaDto eDada : expedientDades) {
+			if (!eDada.getCampTipus().equals(CampTipusDto.ACCIO)) {
+				variables.put(
+						eDada.getVarCodi(), 
+						eDada.getVarValor());
+			}
+			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(eDada);
+			tascaDades.add(tascaDada);
+		}
+		
+		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+				expedientService,
+				tascaDades);
+		Object commandValidar = TascaFormHelper.getCommandForCamps(
+				tascaDades,
+				variables,
+				campsAddicionals,
+				campsAddicionalsClasses,
+				false);
+		validator.setValidarExpresions(true);
+		validator.setValidarObligatoris(true);
+		Errors errors = new MapBindingResult(new HashMap<String, Object>(), "estatDades");
+		validator.validate(commandValidar, errors);
+		if(errors.hasErrors()) {
+			correcte = false;
+			StringBuilder validationMessage = new StringBuilder(getMessage(request, "expedient.info.estat.canviar.dades.invalides", new Object[] {errors.getErrorCount()}));
+			boolean primer = true;
+			for(ObjectError error : errors.getAllErrors()) {
+				validationMessage
+					.append(primer?": [": ", [")
+					.append(error.getObjectName())
+					.append(": ")
+					.append(error.getDefaultMessage())
+					.append("]");
+				primer = false;
+			}
+			MissatgesHelper.error(request, validationMessage.toString());
 		}
 		// Comprova les dades obligatòries pel següent estat
 		List<String> variablesObligatoriesEntrada = new ArrayList<String>();
