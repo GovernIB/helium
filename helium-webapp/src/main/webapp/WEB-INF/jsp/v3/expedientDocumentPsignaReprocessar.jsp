@@ -39,7 +39,7 @@
 		  	</li>
 		
 		<c:if test="${not empty portasignatures.motiuRebuig}">
-			<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></strong><span class="pull-right">${portasignatures.motiuRebuig}</span></li>
+			<li class="list-group-item" style="overflow: auto;"><strong><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></strong><span class="pull-right">${portasignatures.motiuRebuig}</span></li>
 		</c:if>
 		<c:if test="${not empty portasignatures.dataProcessamentPrimer}">
 			<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.proces.primer"/></strong><span class="pull-right"><fmt:formatDate value="${portasignatures.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/></span></li>

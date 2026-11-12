@@ -67,7 +67,7 @@
 		 							</c:choose>
 		 					  	</li>
 								<c:if test="${not empty psignaPendentActual.motiuRebuig}">
-									<li class="list-group-item">
+									<li class="list-group-item" style="overflow: auto;">
 										<strong><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></strong><span class="pull-right">${psignaPendentActual.motiuRebuig}</span>
 									</li>
 								</c:if>
