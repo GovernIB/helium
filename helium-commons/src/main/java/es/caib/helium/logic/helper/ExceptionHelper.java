@@ -71,12 +71,21 @@ public class ExceptionHelper {
 	}
 
 	public void addExcepcio(String peticio, String params, Throwable exception) {
-		while (excepcions.size() >= 20) {
-			excepcions.remove(excepcions.size() - 1);
+		try {
+			while (excepcions.size() >= 20) {
+				excepcions.remove(excepcions.size() - 1);
+			}
+			excepcions.add(
+					0,
+					new ExcepcioLogDto(peticio, params, exception));
+		} catch(Exception e) {
+			try {
+				// Error afegint l'excepció, es fa un clear 
+				excepcions.clear();
+			} catch(Throwable th) {
+				logger.error("Error afegint i esborrant les excepcions: " + th.getMessage());
+			}
 		}
-		excepcions.add(
-				0,
-				new ExcepcioLogDto(peticio, params, exception));
 	}
 
 	/** Mètode per obtenir el text de l'error i tot l'stacktrace.
