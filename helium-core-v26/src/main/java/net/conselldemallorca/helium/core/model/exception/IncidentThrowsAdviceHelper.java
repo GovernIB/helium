@@ -5,10 +5,13 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Aspect;
 
+import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 
@@ -50,29 +53,33 @@ public class IncidentThrowsAdviceHelper {
 	 * Called between the throw and the catch
 	 */
 	public void afterThrowing(JoinPoint joinPoint, Throwable e) {
-		Signature signature = joinPoint.getSignature();
-		String classOriginal  = signature.getDeclaringTypeName()!=null?signature.getDeclaringTypeName():"";
-		String metodeOriginal = signature.getName()!=null?signature.getName():"";
-		if (classOriginal!=null && (classOriginal.contains("ExpedientService") || classOriginal.contains("TascaService"))) {
-			if (!getDadesAdvice().getIdsPortasignatures().isEmpty()) {
-				for (Integer documentId : getDadesAdvice().getIdsPortasignatures()) {
-					Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(documentId);
+		try {
+			Signature signature = joinPoint.getSignature();
+			String classOriginal  = signature.getDeclaringTypeName()!=null?signature.getDeclaringTypeName():"";
+			String metodeOriginal = signature.getName()!=null?signature.getName():"";
+			if (classOriginal!=null && (classOriginal.contains("ExpedientService") || classOriginal.contains("TascaService"))) {
+				if (!getDadesAdvice().getIdsPortasignatures().isEmpty()) {
+					for (Integer documentId : getDadesAdvice().getIdsPortasignatures()) {
+						Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(documentId);
+					}
 				}
+				clearDadesAdvice(signature);
 			}
-			clearDadesAdvice(signature);
-		}
-		String params = "";
-		if (joinPoint.getArgs()!=null && joinPoint.getArgs().length>0) {
-			for (Object arg: joinPoint.getArgs()) {
-				if (arg!=null) {
-					params += arg.toString()+", ";
-				} else {
-					params += "null, ";
+			String params = "";
+			if (joinPoint.getArgs()!=null && joinPoint.getArgs().length>0) {
+				for (Object arg: joinPoint.getArgs()) {
+					if (arg!=null) {
+						params += arg.toString()+", ";
+					} else {
+						params += "null, ";
+					}
 				}
+				params = params.substring(0, params.length()-2);
 			}
-			params = params.substring(0, params.length()-2);
+			aplicacioService.excepcioSave(classOriginal+"."+metodeOriginal, params, e);
+		} catch(Throwable th) {
+			logger.error("Error guardant l excepció produida: " + th.getCause());
 		}
-		aplicacioService.excepcioSave(classOriginal+"."+metodeOriginal, params, e);
 	}
 
 	public void after(JoinPoint joinPoint) {
@@ -103,4 +110,5 @@ public class IncidentThrowsAdviceHelper {
 			this.idsPortasignatures.add(idPortasignatures);
 		}
 	}
+	private static final Log logger = LogFactory.getLog(IncidentThrowsAdviceHelper.class);
 }
