@@ -1,5 +1,7 @@
 package es.caib.helium.disseny.handler;
 
+import org.flowable.common.engine.api.delegate.Expression;
+
 /**
  * Handler per a modificar l'estat de l'expedient.
  *
@@ -7,7 +9,7 @@ package es.caib.helium.disseny.handler;
  */
 public interface ExpedientEstatModificarHandler {
 
-	void setEstatCodi(String estatCodi);
-	void setVarEstatCodi(String varEstatCodi);
+	void setEstatCodi(Expression estatCodi);
+	void setVarEstatCodi(Expression varEstatCodi);
 
 }

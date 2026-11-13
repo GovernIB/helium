@@ -1,6 +1,7 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.disseny.handler.HeliumBpmnHandler;
+import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
+import org.flowable.common.engine.impl.el.FixedValue;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,12 +29,18 @@ public class HeliumActionHandlerPredefinitFactory {
 			throw new IllegalArgumentException(
 				"La classe " + handlerClassName + " no implementa " + HeliumBpmnHandler.class);
 		}
-		return createInstance(rawClass.asSubclass(HeliumBpmnHandler.class), params);
+		Map<String, Object> fixedValueMap = new HashMap<String, Object>();
+		if(params != null) {
+			for (Map.Entry<String, String> entry : params.entrySet()) {
+				fixedValueMap.put(entry.getKey(), new FixedValue(entry.getValue()));
+			}
+		}
+		return createInstance(rawClass.asSubclass(HeliumBpmnHandler.class), fixedValueMap);
 	}
 
 	public HeliumBpmnHandler createInstance(
 		Class<? extends HeliumBpmnHandler> handlerClass,
-		Map<String, String> params) throws ReflectiveOperationException {
+		Map<String, Object> params) throws ReflectiveOperationException {
 		Class<? extends HeliumBpmnHandler> implementationClass = findImplementationClass(handlerClass);
 			HeliumBpmnHandler handler = implementationClass.getDeclaredConstructor().newInstance();
 			new BeanWrapperImpl(handler).setPropertyValues(params);

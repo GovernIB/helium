@@ -1,8 +1,8 @@
 package es.caib.helium.logic.classloader;
 
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.exception.HeliumHandlerException;
-import es.caib.helium.disseny.handler.HeliumBpmnHandler;
+import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.bpmn.HeliumApiImpl;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -276,8 +276,7 @@ public class WorkflowEngineApiClassLoader extends RecursClassLoader {
 				this.pluginHelper,
 				this.alertaHelper,
 				this.expedientInteressatHelper,
-				this.mailHelper,
-				execution);
+				this.mailHelper);
 		}
 	}
 

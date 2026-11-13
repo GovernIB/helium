@@ -27,7 +27,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
-import es.caib.helium.disseny.engine.WTaskInstance;
+import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.logic.intf.util.DatesUtils;
 
 /**

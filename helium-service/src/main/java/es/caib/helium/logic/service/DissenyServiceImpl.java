@@ -26,9 +26,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.commons.dto.handlers.HandlerAgrupacioEnum;
 import es.caib.helium.commons.dto.handlers.HandlerParametreDto;
-import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.impl.util.IoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,10 +65,10 @@ import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.disseny.engine.WExpedientDto;
-import es.caib.helium.disseny.engine.WProcessDefinition;
-import es.caib.helium.disseny.engine.WProcessInstance;
-import es.caib.helium.disseny.handler.HeliumBpmnHandler;
+import es.caib.helium.bpmn.engine.WExpedientDto;
+import es.caib.helium.bpmn.engine.WProcessDefinition;
+import es.caib.helium.bpmn.engine.WProcessInstance;
+import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.DominiHelper;
@@ -246,10 +244,10 @@ public class DissenyServiceImpl implements DissenyService {
 	}
 
     @Override
+	@Transactional(readOnly = true)
     public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler) {
 		List<ParellaCodiValorDto> parametres = new ArrayList<ParellaCodiValorDto>();
-
-		String recurs = expedientHelper.handlerToResource(handler);
+		String recurs = handler.replaceAll("\\.", "/") + ".class";
 
 		try {
 			byte[] handlerContingut = getRecursContingut(definicioProcesId, recurs);
@@ -1022,17 +1020,11 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	@Transactional(readOnly = true)
 	public byte[] getRecursContingut(Long definicioProcesId, String nom) throws IOException {
-		try {
-			return getRecursContingut(
-				definicioProcesRepository.getReferenceById(definicioProcesId).getBpmId(),
-				nom);
-		} catch (FlowableObjectNotFoundException ex) {
-			return recursRepository
-						.findContingutByExpedientTipusIdAndDefinicioProcesIdAndName(
-							null,
-							definicioProcesId,
-							nom).orElse(null);
-		}
+		return recursRepository
+					.findContingutByExpedientTipusIdAndDefinicioProcesIdAndName(
+						null,
+						definicioProcesId,
+						nom).orElse(null);
 	}
 
 	private byte[] getRecursContingut(String processDefinitionId, String nom) throws IOException {

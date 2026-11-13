@@ -1,7 +1,7 @@
 package es.caib.helium.logic.helper;
 
 import aj.org.objectweb.asm.ClassReader;
-import es.caib.helium.disseny.handler.HeliumBpmnHandler;
+import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.classloader.RecursListClassLoader;
 import es.caib.helium.logic.classloader.RecursRepositoryClassLoader;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -306,7 +306,7 @@ public class ExpedientTipusRecursHelper {
 		Expedient expedient,
 		Long definicioProcesId,
 		String className,
-		Map<String, String> values) throws ClassNotFoundException, ReflectiveOperationException {
+		Map<String, Object> values) throws ClassNotFoundException, ReflectiveOperationException {
 		HeliumBpmnHandler actionHandler = loadClassAndCreateInstance(
 			expedient.getTipus().getId(),
 			definicioProcesId,

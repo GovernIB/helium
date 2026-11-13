@@ -1,8 +1,10 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
+import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import lombok.Setter;
+import org.flowable.common.engine.api.delegate.Expression;
 
 /**
  * Implementació del handler per a modificar el responsable d'un expedient.
@@ -12,12 +14,16 @@ import lombok.Setter;
 @Setter
 public class ExpedientResponsableModificarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientResponsableModificarHandler {
 
-	private String responsableCodi;
-	private String varResponsableCodi;
+	private Expression responsableCodi;
+	private Expression varResponsableCodi;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
-		heliumApi.expedientResponsableModificar(heliumApi.getVariableDefaultValue(varResponsableCodi, responsableCodi));
+		heliumApi.expedientResponsableModificar(
+			heliumApi.getVariableDefaultValue(
+				getValue(varResponsableCodi),
+				getValue(responsableCodi))
+		);
 	}
 
 }

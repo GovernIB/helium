@@ -9,8 +9,8 @@ import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.OpenOfficeUtils;
 import es.caib.helium.commons.utils.PdfUtils;
-import es.caib.helium.disseny.engine.WProcessDefinition;
-import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.bpmn.engine.WProcessDefinition;
+import es.caib.helium.bpmn.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.utils.DocumentTokenUtils;
 import es.caib.helium.persistence.entity.*;
@@ -155,12 +155,8 @@ public class ExpedientDocumentHelper {
 		String ntiIdOrigen,
 		List<ExpedientDocumentDto> annexosPerNotificar
 	) {
+		Document document = findDocumentPerInstanciaProcesICodi(processInstanceId, documentCodi);
 		Expedient expedient = expedientHelper.findById(expedientId);
-		Document document = documentRepository.findByExpedientTipusAndCodi(
-			expedient.getTipus().getId(),
-			documentCodi,
-			expedient.getTipus().getExpedientTipusPare() != null);
-
 		DocumentStore documentStore = expedientDocumentRepository.findDocumentStoreByCodi(
 											documentCodi,
 											expedientId,
@@ -1036,6 +1032,26 @@ public class ExpedientDocumentHelper {
 		}
 		return null;
 	}
+
+	public Document findDocumentPerInstanciaProcesICodi(
+		String processInstanceId,
+		String documentCodi) {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		if (expedientTipus.isAmbInfoPropia()) {
+			return documentRepository.findByExpedientTipusAndCodi(
+				expedientTipus.getId(),
+				documentCodi,
+				expedientTipus.getExpedientTipusPare() != null);
+		} else {
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+				processInstanceId);
+			return documentRepository.findByDefinicioProcesAndCodi(
+				definicioProces,
+				documentCodi);
+		}
+	}
+
 
 	private byte[] getContingutDocumentAmbFont(DocumentStore document) {
 		if (document.getFont().equals(DocumentStore.DocumentFont.INTERNA))

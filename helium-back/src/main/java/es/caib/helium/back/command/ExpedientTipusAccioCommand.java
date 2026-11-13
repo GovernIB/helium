@@ -19,12 +19,14 @@ import es.caib.helium.back.validator.Codi;
 import es.caib.helium.back.validator.ExpedientTipusAccio;
 import es.caib.helium.commons.dto.AccioDto;
 import es.caib.helium.commons.dto.AccioTipusEnumDto;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Command per editar la informació de les accions dels tipus d'expedient
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Slf4j
 @ExpedientTipusAccio(groups = {Creacio.class, Modificacio.class})
 public class ExpedientTipusAccioCommand {
 
@@ -214,14 +216,15 @@ public class ExpedientTipusAccioCommand {
 	}
 
 	public String getHandlerDadesJson() {
-
 		String json = "[]";
+    	if(handlerDades == null)
+			return json;
 
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 		try {
 			json = ow.writeValueAsString(handlerDades);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.warn(e.getMessage());
 		}
 		return json;
 	}

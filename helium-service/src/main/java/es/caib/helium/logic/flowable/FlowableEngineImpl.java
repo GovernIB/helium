@@ -8,10 +8,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
+import es.caib.helium.bpmn.engine.*;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.commons.dto.TascaOutcomeDto;
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.engine.*;
+import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.logic.helper.ExpedientTipusRecursHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import groovy.lang.GroovyShell;
@@ -337,7 +337,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 				.createHistoricProcessInstanceQuery()
 				.processInstanceId(processInstanceId)
 				.singleResult();
-			processInstanceId = pi.getSuperProcessInstanceId();
+			processInstanceId = pi != null ? pi.getSuperProcessInstanceId() : null;
 		} while (processInstanceId != null);
 		return toWProcessInstance(pi);
 	}
@@ -578,6 +578,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			.getRuntimeService()
 			.createChangeActivityStateBuilder()
 			.processInstanceId(task.getProcessDefinitionId())
+			.processVariables(variables)
 			.moveExecutionToActivityId(task.getExecutionId(), outcome)
 			.changeState();
 	}
@@ -826,7 +827,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public void evaluateScript(HeliumApi api, String script) {
-		GroovyShell shell = new GroovyShell();
+		GroovyShell shell = new GroovyShell(Thread.currentThread().getContextClassLoader());
 		shell.setVariable("heliumApi", api);
 		shell.evaluate(script);
 	}

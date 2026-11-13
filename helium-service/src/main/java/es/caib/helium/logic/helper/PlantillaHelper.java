@@ -36,7 +36,7 @@ import es.caib.helium.commons.dto.Sexe;
 import es.caib.helium.commons.dto.TascaDadaDto;
 import es.caib.helium.commons.exception.HeliumException;
 import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.disseny.engine.WTaskInstance;
+import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.utils.NombreEnCastella;
 import es.caib.helium.logic.utils.NombreEnCatala;

@@ -1,0 +1,18 @@
+package es.caib.helium.bpmn.engine;
+
+import lombok.Data;
+
+/**
+ * Classe per representar la informació general d'una definició de procés definida dins d'un workflow engine.
+ */
+@Data
+public class WProcessDefinition {
+
+    private String deploymentId;
+    private String id;
+    private String key;
+    private String name;
+    private int version;
+    private String category;
+    private String startTaskName;
+}

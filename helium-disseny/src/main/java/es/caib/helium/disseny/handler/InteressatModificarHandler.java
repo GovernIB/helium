@@ -1,54 +1,54 @@
 package es.caib.helium.disseny.handler;
 
+
+import org.flowable.common.engine.api.delegate.Expression;
+
 /**
  * Handler per a modificar interessats d'un expedient.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface InteressatModificarHandler {
-
-	void setId(String id);
-	void setCodi(String codi);
-	void setVarCodi(String varCodi);
-	void setNom(String nom);
-	void setVarNom(String varNom);
-	void setNif(String nif);
-	void setVarNif(String varNif);
-	void setDir3Codi(String dir3Codi);
-	void setVarDir3Codi(String varDir3Codi);
-	void setLlinatge1(String llinatge1);
-	void setVarLlinatge1(String varLlinatge1);
-	void setLlinatge2(String llinatge2);
-	void setVarLlinatge2(String varLlinatge2);
-	void setTipus(String tipus);
-	void setVarTipus(String varTipus);
-	void setEmail(String email);
-	void setVarEmail(String varEmail);
-	void setTelefon(String telefon);
-	void setVarTelefon(String varTelefon);
-	void setEntregaPostal(String entregaPostal);
-	void setVarEntregaPostal(String varEntregaPostal);
-	void setEntregaTipus(String entregaTipus);
-	void setVarEntregaTipus(String varEntregaTipus);
-	void setLinia1(String linia1);
-	void setVarLinia1(String varLinia1);
-	void setLinia2(String linia2);
-	void setVarLinia2(String varLinia2);
-	void setEntregaDeh(String entregaDeh);
-	void setVarEntregaDeh(String varEntregaDeh);
-	void setEntregaDehObligat(String entregaDehObligat);
-	void setVarEntregaDehObligat(String varEntregaDehObligat);
-	void setTipusDocIdent(String tipusDocIdent);
-	void setVarTipusDocIdent(String varTipusDocIdent);
-	void setDireccio(String direccio);
-	void setVarDireccio(String varDireccio);
-	void setPais(String pais);
-	void setVarPais(String varPais);
-	void setProvincia(String provincia);
-	void setVarProvincia(String varProvincia);
-	void setMunicipi(String municipi);
-	void setVarMunicipi(String varMunicipi);
-	void setCanalNotif(String canalNotif);
-	void setVarCanalNotif(String varCanalNotif);
-
+	void setCodi(Expression codi);
+	void setVarCodi(Expression varCodi);
+	void setNom(Expression nom);
+	void setVarNom(Expression varNom);
+	void setNif(Expression nif);
+	void setVarNif(Expression varNif);
+	void setDir3Codi(Expression dir3Codi);
+	void setVarDir3Codi(Expression varDir3Codi);
+	void setLlinatge1(Expression llinatge1);
+	void setVarLlinatge1(Expression varLlinatge1);
+	void setLlinatge2(Expression llinatge2);
+	void setVarLlinatge2(Expression varLlinatge2);
+	void setTipus(Expression tipus);
+	void setVarTipus(Expression varTipus);
+	void setEmail(Expression email);
+	void setVarEmail(Expression varEmail);
+	void setTelefon(Expression telefon);
+	void setVarTelefon(Expression varTelefon);
+	void setEntregaPostal(Expression entregaPostal);
+	void setVarEntregaPostal(Expression varEntregaPostal);
+	void setEntregaTipus(Expression entregaTipus);
+	void setVarEntregaTipus(Expression varEntregaTipus);
+	void setLinia1(Expression linia1);
+	void setVarLinia1(Expression varLinia1);
+	void setLinia2(Expression linia2);
+	void setVarLinia2(Expression varLinia2);
+	void setEntregaDeh(Expression entregaDeh);
+	void setVarEntregaDeh(Expression varEntregaDeh);
+	void setEntregaDehObligat(Expression entregaDehObligat);
+	void setVarEntregaDehObligat(Expression varEntregaDehObligat);
+	void setTipusDocIdent(Expression tipusDocIdent);
+	void setVarTipusDocIdent(Expression varTipusDocIdent);
+	void setDireccio(Expression direccio);
+	void setVarDireccio(Expression varDireccio);
+	void setPais(Expression pais);
+	void setVarPais(Expression varPais);
+	void setProvincia(Expression provincia);
+	void setVarProvincia(Expression varProvincia);
+	void setMunicipi(Expression municipi);
+	void setVarMunicipi(Expression varMunicipi);
+	void setCanalNotif(Expression canalNotif);
+	void setVarCanalNotif(Expression varCanalNotif);
 }

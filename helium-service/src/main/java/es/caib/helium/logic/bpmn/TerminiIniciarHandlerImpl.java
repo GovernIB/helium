@@ -1,46 +1,44 @@
 package es.caib.helium.logic.bpmn;
 
 
-import es.caib.helium.commons.dto.TerminiDto;
-import es.caib.helium.disseny.api.HeliumApi;
+import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
+import es.caib.helium.bpmn.integracio.HeliumBridge;
+import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.integracio.Termini;
-import es.caib.helium.disseny.exception.BpmnException;
+import es.caib.helium.bpmn.exception.BpmnException;
 import es.caib.helium.disseny.handler.TerminiIniciarHandler;
-import org.flowable.engine.impl.context.ExecutionContext;
-
+import es.caib.helium.bpmn.model.TerminiInfo;
+import lombok.Setter;
+import org.flowable.common.engine.api.delegate.Expression;
 
 import java.util.Calendar;
 import java.util.Date;
 
+@Setter
 public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler implements TerminiIniciarHandler {
 
-	private String terminiCodi;
-	private String varTerminiCodi;
-	private String varData;
-	private String sumarUnDia;
-	private String varTermini;
-	private String esDataFi;
-
+	private Expression terminiCodi;
+	private Expression varData;
+	private Expression varTermini;
+	private Expression sumarUnDia;
+	private Expression esDataFi;
 
 	public void execute(HeliumApi executionContext) throws BpmnException {
-		String tercod = (String)getValorOVariable(
-			executionContext,
-			terminiCodi,
-			varTerminiCodi);
-		TerminiDto termini = getTerminiAmbCodi(executionContext, tercod);
+		String tercod = getValue(terminiCodi);
+		TerminiInfo termini = HeliumBridge
+			    				.getInstanceService()
+								.getTerminiIniciatAmbCodi(executionContext, tercod);
 		if (termini != null) {
 			if (varTermini != null) {
-				Object valorTermini = executionContext.getVariable(varTermini);
+				String valorTermini = getValue(varTermini);
 				if (valorTermini == null)
 					throw new BpmnException("No s'ha pogut llegir el termini de la variable '" + varTermini + "'");
 
-				Termini vt = null;
-				if (valorTermini instanceof Termini) {
-					vt = (Termini)valorTermini;
-				} else {
-					vt = Termini.valueFromString((String) valorTermini);
-				}
-
+				Termini vt = Termini.valueFromString(valorTermini);
+				executionContext.getTerminiIniciatAmbProcessInstanceITerminiCodi(
+					executionContext.getProcessInstance().getId(),
+					tercod
+				);
 				HeliumBridge.getInstanceService().terminiIniciar(
 					tercod,
 					getProcessInstanceId(executionContext),
@@ -61,36 +59,18 @@ public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler imple
 		}
 	}
 
-	public void setTerminiCodi(String terminiCodi) {
-		this.terminiCodi = terminiCodi;
-	}
-	public void setVarTerminiCodi(String varTerminiCodi) {
-		this.varTerminiCodi = varTerminiCodi;
-	}
-	public void setVarData(String varData) {
-		this.varData = varData;
-	}
-	public void setSumarUnDia(String sumarUnDia) {
-		this.sumarUnDia = sumarUnDia;
-	}
-	public void setVarTermini(String varTermini) {
-		this.varTermini = varTermini;
-	}
-	public void setDesdeFi(String desdeFi) {
-		this.esDataFi = desdeFi;
-	}
-	public void setEsDataFi(String esDataFi) {
-		this.esDataFi = esDataFi;
-	}
-
 	private Date getDataVariable(HeliumApi executionContext) throws BpmnException {
 		Date data;
-		if (varData != null && varData.length() > 0) {
-			data = getVariableComData(executionContext, varData);
+		String valorData = getValue(varData);
+
+		if (valorData != null && !valorData.isEmpty()) {
+			data = getVariableComData(executionContext, valorData);
 		} else {
 			data = new Date();
 		}
-		if (!esDataFi() && sumarUnDia != null && sumarUnDia.length() > 0) {
+
+		String valorSumarUnDia = getValue(sumarUnDia);
+		if (!esDataFi() && valorSumarUnDia != null && !valorSumarUnDia.isEmpty()) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(data);
 			cal.add(Calendar.DAY_OF_MONTH, 1);
@@ -101,7 +81,6 @@ public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler imple
 	}
 
 	private boolean esDataFi() {
-		return (esDataFi != null && "true".equalsIgnoreCase(esDataFi));
+		return getValueAsBoolean(esDataFi);
 	}
-
 }

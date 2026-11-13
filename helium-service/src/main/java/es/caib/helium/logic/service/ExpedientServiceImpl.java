@@ -118,8 +118,8 @@ import es.caib.helium.commons.exception.TramitacioValidacioException;
 import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.disseny.engine.WProcessInstance;
-import es.caib.helium.disseny.engine.WTaskInstance;
+import es.caib.helium.bpmn.engine.WProcessInstance;
+import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ParametreService;
@@ -1880,12 +1880,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			pluginHelper,
 			alertaHelper,
 			expedientInteressatHelper,
-			mailHelper,
-			delegateExecution), script);
+			mailHelper), script);
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				expedientId,
-				processInstanceId,
+				processInstanceId != null? processInstanceId : "x", // HEL_EXPEDIENT_LOG.TARGET_ID es NOT NULL
 				ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR,
 				script);
 		if (MesuresTemporalsHelper.isActiu())
@@ -2131,7 +2130,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				accioCamp);
 		try {
 			if ( ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
-				// Acció JBPM
+				// Acció BPMN
 				workflowEngineApi.executeActionInstanciaProces(
 						processInstanceId,
 						accioCamp,

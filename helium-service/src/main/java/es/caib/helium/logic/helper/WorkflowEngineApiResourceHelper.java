@@ -1,6 +1,6 @@
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.disseny.handler.HeliumBpmnHandler;
+import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.classloader.WorkflowEngineApiClassLoader;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import lombok.RequiredArgsConstructor;

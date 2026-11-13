@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.stream.Collectors;
-
 import javax.annotation.Resource;
 
 import com.google.common.collect.Lists;
@@ -84,7 +82,7 @@ import es.caib.helium.commons.utils.ExceptionUtilsHelium;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.commons.utils.ThreadUtilsHelium;
-import es.caib.helium.disseny.engine.WTaskInstance;
+import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;

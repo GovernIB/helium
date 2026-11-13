@@ -1,8 +1,10 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
+import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import lombok.Setter;
+import org.flowable.common.engine.api.delegate.Expression;
 
 /**
  * Implementació del handler per a eliminar interessats d'un expedient.
@@ -12,13 +14,16 @@ import lombok.Setter;
 @Setter
 public class InteressatEliminarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.InteressatEliminarHandler {
 
-	private String codi;
-	private String varCodi;
+	private Expression codi;
+	private Expression varCodi;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.interessatEliminar(
-			heliumApi.getVariableDefaultValue(varCodi, codi));
+			heliumApi.getVariableDefaultValue(
+				getValue(varCodi),
+				getValue(codi))
+		);
 	}
 
 }

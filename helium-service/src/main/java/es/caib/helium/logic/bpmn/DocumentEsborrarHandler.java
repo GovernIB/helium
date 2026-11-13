@@ -1,8 +1,11 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
+
 import lombok.Setter;
+import org.flowable.common.engine.api.delegate.Expression;
 
 /**
  * Implementació del handler per a esborrar un document de l'expedient.
@@ -12,13 +15,16 @@ import lombok.Setter;
 @Setter
 public class DocumentEsborrarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.DocumentEsborrarHandler {
 
-	private String documentCodi;
-	private String varDocumentCodi;
+	private Expression documentCodi;
+	private Expression varDocumentCodi;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.deleteDocument(
-			heliumApi.getVariableDefaultValue(varDocumentCodi, documentCodi));
+			heliumApi.getVariableDefaultValue(
+				getValue(varDocumentCodi),
+				getValue(documentCodi))
+		);
 	}
 
 }

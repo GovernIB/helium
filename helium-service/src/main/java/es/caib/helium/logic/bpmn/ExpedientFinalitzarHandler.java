@@ -1,7 +1,8 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
+import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import lombok.Setter;
 
 /**

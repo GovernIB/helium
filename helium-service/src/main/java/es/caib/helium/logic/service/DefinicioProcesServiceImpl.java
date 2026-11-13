@@ -13,7 +13,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.disseny.engine.WProcessDefinition;
+import es.caib.helium.bpmn.engine.WProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.commons.exportacio.DefinicioProcesExportacioCommandDto;
 import es.caib.helium.commons.utils.EntornActual;
-import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.bpmn.engine.WProcessInstance;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.EntornHelper;

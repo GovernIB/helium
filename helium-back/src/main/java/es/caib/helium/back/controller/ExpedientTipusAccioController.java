@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -395,13 +395,13 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			@RequestParam(value="handler") String handler,
 			Model model) {
 		List<ParellaCodiValorDto> parametres = new ArrayList<>();
-		/*EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 				entornActual.getId(),
 				expedientTipusId);
 		DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, expedientTipus.getBpmProcessDefinitionKey());
-		parametres = dissenyService.findHandlerParams(definicioProces.getId(), handler);*/
-		parametres = dissenyService.findHandlerRecursParams(expedientTipusId, handler);
+		parametres = dissenyService.findHandlerParams(definicioProces.getId(), handler);
+//		parametres = dissenyService.findHandlerRecursParams(expedientTipusId, handler);
 		// Select d'accions
 		return parametres;
 	}
@@ -474,18 +474,19 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 	 * @return
 	 */
 	private List<ParellaCodiValorDto> getHandlersPropis(Long expedientTipusId, String definicioCodi, String handlerPropi) {
+		List<HandlerDto> accions = new ArrayList<>();
+		if (expedientTipusId != null && definicioCodi != null) {
+			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, definicioCodi);
+			accions = dissenyService.findHandlersBpmOrdenats(definicioProces.getId());
+		}
 
-		List<ParellaCodiValorDto> ret = new ArrayList<>();
-		List<String> accions = new ArrayList<>();
-		if (expedientTipusId != null) {
-			accions = dissenyService.findNomHandlersRecursos(expedientTipusId);
-		}
-		for (String accio: accions) {
-			ret.add(new ParellaCodiValorDto(accio, accio));
-		}
+		List<ParellaCodiValorDto> ret = accions
+											.stream()
+											.map(accio -> new ParellaCodiValorDto(accio.getClasse(), accio.getClasse()))
+											.collect(Collectors.toList());
 		if (handlerPropi != null
 				&& !handlerPropi.isEmpty()
-				&&	!accions.contains(handlerPropi)) {
+				&& accions.stream().noneMatch(a -> a.getClasse().equals(handlerPropi))) {
 			ret.add(0, new ParellaCodiValorDto(
 					handlerPropi,
 					handlerPropi + " (no existeix en la darrera versió de la definició de procés '" + definicioCodi + "')"));

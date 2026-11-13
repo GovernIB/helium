@@ -17,13 +17,14 @@
     </properties>
 	<dependencies>
 		<dependency>
+			<groupId>es.caib.helium</groupId>
+			<artifactId>helium-bpmn</artifactId>
+			<version>4.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.flowable</groupId>
-			<artifactId>flowable-spring-boot-starter-process</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
@@ -143,5 +144,5 @@
             <name>GitHub GovernIB Maven Repository</name>
             <url>https://GovernIB.github.io/maven/maven/</url>
         </repository>
-    </repositories>	
+    </repositories>
 </project>

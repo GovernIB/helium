@@ -41,8 +41,8 @@ import es.caib.helium.commons.exportacio.TascaExportacio;
 import es.caib.helium.commons.exportacio.TerminiExportacio;
 import es.caib.helium.commons.exportacio.ValidacioExportacio;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.disseny.engine.WProcessDefinition;
-import es.caib.helium.disseny.engine.WUserTask;
+import es.caib.helium.bpmn.engine.WProcessDefinition;
+import es.caib.helium.bpmn.engine.WUserTask;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Tasca.TipusTasca;
 

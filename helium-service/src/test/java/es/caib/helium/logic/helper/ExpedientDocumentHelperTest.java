@@ -7,7 +7,7 @@ import es.caib.helium.commons.dto.NtiOrigenEnumDto;
 import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
 import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
 import es.caib.helium.commons.exception.ValidacioException;
-import es.caib.helium.disseny.engine.WProcessInstance;
+import es.caib.helium.bpmn.engine.WProcessInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.entity.Document;
 import es.caib.helium.persistence.entity.DocumentStore;

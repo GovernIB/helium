@@ -10,27 +10,13 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import org.flowable.engine.delegate.DelegateExecution;
-
-import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.DadesEnviamentDto;
-import es.caib.helium.commons.dto.DadesNotificacioDto;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.InteressatDocumentTipusEnumDto;
-import es.caib.helium.commons.dto.InteressatDto;
-import es.caib.helium.commons.dto.InteressatTipusEnumDto;
-import es.caib.helium.commons.dto.PortafirmesFluxBlocDto;
-import es.caib.helium.commons.dto.PortafirmesSimpleTipusEnumDto;
-import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
+import es.caib.helium.bpmn.model.*;
+import es.caib.helium.commons.dto.*;
 import es.caib.helium.commons.exception.SistemaExternException;
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.engine.WProcessInstance;
-import es.caib.helium.disseny.engine.WTaskInstance;
-import es.caib.helium.disseny.exception.HeliumHandlerException;
-import es.caib.helium.disseny.model.DadesNotificacio;
-import es.caib.helium.disseny.model.DocumentInfo;
-import es.caib.helium.disseny.model.ExpedientInfo;
-import es.caib.helium.disseny.model.TerminiInfo;
+import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.engine.WProcessInstance;
+import es.caib.helium.bpmn.engine.WTaskInstance;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
 import es.caib.helium.logic.helper.AlertaHelper;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
@@ -41,10 +27,7 @@ import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientInteressatHelper;
 import es.caib.helium.logic.helper.MailHelper;
 import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.persistence.entity.Document;
-import es.caib.helium.persistence.entity.DocumentStore;
-import es.caib.helium.persistence.entity.Estat;
-import es.caib.helium.persistence.entity.Expedient;
+import es.caib.helium.persistence.entity.*;
 import es.caib.helium.persistence.entity.Interessat;
 import lombok.RequiredArgsConstructor;
 
@@ -67,7 +50,6 @@ public class HeliumApiImpl implements HeliumApi {
 	private final AlertaHelper alertaHelper;
 	private final ExpedientInteressatHelper expedientInteressatHelper;
 	private final MailHelper mailHelper;
-	private final DelegateExecution executionContext;
 
 	@Override
 	public <T> T getVariable(String codi) {
@@ -147,11 +129,54 @@ public class HeliumApiImpl implements HeliumApi {
 		expedientInfo.setId(expedient.getId());
 		expedientInfo.setTitol(expedient.getTitol());
 		expedientInfo.setNumero(expedient.getNumero());
+		expedientInfo.setNumeroDefault(expedient.getNumeroDefault());
 		expedientInfo.setDataInici(expedient.getDataInici());
 		expedientInfo.setDataFi(expedient.getDataFi());
-		expedientInfo.setAvisosMobil(expedient.getAvisosMobil());
+		expedientInfo.setComentari(expedient.getComentari());
+		expedientInfo.setInfoAturat(expedient.getInfoAturat());
+		expedientInfo.setComentariAnulat(expedient.getComentariAnulat());
+		expedientInfo.setIniciadorTipus(expedient.getIniciadorTipus() != null? ExpedientInfo.IniciadorTipus.valueOf(expedient.getIniciadorTipus().name()) : null);
+		expedientInfo.setIniciadorCodi(expedient.getIniciadorCodi());
+		expedientInfo.setResponsableCodi(expedient.getResponsableCodi());
+		expedientInfo.setGeoPosX(expedient.getGeoPosX());
+		expedientInfo.setGeoPosY(expedient.getGeoPosY());
+		expedientInfo.setGeoReferencia(expedient.getGeoReferencia());
+		expedientInfo.setRegistreNumero(expedient.getRegistreNumero());
+		expedientInfo.setRegistreData(expedient.getRegistreData());
+		expedientInfo.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
+		expedientInfo.setIdioma(expedient.getIdioma());
+		expedientInfo.setAutenticat(expedient.isAutenticat());
+		expedientInfo.setTramitadorNif(expedient.getTramitadorNif());
+		expedientInfo.setTramitadorNom(expedient.getTramitadorNom());
+		expedientInfo.setInteressatNif(expedient.getInteressatNif());
+		expedientInfo.setInteressatNom(expedient.getInteressatNom());
+		expedientInfo.setRepresentantNif(expedient.getRepresentantNif());
+		expedientInfo.setRepresentantNom(expedient.getRepresentantNom());
+		expedientInfo.setAvisosHabilitats(expedient.isAvisosHabilitats());
 		expedientInfo.setAvisosEmail(expedient.getAvisosEmail());
+		expedientInfo.setAvisosMobil(expedient.getAvisosMobil());
+		expedientInfo.setNotificacioTelematicaHabilitada(expedient.isNotificacioTelematicaHabilitada());
 		expedientInfo.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
+		expedientInfo.setTramitExpedientClau(expedient.getTramitExpedientClau());
+		expedientInfo.setNtiActiu(expedient.isNtiActiu());
+		expedientInfo.setNtiVersion(expedient.getNtiVersion());
+		expedientInfo.setNtiIdentificador(expedient.getNtiIdentificador());
+		expedientInfo.setNtiOrgano(expedient.getNtiOrgano());
+		expedientInfo.setNtiSerieDocumental(expedient.getNtiSerieDocumental());
+		expedientInfo.setNtiClasificacion(expedient.getNtiClasificacion());
+		expedientInfo.setNtiTipoFirma(expedient.getNtiTipoFirma() != null? expedient.getNtiTipoFirma().name() : null);
+		expedientInfo.setNtiCsv(expedient.getNtiCsv());
+		expedientInfo.setNtiDefGenCsv(expedient.getNtiDefinicionGenCsv());
+		expedientInfo.setArxiuActiu(expedient.isArxiuActiu());
+		expedientInfo.setArxiuUuid(expedient.getArxiuUuid());
+		expedientInfo.setEstatCodi(expedient.getEstat() != null ? expedient.getEstat().getCodi() : null);
+		expedientInfo.setEstatNom(expedient.getEstat() != null ? expedient.getEstat().getNom() : null);
+		expedientInfo.setExpedientTipusCodi(expedient.getTipus() != null ? expedient.getTipus().getCodi() : null);
+		expedientInfo.setExpedientTipusNom(expedient.getTipus() != null ? expedient.getTipus().getNom() : null);
+		expedientInfo.setEntornCodi(expedient.getEntorn() != null ? expedient.getEntorn().getCodi() : null);
+		expedientInfo.setEntornNom(expedient.getEntorn() != null ? expedient.getEntorn().getNom() : null);
+		expedientInfo.setProcessInstanceId(expedient.getProcessInstanceId());
+		expedientInfo.setAmbRetroaccio(expedient.isAmbRetroaccio());
 		return expedientInfo;
 	}
 
@@ -182,6 +207,7 @@ public class HeliumApiImpl implements HeliumApi {
 				false);
 			DocumentInfo resposta = new DocumentInfo();
 			resposta.setProcessInstanceId(processId);
+			resposta.setArxiuNom(documentStore.getArxiuNom());
 			if(documentDisseny.getDefinicioProces() != null)
 				resposta.setProcessInstanceTitol(documentDisseny.getDefinicioProces().getEtiqueta());
 			resposta.setId(documentStore.getId());
@@ -315,13 +341,13 @@ public class HeliumApiImpl implements HeliumApi {
 		if (data == null) {
 			throw new HeliumHandlerException("No s'ha especificat la data del document");
 		}
-		DocumentInfo documentInfo = getDocumentInfo(documentOrigen);
+		DocumentInfo documentInfo = getDocumentInfo(documentOrigen, true);
 		String adjuntTitol = concatenarTitol ? documentInfo.getTitol() + " " + titol : titol;
 		expedientDocumentHelper.setDocument(
 			expedient.getId(),
 			processId,
 			taskId,
-			documentOrigen,
+			null,
 			data,
 			adjuntTitol,
 			documentInfo.getArxiuNom(),
@@ -528,7 +554,6 @@ public class HeliumApiImpl implements HeliumApi {
 
 	@Override
 	public void interessatModificar(
-		String id,
 		String codi,
 		String nom,
 		String tipusDocIdent,
@@ -551,41 +576,37 @@ public class HeliumApiImpl implements HeliumApi {
 		String municipi,
 		String canalNotif) {
 		Interessat interessat = expedientInteressatHelper.findByExpedientAndCodi(expedient, codi);
-		if (interessat != null) {
-			if (interessat.getId().toString().equals(id)) {
-				InteressatDto interessatUpdate = new InteressatDto();
-				interessatUpdate.setId(Long.parseLong(id));
-				interessatUpdate.setCodi(codi);
-				interessatUpdate.setNom(nom);
-				interessatUpdate.setTipusDocIdent(
-					tipusDocIdent != null ? InteressatDocumentTipusEnumDto.valueOf(tipusDocIdent) : null);
-				interessatUpdate.setDocumentIdent(documentIdent);
-				interessatUpdate.setDir3Codi(dir3Codi);
-				interessatUpdate.setLlinatge1(llinatge1);
-				interessatUpdate.setLlinatge2(llinatge2);
-				interessatUpdate.setTipus(
-					tipus != null ? InteressatTipusEnumDto.valueOf(tipus) : null);
-				interessatUpdate.setEmail(email);
-				interessatUpdate.setTelefon(telefon);
-				interessatUpdate.setEntregaPostal(entregaPostal);
-				interessatUpdate.setEntregaTipus(
-					entregaTipus != null ? DadesEnviamentDto.EntregaPostalTipus.valueOf(entregaTipus) : null);
-				interessatUpdate.setLinia1(linia1);
-				interessatUpdate.setLinia2(linia2);
-				interessatUpdate.setEntregaDeh(entregaDeh);
-				interessatUpdate.setEntregaDehObligat(entregaDehObligat);
-				interessatUpdate.setDireccio(direccio);
-				interessatUpdate.setPais(pais);
-				interessatUpdate.setProvincia(provincia);
-				interessatUpdate.setMunicipi(municipi);
-				interessatUpdate.setCanalNotif(canalNotif);
-				expedientInteressatHelper.update(interessatUpdate);
-			} else {
-				throw new HeliumHandlerException("L'interessat amb el codi " + codi + " no te l'id especificat (" + id + ")");
-			}
-		} else {
+
+		if(interessat == null)
 			throw new HeliumHandlerException("No s'ha trobat cap interessat amb el codi " + codi);
-		}
+
+		InteressatDto interessatUpdate = new InteressatDto();
+		interessatUpdate.setId(interessat.getId());
+		interessatUpdate.setCodi(codi);
+		interessatUpdate.setNom(nom);
+		interessatUpdate.setTipusDocIdent(
+			tipusDocIdent != null ? InteressatDocumentTipusEnumDto.valueOf(tipusDocIdent) : null);
+		interessatUpdate.setDocumentIdent(documentIdent);
+		interessatUpdate.setDir3Codi(dir3Codi);
+		interessatUpdate.setLlinatge1(llinatge1);
+		interessatUpdate.setLlinatge2(llinatge2);
+		interessatUpdate.setTipus(
+			tipus != null ? InteressatTipusEnumDto.valueOf(tipus) : null);
+		interessatUpdate.setEmail(email);
+		interessatUpdate.setTelefon(telefon);
+		interessatUpdate.setEntregaPostal(entregaPostal);
+		interessatUpdate.setEntregaTipus(
+			entregaTipus != null ? DadesEnviamentDto.EntregaPostalTipus.valueOf(entregaTipus) : null);
+		interessatUpdate.setLinia1(linia1);
+		interessatUpdate.setLinia2(linia2);
+		interessatUpdate.setEntregaDeh(entregaDeh);
+		interessatUpdate.setEntregaDehObligat(entregaDehObligat);
+		interessatUpdate.setDireccio(direccio);
+		interessatUpdate.setPais(pais);
+		interessatUpdate.setProvincia(provincia);
+		interessatUpdate.setMunicipi(municipi);
+		interessatUpdate.setCanalNotif(canalNotif);
+		expedientInteressatHelper.update(interessatUpdate);
 	}
 
 	@Override
@@ -703,8 +724,48 @@ public class HeliumApiImpl implements HeliumApi {
 		return null;
 	}
 
-	public DelegateExecution getExecutionContext() {
-		return executionContext;
+	@Override
+	public ExpedientTipusInfo getExpedientTipusInfo() {
+		ExpedientTipusInfo info = new ExpedientTipusInfo();
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		info.setId(expedientTipus.getId());
+		info.setCodi(expedientTipus.getCodi());
+		info.setNom(expedientTipus.getNom());
+		info.setBpmProcessDefinitionKey(expedientTipus.getBpmProcessDefinitionKey());
+		info.setTeNumero(expedientTipus.getTeNumero());
+		info.setTeTitol(expedientTipus.getTeTitol());
+		info.setDemanaNumero(expedientTipus.getDemanaNumero());
+		info.setDemanaTitol(expedientTipus.getDemanaTitol());
+		info.setExpressioNumero(expedientTipus.getExpressioNumero());
+		info.setSequencia(expedientTipus.getSequencia());
+		info.setSequenciaDefault(expedientTipus.getSequenciaDef());
+		info.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
+		info.setAnyActual(expedientTipus.getAnyActual());
+		info.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
+		info.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
+		info.setTramitacioMassiva(expedientTipus.isTramitacioMassiva());
+		info.setSeleccionarAny(expedientTipus.isSeleccionarAny());
+		info.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
+		info.setTipus(expedientTipus.getTipus().name());
+		info.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
+		info.setHeretable(expedientTipus.isHeretable());
+		info.setAmbHerencia(expedientTipus.isAmbHerencia());
+		info.setDiesNoLaborables(expedientTipus.getDiesNoLaborables());
+		info.setNotibActiu(expedientTipus.getNotibActiu());
+		info.setNotibEmisor(expedientTipus.getNotibEmisor());
+		info.setNotibCodiProcediment(expedientTipus.getNotibCodiProcediment());
+		info.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
+		info.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
+		info.setNotificacioOficinaCodi(expedientTipus.getNotificacioOficinaCodi());
+		info.setNotificacioUnitatAdministrativa(expedientTipus.getNotificacioUnitatAdministrativa());
+		info.setNotificacioCodiProcediment(expedientTipus.getNotificacioCodiProcediment());
+		info.setNotificacioAvisTitol(expedientTipus.getNotificacioAvisTitol());
+		info.setNotificacioAvisText(expedientTipus.getNotificacioAvisText());
+		info.setNotificacioAvisTextSms(expedientTipus.getNotificacioAvisTextSms());
+		info.setNotificacioOficiTitol(expedientTipus.getNotificacioOficiTitol());
+		info.setNotificacioOficiText(expedientTipus.getNotificacioOficiText());
+		info.setEnviarCorreuAnotacions(expedientTipus.isEnviarCorreuAnotacions());
+		return info;
 	}
 
 	private DocumentDto toPortafirmesDocumentDto(String documentCodi) {

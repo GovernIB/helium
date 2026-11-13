@@ -3,8 +3,7 @@ package es.caib.helium.logic.flowable;
 import es.caib.comanda.model.management.TascaEstat;
 import es.caib.helium.logic.helper.ComandaHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
-import es.caib.helium.logic.helper.TascaHelper;
-import es.caib.helium.disseny.engine.WTaskInstance;
+import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.persistence.entity.Expedient;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.flowable.common.engine.api.delegate.event.*;
 import org.flowable.common.engine.impl.cfg.TransactionState;
 import org.flowable.engine.ProcessEngineConfiguration;
-import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.identitylink.service.impl.persistence.entity.IdentityLinkEntity;
 import org.flowable.task.service.impl.persistence.entity.TaskEntity;
-
-import javax.transaction.Transactional;
 
 @Slf4j
 @RequiredArgsConstructor

@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.commons.dto.PaginacioParamsDto;
 import es.caib.helium.commons.dto.TascaOutcomeDto;
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.engine.WDeployment;
-import es.caib.helium.disseny.engine.WExpedientDto;
-import es.caib.helium.disseny.engine.WProcessDefinition;
-import es.caib.helium.disseny.engine.WProcessInstance;
-import es.caib.helium.disseny.engine.WProcessLog;
-import es.caib.helium.disseny.engine.WTaskInstance;
-import es.caib.helium.disseny.engine.WToken;
-import es.caib.helium.disseny.engine.WUserTask;
+import es.caib.helium.bpmn.engine.WDeployment;
+import es.caib.helium.bpmn.engine.WExpedientDto;
+import es.caib.helium.bpmn.engine.WProcessDefinition;
+import es.caib.helium.bpmn.engine.WProcessInstance;
+import es.caib.helium.bpmn.engine.WProcessLog;
+import es.caib.helium.bpmn.engine.WTaskInstance;
+import es.caib.helium.bpmn.engine.WToken;
+import es.caib.helium.bpmn.engine.WUserTask;
 
 
 /**

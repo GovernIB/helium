@@ -1,9 +1,10 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.exception.HeliumHandlerException;
-import es.caib.helium.disseny.handler.HeliumBpmnHandler;
+import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
+import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import lombok.Setter;
+import org.flowable.common.engine.api.delegate.Expression;
 
 /**
  * Implementació del handler per a crear una alerta a l'expedient.
@@ -12,17 +13,15 @@ import lombok.Setter;
  */
 @Setter
 public class AlertaCrearHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.AlertaCrearHandler {
-
-	private String usuari;
-	private String varUsuari;
-	private String text;
-	private String varText;
+	private Expression usuari;
+	private Expression varUsuari;
+	private Expression text;
+	private Expression varText;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.alertaCrear(
-			heliumApi.getVariableDefaultValue(varUsuari, usuari),
-			heliumApi.getVariableDefaultValue(varText, text));
+			heliumApi.getVariableDefaultValue(getValue(varUsuari), getValue(usuari)),
+			heliumApi.getVariableDefaultValue(getValue(varText), getValue(text)));
 	}
-
 }

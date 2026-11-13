@@ -45,9 +45,9 @@ import es.caib.helium.commons.dto.SequenciaAnyDto;
 import es.caib.helium.commons.dto.SequenciaDefaultAnyDto;
 import es.caib.helium.commons.dto.ServeiTipusEnumDto;
 import es.caib.helium.commons.dto.regles.EstatReglaDto;
-import es.caib.helium.disseny.model.DadesEnviament;
-import es.caib.helium.disseny.model.DadesNotificacio;
-import es.caib.helium.disseny.model.PersonaInfo;
+import es.caib.helium.bpmn.model.DadesEnviament;
+import es.caib.helium.bpmn.model.DadesNotificacio;
+import es.caib.helium.bpmn.model.PersonaInfo;
 import es.caib.helium.integracio.plugins.notificacio.InteressatTipusEnum;
 import es.caib.helium.integracio.plugins.notificacio.Persona;
 import es.caib.helium.persistence.entity.AnotacioAnnex;
@@ -684,7 +684,7 @@ public class ConversioTipusHelper {
 		return mapperFactory.getMapperFacade();
 	}
 
-	
+
 	public static DadesNotificacioDto toDadesNotificacioDto(Long expedientId, DadesNotificacio dadesNotificacio) {
 		DadesNotificacioDto notificacio = new DadesNotificacioDto();
 		notificacio.setExpedientId(expedientId);
@@ -793,7 +793,7 @@ public class ConversioTipusHelper {
 
 		return notificacio;
 	}
-	
+
 	private static String retallaString(String in, int midaMax) {
 		if (in!=null && in.length()>midaMax) {
 			return in.substring(0, midaMax);

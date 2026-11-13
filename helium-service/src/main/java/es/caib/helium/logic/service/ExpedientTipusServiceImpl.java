@@ -93,7 +93,6 @@ import es.caib.helium.commons.exportacio.TascaExportacio;
 import es.caib.helium.commons.exportacio.TerminiExportacio;
 import es.caib.helium.commons.exportacio.ValidacioExportacio;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.disseny.engine.WProcessDefinition;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.DominiHelper;

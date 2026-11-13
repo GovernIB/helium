@@ -1,9 +1,8 @@
 package es.caib.helium.logic.bpmn;
 
-import es.caib.helium.disseny.api.HeliumApi;
+import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.persistence.entity.Expedient;
-import org.flowable.engine.delegate.DelegateExecution;
 
 /**
  * Factoria per a la creació de les instàncies que implementen HeliumApi.
@@ -23,8 +22,7 @@ public class HeliumApiFactory {
 		PluginHelper pluginHelper,
 		AlertaHelper alertaHelper,
 		ExpedientInteressatHelper expedientInteressatHelper,
-		MailHelper mailHelper,
-		DelegateExecution execution) {
+		MailHelper mailHelper) {
 		return new HeliumApiImpl(
 			expedient,
 			processId,
@@ -36,8 +34,7 @@ public class HeliumApiFactory {
 			pluginHelper,
 			alertaHelper,
 			expedientInteressatHelper,
-			mailHelper,
-			execution);
+			mailHelper);
 	}
 
 }

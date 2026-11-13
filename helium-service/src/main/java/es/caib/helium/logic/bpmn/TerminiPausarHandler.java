@@ -2,47 +2,35 @@ package es.caib.helium.logic.bpmn;
 
 import java.util.Date;
 
+import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
+import es.caib.helium.bpmn.integracio.HeliumBridge;
 import es.caib.helium.commons.exception.NoTrobatException;
-import es.caib.helium.disseny.api.HeliumApi;
-import es.caib.helium.disseny.exception.BpmnException;
-import es.caib.helium.disseny.exception.HeliumHandlerException;
-import es.caib.helium.disseny.model.TerminiInfo;
-
+import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.exception.BpmnException;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.model.TerminiInfo;
+import lombok.Setter;
+import org.flowable.common.engine.api.delegate.Expression;
 /**
  * Handler per pausar un termini.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @SuppressWarnings("serial")
+@Setter
 public class TerminiPausarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.TerminiPausarHandler {
 
-	private String terminiCodi;
-	private String varTerminiCodi;
-	private String varData;
-
-	@Override
-	public void setTerminiCodi(String terminiCodi) {
-
-	}
-
-	@Override
-	public void setVarTerminiCodi(String varTerminiCodi) {
-
-	}
-
-	@Override
-	public void setVarData(String varData) {
-
-	}
+	private Expression terminiCodi;
+	private Expression varData;
 
 	@Override
 	public void execute(HeliumApi executionContext) throws HeliumHandlerException {
 
 		TerminiInfo termini = null;
 		try {
-			termini = getTerminiIniciatAmbCodi(
+			HeliumBridge.getInstanceService().getTerminiIniciatAmbCodi(
 				executionContext,
-				(String)getValorOVariable(executionContext, terminiCodi, varTerminiCodi));
+				getValue(terminiCodi));
 		} catch (NoTrobatException ex) {
 			termini = null;
 		} catch (BpmnException e) {
@@ -53,7 +41,7 @@ public class TerminiPausarHandler extends AbstractHeliumActionHandler implements
 			if (varData != null) {
 				Date valorData = null;
 				try {
-					valorData = getVariableComData(executionContext, varData);
+					valorData = getVariableComData(executionContext, getValue(varData));
 				} catch (NoTrobatException | BpmnException ex) {
 					valorData = null;
 				}

@@ -1,6 +1,6 @@
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.disseny.handler.HeliumBpmnHandler;
+import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.ExpedientTipus;
@@ -9,6 +9,7 @@ import es.caib.helium.persistence.repository.DefinicioProcesRepository;
 import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.RecursRepository;
 import net.bytebuddy.ByteBuddy;
+import org.flowable.common.engine.impl.el.FixedValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -244,8 +245,8 @@ public class ExpedientTipusRecursHelperTest {
 		tipus.setId(expedientTipusId);
 		Expedient expedient = new Expedient();
 		expedient.setTipus(tipus);
-		Map<String, String> values = new HashMap<>();
-		values.put("variable1", "valor-prova");
+		Map<String, Object> values = new HashMap<>();
+		values.put("variable1", new FixedValue("valor-prova"));
 		HeliumBpmnHandler handler = expedientTipusRecursHelper.createHandlerInstance(
 			expedient,
 			definicioProcesId,

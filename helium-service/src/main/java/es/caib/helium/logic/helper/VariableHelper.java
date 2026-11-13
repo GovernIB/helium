@@ -24,7 +24,7 @@ import es.caib.helium.commons.domini.ParellaCodiValor;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.commons.utils.MessageHelper;
-import es.caib.helium.disseny.engine.WTaskInstance;
+import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.persistence.common.bpmn.DominiCodiDescripcio;
 import es.caib.helium.persistence.entity.Camp;

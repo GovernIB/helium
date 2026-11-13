@@ -1,219 +1,105 @@
 package es.caib.helium.bpmn.handler;
 
-abstract class AbstractHeliumActionHandler{ // implements HeliumActionHandler {
-/*
-	public abstract void execute(HeliumApi executionContext)
-		throws HeliumHandlerException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-	ExpedientDto getExpedientActual(HeliumApi executionContext) {
-		executionContext
-		ExpedientDto expedient = null;
+import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.exception.BpmnException;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.integracio.HeliumBridge;
+import es.caib.helium.bpmn.model.TerminiInfo;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+
+/**
+ * Handler base amb accés a la funcionalitat de Helium
+ *
+ * @author Limit Tecnologies <limit@limit.es>
+ */
+public abstract class AbstractHeliumActionHandler implements HeliumBpmnHandler {
+	protected DelegateExecution execution;
+	@Override
+	public void execute(DelegateExecution execution) {
 		try {
-			expedient = BpmHeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(
-				getProcessInstanceId(executionContext));
-		} catch(NoTrobatException nte) {
-			expedient = Bpm3HeliumBridge.getInstanceService().getExpedientIniciant();
-			if (expedient == null) {
-				throw nte;
-			}
-		}
-		return expedient;
-	}
-
-	ExpedientDto findExpedientAmbMateixTipusINumero(
-		ExecutionContext executionContext,
-		String numero) {
-		ExpedientDto expedient = getExpedientActual(executionContext);
-		return Bpm3HeliumBridge.getInstanceService().findExpedientAmbMateixTipusINumero(
-			expedient.getEntorn().getId(),
-			expedient.getTipus().getId(),
-			numero);
-	}
-
-	DefinicioProcesDto getDefinicioProces(ExecutionContext executionContext) {
-		return Bpm3HeliumBridge.getInstanceService().getDefinicioProcesPerProcessInstanceId(
-			getProcessInstanceId(executionContext));
-	}
-
-	TerminiDto getTerminiAmbCodi(ExecutionContext executionContext, String codi) {
-		try {
-			return Bpm3HeliumBridge.getInstanceService().getTerminiAmbProcessInstanceICodi(
-				getProcessInstanceId(executionContext),
-				codi);
-		} catch (Exception ex) {
-			throw new BpmException("No s'ha trobat el termini amb codi: " + codi);
-		}
-	}
-	TerminiIniciatDto getTerminiIniciatAmbCodi(
-		ExecutionContext executionContext,
-		String codi) {
-		TerminiDto termini = getTerminiAmbCodi(
-			executionContext,
-			codi);
-		if (termini != null) {
-			return Bpm3HeliumBridge.getInstanceService().getTerminiIniciatAmbProcessInstanceITerminiCodi(
-				getProcessInstanceId(executionContext),
-				termini.getCodi());
-		} else {
-			return null;
+			this.execution = execution;
+			this.execute(buildHeliumApi());
+		} catch (BpmnException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
-	DocumentInfo getDocumentInfo(
-		ExecutionContext executionContext,
-		String documentCodi,
-		boolean ambArxiu) {
-		String varCodi = Bpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(documentCodi);
-		Object valor = executionContext.getVariable(varCodi);
-		if (valor == null)
-			return null;
-		if (valor instanceof Long) {
-			Long id = (Long) valor;
-			DocumentDto document = Bpm3HeliumBridge.getInstanceService().getDocumentInfo(id);
-			if (document == null)
-				return null;
-			DocumentInfo resposta = new DocumentInfo();
-			resposta.setId(id);
-			resposta.setCodiDocument(document.getDocumentCodi());
-			if (document.isAdjunt()) {
-				resposta.setTitol(document.getAdjuntTitol());
-			} else {
-				resposta.setTitol(document.getDocumentNom());
-			}
-			resposta.setDataCreacio(document.getDataCreacio());
-			resposta.setDataDocument(document.getDataDocument());
-			resposta.setSignat(document.isSignat());
-			if (document.isSignat()) {
-				resposta.setCsv(document.getArxiuCsv());
-				resposta.setUrlVerificacioSignatures(document.getSignaturaUrlVerificacio());
-			}
-			if (document.isRegistrat()) {
-				resposta.setRegistrat(true);
-				resposta.setRegistreNumero(document.getRegistreNumero());
-				resposta.setRegistreData(document.getRegistreData());
-				resposta.setRegistreOficinaCodi(document.getRegistreOficinaCodi());
-				resposta.setRegistreOficinaNom(document.getRegistreOficinaNom());
-				resposta.setRegistreEntrada(document.isRegistreEntrada());
-			}
-			if (ambArxiu) {
-//				ArxiuDto arxiu = Bpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(id);
-				//Versió original enlloc de imprimible
-				Long expedientId = executionContext.getProcessInstance().getExpedient().getId();
-				ArxiuDto arxiu = Bpm3HeliumBridge.getInstanceService().getArxiuVersioOriginal(expedientId,id);
-				resposta.setArxiuNom(arxiu.getNom());
-				resposta.setArxiuContingut(arxiu.getContingut());
-			}
-			return resposta;
-		} else {
-			throw new BpmException("La referencia al document \""
-				+ documentCodi + "\" no es del tipus correcte");
-		}
+	private HeliumApi buildHeliumApi() {
+		String processId = null;
+		if(execution != null)
+			processId = execution.getProcessInstanceId();
+
+		return HeliumBridge
+				.getInstance()
+				.getBpmnHeliumService()
+				.buildHeliumApi(processId, null);
 	}
 
-	protected String getProcessInstanceId(ExecutionContext executionContext) {
-		return new Long(executionContext.getProcessInstance().getId()).toString();
-	}
-	protected String getTaskInstanceId(ExecutionContext executionContext) {
-		return new Long(executionContext.getTaskInstance().getId()).toString();
+	protected TerminiInfo getTerminiIniciatAmbCodi(HeliumApi executionContext, String codi) throws BpmnException {
+		return HeliumBridge.getInstanceService().getTerminiIniciatAmbCodi(executionContext, codi);
 	}
 
-	protected Date getVariableComData(ExecutionContext executionContext,
-	                                  String var) {
-		Object obj = executionContext.getVariable(var);
+	protected String getProcessInstanceId(HeliumApi executionContext) {
+		return executionContext.getProcessInstance().getId();
+	}
+
+	protected String getTaskInstanceId(HeliumApi executionContext) {
+		return executionContext.getTaskInstance().getId();
+	}
+
+	protected Date getVariableComData(HeliumApi executionContext,
+	                                  String variable) throws BpmnException {
+		Object obj = executionContext.getVariable(variable);
 		if (obj == null)
-			throw new NoTrobatException(Date.class, var);
+			throw new BpmnException("No s'ha trobat l'objecte de tipus (" + Date.class.getSimpleName() + ") amb identificador (" + variable + ")");
 		if (obj instanceof Date)
 			return (Date) obj;
-		throw new BpmException("La variable amb el codi '" + var + "' no és de tipus Date");
+		throw new BpmnException("La variable amb el codi '" + variable + "' no és de tipus Date");
 	}
 
-	protected Object getValorOVariable(ExecutionContext executionContext,
-	                                   Object value, String var) {
-		if (value != null)
-			return value;
-		if (var != null && var.length() > 0) {
-			Object returnVal;
-			if (executionContext.getVariable(var) instanceof DominiCodiDescripcio)
-				returnVal = ((DominiCodiDescripcio)executionContext.getVariable(var)).getCodi();
-			else
-				returnVal = executionContext.getVariable(var);
-			return returnVal;
-		}
-		return null;
+	protected String getValue(Expression expression) {
+		if(expression == null)
+			return null;
+		Object value = expression.getValue(this.execution);
+		if(value == null)
+			return null;
+		return (String) value;
 	}
 
-	protected Date getValorOVariableData(ExecutionContext executionContext,
-	                                     Object value, String var) {
-		if (value != null) {
-			if (value instanceof Date) {
-				return (Date) value;
-			} else {
-				try {
-					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-					return sdf.parse(value.toString());
-				} catch (Exception ignored) {
-				}
-			}
-		}
-		if (var != null && var.length() > 0) {
-			Object valor = executionContext.getVariable(var);
-			if (valor != null) {
-				if (valor instanceof Date) {
-					return (Date) valor;
-				} else {
-					try {
-						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-						return sdf.parse(valor.toString());
-					} catch (Exception ignored) {
-					}
-				}
-			}
-		}
-		return null;
+	protected Boolean getValueAsBoolean(Expression expression) {
+		String value = getValue(expression);
+		if(value == null || value.trim().isEmpty())
+			return false;
+		return Boolean.valueOf(value);
 	}
 
-	protected Integer getValorOVariableInteger(
-		ExecutionContext executionContext, Object value, String var) {
-		if (value != null) {
-			if (value instanceof Integer) {
-				return (Integer) value;
-			} else {
-				return new Integer(value.toString());
-			}
+	protected Date getValueAsDate(Expression expression) {
+		String value = getValue(expression);
+		if (value == null || value.isEmpty())
+			return null;
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			return sdf.parse(value);
+		} catch (ParseException ex) {
+			throw new HeliumHandlerException("Couldn't parse date " + value);
 		}
-		if (var != null && var.length() > 0) {
-			Object valor = executionContext.getVariable(var);
-			if (valor != null) {
-				if (valor instanceof Integer) {
-					return (Integer) valor;
-				} else {
-					return new Integer(valor.toString());
-				}
-			}
-		}
-		return null;
 	}
 
-	protected Boolean getValorOVariableBoolean(
-		ExecutionContext executionContext, Object value, String var) {
-		if (value != null) {
-			if (value instanceof Boolean) {
-				return (Boolean) value;
-			} else {
-				return new Boolean(value.toString());
-			}
+	protected Integer getValueAsInteger(Expression expression) {
+		String value = getValue(expression);
+		if (value == null || value.isEmpty())
+			return null;
+		try {
+    		return Integer.valueOf(value);
+		} catch (NumberFormatException ex) {
+			throw new NumberFormatException("Couldn't parse date " + value);
 		}
-		if (var != null && var.length() > 0) {
-			Object valor = executionContext.getVariable(var);
-			if (valor != null) {
-				if (valor instanceof Boolean) {
-					return (Boolean) valor;
-				} else {
-					return new Boolean(valor.toString());
-				}
-			}
-		}
-		return null;
+
 	}
- */
+
 }
