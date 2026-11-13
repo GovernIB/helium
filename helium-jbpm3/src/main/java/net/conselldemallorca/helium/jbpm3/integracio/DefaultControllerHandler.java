@@ -37,10 +37,12 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 			String codi = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(document.getDocument().getCodi());
 			if (!document.isReadOnly()) {
 				Object valor = contextInstance.getVariable(codi);
-				if (valor != null)
+				if (valor != null 
+						&& Jbpm3HeliumBridge.getInstanceService().checkValueVariableDocument(valor)) {
 					taskInstance.setVariableLocally(
 							codi,
-							contextInstance.getVariable(codi));
+							valor);
+				}
 			}
 		}
 	}
@@ -60,7 +62,9 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 		for (DocumentTascaDto document: getDocumentsPerTaskInstance(taskInstance)) {
 			String codi = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(document.getDocument().getCodi());
 			Long docId = (Long)taskInstance.getVariableLocally(codi);
-			if (docId != null && !document.isReadOnly()) {
+			if (docId != null 
+					&& !document.isReadOnly()
+					&& Jbpm3HeliumBridge.getInstanceService().checkValueVariableDocument(docId)) { //TODO: && check document store
 				contextInstance.setVariable(
 						codi,
 						docId);

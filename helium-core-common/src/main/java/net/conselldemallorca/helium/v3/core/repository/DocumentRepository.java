@@ -152,6 +152,44 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"	ds.codi = d.codi " +
 			" 	and ds.expedientTipus.id = et.expedientTipusPare.id ")
 	public List<Document> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);
-
+	
+	
+	/** Consulta els diferents id d'expedients que tenen instàncies de variables que apunten a un documentStore.
+	 * 
+	 * @param documentStoreId Identificador del documentStore
+	 * @return Retorna una llista de tots els expedients que contenen instàncies de variables de tipus document o adjunt
+	 * que apunten al document store per id.
+	 */
+	@Query(value = "SELECT DISTINCT(pi.EXPEDIENT_ID_) " + 
+			"	FROM JBPM_VARIABLEINSTANCE vi " + 
+			"	JOIN JBPM_PROCESSINSTANCE pi ON pi.ID_ = vi.PROCESSINSTANCE_ " +
+			"WHERE vi.LONGVALUE_ = :documentStoreId " +
+			"	AND (vi.NAME_ LIKE 'H3l1um#document.%' OR NAME_ LIKE 'H3l1um#adjunt.%') ", nativeQuery = true)
+	public List<Long> findExpedientsIdsByDocumentStoreId(@Param("documentStoreId") Long documentStoreId);
+	
+	/** Troba la llista d'identificaadors d'instàncies de variables per documents i adjunts per un document store
+	 * que a més siguin diferents al processInstanceId passat per paràmetre o al taskInstanceId passat per peràmetre. 
+	 * També filtra les tasques finalitzades.
+	 * 
+	 * @param documentStoreId
+	 * @param esNullProcessInstanceId
+	 * @param processInstanceId
+	 * @param esNullTaskInstanceId
+	 * @param taskInstanceId
+	 * @return
+	 */
+	@Query(value = "SELECT vi.ID_ " +
+			"FROM JBPM_VARIABLEINSTANCE vi " +
+			"	JOIN JBPM_PROCESSINSTANCE pi ON pi.ID_ = vi.PROCESSINSTANCE_ " +
+			"	LEFT JOIN JBPM_TASKINSTANCE ti ON ti.ID_ = vi.TASKINSTANCE_ " + 
+			"WHERE vi.LONGVALUE_ = :documentStoreId " + 
+			"	AND (vi.NAME_ LIKE 'H3l1um#document.%' OR vi.NAME_ LIKE 'H3l1um#adjunt.%') " +
+			"	AND (:processInstanceId <> vi.PROCESSINSTANCE_) " +
+			"	AND (vi.TASKINSTANCE_ IS NULL OR :taskInstanceId <> vi.TASKINSTANCE_ ) " +
+			"	AND (vi.TASKINSTANCE_ IS NULL OR ti.END_ IS NULL)", nativeQuery = true)
+	public List<Long> findVariableInstanceIdsByDocumentStoreId(
+			@Param("documentStoreId") Long documentStoreId,
+			@Param("processInstanceId") Long processInstanceId,
+			@Param("taskInstanceId") Long taskInstanceId);
 
 }

@@ -802,24 +802,29 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				terminiIniciatRepository.delete(ti);
 			jbpmHelper.deleteProcessInstance(pi.getId());
 			for (DocumentStore documentStore: documentStoreRepository.findByProcessInstanceId(pi.getId())) {
-				if (documentStore.isSignat() && documentStore.getReferenciaCustodia()!=null ) {
-					try {
-						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
-					} catch (Exception ignored) {}
+				// Consulta si el documentSTore pot pertànyer a cap altre expedient
+				List<Long> expedientsIds = documentRepository.findExpedientsIdsByDocumentStoreId(documentStore.getId());
+				expedientsIds.remove(expedient.getId());
+				if (expedientsIds.isEmpty()) {
+					if (documentStore.isSignat() && documentStore.getReferenciaCustodia()!=null ) {
+						try {
+							pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
+						} catch (Exception ignored) {}
+					}
+					if (documentStore.getFont().equals(DocumentFont.ALFRESCO)) {
+						pluginHelper.gestioDocumentalDeleteDocument(
+								documentStore.getReferenciaFont(), expedient);
+					}
+					//Si el document pertany a un zip, de moment no l'esborrem, esperarem a esborrar el zip
+					if(documentStore.getZips()!=null && !documentStore.getZips().isEmpty()) {
+						continue;
+					} else {
+						documentStoreRepository.delete(documentStore.getId());
+					}
 				}
 				List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
 				if (enviaments != null && enviaments.size() > 0)
 					documentNotificacioRepository.delete(enviaments);
-
-				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-					pluginHelper.gestioDocumentalDeleteDocument(
-							documentStore.getReferenciaFont(), expedient);
-				//Si el document pertany a un zip, de moment no l'esborrem, esperarem a esborrar el zip
-				if(documentStore.getZips()!=null && !documentStore.getZips().isEmpty()) {
-					continue;
-				} else {
-					documentStoreRepository.delete(documentStore.getId());
-				}
 			}
 		}
 		for (Portasignatures psigna: expedient.getPortasignatures()) {

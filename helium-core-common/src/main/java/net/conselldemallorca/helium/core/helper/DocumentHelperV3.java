@@ -1439,8 +1439,12 @@ public class DocumentHelperV3 {
 			Long documentStoreId) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore != null) {
+			
 			boolean esborrarDocument = true;
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			
+			// Primer determina si es pot esborrar el document segons si estigui relacionat amb Notib, Pinbal o variables d'altres processos.
+			
 			List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
 			if (enviaments != null && enviaments.size() > 0) {
 				// si té enviaments no s'esborra el document per a que es pugui consultar des de la notificació.
@@ -1457,67 +1461,19 @@ public class DocumentHelperV3 {
 				esborrarDocument = false;
 			}
 			
-			if (expedient.isArxiuActiu() && documentStore.getArxiuUuid()!=null && !"".equals(documentStore.getArxiuUuid())) {
-				if (documentStore.isSignat()) {
-					logger.info("Es procedeix a esborrar d'HELIUM el document firmat a l'Arxiu (expedient= " + expedient.getNumero() + ", tipus=" + expedient.getTipus().getCodi() + 
-							", entorn=" + expedient.getTipus().getEntorn().getCodi() + ", document= " + documentStoreId  
-							+ (documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : documentStore.getCodiDocument() ) + ")");
-				} else {
-					if (esborrarDocument ) {
-						// No esborra el document de l'Arxiu si té un annex associat
-						if (documentStore.getAnnexId() == null) {
-							// Consulta si existeix abans cridar a esborrar per a que no falli
-							boolean arxiuExisteixDocument = false;
-							try {
-								arxiuExisteixDocument = null != pluginHelper.arxiuDocumentInfo(documentStore.getArxiuUuid(), null, false, documentStore.isSignat());
-							} catch (Exception ex) {
-								// Si no existeix falla la consulta.
-								logger.error("No s'ha pogut borrar el document "+documentStore.getArxiuUuid()+" del arxiu perque no existeix.");
-							}
-							if ( arxiuExisteixDocument) {
-								// Esborra el document de l'Arxiu
-								pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
-							}
-						}
-					}
-				}
-			} else {
-				if (documentStore.isSignat()) {
-					if (pluginHelper.custodiaIsPluginActiu()) {
-						this.programarCustodiaEsborrarSignatures(
-								documentStore.getReferenciaCustodia(), 
-								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-					}
-				}
-				if (esborrarDocument && documentStore.getFont().equals(DocumentFont.ALFRESCO)) {
-					pluginHelper.gestioDocumentalDeleteDocument(
-							documentStore.getReferenciaFont(),
-							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-				}
-				if (processInstanceId != null) {
-					List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
-							processInstanceId,
-							PortafirmesEstatEnum.getPendents());
-					for (Portasignatures psigna: psignaPendents) {
-						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
-							psigna.setEstat(PortafirmesEstatEnum.ESBORRAT);
-							portasignaturesRepository.save(psigna);
-						}
-					}
-				}
-			}
-			
-			
-			
-			if (esborrarDocument) {
-				for (DocumentStore parent : new ArrayList<DocumentStore>(documentStore.getZips())) {
-					parent.getContinguts().remove(documentStore);
-				}
+			if ( expedient.isArxiuActiu() 
+					&& documentStore.getArxiuUuid() != null 
+					&& !"".equals(documentStore.getArxiuUuid())) {
 				
-				documentStore.getContinguts().clear();
-				documentStoreRepository.flush();
-				documentStoreRepository.delete(documentStoreId);
+				// Si està integrat amb l'Arxiu no ha d'esborrar els documents lligats a les notificacions
+				if (documentStore.getAnnexId() != null 
+						|| anotacioAnnexRepository.findByDocumentStoreId(documentStoreId).size() > 0) {
+					// No esborra el document si apunta a un annexo o si hi ha cap annex d'anotació amb aquest document store
+					esborrarDocument = false;
+				}
 			}
+			
+			// Esborra les instàncies de variable associades de la tasca o del procés
 			
 			if (taskInstanceId != null) {
 				jbpmHelper.deleteTaskInstanceVariable(
@@ -1528,12 +1484,75 @@ public class DocumentHelperV3 {
 				jbpmHelper.deleteTaskInstanceVariable(
 						taskInstanceId,
 						JbpmVars.PREFIX_SIGNATURA + documentCodi);
-			}
-			if (processInstanceId != null) {
+			} else if (processInstanceId != null) {
 				jbpmHelper.deleteProcessInstanceVariable(
 						processInstanceId,
 						documentStore.getJbpmVariable());
-			}			
+			}
+			
+			if (esborrarDocument) {
+				// Mira si hi ha cap altra variable que faci referència al documentStore abans d'esborrar la informació del document
+				List<Long> variableInstanceIds = documentRepository.findVariableInstanceIdsByDocumentStoreId(
+						documentStoreId,
+						taskInstanceId == null ? Long.parseLong(processInstanceId) : 0L,
+						taskInstanceId != null ? Long.parseLong(taskInstanceId) : 0L);
+				if (variableInstanceIds.size() > 0 ) {
+					// Si s'han trobat altres instàncies de variables llavors no esborra el documentStore.
+					esborrarDocument = false;
+				}
+			}
+			
+			// Finalment si es pot esborrar elimina el documentStore i la informació que hi pugui haver a l'Arxiu, Custòdia, GestioDocumental o Portasignatures
+			if (esborrarDocument) {
+				
+				// Esborra el document store dels zips que el poden contenir
+				for (DocumentStore parent : new ArrayList<DocumentStore>(documentStore.getZips())) {
+					parent.getContinguts().remove(documentStore);
+				}
+				documentStore.getContinguts().clear();
+				documentStoreRepository.flush();
+				documentStoreRepository.delete(documentStoreId);
+
+				if (documentStore.getArxiuUuid() != null) {
+					// Esborra el document d'e l'Arxiu
+					try {
+						es.caib.plugins.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(documentStore.getArxiuUuid(), null, false, documentStore.isSignat());
+						if (document != null) {
+							pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+						}
+					} catch (Exception ex) {
+						// Si no existeix falla la consulta.
+						logger.error("No s'ha pogut borrar el document "+documentStore.getArxiuUuid()+" de l'Arxiu: " + ex.getMessage());
+					}
+				} else {
+					if (!expedient.isArxiuActiu() && documentStore.isSignat()) {
+						// Si no està integrat amb l'Arxiu i està firmat llavors esborra les firmes a Custòdia Antiga
+						if (pluginHelper.custodiaIsPluginActiu()) {
+							this.programarCustodiaEsborrarSignatures(
+									documentStore.getReferenciaCustodia(), 
+									expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
+						}
+						// Si és antic d'Alfresco l'esborra de GestioDocumental
+						if (documentStore.getFont().equals(DocumentFont.ALFRESCO)) {
+							pluginHelper.gestioDocumentalDeleteDocument(
+									documentStore.getReferenciaFont(),
+									expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
+						}
+					}
+				}
+				// Marca com a document esborrat en totes les peticions pendents del portafirmes.
+				if (processInstanceId != null) {
+					List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
+							processInstanceId,
+							PortafirmesEstatEnum.getPendents());
+					for (Portasignatures psigna: psignaPendents) {
+						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
+							psigna.setEstat(PortafirmesEstatEnum.ESBORRAT);
+							portasignaturesRepository.save(psigna);
+						}
+					}
+				}			
+			}
 		}
 	}
 

@@ -3909,4 +3909,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public boolean checkValueVariableDocument(Object valor) {
+		boolean ret = false;
+		if (valor instanceof Long) {
+			ret = documentStoreRepository.exists((Long) valor);
+		}
+		return ret;
+	}
+
 }
