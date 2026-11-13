@@ -1,0 +1,28 @@
+{
+    "expedientsTipus": [
+        {
+            "codi": "502",
+            "nom": "Demo"
+        },
+        {
+            "codi": "652",
+            "nom": "Temporal"
+        },
+        {
+            "codi": "302",
+            "nom": "Test de funcionalitats"
+        },
+        {
+            "codi": "1102",
+            "nom": "Test de funcionalitats comu"
+        },
+        {
+            "codi": "1002",
+            "nom": "Test de funcionalitats_bem"
+        },
+        {
+            "codi": "1052",
+            "nom": "Test swimlanes"
+        }
+    ]
+}

@@ -5,7 +5,7 @@ import {
     isSelectEntryEdited,
 } from '@bpmn-io/properties-panel';
 import { useService } from 'bpmn-js-properties-panel';
-import { getHandlersSync, type HandlerDto } from './handlers';
+import {getHandlersSync, type HandlerDto, type HandlerParametreDto} from './handlers';
 
 type BpmnElement = {
     businessObject: any;
@@ -48,14 +48,25 @@ const fillFieldsFromHandler = (element: BpmnElement, modeling: Modeling, handler
     }
     debugger;
     const nonFieldValues = extensionElements.values?.filter((v: any) => v.$type !== 'flowable:Field') ?? [];
-    const fields = (handler.parametres || []).map((p) => {
+    const fields = (handler.parametres || []).reduce((acumulator: any[], p: HandlerParametreDto) => {
         const field = moddle.create('flowable:Field', {
             name: p.codi || p.nom || '',
             stringValue: '',
         });
         field.$parent = extensionElements;
-        return field;
-    });
+
+        acumulator.push(field);
+        if(p.varParam) {
+            const fieldVar = moddle.create('flowable:Field', {
+                name: p.varParam || '',
+                stringValue: '',
+            });
+            fieldVar.$parent = extensionElements;
+            acumulator.push(fieldVar);
+        }
+
+        return acumulator;
+    }, []);
     modeling.updateModdleProperties(element, extensionElements, {
         values: [...nonFieldValues, ...fields],
     });

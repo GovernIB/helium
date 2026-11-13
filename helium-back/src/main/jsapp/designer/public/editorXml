@@ -1,81 +1,343 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:flowable="http://flowable.org/bpmn" id="Definitions_1" targetNamespace="es.caib.helium.test3">
-  <bpmn:process id="procesSimple3" name="Procés Simple 3" isExecutable="true">
-    <bpmn:startEvent id="start" name="Inici" />
-    <bpmn:userTask id="tascaTest" name="Tasca de prova">
-      <bpmn:outgoing>Flow_1ftuhsf</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:endEvent id="end" name="Fi">
-      <bpmn:incoming>Flow_1t4hxpm</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:sequenceFlow id="flux1" sourceRef="start" targetRef="tascaTest" />
-    <bpmn:sequenceFlow id="flux2" sourceRef="tascaTest" targetRef="end" />
-    <bpmn:serviceTask id="Activity_1xe4c1y" flowable:class="es.limit.prova.Handler">
-      <bpmn:extensionElements />
-      <bpmn:incoming>Flow_1c1xc62</bpmn:incoming>
-    </bpmn:serviceTask>
-    <bpmn:intermediateThrowEvent id="Event_1bhalcl">
-      <bpmn:incoming>Flow_1ftuhsf</bpmn:incoming>
-      <bpmn:outgoing>Flow_0qnclgv</bpmn:outgoing>
-    </bpmn:intermediateThrowEvent>
-    <bpmn:sequenceFlow id="Flow_1ftuhsf" sourceRef="tascaTest" targetRef="Event_1bhalcl" />
-    <bpmn:exclusiveGateway id="Gateway_0i32m2e">
-      <bpmn:incoming>Flow_0qnclgv</bpmn:incoming>
-      <bpmn:outgoing>Flow_1c1xc62</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1t4hxpm</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0qnclgv" sourceRef="Event_1bhalcl" targetRef="Gateway_0i32m2e" />
-    <bpmn:sequenceFlow id="Flow_1c1xc62" sourceRef="Gateway_0i32m2e" targetRef="Activity_1xe4c1y" />
-    <bpmn:sequenceFlow id="Flow_1t4hxpm" sourceRef="Gateway_0i32m2e" targetRef="end" />
-  </bpmn:process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="procesSimple3">
-      <bpmndi:BPMNShape id="StartEvent_di" bpmnElement="start">
-        <dc:Bounds x="150" y="100" width="36" height="36" />
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:flowable="http://flowable.org/bpmn" xmlns:ext="http://org.eclipse.bpmn2/ext" xmlns:xs="http://www.w3.org/2001/XMLSchema" id="Definitions_1" targetNamespace="http://org.eclipse.bpmn2/default/process" exporter="org.eclipse.bpmn2.modeler.core" exporterVersion="1.5.3.Final-v20210519-2007-B1">
+  <bpmn2:process id="test" name="Test de funcionalitats" isExecutable="true">
+    <bpmn2:startEvent id="inici" name="Inici">
+      <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_1" sourceRef="inici" targetRef="tascaInicial" />
+    <bpmn2:endEvent id="fi" name="Fi">
+      <bpmn2:incoming>SequenceFlow_2</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:userTask id="tascaInicial" name="Tasca inicial">
+      <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
+      <bpmn2:outgoing>to_testTipus</bpmn2:outgoing>
+    </bpmn2:userTask>
+    <bpmn2:sequenceFlow id="SequenceFlow_2" name="Fi" sourceRef="tascaFinal" targetRef="fi" />
+    <bpmn2:exclusiveGateway id="decisioTipus" name="Decisió tipus" gatewayDirection="Mixed">
+      <bpmn2:incoming>to_testTipus</bpmn2:incoming>
+      <bpmn2:incoming>tascaFinal_to_decisioTipus</bpmn2:incoming>
+      <bpmn2:outgoing>toVariables</bpmn2:outgoing>
+      <bpmn2:outgoing>decisioTipusDefault</bpmn2:outgoing>
+      <bpmn2:outgoing>toHandlers</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_19</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:sequenceFlow id="toVariables" name="Variables" sourceRef="decisioTipus" targetRef="variables">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_2">${tipus_test == 'variables'}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:userTask id="tascaFinal" name="Tasca final">
+      <bpmn2:incoming>SequenceFlow_29</bpmn2:incoming>
+      <bpmn2:incoming>decisioTipusDefault</bpmn2:incoming>
+      <bpmn2:incoming>handlersToFinal</bpmn2:incoming>
+      <bpmn2:incoming>SequenceFlow_24</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_2</bpmn2:outgoing>
+      <bpmn2:outgoing>tascaFinal_to_decisioTipus</bpmn2:outgoing>
+    </bpmn2:userTask>
+    <bpmn2:sequenceFlow id="SequenceFlow_29" sourceRef="variables" targetRef="tascaFinal" />
+    <bpmn2:sequenceFlow id="to_testTipus" name="Seleccionar test" sourceRef="tascaInicial" targetRef="decisioTipus" />
+    <bpmn2:sequenceFlow id="tascaFinal_to_decisioTipus" name="Tornar al començament" sourceRef="tascaFinal" targetRef="decisioTipus">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_3">${tipus_test == 'finalitzar' || tipus_test == null}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="decisioTipusDefault" name="Per defecte a la tasca final" sourceRef="decisioTipus" targetRef="tascaFinal">
+      <bpmn2:documentation id="Documentation_52">Si no es compleix cap condició va a la tasca final.</bpmn2:documentation>
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">${tipus_test == 'finalitzar'}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:userTask id="variables" name="Tasca variables" flowable:candidateGroups="HEL_ADMIN">
+      <bpmn2:incoming>toVariables</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_29</bpmn2:outgoing>
+    </bpmn2:userTask>
+    <bpmn2:userTask id="handlers" name="Tasca handlers" flowable:candidateUsers="hel_admin">
+      <bpmn2:incoming>toHandlers</bpmn2:incoming>
+      <bpmn2:incoming>handler_to_task</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_4</bpmn2:outgoing>
+      <bpmn2:outgoing>handlersToFinal</bpmn2:outgoing>
+    </bpmn2:userTask>
+    <bpmn2:sequenceFlow id="toHandlers" name="Handlers" sourceRef="decisioTipus" targetRef="handlers">
+      <bpmn2:documentation id="Documentation_33">Tasca per provar la crida a diferents handlers.</bpmn2:documentation>
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_1">${tipus_test == 'handlers'}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:serviceTask id="provaHandler" name="Prova Handler" flowable:class="es.caib.helium.logic.bpmn.ExpedientComentariModificarHandler">
+      <bpmn2:documentation id="Documentation_40">Crida al handler de proves i passa per la tasca d'script abans de tornar a la tasca.</bpmn2:documentation>
+      <bpmn2:extensionElements>
+        <flowable:field name="comentari" stringValue="" />
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_4</bpmn2:incoming>
+      <bpmn2:outgoing>handler_to_task</bpmn2:outgoing>
+    </bpmn2:serviceTask>
+    <bpmn2:sequenceFlow id="SequenceFlow_4" sourceRef="handlers" targetRef="provaHandler" />
+    <bpmn2:sequenceFlow id="handlersToFinal" sourceRef="handlers" targetRef="tascaFinal" />
+    <bpmn2:sequenceFlow id="handler_to_task" sourceRef="provaHandler" targetRef="handlers" />
+    <bpmn2:callActivity id="callTestSub" name="Call subprocés" calledElement="test_sub">
+      <bpmn2:documentation id="Documentation_54">Crida a l'execució del subprocés test_sub.</bpmn2:documentation>
+      <bpmn2:incoming>callSubproces</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_22</bpmn2:outgoing>
+    </bpmn2:callActivity>
+    <bpmn2:userTask id="subproces" name="Tasca subprocés">
+      <bpmn2:documentation id="Documentation_42">Tasca per anar cap a la invocació d'un subprocés de test o usar un subprocés definit en el propi flux de test com a subprocés.</bpmn2:documentation>
+      <bpmn2:incoming>SequenceFlow_19</bpmn2:incoming>
+      <bpmn2:outgoing>callSubproces</bpmn2:outgoing>
+      <bpmn2:outgoing>to_subprocesLocal</bpmn2:outgoing>
+    </bpmn2:userTask>
+    <bpmn2:sequenceFlow id="SequenceFlow_19" sourceRef="decisioTipus" targetRef="subproces">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_4">${tipus_test == 'subproces'}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="callSubproces" name="Call subprocés" sourceRef="subproces" targetRef="callTestSub" />
+    <bpmn2:subProcess id="subprocesLocal" name="Subprocés local">
+      <bpmn2:incoming>to_subprocesLocal</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_23</bpmn2:outgoing>
+      <bpmn2:userTask id="subproces_local_test" name="Tasca subproces local">
+        <bpmn2:documentation id="Documentation_38">Tasca definida localment en el subproces local del test.</bpmn2:documentation>
+        <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_5</bpmn2:outgoing>
+      </bpmn2:userTask>
+      <bpmn2:startEvent id="subproces_local_inici">
+        <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
+      </bpmn2:startEvent>
+      <bpmn2:endEvent id="subproces_local_fi">
+        <bpmn2:incoming>SequenceFlow_5</bpmn2:incoming>
+      </bpmn2:endEvent>
+      <bpmn2:sequenceFlow id="SequenceFlow_3" sourceRef="subproces_local_inici" targetRef="subproces_local_test" />
+      <bpmn2:sequenceFlow id="SequenceFlow_5" sourceRef="subproces_local_test" targetRef="subproces_local_fi" />
+    </bpmn2:subProcess>
+    <bpmn2:sequenceFlow id="to_subprocesLocal" name="Subprocés local" sourceRef="subproces" targetRef="subprocesLocal" />
+    <bpmn2:inclusiveGateway id="subprocesGateway" gatewayDirection="Converging">
+      <bpmn2:incoming>SequenceFlow_22</bpmn2:incoming>
+      <bpmn2:incoming>SequenceFlow_23</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_24</bpmn2:outgoing>
+    </bpmn2:inclusiveGateway>
+    <bpmn2:sequenceFlow id="SequenceFlow_22" sourceRef="callTestSub" targetRef="subprocesGateway" />
+    <bpmn2:sequenceFlow id="SequenceFlow_23" sourceRef="subprocesLocal" targetRef="subprocesGateway" />
+    <bpmn2:sequenceFlow id="SequenceFlow_24" sourceRef="subprocesGateway" targetRef="tascaFinal" />
+  </bpmn2:process>
+  <bpmn2:rootElement id="test_sub" xsi:type="bpmn2:tCallableElement" name="test_sub" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Process Diagram">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="test">
+      <bpmndi:BPMNShape id="BPMNShape_1" bpmnElement="inici">
+        <dc:Bounds x="114" y="319" width="36" height="36" />
+        <bpmndi:BPMNLabel id="BPMNLabel_1" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="121" y="355" width="22" height="15" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_di" bpmnElement="tascaTest">
-        <dc:Bounds x="250" y="80" width="100" height="80" />
+      <bpmndi:BPMNShape id="BPMNShape_2" bpmnElement="fi">
+        <dc:Bounds x="1270" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel id="BPMNLabel_2" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="1283" y="348" width="10" height="15" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_di" bpmnElement="end">
-        <dc:Bounds x="400" y="100" width="36" height="36" />
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_1" bpmnElement="tascaInicial" isExpanded="true">
+        <dc:Bounds x="270" y="312" width="110" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_4" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="290" y="329" width="69" height="15" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1bhalcl_di" bpmnElement="Event_1bhalcl">
-        <dc:Bounds x="402" y="212" width="36" height="36" />
+      <bpmndi:BPMNShape id="BPMNShape_ExclusiveGateway_7" bpmnElement="decisioTipus" isMarkerVisible="true">
+        <dc:Bounds x="510" y="312" width="50" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_9" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="499" y="362" width="72" height="15" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0i32m2e_di" bpmnElement="Gateway_0i32m2e" isMarkerVisible="true">
-        <dc:Bounds x="495" y="205" width="50" height="50" />
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_2" bpmnElement="tascaFinal">
+        <dc:Bounds x="1060" y="305" width="110" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_13" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="1085" y="322" width="60" height="15" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_15ar8jb_di" bpmnElement="Activity_1xe4c1y">
-        <dc:Bounds x="620" y="340" width="100" height="80" />
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_3" bpmnElement="variables">
+        <dc:Bounds x="610" y="0" width="110" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_7" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="621" y="17" width="87" height="15" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow1_di" bpmnElement="flux1">
-        <di:waypoint x="186" y="118" />
-        <di:waypoint x="250" y="118" />
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_4" bpmnElement="handlers" isExpanded="true">
+        <dc:Bounds x="610" y="102" width="110" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_6" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="622" y="119" width="86" height="15" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ServiceTask_1" bpmnElement="provaHandler">
+        <dc:Bounds x="772" y="102" width="100" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_11" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="783" y="119" width="78" height="15" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_CallActivity_1" bpmnElement="callTestSub" isExpanded="true">
+        <dc:Bounds x="775" y="384" width="110" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_26" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="788" y="401" width="84" height="15" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_5" bpmnElement="subproces" isExpanded="true">
+        <dc:Bounds x="577" y="439" width="110" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_27" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="584" y="456" width="96" height="15" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_SubProcess_2" bpmnElement="subprocesLocal" isExpanded="false">
+        <dc:Bounds x="783" y="491" width="110" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_30" labelStyle="BPMNLabelStyle_1">
+          <dc:Bounds x="793" y="508" width="89" height="15" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_InclusiveGateway_1" bpmnElement="subprocesGateway" isMarkerVisible="true">
+        <dc:Bounds x="969" y="433" width="50" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_32" labelStyle="BPMNLabelStyle_1" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="SequenceFlow_1" sourceElement="BPMNShape_1" targetElement="BPMNShape_UserTask_1">
+        <di:waypoint x="150" y="337" />
+        <di:waypoint x="210" y="337" />
+        <di:waypoint x="270" y="337" />
+        <bpmndi:BPMNLabel id="BPMNLabel_3" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow2_di" bpmnElement="flux2">
-        <di:waypoint x="350" y="118" />
-        <di:waypoint x="400" y="118" />
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_2" bpmnElement="SequenceFlow_2" sourceElement="BPMNShape_UserTask_2" targetElement="BPMNShape_2">
+        <di:waypoint x="1170" y="330" />
+        <di:waypoint x="1220" y="330" />
+        <di:waypoint x="1270" y="330" />
+        <bpmndi:BPMNLabel id="BPMNLabel_5">
+          <dc:Bounds x="1216" y="331" width="10" height="15" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ftuhsf_di" bpmnElement="Flow_1ftuhsf">
-        <di:waypoint x="350" y="120" />
-        <di:waypoint x="380" y="120" />
-        <di:waypoint x="380" y="230" />
-        <di:waypoint x="402" y="230" />
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_26" bpmnElement="toVariables" sourceElement="BPMNShape_ExclusiveGateway_7" targetElement="BPMNShape_UserTask_3">
+        <di:waypoint x="535" y="312" />
+        <di:waypoint x="535" y="25" />
+        <di:waypoint x="610" y="25" />
+        <bpmndi:BPMNLabel id="BPMNLabel_10">
+          <dc:Bounds x="510" y="132" width="52" height="15" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0qnclgv_di" bpmnElement="Flow_0qnclgv">
-        <di:waypoint x="438" y="230" />
-        <di:waypoint x="495" y="230" />
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_29" bpmnElement="SequenceFlow_29" sourceElement="BPMNShape_UserTask_3" targetElement="BPMNShape_UserTask_2">
+        <di:waypoint x="720" y="25" />
+        <di:waypoint x="1115" y="25" />
+        <di:waypoint x="1115" y="305" />
+        <bpmndi:BPMNLabel id="BPMNLabel_14" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1c1xc62_di" bpmnElement="Flow_1c1xc62">
-        <di:waypoint x="520" y="255" />
-        <di:waypoint x="520" y="410" />
-        <di:waypoint x="620" y="410" />
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_30" bpmnElement="to_testTipus" sourceElement="BPMNShape_UserTask_1" targetElement="BPMNShape_ExclusiveGateway_7">
+        <di:waypoint x="380" y="337" />
+        <di:waypoint x="445" y="337" />
+        <di:waypoint x="510" y="337" />
+        <bpmndi:BPMNLabel id="BPMNLabel_15">
+          <dc:Bounds x="412" y="338" width="68" height="30" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1t4hxpm_di" bpmnElement="Flow_1t4hxpm">
-        <di:waypoint x="520" y="205" />
-        <di:waypoint x="520" y="118" />
-        <di:waypoint x="436" y="118" />
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_31" bpmnElement="tascaFinal_to_decisioTipus" sourceElement="BPMNShape_UserTask_2" targetElement="BPMNShape_ExclusiveGateway_7">
+        <di:waypoint x="1115" y="355" />
+        <di:waypoint x="1115" y="686" />
+        <di:waypoint x="535" y="686" />
+        <di:waypoint x="535" y="362" />
+        <bpmndi:BPMNLabel id="BPMNLabel_16">
+          <dc:Bounds x="789" y="687" width="82" height="45" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_32" bpmnElement="decisioTipusDefault" sourceElement="BPMNShape_ExclusiveGateway_7" targetElement="BPMNShape_UserTask_2">
+        <di:waypoint x="560" y="337" />
+        <di:waypoint x="810" y="337" />
+        <di:waypoint x="1060" y="338" />
+        <bpmndi:BPMNLabel id="BPMNLabel_17">
+          <dc:Bounds x="772" y="338" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_3" bpmnElement="toHandlers" sourceElement="BPMNShape_ExclusiveGateway_7" targetElement="BPMNShape_UserTask_4">
+        <di:waypoint x="549" y="326" />
+        <di:waypoint x="580" y="300" />
+        <di:waypoint x="580" y="127" />
+        <di:waypoint x="610" y="127" />
+        <bpmndi:BPMNLabel id="BPMNLabel_8">
+          <dc:Bounds x="557" y="163" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_4" bpmnElement="SequenceFlow_4" sourceElement="BPMNShape_UserTask_4" targetElement="BPMNShape_ServiceTask_1">
+        <di:waypoint x="720" y="127" />
+        <di:waypoint x="746" y="127" />
+        <di:waypoint x="772" y="127" />
+        <bpmndi:BPMNLabel id="BPMNLabel_12" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_7" bpmnElement="handlersToFinal" sourceElement="BPMNShape_UserTask_4" targetElement="BPMNShape_UserTask_2">
+        <di:waypoint x="665" y="152" />
+        <di:waypoint x="665" y="248" />
+        <di:waypoint x="1096" y="248" />
+        <di:waypoint x="1096" y="305" />
+        <bpmndi:BPMNLabel id="BPMNLabel_21" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_8" bpmnElement="handler_to_task" sourceElement="BPMNShape_ServiceTask_1" targetElement="BPMNShape_UserTask_4">
+        <di:waypoint x="772" y="118" />
+        <di:waypoint x="746" y="118" />
+        <di:waypoint x="720" y="118" />
+        <bpmndi:BPMNLabel id="BPMNLabel_22" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_22" bpmnElement="SequenceFlow_19" sourceElement="BPMNShape_ExclusiveGateway_7" targetElement="BPMNShape_UserTask_5">
+        <di:waypoint x="546" y="351" />
+        <di:waypoint x="614" y="439" />
+        <bpmndi:BPMNLabel id="BPMNLabel_28" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_23" bpmnElement="callSubproces" sourceElement="BPMNShape_UserTask_5" targetElement="BPMNShape_CallActivity_1">
+        <di:waypoint x="632" y="439" />
+        <di:waypoint x="632" y="409" />
+        <di:waypoint x="775" y="409" />
+        <bpmndi:BPMNLabel id="BPMNLabel_29">
+          <dc:Bounds x="660" y="410" width="60" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_24" bpmnElement="to_subprocesLocal" sourceElement="BPMNShape_UserTask_5" targetElement="BPMNShape_SubProcess_2">
+        <di:waypoint x="632" y="489" />
+        <di:waypoint x="632" y="516" />
+        <di:waypoint x="783" y="516" />
+        <bpmndi:BPMNLabel id="BPMNLabel_31">
+          <dc:Bounds x="663" y="517" width="63" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_25" bpmnElement="SequenceFlow_22" sourceElement="BPMNShape_CallActivity_1" targetElement="BPMNShape_InclusiveGateway_1">
+        <di:waypoint x="885" y="409" />
+        <di:waypoint x="994" y="409" />
+        <di:waypoint x="994" y="433" />
+        <bpmndi:BPMNLabel id="BPMNLabel_33" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_27" bpmnElement="SequenceFlow_23" sourceElement="BPMNShape_SubProcess_2" targetElement="BPMNShape_InclusiveGateway_1">
+        <di:waypoint x="893" y="516" />
+        <di:waypoint x="994" y="516" />
+        <di:waypoint x="994" y="483" />
+        <bpmndi:BPMNLabel id="BPMNLabel_34" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_28" bpmnElement="SequenceFlow_24" sourceElement="BPMNShape_InclusiveGateway_1" targetElement="BPMNShape_UserTask_2">
+        <di:waypoint x="1019" y="458" />
+        <di:waypoint x="1039" y="458" />
+        <di:waypoint x="1039" y="338" />
+        <di:waypoint x="1060" y="338" />
+        <bpmndi:BPMNLabel id="BPMNLabel_35" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
+    <bpmndi:BPMNLabelStyle id="BPMNLabelStyle_1">
+      <dc:Font name="arial" size="9" />
+    </bpmndi:BPMNLabelStyle>
   </bpmndi:BPMNDiagram>
-</bpmn:definitions>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_2" name="Subprocés local">
+    <bpmndi:BPMNPlane id="BPMNPlane_2" bpmnElement="subprocesLocal">
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_6" bpmnElement="subproces_local_test" isExpanded="true">
+        <dc:Bounds x="195" y="135" width="110" height="50" />
+        <bpmndi:BPMNLabel id="BPMNLabel_18" labelStyle="BPMNLabelStyle_2">
+          <dc:Bounds x="200" y="145" width="100" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_StartEvent_1" bpmnElement="subproces_local_inici">
+        <dc:Bounds x="90" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel id="BPMNLabel_19" labelStyle="BPMNLabelStyle_2" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_1" bpmnElement="subproces_local_fi">
+        <dc:Bounds x="360" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel id="BPMNLabel_20" labelStyle="BPMNLabelStyle_2" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_5" bpmnElement="SequenceFlow_3" sourceElement="BPMNShape_StartEvent_1" targetElement="BPMNShape_UserTask_6">
+        <di:waypoint x="126" y="160" />
+        <di:waypoint x="160" y="160" />
+        <di:waypoint x="195" y="160" />
+        <bpmndi:BPMNLabel id="BPMNLabel_23" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_6" bpmnElement="SequenceFlow_5" sourceElement="BPMNShape_UserTask_6" targetElement="BPMNShape_EndEvent_1">
+        <di:waypoint x="305" y="160" />
+        <di:waypoint x="332" y="160" />
+        <di:waypoint x="360" y="160" />
+        <bpmndi:BPMNLabel id="BPMNLabel_24" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+    <bpmndi:BPMNLabelStyle id="BPMNLabelStyle_2">
+      <dc:Font name="arial" size="9" />
+    </bpmndi:BPMNLabelStyle>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>
