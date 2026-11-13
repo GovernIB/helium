@@ -123,4 +123,34 @@ public interface ExpedientDocumentRepository extends JpaRepository<ExpedientDocu
 
 	public void deleteByExpedientId(Long expedientId);
 
+	public void deleteByTaskIdAndDocumentStoreId(Long taskId, Long documentStoreId);
+
+	public void deleteByProcessInstanceIdAndDocumentStoreId(String processInstanceId, Long documentStoreId);
+
+	
+	/** Consulta els diferents id d'expedients que tenen instàncies de variables que apunten a un documentStore.
+	 * 
+	 * @param documentStoreId Identificador del documentStore
+	 * @return Retorna una llista de tots els expedients que contenen instàncies de variables de tipus document o adjunt
+	 * que apunten al document store per id.
+	 */
+	@Query("select distinct(ed.expedient.id) " + 
+			"from ExpedientDocument ed " + 
+			"where ed.documentStore.id = :documentStoreId ")
+	public List<Long> findExpedientsIdsByDocumentStoreId(@Param("documentStoreId") Long documentStoreId);
+	
+	/** Troba la llista d'identificadors d'entrades de docuemnts d'expedients pel document store
+	 * que a més siguin diferents al process instance passat per paràmetre o al task id passat per peràmetre. 
+	 * També hauria de filtrar les tasques finalitzades.
+	 */
+	@Query("select ed.id " + 
+			"from ExpedientDocument ed " +
+			"where ed.documentStore.id = :documentStoreId " + 
+			"	and (:processInstanceId <> ed.processInstanceId) " +
+			"	and (ed.taskId is null or :taskId <> ed.taskId) ")
+	public List<Long> findVariableInstanceIdsByDocumentStoreId(
+			@Param("documentStoreId") Long documentStoreId,
+			@Param("processInstanceId") String processInstanceId,
+			@Param("taskId") String taskId);
+
 }

@@ -643,6 +643,7 @@ public class AnotacioHelper {
 									&& document.getAnotacioId() != anotacioId)
 							{
 								documentHelper.esborrarDocument(
+										null,
 										expedient.getProcessInstanceId(),
 										document.getId());
 								documentExisteix = false;

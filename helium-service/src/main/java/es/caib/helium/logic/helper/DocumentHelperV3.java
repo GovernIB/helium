@@ -23,13 +23,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
-import com.google.common.collect.Lists;
-import es.caib.helium.commons.config.PropertyConfig;
-import es.caib.helium.commons.dades.DocumentTipusEnum;
-import es.caib.helium.commons.dto.*;
-import es.caib.helium.bpmn.engine.WProcessDefinition;
-import es.caib.helium.persistence.entity.*;
-import es.caib.helium.persistence.repository.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -46,9 +39,14 @@ import org.springframework.http.MediaTypeFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
 import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
 
+import es.caib.helium.bpmn.engine.WProcessDefinition;
+import es.caib.helium.bpmn.engine.WTaskInstance;
+import es.caib.helium.commons.config.PropertyConfig;
+import es.caib.helium.commons.dades.DocumentTipusEnum;
 import es.caib.helium.commons.dto.AnotacioAnnexEstatEnumDto;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.ArxiuFirmaDto;
@@ -57,6 +55,7 @@ import es.caib.helium.commons.dto.ArxiuFirmaValidacioDetallDto;
 import es.caib.helium.commons.dto.DocumentDto;
 import es.caib.helium.commons.dto.DocumentStoreDto;
 import es.caib.helium.commons.dto.ExpedientDocumentDto;
+import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
 import es.caib.helium.commons.dto.InstanciaProcesDto;
 import es.caib.helium.commons.dto.NtiDocumentoFormato;
 import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
@@ -77,10 +76,35 @@ import es.caib.helium.commons.utils.OpenOfficeUtils;
 import es.caib.helium.commons.utils.PdfUtils;
 import es.caib.helium.integracio.plugins.firma.FirmaResposta;
 import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.utils.DocumentTokenUtils;
+import es.caib.helium.persistence.entity.AnotacioAnnex;
+import es.caib.helium.persistence.entity.DefinicioProces;
+import es.caib.helium.persistence.entity.Document;
+import es.caib.helium.persistence.entity.DocumentNotificacio;
+import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
+import es.caib.helium.persistence.entity.DocumentTasca;
+import es.caib.helium.persistence.entity.Expedient;
+import es.caib.helium.persistence.entity.ExpedientDocument;
+import es.caib.helium.persistence.entity.ExpedientTipus;
+import es.caib.helium.persistence.entity.FirmaTasca;
+import es.caib.helium.persistence.entity.PeticioPinbal;
+import es.caib.helium.persistence.entity.Portasignatures;
+import es.caib.helium.persistence.entity.Registre;
+import es.caib.helium.persistence.entity.Tasca;
+import es.caib.helium.persistence.repository.AnotacioAnnexRepository;
+import es.caib.helium.persistence.repository.DefinicioProcesRepository;
+import es.caib.helium.persistence.repository.DocumentNotificacioRepository;
+import es.caib.helium.persistence.repository.DocumentRepository;
+import es.caib.helium.persistence.repository.DocumentStoreRepository;
+import es.caib.helium.persistence.repository.DocumentTascaRepository;
+import es.caib.helium.persistence.repository.ExpedientDocumentRepository;
+import es.caib.helium.persistence.repository.FirmaTascaRepository;
+import es.caib.helium.persistence.repository.PeticioPinbalRepository;
+import es.caib.helium.persistence.repository.PortasignaturesRepository;
+import es.caib.helium.persistence.repository.RegistreRepository;
+import es.caib.helium.persistence.repository.TascaRepository;
 import es.caib.pluginsib.arxiu.api.ContingutArxiu;
 import es.caib.pluginsib.arxiu.api.DocumentEstat;
 import es.caib.pluginsib.arxiu.api.Firma;
@@ -1310,6 +1334,7 @@ public class DocumentHelperV3 {
 	}
 
 	public void esborrarDocument(
+			Long taskId,
 			String processInstanceId,
 			String documentCodi) {
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
@@ -1319,12 +1344,14 @@ public class DocumentHelperV3 {
 			documentCodi);
 		if (documentStore != null) {
 			esborrarDocument(
+					taskId,
 					processInstanceId,
 					documentStore.getId());
 		}
 	}
 
 	public void esborrarDocument(
+			Long taskId,
 			String processInstanceId,
 			Long documentStoreId) {
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
@@ -1347,72 +1374,72 @@ public class DocumentHelperV3 {
 				esborrarDocument = false;
 			}
 
-			if (expedient.isArxiuActiu() && documentStore.getArxiuUuid()!=null && !"".equals(documentStore.getArxiuUuid())) {
-				if (documentStore.isSignat()) {
-					logger.info("Es procedeix a esborrar d'HELIUM el document firmat a l'Arxiu (expedient= " + expedient.getNumero() + ", tipus=" + expedient.getTipus().getCodi() +
-							", entorn=" + expedient.getTipus().getEntorn().getCodi() + ", document= " + documentStoreId
-							+ (documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : documentStore.getCodiDocument() ) + ")");
-				} else {
-					if (esborrarDocument) {
-						// No esborra el document de l'Arxiu si té un annex associat
-						if (documentStore.getAnnexId() == null) {
-							// Consulta si existeix abans cridar a esborrar per a que no falli
-							boolean arxiuExisteixDocument = false;
-							try {
-								arxiuExisteixDocument = null != pluginHelper.arxiuDocumentInfo(documentStore.getArxiuUuid(), null, false, documentStore.isSignat());
-							} catch (Exception ex) {
-								// Si no existeix falla la consulta.
-								logger.error("No s'ha pogut borrar el document "+documentStore.getArxiuUuid()+" del arxiu perque no existeix.");
-							}
-							if ( arxiuExisteixDocument) {
-								// Esborra el document de l'Arxiu
-								pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
-							}
-						}
-					}
-				}
-			} else {
-				if (esborrarDocument && documentStore.getFont().equals(DocumentFont.ALFRESCO)) {
-					pluginHelper.gestioDocumentalDeleteDocument(
-							documentStore.getReferenciaFont(),
-							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-				}
-				if (processInstanceId != null) {
-					List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
-							processInstanceId,
-							PortafirmesEstatEnum.getPendents());
-					for (Portasignatures psigna: psignaPendents) {
-						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
-							psigna.setEstat(PortafirmesEstatEnum.ESBORRAT);
-							portasignaturesRepository.save(psigna);
-						}
-					}
+			if ( expedient.isArxiuActiu() 
+					&& documentStore.getArxiuUuid() != null 
+					&& !"".equals(documentStore.getArxiuUuid())) {
+				
+				// Si està integrat amb l'Arxiu no ha d'esborrar els documents lligats a les notificacions
+				if (documentStore.getAnnexId() != null 
+						|| anotacioAnnexRepository.findByDocumentStoreId(documentStoreId).size() > 0) {
+					// No esborra el document si apunta a un annexo o si hi ha cap annex d'anotació amb aquest document store
+					esborrarDocument = false;
 				}
 			}
+
+			// Esborra les entrades a expedientDocument associades a la tasca o al procés
+			if (taskId != null) {
+				expedientDocumentRepository.deleteByTaskIdAndDocumentStoreId(taskId, documentStoreId);
+			} else if (processInstanceId != null) {
+				expedientDocumentRepository.deleteByProcessInstanceIdAndDocumentStoreId(processInstanceId, documentStoreId);
+			}
+			
 			if (esborrarDocument) {
+				// Mira si hi ha cap altra variable que faci referència al documentStore abans d'esborrar la informació del document
+				List<Long> variableInstanceIds = expedientDocumentRepository.findVariableInstanceIdsByDocumentStoreId(
+						documentStoreId,
+						taskId == null ? processInstanceId : "-",
+						taskId != null ? taskId.toString(): "-");
+				if (variableInstanceIds.size() > 0 ) {
+					// Si s'han trobat altres instàncies de variables llavors no esborra el documentStore.
+					esborrarDocument = false;
+				}
+			}
+
+			// Finalment si es pot esborrar elimina el documentStore i la informació que hi pugui haver a l'Arxiu, Custòdia, GestioDocumental o Portasignatures
+			if (esborrarDocument) {
+				
+				// Esborra el document store dels zips que el poden contenir
 				for (DocumentStore parent : new ArrayList<DocumentStore>(documentStore.getZips()))
 					parent.getContinguts().remove(documentStore);
-
+				
+				// Esborra el document store pròpiament
 				documentStore.getContinguts().clear();
 				documentStoreRepository.flush();
 				documentStoreRepository.deleteById(documentStoreId);
-			}
 
-//			if (taskInstanceId != null) {
-//				workflowEngineApi.deleteTaskInstanceVariable(
-//						taskInstanceId,
-//						documentStore.getCodi());
-//				String documentCodi = getDocumentCodiPerVariableBpm(
-//						documentStore.getCodi());
-//				workflowEngineApi.deleteTaskInstanceVariable(
-//						taskInstanceId,
-//						BpmnVars.PREFIX_SIGNATURA + documentCodi);
-//			}
-//			if (processInstanceId != null) {
-//				workflowEngineApi.deleteProcessInstanceVariable(
-//						processInstanceId,
-//						documentStore.getCodi());
-//			}
+				if (documentStore.getArxiuUuid() != null) {
+					// Esborra el document d'e l'Arxiu
+					try {
+						es.caib.pluginsib.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(documentStore.getArxiuUuid(), null, false, documentStore.isSignat());
+						if (document != null) {
+							pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+						}
+					} catch (Exception ex) {
+						// Si no existeix falla la consulta.
+						logger.error("No s'ha pogut borrar el document "+documentStore.getArxiuUuid() +" de l'Arxiu: " + ex.getMessage());
+					}
+				}
+			}
+			// Marca com a document esborrat en totes les peticions pendents del portafirmes.
+			List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
+					processInstanceId,
+					PortafirmesEstatEnum.getPendents());
+			for (Portasignatures psigna: psignaPendents) {
+				if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
+					psigna.setEstat(PortafirmesEstatEnum.ESBORRAT);
+					portasignaturesRepository.save(psigna);
+				}
+			}
 		}
 	}
 
@@ -3333,5 +3360,38 @@ public class DocumentHelperV3 {
 		}
 	}
 
+	/** Consulta els diferents id d'expedients que tenen instàncies de variables que apunten a un documentStore.
+	 * 
+	 * @param documentStoreId Identificador del documentStore
+	 * @return Retorna una llista de tots els expedients que contenen instàncies de variables de tipus document o adjunt
+	 * que apunten al document store per id.
+	 */
+	public List<Long> findExpedientsIdsByDocumentStoreId(Long documentStoreId) {
+		
+		return expedientDocumentRepository.findExpedientsIdsByDocumentStoreId(documentStoreId);
+	}
+
+	public DocumentDto getDocumentSenseContingut(Long documentStoreId) {
+		if (documentStoreId != null) {
+			DocumentDto dto;
+			try {
+				dto = toDocumentDto(
+						documentStoreId,
+						false,
+						false,
+						false,
+						false,
+						false,
+						false);
+				return dto;
+			} catch (Exception e) {
+				logger.error(e);
+			}
+		}
+		return null;
+	}
+
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
+
+
 }

@@ -1,10 +1,26 @@
 package es.caib.helium.persistence.entity;
 
-import es.caib.helium.commons.dades.DocumentTipusEnum;
-import lombok.*;
-
-import javax.persistence.*;
 import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.TableGenerator;
+
+import es.caib.helium.commons.dades.DocumentTipusEnum;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Classe tipus entity que mapeja la taula de documents d'expedients
@@ -19,6 +35,7 @@ import java.io.Serializable;
 @Entity
 @Table(name= "HEL_EXPEDIENT_DOCUMENT")
 public class ExpedientDocument implements Serializable, GenericEntity<Long> {
+
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_camp")
@@ -49,4 +66,6 @@ public class ExpedientDocument implements Serializable, GenericEntity<Long> {
 
 	@Column(name = "PROCESS_INSTANCE_ID", length = 64)
 	private String processInstanceId;
+
+	private static final long serialVersionUID = 1L;
 }

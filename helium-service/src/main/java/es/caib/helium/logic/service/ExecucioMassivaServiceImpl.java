@@ -1876,7 +1876,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					if (doc == null) {
 						throw new Exception("Document inexistent: no es pot esborrar");
 					} else if (!doc.isSignat() && !doc.isRegistrat()) {
-						documentHelperV3.esborrarDocument(exp.getProcessInstanceId(), aux.getCodi());
+						documentHelperV3.esborrarDocument(null, exp.getProcessInstanceId(), aux.getCodi());
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot esborrar");
 					} else if (doc.isRegistrat()) {

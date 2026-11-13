@@ -6,27 +6,42 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import es.caib.helium.commons.dto.*;
-import es.caib.helium.logic.helper.ExceptionHelper;
-import es.caib.helium.logic.helper.*;
-import es.caib.helium.logic.helpers.DocumentHelper;
-import es.caib.helium.bpmn.engine.WProcessInstance;
-import es.caib.helium.bpmn.engine.WToken;
-import es.caib.helium.logic.intf.service.WorkflowEngineApi;
-import es.caib.helium.persistence.common.ThreadLocalInfo;
-import es.caib.helium.persistence.entity.*;
-import es.caib.helium.persistence.repository.AlertaRepository;
-import es.caib.helium.persistence.repository.DocumentStoreRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.helium.bpmn.engine.WProcessInstance;
+import es.caib.helium.bpmn.engine.WToken;
+import es.caib.helium.commons.dto.ConsultesPortafibFiltreDto;
+import es.caib.helium.commons.dto.DocumentDto;
+import es.caib.helium.commons.dto.ExpedientTipusDto;
+import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
+import es.caib.helium.commons.dto.PaginaDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.commons.dto.PortafirmesEstatEnum;
+import es.caib.helium.commons.dto.PortasignaturesDto;
 import es.caib.helium.commons.exception.PermisDenegatException;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.ExceptionHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientLoggerHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.PortasignaturesService;
+import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.persistence.common.ThreadLocalInfo;
+import es.caib.helium.persistence.entity.Alerta;
+import es.caib.helium.persistence.entity.DocumentStore;
+import es.caib.helium.persistence.entity.Expedient;
+import es.caib.helium.persistence.entity.ExpedientLog;
+import es.caib.helium.persistence.entity.Portasignatures;
+import es.caib.helium.persistence.repository.AlertaRepository;
+import es.caib.helium.persistence.repository.DocumentStoreRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.PortasignaturesRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -38,12 +53,9 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	@Autowired private PaginacioHelper paginacioHelper;
 	@Autowired private ExpedientRepository expedientRepository;
 	@Autowired private UsuariActualHelper usuariActualHelper;
-	//@Autowired private DocumentHelperV3 documentHelperV3;
-	@Autowired private DocumentHelper documentHelper;
-	@Autowired private ExpedientDocumentHelper expedientDocumentHelper;
+	@Autowired private DocumentHelperV3 documentHelperV3;
 	@Autowired private ExceptionHelper exceptionHelper;
 	@Autowired private ExpedientTipusService expedientTipusService;
-	@Autowired private PluginHelper pluginHelper;
 	@Autowired private WorkflowEngineApi workflowEngineApi;
 	@Autowired private ExpedientLoggerHelper expedientLogHelper;
 	@Autowired private ExpedientHelper expedientHelper;
@@ -382,7 +394,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 				"",
 				portasignatures.getExpedient().getEntorn());
 			alerta.setExpedient(portasignatures.getExpedient());
-			DocumentDto document = documentHelper.getDocumentSenseContingut(portasignatures.getDocumentStoreId());
+			DocumentDto document = documentHelperV3.getDocumentSenseContingut(portasignatures.getDocumentStoreId());
 			String causa = null;
 			if (document != null)
 				causa = "Error al processar resposta del portasignatures per al document \"" + document.getDocumentNom() + "\": " + errorCallback;

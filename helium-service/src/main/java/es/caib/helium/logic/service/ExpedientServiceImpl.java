@@ -648,75 +648,72 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			false);
 		List<WProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId());
 		if(processInstancesTree != null) {
-			if (expedient.isArxiuActiu() && !isPropagarEsbExp()) {
-				// Si l'expedient està emmagatzemat a dins l'arxiu comprovam que
-				// l'expedient no contengui documents firmats abans d'esborrar-lo.
-				List<String> processInstanceIds = new ArrayList<String>();
-				for (WProcessInstance processInstance : processInstancesTree) {
-					processInstanceIds.add(processInstance.getId().toString());
-				}
-	//			List<DocumentStore> documentsSignats = documentStoreRepository.findByProcessInstanceIdInAndSignatTrue(
-	//					processInstanceIds);
-	//			if (!documentsSignats.isEmpty()) {
-	//				throw new ValidacioException("Aquest expedient no es pot esborrar perquè conté documents firmats");
-	//			}
+			List<String> processInstanceIds = new ArrayList<String>();
+			for (WProcessInstance processInstance : processInstancesTree) {
+				processInstanceIds.add(processInstance.getId().toString());
 			}
-	//		List<PeticioPinbal> pets = peticioPinbalRepository.findByExpedientId(expedient.getId());
-	//		if (pets!=null) {
-	//			for (PeticioPinbal p: pets) {
-	//				if (p.getDocument()!=null) {
-	//					documentHelper.esborrarDocument(null, expedient.getProcessInstanceId(), p.getDocument().getId());
-	//				}
-	//				peticioPinbalRepository.delete(p);
-	//			}
-	//		}
-
-			peticioPinbalRepository.deleteAll(peticioPinbalRepository.findByExpedientId(expedient.getId()));
-
-			List<AnotacioEmail> anotacioEmails = anotacioEmailRepository.findByExpedientId(expedient.getId());
-			if (anotacioEmails != null && !anotacioEmails.isEmpty()) {
-				for (AnotacioEmail anotacioEmail : anotacioEmails) {
-					anotacioEmailRepository.delete(anotacioEmail);
-				}
+		}
+		// Peticions a Pinbal
+		peticioPinbalRepository.deleteAll(peticioPinbalRepository.findByExpedientId(expedient.getId()));
+		
+		// Emails d'anotacions
+		List<AnotacioEmail> anotacioEmails = anotacioEmailRepository.findByExpedientId(expedient.getId());
+		if (anotacioEmails != null && !anotacioEmails.isEmpty()) {
+			for (AnotacioEmail anotacioEmail : anotacioEmails) {
+				anotacioEmailRepository.delete(anotacioEmail);
 			}
+		}
 
-			anotacioService.esborrarAnotacionsExpedient(expedient.getId());
+		anotacioService.esborrarAnotacionsExpedient(expedient.getId());
 
-			// Ordena per id de menor a major per evitar errors de dependències
-			Collections.sort(
-				processInstancesTree,
-				new Comparator<WProcessInstance>() {
-					public int compare(WProcessInstance o1, WProcessInstance o2) {
-						String l1 = o1.getId();
-						String l2 = o2.getId();
-						return l2.compareTo(l1);
-					}
-				});
-			for (WProcessInstance pi : processInstancesTree) {
-				for (TerminiIniciat ti : terminiIniciatRepository.findByProcessInstanceId(pi.getId()))
-					terminiIniciatRepository.delete(ti);
-				workflowEngineApi.deleteProcessInstance(pi.getId());
-				for (DocumentStore documentStore : documentStoreRepository.findByProcessInstanceId(pi.getId())) {
-					if (documentStore.isSignat() && documentStore.getReferenciaCustodia() != null) {
-						try {
-//							pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
-						} catch (Exception ignored) {
-						}
-					}
-					List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
-					if (enviaments != null && enviaments.size() > 0)
-						documentNotificacioRepository.deleteAll(enviaments);
+		// Ordena per id de menor a major per evitar errors de dependències
+		Collections.sort(
+			processInstancesTree,
+			new Comparator<WProcessInstance>() {
+				public int compare(WProcessInstance o1, WProcessInstance o2) {
+					String l1 = o1.getId();
+					String l2 = o2.getId();
+					return l2.compareTo(l1);
+				}
+			});
+		for (WProcessInstance pi : processInstancesTree) {
+			// Terminis iniciats
+			for (TerminiIniciat ti : terminiIniciatRepository.findByProcessInstanceId(pi.getId()))
+				terminiIniciatRepository.delete(ti);
+			// Instància de procés
+			workflowEngineApi.deleteProcessInstance(pi.getId());
+			// Entrades de documents
+			expedientDocumentHelper.deleteByExpedient(expedient.getId());
+			// Informació de documents.
+			for (DocumentStore documentStore : documentStoreRepository.findByProcessInstanceId(pi.getId())) {
+				// Consulta si el documentSTore pot pertànyer a cap altre expedient
+				List<Long> expedientsIds = documentHelper.findExpedientsIdsByDocumentStoreId(documentStore.getId());
+				expedientsIds.remove(expedient.getId());
+				if (expedientsIds.isEmpty()) {
+					//TODO: eliminar custòdia
+//					if (documentStore.isSignat() && documentStore.getReferenciaCustodia() != null) {
+//						try {
+////								pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
+//						} catch (Exception ignored) {
+//						}
+//					}
+					//TODO eliminar alfresco
+//					if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
+//						pluginHelper.gestioDocumentalDeleteDocument(
+//							documentStore.getReferenciaFont(), expedient);
 
-					if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-						pluginHelper.gestioDocumentalDeleteDocument(
-							documentStore.getReferenciaFont(), expedient);
 					//Si el document pertany a un zip, de moment no l'esborrem, esperarem a esborrar el zip
 					if (documentStore.getZips() != null && !documentStore.getZips().isEmpty()) {
 						continue;
 					} else {
 						documentStoreRepository.deleteById(documentStore.getId());
 					}
+					
 				}
+				List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
+				if (enviaments != null && enviaments.size() > 0)
+					documentNotificacioRepository.deleteAll(enviaments);
+
 			}
 		}
 		for (Portasignatures psigna: expedient.getPortasignatures()) {
@@ -742,10 +739,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				logger.warn("Error esborrant l'expedient " + expedient.getNumero() + " " + expedient.getTitol() +" a l'Arxliu: " + e.getMessage());
 			}
 		}
-		crearRegistreExpedient(
-				expedient.getId(),
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				Registre.Accio.ESBORRAR);
+		logger.info("Expedient " + expedient.getNumeroIdentificador() + " del tipus " + expedient.getTipus().getCodi() + " eliminar.");
 	}
 
 	/**
