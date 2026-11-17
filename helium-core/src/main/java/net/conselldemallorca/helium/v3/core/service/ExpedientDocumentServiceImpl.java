@@ -1979,17 +1979,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				new Permission[] {
 						BasePermission.READ,
 						BasePermission.ADMINISTRATION});
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				processInstanceId);
-		DocumentStore documentStore = documentStoreRepository.findByIdAndProcessInstanceId(
-				documentStoreId,
-				processInstanceId);
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
 			throw new NoTrobatException(
 					DocumentStore.class, 
 					documentStoreId);
 		}
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				documentStore.getProcessInstanceId());
 		ArxiuDetallDto arxiuDetall = null;
 		if (expedient.isArxiuActiu()) {
 			if (StringUtils.isEmpty(documentStore.getArxiuUuid()))

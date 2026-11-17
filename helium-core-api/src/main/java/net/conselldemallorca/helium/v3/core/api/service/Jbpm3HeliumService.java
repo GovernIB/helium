@@ -1511,5 +1511,14 @@ public interface Jbpm3HeliumService {
 	 * Refresca o crea la tasca a comanda
 	 */
 	public void refreshComandaTasca(String taskId, ComandaTascaEstat estat);
+
+	/** Comrova que existeixi un document store pel valor passat per la variable de tipus document. Es comprova en 
+	 * el moment d'inicialitzar les variables d'una tasca o de persistir els documents al procés principal.
+	 * 
+	 * @param valor Valor que hauria de tenir l'identificador del document store.
+	 * 
+	 * @return Retorna true si troba el document store.
+	 */
+	public boolean checkValueVariableDocument(Object valor);
 	
 }

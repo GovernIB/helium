@@ -101,7 +101,6 @@ import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
@@ -137,8 +136,6 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private InteressatRepository interessatRepository;	
 	@Resource
 	private MapeigSistraRepository mapeigSistraRepository;
-	@Resource
-	private DocumentStoreRepository documentStoreRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource

@@ -166,7 +166,7 @@
 													<a 	class="icon fa fa-trash-o fa-2x" 
 														data-rdt-link-confirm="${esborrarConfirmacioMsg}"
 														data-rdt-link-ajax=true
-														href='<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/esborrar"/>' 
+														href='<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/document/${document.id}/esborrar"/>' 
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
 														title="<spring:message code='expedient.document.esborrar'/>">
 													</a>

@@ -117,6 +117,7 @@ div.procesDocument:hover {
 									<c:param name="count" value="${count}"/>
 									<c:param name="desplegat" value="${true}"/>
 									<c:param name="mostrarCapsalera" value="${false}"/>
+									<c:param name="procesId" value="${proces.id}"/>
 								</c:import>
 								<c:set var="agrupacioFirst" value="${false}"/>
 							</c:when>
