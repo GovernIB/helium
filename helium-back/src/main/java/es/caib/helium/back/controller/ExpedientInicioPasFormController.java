@@ -211,7 +211,10 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			return "expedient/iniciarPasForm";
 		}
 		// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
-		if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
+		if (expedientTipus.isDemanaNumero()
+			|| expedientTipus.isDemanaTitol()
+			|| expedientTipus.isSeleccionarAny()
+			|| expedientTipus.isProcedimentComu()) {
 			// Passa els valors per sessió
 			request.getSession().setAttribute(
 					ExpedientIniciController.CLAU_SESSIO_FORM_VALORS,
