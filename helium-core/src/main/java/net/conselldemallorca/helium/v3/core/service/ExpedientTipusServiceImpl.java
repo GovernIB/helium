@@ -2136,7 +2136,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (!UsuariActualHelper.isAdministrador(auth)) {
-			permisosHelper.filterGrantedAllOr(
+			permisosHelper.filterGrantedAny(
 					tipuss,
 					new ObjectIdentifierExtractor<ExpedientTipus>() {
 						@Override
@@ -2146,15 +2146,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					},
 					ExpedientTipus.class,
 					new Permission[] {
-							BasePermission.CREATE,
-							ExtendedPermission.RELATE},
-					new Permission[] {BasePermission.ADMINISTRATION},
+						BasePermission.ADMINISTRATION,
+						ExtendedPermission.DEFPROC_UPDATE
+					},
 					auth);
 		}
 		//Afegim els expedientTipus amb procediment comú permesos depenent de permisos amb UOs
 		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
-		if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()){	
-			permisosHelper.filterGrantedAllOr(
+		if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()){
+			permisosHelper.filterGrantedAny(
 					expTipUnitOrgList,
 					new ObjectIdentifierExtractor<ExpedientTipusUnitatOrganitzativa>() {
 						@Override
@@ -2164,9 +2164,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					},
 					ExpedientTipusUnitatOrganitzativa.class,
 					new Permission[] {
-							BasePermission.CREATE,
-							ExtendedPermission.RELATE},
-					new Permission[] {BasePermission.ADMINISTRATION},
+						BasePermission.ADMINISTRATION,
+						ExtendedPermission.DEFPROC_UPDATE
+					},
 					auth);
 			List<ExpedientTipus> expedientTipusIdsPermesosProcedimetComu = expedientTipusHelper.expedientsTipusComunsPermesos(expTipUnitOrgList);
 			//Convinem les llistes sense que hi hagi duplicats

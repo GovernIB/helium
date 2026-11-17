@@ -2394,7 +2394,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					ome.getExecucioMassiva().getAuthenticationRoles());
 			Authentication auth = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
 			
-			permisosHelper.filterGrantedAllOr(
+			permisosHelper.filterGrantedAny(
 					expedientTipusPermes,
 					new ObjectIdentifierExtractor<ExpedientTipus>() {
 						@Override
@@ -2404,9 +2404,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					},
 					ExpedientTipus.class,
 					new Permission[] {
-							BasePermission.CREATE,
-							ExtendedPermission.RELATE},
-					new Permission[] {BasePermission.ADMINISTRATION},
+						BasePermission.ADMINISTRATION,
+						ExtendedPermission.DEFPROC_UPDATE
+					},
 					auth);
 			
 			if(expedientTipusPermes.isEmpty()) {

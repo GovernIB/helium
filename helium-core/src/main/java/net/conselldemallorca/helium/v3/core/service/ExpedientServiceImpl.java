@@ -2121,7 +2121,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		expedientHelper.getExpedientComprovantPermisos(
 				piexp.getId(),
 				new Permission[] {
-						ExtendedPermission.DEFPROC_UPDATE,
 						ExtendedPermission.ADMINISTRATION});
 		DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
 		if (defprocAntiga == null)
@@ -2150,7 +2149,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
-						ExtendedPermission.DEFPROC_UPDATE,
 						ExtendedPermission.ADMINISTRATION});
 		if (!expedient.isAmbRetroaccio()) {
 			jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
