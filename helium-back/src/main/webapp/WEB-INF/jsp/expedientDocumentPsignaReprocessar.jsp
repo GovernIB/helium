@@ -20,10 +20,10 @@
 	<ul class="list-group">
 	  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.id"/></strong><span class="pull-right" id="psignaDocumentId">${portasignatures.documentId}</span></li>
 	  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.enviat"/></strong><span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${portasignatures.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/></span></li>
-	  	
+
 	  	<li class="list-group-item">
 		  		<strong><spring:message code="common.icones.doc.psigna.estat"/></strong>
-		  		
+
 		  		<c:choose>
 				<c:when test="${portasignatures.estat == 'PROCESSAT' && portasignatures.error}">
 					<span class="pull-right" id="psignaEstat">REBUTJAT</span>
@@ -35,11 +35,11 @@
 					<span class="pull-right" id="psignaEstat">${portasignatures.estat}</span>
 				</c:otherwise>
 				</c:choose>
-		  		
+
 		  	</li>
-		
+
 		<c:if test="${not empty portasignatures.motiuRebuig}">
-			<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></strong><span class="pull-right">${portasignatures.motiuRebuig}</span></li>
+			<li class="list-group-item" style="overflow: auto;"><strong><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></strong><span class="pull-right">${portasignatures.motiuRebuig}</span></li>
 		</c:if>
 		<c:if test="${not empty portasignatures.dataProcessamentPrimer}">
 			<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.proces.primer"/></strong><span class="pull-right"><fmt:formatDate value="${portasignatures.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/></span></li>
@@ -66,7 +66,7 @@
 			</div>
 		</div>
 	</c:if>
-	
+
 	<form id="modal-form" action="<c:url value='../../expedient/${expedient.id}/document/${document.id}/psignaReintentar/${portasignatures.documentId}'/>" method="POST">
 		<div id="modal-botons" class="well">
 			<c:if test="${portasignatures.error && portasignatures.estat != 'PROCESSAT'}">
@@ -77,7 +77,7 @@
 				</c:if>
 			</c:if>
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
-		</div>	
-	</form>	
+		</div>
+	</form>
 </body>
 </html>
