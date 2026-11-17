@@ -1176,8 +1176,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			BindingResult result,
 			Model model) throws IOException {
 
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		if (processInstanceId == null) {
-			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			processInstanceId = expedient.getProcessInstanceId();
 		}
 
@@ -1219,8 +1219,16 @@ public class ExpedientDocumentController extends BaseExpedientController {
 								expedientId,
 								processInstanceId,
 								documentStoreId);
-
-						expedientDocumentService.firmaServidor(processInstanceId, documentStoreId, "notificació de zip", arxiu.getContingut());
+						// Nomes es firma en servidor el zip si l'expedient esta integrat amb Arxiu
+						// Issue: https://github.com/GovernIB/helium/issues/2094
+						if(expedient.isArxiuActiu()) {
+							expedientDocumentService
+								.firmaServidor(
+									processInstanceId,
+									documentStoreId,
+									"notificació de zip",
+									arxiu.getContingut());
+						}
 					}
 				}
 			} catch (Exception e) {
