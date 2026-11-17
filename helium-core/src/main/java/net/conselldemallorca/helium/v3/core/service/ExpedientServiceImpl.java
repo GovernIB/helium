@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -43,6 +45,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
@@ -214,6 +217,8 @@ import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaReposi
 @Service("expedientServiceV3")
 public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListener {
 	
+	private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2);
+
 	private static List<Long> currentlyMigratingExpedients = Collections.synchronizedList(new ArrayList<Long>());
 	
 	private ExpedientService self;
@@ -2884,11 +2889,18 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Transactional(readOnly=true)
 	public List<ExpedientConsultaDissenyDto> findExpedientsExportacio(List<Long> ids, EntornDto entornActual) {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
-		if (ids == null || ids.isEmpty()) {
+		if (ids == null || ids.isEmpty())
 			return resposta;
+		
+		List<Expedient> listExpedients = new ArrayList<Expedient>();
+		// Issue: https://github.com/GovernIB/helium/issues/2106
+		// Cream chunks del ids a consultar per evitar errors de llargaria de la query
+		List<List<Long>> chunks = Lists.partition(ids, 100);
+		for(List<Long> chunk : chunks) {
+			listExpedients.addAll(expedientRepository.findByIdIn(chunk));
 		}
+		
 		List<Camp> camps = new ArrayList<Camp>();
-		List<Expedient> listExpedients = expedientRepository.findByIdIn(ids);
 		ExpedientTipus expedientTipus = expedientRepository.findOne(listExpedients.get(0).getId()).getTipus();
 		if(expedientTipus.isAmbInfoPropia()) {
 			camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
@@ -2908,14 +2920,18 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		int firstRow = 0;
 		int maxResults = -1;
 
-		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientPaginatV3(
-				entornActual.getCodi(),
-				ids,
-				camps,
-				sort,
-				asc,
-				firstRow,
-				maxResults);
+		List<Map<String, DadaIndexadaDto>> dadesExpedients = new ArrayList<Map<String, DadaIndexadaDto>>();
+		for(List<Long> chunk : chunks) {
+			dadesExpedients.addAll(
+					luceneHelper.findAmbDadesExpedientPaginatV3(
+							entornActual.getCodi(),
+							chunk,
+							camps,
+							sort,
+							asc,
+							firstRow,
+							maxResults));
+		}
 
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
@@ -2943,8 +2959,23 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				it.remove();
 			}
 		}
+		
 		return resposta;
 	}
+	/*
+	@Override
+	public List<ExpedientConsultaDissenyDto> findExpedientsExportacio(String sessionId) {
+		List<ExpedientConsultaDissenyDto> resposta = informes.get(sessionId);
+		informes.remove(sessionId);
+		informesEstat.remove(sessionId);
+		return resposta;
+	}
+	
+	@Override
+	public Integer getExpedientsExportacioState(String sessionId) {
+		return informesEstat.get(sessionId);
+	}
+	*/
 
     @Override
 	@Transactional(readOnly=true)

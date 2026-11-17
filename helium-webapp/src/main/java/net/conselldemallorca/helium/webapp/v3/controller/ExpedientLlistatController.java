@@ -11,6 +11,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +38,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,8 +52,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.sun.star.awt.Command;
 
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -80,6 +83,13 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManage
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientLlistatController extends BaseExpedientController {
+	
+	@Autowired
+	private TaskExecutor asyncTaskExecutor;
+	/** Propietat on es guarda la informació de les execucions de generació dades per usuari. Map<sessio_id, dades_expedients>. */
+	private Map<String, String> informes = new ConcurrentHashMap<String, String>();
+	private Map<String, Integer> informesEstat = new ConcurrentHashMap<String, Integer>();
+	
 
 	@Autowired
 	private ExpedientService expedientService;
@@ -314,13 +324,13 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
 
-	@RequestMapping(value = "/descarregardades", method = RequestMethod.GET)
+	@RequestMapping(value = "/generardades", method = RequestMethod.GET)
 	@ResponseBody
-	public void descarregarDades(
+	public void generarDades(
 			HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		final EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
 		if (ids == null ||ids.isEmpty()) {
@@ -333,10 +343,71 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			MissatgesHelper.error(request, msgErr);
 			throw new ExportException(msgErr);
 		}
+		
+		
 
+		final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		final String sessionId = request.getSession().getId();
+		final List<Long> idList = new ArrayList<Long>(ids);
+		asyncTaskExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					informesEstat.put(sessionId, 0);
+					SecurityContextHolder.getContext().setAuthentication(authentication);
+					List<ExpedientConsultaDissenyDto> expedients = expedientService.findExpedientsExportacio(idList, entornActual);
+					ExpedientTipusDto expedientTipus = expedients.get(0).getTipus();
+					List<DefinicioProcesDto> definicionsProces = expedientTipusService.definicioFindDefinicionsProcDarreraVersio(expedientTipus, entornActual);
+					String b64Document = ExpedientLlistatController.exportXLSToB64(expedients, definicionsProces, expedientTipus, entornActual);
+					
+					informes.put(sessionId, b64Document);
+					informesEstat.put(sessionId, 1);
+				} catch (Throwable th) {
+					informes.remove(sessionId);
+					informesEstat.remove(sessionId);
+					logger.error(th.getMessage(), th);
+				}
+			}
+		});
+	}
+	
+	@RequestMapping(value = "/descarregardades/ready", method = RequestMethod.GET)
+	@ResponseBody
+	public Integer descarregarDadesInfo(
+			HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		return informesEstat.get(request.getSession().getId());
+	}
+	
+	@RequestMapping(value = "/descarregardades", method = RequestMethod.GET)
+	@ResponseBody
+	public void descarregarDades(
+			HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
+		if (ids == null ||ids.isEmpty()) {
+			String msgErr = getMessage(request, "error.no.exp.selec");
+			MissatgesHelper.error(request, msgErr);
+			throw new ExportException(msgErr);
+		}
+		if (expedientService.isDiferentsTipusExpedients(ids)) {
+			String msgErr = getMessage(request, "error.no.exp.selec.diferenttipus");
+			MissatgesHelper.error(request, msgErr);
+			throw new ExportException(msgErr);
+		}
+		
+		String sessionId = request.getSession().getId();
+		
 		try {
-			List<ExpedientConsultaDissenyDto> expedients = expedientService.findExpedientsExportacio(new ArrayList<Long>(ids), entornActual);
-			exportXLS(response, expedients, expedients.get(0).getTipus(), entornActual);
+			String informe = informes.get(sessionId);
+			String fileName = "Exportacio_expedients.xls";
+			response.setHeader("Pragma", "");
+			response.setHeader("Expires", "");
+			response.setHeader("Cache-Control", "");
+			response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+			response.setContentType("application/vnd.ms-excel;base64");
+			response.getOutputStream().write(informe.getBytes());
 		} catch(Exception e) {
 			logger.error("Error generant excel amb les dades dels expedients", e);
 			MissatgesHelper.error(
@@ -347,10 +418,13 @@ public class ExpedientLlistatController extends BaseExpedientController {
 							new Object[]{e.getLocalizedMessage()}),
 					e);
 			throw(e);
+		} finally {
+			informes.remove(sessionId);
+			informesEstat.remove(sessionId);
 		}
 	}
 
-	private void exportXLS(HttpServletResponse response, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, ExpedientTipusDto expTipus, EntornDto entornActual) {
+	public static String exportXLSToB64(List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, List<DefinicioProcesDto> definicionsProces, ExpedientTipusDto expTipus, EntornDto entornActual) throws Exception {
 		
 		XSSFWorkbook wb = new XSSFWorkbook();
 
@@ -373,39 +447,33 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		if(!expTipus.isAmbInfoPropia()) {
 			
 
-			List<DefinicioProcesDto> definicionsProces = expedientTipusService.definicioFindDefinicionsProcDarreraVersio(expTipus, entornActual);
+//			List<DefinicioProcesDto> definicionsProces = expedientTipusService.definicioFindDefinicionsProcDarreraVersio(expTipus, entornActual);
 			for(DefinicioProcesDto defProc : definicionsProces) {
 				String sheetName = defProc.getJbpmKey();
 				XSSFSheet sheet = wb.createSheet(sheetName);
 				if(defProc.getJbpmKey().equals(expTipus.getJbpmProcessDefinitionKey())){
 					wb.setSheetOrder(sheetName, 0);//Primera fulla la del procés principal
 				}
-				createBook(sheetName, sheet, wb, expedientsConsultaDissenyDto, dStyle, iStyle, bdStyle, cellDateStyle);
+				ExpedientLlistatController.createBook(sheetName, sheet, wb, expedientsConsultaDissenyDto, dStyle, iStyle, bdStyle, cellDateStyle);
 			}
 		}
 		else {
 			String sheetName = expTipus.getJbpmProcessDefinitionKey();
 			XSSFSheet sheet = wb.createSheet(sheetName);
-			createBook(sheetName, sheet, wb, expedientsConsultaDissenyDto, dStyle, iStyle, bdStyle, cellDateStyle);
+			ExpedientLlistatController.createBook(sheetName, sheet, wb, expedientsConsultaDissenyDto, dStyle, iStyle, bdStyle, cellDateStyle);
 		}
-
+		
 		try {
-			String fileName = "Exportacio_expedients.xls";
-			response.setHeader("Pragma", "");
-			response.setHeader("Expires", "");
-			response.setHeader("Cache-Control", "");
-			response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-			response.setContentType("application/vnd.ms-excel;base64");
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			wb.write(byteArrayOutputStream);
-			String encodedExcel = new String(Base64.encodeBase64(byteArrayOutputStream.toByteArray()));
-			response.getOutputStream().write(encodedExcel.getBytes());
+			return new String(Base64.encodeBase64(byteArrayOutputStream.toByteArray()));
 		} catch (Exception e) {
 			logger.error("No s'ha pogut generar l'excel del llistat d'expedients.");
+			throw e;
 		}
 	}
 	
-	private void createBook(String sheetName, 
+	public static void createBook(String sheetName, 
 			XSSFSheet sheet,
 			XSSFWorkbook wb, 
 			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, 
@@ -447,11 +515,11 @@ public class ExpedientLlistatController extends BaseExpedientController {
 					if(dadaKey.contains("/")) {
 						String[] spliDadatKey = (e.getKey()).split("/");
 						if(spliDadatKey!=null && spliDadatKey[0].equals(sheetName)) {
-							addValues(val, cell, xlsRow, colNum++, iStyle, bdStyle, cellDateStyle, dStyle, e);
+							ExpedientLlistatController.addValues(val, cell, xlsRow, colNum++, iStyle, bdStyle, cellDateStyle, dStyle, e);
 						}
 					}
 					else {
-						addValues(val, cell, xlsRow, colNum++, iStyle, bdStyle, cellDateStyle, dStyle, e);
+						ExpedientLlistatController.addValues(val, cell, xlsRow, colNum++, iStyle, bdStyle, cellDateStyle, dStyle, e);
 					}
 				}
 				for (int c=0; c<numCols; c++) {
@@ -463,7 +531,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 	}
 	
-	private int createHeader(XSSFSheet sheet, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, String sheetName) {
+	public static int createHeader(XSSFSheet sheet, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, String sheetName) {
 
 		XSSFFont bold = sheet.getWorkbook().createFont();
 		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
@@ -510,7 +578,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		return numCols;
 	}
 	
-	private void addValues(DadaIndexadaDto val, 
+	public static void addValues(DadaIndexadaDto val, 
 			XSSFCell cell, 
 			XSSFRow xlsRow, 
 			int colNum, 
