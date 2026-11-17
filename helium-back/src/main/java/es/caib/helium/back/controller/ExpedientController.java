@@ -16,6 +16,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import es.caib.helium.back.helper.TascaFormHelper;
+import es.caib.helium.back.helper.TascaFormValidatorHelper;
+import es.caib.helium.commons.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,6 +29,9 @@ import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.Errors;
+import org.springframework.validation.MapBindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -40,21 +46,6 @@ import es.caib.helium.back.command.CanviVersioProcesCommand;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.ObjectTypeEditorHelper;
 import es.caib.helium.back.mvc.ArxiuView;
-import es.caib.helium.commons.dto.AlertaDto;
-import es.caib.helium.commons.dto.ArxiuDto;
-import es.caib.helium.commons.dto.DadaListDto;
-import es.caib.helium.commons.dto.DefinicioProcesExpedientDto;
-import es.caib.helium.commons.dto.DocumentDto;
-import es.caib.helium.commons.dto.DocumentFinalitzarDto;
-import es.caib.helium.commons.dto.DocumentListDto;
-import es.caib.helium.commons.dto.EstatDto;
-import es.caib.helium.commons.dto.ExpedientDto;
-import es.caib.helium.commons.dto.ExpedientErrorDto;
-import es.caib.helium.commons.dto.ExpedientFinalitzarDto;
-import es.caib.helium.commons.dto.PaginacioParamsDto;
-import es.caib.helium.commons.dto.PersonaDto;
-import es.caib.helium.commons.dto.TerminiDto;
-import es.caib.helium.commons.dto.TerminiIniciatDto;
 import es.caib.helium.commons.dto.regles.CampFormProperties;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
@@ -645,6 +636,49 @@ public class ExpedientController extends BaseExpedientController {
 		if (!variablesObligatories.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.dades.obligatories", new Object[] {variablesObligatories.size(), variablesObligatories}));
 			correcte = false;
+		}
+		Map<String, Object> variables = new HashMap<String, Object>();
+		List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
+		List<ExpedientDadaDto> expedientDades = expedientDadaService.findAmbInstanciaProces(expedient.getId(), null);
+		for(ExpedientDadaDto eDada : expedientDades) {
+			if (!eDada.getCampTipus().equals(CampTipusDto.ACCIO)) {
+				variables.put(
+					eDada.getVarCodi(),
+					eDada.getVarValor());
+			}
+			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(eDada);
+			tascaDades.add(tascaDada);
+		}
+
+		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+			expedientService,
+			tascaDades);
+		Object commandValidar = TascaFormHelper.getCommandForCamps(
+			tascaDades,
+			variables,
+			campsAddicionals,
+			campsAddicionalsClasses,
+			false);
+		validator.setValidarExpresions(true);
+		validator.setValidarObligatoris(true);
+		Errors errors = new MapBindingResult(new HashMap<String, Object>(), "estatDades");
+		validator.validate(commandValidar, errors);
+		if(errors.hasErrors()) {
+			correcte = false;
+			StringBuilder validationMessage = new StringBuilder(getMessage(request, "expedient.info.estat.canviar.dades.invalides", new Object[] {errors.getErrorCount()}));
+			boolean primer = true;
+			for(ObjectError error : errors.getAllErrors()) {
+				validationMessage
+					.append(primer?": [": ", [")
+					.append(error.getObjectName())
+					.append(": ")
+					.append(error.getDefaultMessage())
+					.append("]");
+				primer = false;
+			}
+			MissatgesHelper.error(request, validationMessage.toString());
 		}
 		// Comprova les dades obligatòries pel següent estat
 		List<String> variablesObligatoriesEntrada = new ArrayList<String>();

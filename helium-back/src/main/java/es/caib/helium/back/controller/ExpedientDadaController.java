@@ -379,6 +379,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			SessionStatus status,
 			Model model) {
 		try {
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
 			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
 					expedientDadaService.findOnePerInstanciaProces(
@@ -398,7 +399,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 					campsAddicionals,
 					campsAddicionalsClasses,
 					false);
-			validator.setValidarExpresions(false);
+			validator.setValidarExpresions(
+				expedient.getTipus().getTipus() == ExpedientTipusTipusEnumDto.ESTAT);
 			validator.setValidarObligatoris(true);
 			validator.validate(commandValidar, result);
 			if (result.hasErrors()) {
@@ -740,7 +742,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
 					expedientService,
 					tascaDades);
-			validator.setValidarExpresions(false);
+			validator.setValidarExpresions(true);
 			validator.setValidarObligatoris(true);
 			validator.validate(commandValidar, result);
 			if (result.hasErrors()) {

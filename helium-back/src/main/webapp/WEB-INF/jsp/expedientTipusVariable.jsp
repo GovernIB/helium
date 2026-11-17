@@ -16,7 +16,7 @@
 
 <c:choose>
 	<c:when test="${not empty expedientTipus || not empty definicioProcesId}">
-		
+
 		<c:if test="${not empty expedientTipus && empty definicioProcesId && !expedientTipus.ambInfoPropia}">
 			<div class="alert alert-warning">
 				<span class="fa fa-exclamation-triangle"></span>
@@ -29,7 +29,7 @@
 				<spring:message code="definicio.proces.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
 			</div>
 		</c:if>
-		
+
 		<form class="well">
 			<div class="row">
 				<div class="col-sm-10">
@@ -60,7 +60,7 @@
 				data-default-order="3"
 				data-length-menu='[[10,25,50,-1],["10","25","50","<spring:message code="comu.totes"/>"]]'
 				data-rowhref-toggle="modal"
-				data-rowhref-template="#rowhrefTemplateVariables" 
+				data-rowhref-template="#rowhrefTemplateVariables"
 				data-botons-template="#tableButtonsVariableTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -72,7 +72,7 @@
 					<spring:message code="expedient.tipus.camp.llistat.columna.codi"/>
 						<script id="cellExpedientTipusVariableCodiTemplate" type="text/x-jsrender">
 								{{if heretat }}
-									<span class="dada-heretada">{{:codi}}</span> 
+									<span class="dada-heretada">{{:codi}}</span>
 									<span class="label label-primary herencia" title="<spring:message code="expedient.tipus.camp.llistat.codi.heretat"/>">R</span>
 								{{else}}
 									{{:codi}}
@@ -92,13 +92,11 @@
 						{{/if}}
 						</script>
 					</th>
-					<c:if test="${expedientTipus.tipus != 'ESTAT' }">
-						<th data-col-name="validacioCount" data-template="#cellValidacionsTemplate" data-orderable="false" width="13%">
-							<script id="cellValidacionsTemplate" type="text/x-jsrender">
-								<a href="${baseUrl}/variable/{{:id}}/validacio" data-toggle="modal" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.validacions"/>&nbsp;<span class="badge">{{:validacioCount}}</span></a>
-							</script>
-						</th>
-					</c:if>
+					<th data-col-name="validacioCount" data-template="#cellValidacionsTemplate" data-orderable="false" width="13%">
+						<script id="cellValidacionsTemplate" type="text/x-jsrender">
+							<a href="${baseUrl}/variable/{{:id}}/validacio" data-toggle="modal" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.validacions"/>&nbsp;<span class="badge">{{:validacioCount}}</span></a>
+						</script>
+					</th>
 					<th data-col-name="campRegistreCount" data-template="#cellMembresTemplate" data-orderable="false" width="13%">
 						<script id="cellMembresTemplate" type="text/x-jsrender">
 						{{if tipus == "REGISTRE" }}
@@ -120,11 +118,11 @@
 									<li id="accioAgrupacions">
 										{{if agrupacio == null}}
 											<span class="fa fa-plus" style="margin-left:10px"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.agrupar"/>
-											<br/>						
+											<br/>
 										{{else}}
 											<a href="${baseUrl}/variable/{{:id}}/desagrupar"
 												data-toggle="ajax" ><span class="fa fa-minus"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.desagrupar"/>
-										{{/if}}																		
+										{{/if}}
 									</li>
 								{{/if}}
 							</ul>
@@ -137,7 +135,7 @@
 			</thead>
 		</table>
 
-		<script id="rowhrefTemplateVariables" type="text/x-jsrender">${baseUrl}/variable/{{:id}}/update</script>	
+		<script id="rowhrefTemplateVariables" type="text/x-jsrender">${baseUrl}/variable/{{:id}}/update</script>
 
 		<script id="tableButtonsVariableTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
@@ -151,7 +149,7 @@
 </c:choose>
 
 <script type="text/javascript">
-// <![CDATA[            
+// <![CDATA[
 // Llistat d'identificadors d'agrupacions heretades
 var agrupacionsHeretadesIds =  ${agrupacionsHeretadesIds};
 //Llistat d'identificadors d'agrupacions que sobreescriuen
@@ -164,11 +162,11 @@ function formatAgrupacioSelectHerencia(item) {
 		res = item.text + " <span class='label label-primary'>R</span>";
 	else if(item.id && agrupacionsSobreescriuenIds.indexOf(parseInt(item.id)) >= 0)
 		res = item.text + " <span class='label label-warning'>S</span>";
-	else 
+	else
 		res = item.text;
     return res;
   }
-   
+
 $(document).ready(function() {
 
 	// Posa el text "Totes" pel botó de selecció de totes les variables
@@ -187,7 +185,7 @@ $(document).ready(function() {
 				}
 			},
 			error: function(e) {
-				var msg = 'Error esborrant la agrupació'; 
+				var msg = 'Error esborrant la agrupació';
 				alert(msg);
 				console.log(msg+': '+e);
 			},
@@ -199,7 +197,7 @@ $(document).ready(function() {
 		e.preventDefault();
 		return false;
 	});
-	
+
 	// Canvi en la selecció de les agrupacions
 	$('#agrupacions').change(function() {
 		var agrupacioId = $(this).val();
@@ -229,20 +227,20 @@ $(document).ready(function() {
         formatResult: formatAgrupacioSelectHerencia,
         formatSelection: formatAgrupacioSelectHerencia
     });
-	
+
 	// Amaga la columna d'ordre
 	$('#expedientTipusVariable').DataTable().column(2).visible(false);
-	
+
 	// Quan es repinta la taula actualitza els enllaços
 	$('#expedientTipusVariable').on('draw.dt', function() {
 		// Afegeix les opcions per a agrupar de les agrupacions existents
 		if ($("#agrupacions").val() <  0) {
 			$("tr", this).each(function(){
-				if ($(this).find("#accioAgrupacions").length > 0) {	
+				if ($(this).find("#accioAgrupacions").length > 0) {
 					var campId = $(this).attr('id').replace('row_','');
 					$agrupacions = $(this).find("#accioAgrupacions");
 					$("#agrupacions option").each(function(){
-						if ($(this).val() > 0 
+						if ($(this).val() > 0
 								&& (agrupacionsHeretadesIds.indexOf(parseInt($(this).val())) < 0))
 							$agrupacions.append("<a href='${baseUrl}/variable/"+campId+"/agrupar/"+$(this).val()+"' data-toggle='ajax'>"+$(this).text()+"</a>");
 					});
@@ -253,16 +251,16 @@ $(document).ready(function() {
 					$(this).webutilAjax();
 					$(this).attr('data-ajax-eval', 'true');
 				}
-			});			
+			});
 		}
 
 		var agrupacioId = $("#agrupacions").val();
-		if (agrupacioId >= 0 
+		if (agrupacioId >= 0
 				&& agrupacionsHeretadesIds.indexOf(parseInt(agrupacioId)) < 0) {
 			// Posa la taula com a ordenable
 			$("#expedientTipusVariable").tableDnD({
 		    	onDragClass: "drag",
-		    	onDrop: function(table, row) {	      
+		    	onDrop: function(table, row) {
 		        	var pos = row.rowIndex - 1;
 		        	var id= obtenirId(pos);
 		        	if (pos != filaMovem) {
@@ -279,11 +277,11 @@ $(document).ready(function() {
 		        $(this.cells[0]).addClass('showDragHandle');
 		    }, function() {
 		        $(this.cells[0]).removeClass('showDragHandle');
-		    });	
+		    });
 		  	// Canvia la ordenació
 			$('#expedientTipusVariable').DataTable().order([2, 'asc']);
 		}
-	  });		
+	  });
 });
 
 function canviarPosicioVariable( id, pos) {
@@ -302,8 +300,8 @@ function canviarPosicioVariable( id, pos) {
 		complete: function() {
 			webutilRefreshMissatges();
 		}
-		
-	});	
+
+	});
 }
 
 function obtenirId(pos){
@@ -311,21 +309,21 @@ function obtenirId(pos){
 		var fila = filaMovem + 1;
 	}
 	else{
-	
+
 		if( filaMovem < pos){	//baixam elements
 			var fila = filaMovem + (pos-filaMovem)+1;
 		}else{					//pujam elements
 			var fila = filaMovem - (filaMovem-pos)+1;
 		}
 	}
-	id = $("#expedientTipusVariable tr:eq("+fila+")").attr("id");	
+	id = $("#expedientTipusVariable tr:eq("+fila+")").attr("id");
 	id2 = id.split("_");
 	return id2[1] ;
 }
 
 function refrescaTaulaVariables() {
 	var agrupacioId = $("#agrupacions").val();
-	$('#expedientTipusVariable').webutilDatatable('refresh-url', '${baseUrl}/variable/datatable?agrupacioId='+agrupacioId);		
+	$('#expedientTipusVariable').webutilDatatable('refresh-url', '${baseUrl}/variable/datatable?agrupacioId='+agrupacioId);
 }
 
 function refrescarAgrupacions() {
@@ -363,4 +361,4 @@ function callbackModalAgrupacions() {
 }
 
 // ]]>
-</script>			
+</script>
