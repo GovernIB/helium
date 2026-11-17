@@ -24,8 +24,8 @@
 	.documentTramitacio .btn-file {position: relative; overflow: hidden;}
 	.documentTramitacio .btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
 	.documentTramitacio .col-xs-4 {width: 15%;}
-	.documentTramitacio .col-xs-10 {width: 85%;}	
-	.documentTramitacio .col-xs-10.arxiu {padding-right: 0px;}			
+	.documentTramitacio .col-xs-10 {width: 85%;}
+	.documentTramitacio .col-xs-10.arxiu {padding-right: 0px;}
 	.documentTramitacio .div_timer .input-group {padding-left: 15px;}
 	.documentTramitacio .div_timer .input-group-addon {width: 5% !important;}
 	.documentTramitacio .comentari {padding-top: 30px;}
@@ -42,7 +42,7 @@
 	}
 </script>
 <c:if test="${not tasca.validada}">
-	<div class="alert alert-warning">	
+	<div class="alert alert-warning">
 		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
 		<p>
 			<span class="fa fa-warning"></span>
@@ -51,7 +51,7 @@
 	</div>
 </c:if>
 <c:if test="${not tasca.documentsComplet}">
-	<div class="alert alert-warning alert-valid">	
+	<div class="alert alert-warning alert-valid">
 		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
 		<p>
 			<span class="fa fa-warning"></span>
@@ -62,7 +62,7 @@
 
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
-				
+
 		<c:choose>
 			<c:when test="${isModal}">
 				<c:url var="tascaDocumentAction" value="/modal/tasca/${tasca.id}/document/${document.id}/adjuntar"/>
@@ -75,7 +75,7 @@
 				<c:url var="documentBorrarAction" value="/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"/>
 			</c:otherwise>
 		</c:choose>
-	
+
 		<form id="documentsForm" class="form-horizontal form-tasca" action="${tascaDocumentAction}" enctype="multipart/form-data" method="post" data-document-id="${document.id}">
 			<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 			<input type="hidden" id="clearFirmes_${document.id}" name="clearFirmes" value="false"/>
@@ -84,7 +84,7 @@
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
 		 			<c:if test="${not empty document.arxiuNom and document.arxiuContingutDefinit and tasca.validada and empty document.tokenSignatura}">
 						<a 	class="icon generar_plantilla"
-							id="plantilla${document.id}" 
+							id="plantilla${document.id}"
 							href="${documentGenerarAction}"
 							<c:if test="${document.plantilla and document.adjuntarAuto}">
 							</c:if>
@@ -92,12 +92,12 @@
 							<i class="fa fa-file-text-o"></i>
 						</a>
 		 			</c:if>
-		 			
+
 		 			<c:if test="${not empty document.tokenSignatura and document.signat}">
 		 				<c:choose>
 							<c:when test="${not empty document.urlVerificacioCustodia}">
 								<a class="icon signature" href="${document.urlVerificacioCustodia}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
-							</c:when>								
+							</c:when>
 							<c:when test="${not empty document.signaturaUrlVerificacio}">
 								<c:choose>
 									<c:when test="${document.ntiCsv != null}">
@@ -113,19 +113,19 @@
 		 				</c:choose>
 					</c:if>
 					<c:if test="${document.registrat}">
-						<a 	data-rdt-link-modal="true" 
-							class="icon registre" 
+						<a 	data-rdt-link-modal="true"
+							class="icon registre"
 							href="<c:url value='/modal/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/registre/verificar'/>">
 							<span class="fa fa-book" title="<spring:message code='expedient.document.registrat' />"></span>
 						</a>
 					</c:if>
-		 			
+
 					<a title="<spring:message code='comuns.descarregar' />" class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" id="downloadUrl${document.id}" href="<c:url value='/tasca/${tasca.id}/document/${document.documentCodi}/descarregar'/>">
 						<i class="fa fa-download"></i>
 					</a>
 					<c:if test="${!bloquejarEdicioTasca}">
-						<a 	class="icon <c:if test="${empty document.tokenSignatura or not tasca.validada}">hide</c:if>" 
-							id="removeUrl${document.id}" 
+						<a 	class="icon <c:if test="${empty document.tokenSignatura or not tasca.validada}">hide</c:if>"
+							id="removeUrl${document.id}"
 							href="${documentBorrarAction}"
 							data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 							title="<spring:message code='expedient.massiva.tasca.doc.borrar' />">
@@ -134,7 +134,7 @@
 					</c:if>
 
 		 			<c:if test="${document.portafirmesActiu && !document.signat && !bloquejarEdicioTasca && tasca.validada && ((not empty document.tokenSignatura))}">
-		 			
+
 		 				<c:if test="${(document.psignaActual!=null) && (document.psignaActual.firmaEnProces || document.psignaActual.error)}">
 							<c:choose>
 								<c:when test="${document.psignaActual.error}">
@@ -155,7 +155,7 @@
 							</c:choose>
 
 							<a 	href="<c:url value='/modal/tasca/${tasca.id}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/pendentSignatura'/>"
-								data-rdt-link-modal="true" 
+								data-rdt-link-modal="true"
 								data-rdt-link-modal-maximize="false"
 								data-rdt-link-modal-min-height="400"
 								data-rdt-link-callback="callbackModalPortafibTasca(${tasca.id});"
@@ -163,14 +163,14 @@
 									<span class="icon fa ${iconPendentSignaturaBtn} psigna-info" title="<spring:message code='${titlePendentSignaturaBtn}' />"></span>
 							</a>
 		 				</c:if>
-		 			
+
 	 					<c:if test="${(document.psignaActual==null) || document.psignaActual.reintentarFirma}">
 	 						<!-- S'ha de pintar el sobre: si no hi ha firma, o si la darrera vigent s'ha cancelat o rebutjat -->
 							<a 	href="<c:url value='/modal/tasca/${tasca.id}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/enviarPortasignatures'/>"
-								data-rdt-link-modal="true" 
+								data-rdt-link-modal="true"
 								data-rdt-link-modal-maximize="false"
 								data-rdt-link-modal-min-height="400"
-								data-rdt-link-callback="callbackModalPortafibTasca(${tasca.id});"									
+								data-rdt-link-callback="callbackModalPortafibTasca(${tasca.id});"
 								class="icon enviarPortasignatures"
 								title="<spring:message code='expedient.document.enviar.portasignatures' />">
 								<span class="fa fa-envelope-o" /></span>
@@ -187,12 +187,12 @@
 				</h4>
 			</div>
 			<c:if test="${tasca.validada and !bloquejarEdicioTasca}">
-			
+
 				<div id="amagarFile${document.id}" class="form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
-					
+
 					<div class="form-group">
 						<label class="control-label col-xs-4" for="contingut${document.id}"><spring:message code='expedient.document.arxiu' /></label>
-						
+
 				        <div class="col-xs-8 arxiu">
 				            <div class="input-group">
 				                <input id="contingut${document.id}" name="contingut" class="form-control input-file" />
@@ -204,7 +204,7 @@
 				            </div>
 						</div>
 					</div>
-										
+
 					<div class="form-group">
 						<label class="control-label col-xs-4" for="ambFirma${document.id}"><spring:message code="expedient.document.form.camp.amb.firma"></spring:message></label>
 						<div class="controls col-xs-8">
@@ -215,9 +215,9 @@
 							</div>
 						</div>
 					</div>
-					
+
 					<div id="input-firma${document.id}" class="hidden">
-						
+
 						<div class="form-group">
 							<label class="control-label col-xs-4" for="tipusFirma${document.id}">
 								<spring:message code="expedient.document.form.camp.tipus.firma"></spring:message>
@@ -247,8 +247,8 @@
 								</div>
 							</div>
 						</div>
-					</div>					
-					
+					</div>
+
 	        	</div>
 				<div id="div_timer${document.id}" class="div_timer form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
 			    	<div class="<c:if test="${not empty campErrors}"> has-error</c:if>">
@@ -268,7 +268,7 @@
 </c:forEach>
 
 <script type="text/javascript">
-	// <![CDATA[	
+	// <![CDATA[
 	var esFirmaValida = true;
 	$(document).on('change', '.btn-file :file', function() {
 		var input = $(this),
@@ -276,22 +276,22 @@
 		label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
 		input.trigger('fileselect', [numFiles, label]);
 	});
-	
+
 	$(document).ready( function() {
-		
+
 		$('input[name=arxiu]').on('change', function(e) { validateFirma(this, 'arxiu')});
 		$('input[name=firma]').on('change', function(e) { validateFirma(this, 'firma')});
-		
+
 		$('.input-group:has( > input[name=contingut])').on('click', showLoader);
 		$('.input-group:has( > input[name=contingutFirma])').on('click', showLoader);
 		$('input[name=arxiu]').on('cancel', hideLoader);
 		$('input[name=firma]').on('cancel', hideLoader);
-		
+
 		$('.documentTramitacio .icon').heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false,
 			alertesRefreshUrl: "<c:url value="/nodeco/missatges"/>"
-		});	
+		});
 		$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
 			var input = $(this).parents('.input-group').find(':text'),
 			log = numFiles > 1 ? numFiles + ' files selected' : label;
@@ -301,7 +301,7 @@
 				if( log )
 					alert(log);
 			}
-		});	
+		});
 		$('.date').datepicker({
     		format: 'dd/mm/yyyy',
     		weekStart: 1,
@@ -316,18 +316,28 @@
 			$(this).parent().find('input[type="file"]').click();
 		});
 		$('.generar_plantilla').click(function(e) {
-			
-			if (confirm('<spring:message code='expedient.tasca.doc.generar.confirm' />')) {
-				try {
-					$('.div-dades-carregant', window.parent.document).show();
-				} catch(e) {
-					console.error('No es troba el .div-dades-carregant: ' + e);				
-				}	
-			} else {
-				e.stopPropagation();
-				e.preventDefault();
-				return false;
-			}
+			e.stopPropagation();
+			e.preventDefault();
+
+			$('.div-dades-carregant', window.parent.document).show();
+			fetch($(this).attr('href'))
+				.then(async function(data) {
+					var contentType = data.headers.get('content-type');
+					if(contentType.includes("application/octet-stream")) {
+						var contentDisposition = data.headers.get('content-disposition');
+						var fileName = contentDisposition.substring(contentDisposition.indexOf('"')+1, contentDisposition.lastIndexOf('"'));
+						var blob = await data.blob()
+						var a = document.createElement('a');
+						a.href = URL.createObjectURL(blob);
+						a.download = fileName;
+						a.click();
+						URL.revokeObjectURL(a.href);
+					} else {
+						window.location.reload();
+					}
+				}).finally(function() {
+				$('.div-dades-carregant', window.parent.document).hide();
+			});
 		});
 		$('input[type=checkbox][name=ambFirma]').on('change', function() {
 			var form= $(this).closest('form')
@@ -353,25 +363,25 @@
 			} else {
 				$('#input-firma-arxiu' + documentId).addClass('hidden');
 			}
-		});	
+		});
 		$('.guardar').click(function(e) {
-			$('.div-dades-carregant', window.parent.document).show();	
+			$('.div-dades-carregant', window.parent.document).show();
 		});
 	});
-	
+
 	function checkFile(docId) {
         var fileExtension = "";
         var fileElementVal = $("#arxiu"+docId).val();
         if (fileElementVal.lastIndexOf(".") > 0) {
             fileExtension = fileElementVal.substring(fileElementVal.lastIndexOf(".") + 1, fileElementVal.length);
         }
-        if($("#arxiu"+docId).attr('accept') !== undefined && $("#arxiu"+docId).attr('accept').indexOf(fileExtension) == -1) {    	
+        if($("#arxiu"+docId).attr('accept') !== undefined && $("#arxiu"+docId).attr('accept').indexOf(fileExtension) == -1) {
             alert("<spring:message code='error.extensio.document.permesa' /> "+$("#arxiu"+docId).attr('accept'));
             return false;
         }
         return true;
     }
-	
+
 	function validateFirma(self, tipus) {
 
 		var form = $(self).closest('form');
@@ -380,7 +390,7 @@
 			$('button[type=submit]', form).removeAttr('disabled');
 			return;
 		}
-		
+
 		var formData = new FormData(form[0]);
 		$('#firmaAlert').remove();
 		$('#firmaError').remove();
@@ -394,12 +404,12 @@
 			data: formData,
 			async: false,
 			success: function (data) {
-				
-				if((data.firmat && data.valid && !$('input[name=ambFirma]', form).prop('checked')) || 
+
+				if((data.firmat && data.valid && !$('input[name=ambFirma]', form).prop('checked')) ||
 					($('input[name=ambFirma]', form).prop('checked') && !data.valid && !data.firmat)) {
 					$('input[name=ambFirma]', form).trigger('click');
 				}
-				
+
 				if(tipus == 'arxiu') {
 					if(data.valid) {
 						$('input[name="tipusFirma"][value="ADJUNT"]', form).parent().show();
@@ -408,14 +418,14 @@
 					}
 					if((!data.firmat || !data.valid) && $('input[name="tipusFirma"]', form).val() == 'ADJUNT') {
 						$('input[name="tipusFirma"][value="ADJUNT"]', form).parent().removeClass('active');
-						$('input[name="tipusFirma"][value="SEPARAT"]', form).trigger('click').parent().addClass('active');					
-					} 
+						$('input[name="tipusFirma"][value="SEPARAT"]', form).trigger('click').parent().addClass('active');
+					}
 					if(data.firmat && data.valid) {
 						$('input[name="tipusFirma"][value="ADJUNT"]', form).trigger('click').parent().addClass('active');
 						$('input[name="tipusFirma"][value="SEPARAT"]', form).parent().removeClass('active');
 					}
 				}
-				
+
 				if(data.alert) {
 					form.prepend('<div id="firmaAlert" class="alert alert-warning"> <i class="fa fa-exclamation-triangle pr-2" />' + data.alert + '</div>');
 				}
@@ -423,7 +433,7 @@
 				if(data.error) {
 					form.prepend('<div id="firmaError" class="alert alert-danger">' + data.error + '</div>');
 				}
-				
+
 				if(tipus == 'arxiu' && !data.firmat)
 					$('input[name=clearFirmes]', form).val(true);
 				if(tipus == 'firma' && !data.firmat) {
@@ -431,7 +441,7 @@
 				} else {
 					$('button[type=submit]', form).removeAttr('disabled');
 				}
-				
+
 				hideLoader();
 			},
 			cache: false,
@@ -439,7 +449,7 @@
 			processData: false
 		});
 	}
-	
+
 	function showLoader() {
 		$('input', this).val(undefined);
 		$('button[type=submit]', $(this).closest('form')).attr('disabled', true);
@@ -449,6 +459,6 @@
 	function hideLoader() {
 		$('.div-dades-carregant', window.parent.document).hide();
 	}
-	
+
 	// ]]>
 </script>
