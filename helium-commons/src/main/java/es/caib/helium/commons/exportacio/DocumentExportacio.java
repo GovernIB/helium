@@ -26,7 +26,6 @@ public class DocumentExportacio implements Serializable {
 	private String arxiuNom;
 	private String codiCampData;
 	private String contentType;
-	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
 	private boolean adjuntarAuto;
 	private String convertirExtensio;
@@ -124,14 +123,6 @@ public class DocumentExportacio implements Serializable {
 
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
-	}
-
-	public String getCustodiaCodi() {
-		return custodiaCodi;
-	}
-
-	public void setCustodiaCodi(String custodiaCodi) {
-		this.custodiaCodi = custodiaCodi;
 	}
 
 	public Integer getTipusDocPortasignatures() {

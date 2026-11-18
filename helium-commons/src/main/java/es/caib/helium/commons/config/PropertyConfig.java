@@ -129,10 +129,6 @@ public class PropertyConfig {
 
 	public static final String PROP_FIRMA_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "firma.class";
 
-	public static final String PROP_GESDOC_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "gesdoc.class";
-	public static final String PROP_GESDOC_PLUGIN_TIPUS_NOU = PROPERTY_PLUGIN_PREFIX + "gesdoc.tipus.nou";
-	public static final String PROP_GESDOC_PLUGIN_TIPUS_DIRECTE = PROPERTY_PLUGIN_PREFIX + "gesdoc.tipus.directe";
-
 	public static final String PROP_PROCEDIMENTS_PLUGIN_CLASS = PROPERTY_PLUGIN_PREFIX + "procediments.class";
 	public static final String PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_URL = PROPERTY_PLUGIN_PREFIX + "procediments.rolsac.service.url";
 	public static final String PROP_PLUGINS_PROCEDIMENTS_ROLSAC_SERVICE_USERNAME = PROPERTY_PLUGIN_PREFIX + "procediments.rolsac.service.username";

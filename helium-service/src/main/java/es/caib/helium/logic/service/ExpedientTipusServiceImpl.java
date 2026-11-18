@@ -807,7 +807,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							document.getArxiuContingut(),
 							document.getArxiuNom(),
 							document.isPlantilla());
-					documentExportacio.setCustodiaCodi(document.getCustodiaCodi());
 					documentExportacio.setContentType(document.getContentType());
 					documentExportacio.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 					documentExportacio.setAdjuntarAuto(document.isAdjuntarAuto());
@@ -1606,7 +1605,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setArxiuNom(documentExportat.getArxiuNom());
 						document.setArxiuContingut(documentExportat.getArxiuContingut());
 						document.setPlantilla(documentExportat.isPlantilla());
-						document.setCustodiaCodi(documentExportat.getCustodiaCodi());
 						document.setContentType(documentExportat.getContentType());
 						document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
 						document.setAdjuntarAuto(documentExportat.isAdjuntarAuto());
@@ -4152,7 +4150,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setArxiuNom(document.getArxiuNom());
 					nou.setArxiuContingut(document.getArxiuContingut());
 					nou.setPlantilla(document.isPlantilla());
-					nou.setCustodiaCodi(document.getCustodiaCodi());
 					nou.setContentType(document.getContentType());
 					nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 					nou.setAdjuntarAuto(document.isAdjuntarAuto());

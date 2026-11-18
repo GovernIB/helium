@@ -27,7 +27,6 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
@@ -69,8 +68,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 	private boolean plantilla;
 	@Column(name="content_type", length=255)
 	private String contentType;
-	@Column(name="custodia_codi", length=255)
-	private String custodiaCodi;
 	@Column(name="adjuntar_auto")
 	private boolean adjuntarAuto;
 	@Column(name="convertir_ext", length=10)
@@ -229,13 +226,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
-	}
-
-	public String getCustodiaCodi() {
-		return custodiaCodi;
-	}
-	public void setCustodiaCodi(String custodiaCodi) {
-		this.custodiaCodi = custodiaCodi;
 	}
 
 	// PORTASIGNATURES 

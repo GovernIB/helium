@@ -213,8 +213,6 @@ public class PdfHelper {
 						} else {
 							ed.setArxiuUuid("Esborrany");
 						}
-					} else if (ed.getReferenciaCustodia()!=null) {
-						ed.setArxiuUuid("Custodiat");
 					} else {
 						ed.setArxiuUuid("Esborrany");
 					}

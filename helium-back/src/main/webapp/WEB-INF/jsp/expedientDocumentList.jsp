@@ -406,8 +406,6 @@
 								{{if !arxiuActiu}}
 									{{if signUrlVer != null}}
 										<li><a href="{{:signUrlVer}}" target="_blank" onclick="event.stopPropagation()"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
-									{{else}}
-										<li><a href="${expedient.id}/document/{{:id}}/signatura/verificar?urlVerificacioCustodia={{:signUrlVer}}" data-toggle="modal" data-refrescar="false"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
 									{{/if}}
 									{{if editable}}
 										<li><a href="${expedient.id}/document/{{:id}}/signatura/esborrar" data-toggle="ajax" data-confirm="<spring:message code="expedient.document.confirm_esborrar_signatures"/>"><span class="fa fa-ban fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>

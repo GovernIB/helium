@@ -23,7 +23,6 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import es.caib.helium.commons.dto.*;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -48,6 +47,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 import es.caib.helium.back.command.DocumentExpedientCommand;
 import es.caib.helium.back.command.DocumentExpedientCommand.Create;
@@ -72,8 +73,45 @@ import es.caib.helium.back.helper.NtiHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.UrlHelper;
 import es.caib.helium.back.mvc.ArxiuView;
+import es.caib.helium.commons.dto.ArxiuDto;
+import es.caib.helium.commons.dto.ArxiuFirmaDto;
+import es.caib.helium.commons.dto.ArxiuFirmaValidacioDetallDto;
 import es.caib.helium.commons.dto.DadesEnviamentDto.EntregaPostalTipus;
 import es.caib.helium.commons.dto.DadesEnviamentDto.EntregaPostalViaTipus;
+import es.caib.helium.commons.dto.DadesNotificacioDto;
+import es.caib.helium.commons.dto.DefinicioProcesDto;
+import es.caib.helium.commons.dto.DocumentDto;
+import es.caib.helium.commons.dto.DocumentInfoDto;
+import es.caib.helium.commons.dto.DocumentStoreDto;
+import es.caib.helium.commons.dto.DocumentTipusFirmaEnumDto;
+import es.caib.helium.commons.dto.EnviamentTipusEnumDto;
+import es.caib.helium.commons.dto.ExpedientDocumentDto;
+import es.caib.helium.commons.dto.ExpedientDocumentPinbalDto;
+import es.caib.helium.commons.dto.ExpedientDto;
+import es.caib.helium.commons.dto.ExpedientTipusTipusEnumDto;
+import es.caib.helium.commons.dto.FirmaResultatDto;
+import es.caib.helium.commons.dto.IdiomaEnumDto;
+import es.caib.helium.commons.dto.InstanciaProcesDto;
+import es.caib.helium.commons.dto.InteressatDto;
+import es.caib.helium.commons.dto.KeyValue;
+import es.caib.helium.commons.dto.MunicipiDto;
+import es.caib.helium.commons.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.commons.dto.NtiOrigenEnumDto;
+import es.caib.helium.commons.dto.NtiTipoDocumentalEnumDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.commons.dto.PaisDto;
+import es.caib.helium.commons.dto.ParellaCodiValorDto;
+import es.caib.helium.commons.dto.PersonaDto;
+import es.caib.helium.commons.dto.PortafirmesFluxRespostaDto;
+import es.caib.helium.commons.dto.PortafirmesIniciFluxRespostaDto;
+import es.caib.helium.commons.dto.PortafirmesPrioritatEnumDto;
+import es.caib.helium.commons.dto.PortafirmesSimpleTipusEnumDto;
+import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
+import es.caib.helium.commons.dto.PortasignaturesDto;
+import es.caib.helium.commons.dto.ProvinciaDto;
+import es.caib.helium.commons.dto.ServeiTipusEnumDto;
+import es.caib.helium.commons.dto.StatusEnumDto;
+import es.caib.helium.commons.dto.TokenDto;
 import es.caib.helium.commons.dto.document.DocumentDetallDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
@@ -90,8 +128,6 @@ import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTokenService;
 import es.caib.helium.logic.intf.service.PortafirmesFluxService;
 import es.caib.helium.logic.intf.service.PortasignaturesService;
-import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -1687,9 +1723,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long documentStoreId,
-			@RequestParam(value = "urlVerificacioCustodia", required = false) final String urlVerificacioCustodia,
 			ModelMap model) throws ServletException {
-		return verificarSignatura(request, expedientId, null, documentStoreId, urlVerificacioCustodia, model);
+		return verificarSignatura(request, expedientId, null, documentStoreId, model);
 	}
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/signatura/verificar", method = RequestMethod.GET)
 	public String verificarSignatura(
@@ -1697,14 +1732,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
-			@RequestParam(value = "urlVerificacioCustodia", required = false) final String urlVerificacioCustodia,
 			ModelMap model) throws ServletException {
 		try {
-			if (urlVerificacioCustodia != null && !urlVerificacioCustodia.isEmpty()) {
-				model.addAttribute("tittle", getMessage(request, "expedient.document.verif_signatures"));
-				model.addAttribute("url", urlVerificacioCustodia);
-				return "utils/modalIframe";
-			}
 			// Recupera la informació del document i la afegeix al model
 			if (processInstanceId == null) {
 				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
@@ -2038,10 +2067,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				processInstanceId,
 				documentStoreId);
 		boolean potFirmar = true;
-		if (document.getArxiuUuid() == null && document.getCustodiaCodi() == null) {
-			MissatgesHelper.error(request, getMessage(request, "expedient.document.firmaPassarela.validacio.custodia.codi"));
-			potFirmar = false;
-		}
 		// Validar que l'arxiu sigui convertible a pdf o zip
 		if (!PdfUtils.isArxiuConvertiblePdf(document.getArxiuNom())) {
 			MissatgesHelper.warning(request,
@@ -2467,11 +2492,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 		boolean potFirmar = true;
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		if (expedientDocumentDto.getArxiuUuid() == null && expedientDocumentDto.getCustodiaCodi() == null) {
-			MissatgesHelper.error(request, getMessage(request, "expedient.document.firmaPassarela.validacio.custodia.codi"));
-			potFirmar = false;
-		}
-
 		List<KeyValue> psTipus = new ArrayList<KeyValue>();
 		for(PortafirmesTipusEnumDto enumVal : PortafirmesTipusEnumDto.values()) {
 			psTipus.add(new KeyValue(

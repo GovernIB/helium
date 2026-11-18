@@ -627,14 +627,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable Long tascaId,
 			@PathVariable Long documentStoreId,
 			@PathVariable String documentCodi,
-			@RequestParam(value = "urlVerificacioCustodia", required = false) final String urlVerificacioCustodia,
 			ModelMap model) throws ServletException {
 		try {
-			if (urlVerificacioCustodia != null && !urlVerificacioCustodia.isEmpty()) {
-				model.addAttribute("tittle", getMessage(request, "expedient.document.verif_signatures"));
-				model.addAttribute("url", urlVerificacioCustodia);
-				return "utils/modalIframe";
-			}
 			model.addAttribute(
 					"signatura",
 					tascaService.getDocumentPerDocumentCodi(

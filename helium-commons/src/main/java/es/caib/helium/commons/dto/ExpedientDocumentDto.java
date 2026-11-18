@@ -62,16 +62,12 @@ public class ExpedientDocumentDto implements Serializable {
 	private NtiTipoFirmaEnumDto ntiTipoFirma;
 	private String ntiCsv;
 	private String ntiDefinicionGenCsv;
-	private String arxiuUuid;
-	private String referenciaCustodia;
-	
+	private String arxiuUuid;	
 	private boolean notificable;
 	
 	private boolean notificat;
 	private boolean pinbal=false;
 	private PeticioPinbalEstatEnum estatPinbal;
-	
-	private String custodiaCodi;
 	
 	/** Per marcar a la pipella de documents si prové d'una anotació. */
 	private Long anotacioId = null;
@@ -361,12 +357,6 @@ public class ExpedientDocumentDto implements Serializable {
 	public void setAnotacioAnnexTitol(String anotacioAnnexTitol) {
 		this.anotacioAnnexTitol = anotacioAnnexTitol;
 	}
-	public String getCustodiaCodi() {
-		return custodiaCodi;
-	}
-	public void setCustodiaCodi(String custodiaCodi) {
-		this.custodiaCodi = custodiaCodi;
-	}
 	public boolean isDocumentValid() {
 		return documentValid;
 	}
@@ -426,12 +416,6 @@ public class ExpedientDocumentDto implements Serializable {
 	}
 	public void setEstatPinbal(PeticioPinbalEstatEnum estatPinbal) {
 		this.estatPinbal = estatPinbal;
-	}
-	public String getReferenciaCustodia() {
-		return referenciaCustodia;
-	}
-	public void setReferenciaCustodia(String referenciaCustodia) {
-		this.referenciaCustodia = referenciaCustodia;
 	}
 
 	private static final long serialVersionUID = -4307890997577367155L;

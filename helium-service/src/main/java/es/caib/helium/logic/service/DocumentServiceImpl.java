@@ -182,7 +182,6 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 		entity.setExtensionsPermeses(document.getExtensionsPermeses());
 		entity.setContentType(document.getContentType());
-		entity.setCustodiaCodi(document.getCustodiaCodi());
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 		entity.setIgnored(document.isIgnored());
 
@@ -373,7 +372,6 @@ public class DocumentServiceImpl implements DocumentService {
 
 		entity.setExtensionsPermeses(document.getExtensionsPermeses());
 		entity.setContentType(document.getContentType());
-		entity.setCustodiaCodi(document.getCustodiaCodi());
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 
 		entity.setNtiOrigen(document.getNtiOrigen());

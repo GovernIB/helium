@@ -27,8 +27,6 @@ public class PortasignaturesDto implements Serializable {
 	private Date dataProcessamentPrimer;
 	private Date dataProcessamentDarrer;
 	private Date dataSignatRebutjat;
-	private Date dataCustodiaIntent;
-	private Date dataCustodiaOk;
 	private Date dataSignalIntent;
 	private Date dataSignalOk;
 	private String processInstanceId;
@@ -131,18 +129,6 @@ public class PortasignaturesDto implements Serializable {
 	}
 	public void setDataSignatRebutjat(Date dataSignatRebutjat) {
 		this.dataSignatRebutjat = dataSignatRebutjat;
-	}
-	public Date getDataCustodiaIntent() {
-		return dataCustodiaIntent;
-	}
-	public void setDataCustodiaIntent(Date dataCustodiaIntent) {
-		this.dataCustodiaIntent = dataCustodiaIntent;
-	}
-	public Date getDataCustodiaOk() {
-		return dataCustodiaOk;
-	}
-	public void setDataCustodiaOk(Date dataCustodiaOk) {
-		this.dataCustodiaOk = dataCustodiaOk;
 	}
 	public Date getDataSignalIntent() {
 		return dataSignalIntent;

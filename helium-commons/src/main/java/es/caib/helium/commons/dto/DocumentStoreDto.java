@@ -31,11 +31,9 @@ public class DocumentStoreDto implements Serializable {
 	private String arxiuNom;
 
 	private Date registreData;
-	private String referenciaFont;
 	private String registreNumero;
 	private boolean registreEntrada;
 	private String registreOrganCodi;
-	private String referenciaCustodia;
 	private String registreOficinaNom;
 	private String registreOficinaCodi;
 

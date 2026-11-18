@@ -27,6 +27,7 @@ import es.caib.helium.logic.helper.ExceptionHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientLoggerHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.service.PortasignaturesService;
@@ -47,6 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class PortasignaturesServiceImpl implements PortasignaturesService {
 
+	@Autowired private PluginHelper pluginHelper;
 	@Autowired private PortasignaturesRepository portasignaturesRepository;
 	@Autowired private DocumentStoreRepository documentStoreRepository;
 	@Autowired private ConversioTipusHelper conversioTipusHelper;
@@ -298,10 +300,9 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						portasignatures.setEstat(PortafirmesEstatEnum.PROCESSAT);
 
 						// Guarda el document
-						if (portasignatures.getDataCustodiaIntent() == null) {
-							portasignatures.setDataCustodiaIntent(new Date());
-						}
-						portasignatures.setDataCustodiaOk(new Date());
+						this.recuperarGuardarDocument(
+								portasignatures.getDocumentId(),
+								documentStore);
 
 						if (token != null
 							&& ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
@@ -379,6 +380,34 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			log.error("El document de portasignatures (id=" + id + ") no s'ha trobat");
 		}
 		return resposta;
+	}
+
+	/** Recupera el document firmat del portasignatures i el guarda.
+	 * 
+	 * @param documentId
+	 * @param documentStore
+	 */
+	private void recuperarGuardarDocument(Integer documentId, DocumentStore documentStore) {
+		//TODO: completar l'obtenció i desat del portafirmes
+//		if (documentStore != null) {
+//			pluginHelper.
+//			List<byte[]> signatures = pluginHelper.portafirmes.obtenirSignaturesDocument(
+//					psignaId);
+//			if (signatures != null && signatures.size() == 1) {
+//				documentHelper.guardarDocumentFirmat(
+//						documentStore,
+//						signatures.get(0));
+//			} else {
+//				if (signatures == null) {
+//					throw new Exception(getServiceUtils().getMessage("error.pluginService.capSignatura"));
+//				} else {
+//					throw new Exception(
+//							"El nombre de signatures del document és de " + signatures.size() + " en comptes de 1");
+//				}
+//			}
+//		} else {
+//			throw new IllegalStateException(getServiceUtils().getMessage("error.pluginService.noDisponible"));
+//		}
 	}
 
 	private void errorProcesPsigna(

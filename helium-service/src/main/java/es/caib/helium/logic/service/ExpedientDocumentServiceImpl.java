@@ -280,47 +280,28 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			validationMessage = firmaValidacio.getMessage();
 		}
 
-//		DocumentStore documentStoreCreat = documentHelper.crearDocument(
-//				null,
-//				processInstanceId,
-//				documentCodi,
-//				data,
-//				isAdjunt,
-//				isAdjunt ? adjuntTitol : null,
-//				arxiuNom,
-//				arxiuContingut,
-//				null, // arxiuUuid
-//				arxiuContentType,
-//				ambFirma,
-//				firmaSeparada,
-//				firmaContingut,
-//				ntiOrigen,
-//				ntiEstadoElaboracion,
-//				ntiTipoDocumental,
-//				ntiIdOrigen,
-//				isValid,
-//				validationMessage,
-//				null,
-//				annexosPerNotificar);
-
-		DocumentStore documentStoreCreat = expedientDocumentHelper.setDocument(
-			expedientId,
-			processInstanceId,
-			null,
-			documentCodi,
-			data,
-			adjuntTitol,
-			arxiuNom,
-			arxiuContingut,
-			arxiuContentType,
-			ambFirma,
-			firmaSeparada,
-			firmaContingut,
-			ntiOrigen,
-			ntiEstadoElaboracion,
-			ntiTipoDocumental,
-			ntiIdOrigen,
-			annexosPerNotificar);
+		DocumentStore documentStoreCreat = documentHelper.crearDocument(
+				null,
+				processInstanceId,
+				documentCodi,
+				data,
+				isAdjunt,
+				isAdjunt ? adjuntTitol : null,
+				arxiuNom,
+				arxiuContingut,
+				null, // arxiuUuid
+				arxiuContentType,
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdOrigen,
+				isValid,
+				validationMessage,
+				null,
+				annexosPerNotificar);
 
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
 				expedient.getId(),
@@ -623,12 +604,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				expedient,
 				processInstanceId);
 		DocumentStore documentStore = documentStoreRepository.getReferenceById(documentStoreId);
-		expedientDocumentHelper.deleteDocument(
-			expedientId,
-			processInstanceId,
-			null,
-			documentStore.getCodi()
-		);
+		documentHelperV3.esborrarDocument(
+				null, 
+				processInstanceId != null ? processInstanceId : expedient.getProcessInstanceId(), 
+				documentStoreId);
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
 		if (!documentStore.isAdjunt()) {
 			expedientRegistreHelper.crearRegistreEsborrarDocumentInstanciaProces(
@@ -2681,9 +2660,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 		if (documentStore.isSignat()) {
 			this.setSignautraUrlVerificacio(dto, documentStore, arxiuActiu);
-		} else {
-			if(document != null)
-				dto.setCustodiaCodi(document.getCustodiaCodi());
 		}
 		dto.setRegistrat(documentStore.isRegistrat());
 		if (documentStore.isRegistrat()) {
@@ -2708,7 +2684,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		dto.setDocumentValid(documentStore.isDocumentValid());
 		dto.setDocumentError(documentStore.getDocumentError());
 		dto.setAnotacioAnnexId(documentStore.getAnnexId());
-		dto.setReferenciaCustodia(documentStore.getReferenciaCustodia());
 
 		return dto;
 	}

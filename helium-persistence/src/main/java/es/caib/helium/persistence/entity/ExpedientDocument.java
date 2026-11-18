@@ -23,7 +23,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Classe tipus entity que mapeja la taula de documents d'expedients
+ * Classe tipus entity que mapeja la taula de documents d'expedients on es guarda una entrada cap al documentStore a nivell de procés de l'expedient
+ * o de tasca.
  *
  * @author Limit Tecnologies <limit@limit.es>
  */

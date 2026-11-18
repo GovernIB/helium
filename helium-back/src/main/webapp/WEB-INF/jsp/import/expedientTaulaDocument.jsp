@@ -107,13 +107,6 @@
 																		<span class="fa fa-2x fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span>
 																	</a>
 																</c:when>
-																<c:otherwise>
-																	<a 	data-rdt-link-modal="true"
-																		class="icon signature"
-																		href="<c:url value="/modal/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/signatura/verificar"/>?urlVerificacioCustodia=${document.signaturaUrlVerificacio}">
-																		<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
-																	</a>
-																</c:otherwise>
 															</c:choose>
 															<c:if test="${expedient.permisDocManagement}">
 																<a 	class="icon signature fa-stack fa-2x"
@@ -205,7 +198,7 @@
 													</a>
 												</c:if>
 
-												<c:if test="${!document.signat && expedient.permisDocManagement && (empty psignaPendentActual || psignaPendentActual.rebutjadaProcessada) && document.portafirmesActiu && (! empty expedient.arxiuUuid  || ! empty document.custodiaCodi)}">
+												<c:if test="${!document.signat && expedient.permisDocManagement && (empty psignaPendentActual || psignaPendentActual.rebutjadaProcessada) && document.portafirmesActiu && (! empty expedient.arxiuUuid)}">
 													<a 	href='<c:url value="/modal/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/enviarPortasignatures" />'
 														data-rdt-link-modal="true"
 														data-rdt-link-modal-maximize="false"
@@ -215,7 +208,7 @@
 															<span class="fa fa-2x fa-envelope-o" title="<spring:message code='expedient.document.enviar.portasignatures' />"></span>
 													</a>
 												</c:if>
-												<c:if test="${!document.signat && expedient.permisDocManagement && empty psignaPendentActual && (! empty expedient.arxiuUuid || ! empty document.custodiaCodi) && !document.notificat}">
+												<c:if test="${!document.signat && expedient.permisDocManagement && empty psignaPendentActual && (! empty expedient.arxiuUuid) && !document.notificat}">
 													<a 	href='<c:url value="/modal/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/firmaPassarela" />'
 														data-rdt-link-modal="true"
 														data-rdt-link-modal-min-height="400"

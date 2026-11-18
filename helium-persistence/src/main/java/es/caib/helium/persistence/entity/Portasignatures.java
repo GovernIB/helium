@@ -50,8 +50,6 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	private Date dataProcessamentPrimer;
 	private Date dataProcessamentDarrer;
 	private Date dataSignatRebutjat;
-	private Date dataCustodiaIntent;
-	private Date dataCustodiaOk;
 	private Date dataSignalIntent;
 	private Date dataSignalOk;
 	private String errorCallbackProcessant;
@@ -185,22 +183,6 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	}
 	public void setDataSignatRebutjat(Date dataSignatRebutjat) {
 		this.dataSignatRebutjat = dataSignatRebutjat;
-	}
-
-	@Column(name="data_custodia_intent")
-	public Date getDataCustodiaIntent() {
-		return dataCustodiaIntent;
-	}
-	public void setDataCustodiaIntent(Date dataCustodiaIntent) {
-		this.dataCustodiaIntent = dataCustodiaIntent;
-	}
-
-	@Column(name="data_custodia_ok")
-	public Date getDataCustodiaOk() {
-		return dataCustodiaOk;
-	}
-	public void setDataCustodiaOk(Date dataCustodiaOk) {
-		this.dataCustodiaOk = dataCustodiaOk;
 	}
 
 	@Column(name="data_signal_intent")

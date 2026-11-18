@@ -18,7 +18,6 @@ public class DocumentDissenyDto {
 	private String descripcio;
 	private boolean plantilla;
 	private String contentType;
-	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
 	private boolean adjuntarAuto;
 	private String convertirExtensio;
@@ -62,12 +61,6 @@ public class DocumentDissenyDto {
 	}
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
-	}
-	public String getCustodiaCodi() {
-		return custodiaCodi;
-	}
-	public void setCustodiaCodi(String custodiaCodi) {
-		this.custodiaCodi = custodiaCodi;
 	}
 	public Integer getTipusDocPortasignatures() {
 		return tipusDocPortasignatures;

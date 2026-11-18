@@ -46,7 +46,6 @@ public class TascaDocumentDto {
 	private boolean plantilla;
 	private String arxiuNom;
 	private String error;
-	private String urlVerificacioCustodia;
 	private String extensionsPermeses;
 	private boolean generarNomesTasca;
 
@@ -206,12 +205,6 @@ public class TascaDocumentDto {
 	}
 	public void setPlantilla(boolean plantilla) {
 		this.plantilla = plantilla;
-	}
-	public String getUrlVerificacioCustodia() {
-		return urlVerificacioCustodia;
-	}
-	public void setUrlVerificacioCustodia(String urlVerificacioCustodia) {
-		this.urlVerificacioCustodia = urlVerificacioCustodia;
 	}
 	public Long getDocumentStoreId() {
 		return documentStoreId;

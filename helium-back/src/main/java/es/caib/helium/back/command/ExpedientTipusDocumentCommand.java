@@ -48,7 +48,6 @@ public class ExpedientTipusDocumentCommand {
 	private Long campId;
 	private String extensionsPermeses;
 	private String contentType;
-	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
 	private boolean ignored;
 	private NtiOrigenEnumDto ntiOrigen;
@@ -161,12 +160,6 @@ public class ExpedientTipusDocumentCommand {
 	}
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
-	}
-	public String getCustodiaCodi() {
-		return custodiaCodi;
-	}
-	public void setCustodiaCodi(String custodiaCodi) {
-		this.custodiaCodi = custodiaCodi;
 	}
 	public Integer getTipusDocPortasignatures() {
 		return tipusDocPortasignatures;
@@ -289,7 +282,6 @@ public class ExpedientTipusDocumentCommand {
 		}
 		dto.setExtensionsPermeses(command.getExtensionsPermeses());
 		dto.setContentType(command.getContentType());
-		dto.setCustodiaCodi(command.getCustodiaCodi());
 		dto.setTipusDocPortasignatures(command.getTipusDocPortasignatures());
 		dto.setIgnored(command.isIgnored());
 		dto.setNtiOrigen(command.getNtiOrigen());

@@ -43,13 +43,7 @@ import es.caib.helium.commons.dto.NtiTipoFirmaEnumDto;
 @Table(name="hel_document_store")
 public class DocumentStore implements Serializable, GenericEntity<Long> {
 
-	public enum DocumentFont {
-		INTERNA,
-		ALFRESCO
-		}
-
 	private Long id;
-	private DocumentFont font;
 	private String processInstanceId;
 	private String codi;
 	private Date dataCreacio;
@@ -58,8 +52,6 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	private String arxiuNom;
 	private byte[] arxiuContingut;
 	private boolean signat = false;
-	private String referenciaCustodia;
-	private String referenciaFont;
 	private String registreNumero;
 	private Date registreData;
 	private String registreOrganCodi;
@@ -100,13 +92,11 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 
 	public DocumentStore() {}
 	public DocumentStore(
-			DocumentFont font,
 			String processInstanceId,
 			String codi,
 			Date dataCreacio,
 			Date dataDocument,
 			String arxiuNom) {
-		this.font = font;
 		this.processInstanceId = processInstanceId;
 		this.codi = codi;
 		this.dataCreacio = dataCreacio;
@@ -124,14 +114,6 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	}
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	@Column(name="font", nullable=false)
-	public DocumentFont getFont() {
-		return font;
-	}
-	public void setFont(DocumentFont font) {
-		this.font = font;
 	}
 
 	@Column(name="process_instance_id", length=64, nullable=false)
@@ -202,22 +184,6 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	}
 	public void setSignat(boolean signat) {
 		this.signat = signat;
-	}
-
-	@Column(name="ref_custodia", length=255)
-	public String getReferenciaCustodia() {
-		return referenciaCustodia;
-	}
-	public void setReferenciaCustodia(String referenciaCustodia) {
-		this.referenciaCustodia = referenciaCustodia;
-	}
-
-	@Column(name="ref_font", length=255)
-	public String getReferenciaFont() {
-		return referenciaFont;
-	}
-	public void setReferenciaFont(String referenciaFont) {
-		this.referenciaFont = referenciaFont;
 	}
 
 	@Column(name="registre_num", length=255)
@@ -478,7 +444,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	@Override
 	public String toString() {
 		return "DocumentStore [id=" + id + ", codi=" + codi + ", arxiuNom=" + arxiuNom + ", signat="
-				+ signat + ", adjunt=" + adjunt + ", arxiuUuid=" + arxiuUuid + ", font=" + font + "]";
+				+ signat + ", adjunt=" + adjunt + ", arxiuUuid=" + arxiuUuid + "]";
 	}
 
 	private static final long serialVersionUID = 1L;

@@ -10,13 +10,26 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import es.caib.helium.bpmn.model.*;
-import es.caib.helium.commons.dto.*;
-import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.engine.WProcessInstance;
 import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.model.DadesNotificacio;
+import es.caib.helium.bpmn.model.DocumentInfo;
+import es.caib.helium.bpmn.model.ExpedientInfo;
+import es.caib.helium.bpmn.model.ExpedientTipusInfo;
+import es.caib.helium.bpmn.model.TerminiInfo;
+import es.caib.helium.commons.dto.ArxiuDto;
+import es.caib.helium.commons.dto.DadesEnviamentDto;
+import es.caib.helium.commons.dto.DadesNotificacioDto;
+import es.caib.helium.commons.dto.DocumentDto;
+import es.caib.helium.commons.dto.InteressatDocumentTipusEnumDto;
+import es.caib.helium.commons.dto.InteressatDto;
+import es.caib.helium.commons.dto.InteressatTipusEnumDto;
+import es.caib.helium.commons.dto.PortafirmesFluxBlocDto;
+import es.caib.helium.commons.dto.PortafirmesSimpleTipusEnumDto;
+import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
+import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
 import es.caib.helium.logic.helper.AlertaHelper;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
@@ -27,7 +40,11 @@ import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientInteressatHelper;
 import es.caib.helium.logic.helper.MailHelper;
 import es.caib.helium.logic.helper.PluginHelper;
-import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.entity.Document;
+import es.caib.helium.persistence.entity.DocumentStore;
+import es.caib.helium.persistence.entity.Estat;
+import es.caib.helium.persistence.entity.Expedient;
+import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.Interessat;
 import lombok.RequiredArgsConstructor;
 
@@ -187,16 +204,18 @@ public class HeliumApiImpl implements HeliumApi {
 
 	@Override
 	public DocumentInfo getDocumentInfo(String documentCodi, boolean ambCongingut) {
+		
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
 			expedient.getId(),
 			processId,
 			taskId,
 			documentCodi);
+		
 		if (documentStore != null) {
-			Document documentDisseny = expedientDocumentHelper.findDocument(
-				expedient.getId(),
-				processId,
-				documentCodi);
+			Document documentDisseny = documentHelperV3.findDocumentDisseny(
+					expedient.getId(), 
+					processId, 
+					documentCodi);
 			DocumentDto docV3 = documentHelperV3.toDocumentDto(
 				documentStore.getId(),
 				ambCongingut && !documentStore.isSignat(),
@@ -252,20 +271,17 @@ public class HeliumApiImpl implements HeliumApi {
 		boolean ambFirma,
 		boolean firmaSeparada,
 		byte[] firmaContingut) {
-		DocumentStore documentStore = expedientDocumentHelper.setDocument(
-			expedient.getId(),
-			processId,
+		DocumentStore documentStore = documentHelperV3.crearActualitzarDocument(
 			taskId,
+			processId,
 			documentCodi,
 			dataDocument,
-			null,
 			arxiuNom,
 			arxiuContingut,
 			null,
 			ambFirma,
 			firmaSeparada,
 			firmaContingut,
-			null,
 			null,
 			null,
 			null,
@@ -294,11 +310,10 @@ public class HeliumApiImpl implements HeliumApi {
 
 	@Override
 	public void deleteDocument(String documentCodi) {
-		expedientDocumentHelper.deleteDocument(
-			expedient.getId(),
-			processId,
-			taskId,
-			documentCodi);
+		documentHelperV3.esborrarDocument(
+				taskId, 
+				processId, 
+				documentCodi);
 	}
 
 	@Override
@@ -343,30 +358,24 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 		DocumentInfo documentInfo = getDocumentInfo(documentOrigen, true);
 		String adjuntTitol = concatenarTitol ? documentInfo.getTitol() + " " + titol : titol;
-		expedientDocumentHelper.setDocument(
-			expedient.getId(),
-			processId,
-			taskId,
-			null,
-			data,
-			adjuntTitol,
-			documentInfo.getArxiuNom(),
-			documentInfo.getArxiuContingut(),
-			null,
-			false,
-			false,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null);
-		if (esborrarDocument) {
-			expedientDocumentHelper.deleteDocument(
-				expedient.getId(),
-				processId,
+		documentHelperV3.crearDocument(
 				taskId,
-				documentOrigen);
+				processId,
+				null, //documentCodi
+				data,
+				true, //isAdjunt
+				adjuntTitol,
+				documentInfo.getArxiuNom(),
+				documentInfo.getArxiuContingut(),
+				null,
+				null,
+				null,
+				null);
+		if (esborrarDocument) {
+			documentHelperV3.esborrarDocument(
+					taskId, 
+					processId, 
+					documentOrigen);
 		}
 	}
 
@@ -770,7 +779,7 @@ public class HeliumApiImpl implements HeliumApi {
 
 	private DocumentDto toPortafirmesDocumentDto(String documentCodi) {
 		DocumentDto document = new DocumentDto();
-		Document documentDisseny = expedientDocumentHelper.findDocument(
+		Document documentDisseny = documentHelperV3.findDocumentDisseny(
 			expedient.getId(),
 			processId,
 			documentCodi);

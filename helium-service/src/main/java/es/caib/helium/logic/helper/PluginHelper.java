@@ -17,7 +17,6 @@ import java.util.Properties;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.integracio.plugins.validacio.ValidaSignaturaResposta;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +24,13 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fundaciobit.pluginsib.validatecertificate.InformacioCertificat;
-import org.fundaciobit.pluginsib.validatesignature.api.*;
+import org.fundaciobit.pluginsib.validatesignature.api.IValidateSignaturePlugin;
+import org.fundaciobit.pluginsib.validatesignature.api.SignatureDetailInfo;
+import org.fundaciobit.pluginsib.validatesignature.api.SignatureRequestedInformation;
+import org.fundaciobit.pluginsib.validatesignature.api.TimeStampInfo;
+import org.fundaciobit.pluginsib.validatesignature.api.ValidateSignatureRequest;
+import org.fundaciobit.pluginsib.validatesignature.api.ValidateSignatureResponse;
+import org.fundaciobit.pluginsib.validatesignature.api.ValidationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -87,7 +92,6 @@ import es.caib.helium.integracio.plugins.dadesext.DadesExternesPlugin;
 import es.caib.helium.integracio.plugins.firma.FirmaPlugin;
 import es.caib.helium.integracio.plugins.firma.FirmaResposta;
 import es.caib.helium.integracio.plugins.firmaweb.FirmaWebPlugin;
-import es.caib.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
 import es.caib.helium.integracio.plugins.notificacio.Enviament;
 import es.caib.helium.integracio.plugins.notificacio.Notificacio;
 import es.caib.helium.integracio.plugins.notificacio.NotificacioPlugin;
@@ -211,7 +215,6 @@ public class PluginHelper {
 	private PersonesPlugin personesPlugin;
 	private TramitacioPlugin tramitacioPlugin;
 	private RegistrePlugin registrePlugin;
-	private GestioDocumentalPlugin gestioDocumentalPlugin;
 	private RegistrePluginRegWeb3 registrePluginRegWeb3;
 	private PortasignaturesPlugin portasignaturesPlugin;
 	private SignaturaPlugin signaturaPlugin;
@@ -1341,174 +1344,6 @@ public class PluginHelper {
 
 	public boolean registreIsPluginRebWeb3Actiu() {
 		String pluginClass = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_REGISTRE_PLUGIN_RW3_CLASS);
-		return pluginClass != null && !pluginClass.isEmpty();
-	}
-
-	public String gestioDocumentalCreateDocument(
-			Expedient expedient,
-			String documentCodi,
-			String documentDescripcio,
-			Date documentData,
-			String documentArxiuNom,
-			byte[] documentArxiuContingut) {
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"expedient",
-						expedient.getIdentificador()),
-				new IntegracioParametreDto(
-						"documentCodi",
-						documentCodi),
-				new IntegracioParametreDto(
-						"documentDescripcio",
-						documentDescripcio),
-				new IntegracioParametreDto(
-						"documentData",
-						documentData),
-				new IntegracioParametreDto(
-						"documentArxiuNom",
-						documentArxiuNom)
-		};
-		long t0 = System.currentTimeMillis();
-		try {
-			String expedientTipus = null;
-			if (gestionDocumentalIsTipusExpedientDirecte()) {
-				expedientTipus = expedient.getTipus().getCodi();
-			} else if (gestionDocumentalIsTipusExpedientNou()) {
-				expedientTipus = expedient.getEntorn().getCodi() + "_" + expedient.getTipus().getCodi();
-			} else {
-				expedientTipus = expedient.getEntorn().getCodi() + "#" + expedient.getTipus().getCodi();
-			}
-			String documentId = getGestioDocumentalPlugin().createDocument(
-					expedient.getNumeroIdentificador(),
-					expedientTipus,
-					documentCodi,
-					documentDescripcio,
-					documentData,
-					documentArxiuNom,
-					documentArxiuContingut);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_GESDOC,
-					"Pujar document",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);
-			return documentId;
-		} catch (Exception ex) {
-			String errorDescripcio = "No s'han pogut guardar el document a la gestió documental (" +
-					"expedientIdentificador=" + expedient.getIdentificador() + ", " +
-					"documentCodi=" + documentCodi + ", " +
-					"documentDescripcio=" + documentDescripcio + ", " +
-					"documentData=" + documentData + ", " +
-					"documentArxiuNom=" + documentArxiuNom + ")";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_GESDOC,
-					"Pujar document",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			logger.error(
-					errorDescripcio,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(),
-					expedient.getEntorn().getNom(),
-					expedient.getId(),
-					expedient.getTitol(),
-					expedient.getNumero(),
-					expedient.getTipus().getId(),
-					expedient.getTipus().getCodi(),
-					expedient.getTipus().getNom(),
-					MonitorIntegracioHelper.INTCODI_GESDOC,
-					"(GESTIÓ DOCUMENTAL. Crear document: " + errorDescripcio + ")",
-					ex);
-		}
-	}
-	public byte[] gestioDocumentalObtenirDocument(
-			String documentId) {
-		long t0 = System.currentTimeMillis();
-		try {
-			byte[] contingut = getGestioDocumentalPlugin().retrieveDocument(documentId);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_GESDOC,
-					"Obtenir document",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			return contingut;
-		} catch (Exception ex) {
-			String errorDescripcio = "No s'han pogut llegir el document de la gestió documental (documentId=" + documentId + ")";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_GESDOC,
-					"Obtenir document",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			logger.error(
-					errorDescripcio,
-					ex);
-			throw tractarExcepcioEnSistemaExtern(
-					MonitorIntegracioHelper.INTCODI_GESDOC,
-					"(GESTIÓ DOCUMENTAL. Crear document: " + errorDescripcio + ")",
-					ex);
-		}
-	}
-	public void gestioDocumentalDeleteDocument(
-			String documentId,
-			Expedient expedient) {
-		long t0 = System.currentTimeMillis();
-		try {
-			if (getGestioDocumentalPlugin() != null)
-				getGestioDocumentalPlugin().deleteDocument(documentId);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_GESDOC,
-					"Esborrar document",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-		} catch (Exception ex) {
-			String errorDescripcio = "No s'han pogut esborrar el document de la gestió documental (documentId=" + documentId + ")";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_GESDOC,
-					"Obtenir document",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			logger.error(
-					errorDescripcio,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(),
-					expedient.getEntorn().getNom(),
-					expedient.getId(),
-					expedient.getTitol(),
-					expedient.getNumero(),
-					expedient.getTipus().getId(),
-					expedient.getTipus().getCodi(),
-					expedient.getTipus().getNom(),
-					MonitorIntegracioHelper.INTCODI_GESDOC,
-					"(GESTIÓ DOCUMENTAL. Delete document: " + errorDescripcio + ")",
-					ex);
-		}
-	}
-
-	public boolean gestioDocumentalIsPluginActiu() {
-		String pluginClass = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_GESDOC_PLUGIN_CLASS);
 		return pluginClass != null && !pluginClass.isEmpty();
 	}
 
@@ -4191,16 +4026,6 @@ public class PluginHelper {
 		return "codi".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PORTASIGNATURES_PLUGIN_USUARI_ID));
 	}
 
-	private boolean gestionDocumentalIsTipusExpedientNou() {
-		return "true".equalsIgnoreCase(
-				GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_GESDOC_PLUGIN_TIPUS_NOU));
-	}
-
-	private boolean gestionDocumentalIsTipusExpedientDirecte() {
-		return "true".equalsIgnoreCase(
-				GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_GESDOC_PLUGIN_TIPUS_DIRECTE));
-	}
-
 	private PersonesPlugin getPersonesPlugin() {
 		if (personesPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_PERSONES_PLUGIN_CLASS);
@@ -4304,30 +4129,6 @@ public class PluginHelper {
 			}
 		}
 		return registrePluginRegWeb3;
-	}
-
-	private GestioDocumentalPlugin getGestioDocumentalPlugin() {
-		if (gestioDocumentalPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty(PropertyConfig.PROP_GESDOC_PLUGIN_CLASS);
-			if (pluginClass != null && pluginClass.length() > 0) {
-				try {
-					Class<?> clazz = Class.forName(pluginClass);
-					gestioDocumentalPlugin = (GestioDocumentalPlugin)clazz.newInstance();
-				} catch (Exception ex) {
-					throw tractarExcepcioEnSistemaExtern(
-							MonitorIntegracioHelper.INTCODI_GESDOC,
-							"Error al crear la instància del plugin de gestió documental (" +
-							"pluginClass=" + pluginClass + ")",
-							ex);
-				}
-			} else {
-				throw tractarExcepcioEnSistemaExtern(
-						MonitorIntegracioHelper.INTCODI_GESDOC,
-						"No està configurada la classe per al plugin de gestió documental",
-						null);
-			}
-		}
-		return gestioDocumentalPlugin;
 	}
 
 	private PortasignaturesPlugin getPortasignaturesPlugin() {

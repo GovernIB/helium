@@ -29,9 +29,6 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.validation.ValidationException;
 
-import es.caib.helium.logic.bpmn.HeliumApiFactory;
-import es.caib.helium.logic.helper.*;
-import es.caib.helium.persistence.repository.*;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
@@ -68,6 +65,8 @@ import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
+import es.caib.helium.bpmn.engine.WProcessInstance;
+import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.commons.constants.ExpedientCamps;
 import es.caib.helium.commons.dto.AccioDto;
 import es.caib.helium.commons.dto.AlertaDto;
@@ -117,9 +116,31 @@ import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.TramitacioValidacioException;
 import es.caib.helium.commons.utils.EntornActual;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.logic.bpmn.HeliumApiFactory;
+import es.caib.helium.logic.helper.AlertaHelper;
+import es.caib.helium.logic.helper.ComandaHelper;
+import es.caib.helium.logic.helper.ConsultaHelper;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DistribucioHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientDadaHelper;
+import es.caib.helium.logic.helper.ExpedientDocumentHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientInteressatHelper;
+import es.caib.helium.logic.helper.ExpedientLoggerHelper;
+import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.MailHelper;
+import es.caib.helium.logic.helper.MonitorIntegracioHelper;
+import es.caib.helium.logic.helper.NotificacioHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PermisosHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.TascaHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.bpmn.engine.WProcessInstance;
-import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ParametreService;
@@ -138,7 +159,6 @@ import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.Document;
 import es.caib.helium.persistence.entity.DocumentNotificacio;
 import es.caib.helium.persistence.entity.DocumentStore;
-import es.caib.helium.persistence.entity.DocumentStore.DocumentFont;
 import es.caib.helium.persistence.entity.Entorn;
 import es.caib.helium.persistence.entity.Estat;
 import es.caib.helium.persistence.entity.ExecucioMassivaExpedient;
@@ -154,6 +174,27 @@ import es.caib.helium.persistence.entity.Registre;
 import es.caib.helium.persistence.entity.Termini;
 import es.caib.helium.persistence.entity.TerminiIniciat;
 import es.caib.helium.persistence.entity.UnitatOrganitzativa;
+import es.caib.helium.persistence.repository.AccioRepository;
+import es.caib.helium.persistence.repository.AlertaRepository;
+import es.caib.helium.persistence.repository.AnotacioEmailRepository;
+import es.caib.helium.persistence.repository.AnotacioRepository;
+import es.caib.helium.persistence.repository.CampRepository;
+import es.caib.helium.persistence.repository.ConsultaRepository;
+import es.caib.helium.persistence.repository.DefinicioProcesRepository;
+import es.caib.helium.persistence.repository.DocumentNotificacioRepository;
+import es.caib.helium.persistence.repository.DocumentStoreRepository;
+import es.caib.helium.persistence.repository.EstatRepository;
+import es.caib.helium.persistence.repository.ExecucioMassivaExpedientRepository;
+import es.caib.helium.persistence.repository.ExpedientRepository;
+import es.caib.helium.persistence.repository.ExpedientTascaRepository;
+import es.caib.helium.persistence.repository.ExpedientTipusRepository;
+import es.caib.helium.persistence.repository.ExpedientTipusUnitatOrganitzativaRepository;
+import es.caib.helium.persistence.repository.ParametreRepository;
+import es.caib.helium.persistence.repository.PeticioPinbalRepository;
+import es.caib.helium.persistence.repository.PortasignaturesRepository;
+import es.caib.helium.persistence.repository.RegistreRepository;
+import es.caib.helium.persistence.repository.TerminiIniciatRepository;
+import es.caib.helium.persistence.repository.UnitatOrganitzativaRepository;
 import es.caib.pluginsib.arxiu.api.ContingutArxiu;
 import es.caib.pluginsib.arxiu.api.ExpedientMetadades;
 import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
@@ -690,25 +731,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				List<Long> expedientsIds = documentHelper.findExpedientsIdsByDocumentStoreId(documentStore.getId());
 				expedientsIds.remove(expedient.getId());
 				if (expedientsIds.isEmpty()) {
-					//TODO: eliminar custòdia
-//					if (documentStore.isSignat() && documentStore.getReferenciaCustodia() != null) {
-//						try {
-////								pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
-//						} catch (Exception ignored) {
-//						}
-//					}
-					//TODO eliminar alfresco
-//					if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-//						pluginHelper.gestioDocumentalDeleteDocument(
-//							documentStore.getReferenciaFont(), expedient);
-
 					//Si el document pertany a un zip, de moment no l'esborrem, esperarem a esborrar el zip
 					if (documentStore.getZips() != null && !documentStore.getZips().isEmpty()) {
 						continue;
 					} else {
 						documentStoreRepository.deleteById(documentStore.getId());
 					}
-
 				}
 				List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
 				if (enviaments != null && enviaments.size() > 0)
@@ -1295,11 +1323,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false);
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
 		if (documentStore != null && documentStore.isSignat()) {
-//				pluginHelper.custodiaEsborrarSignatures(
-//						documentStore.getReferenciaCustodia(),
-//						expedient);
 			String codi = documentStore.getCodi();
-			documentStore.setReferenciaCustodia(null);
 			documentStore.setSignat(false);
 			expedientRegistreHelper.crearRegistreEsborrarSignatura(
 					expedient.getId(),
@@ -1307,11 +1331,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					documentStore.getCodi());
 			List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId(), false);
-//			for (WTaskInstance task: tasks) {
-//				workflowEngineApi.deleteTaskInstanceVariable(
-//						task.getId(),
-//						codi);
-//			}
 		}
 	}
 
@@ -1716,11 +1735,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		for (DocumentStoreBackupDto documentStore: documentsEstatAnterior) {
 			DocumentStore entity = documentStoreRepository.findById(documentStore.getId()).orElse(null);
 			entity.setArxiuUuid(documentStore.getArxiuUuid());
-			entity.setReferenciaFont(documentStore.getReferenciaFont());
 			entity.setArxiuNom(documentStore.getArxiuNom());
 			entity.setNtiIdentificador(documentStore.getNtiIdentificador());
 			entity.setSignat(documentStore.isSignat());
-			entity.setReferenciaCustodia(documentStore.getReferenciaCustodia());
 			entity.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
 			entity.setNtiCsv(documentStore.getNtiCsv());
 			entity.setNtiTipoFirma(documentStore.getNtiTipoFirma());

@@ -28,7 +28,6 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	private String documentCodi;
 	private String documentNom;
 	private String documentContentType;
-	private String documentCustodiaCodi;
 
 	private Integer documentTipusDocPortasignatures;
 	private boolean portafirmesActiu = false;
@@ -71,14 +70,12 @@ public class DocumentDto extends HeretableDto implements Serializable {
 
 	private String processInstanceId;
 	private String contentType;
-	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
 
 	private String tokenSignatura;
 	private String tokenSignaturaMultiple;
 	private boolean signatEnTasca;
 	private boolean adjuntarAuto;
-	private String urlVerificacioCustodia;
 
 	private NtiOrigenEnumDto ntiOrigen;
 	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
@@ -185,12 +182,6 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	}
 	public void setDocumentContentType(String documentContentType) {
 		this.documentContentType = documentContentType;
-	}
-	public String getDocumentCustodiaCodi() {
-		return documentCustodiaCodi;
-	}
-	public void setDocumentCustodiaCodi(String documentCustodiaCodi) {
-		this.documentCustodiaCodi = documentCustodiaCodi;
 	}
 	public Integer getDocumentTipusDocPortasignatures() {
 		return documentTipusDocPortasignatures;
@@ -367,12 +358,6 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
-	public String getCustodiaCodi() {
-		return custodiaCodi;
-	}
-	public void setCustodiaCodi(String custodiaCodi) {
-		this.custodiaCodi = custodiaCodi;
-	}
 	public Integer getTipusDocPortasignatures() {
 		return tipusDocPortasignatures;
 	}
@@ -402,12 +387,6 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	}
 	public void setAdjuntarAuto(boolean adjuntarAuto) {
 		this.adjuntarAuto = adjuntarAuto;
-	}
-	public String getUrlVerificacioCustodia() {
-		return urlVerificacioCustodia;
-	}
-	public void setUrlVerificacioCustodia(String urlVerificacioCustodia) {
-		this.urlVerificacioCustodia = urlVerificacioCustodia;
 	}
 	public NtiOrigenEnumDto getNtiOrigen() {
 		return ntiOrigen;

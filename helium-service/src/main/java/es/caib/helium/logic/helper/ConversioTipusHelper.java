@@ -121,7 +121,6 @@ public class ConversioTipusHelper {
 						target.setGenerarNomesTasca(source.isGenerarNomesTasca());
 						target.setExtensionsPermeses(source.getExtensionsPermeses());
 						target.setContentType(source.getContentType());
-						target.setCustodiaCodi(source.getCustodiaCodi());
 						target.setTipusDocPortasignatures(source.getTipusDocPortasignatures());
 						target.setIgnored(source.isIgnored());
 						target.setNtiOrigen(source.getNtiOrigen());
@@ -642,8 +641,6 @@ public class ConversioTipusHelper {
 						target.setDataProcessamentPrimer(source.getDataProcessamentPrimer());
 						target.setDataProcessamentDarrer(source.getDataProcessamentDarrer());
 						target.setDataSignatRebutjat(source.getDataSignatRebutjat());
-						target.setDataCustodiaIntent(source.getDataCustodiaIntent());
-						target.setDataCustodiaOk(source.getDataCustodiaOk());
 						target.setDataSignalIntent(source.getDataSignalIntent());
 						target.setDataSignalOk(source.getDataSignalOk());
 						target.setErrorProcessant(source.getErrorCallbackProcessant());

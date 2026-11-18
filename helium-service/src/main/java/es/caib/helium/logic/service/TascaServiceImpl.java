@@ -4,16 +4,22 @@
 package es.caib.helium.logic.service;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import es.caib.helium.commons.dto.*;
-import es.caib.helium.logic.helper.*;
-import es.caib.helium.bpmn.engine.WDelegationInfo;
-import es.caib.helium.persistence.entity.*;
-import es.caib.helium.persistence.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,22 +40,83 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import es.caib.helium.bpmn.engine.WDelegationInfo;
+import es.caib.helium.bpmn.engine.WProcessInstance;
+import es.caib.helium.bpmn.engine.WTaskInstance;
+import es.caib.helium.commons.dto.ArxiuDto;
+import es.caib.helium.commons.dto.CampTipusDto;
+import es.caib.helium.commons.dto.DocumentDto;
+import es.caib.helium.commons.dto.ExpedientTascaDto;
+import es.caib.helium.commons.dto.FormulariExternDto;
+import es.caib.helium.commons.dto.PaginaDto;
+import es.caib.helium.commons.dto.PaginacioParamsDto;
+import es.caib.helium.commons.dto.ParellaCodiValorDto;
+import es.caib.helium.commons.dto.PersonaDto;
+import es.caib.helium.commons.dto.SeleccioOpcioDto;
+import es.caib.helium.commons.dto.TascaDadaDto;
+import es.caib.helium.commons.dto.TascaDocumentDto;
+import es.caib.helium.commons.dto.TascaDto;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.commons.exception.TramitacioException;
 import es.caib.helium.commons.exception.TramitacioHandlerException;
 import es.caib.helium.commons.exception.ValidacioException;
 import es.caib.helium.commons.utils.MessageHelper;
+import es.caib.helium.logic.helper.ConversioTipusHelper;
+import es.caib.helium.logic.helper.DocumentHelperV3;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientDadaHelper;
+import es.caib.helium.logic.helper.ExpedientDocumentHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientLoggerHelper;
+import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.FormulariExternHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PermisosHelper;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.TascaHelper;
+import es.caib.helium.logic.helper.TascaSegonPlaHelper;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
+import es.caib.helium.logic.helper.UsuariActualHelper;
+import es.caib.helium.logic.helper.VariableHelper;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
-import es.caib.helium.bpmn.engine.WProcessInstance;
-import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persistence.common.ThreadLocalInfo;
+import es.caib.helium.persistence.entity.Alerta;
+import es.caib.helium.persistence.entity.Camp;
+import es.caib.helium.persistence.entity.CampRegistre;
+import es.caib.helium.persistence.entity.CampTasca;
+import es.caib.helium.persistence.entity.DefinicioProces;
+import es.caib.helium.persistence.entity.Document;
+import es.caib.helium.persistence.entity.DocumentStore;
+import es.caib.helium.persistence.entity.Entorn;
+import es.caib.helium.persistence.entity.EnumeracioValors;
+import es.caib.helium.persistence.entity.Expedient;
+import es.caib.helium.persistence.entity.ExpedientLog;
 import es.caib.helium.persistence.entity.ExpedientLog.ExpedientLogAccioTipus;
+import es.caib.helium.persistence.entity.ExpedientTasca;
+import es.caib.helium.persistence.entity.ExpedientTipus;
+import es.caib.helium.persistence.entity.Registre;
+import es.caib.helium.persistence.entity.Tasca;
+import es.caib.helium.persistence.entity.TerminiIniciat;
+import es.caib.helium.persistence.repository.AlertaRepository;
+import es.caib.helium.persistence.repository.CampRepository;
+import es.caib.helium.persistence.repository.CampTascaRepository;
+import es.caib.helium.persistence.repository.DefinicioProcesRepository;
+import es.caib.helium.persistence.repository.DocumentRepository;
+import es.caib.helium.persistence.repository.EnumeracioValorsRepository;
+import es.caib.helium.persistence.repository.ExpedientHeliumRepository;
+import es.caib.helium.persistence.repository.ExpedientRepository;
+import es.caib.helium.persistence.repository.ExpedientTascaRepository;
+import es.caib.helium.persistence.repository.ExpedientTipusRepository;
+import es.caib.helium.persistence.repository.RegistreRepository;
+import es.caib.helium.persistence.repository.TascaRepository;
+import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 
 /**
  * Servei per gestionar terminis.
@@ -944,12 +1011,11 @@ public class TascaServiceImpl implements TascaService {
 					ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
 					documentCodi);
 		}
-
-		expedientDocumentHelper.deleteDocument(
-			expedient.getId(),
-			task.getProcessInstanceId(),
-			taskInstanceId,
-			documentCodi);
+		
+		documentHelper.esborrarDocument(
+				task.getId(), 
+				task.getProcessInstanceId(), 
+				documentCodi);
 
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -1033,25 +1099,21 @@ public class TascaServiceImpl implements TascaService {
 					documentCodi);
 		}
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
-		documentStore = expedientDocumentHelper.setDocument(
-											expedient.getId(),
-											task.getProcessInstanceId(),
-											taskInstanceId,
-											documentCodi,
-											documentData,
-											arxiuNom,
-											arxiuNom,
-											arxiuContingut,
-											arxiuContentType,
-											ambFirma,
-											firmaSeparada,
-											firmaContingut,
-											null,
-											null,
-											null,
-											null,
-											null);
-		Long documentStoreId = documentStore.getId();
+		Long documentStoreId = documentHelper.crearActualitzarDocument(
+				taskInstanceId,
+				task.getProcessInstanceId(),
+				documentCodi,
+				documentData,
+				arxiuNom,
+				arxiuContingut,
+				arxiuContentType,
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
+				null,
+				null,
+				null,
+				null).getId();
 
 		//Al actualitzar un document desde una tasca, s'ha de associar la tasca a la variable JBMP
 		//En cas de crear, no fa falta perque ja s'haurà assignat al metode DocumentHelperV3.postProcessarDocument
@@ -1284,6 +1346,10 @@ public class TascaServiceImpl implements TascaService {
 		}
 	}
 
+	/** Mètode per revisar quins documents de la tasca s'han d'escriure en el procés principal.
+	 * 
+	 * @param taskInstanceId
+	 */
 	private void mouDadesDocumentsAProcess(String taskInstanceId) {
 		WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 		ExpedientTasca tasca = expedientTascaRepository.findByTaskId(taskInstanceId);
@@ -1302,6 +1368,11 @@ public class TascaServiceImpl implements TascaService {
 				processDades.put(variable, dadesTasca.get(variable));
 		expedientDadaHelper.setDades(tasca.getExpedient(), task.getProcessInstanceId(), null, processDades);
 
+		// Cercam quins documents s'han de passar al process
+		List<String> documentsPerPassar = documentHelper.findDocumentsPerInstanciaTasca(task).stream()
+				.filter(doc -> !doc.isReadOnly())
+				.map(TascaDocumentDto::getVarCodi)
+				.collect(Collectors.toList());
 		List<DocumentStore> documentsTasca = expedientDocumentHelper.findByExpedientAndTask(tasca.getExpedient().getId(), taskInstanceId);
 		for(DocumentStore documentStore : documentsTasca){
 			expedientDocumentHelper.delete(documentStore.getId());

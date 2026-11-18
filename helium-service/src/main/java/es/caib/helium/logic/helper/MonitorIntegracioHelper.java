@@ -51,9 +51,7 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_DISTRIBUCIO = "DISTRIBUCIO";
 	public static final String INTCODI_PFIRMA = "PFIRMA";
 	public static final String INTCODI_FIRMA = "FIRMA";
-	public static final String INTCODI_CUSTODIA = "CUSTODIA";
 	public static final String INTCODI_REGISTRE = "REGISTRE";
-	public static final String INTCODI_GESDOC = "GESDOC";
 	public static final String INTCODI_CONVDOC = "CONVDOC";
 	public static final String INTCODI_FIRMA_SERV = "FIRMA_SERV";
 	public static final String INTCODI_ARXIU = "ARXIU";
@@ -218,7 +216,6 @@ public class MonitorIntegracioHelper {
 		integracions.add(new IntegracioDto(INTCODI_PERSONA, "SEYCON"));
 		integracions.add(new IntegracioDto(INTCODI_FIRMA, "Firma digital"));
 		integracions.add(new IntegracioDto(INTCODI_PFIRMA, "Portafib"));
-		integracions.add(new IntegracioDto(INTCODI_CUSTODIA, "Custòdia"));
 		integracions.add(new IntegracioDto(INTCODI_REGISTRE, "REGWEB"));
 		integracions.add(new IntegracioDto(INTCODI_SISTRA, "SISTRA"));
 		integracions.add(new IntegracioDto(INTCODI_DISTRIBUCIO, "DISTRIBUCIO"));
