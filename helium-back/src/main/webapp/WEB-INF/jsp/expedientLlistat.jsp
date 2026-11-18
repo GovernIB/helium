@@ -195,10 +195,36 @@ $(document).ready(function() {
 	});
 
 	$("body").on("click", '#btnBdades', function(event) {
-		webutilBase64DownloadAndRefresh($(this).attr('href'), event);
+		$("#overlay").show();
+		$.ajax({
+			url: '<c:url value="/expedient/generardades"/>',
+		}).done(function(data) {
+			checkDescarregaDades(event);
+		});
 	});
 });
 
+function descarregaDades(event) {
+	webutilBase64DownloadAndRefresh('<c:url value="/expedient/descarregardades"/>', event);
+}
+
+function checkDescarregaDades(event) {
+	$.ajax({
+		url: '<c:url value="/expedient/descarregardades/ready"/>',
+	}).done(function(data) {
+		if(data == 1) {
+			descarregaDades(event);
+		} else if(data == 0) {
+			setTimeout(function() {
+				checkDescarregaDades();
+			}, 5000);
+		} else {
+			$("#overlay").hide();
+			window.location.reload();
+		}
+
+	});
+}
 
 function refrescarPanell(expedientId, tascaId, tramitar, correcte) {
 	if (correcte) {
@@ -652,7 +678,7 @@ function refrescaEstatSegonPla() {
 			<div id="btnTramitacio" class="btn-group">
 				<a class="btn btn-default" href="expedient/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 				<a class="btn btn-default" href="expedient/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-				<a id="btnBdades" class="btn btn-default" href="expedient/descarregardades"><span class="fa fa-download"></span> <spring:message code="expedient.llistat.accio.descarregar"/></a>
+				<button id="btnBdades" class="btn btn-default" href=""><span class="fa fa-download"></span> <spring:message code="expedient.llistat.accio.descarregar"/></button>
 				<a class="btn btn-default" href='<c:url value="/expedient/massiva"/>'><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 			</div>
 		</div>

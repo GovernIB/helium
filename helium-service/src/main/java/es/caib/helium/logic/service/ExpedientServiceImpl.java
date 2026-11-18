@@ -655,7 +655,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 		// Peticions a Pinbal
 		peticioPinbalRepository.deleteAll(peticioPinbalRepository.findByExpedientId(expedient.getId()));
-		
+
 		// Emails d'anotacions
 		List<AnotacioEmail> anotacioEmails = anotacioEmailRepository.findByExpedientId(expedient.getId());
 		if (anotacioEmails != null && !anotacioEmails.isEmpty()) {
@@ -708,7 +708,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					} else {
 						documentStoreRepository.deleteById(documentStore.getId());
 					}
-					
+
 				}
 				List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
 				if (enviaments != null && enviaments.size() > 0)
@@ -2691,8 +2691,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		if (ids == null || ids.isEmpty()) {
 			return resposta;
 		}
+
+		List<Expedient> listExpedients = new ArrayList<Expedient>();
+		// Issue: https://github.com/GovernIB/helium/issues/2106
+		// Cream chunks del ids a consultar per evitar errors de llargaria de la query
+		List<List<Long>> chunks = Lists.partition(ids, 100);
+		for(List<Long> chunk : chunks) {
+			listExpedients.addAll(expedientRepository.findByIdIn(chunk));
+		}
+
 		List<Camp> camps = new ArrayList<Camp>();
-		List<Expedient> listExpedients = expedientRepository.findByIdIn(ids);
 		ExpedientTipus expedientTipus = expedientRepository.findById(listExpedients.get(0).getId()).orElse(null).getTipus();
 		if(expedientTipus.isAmbInfoPropia()) {
 			camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
@@ -2715,16 +2723,19 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		List<PaginacioParamsDto.OrdreDto> orders = Lists.newArrayList(
 			new PaginacioParamsDto.OrdreDto(sort, OrdreDireccioDto.DESCENDENT));
 
-		List<Map<String, DadaIndexadaDto>> dadesExpedients = expedientDadaHelper.findDadesExpedients(
+		List<Map<String, DadaIndexadaDto>> dadesExpedients = new ArrayList<Map<String, DadaIndexadaDto>>();
+		for(List<Long> chunk : chunks) {
+			dadesExpedients.addAll(expedientDadaHelper.findDadesExpedients(
 									entornActual.getId(),
 									null,
-									ids,
-								null,
+									chunk,
+									null,
 									null,
 									camps,
 									orders,
 									firstRow,
-									maxResults);
+									maxResults));
+		}
 
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(ExpedientDadaHelper.CLAU_EXPEDIENT_ID);
