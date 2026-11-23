@@ -32,6 +32,12 @@ import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.engine.runtime.ProcessInstanceBuilder;
+import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
+import org.flowable.engine.impl.persistence.entity.ExecutionEntityManager;
+import org.flowable.engine.impl.persistence.entity.HistoricProcessInstanceEntity;
+import org.flowable.engine.impl.persistence.entity.HistoricProcessInstanceEntityManager;
+import org.flowable.engine.impl.util.CommandContextUtil;
 import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.history.HistoricTaskInstance;
@@ -350,20 +356,39 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	public WProcessInstance findRootProcessInstance(String processInstanceId) {
-		HistoricProcessInstance pi = processEngine
-				.getHistoryService()
-				.createHistoricProcessInstanceQuery()
-				.processInstanceId(processInstanceId)
-				.singleResult();
-		if(pi != null && pi.getSuperProcessInstanceId() != null) {
-			HistoricProcessInstance superPi = processEngine
-				.getHistoryService()
-				.createHistoricProcessInstanceQuery()
-				.processInstanceId(processInstanceId)
-				.singleResult();
-			return toWProcessInstance(superPi);
+		if (processInstanceId == null) {
+			return null;
 		}
-		return toWProcessInstance(pi);
+		// S'executa com a comanda de Flowable: si ja n'hi ha una en curs (p. ex. un handler que s'executa mentre
+		// s'inicia el procés) en reutilitza el context, i els findById consulten primer la memòria cau de la sessió.
+		// Així es troben també les instàncies que encara no s'han desat a la base de dades.
+		return processEngine.getManagementService().executeCommand(commandContext -> {
+			ExecutionEntityManager executionEntityManager = CommandContextUtil.getExecutionEntityManager(commandContext);
+			ExecutionEntity execution = executionEntityManager.findById(processInstanceId);
+			if (execution != null) {
+				String rootId = execution.getRootProcessInstanceId() != null
+					? execution.getRootProcessInstanceId()
+					: execution.getProcessInstanceId();
+				ExecutionEntity root = rootId.equals(execution.getId())
+					? execution
+					: executionEntityManager.findById(rootId);
+				if (root != null) {
+					return toWProcessInstance((ProcessInstance) root);
+				}
+			}
+			// Instància finalitzada: es puja per l'historial fins a la instància sense pare
+			HistoricProcessInstanceEntityManager historicManager =
+				CommandContextUtil.getHistoricProcessInstanceEntityManager(commandContext);
+			HistoricProcessInstanceEntity historic = historicManager.findById(processInstanceId);
+			for (int nivell = 0; historic != null && historic.getSuperProcessInstanceId() != null && nivell < 100; nivell++) {
+				HistoricProcessInstanceEntity pare = historicManager.findById(historic.getSuperProcessInstanceId());
+				if (pare == null) {
+					break;
+				}
+				historic = pare;
+			}
+			return toWProcessInstance(historic);
+		});
 	}
 
 	@Override
@@ -376,12 +401,24 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	public WProcessInstance startProcessInstanceById(
 		String actorId,
 		String processDefinitionId) {
+		return startProcessInstanceById(actorId, processDefinitionId, null);
+	}
+
+	@Override
+	public WProcessInstance startProcessInstanceById(
+		String actorId,
+		String processDefinitionId,
+		String processInstanceId) {
 		try {
 			Authentication.setAuthenticatedUserId(actorId);
-			ProcessInstance processInstance = processEngine.
-				getRuntimeService().
-				startProcessInstanceById(processDefinitionId);
-			return toWProcessInstance(processInstance);
+			ProcessInstanceBuilder builder = processEngine
+				.getRuntimeService()
+				.createProcessInstanceBuilder()
+				.processDefinitionId(processDefinitionId);
+			if (processInstanceId != null) {
+				builder.predefineProcessInstanceId(processInstanceId);
+			}
+			return toWProcessInstance(builder.start());
 		} finally {
 			Authentication.setAuthenticatedUserId(null);
 		}

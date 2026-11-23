@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Expressió de Helium (helium:expression) i handler obtingut d'una expressió (helium:handler expressio="...") -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:helium="http://www.caib.es/helium/bpmn"
+                  id="definicions"
+                  targetNamespace="http://www.caib.es/helium/test">
+  <bpmn:process id="procesExpressions" isExecutable="true">
+    <bpmn:startEvent id="inici"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="inici" targetRef="tascaExpressio"/>
+    <bpmn:serviceTask id="tascaExpressio" helium:expression="${base * 2}" helium:resultVariableName="resultat"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="tascaExpressio" targetRef="tascaHandlerExpressio"/>
+    <bpmn:serviceTask id="tascaHandlerExpressio" implementation="http://www.caib.es/helium/bpmn/handler">
+      <bpmn:extensionElements>
+        <helium:handler expressio="${handlerProvaBean}">
+          <helium:parametre nom="text" valor="per expressio"/>
+          <helium:parametre nom="numero" expressio="${resultat}"/>
+        </helium:handler>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="f3" sourceRef="tascaHandlerExpressio" targetRef="revisar"/>
+    <bpmn:userTask id="revisar"/>
+    <bpmn:sequenceFlow id="f4" sourceRef="revisar" targetRef="fi"/>
+    <bpmn:endEvent id="fi"/>
+  </bpmn:process>
+  <bpmn:process id="procesExpressioNoHandler" isExecutable="true">
+    <bpmn:startEvent id="inici2"/>
+    <bpmn:sequenceFlow id="g1" sourceRef="inici2" targetRef="tascaNoHandler"/>
+    <bpmn:serviceTask id="tascaNoHandler" implementation="http://www.caib.es/helium/bpmn/handler">
+      <bpmn:extensionElements>
+        <helium:handler expressio="${'no soc un handler'}"/>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="g2" sourceRef="tascaNoHandler" targetRef="fi2"/>
+    <bpmn:endEvent id="fi2"/>
+  </bpmn:process>
+</bpmn:definitions>

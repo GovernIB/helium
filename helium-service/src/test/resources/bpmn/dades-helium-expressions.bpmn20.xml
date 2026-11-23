@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Les expressions (condicions dels fluxos i paràmetres) llegeixen les dades de l'expedient de Helium -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:helium="http://www.caib.es/helium/bpmn"
+                  id="definicions"
+                  targetNamespace="http://www.caib.es/helium/test">
+  <bpmn:process id="procesDadesHelium" isExecutable="true">
+    <bpmn:startEvent id="inici"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="inici" targetRef="decisio"/>
+    <bpmn:exclusiveGateway id="decisio" default="noAprovat"/>
+    <bpmn:sequenceFlow id="aprovat" sourceRef="decisio" targetRef="tascaAprovada">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${estat == 'aprovat'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="noAprovat" sourceRef="decisio" targetRef="tascaRebutjada"/>
+    <bpmn:userTask id="tascaAprovada"/>
+    <bpmn:userTask id="tascaRebutjada"/>
+    <bpmn:sequenceFlow id="f2" sourceRef="tascaAprovada" targetRef="fi"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="tascaRebutjada" targetRef="fi"/>
+    <bpmn:endEvent id="fi"/>
+  </bpmn:process>
+</bpmn:definitions>
