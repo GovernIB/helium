@@ -47,7 +47,7 @@ export const createJavaFieldsPropertiesGroup = (element: BpmnElement, modeling: 
     const fields = getFlowableFields(element);
     return {
         id: 'flowable-fields-group',
-        label: 'Flowable fields',
+        label: 'Camps de Flowable',
         component: ListGroup,
         add: (event: EventWithPropagation) => {
             event.stopPropagation();
@@ -68,7 +68,7 @@ export const createJavaFieldsPropertiesGroup = (element: BpmnElement, modeling: 
         },
         items: fields.map((field: any) => ({
             id: field.id,
-            label: field.name || '<empty>',
+            label: field.name || '<buit>',
             autoFocusEntry: `field-name-${field.id}`,
             entries: [
                 {
@@ -110,7 +110,7 @@ const FlowableJavaFieldNameField = (props: PropertiesEntryProps) => {
     return TextFieldEntry({
         element,
         id: props.id,
-        label: 'Name',
+        label: 'Nom',
         getValue: () => flowableField.name,
         setValue: (value: string) => {
             modeling.updateModdleProperties(element, flowableField, { name: value });
@@ -126,7 +126,7 @@ const FlowableJavaFieldStringField = (props: PropertiesEntryProps) => {
     return TextFieldEntry({
         element,
         id: 'field-string-${item.id}',
-        label: 'Value',
+        label: 'Valor',
         getValue: () => flowableField?.stringValue || '',
         setValue: (value: string) => {
             modeling.updateModdleProperties(element, flowableField, { stringValue: value });
@@ -142,7 +142,7 @@ const FlowableJavaFieldExpressionField = (props: PropertiesEntryProps) => {
     return TextFieldEntry({
         element,
         id: 'field-expression-${item.id}',
-        label: 'Expression',
+        label: 'Expressió',
         getValue: () => flowableField?.expression || '',
         setValue: (value: string) => {
             modeling.updateModdleProperties(element, flowableField, { expression: value });

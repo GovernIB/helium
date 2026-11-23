@@ -11,6 +11,7 @@ import {
     //CamundaPlatformPropertiesProviderModule,
 } from 'bpmn-js-properties-panel';
 import FlowablePropertiesProviderModule from './flowable/FlowablePropertiesProviderModule';
+import TraduccionsModule from './helium/traduccions';
 import {fetchHandlers, getHandlersSync} from './flowable/handlers';
 
 import Modal from './components/Modal';
@@ -165,6 +166,7 @@ const App = () => {
                 BpmnPropertiesPanelModule,
                 BpmnPropertiesProviderModule,
                 FlowablePropertiesProviderModule,
+                TraduccionsModule,
                 //CamundaPlatformPropertiesProviderModule
             ],
             moddleExtensions: {

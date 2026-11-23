@@ -103,7 +103,7 @@ const TipusField = (props: PropertiesEntryProps) => {
     return SelectEntry({
         element,
         id: 'flowable-java-type',
-        label: 'Type',
+        label: 'Tipus',
         getValue: () => getTypeValue(element.businessObject),
         setValue: (value: TipusImplementacio | undefined) => {
             if (getTypeValue(element.businessObject) === value) {
@@ -124,7 +124,7 @@ const TipusField = (props: PropertiesEntryProps) => {
         },
         getOptions: () => {
             const options: { value: string | undefined; label: string }[] = [
-                { value: undefined, label: '<none>' },
+                { value: undefined, label: '<cap>' },
                 { value: 'helium', label: 'Handler de Helium' },
                 { value: 'heliumExpressio', label: 'Handler de Helium (expressió)' },
                 { value: 'expressio', label: 'Expressió' },
@@ -132,10 +132,10 @@ const TipusField = (props: PropertiesEntryProps) => {
             // Les opcions de Flowable només per als diagrames que ja les fan servir
             const actual = getTypeValue(element.businessObject);
             if (actual === 'class') {
-                options.push({ value: 'class', label: 'Java class (Flowable)' });
+                options.push({ value: 'class', label: 'Classe Java (Flowable)' });
             }
             if (actual === 'delegateExpression') {
-                options.push({ value: 'delegateExpression', label: 'Delegate expression (Flowable)' });
+                options.push({ value: 'delegateExpression', label: 'Expressió delegada (Flowable)' });
             }
             return options;
         },
@@ -168,7 +168,7 @@ const ExpressioField = (props: PropertiesEntryProps) => {
         element,
         id: 'helium-expression',
         label: 'Expressió',
-        description: 'S\'avalua en executar la tasca. El resultat es pot desar amb "Result variable name".',
+        description: 'S\'avalua en executar la tasca. El resultat es pot desar amb "Dada del resultat".',
         getValue: () => element.businessObject.get('helium:expression') || '',
         setValue: (value: string) => {
             modeling.updateProperties(element, {
@@ -182,12 +182,11 @@ const ExpressioField = (props: PropertiesEntryProps) => {
 const FlowableJavaClassField = (props: PropertiesEntryProps) => {
     const { element } = props;
     const modeling = useService('modeling');
-    const translate = useService('translate');
     const debounce = useService('debounceInput');
     return TextFieldEntry({
         element,
         id: 'flowable-java-class',
-        label: translate('Java class'),
+        label: 'Classe Java',
         description: 'Específic de Flowable: classe que implementa org.flowable.engine.delegate.JavaDelegate.',
         getValue: () => element.businessObject.get('flowable:class') || '',
         setValue: (value: string) => {
@@ -206,7 +205,7 @@ const FlowableJavaDelegateExpressionField = (props: PropertiesEntryProps) => {
     return TextFieldEntry({
         element,
         id: 'flowable-java-delegate-expression',
-        label: 'Delegate expression',
+        label: 'Expressió delegada',
         description: 'Específic de Flowable: ha de retornar un org.flowable.engine.delegate.JavaDelegate.',
         getValue: () => element.businessObject.get('flowable:delegateExpression') || '',
         setValue: (value: string) => {

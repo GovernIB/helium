@@ -83,7 +83,7 @@ const HeliumHandlerClassField = (props: EntryProps) => {
             if (currentValue && !options.some((o) => o.value === currentValue)) {
                 options.unshift({ value: currentValue, label: currentValue });
             }
-            return [{ value: '', label: '<none>' }, ...options];
+            return [{ value: '', label: '<cap>' }, ...options];
         },
     });
 };
