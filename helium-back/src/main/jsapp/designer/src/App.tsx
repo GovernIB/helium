@@ -11,13 +11,15 @@ import {
     //CamundaPlatformPropertiesProviderModule,
 } from 'bpmn-js-properties-panel';
 import FlowablePropertiesProviderModule from './flowable/FlowablePropertiesProviderModule';
-import {fetchHandlers} from './flowable/handlers';
+import {fetchHandlers, getHandlersSync} from './flowable/handlers';
 
 import Modal from './components/Modal';
 import Toolbar from './components/Toolbar';
 import LoadingOverlay from "./components/LoadingOverlay";
 
 import flowableModdle from './flowable/flowable.json';
+import heliumModdle from './helium/helium.json';
+import {migrarAtributsFlowable, migrarHandlersFlowable} from './helium/heliumHandler';
 //import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
 
 import {useCallback} from "react";
@@ -117,6 +119,7 @@ const App = () => {
             moddleExtensions: {
                 //camunda: camundaModdle,
                 flowable: flowableModdle,
+                helium: heliumModdle,
             },
         });
 
@@ -142,6 +145,7 @@ const App = () => {
 
         if (isNew) {
             await modelerRef.current.createDiagram();
+            marcarProcessosExecutables();
         } else {
             await loadDiagram();
         }
@@ -150,6 +154,20 @@ const App = () => {
             modeler.destroy();
         };
     }
+
+    /**
+     * El diagrama buit de bpmn-js crea el procés amb isExecutable="false" i Flowable ignora els processos no
+     * executables. Es canvia directament al model (sense passar per la pila de comandes) per no marcar el
+     * diagrama com a modificat.
+     */
+    const marcarProcessosExecutables = () => {
+        const definitions: any = modelerRef.current?.getDefinitions();
+        for (const element of definitions?.rootElements || []) {
+            if (element.$type === 'bpmn:Process') {
+                element.isExecutable = true;
+            }
+        }
+    };
 
     const showCode = () => {
         modelerRef.current?.saveXML({format: true}).then((response) => {
@@ -198,9 +216,26 @@ const App = () => {
     }
 
     const loadDiagram = async () => {
-        const response = await fetch(`${document.URL}/editorXml`);
+        // La pestanya Editor pot deixar la URL acabada en /editor: es normalitza igual que a handlers.ts
+        const base = document.URL.split(/[?#]/)[0].replace(/\/editor\/?$/, '').replace(/\/$/, '');
+        const response = await fetch(`${base}/editorXml`);
         const xml = await response.text();
-        await modelerRef.current!.importXML(xml);
+        await importarXml(xml);
+    }
+
+    /** Importa el diagrama i passa els atributs i handlers del format antic (flowable:*) al BPMN genèric. */
+    const importarXml = async (xml: string) => {
+        const modeler = modelerRef.current!;
+        await modeler.importXML(xml);
+        const classesHandlers = new Set(getHandlersSync().map((h) => h.classe));
+        const definitions = modeler.getDefinitions();
+        const moddle = modeler.get('moddle');
+        const handlers = migrarHandlersFlowable(definitions, moddle, classesHandlers);
+        const atributs = migrarAtributsFlowable(definitions, moddle);
+        if (handlers > 0 || atributs > 0) {
+            console.info(`Convertit a BPMN genèric: ${handlers} handlers i ${atributs} atributs de Flowable`);
+            setIsDirty(true);
+        }
     }
 
     const deploy = async () => {
@@ -254,7 +289,7 @@ const App = () => {
             return;
         }
         try {
-            await modelerRef.current?.importXML(await f.text());
+            await importarXml(await f.text());
         } catch (e: any) {
             alert(e.message);
         }

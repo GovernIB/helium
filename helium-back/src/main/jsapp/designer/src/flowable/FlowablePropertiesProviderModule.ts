@@ -6,7 +6,15 @@ import {
     isTextFieldEntryEdited,
 } from '@bpmn-io/properties-panel';
 import { createEntryFactories } from './EntryFactories';
-import { createJavaPropertiesGroup } from './JavaPropertiesGroup';
+import {
+    getCandidats,
+    getResponsable,
+    resourcesAmbCandidats,
+    resourcesAmbResponsable,
+    separarPerComes,
+} from '../helium/assignacio';
+import { createJavaPropertiesGroup, getTypeValue } from './JavaPropertiesGroup';
+import { createHeliumParametresGroup } from '../helium/HeliumHandlerPropertiesGroup';
 import { createJavaFieldsPropertiesGroup } from './JavaFieldsPropertiesGroup';
 
 const LOW_PRIORITY = 50;
@@ -58,7 +66,12 @@ FlowablePropertiesProvider.prototype.getGroups = function (
         if (is(element, 'bpmn:ServiceTask')) {
             groups.push(createServiceTaskPropertiesGroup());
             groups.push(createJavaPropertiesGroup(element));
-            groups.push(createJavaFieldsPropertiesGroup(element, modeling));
+            const tipus = getTypeValue(element.businessObject);
+            if (tipus === 'helium' || tipus === 'heliumExpressio') {
+                groups.push(createHeliumParametresGroup(element, modeling));
+            } else if (tipus === 'class' || tipus === 'delegateExpression') {
+                groups.push(createJavaFieldsPropertiesGroup(element, modeling));
+            }
         }
         if (is(element, 'bpmn:ScriptTask')) {
             groups.push(createScriptTaskPropertiesGroup());
@@ -82,14 +95,14 @@ FlowablePropertiesProvider.prototype.getGroups = function (
 };
 
 // ---------------------------------------------------------------------------
-// Flowable entry factories
+// Entry factories: les propietats d'execució es desen com a atributs helium:* (BPMN 2.0 genèric)
 // ---------------------------------------------------------------------------
 
 const {
     createTextField,
     createCheckbox,
     createModdleTextField,
-} = createEntryFactories('flowable');
+} = createEntryFactories('helium');
 
 // ---------------------------------------------------------------------------
 // Flowable Process
@@ -161,20 +174,62 @@ const createStartEventPropertiesGroup = () => {
 // Flowable User Task
 // ---------------------------------------------------------------------------
 
-const Assignee = createTextField({
-    property: 'assignee',
-    label: 'Assignee',
-});
+// L'assignació es desa amb els elements estàndard bpmn:humanPerformer i bpmn:potentialOwner
 
-const CandidateUsers = createTextField({
-    property: 'candidateUsers',
-    label: 'Candidate users',
-});
+const Assignee = ({ element, id }: { element: BpmnElement; id: string }) => {
+    const modeling = useService('modeling');
+    const translate = useService('translate');
+    const debounce = useService('debounceInput');
+    const businessObject = element.businessObject;
+    return TextFieldEntry({
+        element,
+        id,
+        label: translate('Assignee'),
+        description: 'Codi d\'usuari o expressió (bpmn:humanPerformer)',
+        debounce,
+        getValue: () => getResponsable(businessObject),
+        setValue: (value: string) =>
+            modeling.updateProperties(element, {
+                resources: resourcesAmbResponsable(businessObject, businessObject.$model, value),
+            }),
+    });
+};
 
-const CandidateGroups = createTextField({
-    property: 'candidateGroups',
-    label: 'Candidate groups',
-});
+const createCandidatsField = (tipus: 'usuaris' | 'grups', label: string, description: string) =>
+    ({ element, id }: { element: BpmnElement; id: string }) => {
+        const modeling = useService('modeling');
+        const translate = useService('translate');
+        const debounce = useService('debounceInput');
+        const businessObject = element.businessObject;
+        return TextFieldEntry({
+            element,
+            id,
+            label: translate(label),
+            description,
+            debounce,
+            getValue: () => getCandidats(businessObject)[tipus].join(', '),
+            setValue: (value: string) => {
+                const candidats = { ...getCandidats(businessObject), [tipus]: separarPerComes(value) };
+                modeling.updateProperties(element, {
+                    resources: resourcesAmbCandidats(
+                        businessObject,
+                        businessObject.$model,
+                        candidats.usuaris,
+                        candidats.grups),
+                });
+            },
+        });
+    };
+
+const CandidateUsers = createCandidatsField(
+    'usuaris',
+    'Candidate users',
+    'Separats per comes (bpmn:potentialOwner, user(...))');
+
+const CandidateGroups = createCandidatsField(
+    'grups',
+    'Candidate groups',
+    'Separats per comes (bpmn:potentialOwner, group(...))');
 
 const DueDate = createTextField({
     property: 'dueDate',
@@ -387,7 +442,7 @@ const createAsyncPropertiesGroup = (element: BpmnElement) => {
             isEdited: isCheckboxEntryEdited,
         },
     ];
-    if (element.businessObject.get('flowable:async')) {
+    if (element.businessObject.get('helium:async')) {
         entries.push({
             id: 'flowable-exclusive',
             component: Exclusive,
