@@ -17,8 +17,7 @@ import es.caib.comanda.model.management.TascaEstat;
 import es.caib.helium.commons.config.PropertyConfig;
 import es.caib.helium.commons.utils.GlobalProperties;
 import es.caib.helium.logic.config.JacksonObjectMapperProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +36,7 @@ import es.caib.helium.logic.intf.util.DatesUtils;
  * @author Limit Tecnologies <limit@limit.es>
  *
  */
+@Slf4j
 @Component
 public class ComandaHelper {
 
@@ -54,8 +54,6 @@ public class ComandaHelper {
 
 	private Client client;
 
-	private static final Logger logger = LoggerFactory.getLogger(ComandaHelper.class);
-
 	public Tasca getTasca(String tascaId) throws UniformInterfaceException, InterruptedException, ExecutionException {
 		ClientResponse response = getClient()
 								.resource(API_URL + "/tasques/v1/" + tascaId)
@@ -67,7 +65,6 @@ public class ComandaHelper {
 		 return response.getEntity(Tasca.class);
 		}
 
-		logger.error("[COMANDA] GET: {}", response.toString());
 		return null;
 	}
 
@@ -92,7 +89,7 @@ public class ComandaHelper {
 			if(tasca != null && task.getActorId() == null)
 				deleteTasca(taskId);
 		} catch(Exception e) {
-			logger.error(
+			log.error(
 				"Error inesperat a la creació/actualització de la tasca amb id '" + taskId + "' del expedient " + expedientNumero,
 				e);
 		}
@@ -133,7 +130,7 @@ public class ComandaHelper {
 									.post(ClientResponse.class, tasca);
 
 		if(response.getStatus() != 200)
-			logger.error("[COMANDA] POST: {}", response.toString());
+			log.error("[COMANDA] POST: {}", response);
 	}
 
 	private void updateTasca(Tasca tasca, String taskId, String expedientNumero, String descripcio, WTaskInstance task, TascaEstat estat) throws MalformedURLException, UniformInterfaceException, InterruptedException, ExecutionException {
@@ -167,7 +164,7 @@ public class ComandaHelper {
 				.put(ClientResponse.class, tasca);
 
 		if(response.getStatus() != 200)
-			logger.error("[COMANDA] PUT: {}", response.toString());
+			log.error("[COMANDA] PUT: {}", response);
 	}
 
 	public Tasca deleteTasca(String tascaId) throws UniformInterfaceException {
@@ -181,7 +178,7 @@ public class ComandaHelper {
 			return response.getEntity(Tasca.class);
 		}
 
-		logger.error("[COMANDA] DELETE: {}", response.toString());
+		log.error("[COMANDA] DELETE: {}", response);
 		return null;
 	}
 
