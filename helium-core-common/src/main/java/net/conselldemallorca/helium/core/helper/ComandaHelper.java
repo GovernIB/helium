@@ -53,10 +53,9 @@ public class ComandaHelper {
 								.get(ClientResponse.class);
 		
 		if(response.getStatus() == 200) {
-		 return response.getEntity(ComandaTasca.class);
+			return response.getEntity(ComandaTasca.class);
 		}
 		
-		logger.error("[COMANDA] GET: " + response.toString());
 		return null;
 	}
 	
@@ -188,7 +187,6 @@ public class ComandaHelper {
 		
 		if(response.getStatus() == 200)
 			return;
-			//response.getEntity(String.class);
 		
 		logger.error("[COMANDA] DELETE: " + response.toString());
 		return;
