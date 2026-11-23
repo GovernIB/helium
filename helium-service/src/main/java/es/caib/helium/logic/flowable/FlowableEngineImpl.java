@@ -659,10 +659,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			.getCommandExecutor()
 			.execute(new AddCandidatesToTaskCmd(taskId));
 
-		if(expression.startsWith("user(")) {
-			String user = expression.replace("user(", "").replace(")", "");
-			processEngine.getTaskService().setAssignee(taskId, user);
-		} else if(expression.startsWith("group(")) {
+		if(expression.startsWith("group(")) {
 			String group = expression.replace("group(", "").replace(")", "");
 			List<PersonaDto> persones = pluginHelper.personaFindAmbGrup(group);
 
@@ -675,6 +672,11 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 						.map(PersonaDto::getCodi).toArray(String[]::new),
 					group
 				));
+		} else if(expression.startsWith("user(")) {
+			String user = expression.replace("user(", "").replace(")", "");
+			processEngine.getTaskService().setAssignee(taskId, user);
+		} else {
+			processEngine.getTaskService().setAssignee(taskId, expression);
 		}
 		return this.getTaskById(taskId);
 	}

@@ -99,20 +99,21 @@
 		<module>helium-back</module>
 		<module>helium-ear</module>
 		<module>helium-bpmn</module>
-		<!-- mòduls a migrar
-		<module>helium-core-api</module>
-		<module>helium-disseny</module>
-		<module>helium-plugin-api</module>
-		<module>helium-plugin-impl</module>
-		<module>helium-core-common</module>
-		<module>helium-core</module>
-		<module>helium-webapp</module>
-		<module>helium-ws</module>
-		<module>helium-ear</module>
-		<module>helium-applet</module>
-		<module>helium-hibernate-entitymanager</module>
-		<module>helium-ws-client</module>
-		-->
+        <module>helium-api-client</module>
+        <!-- mòduls a migrar
+        <module>helium-core-api</module>
+        <module>helium-disseny</module>
+        <module>helium-plugin-api</module>
+        <module>helium-plugin-impl</module>
+        <module>helium-core-common</module>
+        <module>helium-core</module>
+        <module>helium-webapp</module>
+        <module>helium-ws</module>
+        <module>helium-ear</module>
+        <module>helium-applet</module>
+        <module>helium-hibernate-entitymanager</module>
+        <module>helium-ws-client</module>
+        -->
 	</modules>
 	<build>
 		<plugins>

@@ -50,6 +50,24 @@ public class EjbClientConfig {
 	public LocalStatelessSessionProxyFactoryBean anotacioService() {
 		return getLocalEjbFactoyBean(AnotacioService.class);
 	}
+	@Bean
+	@ConditionalOnWarDeployment
+	public LocalStatelessSessionProxyFactoryBean expedientService() {return getLocalEjbFactoyBean(ExpedientService.class);}
+	@Bean
+	@ConditionalOnWarDeployment
+	public LocalStatelessSessionProxyFactoryBean entornService() {return getLocalEjbFactoyBean(EntornService.class);}
+	@Bean
+	@ConditionalOnWarDeployment
+	public LocalStatelessSessionProxyFactoryBean tascaService() {return getLocalEjbFactoyBean(TascaService.class);}
+	@Bean
+	@ConditionalOnWarDeployment
+	public LocalStatelessSessionProxyFactoryBean expedientTipusService() {return getLocalEjbFactoyBean(ExpedientTipusService.class);}
+	@Bean
+	@ConditionalOnWarDeployment
+	public LocalStatelessSessionProxyFactoryBean expedientTascaService() {return getLocalEjbFactoyBean(ExpedientTascaService.class);}
+	@Bean
+	@ConditionalOnWarDeployment
+	public LocalStatelessSessionProxyFactoryBean expedientDadaService() {return getLocalEjbFactoyBean(ExpedientDadaService.class);}
 
 	private LocalStatelessSessionProxyFactoryBean getLocalEjbFactoyBean(Class<?> serviceClass) {
 		String jndiName = jndiServiceName(serviceClass, false);
