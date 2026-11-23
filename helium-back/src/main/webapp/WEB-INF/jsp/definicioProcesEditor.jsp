@@ -10,6 +10,17 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 <c:set var="idioma">ca</c:set>
+<%-- Obert des del llistat de definicions de procés d'un tipus d'expedient: es mostra la capçalera del tipus --%>
+<c:if test="${not empty expedientTipus}">
+<html>
+<head>
+	<title><spring:message code="expedient.tipus.pipelles.titol"/></title>
+	<meta name="title" content="<spring:message code="expedient.tipus.pipelles.titol"/>"/>
+	<meta name="subtitle" content="${fn:escapeXml(expedientTipus.nom)}"/>
+	<meta name="title-icon-class" content="fa fa-folder-open"/>
+</head>
+<body>
+</c:if>
 <script src="<c:url value="/js/webutil.common.js"/>"></script>
 
 <%
@@ -34,7 +45,7 @@ String baseHelium = es.caib.helium.commons.utils.GlobalProperties.getInstance().
 		hasStartTask: ${(empty definicioProces)? false : definicioProces.hasStartTask},
 		isNew: ${empty definicioProces}
 	};
-	document.title = "Disseny definició de procés";
+	<c:if test="${empty expedientTipus}">document.title = "Disseny definició de procés";</c:if>
 </script>
 
 <link rel="stylesheet" href="<%=cssFile%>">
@@ -52,3 +63,7 @@ String baseHelium = es.caib.helium.commons.utils.GlobalProperties.getInstance().
 			window.mountRootApp(); // module already loaded, just remount
 		}
 </script>
+<c:if test="${not empty expedientTipus}">
+</body>
+</html>
+</c:if>

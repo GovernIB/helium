@@ -61,3 +61,48 @@
 }
 .helium-parametres-eliminar:hover, .helium-parametres-eliminar:focus-visible { color: #c62828; }
 .helium-parametres-peu { margin-top: 6px; }
+
+/* Separador redimensionable entre el llenç i el plafó de propietats */
+.helium-editor-separador {
+	flex: 0 0 6px;
+	cursor: col-resize;
+	background: #f2f2f2;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	touch-action: none;
+}
+.helium-editor-separador:hover,
+.helium-editor-separador:focus-visible,
+.helium-editor.redimensionant .helium-editor-separador {
+	background: #1a73e8;
+	border-color: #1a73e8;
+	outline: none;
+}
+.helium-editor.redimensionant,
+.helium-editor.redimensionant * {
+	cursor: col-resize !important;
+	user-select: none;
+}
+
+/*
+ * Pantalla completa: l'editor ocupa tota la finestra i s'amaguen la capçalera i el peu de Helium. Queda per sota
+ * dels diàlegs de l'editor (z-index 1000) perquè es continuïn veient.
+ */
+.helium-editor.pantalla-completa {
+	position: fixed !important;
+	inset: 0;
+	z-index: 900;
+	background: #fff;
+}
+.helium-editor.pantalla-completa #properties {
+	height: 100vh;
+	overflow-y: auto;
+}
+body.helium-editor-pantalla-completa {
+	overflow: hidden;
+}
+body.helium-editor-pantalla-completa .navbar-app,
+body.helium-editor-pantalla-completa .container-foot,
+body.helium-editor-pantalla-completa #topBtn {
+	display: none !important;
+}

@@ -41,6 +41,52 @@ interface ProcessDefinitionDataType {
     }[];
 }
 
+/** Amplada del plafó de propietats (px): per defecte, mínima i clau on es recorda per a l'usuari. */
+const AMPLADA_PROPIETATS_DEFECTE = 340;
+const AMPLADA_PROPIETATS_MIN = 260;
+const AMPLADA_PROPIETATS_CLAU = 'helium.designer.ampladaPropietats';
+const CLASSE_PANTALLA_COMPLETA = 'helium-editor-pantalla-completa';
+
+const ampladaPropietatsMax = () => Math.max(AMPLADA_PROPIETATS_MIN, Math.round(window.innerWidth * 0.7));
+
+const limitarAmpladaPropietats = (amplada: number) =>
+    Math.min(Math.max(Math.round(amplada), AMPLADA_PROPIETATS_MIN), ampladaPropietatsMax());
+
+const llegirAmpladaPropietats = (): number => {
+    try {
+        const valor = Number(window.localStorage.getItem(AMPLADA_PROPIETATS_CLAU));
+        return valor > 0 ? limitarAmpladaPropietats(valor) : AMPLADA_PROPIETATS_DEFECTE;
+    } catch {
+        return AMPLADA_PROPIETATS_DEFECTE;
+    }
+};
+
+const desarAmpladaPropietats = (amplada: number) => {
+    try {
+        window.localStorage.setItem(AMPLADA_PROPIETATS_CLAU, String(amplada));
+    } catch {
+        // Sense emmagatzematge (navegació privada...): només es perd la preferència
+    }
+};
+
+/** Camps de text on Ctrl+Z ha de desfer el text i no el diagrama. */
+const esCampEditable = (target: EventTarget | null) => {
+    const element = target as HTMLElement | null;
+    return !!element && (
+        element.isContentEditable
+        || ['INPUT', 'TEXTAREA', 'SELECT'].includes(element.tagName)
+    );
+};
+
+interface CommandStack {
+    undo(): void;
+    redo(): void;
+}
+
+interface Canvas {
+    resized(): void;
+}
+
 interface FormError {
     camp: string;
     missatge: string;
@@ -65,6 +111,11 @@ const App = () => {
 
     const [isLoading, setIsLoading] = React.useState(true);
     const [isDirty, setIsDirty] = React.useState<boolean>(false);
+    const [canUndo, setCanUndo] = React.useState<boolean>(false);
+    const [canRedo, setCanRedo] = React.useState<boolean>(false);
+    const [ampladaPropietats, setAmpladaPropietats] = React.useState<number>(llegirAmpladaPropietats);
+    const [redimensionant, setRedimensionant] = React.useState<boolean>(false);
+    const [pantallaCompleta, setPantallaCompleta] = React.useState<boolean>(false);
     const [modalOpen, setModalOpen] = React.useState<boolean>(false);
     const [modalDespOpen, setModalDespOpen] = React.useState<boolean>(false);
     const [modalContent, setModalContent] = React.useState<string>();
@@ -127,6 +178,8 @@ const App = () => {
         const handleCommandStackChange = () => {
             const commandStack: any = modeler.get('commandStack');
             setIsDirty(commandStack.canUndo());
+            setCanUndo(commandStack.canUndo());
+            setCanRedo(commandStack.canRedo());
         };
 
         eventBus.on('commandStack.changed', handleCommandStackChange);
@@ -167,6 +220,134 @@ const App = () => {
                 element.isExecutable = true;
             }
         }
+    };
+
+    const undo = () => {
+        modelerRef.current?.get<CommandStack>('commandStack').undo();
+    };
+
+    const redo = () => {
+        modelerRef.current?.get<CommandStack>('commandStack').redo();
+    };
+
+    /*
+     * Ctrl+Z / Ctrl+Shift+Z (i Ctrl+Y) a tot l'editor. bpmn-js només escolta el teclat quan el llenç té el focus
+     * (i el plafó de propietats, als seus camps), així que després de fer clic a la barra d'eines o fora del llenç
+     * les dreceres no farien res. Si ja les ha gestionat bpmn-js (defaultPrevented) no es tornen a aplicar, i en
+     * altres camps de text (diàlegs, edició d'etiquetes) es deixa el comportament del navegador.
+     */
+    React.useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.defaultPrevented || event.altKey || !(event.ctrlKey || event.metaKey)
+                || esCampEditable(event.target)) {
+                return;
+            }
+            const tecla = event.key.toLowerCase();
+            const esDesfer = tecla === 'z' && !event.shiftKey;
+            const esRefer = (tecla === 'z' && event.shiftKey) || (tecla === 'y' && !event.shiftKey);
+            if (!esDesfer && !esRefer) {
+                return;
+            }
+            // Amb un diàleg obert (codi, desplegar) no es modifica el diagrama de darrere
+            if (modalOpen || modalDespOpen) {
+                return;
+            }
+            event.preventDefault();
+            if (esDesfer) {
+                undo();
+            } else {
+                redo();
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [modalOpen, modalDespOpen]);
+
+    /** El llenç ha de recalcular la mida quan canvia l'amplada del plafó o es passa a pantalla completa. */
+    React.useEffect(() => {
+        modelerRef.current?.get<Canvas>('canvas').resized();
+    }, [ampladaPropietats, pantallaCompleta]);
+
+    /*
+     * Pantalla completa: el navegador passa a pantalla completa i l'editor ocupa tota la finestra, amagant la
+     * capçalera i el peu de Helium. Si el navegador no ho permet, l'editor igualment ocupa tota la finestra.
+     */
+    const togglePantallaCompleta = () => {
+        if (pantallaCompleta) {
+            setPantallaCompleta(false);
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(() => undefined);
+            }
+        } else {
+            setPantallaCompleta(true);
+            document.documentElement.requestFullscreen?.().catch(() => undefined);
+        }
+    };
+
+    React.useEffect(() => {
+        // Sortir de la pantalla completa del navegador (Esc, F11...) també surt del mode de l'editor
+        const handleFullscreenChange = () => {
+            if (!document.fullscreenElement) {
+                setPantallaCompleta(false);
+            }
+        };
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
+
+    React.useEffect(() => {
+        document.body.classList.toggle(CLASSE_PANTALLA_COMPLETA, pantallaCompleta);
+        return () => document.body.classList.remove(CLASSE_PANTALLA_COMPLETA);
+    }, [pantallaCompleta]);
+
+    /** Arrossegar el separador canvia l'amplada del plafó de propietats (doble clic: amplada per defecte). */
+    const iniciarRedimensio = (event: React.PointerEvent<HTMLDivElement>) => {
+        if (event.button !== 0) {
+            return;
+        }
+        event.preventDefault();
+        const separador = event.currentTarget;
+        separador.setPointerCapture(event.pointerId);
+        const xInicial = event.clientX;
+        const ampladaInicial = ampladaPropietats;
+        let amplada = ampladaInicial;
+        setRedimensionant(true);
+        const moure = (e: PointerEvent) => {
+            amplada = limitarAmpladaPropietats(ampladaInicial + xInicial - e.clientX);
+            setAmpladaPropietats(amplada);
+        };
+        const acabar = () => {
+            separador.removeEventListener('pointermove', moure);
+            separador.removeEventListener('pointerup', acabar);
+            separador.removeEventListener('pointercancel', acabar);
+            setRedimensionant(false);
+            desarAmpladaPropietats(amplada);
+        };
+        separador.addEventListener('pointermove', moure);
+        separador.addEventListener('pointerup', acabar);
+        separador.addEventListener('pointercancel', acabar);
+    };
+
+    const canviarAmpladaPropietats = (amplada: number) => {
+        const nova = limitarAmpladaPropietats(amplada);
+        setAmpladaPropietats(nova);
+        desarAmpladaPropietats(nova);
+    };
+
+    const handleSeparadorKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        const pas = event.shiftKey ? 80 : 20;
+        if (event.key === 'ArrowLeft') {
+            canviarAmpladaPropietats(ampladaPropietats + pas);
+        } else if (event.key === 'ArrowRight') {
+            canviarAmpladaPropietats(ampladaPropietats - pas);
+        } else if (event.key === 'Home') {
+            canviarAmpladaPropietats(ampladaPropietatsMax());
+        } else if (event.key === 'End') {
+            canviarAmpladaPropietats(AMPLADA_PROPIETATS_MIN);
+        } else {
+            return;
+        }
+        event.preventDefault();
     };
 
     const showCode = () => {
@@ -337,10 +518,11 @@ const App = () => {
             />
             <LoadingOverlay isLoading={isLoading}/>
             <div
+                className={`helium-editor${pantallaCompleta ? ' pantalla-completa' : ''}${redimensionant ? ' redimensionant' : ''}`}
                 style={{
                     display: 'flex',
+                    position: 'relative',
                     border: `${isDragging ? "2px dashed  #3b82f6" : "none"}`,
-                    zIndex: 999,
                 }}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -360,9 +542,25 @@ const App = () => {
                 }}>
                     <UploadIcon animate={true} scale={5}></UploadIcon>
                 </div>)}
-                <Toolbar showCode={showCode} download={download} save={save} upload={isNew ? upload : undefined}/>
-                <div id="canvas" ref={canvasRef} style={{flexGrow: 1, height: '100vh'}}></div>
-                <div id="properties" ref={propertiesRef} style={{width: '340px'}}></div>
+                <Toolbar showCode={showCode} download={download} save={save} upload={isNew ? upload : undefined}
+                         undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
+                         pantallaCompleta={pantallaCompleta} togglePantallaCompleta={togglePantallaCompleta}
+                         style={{right: ampladaPropietats + 40}}/>
+                <div id="canvas" ref={canvasRef} style={{flexGrow: 1, minWidth: 0, height: '100vh'}}></div>
+                <div
+                    className="helium-editor-separador"
+                    role="separator"
+                    aria-orientation="vertical"
+                    aria-label="Amplada del plafó de propietats"
+                    aria-valuenow={ampladaPropietats}
+                    aria-valuemin={AMPLADA_PROPIETATS_MIN}
+                    title="Arrossegar per canviar l'amplada del plafó (doble clic: amplada per defecte)"
+                    tabIndex={0}
+                    onPointerDown={iniciarRedimensio}
+                    onDoubleClick={() => canviarAmpladaPropietats(AMPLADA_PROPIETATS_DEFECTE)}
+                    onKeyDown={handleSeparadorKeyDown}
+                ></div>
+                <div id="properties" ref={propertiesRef} style={{width: ampladaPropietats, flexShrink: 0}}></div>
             </div>
 
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Codi BPMN">

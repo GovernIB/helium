@@ -224,6 +224,10 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		model.addAttribute("entornId", entornActual.getId());
 		model.addAttribute("expedientTipusId", expedientTipusId);
+		// Per mostrar la capçalera del tipus d'expedient a l'editor
+		model.addAttribute(
+				"expedientTipus",
+				expedientTipusService.findAmbIdPermisDissenyarDelegat(entornActual.getId(), expedientTipusId));
 		model.addAttribute("returnUrl", request.getHeader("referer"));
 		return "definicioProcesEditor";
 	}
