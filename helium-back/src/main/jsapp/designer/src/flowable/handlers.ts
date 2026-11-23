@@ -4,8 +4,6 @@ export interface HandlerParametreDto {
     obligatori: boolean;
     param: string | null;
     paramDesc: string | null;
-    varParam: string | null;
-    varParamDesc: string | null;
 }
 
 export interface HandlerDto {

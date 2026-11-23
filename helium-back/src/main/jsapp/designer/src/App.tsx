@@ -19,7 +19,7 @@ import LoadingOverlay from "./components/LoadingOverlay";
 
 import flowableModdle from './flowable/flowable.json';
 import heliumModdle from './helium/helium.json';
-import {migrarAtributsFlowable, migrarHandlersFlowable} from './helium/heliumHandler';
+import {migrarAtributsFlowable, migrarHandlersFlowable, migrarParametresVar} from './helium/heliumHandler';
 //import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
 
 import {useCallback} from "react";
@@ -232,8 +232,9 @@ const App = () => {
         const moddle = modeler.get('moddle');
         const handlers = migrarHandlersFlowable(definitions, moddle, classesHandlers);
         const atributs = migrarAtributsFlowable(definitions, moddle);
-        if (handlers > 0 || atributs > 0) {
-            console.info(`Convertit a BPMN genèric: ${handlers} handlers i ${atributs} atributs de Flowable`);
+        const parametresVar = migrarParametresVar(definitions, getHandlersSync());
+        if (handlers > 0 || atributs > 0 || parametresVar > 0) {
+            console.info(`Convertit a BPMN genèric: ${handlers} handlers, ${atributs} atributs de Flowable i ${parametresVar} paràmetres varXXX`);
             setIsDirty(true);
         }
     }

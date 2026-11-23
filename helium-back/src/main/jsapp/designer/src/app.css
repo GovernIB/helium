@@ -38,3 +38,26 @@
 	.fu-arrow-idle, .fu-arrow-dragging, .fu-dash-pulse { animation: none; }
 	.fu-check { animation: none; stroke-dashoffset: 0; opacity: 1; transform: scale(1); }
 }
+
+/* Taula de paràmetres dels handlers (panell de propietats) */
+.helium-parametres { padding: 2px 12px 8px; }
+.helium-parametres-taula { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 6px; }
+.helium-parametres-taula th {
+	text-align: left; font-weight: 500; font-size: 12px; padding: 2px 4px;
+	color: var(--description-color, #555);
+}
+.helium-parametres-taula td { padding: 2px 4px; vertical-align: top; }
+.helium-parametres-taula .helium-parametres-nom { width: 38%; }
+.helium-parametres-taula .helium-parametres-accions { width: 24px; padding: 2px 0; }
+.helium-parametres-taula input { width: 100%; box-sizing: border-box; margin: 0; }
+.helium-parametres-taula input.helium-parametres-expressio {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px;
+	border-left: 3px solid #1a73e8;
+}
+.helium-parametres-defecte { font-size: 11px; color: var(--description-color, #666); margin-top: 2px; overflow-wrap: anywhere; }
+.helium-parametres-eliminar {
+	width: 22px; height: 26px; border: none; background: none; cursor: pointer;
+	font-size: 16px; line-height: 1; color: #888;
+}
+.helium-parametres-eliminar:hover, .helium-parametres-eliminar:focus-visible { color: #c62828; }
+.helium-parametres-peu { margin-top: 6px; }

@@ -68,7 +68,7 @@ FlowablePropertiesProvider.prototype.getGroups = function (
             groups.push(createJavaPropertiesGroup(element));
             const tipus = getTypeValue(element.businessObject);
             if (tipus === 'helium' || tipus === 'heliumExpressio') {
-                groups.push(createHeliumParametresGroup(element, modeling));
+                groups.push(createHeliumParametresGroup());
             } else if (tipus === 'class' || tipus === 'delegateExpression') {
                 groups.push(createJavaFieldsPropertiesGroup(element, modeling));
             }

@@ -9,8 +9,8 @@ import { getCandidats, resourcesAmbCandidats, resourcesAmbResponsable, separarPe
  *   <bpmn:serviceTask implementation="http://www.caib.es/helium/bpmn/handler">
  *     <bpmn:extensionElements>
  *       <helium:handler classe="...">
- *         <helium:parametre nom="motiu" valor="..."/>
- *         <helium:parametre nom="varMotiu" expressio="${...}"/>
+ *         <helium:parametre nom="titol" valor="Text literal"/>
+ *         <helium:parametre nom="motiu" expressio="${codiDada}"/>
  *       </helium:handler>
  *     </bpmn:extensionElements>
  *   </bpmn:serviceTask>
@@ -92,22 +92,33 @@ export const removeHeliumHandler = (element: BpmnElement, modeling: Modeling) =>
     }
 };
 
-/** Noms dels paràmetres d'un handler del catàleg: cada paràmetre i, si en té, la seva variable. */
+/** Noms dels paràmetres d'un handler del catàleg. */
 export const nomsParametres = (handler: HandlerDto): string[] =>
-    (handler.parametres || []).reduce((noms: string[], p) => {
-        const nom = p.codi || p.nom;
-        if (nom) noms.push(nom);
-        if (p.varParam) noms.push(p.varParam);
-        return noms;
-    }, []);
+    (handler.parametres || []).map((p) => p.codi || p.nom).filter((nom): nom is string => !!nom);
 
 /** Descripció d'un paràmetre segons el catàleg de handlers. */
 export const descripcioParametre = (handler: HandlerDto | undefined, nom: string): string | undefined => {
-    for (const p of handler?.parametres || []) {
-        if ((p.codi || p.nom) === nom) return p.paramDesc || p.nom || undefined;
-        if (p.varParam === nom) return p.varParamDesc || undefined;
+    const parametre = (handler?.parametres || []).find((p) => (p.codi || p.nom) === nom);
+    return parametre ? parametre.paramDesc || parametre.nom || undefined : undefined;
+};
+
+/** Un valor és una expressió si conté ${...} o #{...} (ha de coincidir amb HandlerDefinicio.Parametre.esExpressio). */
+export const esExpressio = (text: string | undefined | null): boolean =>
+    !!text && (text.includes('${') || text.includes('#{'));
+
+/** Valor d'un helium:parametre tal com es mostra a l'editor: l'expressió, si en té, o el valor literal. */
+export const textParametre = (parametre: any): string => parametre?.expressio || parametre?.valor || '';
+
+/**
+ * Assigna el valor d'un helium:parametre a partir del text de l'editor: si és una expressió es desa a l'atribut
+ * expressio (i es conserva el valor literal, que fa de valor per defecte), si no a l'atribut valor.
+ */
+export const assignarTextParametre = (element: BpmnElement, modeling: Modeling, parametre: any, text: string) => {
+    if (esExpressio(text)) {
+        modeling.updateModdleProperties(element, parametre, { expressio: text });
+    } else {
+        modeling.updateModdleProperties(element, parametre, { valor: text, expressio: undefined });
     }
-    return undefined;
 };
 
 /**
@@ -128,7 +139,7 @@ export const carregarParametres = (
         const anterior = existents.get(nom);
         const parametre = moddle.create(PARAMETRE_TYPE, {
             nom,
-            valor: anterior?.expressio ? undefined : (anterior?.valor ?? ''),
+            valor: anterior?.expressio && !anterior?.valor ? undefined : (anterior?.valor ?? ''),
             expressio: anterior?.expressio,
         });
         parametre.$parent = heliumHandler;
@@ -289,4 +300,57 @@ export const migrarHandlersFlowable = (definitions: any, moddle: any, classesHan
         }
     }
     return migrades;
+};
+
+const IDENTIFICADOR = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/**
+ * Converteix els antics paràmetres varXxx dels handlers del catàleg (codi d'una dada de l'expedient) en una
+ * expressió del paràmetre xxx: varXxx = codi passa a xxx = ${codi}. Si xxx tenia un valor literal, es conserva com
+ * a valor per defecte (s'utilitza si la dada no té valor). Ha de coincidir amb es.caib.helium.bpmn.handler.ParametresVar.
+ *
+ * Només es converteixen els varXxx que el handler ja no té i dels quals sí que té el paràmetre xxx; els de sortida
+ * (p. ex. varCsv, el codi de la dada on es desa un resultat) es deixen com estan.
+ *
+ * @return el nombre de paràmetres convertits.
+ */
+export const migrarParametresVar = (definitions: any, handlers: HandlerDto[]): number => {
+    let migrats = 0;
+    const processos = (definitions?.rootElements || []).filter((e: any) => e.$type === 'bpmn:Process');
+    for (const proces of processos) {
+        for (const tasca of flowElements(proces)) {
+            const heliumHandler = getHeliumHandler(tasca);
+            const handler = handlers.find((h) => h.classe === heliumHandler?.classe);
+            if (!heliumHandler || !handler) continue;
+            const noms = new Set(nomsParametres(handler));
+            const moddle = tasca.$model;
+            let parametres: any[] = [...(heliumHandler.parametres || [])];
+            for (const parametre of [...parametres]) {
+                const m = /^var([A-Za-z].*)$/.exec(parametre.nom || '');
+                if (!m || noms.has(parametre.nom)) continue;
+                const substitut = m[1].charAt(0).toLowerCase() + m[1].slice(1);
+                if (!noms.has(substitut)) continue;
+                const codi = (parametre.valor || '').trim();
+                if (parametre.expressio) {
+                    console.warn(`No es pot convertir el paràmetre ${parametre.nom} de la tasca ${tasca.id}: el codi de la dada és una expressió (${parametre.expressio})`);
+                    continue;
+                }
+                parametres = parametres.filter((p) => p !== parametre);
+                migrats++;
+                if (!IDENTIFICADOR.test(codi)) continue;
+                const expressio = `\${${codi}}`;
+                const anterior = parametres.find((p) => p.nom === substitut);
+                if (anterior) {
+                    anterior.expressio = expressio;
+                    if (!anterior.valor) anterior.valor = undefined;
+                } else {
+                    const nou = moddle.create(PARAMETRE_TYPE, { nom: substitut, expressio });
+                    nou.$parent = heliumHandler;
+                    parametres.push(nou);
+                }
+            }
+            heliumHandler.parametres = parametres;
+        }
+    }
+    return migrats;
 };
