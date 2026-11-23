@@ -4,7 +4,6 @@ import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
 import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import lombok.Setter;
-import org.flowable.common.engine.api.delegate.Expression;
 
 /**
  * Implementació del handler per a modificar l'estat de l'expedient.
@@ -14,14 +13,14 @@ import org.flowable.common.engine.api.delegate.Expression;
 @Setter
 public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientEstatModificarHandler {
 
-	private Expression estatCodi;
-	private Expression varEstatCodi;
+	private String estatCodi;
+	private String varEstatCodi;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.expedientEstatModificar(
 			heliumApi.getVariableDefaultValue(
-				getValue(varEstatCodi),
-				getValue(estatCodi)));
+				varEstatCodi,
+				estatCodi));
 	}
 }

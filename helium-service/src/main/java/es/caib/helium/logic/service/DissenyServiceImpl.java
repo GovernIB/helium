@@ -231,16 +231,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<HandlerDto> findHandlersBpmOrdenats(Long definicioProcesId) {
-		List<HandlerDto> handlers = new ArrayList<HandlerDto>();
-		List<Recurs> recursos = recursRepository.findByDefinicioProcesIdAndHandler(definicioProcesId, true);
-		for(Recurs recurs : recursos){
-			HandlerDto handler = new HandlerDto();
-			handler.setClasse(recurs.getNomClasse());
-			handler.setNom(recurs.getNom());
-			handler.setParametres(getHandlerParameters(recurs.getContingut()));
-			handlers.add(handler);
-		}
-		return handlers;
+		return toHandlersPropis(recursRepository.findByDefinicioProcesIdAndHandler(definicioProcesId, true));
 	}
 
     @Override
@@ -274,16 +265,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<HandlerDto> findHandlersRecursos(Long expedientTipusId) {
-		List<HandlerDto> handlers = new ArrayList<HandlerDto>();
-		List<Recurs> recursos = recursRepository.findByExpedientTipusIdAndHandler(expedientTipusId, true);
-		for(Recurs recurs : recursos){
-			HandlerDto handler = new HandlerDto();
-			handler.setClasse(recurs.getNomClasse());
-			handler.setNom(recurs.getNom());
-			handler.setParametres(getHandlerParameters(recurs.getContingut()));
-			handlers.add(handler);
-		}
-		return handlers;
+		return toHandlersPropis(recursRepository.findByExpedientTipusIdAndHandler(expedientTipusId, true));
 	}
 
 	@Override
@@ -1583,6 +1565,27 @@ public class DissenyServiceImpl implements DissenyService {
 	public List<ExpedientTipusDto> findExpedientTipusBySistraTramitCodi(String sistraTramitCodi) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 * Converteix els recursos que són handlers propis al catàleg de handlers. El nom és el de la classe (sense
+	 * paquet) i no s'agrupen (l'editor els mostra sota "HANDLERS PROPIS"). Una mateixa classe pot ser a diversos
+	 * recursos (p. ex. a cada versió d'una definició de procés): només s'inclou una vegada.
+	 */
+	private List<HandlerDto> toHandlersPropis(List<Recurs> recursos) {
+		Map<String, HandlerDto> handlers = new java.util.LinkedHashMap<String, HandlerDto>();
+		for (Recurs recurs : recursos) {
+			String classe = recurs.getNomClasse();
+			if (classe == null || handlers.containsKey(classe)) {
+				continue;
+			}
+			HandlerDto handler = new HandlerDto();
+			handler.setClasse(classe);
+			handler.setNom(classe.substring(classe.lastIndexOf('.') + 1));
+			handler.setParametres(getHandlerParameters(recurs.getContingut()));
+			handlers.put(classe, handler);
+		}
+		return new ArrayList<HandlerDto>(handlers.values());
 	}
 
 	private List<HandlerParametreDto> getHandlerParameters(byte[] contingut) {

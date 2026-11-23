@@ -10,7 +10,6 @@ import es.caib.helium.bpmn.exception.BpmnException;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import es.caib.helium.bpmn.model.TerminiInfo;
 import lombok.Setter;
-import org.flowable.common.engine.api.delegate.Expression;
 /**
  * Handler per pausar un termini.
  *
@@ -20,8 +19,8 @@ import org.flowable.common.engine.api.delegate.Expression;
 @Setter
 public class TerminiPausarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.TerminiPausarHandler {
 
-	private Expression terminiCodi;
-	private Expression varData;
+	private String terminiCodi;
+	private String varData;
 
 	@Override
 	public void execute(HeliumApi executionContext) throws HeliumHandlerException {
@@ -30,7 +29,7 @@ public class TerminiPausarHandler extends AbstractHeliumActionHandler implements
 		try {
 			HeliumBridge.getInstanceService().getTerminiIniciatAmbCodi(
 				executionContext,
-				getValue(terminiCodi));
+				terminiCodi);
 		} catch (NoTrobatException ex) {
 			termini = null;
 		} catch (BpmnException e) {
@@ -41,7 +40,7 @@ public class TerminiPausarHandler extends AbstractHeliumActionHandler implements
 			if (varData != null) {
 				Date valorData = null;
 				try {
-					valorData = getVariableComData(executionContext, getValue(varData));
+					valorData = getVariableComData(executionContext, varData);
 				} catch (NoTrobatException | BpmnException ex) {
 					valorData = null;
 				}

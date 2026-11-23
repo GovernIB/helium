@@ -9,7 +9,6 @@ import es.caib.helium.bpmn.exception.BpmnException;
 import es.caib.helium.disseny.handler.TerminiIniciarHandler;
 import es.caib.helium.bpmn.model.TerminiInfo;
 import lombok.Setter;
-import org.flowable.common.engine.api.delegate.Expression;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -17,20 +16,20 @@ import java.util.Date;
 @Setter
 public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler implements TerminiIniciarHandler {
 
-	private Expression terminiCodi;
-	private Expression varData;
-	private Expression varTermini;
-	private Expression sumarUnDia;
-	private Expression esDataFi;
+	private String terminiCodi;
+	private String varData;
+	private String varTermini;
+	private String sumarUnDia;
+	private String esDataFi;
 
 	public void execute(HeliumApi executionContext) throws BpmnException {
-		String tercod = getValue(terminiCodi);
+		String tercod = terminiCodi;
 		TerminiInfo termini = HeliumBridge
 			    				.getInstanceService()
 								.getTerminiIniciatAmbCodi(executionContext, tercod);
 		if (termini != null) {
-			if (varTermini != null) {
-				String valorTermini = getValue(varTermini);
+			if (!isBuit(varTermini)) {
+				String valorTermini = varTermini;
 				if (valorTermini == null)
 					throw new BpmnException("No s'ha pogut llegir el termini de la variable '" + varTermini + "'");
 
@@ -61,7 +60,7 @@ public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler imple
 
 	private Date getDataVariable(HeliumApi executionContext) throws BpmnException {
 		Date data;
-		String valorData = getValue(varData);
+		String valorData = varData;
 
 		if (valorData != null && !valorData.isEmpty()) {
 			data = getVariableComData(executionContext, valorData);
@@ -69,7 +68,7 @@ public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler imple
 			data = new Date();
 		}
 
-		String valorSumarUnDia = getValue(sumarUnDia);
+		String valorSumarUnDia = sumarUnDia;
 		if (!esDataFi() && valorSumarUnDia != null && !valorSumarUnDia.isEmpty()) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(data);
@@ -81,6 +80,6 @@ public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler imple
 	}
 
 	private boolean esDataFi() {
-		return getValueAsBoolean(esDataFi);
+		return asBoolean(esDataFi);
 	}
 }

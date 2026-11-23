@@ -34,10 +34,20 @@ public abstract class RecursClassLoader extends ClassLoader {
 		synchronized (getClassLoadingLock(name)) {
 			Class<?> c = loadedClasses.get(name);
 			if (c == null) {
-				try {
-					c = findClass(name);
-				} catch (ClassNotFoundException e) {
-					c = super.loadClass(name, false);
+				if (isClasseAplicacio(name)) {
+					// Primer l'aplicació: si un recurs (p. ex. el JAR d'un dissenyador) inclou una còpia de
+					// l'API de Helium, s'ha de fer servir la de l'aplicació perquè els tipus siguin compatibles
+					try {
+						c = super.loadClass(name, false);
+					} catch (ClassNotFoundException e) {
+						c = findClass(name);
+					}
+				} else {
+					try {
+						c = findClass(name);
+					} catch (ClassNotFoundException e) {
+						c = super.loadClass(name, false);
+					}
 				}
 				loadedClasses.put(name, c);
 			}
@@ -46,6 +56,13 @@ public abstract class RecursClassLoader extends ClassLoader {
 			}
 			return c;
 		}
+	}
+
+	/** Classes que s'han de carregar de l'aplicació encara que també siguin als recursos. */
+	protected static boolean isClasseAplicacio(String name) {
+		return name.startsWith("java.")
+			|| name.startsWith("javax.")
+			|| name.startsWith("es.caib.helium.");
 	}
 
 	@Override

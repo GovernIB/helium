@@ -3,7 +3,6 @@ package es.caib.helium.logic.bpmn;
 import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
 import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
-import org.flowable.common.engine.api.delegate.Expression;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -18,27 +17,27 @@ import java.util.List;
 @Setter
 public class PortasignaturesHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.PortasignaturesHandler {
 
-	private Expression responsableCodi;
-	private Expression pas1Responsables;
-	private Expression pas1MinSignataris;
-	private Expression pas2Responsables;
-	private Expression pas2MinSignataris;
-	private Expression pas3Responsables;
-	private Expression pas3MinSignataris;
-	private Expression document;
-	private Expression annexos;
-	private Expression importancia;
-	private Expression dataLimit;
-	private Expression transicioOK;
-	private Expression transicioKO;
-	private Expression portafirmesFluxId;
+	private String responsableCodi;
+	private String pas1Responsables;
+	private String pas1MinSignataris;
+	private String pas2Responsables;
+	private String pas2MinSignataris;
+	private String pas3Responsables;
+	private String pas3MinSignataris;
+	private String document;
+	private String annexos;
+	private String importancia;
+	private String dataLimit;
+	private String transicioOK;
+	private String transicioKO;
+	private String portafirmesFluxId;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
-		String personaCodi = getValue(responsableCodi);
-		String documentCodi = getValue(document);
+		String personaCodi = responsableCodi;
+		String documentCodi = document;
 		List<String> annexCodis = null;
-		String annexosValue = getValue(annexos);
+		String annexosValue = annexos;
 		if (annexosValue != null) {
 			annexCodis = new ArrayList<>(Arrays.asList(annexosValue.split(",")));
 		}
@@ -52,22 +51,22 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 			getMinSignatarisPas(2),
 			getPersonaCodisPas(3),
 			getMinSignatarisPas(3),
-			getValue(importancia),
-			getValueAsDate(dataLimit),
-			getValue(transicioOK),
-			getValue(transicioKO),
-			getValue(portafirmesFluxId));
+			importancia,
+			asDate(dataLimit),
+			transicioOK,
+			transicioKO,
+			portafirmesFluxId);
 	}
 
 	private List<String> getPersonaCodisPas(int pas) {
 		List<String> resposta = null;
 		String responsables = null;
 		if (pas == 1) {
-			responsables = getValue(pas1Responsables);
+			responsables = pas1Responsables;
 		} else if (pas == 2) {
-			responsables = getValue(pas2Responsables);
+			responsables = pas2Responsables;
 		} else if (pas == 3) {
-			responsables = getValue(pas3Responsables);
+			responsables = pas3Responsables;
 		}
 		if (responsables != null) {
 			String[] codis = responsables.split(",");
@@ -79,11 +78,11 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 	private int getMinSignatarisPas(int pas) {
 		Integer min = null;
 		if (pas == 1) {
-			min = getValueAsInteger(pas1MinSignataris);
+			min = asInteger(pas1MinSignataris);
 		} else if (pas == 2) {
-			min = getValueAsInteger(pas2MinSignataris);
+			min = asInteger(pas2MinSignataris);
 		} else if (pas == 3) {
-			min = getValueAsInteger(pas3MinSignataris);
+			min = asInteger(pas3MinSignataris);
 		}
 		if (min != null)
 			return min;
