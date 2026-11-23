@@ -1,7 +1,6 @@
 package es.caib.helium.disseny.handler;
 
 
-import org.flowable.common.engine.api.delegate.Expression;
 
 /**
  * Handler per a adjuntar un document a l'expedient.
@@ -9,12 +8,12 @@ import org.flowable.common.engine.api.delegate.Expression;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface DocumentAdjuntarHandler {
-	void setDocumentOrigen(Expression documentOrigen);
-	void setVarDocumentOrigen(Expression varDocumentOrigen);
-	void setTitol(Expression titol);
-	void setVarTitol(Expression varTitol);
-	void setData(Expression data);
-	void setVarData(Expression varData);
-	void setConcatenarTitol(Expression concatenarTitol);
-	void setEsborrarDocument(Expression esborrarDocument);
+	void setDocumentOrigen(String documentOrigen);
+	void setVarDocumentOrigen(String varDocumentOrigen);
+	void setTitol(String titol);
+	void setVarTitol(String varTitol);
+	void setData(String data);
+	void setVarData(String varData);
+	void setConcatenarTitol(String concatenarTitol);
+	void setEsborrarDocument(String esborrarDocument);
 }

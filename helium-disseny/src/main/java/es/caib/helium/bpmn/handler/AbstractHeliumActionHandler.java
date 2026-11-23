@@ -9,36 +9,18 @@ import es.caib.helium.bpmn.exception.BpmnException;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import es.caib.helium.bpmn.integracio.HeliumBridge;
 import es.caib.helium.bpmn.model.TerminiInfo;
-import org.flowable.common.engine.api.delegate.Expression;
-import org.flowable.engine.delegate.DelegateExecution;
 
 /**
- * Handler base amb accés a la funcionalitat de Helium
+ * Handler base amb accés a la funcionalitat de Helium.
+ *
+ * <p>No depèn de cap motor de workflow: els paràmetres arriben ja resolts com a
+ * {@code String} a través dels setters del handler.</p>
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public abstract class AbstractHeliumActionHandler implements HeliumBpmnHandler {
-	protected DelegateExecution execution;
-	@Override
-	public void execute(DelegateExecution execution) {
-		try {
-			this.execution = execution;
-			this.execute(buildHeliumApi());
-		} catch (BpmnException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
-	private HeliumApi buildHeliumApi() {
-		String processId = null;
-		if(execution != null)
-			processId = execution.getProcessInstanceId();
-
-		return HeliumBridge
-				.getInstance()
-				.getBpmnHeliumService()
-				.buildHeliumApi(processId, null);
-	}
+	public static final String FORMAT_DATA = "dd/MM/yyyy";
 
 	protected TerminiInfo getTerminiIniciatAmbCodi(HeliumApi executionContext, String codi) throws BpmnException {
 		return HeliumBridge.getInstanceService().getTerminiIniciatAmbCodi(executionContext, codi);
@@ -62,44 +44,34 @@ public abstract class AbstractHeliumActionHandler implements HeliumBpmnHandler {
 		throw new BpmnException("La variable amb el codi '" + variable + "' no és de tipus Date");
 	}
 
-	protected String getValue(Expression expression) {
-		if(expression == null)
-			return null;
-		Object value = expression.getValue(this.execution);
-		if(value == null)
-			return null;
-		return (String) value;
+	protected static boolean isBuit(String value) {
+		return value == null || value.trim().isEmpty();
 	}
 
-	protected Boolean getValueAsBoolean(Expression expression) {
-		String value = getValue(expression);
-		if(value == null || value.trim().isEmpty())
+	protected Boolean asBoolean(String value) {
+		if (isBuit(value))
 			return false;
-		return Boolean.valueOf(value);
+		return Boolean.valueOf(value.trim());
 	}
 
-	protected Date getValueAsDate(Expression expression) {
-		String value = getValue(expression);
-		if (value == null || value.isEmpty())
+	protected Date asDate(String value) {
+		if (isBuit(value))
 			return null;
 		try {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-			return sdf.parse(value);
+			return new SimpleDateFormat(FORMAT_DATA).parse(value.trim());
 		} catch (ParseException ex) {
-			throw new HeliumHandlerException("Couldn't parse date " + value);
+			throw new HeliumHandlerException("No s'ha pogut convertir a data el valor " + value);
 		}
 	}
 
-	protected Integer getValueAsInteger(Expression expression) {
-		String value = getValue(expression);
-		if (value == null || value.isEmpty())
+	protected Integer asInteger(String value) {
+		if (isBuit(value))
 			return null;
 		try {
-    		return Integer.valueOf(value);
+			return Integer.valueOf(value.trim());
 		} catch (NumberFormatException ex) {
-			throw new NumberFormatException("Couldn't parse date " + value);
+			throw new HeliumHandlerException("No s'ha pogut convertir a enter el valor " + value);
 		}
-
 	}
 
 }

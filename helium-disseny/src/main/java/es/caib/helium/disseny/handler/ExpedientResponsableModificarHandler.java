@@ -1,6 +1,5 @@
 package es.caib.helium.disseny.handler;
 
-import org.flowable.common.engine.api.delegate.Expression;
 
 /**
  * Handler per a modificar el responsable d'un expedient.
@@ -8,6 +7,6 @@ import org.flowable.common.engine.api.delegate.Expression;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientResponsableModificarHandler {
-	void setResponsableCodi(Expression responsableCodi);
-	void setVarResponsableCodi(Expression varResponsableCodi);
+	void setResponsableCodi(String responsableCodi);
+	void setVarResponsableCodi(String varResponsableCodi);
 }

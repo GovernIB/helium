@@ -1,6 +1,5 @@
 package es.caib.helium.disseny.handler;
 
-import org.flowable.common.engine.api.delegate.Expression;
 
 /**
  * Handler per a crear una alerta a l'expedient.
@@ -8,8 +7,8 @@ import org.flowable.common.engine.api.delegate.Expression;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface AlertaCrearHandler {
-	void setUsuari(Expression usuari);
-	void setVarUsuari(Expression varUsuari);
-	void setText(Expression text);
-	void setVarText(Expression varText);
+	void setUsuari(String usuari);
+	void setVarUsuari(String varUsuari);
+	void setText(String text);
+	void setVarText(String varText);
 }

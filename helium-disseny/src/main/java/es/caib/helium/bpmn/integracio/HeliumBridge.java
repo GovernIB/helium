@@ -1,7 +1,6 @@
 package es.caib.helium.bpmn.integracio;
 
 import es.caib.helium.bpmn.service.BpmnHeliumService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Classe que fa de pont entre BPMN i Helium.
@@ -12,7 +11,6 @@ public class HeliumBridge {
 
 	private BpmnHeliumService bpmHeliumService;
 
-	@Autowired
 	public void setBpmnHeliumService(BpmnHeliumService bpmHeliumService) {
 		INSTANCE.bpmHeliumService = bpmHeliumService;
 	}
