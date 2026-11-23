@@ -8,5 +8,5 @@ package es.caib.helium.disseny.handler;
  */
 public interface TerminiPausarHandler {
 	public void setTerminiCodi(String terminiCodi);
-	public void setVarData(String varData);
+	public void setData(String data);
 }

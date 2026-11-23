@@ -13,14 +13,12 @@ import lombok.Setter;
 @Setter
 public class AlertaCrearHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.AlertaCrearHandler {
 	private String usuari;
-	private String varUsuari;
 	private String text;
-	private String varText;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.alertaCrear(
-			heliumApi.getVariableDefaultValue(varUsuari, usuari),
-			heliumApi.getVariableDefaultValue(varText, text));
+			usuari,
+			text);
 	}
 }

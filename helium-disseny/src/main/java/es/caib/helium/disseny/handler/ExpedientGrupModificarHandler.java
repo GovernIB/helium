@@ -8,5 +8,4 @@ package es.caib.helium.disseny.handler;
  */
 public interface ExpedientGrupModificarHandler {
 	void setGrup(String grup);
-	void setVarGrup(String varGrup);
 }

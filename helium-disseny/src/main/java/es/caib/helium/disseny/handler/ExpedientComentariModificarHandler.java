@@ -8,5 +8,4 @@ package es.caib.helium.disseny.handler;
  */
 public interface ExpedientComentariModificarHandler {
 	void setComentari(String comentari);
-	void setVarComentari(String varComentari);
 }

@@ -14,14 +14,11 @@ import lombok.Setter;
 public class InteressatEliminarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.InteressatEliminarHandler {
 
 	private String codi;
-	private String varCodi;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.interessatEliminar(
-			heliumApi.getVariableDefaultValue(
-				varCodi,
-				codi)
+			codi
 		);
 	}
 

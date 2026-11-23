@@ -8,5 +8,4 @@ package es.caib.helium.disseny.handler;
  */
 public interface ExpedientResponsableModificarHandler {
 	void setResponsableCodi(String responsableCodi);
-	void setVarResponsableCodi(String varResponsableCodi);
 }

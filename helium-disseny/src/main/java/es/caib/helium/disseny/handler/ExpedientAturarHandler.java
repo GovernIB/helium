@@ -8,5 +8,4 @@ package es.caib.helium.disseny.handler;
  */
 public interface ExpedientAturarHandler {
 	void setMotiu(String motiu);
-	void setVarMotiu(String varMotiu);
 }

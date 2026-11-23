@@ -14,14 +14,11 @@ import lombok.Setter;
 public class ExpedientResponsableModificarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientResponsableModificarHandler {
 
 	private String responsableCodi;
-	private String varResponsableCodi;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.expedientResponsableModificar(
-			heliumApi.getVariableDefaultValue(
-				varResponsableCodi,
-				responsableCodi)
+			responsableCodi
 		);
 	}
 

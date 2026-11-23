@@ -14,14 +14,11 @@ import lombok.Setter;
 public class ExpedientGrupModificarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientGrupModificarHandler {
 
 	private String grup;
-	private String varGrup;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.expedientGrupModificar(
-			heliumApi.getVariableDefaultValue(
-				varGrup,
-				grup)
+			grup
 		);
 	}
 

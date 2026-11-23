@@ -8,5 +8,4 @@ package es.caib.helium.disseny.handler;
  */
 public interface DocumentEsborrarHandler {
 	void setDocumentCodi(String documentCodi);
-	void setVarDocumentCodi(String varDocumentCodi);
 }

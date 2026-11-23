@@ -6,6 +6,7 @@ import java.util.Map;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.common.engine.impl.el.ExpressionManager;
+import org.flowable.common.engine.impl.javax.el.PropertyNotFoundException;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.flowable.engine.impl.util.CommandContextUtil;
@@ -19,6 +20,7 @@ import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import es.caib.helium.bpmn.handler.HandlerDefinicio;
 import es.caib.helium.bpmn.handler.HandlerParametres;
 import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
+import es.caib.helium.bpmn.handler.ParametresVar;
 import es.caib.helium.bpmn.service.BpmnHeliumService;
 import es.caib.helium.logic.bpmn.HeliumHandlerFactory;
 import es.caib.helium.logic.helper.ExpedientHelper;
@@ -33,6 +35,9 @@ import lombok.extern.slf4j.Slf4j;
  * {@code <helium:handler>} de la service task que s'està executant, avalua les expressions dels
  * paràmetres amb el gestor d'expressions de Flowable, crea una instància nova del handler amb
  * {@link HeliumHandlerFactory} i l'executa amb la {@link HeliumApi}.</p>
+ *
+ * <p>Els antics paràmetres {@code varXXX} de les definicions ja desplegades es tradueixen a expressions
+ * ({@link ParametresVar}).</p>
  *
  * <p>{@link HeliumServiceTaskXMLConverter} fa que les service tasks amb {@code <helium:handler>}
  * apuntin a aquest bean ({@value #DELEGATE_EXPRESSION}).</p>
@@ -77,12 +82,17 @@ public class HeliumHandlerJavaDelegate implements JavaDelegate {
 		}
 		log.debug("Executant el handler {} a la tasca {} (processInstanceId={})",
 			definicio.isPerExpressio() ? definicio.getExpressio() : definicio.getClasse(), execution.getCurrentActivityId(), execution.getProcessInstanceId());
-		HeliumBpmnHandler handler = definicio.isPerExpressio()
-			? handlerDeLExpressio(definicio, execution)
-			: heliumHandlerFactory.crearHandler(
+		HeliumBpmnHandler handler;
+		if (definicio.isPerExpressio()) {
+			handler = handlerDeLExpressio(definicio, execution);
+		} else {
+			Class<? extends HeliumBpmnHandler> handlerClass = heliumHandlerFactory.resoldreClasse(
 				definicio.getClasse(),
-				resoldreParametres(definicio, execution),
 				() -> contextRecursos(execution));
+			handler = heliumHandlerFactory.crearHandler(
+				handlerClass,
+				resoldreParametres(ParametresVar.migrar(definicio, handlerClass), execution));
+		}
 		HeliumApi heliumApi = bpmnHeliumService.buildHeliumApi(execution.getProcessInstanceId(), null);
 		try {
 			handler.execute(heliumApi);
@@ -126,7 +136,7 @@ public class HeliumHandlerJavaDelegate implements JavaDelegate {
 					" (retorna " + (valor != null ? valor.getClass().getName() : "null") + ")");
 		}
 		HeliumBpmnHandler handler = (HeliumBpmnHandler) valor;
-		HandlerParametres.injectar(handler, resoldreParametres(definicio, execution));
+		HandlerParametres.injectar(handler, resoldreParametres(ParametresVar.migrar(definicio, handler.getClass()), execution));
 		return handler;
 	}
 
@@ -139,12 +149,41 @@ public class HeliumHandlerJavaDelegate implements JavaDelegate {
 					expressionManager = CommandContextUtil.getProcessEngineConfiguration().getExpressionManager();
 				}
 				Expression expression = expressionManager.createExpression(parametre.getExpressio());
-				valors.put(parametre.getNom(), expression.getValue(execution));
+				Object valor = avaluar(expression, parametre, execution);
+				valors.put(parametre.getNom(), valor != null ? valor : parametre.getValor());
 			} else {
 				valors.put(parametre.getNom(), parametre.getValor());
 			}
 		}
 		return valors;
+	}
+
+	/**
+	 * Avalua l'expressió d'un paràmetre. Si fa referència a una dada de l'expedient que no té valor (o a qualsevol
+	 * identificador que no es pot resoldre), el paràmetre val null, com passava amb els antics paràmetres
+	 * {@code varXXX}; si el paràmetre té un valor literal, s'utilitza com a valor per defecte.
+	 */
+	private static Object avaluar(Expression expression, HandlerDefinicio.Parametre parametre, DelegateExecution execution) {
+		try {
+			return expression.getValue(execution);
+		} catch (FlowableException ex) {
+			if (!esIdentificadorNoResolt(ex)) {
+				throw ex;
+			}
+			log.debug("El paràmetre {} de la tasca {} fa referència a una dada sense valor ({}): s'utilitza {}",
+				parametre.getNom(), execution.getCurrentActivityId(), parametre.getExpressio(),
+				parametre.getValor() != null ? "el valor per defecte" : "null");
+			return null;
+		}
+	}
+
+	private static boolean esIdentificadorNoResolt(Throwable ex) {
+		for (Throwable t = ex; t != null; t = t.getCause()) {
+			if (t instanceof PropertyNotFoundException) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private HeliumHandlerFactory.ContextRecursos contextRecursos(DelegateExecution execution) {

@@ -93,6 +93,18 @@ public class HandlerParametresTest {
 			() -> HandlerParametres.injectar(new HandlerProva(), Map.of("numero", "no-es-un-numero")));
 	}
 
+	@Test
+	void lesDatesIElsTerminisEsConverteixenATextPerAlsParametresString() throws Exception {
+		assertEquals("05/03/2026", HandlerParametres.convertir(new SimpleDateFormat("dd/MM/yyyy").parse("05/03/2026"), String.class, "p"));
+		es.caib.helium.bpmn.integracio.Termini termini = new es.caib.helium.bpmn.integracio.Termini();
+		termini.setAnys(1);
+		termini.setMesos(2);
+		termini.setDies(3);
+		assertEquals("1/2/3", HandlerParametres.convertir(termini, String.class, "p"));
+		assertTrue(HandlerParametres.teParametre(HandlerProva.class, "motiu"));
+		assertFalse(HandlerParametres.teParametre(HandlerProva.class, "inexistent"));
+	}
+
 	public static class HandlerProva extends AbstractHeliumActionHandler {
 		private String motiu;
 		private String varMotiu;

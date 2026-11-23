@@ -8,5 +8,4 @@ package es.caib.helium.disseny.handler;
  */
 public interface ExpedientNumeroModificarHandler {
 	void setNumero(String numero);
-	void setVarNumero(String varNumero);
 }

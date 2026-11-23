@@ -8,5 +8,4 @@ package es.caib.helium.disseny.handler;
  */
 public interface InteressatEliminarHandler {
 	void setCodi(String codi);
-	void setVarCodi(String varCodi);
 }

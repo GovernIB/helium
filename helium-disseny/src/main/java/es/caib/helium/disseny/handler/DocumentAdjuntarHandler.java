@@ -9,11 +9,8 @@ package es.caib.helium.disseny.handler;
  */
 public interface DocumentAdjuntarHandler {
 	void setDocumentOrigen(String documentOrigen);
-	void setVarDocumentOrigen(String varDocumentOrigen);
 	void setTitol(String titol);
-	void setVarTitol(String varTitol);
 	void setData(String data);
-	void setVarData(String varData);
 	void setConcatenarTitol(String concatenarTitol);
 	void setEsborrarDocument(String esborrarDocument);
 }

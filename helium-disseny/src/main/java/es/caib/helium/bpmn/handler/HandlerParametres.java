@@ -14,13 +14,17 @@ import java.util.Date;
 import java.util.Map;
 
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.integracio.Termini;
 
 /**
  * Injecció dels paràmetres d'un handler, independent del motor de workflow.
  *
  * <p>Cada paràmetre s'assigna al setter JavaBean amb el mateix nom ({@code setNom}) o, si no
  * n'hi ha, al camp amb aquest nom. El valor es converteix al tipus del setter o del camp:
- * {@code String}, booleans, números i {@code Date} (format {@value AbstractHeliumActionHandler#FORMAT_DATA}).</p>
+ * {@code String}, booleans, números i {@code Date} (format {@value AbstractHeliumActionHandler#FORMAT_DATA}).
+ * Cap a {@code String}, les dates es formaten amb aquest mateix format i els terminis com a {@code anys/mesos/dies},
+ * de manera que una expressió que retorna una dada de l'expedient ({@code ${dataInici}}) es pot passar a un
+ * paràmetre {@code String}.</p>
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -70,6 +74,17 @@ public final class HandlerParametres {
 		}
 	}
 
+	/** Indica si el handler té el paràmetre (un setter JavaBean o un camp amb aquest nom). */
+	public static boolean teParametre(Class<?> handlerClass, String nom) {
+		if (handlerClass == null || nom == null || nom.isEmpty())
+			return false;
+		try {
+			return findSetter(handlerClass, nom) != null || findField(handlerClass, nom) != null;
+		} catch (IntrospectionException ex) {
+			return false;
+		}
+	}
+
 	private static Method findSetter(Class<?> handlerClass, String nom) throws IntrospectionException {
 		for (PropertyDescriptor pd : Introspector.getBeanInfo(handlerClass).getPropertyDescriptors()) {
 			if (pd.getName().equals(nom) && pd.getWriteMethod() != null)
@@ -98,6 +113,10 @@ public final class HandlerParametres {
 		if (tipus == String.class) {
 			if (valor instanceof Date)
 				return new SimpleDateFormat(AbstractHeliumActionHandler.FORMAT_DATA).format((Date) valor);
+			if (valor instanceof Termini) {
+				Termini termini = (Termini) valor;
+				return termini.getAnys() + "/" + termini.getMesos() + "/" + termini.getDies();
+			}
 			return String.valueOf(valor);
 		}
 		String text = String.valueOf(valor).trim();

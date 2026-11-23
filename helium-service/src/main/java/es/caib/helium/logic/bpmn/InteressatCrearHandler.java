@@ -14,72 +14,51 @@ import lombok.Setter;
 public class InteressatCrearHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.InteressatCrearHandler {
 
 	private String codi;
-	private String varCodi;
 	private String nom;
-	private String varNom;
 	private String nif;
-	private String varNif;
 	private String dir3Codi;
-	private String varDir3Codi;
 	private String llinatge1;
-	private String varLlinatge1;
 	private String llinatge2;
-	private String varLlinatge2;
 	private String tipus;
-	private String varTipus;
 	private String email;
-	private String varEmail;
 	private String telefon;
-	private String varTelefon;
 	private String entregaPostal;
-	private String varEntregaPostal;
 	private String entregaTipus;
-	private String varEntregaTipus;
 	private String linia1;
-	private String varLinia1;
 	private String linia2;
-	private String varLinia2;
 	private String entregaDeh;
-	private String varEntregaDeh;
 	private String entregaDehObligat;
-	private String varEntregaDehObligat;
 	private String tipusDocIdent;
-	private String varTipusDocIdent;
 	private String direccio;
-	private String varDireccio;
 	private String pais;
-	private String varPais;
 	private String provincia;
-	private String varProvincia;
 	private String municipi;
-	private String varMunicipi;
 	private String canalNotif;
-	private String varCanalNotif;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.interessatCrear(
-			heliumApi.getVariableDefaultValue(varCodi, codi),
-			heliumApi.getVariableDefaultValue(varNom, nom),
-			heliumApi.getVariableDefaultValue(varTipusDocIdent, tipusDocIdent),
-			heliumApi.getVariableDefaultValue(varNif, nif),
-			heliumApi.getVariableDefaultValue(varDir3Codi, dir3Codi),
-			heliumApi.getVariableDefaultValue(varLlinatge1, llinatge1),
-			heliumApi.getVariableDefaultValue(varLlinatge2, llinatge2),
-			heliumApi.getVariableDefaultValue(varTipus, tipus),
-			heliumApi.getVariableDefaultValue(varEmail, email),
-			heliumApi.getVariableDefaultValue(varTelefon, telefon),
-			heliumApi.getVariableDefaultValueAsBoolean(varEntregaPostal, asBoolean(entregaPostal)),
-			heliumApi.getVariableDefaultValue(varEntregaTipus, entregaTipus),
-			heliumApi.getVariableDefaultValue(varLinia1, linia1),
-			heliumApi.getVariableDefaultValue(varLinia2, linia2),
-			heliumApi.getVariableDefaultValueAsBoolean(varEntregaDeh, asBoolean(entregaDeh)),
-			heliumApi.getVariableDefaultValueAsBoolean(varEntregaDehObligat, asBoolean(entregaDehObligat)),
-			heliumApi.getVariableDefaultValue(varDireccio, direccio),
-			heliumApi.getVariableDefaultValue(varPais, pais),
-			heliumApi.getVariableDefaultValue(varProvincia, provincia),
-			heliumApi.getVariableDefaultValue(varMunicipi, municipi),
-			heliumApi.getVariableDefaultValue(varCanalNotif, canalNotif)
+			codi,
+			nom,
+			tipusDocIdent,
+			nif,
+			dir3Codi,
+			llinatge1,
+			llinatge2,
+			tipus,
+			email,
+			telefon,
+			asBoolean(entregaPostal),
+			entregaTipus,
+			linia1,
+			linia2,
+			asBoolean(entregaDeh),
+			asBoolean(entregaDehObligat),
+			direccio,
+			pais,
+			provincia,
+			municipi,
+			canalNotif
 		);
 	}
 

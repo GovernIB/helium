@@ -13,6 +13,9 @@ import lombok.Setter;
 /**
  * Handler per pausar un termini.
  *
+ * <p>{@code data} és la data de pausa en format {@value #FORMAT_DATA} (o una expressió, p. ex.
+ * {@code ${dataPausa}}); si no s'informa s'agafa la data actual.</p>
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @SuppressWarnings("serial")
@@ -20,14 +23,13 @@ import lombok.Setter;
 public class TerminiPausarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.TerminiPausarHandler {
 
 	private String terminiCodi;
-	private String varData;
+	private String data;
 
 	@Override
 	public void execute(HeliumApi executionContext) throws HeliumHandlerException {
-
-		TerminiInfo termini = null;
+		TerminiInfo termini;
 		try {
-			HeliumBridge.getInstanceService().getTerminiIniciatAmbCodi(
+			termini = HeliumBridge.getInstanceService().getTerminiIniciatAmbCodi(
 				executionContext,
 				terminiCodi);
 		} catch (NoTrobatException ex) {
@@ -35,25 +37,10 @@ public class TerminiPausarHandler extends AbstractHeliumActionHandler implements
 		} catch (BpmnException e) {
 			throw new HeliumHandlerException(e);
 		}
-
 		if (termini != null) {
-			if (varData != null) {
-				Date valorData = null;
-				try {
-					valorData = getVariableComData(executionContext, varData);
-				} catch (NoTrobatException | BpmnException ex) {
-					valorData = null;
-				}
-
-				if (valorData != null)
-					HeliumBridge.getInstanceService().terminiPausar(
-						termini.getId(),
-						valorData);
-			} else {
-				HeliumBridge.getInstanceService().terminiPausar(
-					termini.getId(),
-					new Date());
-			}
+			HeliumBridge.getInstanceService().terminiPausar(
+				termini.getId(),
+				isBuit(data) ? new Date() : asDate(data));
 		}
 	}
 }

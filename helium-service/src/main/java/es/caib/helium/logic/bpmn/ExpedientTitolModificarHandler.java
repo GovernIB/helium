@@ -14,14 +14,11 @@ import lombok.Setter;
 public class ExpedientTitolModificarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientTitolModificarHandler {
 
 	private String titol;
-	private String varTitol;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.expedientTitolModificar(
-			heliumApi.getVariableDefaultValue(
-				varTitol,
-				titol)
+			titol
 		);
 	}
 

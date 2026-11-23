@@ -16,16 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ExpedientComentariModificarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientComentariModificarHandler {
 
 	private String comentari;
-	private String varComentari;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		log.debug("Inici execució handler modificació comentari expedient");
 		try {
 			heliumApi.expedientComentariModificar(
-				heliumApi.getVariableDefaultValue(
-					varComentari,
-					comentari)
+				comentari
 			);
 		} catch (Exception ex) {
 			throw new HeliumHandlerException("Error al modificar l'expedient", ex);

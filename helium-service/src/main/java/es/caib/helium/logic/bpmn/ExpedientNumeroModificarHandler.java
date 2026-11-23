@@ -14,14 +14,11 @@ import lombok.Setter;
 public class ExpedientNumeroModificarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientNumeroModificarHandler {
 
 	private String numero;
-	private String varNumero;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.expedientNumeroModificar(
-			heliumApi.getVariableDefaultValue(
-				varNumero,
-				numero)
+			numero
         );
 	}
 

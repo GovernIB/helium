@@ -34,178 +34,122 @@ import lombok.Setter;
 public class NotificacioAltaHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.NotificacioAltaHandler {
 
 	private String caducitat;
-	private String varCaducitat;
 
 	private String concepte;
-	private String varConcepte;
 
 	private String serveiTipus;
-	private String varServeiTipus;
 
 	private String grupCodi;
-	private String varGrupCodi;
 
 	private String descripcio;
-	private String varDescripcio;
 
 	private String document;
-	private String varDocument;
 
 	private String emisorDir3Codi;
-	private String varEmisorDir3Codi;
 
 	private String destinatariDir3Codi;
-	private String varDestinatariDir3Codi;
 
 	private String enviamentTipus;	// Possibles valors: [NOTIFICACIO, COMUNICACIO]
-	private String varEnviamentTipus;
 
 	private String enviamentDataProgramada;
-	private String varEnviamentDataProgramada;
 
 	private String retard;
-	private String varRetard;
 
 
 	private String procedimentCodi;
-	private String varProcedimentCodi;
 
 	private String idioma;	// Possibles valors [ES, CA]
-	private String varIdioma;
 
 
 	// ENVIAMENT
 	// Titular
 	private String titularNif;
-	private String varTitularNif;
 
 	private String titularNom;
-	private String varTitularNom;
 
 	private String titularLlin1;
-	private String varTitularLlin1;
 
 	private String titularLlin2;
-	private String varTitularLlin2;
 
 	private String titularEmail;
-	private String varTitularEmail;
 
 	private String titularMobil;
-	private String varTitularMobil;
 
 	private String titularCodiDir3;
-	private String varTitularCodiDir3;
 
 	private String titularTipus;
-	private String varTitularTipus;
 
 	// Destinatari
 	private String destinatariNif;
-	private String varDestinatariNif;
 
 	private String destinatariNom;
-	private String varDestinatariNom;
 
 	private String destinatariLlin1;
-	private String varDestinatariLlin1;
 
 	private String destinatariLlin2;
-	private String varDestinatariLlin2;
 
 	private String destinatariEmail;
-	private String varDestinatariEmail;
 
 	private String destinatariMobil;
-	private String varDestinatariMobil;
 
 	private String destinatariCodiDir3;
-	private String varDestinatariCodiDir3;
 
 	private String destinatariTipus;
-	private String varDestinatariTipus;
 
 	// Dades d'entrega
 	private String entregaPostalActiva;
-	private String varEntregaPostalActiva;
 
 	private String entregaPostalTipus; // Possibles valors: [NACIONAL, ESTRANGER, APARTAT_CORREUS, SENSE_NORMALITZAR]
-	private String varEntregaPostalTipus;
 
 	private String  entregaPostalViaTipus; // Possibles valors: [ALAMEDA, CALLE, CAMINO, CARRER, CARRETERA, GLORIETA, KALEA, PASAJE, PASEO, PLAÇA, PLAZA, RAMBLA, RONDA,	RUA, SECTOR, TRAVESIA, URBANIZACION, AVENIDA, AVINGUDA, BARRIO, CALLEJA, CAMI, CAMPO, CARRERA, CUESTA, EDIFICIO, ENPARANTZA, ESTRADA, JARDINES, JARDINS, PARQUE, PASSEIG, PRAZA, PLAZUELA, PLACETA, POBLADO, VIA, TRAVESSERA, PASSATGE, BULEVAR, POLIGONO, OTROS]
-	private String  varEntregaPostalViaTipus;
 
 	private String entregaPostalViaNom;
-	private String varEntregaPostalViaNom;
 
 	private String entregaPostalNumeroCasa;
-	private String varEntregaPostalNumeroCasa;
 
 	private String entregaPostalNumeroQualificador;
-	private String varEntregaPostalNumeroQualificador;
 
 	private String entregaPostalPuntKm;
-	private String varEntregaPostalPuntKm;
 
 	private String entregaPostalApartatCorreus;
-	private String varEntregaPostalApartatCorreus;
 
 	private String entregaPostalPortal;
-	private String varEntregaPostalPortal;
 
 	private String entregaPostalEscala;
-	private String varEntregaPostalEscala;
 
 	private String entregaPostalPlanta;
-	private String varEntregaPostalPlanta;
 
 	private String entregaPostalPorta;
-	private String varEntregaPostalPorta;
 
 	private String entregaPostalBloc;
-	private String varEntregaPostalBloc;
 
 	private String entregaPostalComplement;
-	private String varEntregaPostalComplement;
 
 	private String entregaPostalCodiPostal;
-	private String varEntregaPostalCodiPostal;
 
 	private String entregaPostalPoblacio;
-	private String varEntregaPostalPoblacio;
 
 	private String entregaPostalMunicipiCodi;
-	private String varEntregaPostalMunicipiCodi;
 
 	private String entregaPostalProvinciaCodi;
-	private String varEntregaPostalProvinciaCodi;
 
 	private String entregaPostalPaisCodi;
-	private String varEntregaPostalPaisCodi;
 
 	private String entregaPostalLinea1;
-	private String varEntregaPostalLinea1;
 
 	private String entregaPostalLinea2;
-	private String varEntregaPostalLinea2;
 
 	private String entregaPostalCie;
-	private String varEntregaPostalCie;
 
 	private String entregaPostalFormatSobre;
-	private String varEntregaPostalFormatSobre;
 
 	private String entregaPostalFormatFulla;
-	private String varEntregaPostalFormatFulla;
 
 	private String entregaDehActiva;
-	private String varEntregaDehActiva;
 
 	private String entregaDehObligat;
-	private String varEntregaDehObligat;
 
 	private String entregaDehProcedimentCodi;
-	private String varEntregaDehProcedimentCodi;
 
 
 	public void execute(HeliumApi heliumApi) throws BpmnException {
@@ -228,19 +172,19 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 
 		dadesNotificacio.setEnviamentTipus(enviamentTipus);
 
-		dadesNotificacio.setConcepte(heliumApi.getVariableDefaultValue(varConcepte, concepte));
+		dadesNotificacio.setConcepte(concepte);
 
-		String serveiTipusStr = heliumApi.getVariableDefaultValue(varServeiTipus, serveiTipus);
+		String serveiTipusStr = serveiTipus;
 		if(serveiTipusStr != null)
 			dadesNotificacio.setServeiTipus(serveiTipusStr);
 
-		dadesNotificacio.setGrupCodi(heliumApi.getVariableDefaultValue(varGrupCodi, grupCodi));
+		dadesNotificacio.setGrupCodi(grupCodi);
 
-		dadesNotificacio.setDescripcio(heliumApi.getVariableDefaultValue(varDescripcio, descripcio));
+		dadesNotificacio.setDescripcio(descripcio);
 
 		dadesNotificacio.setEnviamentDataProgramada(asDate(enviamentDataProgramada));
-		dadesNotificacio.setRetard(heliumApi.getVariableDefaultValueAsInteger(varRetard, asInteger(retard)));
-		dadesNotificacio.setCaducitat(heliumApi.getVariableDefaultValueAsDate(varCaducitat, asDate(caducitat)));
+		dadesNotificacio.setRetard(asInteger(retard));
+		dadesNotificacio.setCaducitat(asDate(caducitat));
 
 		String idioma = this.idioma;
 		if (idioma != null) {

@@ -58,7 +58,10 @@ import es.caib.helium.commons.utils.ThreadUtilsHelium;
 import es.caib.helium.bpmn.engine.WProcessInstance;
 import es.caib.helium.bpmn.engine.WToken;
 import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.handler.HandlerDefinicio;
 import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
+import es.caib.helium.bpmn.handler.ParametresVar;
 import es.caib.helium.logic.bpmn.HeliumHandlerFactory;
 import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
@@ -2397,18 +2400,73 @@ public class ExpedientHelper {
 			Long definicioProcesId) {
 		String tipusHandler = AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus()) ? "propi" : "predefinit";
 		try {
-			HeliumBpmnHandler handler = heliumHandlerFactory.crearHandler(
+			HeliumApi heliumApi = crearHeliumApi(expedient, processInstanceId);
+			Class<? extends HeliumBpmnHandler> handlerClass = heliumHandlerFactory.resoldreClasse(
 				accio.getHandlerClasse(),
-				dades,
-				expedient.getTipus().getId(),
-				definicioProcesId);
-			handler.execute(crearHeliumApi(expedient, processInstanceId));
+				() -> new HeliumHandlerFactory.ContextRecursos(expedient.getTipus().getId(), definicioProcesId));
+			HandlerDefinicio definicio = ParametresVar.migrar(definicioAccio(accio, dades), handlerClass);
+			HeliumBpmnHandler handler = heliumHandlerFactory.crearHandler(
+				handlerClass,
+				resoldreParametresAccio(definicio, heliumApi));
+			handler.execute(heliumApi);
 		} catch (Exception ex) {
 			throw new RuntimeException(
 				"No s'ha pogut executar el handler " + tipusHandler + " " + accio.getHandlerClasse() + " per l'acció (" +
 					"codi=" + accio.getCodi() + ", " +
 					"nom=" + accio.getNom() + ")", ex);
 		}
+	}
+
+	private static final java.util.regex.Pattern REFERENCIA_DADA = java.util.regex.Pattern.compile(
+		"\\$\\{\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\}");
+
+	/** Paràmetres d'una acció de tipus handler: cada valor és un literal o una expressió (${codiDada}). */
+	private static HandlerDefinicio definicioAccio(Accio accio, Map<String, String> dades) {
+		List<HandlerDefinicio.Parametre> parametres = new ArrayList<>();
+		if (dades != null) {
+			for (Map.Entry<String, String> dada : dades.entrySet()) {
+				parametres.add(HandlerDefinicio.Parametre.deText(dada.getKey(), dada.getValue()));
+			}
+		}
+		return new HandlerDefinicio(accio.getHandlerClasse(), parametres);
+	}
+
+	/**
+	 * Resol els paràmetres d'una acció. Les accions s'executen fora del motor de workflow, així que les
+	 * expressions només poden fer referència a dades de l'expedient: {@code ${codi}} retorna el valor de la dada
+	 * (amb el seu tipus) i un text amb referències ({@code Expedient ${numero}}) les substitueix pel seu valor.
+	 * Si el resultat és null s'utilitza el valor per defecte del paràmetre.
+	 */
+	static Map<String, Object> resoldreParametresAccio(HandlerDefinicio definicio, HeliumApi heliumApi) {
+		Map<String, Object> valors = new LinkedHashMap<>();
+		for (HandlerDefinicio.Parametre parametre : definicio.getParametres()) {
+			Object valor = parametre.isExpressio()
+				? avaluarExpressioAccio(parametre.getNom(), parametre.getExpressio(), heliumApi)
+				: parametre.getValor();
+			valors.put(parametre.getNom(), valor != null ? valor : parametre.getValor());
+		}
+		return valors;
+	}
+
+	private static Object avaluarExpressioAccio(String nom, String expressio, HeliumApi heliumApi) {
+		String codi = ParametresVar.codiDada(expressio);
+		if (codi != null) {
+			return heliumApi.getVariable(codi);
+		}
+		java.util.regex.Matcher m = REFERENCIA_DADA.matcher(expressio);
+		StringBuilder sb = new StringBuilder();
+		while (m.find()) {
+			Object valor = heliumApi.getVariable(m.group(1));
+			m.appendReplacement(sb, java.util.regex.Matcher.quoteReplacement(valor != null ? String.valueOf(valor) : ""));
+		}
+		m.appendTail(sb);
+		String resultat = sb.toString();
+		if (HandlerDefinicio.Parametre.esExpressio(resultat)) {
+			throw new HeliumHandlerException(
+				"El paràmetre '" + nom + "' té l'expressió " + expressio + ", però a les accions les expressions " +
+					"només poden fer referència a dades de l'expedient (${codiDada})");
+		}
+		return resultat;
 	}
 
 	private HeliumApi crearHeliumApi(Expedient expedient, String processInstanceId) {

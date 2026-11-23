@@ -9,6 +9,5 @@ package es.caib.helium.disseny.handler;
 public interface ExpedientEstatModificarHandler {
 
 	void setEstatCodi(String estatCodi);
-	void setVarEstatCodi(String varEstatCodi);
 
 }

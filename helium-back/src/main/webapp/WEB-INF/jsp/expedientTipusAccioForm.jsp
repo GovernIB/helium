@@ -286,60 +286,66 @@
 			}
 		}
 
+		// Un paràmetre de sortida (varXxx) indica el codi de la dada on es desa un resultat
+		function esParametreSortida(parametre) {
+			return /^var[A-Z]/.test(parametre.codi || '');
+		}
+
+		// Codi de la dada si el valor és exactament una referència a una dada: \${codi}
+		function codiDada(valor) {
+			var m = /^\$\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}$/.exec(valor || '');
+			return m ? m[1] : null;
+		}
+
 		function afegirControlsParametre(handlerInfo, parametre) {
 			// clona la plantilla
 			var $parametres = $('#handlerParametreTemplate').clone(true);
 			$parametres.attr('id', 'handlerParametre_' + parametre.codi);
+			var param = parametre.param || parametre.codi;
 
 			$label = $('.paramLabel', $parametres)
 			$label.text(parametre.nom);
-			$label.attr('for', 'handlerDades[' + parametre.param + ']');
+			$label.attr('for', 'handlerDades[' + param + ']');
 
 			if (parametre.obligatori) {
 				$label.addClass('obligatori');
 			}
 
 			$menuSelect = $('.menuSelect', $parametres);
-			//$('option[value="text"]', $menuSelect).attr('id', parametre.param);
-			//$('option[value="var"]', $menuSelect).attr('id', parametre.varParam);
 			$menuSelect.select2({
 				minimumResultsForSearch: -1
 			});
 
-			$inputText = $('.param', $parametres);
-			if (parametre.param != null) {
-				$inputText.attr('id', parametre.param);
-				$inputText.attr('name','handlerDades[' + parametre.param + ']');
-				$inputText.attr("placeholder", parametre.paramDesc);
-				$inputText.attr("title", parametre.paramDesc);
-				if (handlerDades[parametre.param]) {
-					$inputText.val(handlerDades[parametre.param]);
-					$menuSelect.val('text');
-				} else {
-					$inputText.val('');
-				}
-			} else {
-				$inputText.remove();
-				$menuSelect.find('option[value="text"]').remove();
-				$menuSelect.val('var');
+			// El valor del paràmetre és un literal o una referència a una dada de l'expedient (\${codi}).
+			// Els antics varXxx (codi de la dada) es carreguen com a referència a la dada.
+			var valor = handlerDades[param];
+			var varAntic = 'var' + param.charAt(0).toUpperCase() + param.slice(1);
+			if (!esParametreSortida(parametre) && handlerDades[varAntic]) {
+				valor = '$' + '{' + handlerDades[varAntic] + '}';
 			}
+			$inputText = $('.param', $parametres);
+			$inputText.attr('id', param);
+			$inputText.attr('name','handlerDades[' + param + ']');
+			$inputText.attr("placeholder", parametre.paramDesc);
+			$inputText.attr("title", parametre.paramDesc);
+			$inputText.val(valor ? valor : '');
 
 			$selectVarParam = $('.varParam', $parametres);
-			if (parametre.varParam != null) {
-				$selectVarParam.attr("placeholder", parametre.varParamDesc);
-				$selectVarParam.attr("title", parametre.varParamDesc);
+			if (!esParametreSortida(parametre)) {
+				$selectVarParam.attr("title", parametre.paramDesc);
 				$selectVarParam.select2({
 					width: '100%',
-					allowClear: true
+					allowClear: true,
+					placeholder: parametre.paramDesc
 				});
-				$selectVarParam.attr('id',parametre.varParam);
-				$selectVarParam.attr('name','handlerDades[' + parametre.varParam + ']');
-				if (handlerDades[parametre.varParam]) {
-					$selectVarParam.val(handlerDades[parametre.varParam]).change();
-					$menuSelect.val('var');
-				} else {
-					$selectVarParam.val('').change();
-				}
+				var codi = codiDada(valor);
+				$selectVarParam.val(codi ? codi : '').change();
+				$menuSelect.val(codi ? 'var' : 'text');
+				$selectVarParam.on('change', function() {
+					var $p = $(this).closest('.handlerParametre');
+					var c = $(this).val();
+					$('.param', $p).val(c ? '$' + '{' + c + '}' : '');
+				});
 			} else {
 				$selectVarParam.remove();
 				$menuSelect.find('option[value="var"]').remove();
@@ -354,25 +360,19 @@
 		}
 
 		function menuSelectChange($menuSelect) {
-
 			$parametres = $menuSelect.closest('.handlerParametre');
-			$label = $('.paramLabel', $parametres)
 			$inputText = $('.param', $parametres);
 			$selectVarParam = $('.varParam', $parametres);
-
+			// El valor sempre s'envia amb el camp de text: en mode "Var" conté \${codi} i queda ocult
+			var $contenidorVar = $selectVarParam.length ? $selectVarParam.select2('container') : $();
 			if ($menuSelect.val() == 'text') {
-				if ($inputText) {
-					$inputText.show().removeAttr('disabled');
-				}
-				if ($selectVarParam) {
-					$selectVarParam.hide().attr('disabled','disabled');
-				};
+				$inputText.show();
+				$contenidorVar.hide();
 			} else {
-				if ($selectVarParam) {
-					$selectVarParam.show().removeAttr('disabled');
-				}
-				if ($inputText) {
-					$inputText.hide().attr('disabled','disabled');
+				$inputText.hide();
+				$contenidorVar.show();
+				if ($selectVarParam.val()) {
+					$inputText.val('$' + '{' + $selectVarParam.val() + '}');
 				}
 			}
 		}
@@ -448,7 +448,7 @@
 
 			<div class="col-xs-7">
 				<input id="[parametre.param]" name="handlerDades[parametre.param]" class="form-control param" type="text" value="handlerDades[parametre.param]">
-				<select  id="[parametre.varParam] name="handlerDades[parametre.varParam]" class="varParam">
+				<select class="varParam">
 					<option/>
 				<c:forEach items="${variables}" var="variable">
 					<option data-agrupacio="${variable.agrupacio.codi }" data-agrupacio-nom="${variable.agrupacio.nom }" value="${variable.codi}">

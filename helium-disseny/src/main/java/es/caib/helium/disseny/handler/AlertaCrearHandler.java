@@ -8,7 +8,5 @@ package es.caib.helium.disseny.handler;
  */
 public interface AlertaCrearHandler {
 	void setUsuari(String usuari);
-	void setVarUsuari(String varUsuari);
 	void setText(String text);
-	void setVarText(String varText);
 }

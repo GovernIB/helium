@@ -8,5 +8,4 @@ package es.caib.helium.disseny.handler;
  */
 public interface ExpedientDesfinalitzarHandler {
 	void setReprendre(String reprendre);
-	void setVarReprendre(String varReprendre);
 }

@@ -9,8 +9,8 @@ package es.caib.helium.disseny.handler;
  */
 public interface TerminiIniciarHandler {
 	void setTerminiCodi(String terminiCodi);
-	void setVarData(String varData);
-	void setVarTermini(String varTermini);
+	void setData(String data);
+	void setTermini(String termini);
 	void setSumarUnDia(String sumarUnDia);
 	void setEsDataFi(String esDataFi);
 }

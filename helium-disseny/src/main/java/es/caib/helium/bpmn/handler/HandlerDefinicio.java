@@ -17,7 +17,8 @@ import lombok.ToString;
  *   <bpmn:extensionElements>
  *     <helium:handler classe="es.caib.helium.logic.bpmn.ExpedientAturarHandler">
  *       <helium:parametre nom="motiu" valor="Motiu fix"/>
- *       <helium:parametre nom="varMotiu" expressio="${nomVariable}"/>
+ *       <!-- o bé, amb una expressió que llegeix les dades de l'expedient: -->
+ *       <helium:parametre nom="motiu" expressio="${motiuAturada}"/>
  *     </helium:handler>
  *     <!-- o bé, amb el handler obtingut d'una expressió: <helium:handler expressio="${unHandler}"> -->
  *   </bpmn:extensionElements>
@@ -58,7 +59,8 @@ public class HandlerDefinicio {
 
 	/**
 	 * Paràmetre d'un handler. Té un valor literal o bé una expressió que el motor de
-	 * workflow ha d'avaluar en el context de l'execució.
+	 * workflow ha d'avaluar en el context de l'execució. Si té tots dos, el valor és el valor per defecte que
+	 * s'utilitza quan l'expressió retorna null o fa referència a una dada sense valor.
 	 */
 	@Getter
 	@ToString
@@ -70,6 +72,19 @@ public class HandlerDefinicio {
 
 		public boolean isExpressio() {
 			return expressio != null && !expressio.trim().isEmpty();
+		}
+
+		/**
+		 * Crea el paràmetre a partir d'un valor que pot ser un literal o una expressió: és una expressió si conté
+		 * {@code ${...}} o {@code #{...}}.
+		 */
+		public static Parametre deText(String nom, String text) {
+			return esExpressio(text) ? new Parametre(nom, null, text) : new Parametre(nom, text, null);
+		}
+
+		/** Indica si el text és (o conté) una expressió ({@code ${...}} o {@code #{...}}). */
+		public static boolean esExpressio(String text) {
+			return text != null && (text.contains("${") || text.contains("#{"));
 		}
 	}
 

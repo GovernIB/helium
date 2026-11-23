@@ -15,14 +15,11 @@ import lombok.Setter;
 public class DocumentEsborrarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.DocumentEsborrarHandler {
 
 	private String documentCodi;
-	private String varDocumentCodi;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.deleteDocument(
-			heliumApi.getVariableDefaultValue(
-				varDocumentCodi,
-				documentCodi)
+			documentCodi
 		);
 	}
 

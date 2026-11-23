@@ -73,7 +73,13 @@ public class HeliumHandlerFactory {
 			String classe,
 			Map<String, ?> parametres,
 			Supplier<ContextRecursos> contextRecursos) {
-		Class<? extends HeliumBpmnHandler> handlerClass = resoldreClasse(classe, contextRecursos);
+		return crearHandler(resoldreClasse(classe, contextRecursos), parametres);
+	}
+
+	/** Crea una instància nova de la classe del handler i li injecta els paràmetres. */
+	public HeliumBpmnHandler crearHandler(
+			Class<? extends HeliumBpmnHandler> handlerClass,
+			Map<String, ?> parametres) {
 		HeliumBpmnHandler handler;
 		try {
 			handler = handlerClass.getDeclaredConstructor().newInstance();
@@ -84,6 +90,10 @@ public class HeliumHandlerFactory {
 		return handler;
 	}
 
+	/**
+	 * Resol la classe del handler: primer a l'aplicació i després als recursos. Si és una interfície de
+	 * {@code helium-disseny}, retorna la seva implementació.
+	 */
 	public Class<? extends HeliumBpmnHandler> resoldreClasse(
 			String classe,
 			Supplier<ContextRecursos> contextRecursos) {

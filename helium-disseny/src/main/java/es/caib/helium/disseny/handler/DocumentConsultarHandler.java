@@ -8,7 +8,6 @@ package es.caib.helium.disseny.handler;
  */
 public interface DocumentConsultarHandler {
 	void setDocument(String document);
-	void setVarDocument(String varDocument);
 	void setVarCsv(String varCsv);
 	void setVarUrl(String varUrl);
 }

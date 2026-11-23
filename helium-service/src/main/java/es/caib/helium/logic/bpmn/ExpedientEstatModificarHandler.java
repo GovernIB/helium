@@ -14,13 +14,10 @@ import lombok.Setter;
 public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientEstatModificarHandler {
 
 	private String estatCodi;
-	private String varEstatCodi;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.expedientEstatModificar(
-			heliumApi.getVariableDefaultValue(
-				varEstatCodi,
-				estatCodi));
+			estatCodi);
 	}
 }

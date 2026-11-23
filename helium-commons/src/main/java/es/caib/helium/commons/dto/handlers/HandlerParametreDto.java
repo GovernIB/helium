@@ -11,6 +11,4 @@ public class HandlerParametreDto {
     private boolean obligatori = false;
     private String param;
     private String paramDesc;
-    private String varParam;
-    private String varParamDesc;
 }

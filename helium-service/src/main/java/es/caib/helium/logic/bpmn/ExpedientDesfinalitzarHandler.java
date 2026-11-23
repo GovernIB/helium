@@ -14,13 +14,10 @@ import lombok.Setter;
 public class ExpedientDesfinalitzarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientDesfinalitzarHandler {
 
 	private String reprendre;
-	private String varReprendre;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
-		Boolean reprendreValue = heliumApi.getVariableDefaultValueAsBoolean(
-			varReprendre,
-			asBoolean(reprendre));
+		Boolean reprendreValue = asBoolean(reprendre);
 		heliumApi.expedientDesfinalitzar(reprendreValue != null && reprendreValue);
 	}
 

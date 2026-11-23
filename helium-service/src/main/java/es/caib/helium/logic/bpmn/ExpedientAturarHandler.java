@@ -14,14 +14,11 @@ import lombok.Setter;
 public class ExpedientAturarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.ExpedientAturarHandler {
 
 	private String motiu;
-	private String varMotiu;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.expedientAturar(
-			heliumApi.getVariableDefaultValue(
-				varMotiu,
-				motiu)
+			motiu
 		);
 	}
 

@@ -294,6 +294,24 @@ public class HeliumHandlerFlowableTest {
 	}
 
 	@Test
+	void elsAnticsParametresVarEsTradueixenAExpressionsDeDades() throws IOException {
+		desplegar("bpmn/handler-parametres-var.bpmn20.xml");
+
+		DADES.put("motiuDada", "Motiu de la dada");
+		DADES.put("comentariDada", "Comentari de la dada");
+		processEngine.getRuntimeService().startProcessInstanceByKey("procesParametresVar");
+		verify(heliumApi).expedientAturar("Motiu de la dada");
+		verify(heliumApi).expedientComentariModificar("Comentari de la dada");
+
+		// Si la dada no té valor s'utilitza el literal del paràmetre (com feia getVariableDefaultValue)
+		reset(heliumApi);
+		DADES.clear();
+		processEngine.getRuntimeService().startProcessInstanceByKey("procesParametresVar");
+		verify(heliumApi).expedientAturar("Motiu fix");
+		verify(heliumApi).expedientComentariModificar(null);
+	}
+
+	@Test
 	void unaExpressioDeHandlerQueNoRetornaUnHandlerFaFallarLExecucio() throws IOException {
 		desplegar("bpmn/expressions-helium.bpmn20.xml");
 		RuntimeException ex = assertThrows(

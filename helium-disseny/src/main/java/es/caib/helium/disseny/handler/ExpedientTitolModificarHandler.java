@@ -8,5 +8,4 @@ package es.caib.helium.disseny.handler;
  */
 public interface ExpedientTitolModificarHandler {
 	void setTitol(String titol);
-	void setVarTitol(String varTitol);
 }

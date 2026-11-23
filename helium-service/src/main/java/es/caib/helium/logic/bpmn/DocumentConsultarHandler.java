@@ -14,14 +14,13 @@ import lombok.Setter;
 public class DocumentConsultarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.DocumentConsultarHandler {
 
 	private String document;
-	private String varDocument;
 	private String varCsv;
 	private String varUrl;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.documentConsultar(
-			heliumApi.getVariableDefaultValue(varDocument, document),
+			document,
             varCsv,
 			varUrl);
 	}
