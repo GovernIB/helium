@@ -6,6 +6,10 @@ Helium** (`helium-back/src/main/jsapp/designer`: bpmn-js, plafó de propietats i
 ## Què fa
 
 - Afegeix una pestanya **Disseny** als fitxers `.bpmn` i `.bpmn20.xml`, davant de la pestanya de text (XML).
+- *New → Diagrama BPMN de Helium* (botó dret sobre un directori) crea un `.bpmn` amb un procés executable i
+  l'esdeveniment d'inici. El nom del procés és el del fitxer i l'identificador se'n deriva sense accents ni caràcters
+  especials (`Alta d'expedient` → `Alta_d_expedient`). La plantilla es pot canviar a *Settings → Editor → File and Code
+  Templates* ("Helium BPMN").
 - El document del fitxer és la font de veritat:
   - cada canvi del diagrama s'escriu al document;
   - si el document canvia per una altra via (pestanya de text, control de versions...), el diagrama es torna a carregar;

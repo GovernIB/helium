@@ -19,5 +19,13 @@
 		<fileType name="XML" extensions="bpmn"/>
 		<fileEditorProvider implementation="es.caib.helium.intellij.HeliumBpmnEditorProvider"/>
 		<notificationGroup id="Helium BPMN" displayType="BALLOON"/>
+		<!-- Plantilla de New → Diagrama BPMN de Helium (fileTemplates/internal/Helium BPMN.bpmn.ft) -->
+		<internalFileTemplate name="Helium BPMN"/>
 	</extensions>
+
+	<actions>
+		<action id="HeliumBpmn.NouFitxer" class="es.caib.helium.intellij.NouFitxerBpmnAction">
+			<add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
+		</action>
+	</actions>
 </idea-plugin>
