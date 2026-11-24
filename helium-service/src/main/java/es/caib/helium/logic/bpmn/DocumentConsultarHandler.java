@@ -3,7 +3,6 @@ package es.caib.helium.logic.bpmn;
 import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
 import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
-import org.flowable.common.engine.api.delegate.Expression;
 import lombok.Setter;
 
 /**
@@ -14,17 +13,16 @@ import lombok.Setter;
 @Setter
 public class DocumentConsultarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.DocumentConsultarHandler {
 
-	private Expression document;
-	private Expression varDocument;
-	private Expression varCsv;
-	private Expression varUrl;
+	private String document;
+	private String varCsv;
+	private String varUrl;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
 		heliumApi.documentConsultar(
-			heliumApi.getVariableDefaultValue(getValue(varDocument), getValue(document)),
-            getValue(varCsv),
-			getValue(varUrl));
+			document,
+            varCsv,
+			varUrl);
 	}
 
 }

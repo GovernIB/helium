@@ -1,6 +1,5 @@
 package es.caib.helium.disseny.handler;
 
-import org.flowable.common.engine.api.delegate.Expression;
 
 /**
  * Handler per pausar un termini.
@@ -8,6 +7,6 @@ import org.flowable.common.engine.api.delegate.Expression;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface TerminiPausarHandler {
-	public void setTerminiCodi(Expression terminiCodi);
-	public void setVarData(Expression varData);
+	public void setTerminiCodi(String terminiCodi);
+	public void setData(String data);
 }

@@ -150,11 +150,10 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 						// Comprova que tots els paràmetres obligatoris estiguin informats
 						List<String> parametresObligatoris = new ArrayList<String>();
 						for (HandlerParametreDto parametre : handler.getParametres()) {
-							if (parametre.isObligatori()
-								&& (!accio.getHandlerDades().containsKey(parametre.getParam())
-										|| accio.getHandlerDades().get(parametre.getParam()) == null)
-								&& (!accio.getHandlerDades().containsKey(parametre.getVarParam())
-										|| accio.getHandlerDades().get(parametre.getVarParam()) == null))
+							// El valor pot ser un literal o una referència a una dada de l'expedient (${codi})
+							String nom = parametre.getParam() != null ? parametre.getParam() : parametre.getCodi();
+							String valor = accio.getHandlerDades() != null ? accio.getHandlerDades().get(nom) : null;
+							if (parametre.isObligatori() && (valor == null || valor.trim().isEmpty()))
 							{
 								parametresObligatoris.add(parametre.getNom());
 							}

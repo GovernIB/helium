@@ -1,0 +1,250 @@
+{
+    "name": "Helium",
+    "uri": "http://www.caib.es/helium/bpmn",
+    "prefix": "helium",
+    "xml": {
+        "tagAlias": "lowerCase"
+    },
+    "associations": [],
+    "types": [
+        {
+            "name": "ProcessProps",
+            "extends": [
+                "bpmn:Process"
+            ],
+            "properties": [
+                {
+                    "name": "candidateStarterUsers",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "candidateStarterGroups",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "UserTaskProps",
+            "extends": [
+                "bpmn:UserTask"
+            ],
+            "properties": [
+                {
+                    "name": "dueDate",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "priority",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "category",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "formKey",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "StartEventProps",
+            "extends": [
+                "bpmn:StartEvent"
+            ],
+            "properties": [
+                {
+                    "name": "initiator",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "formKey",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ServiceTaskProps",
+            "extends": [
+                "bpmn:ServiceTask"
+            ],
+            "properties": [
+                {
+                    "name": "expression",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "resultVariableName",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ScriptTaskProps",
+            "extends": [
+                "bpmn:ScriptTask"
+            ],
+            "properties": [
+                {
+                    "name": "resultVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "autoStoreVariables",
+                    "isAttr": true,
+                    "type": "Boolean",
+                    "default": false
+                }
+            ]
+        },
+        {
+            "name": "CallActivityProps",
+            "extends": [
+                "bpmn:CallActivity"
+            ],
+            "properties": [
+                {
+                    "name": "calledElementType",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "inheritVariables",
+                    "isAttr": true,
+                    "type": "Boolean",
+                    "default": false
+                },
+                {
+                    "name": "inheritBusinessKey",
+                    "isAttr": true,
+                    "type": "Boolean",
+                    "default": false
+                },
+                {
+                    "name": "businessKey",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "fallbackToDefaultTenant",
+                    "isAttr": true,
+                    "type": "Boolean",
+                    "default": false
+                }
+            ]
+        },
+        {
+            "name": "SequenceFlowProps",
+            "extends": [
+                "bpmn:SequenceFlow"
+            ],
+            "properties": [
+                {
+                    "name": "skipExpression",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "ActivityProps",
+            "extends": [
+                "bpmn:Activity"
+            ],
+            "properties": [
+                {
+                    "name": "async",
+                    "isAttr": true,
+                    "type": "Boolean",
+                    "default": false
+                },
+                {
+                    "name": "exclusive",
+                    "isAttr": true,
+                    "type": "Boolean",
+                    "default": true
+                },
+                {
+                    "name": "skipExpression",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "MultiInstanceProps",
+            "extends": [
+                "bpmn:MultiInstanceLoopCharacteristics"
+            ],
+            "properties": [
+                {
+                    "name": "collection",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "elementVariable",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "Handler",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "classe",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "expressio",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "parametres",
+                    "type": "Parametre",
+                    "isMany": true
+                }
+            ]
+        },
+        {
+            "name": "Parametre",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "nom",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "valor",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "expressio",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
+        }
+    ]
+}

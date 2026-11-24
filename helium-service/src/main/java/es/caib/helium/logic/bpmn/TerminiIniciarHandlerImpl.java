@@ -9,32 +9,37 @@ import es.caib.helium.bpmn.exception.BpmnException;
 import es.caib.helium.disseny.handler.TerminiIniciarHandler;
 import es.caib.helium.bpmn.model.TerminiInfo;
 import lombok.Setter;
-import org.flowable.common.engine.api.delegate.Expression;
 
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * Implementació del handler per iniciar un termini de l'expedient.
+ *
+ * <p>Paràmetres: {@code data} és la data d'inici (o de fi, si {@code esDataFi} és {@code true}) en format
+ * {@value #FORMAT_DATA}; si no s'informa s'agafa la data actual. {@code termini} és la durada en format
+ * {@code anys/mesos/dies}; si no s'informa s'agafa la del termini configurat. Tots dos poden ser una expressió
+ * que llegeixi les dades de l'expedient, p. ex. {@code ${dataInici}}.</p>
+ *
+ * @author Limit Tecnologies <limit@limit.es>
+ */
 @Setter
 public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler implements TerminiIniciarHandler {
 
-	private Expression terminiCodi;
-	private Expression varData;
-	private Expression varTermini;
-	private Expression sumarUnDia;
-	private Expression esDataFi;
+	private String terminiCodi;
+	private String data;
+	private String termini;
+	private String sumarUnDia;
+	private String esDataFi;
 
 	public void execute(HeliumApi executionContext) throws BpmnException {
-		String tercod = getValue(terminiCodi);
-		TerminiInfo termini = HeliumBridge
+		String tercod = terminiCodi;
+		TerminiInfo terminiInfo = HeliumBridge
 			    				.getInstanceService()
 								.getTerminiIniciatAmbCodi(executionContext, tercod);
-		if (termini != null) {
-			if (varTermini != null) {
-				String valorTermini = getValue(varTermini);
-				if (valorTermini == null)
-					throw new BpmnException("No s'ha pogut llegir el termini de la variable '" + varTermini + "'");
-
-				Termini vt = Termini.valueFromString(valorTermini);
+		if (terminiInfo != null) {
+			if (!isBuit(termini)) {
+				Termini vt = Termini.valueFromString(termini.trim());
 				executionContext.getTerminiIniciatAmbProcessInstanceITerminiCodi(
 					executionContext.getProcessInstance().getId(),
 					tercod
@@ -42,7 +47,7 @@ public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler imple
 				HeliumBridge.getInstanceService().terminiIniciar(
 					tercod,
 					getProcessInstanceId(executionContext),
-					getDataVariable(executionContext),
+					getData(),
 					vt.getAnys(),
 					vt.getMesos(),
 					vt.getDies(),
@@ -51,7 +56,7 @@ public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler imple
 				HeliumBridge.getInstanceService().terminiIniciar(
 					tercod,
 					getProcessInstanceId(executionContext),
-					getDataVariable(executionContext),
+					getData(),
 					esDataFi());
 			}
 		} else {
@@ -59,28 +64,18 @@ public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler imple
 		}
 	}
 
-	private Date getDataVariable(HeliumApi executionContext) throws BpmnException {
-		Date data;
-		String valorData = getValue(varData);
-
-		if (valorData != null && !valorData.isEmpty()) {
-			data = getVariableComData(executionContext, valorData);
-		} else {
-			data = new Date();
-		}
-
-		String valorSumarUnDia = getValue(sumarUnDia);
-		if (!esDataFi() && valorSumarUnDia != null && !valorSumarUnDia.isEmpty()) {
+	private Date getData() {
+		Date valor = isBuit(data) ? new Date() : asDate(data);
+		if (!esDataFi() && !isBuit(sumarUnDia)) {
 			Calendar cal = Calendar.getInstance();
-			cal.setTime(data);
+			cal.setTime(valor);
 			cal.add(Calendar.DAY_OF_MONTH, 1);
 			return cal.getTime();
-		} else {
-			return data;
 		}
+		return valor;
 	}
 
 	private boolean esDataFi() {
-		return getValueAsBoolean(esDataFi);
+		return asBoolean(esDataFi);
 	}
 }

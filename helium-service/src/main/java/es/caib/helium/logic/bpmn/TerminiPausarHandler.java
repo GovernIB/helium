@@ -10,9 +10,11 @@ import es.caib.helium.bpmn.exception.BpmnException;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import es.caib.helium.bpmn.model.TerminiInfo;
 import lombok.Setter;
-import org.flowable.common.engine.api.delegate.Expression;
 /**
  * Handler per pausar un termini.
+ *
+ * <p>{@code data} és la data de pausa en format {@value #FORMAT_DATA} (o una expressió, p. ex.
+ * {@code ${dataPausa}}); si no s'informa s'agafa la data actual.</p>
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -20,41 +22,25 @@ import org.flowable.common.engine.api.delegate.Expression;
 @Setter
 public class TerminiPausarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.TerminiPausarHandler {
 
-	private Expression terminiCodi;
-	private Expression varData;
+	private String terminiCodi;
+	private String data;
 
 	@Override
 	public void execute(HeliumApi executionContext) throws HeliumHandlerException {
-
-		TerminiInfo termini = null;
+		TerminiInfo termini;
 		try {
-			HeliumBridge.getInstanceService().getTerminiIniciatAmbCodi(
+			termini = HeliumBridge.getInstanceService().getTerminiIniciatAmbCodi(
 				executionContext,
-				getValue(terminiCodi));
+				terminiCodi);
 		} catch (NoTrobatException ex) {
 			termini = null;
 		} catch (BpmnException e) {
 			throw new HeliumHandlerException(e);
 		}
-
 		if (termini != null) {
-			if (varData != null) {
-				Date valorData = null;
-				try {
-					valorData = getVariableComData(executionContext, getValue(varData));
-				} catch (NoTrobatException | BpmnException ex) {
-					valorData = null;
-				}
-
-				if (valorData != null)
-					HeliumBridge.getInstanceService().terminiPausar(
-						termini.getId(),
-						valorData);
-			} else {
-				HeliumBridge.getInstanceService().terminiPausar(
-					termini.getId(),
-					new Date());
-			}
+			HeliumBridge.getInstanceService().terminiPausar(
+				termini.getId(),
+				isBuit(data) ? new Date() : asDate(data));
 		}
 	}
 }

@@ -38,3 +38,252 @@
 	.fu-arrow-idle, .fu-arrow-dragging, .fu-dash-pulse { animation: none; }
 	.fu-check { animation: none; stroke-dashoffset: 0; opacity: 1; transform: scale(1); }
 }
+
+/* Taula de paràmetres dels handlers (panell de propietats) */
+.helium-parametres { padding: 2px 12px 8px; }
+.helium-parametres-taula { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 6px; }
+.helium-parametres-taula th {
+	text-align: left; font-weight: 500; font-size: 12px; padding: 2px 4px;
+	color: var(--description-color, #555);
+}
+.helium-parametres-taula td { padding: 2px 4px; vertical-align: top; }
+.helium-parametres-taula .helium-parametres-nom { width: 38%; }
+.helium-parametres-taula .helium-parametres-accions { width: 24px; padding: 2px 0; }
+.helium-parametres-taula input { width: 100%; box-sizing: border-box; margin: 0; }
+.helium-parametres-taula input.helium-parametres-expressio {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px;
+	border-left: 3px solid #1a73e8;
+}
+.helium-parametres-defecte { font-size: 11px; color: var(--description-color, #666); margin-top: 2px; overflow-wrap: anywhere; }
+.helium-parametres-eliminar {
+	width: 22px; height: 26px; border: none; background: none; cursor: pointer;
+	font-size: 16px; line-height: 1; color: #888;
+}
+.helium-parametres-eliminar:hover, .helium-parametres-eliminar:focus-visible { color: #c62828; }
+.helium-parametres-peu { margin-top: 6px; }
+
+/* Separador redimensionable entre el llenç i el plafó de propietats */
+.helium-editor-separador {
+	flex: 0 0 6px;
+	cursor: col-resize;
+	background: #f2f2f2;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	touch-action: none;
+}
+.helium-editor-separador:hover,
+.helium-editor-separador:focus-visible,
+.helium-editor.redimensionant .helium-editor-separador {
+	background: #1a73e8;
+	border-color: #1a73e8;
+	outline: none;
+}
+.helium-editor.redimensionant,
+.helium-editor.redimensionant * {
+	cursor: col-resize !important;
+	user-select: none;
+}
+
+/*
+ * Pantalla completa: l'editor ocupa tota la finestra i s'amaguen la capçalera i el peu de Helium. Queda per sota
+ * dels diàlegs de l'editor (z-index 1000) perquè es continuïn veient.
+ */
+.helium-editor.pantalla-completa {
+	position: fixed !important;
+	inset: 0;
+	z-index: 900;
+	background: #fff;
+}
+.helium-editor.pantalla-completa #properties {
+	height: 100vh;
+	overflow-y: auto;
+}
+body.helium-editor-pantalla-completa {
+	overflow: hidden;
+}
+body.helium-editor-pantalla-completa .navbar-app,
+body.helium-editor-pantalla-completa .container-foot,
+body.helium-editor-pantalla-completa #topBtn {
+	display: none !important;
+}
+
+/*
+ * Tema fosc (plugin d'IntelliJ amb un tema fosc). La pàgina porta data-tema="fosc" i els colors de l'IDE a
+ * --ide-fons i --ide-text. Les biblioteques (diagram-js, bpmn-js, plafó de propietats) defineixen els colors amb una
+ * escala de grisos (--color-grey-225-10-<lluminositat>): aquí s'inverteix barrejant el text amb el fons, de manera
+ * que el resultat segueix el tema de l'IDE. Els colors dels elements del diagrama es configuren a bpmnRenderer.
+ */
+html[data-tema="fosc"] {
+	color-scheme: dark;
+	--fosc-elevat: color-mix(in srgb, var(--ide-text) 6%, var(--ide-fons));
+	--fosc-vora: color-mix(in srgb, var(--ide-text) 30%, var(--ide-fons));
+}
+html[data-tema="fosc"] body {
+	background: var(--ide-fons);
+	color: var(--ide-text);
+}
+html[data-tema="fosc"] :is(.djs-parent, .bjs-container, .bio-properties-panel) {
+	--color-grey-225-10-15: var(--ide-text);
+	--color-grey-225-10-35: color-mix(in srgb, var(--ide-text) 75%, var(--ide-fons));
+	--color-grey-225-10-55: color-mix(in srgb, var(--ide-text) 55%, var(--ide-fons));
+	--color-grey-225-10-75: var(--fosc-vora);
+	--color-grey-225-10-80: color-mix(in srgb, var(--ide-text) 26%, var(--ide-fons));
+	--color-grey-225-10-85: color-mix(in srgb, var(--ide-text) 20%, var(--ide-fons));
+	--color-grey-225-10-90: color-mix(in srgb, var(--ide-text) 14%, var(--ide-fons));
+	--color-grey-225-10-95: color-mix(in srgb, var(--ide-text) 9%, var(--ide-fons));
+	--color-grey-225-10-97: var(--fosc-elevat);
+
+	--color-blue-205-100-85: color-mix(in srgb, hsl(205, 100%, 50%) 40%, var(--ide-fons));
+	--color-blue-205-100-95: color-mix(in srgb, hsl(205, 100%, 50%) 18%, var(--ide-fons));
+	--color-red-360-100-40: hsl(0, 85%, 62%);
+	--color-red-360-100-45: hsl(0, 85%, 66%);
+	--color-red-360-100-92: color-mix(in srgb, hsl(0, 85%, 60%) 30%, var(--ide-fons));
+	--color-red-360-100-97: color-mix(in srgb, hsl(0, 85%, 60%) 15%, var(--ide-fons));
+
+	--color-white: var(--ide-fons);
+	--color-black: var(--ide-text);
+
+	/* Superfícies que s'han de distingir del llenç */
+	--palette-background-color: var(--fosc-elevat);
+	--popup-background-color: var(--fosc-elevat);
+	--popup-border-color: var(--fosc-vora);
+	--context-pad-entry-background-color: var(--fosc-elevat);
+	--search-container-background-color: var(--fosc-elevat);
+	--canvas-fill-color: var(--ide-fons);
+
+	/* Text blanc sobre els botons blaus */
+	--add-entry-label-color: #fff;
+	--add-entry-hover-fill-color: #fff;
+	--list-badge-color: #fff;
+	--list-entry-add-entry-label-color: #fff;
+	--list-entry-add-entry-fill-color: #fff;
+	--toggle-switch-switcher-background-color: #fff;
+	--drilldown-fill-color: #fff;
+	--dropdown-item-background-color: var(--fosc-elevat);
+}
+html[data-tema="fosc"] .bio-properties-panel {
+	color: var(--ide-text);
+}
+html[data-tema="fosc"] .djs-popup-breadcrumbs-item--back:hover {
+	background: color-mix(in srgb, var(--ide-text) 9%, var(--ide-fons));
+}
+/* Edició del text d'un element (bpmn-js hi posa fons blanc als textos externs) */
+html[data-tema="fosc"] .djs-direct-editing-parent {
+	background-color: var(--fosc-elevat) !important;
+	color: var(--ide-text);
+	border-color: var(--fosc-vora) !important;
+}
+html[data-tema="fosc"] .toolbar {
+	background: var(--fosc-elevat);
+	border-color: var(--fosc-vora);
+	color: var(--ide-text);
+}
+html[data-tema="fosc"] .grup button {
+	color: inherit;
+}
+html[data-tema="fosc"] .grup button:hover {
+	background: color-mix(in srgb, var(--ide-text) 12%, var(--ide-fons));
+}
+html[data-tema="fosc"] .grup button:active {
+	background: color-mix(in srgb, var(--ide-text) 18%, var(--ide-fons));
+}
+html[data-tema="fosc"] .grup button:disabled {
+	color: color-mix(in srgb, var(--ide-text) 35%, var(--ide-fons));
+	background: transparent;
+}
+html[data-tema="fosc"] .separator {
+	background: var(--fosc-vora);
+}
+html[data-tema="fosc"] .helium-editor-separador {
+	background: var(--fosc-elevat);
+	border-color: var(--fosc-vora);
+}
+html[data-tema="fosc"] .helium-editor-separador:hover,
+html[data-tema="fosc"] .helium-editor-separador:focus-visible,
+html[data-tema="fosc"] .helium-editor.redimensionant .helium-editor-separador {
+	background: #1a73e8;
+	border-color: #1a73e8;
+}
+html[data-tema="fosc"] .helium-parametres-eliminar {
+	color: color-mix(in srgb, var(--ide-text) 60%, var(--ide-fons));
+}
+html[data-tema="fosc"] .helium-parametres-eliminar:hover,
+html[data-tema="fosc"] .helium-parametres-eliminar:focus-visible {
+	color: hsl(0, 85%, 66%);
+}
+
+/*
+ * Desplegable amb cerca (Desplegable.ts), amb l'aspecte d'un select del plafó. La llista té posició fixa perquè no
+ * la talli el plafó, i alçada màxima segons l'espai que hi ha a sota o a sobre.
+ */
+.helium-desplegable-boto {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	width: 100%;
+	min-height: 28px;
+	text-align: left;
+	color: inherit;
+	cursor: pointer;
+}
+.helium-desplegable-text {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.helium-desplegable-boto svg {
+	flex-shrink: 0;
+}
+.helium-desplegable-capa {
+	position: fixed;
+	z-index: 950;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	padding: 4px;
+	background: var(--dropdown-item-background-color, #fff);
+	border: 1px solid var(--input-border-color, #c3c5cc);
+	border-radius: 2px;
+	box-shadow: 0 2px 8px var(--color-black-opacity-30, rgba(0, 0, 0, 0.3));
+	color: var(--text-base-color, #22242a);
+}
+.helium-desplegable-cerca {
+	flex-shrink: 0;
+	width: 100%;
+	box-sizing: border-box;
+	margin-bottom: 4px;
+}
+.helium-desplegable-llista {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: var(--text-size-base, 14px);
+}
+.helium-desplegable-grup {
+	padding: 6px 6px 2px;
+	font-size: var(--text-size-smallest, 12px);
+	font-weight: 600;
+	color: var(--description-color, #555);
+	text-transform: uppercase;
+}
+.helium-desplegable-opcio {
+	padding: 3px 6px 3px 14px;
+	cursor: pointer;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.helium-desplegable-opcio.seleccionat {
+	font-weight: 600;
+}
+.helium-desplegable-opcio.actiu {
+	background: var(--dropdown-item-hover-background-color, #eef0f3);
+}
+.helium-desplegable-buit {
+	padding: 6px;
+	color: var(--description-color, #555);
+}

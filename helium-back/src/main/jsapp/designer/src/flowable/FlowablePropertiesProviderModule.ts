@@ -6,7 +6,15 @@ import {
     isTextFieldEntryEdited,
 } from '@bpmn-io/properties-panel';
 import { createEntryFactories } from './EntryFactories';
-import { createJavaPropertiesGroup } from './JavaPropertiesGroup';
+import {
+    getCandidats,
+    getResponsable,
+    resourcesAmbCandidats,
+    resourcesAmbResponsable,
+    separarPerComes,
+} from '../helium/assignacio';
+import { createJavaPropertiesGroup, getTypeValue } from './JavaPropertiesGroup';
+import { createHeliumParametresGroup } from '../helium/HeliumHandlerPropertiesGroup';
 import { createJavaFieldsPropertiesGroup } from './JavaFieldsPropertiesGroup';
 
 const LOW_PRIORITY = 50;
@@ -25,26 +33,32 @@ type Modeling = {
     ) => void;
 };
 
+type Translate = (template: string, replacements?: Record<string, string>) => string;
+
 type FlowablePropertiesProviderInstance = {
     _modeling: Modeling;
+    _translate: Translate;
 };
 
 function FlowablePropertiesProvider(
     this: FlowablePropertiesProviderInstance,
     propertiesPanel: any,
-    modeling: Modeling
+    modeling: Modeling,
+    translate: Translate
 ) {
     propertiesPanel.registerProvider(LOW_PRIORITY, this);
     this._modeling = modeling;
+    this._translate = translate;
 }
 
-FlowablePropertiesProvider.$inject = ['propertiesPanel', 'modeling'];
+FlowablePropertiesProvider.$inject = ['propertiesPanel', 'modeling', 'translate'];
 
 FlowablePropertiesProvider.prototype.getGroups = function (
     this: FlowablePropertiesProviderInstance,
     element: BpmnElement
 ) {
     const modeling = this._modeling;
+    const translate = this._translate;
     return (groups: any[]) => {
         if (is(element, 'bpmn:Process')) {
             groups.push(createProcessPropertiesGroup());
@@ -58,7 +72,12 @@ FlowablePropertiesProvider.prototype.getGroups = function (
         if (is(element, 'bpmn:ServiceTask')) {
             groups.push(createServiceTaskPropertiesGroup());
             groups.push(createJavaPropertiesGroup(element));
-            groups.push(createJavaFieldsPropertiesGroup(element, modeling));
+            const tipus = getTypeValue(element.businessObject);
+            if (tipus === 'helium' || tipus === 'heliumExpressio') {
+                groups.push(createHeliumParametresGroup());
+            } else if (tipus === 'class' || tipus === 'delegateExpression') {
+                groups.push(createJavaFieldsPropertiesGroup(element, modeling));
+            }
         }
         if (is(element, 'bpmn:ScriptTask')) {
             groups.push(createScriptTaskPropertiesGroup());
@@ -77,19 +96,24 @@ FlowablePropertiesProvider.prototype.getGroups = function (
             groups.push(createConditionExpressionPropertiesGroup());
             groups.push(createSkipExpressionPropertiesGroup());
         }
+        // Els components de grup de @bpmn-io/properties-panel només tradueixen els seus textos (títols dels botons
+        // de plegar, indicador de canvis...) si la definició del grup porta `translate`, i cap proveïdor l'hi posa
+        for (const group of groups) {
+            group.translate ??= translate;
+        }
         return groups;
     };
 };
 
 // ---------------------------------------------------------------------------
-// Flowable entry factories
+// Entry factories: les propietats d'execució es desen com a atributs helium:* (BPMN 2.0 genèric)
 // ---------------------------------------------------------------------------
 
 const {
     createTextField,
     createCheckbox,
     createModdleTextField,
-} = createEntryFactories('flowable');
+} = createEntryFactories('helium');
 
 // ---------------------------------------------------------------------------
 // Flowable Process
@@ -97,18 +121,18 @@ const {
 
 const CandidateStarterUsers = createTextField({
     property: 'candidateStarterUsers',
-    label: 'Candidate starter users',
+    label: 'Usuaris que poden iniciar el procés',
 });
 
 const CandidateStarterGroups = createTextField({
     property: 'candidateStarterGroups',
-    label: 'Candidate starter groups',
+    label: 'Grups que poden iniciar el procés',
 });
 
 const createProcessPropertiesGroup = () => {
     return {
         id: 'flowable-process',
-        label: 'Process',
+        label: 'Procés',
         entries: [
             {
                 id: 'flowable-candidate-starter-users',
@@ -130,18 +154,18 @@ const createProcessPropertiesGroup = () => {
 
 const Initiator = createTextField({
     property: 'initiator',
-    label: 'Initiator',
+    label: 'Iniciador',
 });
 
 const StartEventFormKey = createTextField({
     property: 'formKey',
-    label: 'Form key',
+    label: 'Clau del formulari',
 });
 
 const createStartEventPropertiesGroup = () => {
     return {
         id: 'flowable-start-event',
-        label: 'Start event',
+        label: "Esdeveniment d'inici",
         entries: [
             {
                 id: 'flowable-initiator',
@@ -161,45 +185,85 @@ const createStartEventPropertiesGroup = () => {
 // Flowable User Task
 // ---------------------------------------------------------------------------
 
-const Assignee = createTextField({
-    property: 'assignee',
-    label: 'Assignee',
-});
+// L'assignació es desa amb els elements estàndard bpmn:humanPerformer i bpmn:potentialOwner
 
-const CandidateUsers = createTextField({
-    property: 'candidateUsers',
-    label: 'Candidate users',
-});
+const Assignee = ({ element, id }: { element: BpmnElement; id: string }) => {
+    const modeling = useService('modeling');
+    const debounce = useService('debounceInput');
+    const businessObject = element.businessObject;
+    return TextFieldEntry({
+        element,
+        id,
+        label: 'Responsable',
+        description: 'Codi d\'usuari o expressió (bpmn:humanPerformer)',
+        debounce,
+        getValue: () => getResponsable(businessObject),
+        setValue: (value: string) =>
+            modeling.updateProperties(element, {
+                resources: resourcesAmbResponsable(businessObject, businessObject.$model, value),
+            }),
+    });
+};
 
-const CandidateGroups = createTextField({
-    property: 'candidateGroups',
-    label: 'Candidate groups',
-});
+const createCandidatsField = (tipus: 'usuaris' | 'grups', label: string, description: string) =>
+    ({ element, id }: { element: BpmnElement; id: string }) => {
+        const modeling = useService('modeling');
+        const debounce = useService('debounceInput');
+        const businessObject = element.businessObject;
+        return TextFieldEntry({
+            element,
+            id,
+            label,
+            description,
+            debounce,
+            getValue: () => getCandidats(businessObject)[tipus].join(', '),
+            setValue: (value: string) => {
+                const candidats = { ...getCandidats(businessObject), [tipus]: separarPerComes(value) };
+                modeling.updateProperties(element, {
+                    resources: resourcesAmbCandidats(
+                        businessObject,
+                        businessObject.$model,
+                        candidats.usuaris,
+                        candidats.grups),
+                });
+            },
+        });
+    };
+
+const CandidateUsers = createCandidatsField(
+    'usuaris',
+    'Usuaris candidats',
+    'Separats per comes (bpmn:potentialOwner, user(...))');
+
+const CandidateGroups = createCandidatsField(
+    'grups',
+    'Grups candidats',
+    'Separats per comes (bpmn:potentialOwner, group(...))');
 
 const DueDate = createTextField({
     property: 'dueDate',
-    label: 'Due date',
+    label: 'Data de venciment',
 });
 
 const Priority = createTextField({
     property: 'priority',
-    label: 'Priority',
+    label: 'Prioritat',
 });
 
 const Category = createTextField({
     property: 'category',
-    label: 'Category',
+    label: 'Categoria',
 });
 
 const UserTaskFormKey = createTextField({
     property: 'formKey',
-    label: 'Form key',
+    label: 'Clau del formulari',
 });
 
 const createUserTaskPropertiesGroup = () => {
     return {
         id: 'flowable-user-task',
-        label: 'User task',
+        label: "Tasca d'usuari",
         entries: [
             {
                 id: 'flowable-assignee',
@@ -246,13 +310,13 @@ const createUserTaskPropertiesGroup = () => {
 
 const ResultVariableName = createTextField({
     property: 'resultVariableName',
-    label: 'Result variable name',
+    label: 'Dada del resultat',
 });
 
 const createServiceTaskPropertiesGroup = () => {
     return {
         id: 'flowable-service-task',
-        label: 'Service task',
+        label: 'Tasca de servei',
         entries: [
             {
                 id: 'flowable-result-variable-name',
@@ -269,19 +333,19 @@ const createServiceTaskPropertiesGroup = () => {
 
 const ResultVariable = createTextField({
     property: 'resultVariable',
-    label: 'Result variable',
+    label: 'Variable del resultat',
 });
 
 const AutoStoreVariables = createCheckbox({
     property: 'autoStoreVariables',
-    label: 'Auto store variables',
+    label: 'Desar les variables automàticament',
     defaultValue: false,
 });
 
 const createScriptTaskPropertiesGroup = () => {
     return {
         id: 'flowable-script-task',
-        label: 'Script task',
+        label: 'Tasca de script',
         entries: [
             {
                 id: 'flowable-result-variable',
@@ -303,36 +367,36 @@ const createScriptTaskPropertiesGroup = () => {
 
 const CalledElementType = createTextField({
     property: 'calledElementType',
-    label: 'Called element',
+    label: 'Element cridat',
 });
 
 const BusinessKey = createTextField({
     property: 'businessKey',
-    label: 'Business key',
+    label: 'Clau de negoci',
 });
 
 const InheritVariables = createCheckbox({
     property: 'inheritVariables',
-    label: 'Inherit variables',
+    label: 'Heretar les variables',
     defaultValue: false,
 });
 
 const InheritBusinessKey = createCheckbox({
     property: 'inheritBusinessKey',
-    label: 'Inherit business key',
+    label: 'Heretar la clau de negoci',
     defaultValue: false,
 });
 
 const FallbackToDefaultTenant = createCheckbox({
     property: 'fallbackToDefaultTenant',
-    label: 'Fallback to default tenant',
+    label: 'Usar el tenant per defecte si no es troba',
     defaultValue: false,
 });
 
 const createCallActivityPropertiesGroup = () => {
     return {
         id: 'flowable-call-activity',
-        label: 'Call activity',
+        label: 'Activitat de crida',
         entries: [
             {
                 id: 'flowable-called-element-type',
@@ -369,13 +433,13 @@ const createCallActivityPropertiesGroup = () => {
 
 const Async = createCheckbox({
     property: 'async',
-    label: 'Async',
+    label: 'Asíncron',
     defaultValue: false,
 });
 
 const Exclusive = createCheckbox({
     property: 'exclusive',
-    label: 'Exclusive',
+    label: 'Exclusiu',
     defaultValue: true,
 });
 
@@ -387,7 +451,7 @@ const createAsyncPropertiesGroup = (element: BpmnElement) => {
             isEdited: isCheckboxEntryEdited,
         },
     ];
-    if (element.businessObject.get('flowable:async')) {
+    if (element.businessObject.get('helium:async')) {
         entries.push({
             id: 'flowable-exclusive',
             component: Exclusive,
@@ -396,7 +460,7 @@ const createAsyncPropertiesGroup = (element: BpmnElement) => {
     }
     return {
         id: 'flowable-async',
-        label: 'Asynchronous continuations',
+        label: 'Continuació asíncrona',
         entries,
     };
 };
@@ -409,7 +473,6 @@ const ConditionExpression = (props: { element: BpmnElement; id: string }) => {
     const { element } = props;
     const modeling = useService('modeling');
     const bpmnFactory = useService('bpmnFactory');
-    const translate = useService('translate');
     const debounce = useService('debounceInput');
 
     const getValue = () => {
@@ -442,7 +505,7 @@ const ConditionExpression = (props: { element: BpmnElement; id: string }) => {
     return TextFieldEntry({
         element,
         id: props.id,
-        label: translate('Condition expression'),
+        label: 'Expressió de la condició',
         getValue,
         setValue,
         debounce,
@@ -452,7 +515,7 @@ const ConditionExpression = (props: { element: BpmnElement; id: string }) => {
 const createConditionExpressionPropertiesGroup = () => {
     return {
         id: 'flowable-condition',
-        label: 'Condition',
+        label: 'Condició',
         entries: [
             {
                 id: 'flowable-condition-expression',
@@ -469,13 +532,13 @@ const createConditionExpressionPropertiesGroup = () => {
 
 const SkipExpression = createTextField({
     property: 'skipExpression',
-    label: 'Skip expression',
+    label: 'Expressió per ometre',
 });
 
 const createSkipExpressionPropertiesGroup = () => {
     return {
         id: 'flowable-skip-expression',
-        label: 'Skip expression',
+        label: 'Expressió per ometre',
         entries: [
             {
                 id: 'flowable-skip-expression',
@@ -492,18 +555,18 @@ const createSkipExpressionPropertiesGroup = () => {
 
 const Collection = createModdleTextField({
     property: 'collection',
-    label: 'Collection',
+    label: 'Col·lecció',
 });
 
 const ElementVariable = createModdleTextField({
     property: 'elementVariable',
-    label: 'Element variable',
+    label: "Variable de l'element",
 });
 
 const createMultiInstancePropertiesGroup = () => {
     return {
         id: 'flowable-multi-instance',
-        label: 'Multi-instance',
+        label: 'Multiinstància',
         entries: [
             {
                 id: 'flowable-collection',

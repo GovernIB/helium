@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Format antic amb atributs de Flowable: s'ha de continuar llegint igual -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:flowable="http://flowable.org/bpmn"
+                  id="definicions"
+                  targetNamespace="http://www.caib.es/helium/test">
+  <bpmn:process id="procesFlowableClass" isExecutable="true">
+    <bpmn:startEvent id="inici"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="inici" targetRef="tascaClasse"/>
+    <bpmn:serviceTask id="tascaClasse" flowable:class="es.caib.prova.Delegat">
+      <bpmn:extensionElements>
+        <flowable:field name="text">
+          <flowable:string>hola</flowable:string>
+        </flowable:field>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="f2" sourceRef="tascaClasse" targetRef="fi"/>
+    <bpmn:endEvent id="fi"/>
+  </bpmn:process>
+</bpmn:definitions>

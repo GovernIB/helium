@@ -1,7 +1,6 @@
 package es.caib.helium.disseny.handler;
 
 
-import org.flowable.common.engine.api.delegate.Expression;
 
 /**
  * Handler per a enviar documents al portafirmes.
@@ -9,18 +8,18 @@ import org.flowable.common.engine.api.delegate.Expression;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface PortasignaturesHandler {
-	void setResponsableCodi(Expression responsableCodi);
-	void setPas1Responsables(Expression pas1Responsables);
-	void setPas1MinSignataris(Expression pas1MinSignataris);
-	void setPas2Responsables(Expression pas2Responsables);
-	void setPas2MinSignataris(Expression pas2MinSignataris);
-	void setPas3Responsables(Expression pas3Responsables);
-	void setPas3MinSignataris(Expression pas3MinSignataris);
-	void setDocument(Expression document);
-	void setAnnexos(Expression annexos);
-	void setImportancia(Expression importancia);
-	void setDataLimit(Expression dataLimit);
-	void setTransicioOK(Expression transicioOK);
-	void setTransicioKO(Expression transicioKO);
-	void setPortafirmesFluxId(Expression portafirmesFluxId);
+	void setResponsableCodi(String responsableCodi);
+	void setPas1Responsables(String pas1Responsables);
+	void setPas1MinSignataris(String pas1MinSignataris);
+	void setPas2Responsables(String pas2Responsables);
+	void setPas2MinSignataris(String pas2MinSignataris);
+	void setPas3Responsables(String pas3Responsables);
+	void setPas3MinSignataris(String pas3MinSignataris);
+	void setDocument(String document);
+	void setAnnexos(String annexos);
+	void setImportancia(String importancia);
+	void setDataLimit(String dataLimit);
+	void setTransicioOK(String transicioOK);
+	void setTransicioKO(String transicioKO);
+	void setPortafirmesFluxId(String portafirmesFluxId);
 }

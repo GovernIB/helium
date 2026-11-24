@@ -11,10 +11,6 @@ import javax.persistence.EntityNotFoundException;
 import es.caib.helium.persistence.entity.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.flowable.common.engine.impl.el.FixedValue;
-import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +57,12 @@ import es.caib.helium.commons.utils.MessageHelper;
 import es.caib.helium.commons.utils.ThreadUtilsHelium;
 import es.caib.helium.bpmn.engine.WProcessInstance;
 import es.caib.helium.bpmn.engine.WToken;
+import es.caib.helium.bpmn.api.HeliumApi;
+import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.handler.HandlerDefinicio;
 import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
-import es.caib.helium.logic.bpmn.HeliumActionHandlerPredefinitFactory;
+import es.caib.helium.bpmn.handler.ParametresVar;
+import es.caib.helium.logic.bpmn.HeliumHandlerFactory;
 import es.caib.helium.logic.bpmn.HeliumApiFactory;
 import es.caib.helium.logic.helpers.MesuresTemporalsHelper;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
@@ -170,9 +170,7 @@ public class ExpedientHelper {
 	@Resource
 	private MailHelper mailHelper;
 	@Autowired
-	private HeliumActionHandlerPredefinitFactory heliumActionHandlerPredefinitFactory;
-	@Autowired
-	private ProcessEngine processEngine;
+	private HeliumHandlerFactory heliumHandlerFactory;
 
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
 
@@ -1190,14 +1188,22 @@ public class ExpedientHelper {
 			return ThreadLocalInfo.getExpedient();
 
 		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		String rootProcessInstanceId = null;
 		if(expedient == null) {
+			// Subprocés (call activity): l'expedient està lligat a la instància de procés arrel
 			WProcessInstance pi = workflowEngineApi.findRootProcessInstance(processInstanceId);
-			expedient = pi != null ? expedientRepository.findByProcessInstanceId(pi.getId()) : null;
+			rootProcessInstanceId = pi != null ? pi.getId() : null;
+			expedient = rootProcessInstanceId != null ? expedientRepository.findByProcessInstanceId(rootProcessInstanceId) : null;
 		}
 
 		if (expedient == null) {
+			// Expedient que s'està iniciant: encara no s'ha desat, però ja té assignat l'identificador de la
+			// instància de procés arrel (veure iniciar). Això cobreix els handlers que s'executen durant l'inici,
+			// també dins subprocessos.
 			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
-			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
+			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId() != null
+					&& (expedientIniciant.getProcessInstanceId().equals(processInstanceId)
+						|| expedientIniciant.getProcessInstanceId().equals(rootProcessInstanceId))) {
 				expedient = expedientIniciant;
 			} else {
 				throw new NoTrobatException(Expedient.class, "PID:" + processInstanceId);
@@ -1875,10 +1881,19 @@ public class ExpedientHelper {
 
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
 
+			// Emmagatzema el nou expedient i les seves dades abans d'iniciar el procés: ja té assignat l'identificador
+			// de la instància de procés, i així els handlers i les expressions que s'executen durant l'inici poden
+			// llegir i escriure les dades de l'expedient
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+			expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
+			if (variables != null)
+				expedientDadaHelper.setDades(expedientPerRetornar, expedientPerRetornar.getProcessInstanceId(), null, variables);
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+
 			// Inicia l'instància de procés BPM
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 
-			ThreadLocalInfo.setExpedient(expedient);
+			ThreadLocalInfo.setExpedient(expedientPerRetornar);
 			DefinicioProces definicioProces = null;
 			if (definicioProcesId != null) {
 				definicioProces = definicioProcesRepository.findById(definicioProcesId).orElse(null);
@@ -1889,17 +1904,18 @@ public class ExpedientHelper {
 			}
 			WProcessInstance processInstance = null;
 			if (expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
+				// S'inicia amb l'identificador que ja té l'expedient perquè els handlers que s'executen durant
+				// l'inici (abans del primer estat d'espera) el puguin trobar (veure findExpedientByProcessInstanceId)
 				processInstance = workflowEngineApi.startProcessInstanceById(
 						IniciadorTipusDto.INTERN.equals(iniciadorTipus) ?  usuariBo : null,
-						definicioProces.getBpmId());
-				expedient.setProcessInstanceId(processInstance.getId());
+						definicioProces.getBpmId(),
+						expedientPerRetornar.getProcessInstanceId());
+				expedientPerRetornar.setProcessInstanceId(processInstance.getId());
 			}
 
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
-			// Emmagatzema el nou expedient
-			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
-			expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
-			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+			// Desa els canvis que hagin fet els handlers durant l'inici
+			expedientPerRetornar = expedientRepository.saveAndFlush(expedientPerRetornar);
 
 			// Si la definició de procés té tasca inicial completa la primera tasca
 			if (definicioProces != null &&
@@ -1911,8 +1927,6 @@ public class ExpedientHelper {
 					variables);
 			}
 
-			if(variables != null)
-				expedientDadaHelper.setDades(expedientPerRetornar, expedientPerRetornar.getProcessInstanceId(), null, variables);
 
 //			if(expedientPerRetornar.getProcessInstanceId() != null) {
 //				if (variables == null)
@@ -2352,112 +2366,122 @@ public class ExpedientHelper {
 			}
 		}
 
-		DelegateExecution delegateExecution = null;
-
-		if (ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
-			// TODO: S'ha de llevar aquest codi per a que sigui agnostic al motor de workflow usat
-			Execution e = processEngine
-				.getRuntimeService()
-				.createExecutionQuery()
-				.processInstanceId(processInstanceId)
-				.onlyProcessInstanceExecutions()
-				.singleResult();
-			delegateExecution = (DelegateExecution) e;
-
+		boolean esFlow = ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus());
+		if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus()) || AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
+			// Els expedients per estats no tenen instància de procés: la HeliumApi obté l'expedient del ThreadLocal
+			executarAccioHandler(
+				accio,
+				dades,
+				expedient,
+				esFlow ? processInstanceId : null,
+				esFlow ? definicioProcesId : null);
+		} else if (esFlow) {
 			if (AccioTipusEnumDto.ACCIO.equals(accio.getTipus())) {
 				workflowEngineApi.executeActionInstanciaProces(
 					processInstanceId,
 					accio.getBpmAction(),
 					herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
-			} else if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
-				try {
-					Map<String, Object> fixedValueMap = new HashMap<String, Object>();
-					if(dades != null) {
-						for (Map.Entry<String, String> entry : dades.entrySet()) {
-							fixedValueMap.put(entry.getKey(), new FixedValue(entry.getValue()));
-						}
-					}
-					HeliumBpmnHandler handler = expedientTipusRecursHelper.createHandlerInstance(
-						expedient,
-						definicioProcesId,
-						accio.getHandlerClasse(),
-						fixedValueMap);
-
-					handler.execute(delegateExecution);
-				} catch (Exception ex) {
-					throw new RuntimeException(
-						"No s'ha pogut crear la instància del handler propi " + accio.getHandlerClasse() + " per l'acció (" +
-							"codi=" + accio.getCodi() + ", " +
-							"nom=" + accio.getNom() + ")", ex);
-				}
-			} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
-				try {
-					HeliumBpmnHandler handler = heliumActionHandlerPredefinitFactory.createInstance(
-						accio.getHandlerClasse(),
-						dades);
-
-					handler.execute(delegateExecution);
-				} catch (Exception ex) {
-					throw new RuntimeException(
-						"No s'ha pogut crear la instància del handler predefinit " + accio.getHandlerClasse() + " per l'acció (" +
-							"codi=" + accio.getCodi() + ", " +
-							"nom=" + accio.getNom() + ")", ex);
-				}
 			} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
 				workflowEngineApi.evaluateScript(
-					HeliumApiFactory.createInstance(
-						expedient,
-						processInstanceId,
-						null,
-						this,
-						expedientDadaHelper,
-						expedientDocumentHelper,
-						documentHelper,
-						pluginHelper,
-						alertaHelper,
-						expedientInteressatHelper,
-						mailHelper),
+					crearHeliumApi(expedient, processInstanceId),
 					accio.getScript());
 			}
 		} else {
-			if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
-				try {
-					Map<String, Object> fixedValueMap = new HashMap<String, Object>();
-					if(dades != null) {
-						for (Map.Entry<String, String> entry : dades.entrySet()) {
-							fixedValueMap.put(entry.getKey(), new FixedValue(entry.getValue()));
-						}
-					}
-					HeliumBpmnHandler handler = expedientTipusRecursHelper.createHandlerInstance(
-						expedient,
-						null,
-						accio.getHandlerClasse(),
-						fixedValueMap);
+			throw new RuntimeException("Les accions de tipus " + accio.getTipus() + " no estan suportades en els " +
+				"expedients amb tramitació per estats");
+		}
+	}
 
-					handler.execute(delegateExecution);
-				} catch (Exception ex) {
-					throw new RuntimeException(
-						"No s'ha pogut crear la instància del handler propi " + accio.getHandlerClasse() + " per l'acció (" +
-							"codi=" + accio.getCodi() + ", " +
-							"nom=" + accio.getNom() + ")", ex);
-				}
-			} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
-				try {
-					HeliumBpmnHandler handler = heliumActionHandlerPredefinitFactory.createInstance(
-						accio.getHandlerClasse(),
-						dades);
-					handler.execute(delegateExecution);
-				} catch (Exception ex) {
-					throw new RuntimeException(
-						"No s'ha pogut crear la instància del handler predefinit " + accio.getHandlerClasse() + " per l'acció (" +
-							"codi=" + accio.getCodi() + ", " +
-							"nom=" + accio.getNom() + ")", ex);
-				}
-			} else {
-				throw new RuntimeException("Les accions de tipus " + accio.getTipus() + " no estan suportades en els " +
-					"expedients amb tramitació per estats");
+	private void executarAccioHandler(
+			Accio accio,
+			Map<String, String> dades,
+			Expedient expedient,
+			String processInstanceId,
+			Long definicioProcesId) {
+		String tipusHandler = AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus()) ? "propi" : "predefinit";
+		try {
+			HeliumApi heliumApi = crearHeliumApi(expedient, processInstanceId);
+			Class<? extends HeliumBpmnHandler> handlerClass = heliumHandlerFactory.resoldreClasse(
+				accio.getHandlerClasse(),
+				() -> new HeliumHandlerFactory.ContextRecursos(expedient.getTipus().getId(), definicioProcesId));
+			HandlerDefinicio definicio = ParametresVar.migrar(definicioAccio(accio, dades), handlerClass);
+			HeliumBpmnHandler handler = heliumHandlerFactory.crearHandler(
+				handlerClass,
+				resoldreParametresAccio(definicio, heliumApi));
+			handler.execute(heliumApi);
+		} catch (Exception ex) {
+			throw new RuntimeException(
+				"No s'ha pogut executar el handler " + tipusHandler + " " + accio.getHandlerClasse() + " per l'acció (" +
+					"codi=" + accio.getCodi() + ", " +
+					"nom=" + accio.getNom() + ")", ex);
+		}
+	}
+
+	private static final java.util.regex.Pattern REFERENCIA_DADA = java.util.regex.Pattern.compile(
+		"\\$\\{\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\}");
+
+	/** Paràmetres d'una acció de tipus handler: cada valor és un literal o una expressió (${codiDada}). */
+	private static HandlerDefinicio definicioAccio(Accio accio, Map<String, String> dades) {
+		List<HandlerDefinicio.Parametre> parametres = new ArrayList<>();
+		if (dades != null) {
+			for (Map.Entry<String, String> dada : dades.entrySet()) {
+				parametres.add(HandlerDefinicio.Parametre.deText(dada.getKey(), dada.getValue()));
 			}
 		}
+		return new HandlerDefinicio(accio.getHandlerClasse(), parametres);
+	}
+
+	/**
+	 * Resol els paràmetres d'una acció. Les accions s'executen fora del motor de workflow, així que les
+	 * expressions només poden fer referència a dades de l'expedient: {@code ${codi}} retorna el valor de la dada
+	 * (amb el seu tipus) i un text amb referències ({@code Expedient ${numero}}) les substitueix pel seu valor.
+	 * Si el resultat és null s'utilitza el valor per defecte del paràmetre.
+	 */
+	static Map<String, Object> resoldreParametresAccio(HandlerDefinicio definicio, HeliumApi heliumApi) {
+		Map<String, Object> valors = new LinkedHashMap<>();
+		for (HandlerDefinicio.Parametre parametre : definicio.getParametres()) {
+			Object valor = parametre.isExpressio()
+				? avaluarExpressioAccio(parametre.getNom(), parametre.getExpressio(), heliumApi)
+				: parametre.getValor();
+			valors.put(parametre.getNom(), valor != null ? valor : parametre.getValor());
+		}
+		return valors;
+	}
+
+	private static Object avaluarExpressioAccio(String nom, String expressio, HeliumApi heliumApi) {
+		String codi = ParametresVar.codiDada(expressio);
+		if (codi != null) {
+			return heliumApi.getVariable(codi);
+		}
+		java.util.regex.Matcher m = REFERENCIA_DADA.matcher(expressio);
+		StringBuilder sb = new StringBuilder();
+		while (m.find()) {
+			Object valor = heliumApi.getVariable(m.group(1));
+			m.appendReplacement(sb, java.util.regex.Matcher.quoteReplacement(valor != null ? String.valueOf(valor) : ""));
+		}
+		m.appendTail(sb);
+		String resultat = sb.toString();
+		if (HandlerDefinicio.Parametre.esExpressio(resultat)) {
+			throw new HeliumHandlerException(
+				"El paràmetre '" + nom + "' té l'expressió " + expressio + ", però a les accions les expressions " +
+					"només poden fer referència a dades de l'expedient (${codiDada})");
+		}
+		return resultat;
+	}
+
+	private HeliumApi crearHeliumApi(Expedient expedient, String processInstanceId) {
+		return HeliumApiFactory.createInstance(
+			expedient,
+			processInstanceId,
+			null,
+			this,
+			expedientDadaHelper,
+			expedientDocumentHelper,
+			documentHelper,
+			pluginHelper,
+			alertaHelper,
+			expedientInteressatHelper,
+			mailHelper);
 	}
 
 	/**

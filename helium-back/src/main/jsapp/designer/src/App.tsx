@@ -11,13 +11,17 @@ import {
     //CamundaPlatformPropertiesProviderModule,
 } from 'bpmn-js-properties-panel';
 import FlowablePropertiesProviderModule from './flowable/FlowablePropertiesProviderModule';
-import {fetchHandlers} from './flowable/handlers';
+import TraduccionsModule from './helium/traduccions';
+import {establirHandlers, fetchHandlers, getHandlersSync} from './flowable/handlers';
+import {enviarIde, esModeIde, registrarIde} from './ide';
 
 import Modal from './components/Modal';
 import Toolbar from './components/Toolbar';
 import LoadingOverlay from "./components/LoadingOverlay";
 
 import flowableModdle from './flowable/flowable.json';
+import heliumModdle from './helium/helium.json';
+import {migrarAtributsFlowable, migrarHandlersFlowable, migrarParametresVar} from './helium/heliumHandler';
 //import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
 
 import {useCallback} from "react";
@@ -39,6 +43,54 @@ interface ProcessDefinitionDataType {
     }[];
 }
 
+/** Amplada del plafó de propietats (px): per defecte, mínima i clau on es recorda per a l'usuari. */
+const AMPLADA_PROPIETATS_DEFECTE = 340;
+const AMPLADA_PROPIETATS_MIN = 260;
+const AMPLADA_PROPIETATS_CLAU = 'helium.designer.ampladaPropietats';
+/** Vista del diagrama durant una recàrrega de la pàgina dins l'IDE (sessionStorage). */
+const CLAU_VISTA_IDE = 'helium.designer.vistaIde';
+const CLASSE_PANTALLA_COMPLETA = 'helium-editor-pantalla-completa';
+
+const ampladaPropietatsMax = () => Math.max(AMPLADA_PROPIETATS_MIN, Math.round(window.innerWidth * 0.7));
+
+const limitarAmpladaPropietats = (amplada: number) =>
+    Math.min(Math.max(Math.round(amplada), AMPLADA_PROPIETATS_MIN), ampladaPropietatsMax());
+
+const llegirAmpladaPropietats = (): number => {
+    try {
+        const valor = Number(window.localStorage.getItem(AMPLADA_PROPIETATS_CLAU));
+        return valor > 0 ? limitarAmpladaPropietats(valor) : AMPLADA_PROPIETATS_DEFECTE;
+    } catch {
+        return AMPLADA_PROPIETATS_DEFECTE;
+    }
+};
+
+const desarAmpladaPropietats = (amplada: number) => {
+    try {
+        window.localStorage.setItem(AMPLADA_PROPIETATS_CLAU, String(amplada));
+    } catch {
+        // Sense emmagatzematge (navegació privada...): només es perd la preferència
+    }
+};
+
+/** Camps de text on Ctrl+Z ha de desfer el text i no el diagrama. */
+const esCampEditable = (target: EventTarget | null) => {
+    const element = target as HTMLElement | null;
+    return !!element && (
+        element.isContentEditable
+        || ['INPUT', 'TEXTAREA', 'SELECT'].includes(element.tagName)
+    );
+};
+
+interface CommandStack {
+    undo(): void;
+    redo(): void;
+}
+
+interface Canvas {
+    resized(): void;
+}
+
 interface FormError {
     camp: string;
     missatge: string;
@@ -54,6 +106,8 @@ interface FormResponse {
 const App = () => {
     const config = window.__APP_CONFIG__ || {};
     const isNew: boolean = config.isNew;
+    /** Dins el plugin d'IntelliJ: sense servidor de Helium, el diagrama és el document de l'IDE (veure ide.ts). */
+    const modeIde = esModeIde();
 
     const initializedRef = React.useRef<boolean>(false);
     const canvasRef = React.useRef<HTMLDivElement | null>(null);
@@ -63,6 +117,11 @@ const App = () => {
 
     const [isLoading, setIsLoading] = React.useState(true);
     const [isDirty, setIsDirty] = React.useState<boolean>(false);
+    const [canUndo, setCanUndo] = React.useState<boolean>(false);
+    const [canRedo, setCanRedo] = React.useState<boolean>(false);
+    const [ampladaPropietats, setAmpladaPropietats] = React.useState<number>(llegirAmpladaPropietats);
+    const [redimensionant, setRedimensionant] = React.useState<boolean>(false);
+    const [pantallaCompleta, setPantallaCompleta] = React.useState<boolean>(false);
     const [modalOpen, setModalOpen] = React.useState<boolean>(false);
     const [modalDespOpen, setModalDespOpen] = React.useState<boolean>(false);
     const [modalContent, setModalContent] = React.useState<string>();
@@ -81,7 +140,8 @@ const App = () => {
 
     React.useEffect(() => {
         const handleBeforeUnload = (event: Event) => {
-            if (isDirty) {
+            // A l'IDE els canvis ja són al document: l'avís bloquejaria el navegador en tancar l'editor
+            if (isDirty && !modeIde) {
                 event.preventDefault();
                 event.returnValue = false;
             }
@@ -89,7 +149,7 @@ const App = () => {
 
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, [isDirty]);
+    }, [isDirty, modeIde]);
 
     React.useEffect(() => {
         if(initializedRef.current)
@@ -103,8 +163,17 @@ const App = () => {
 
     const init = async () => {
         if (!canvasRef.current) return;
+        const tema = config.tema;
         const modeler = new BpmnJS({
             container: canvasRef.current,
+            // Colors per defecte dels elements; els que l'usuari hagi pintat (bioc:fill/stroke) es mantenen
+            ...(tema?.fosc ? {
+                bpmnRenderer: {
+                    defaultFillColor: tema.farciment,
+                    defaultStrokeColor: tema.text,
+                    defaultLabelColor: tema.text,
+                },
+            } : {}),
             propertiesPanel: {
                 parent: propertiesRef.current,
             },
@@ -112,11 +181,13 @@ const App = () => {
                 BpmnPropertiesPanelModule,
                 BpmnPropertiesProviderModule,
                 FlowablePropertiesProviderModule,
+                TraduccionsModule,
                 //CamundaPlatformPropertiesProviderModule
             ],
             moddleExtensions: {
                 //camunda: camundaModdle,
                 flowable: flowableModdle,
+                helium: heliumModdle,
             },
         });
 
@@ -124,10 +195,17 @@ const App = () => {
         const handleCommandStackChange = () => {
             const commandStack: any = modeler.get('commandStack');
             setIsDirty(commandStack.canUndo());
+            setCanUndo(commandStack.canUndo());
+            setCanRedo(commandStack.canRedo());
         };
 
         eventBus.on('commandStack.changed', handleCommandStackChange);
         modelerRef.current = modeler;
+
+        if (modeIde) {
+            iniciarModeIde(modeler);
+            return;
+        }
 
         setDeployForm({
             expedientTipusId: config.expedientTipusId,
@@ -142,6 +220,7 @@ const App = () => {
 
         if (isNew) {
             await modelerRef.current.createDiagram();
+            marcarProcessosExecutables();
         } else {
             await loadDiagram();
         }
@@ -150,6 +229,263 @@ const App = () => {
             modeler.destroy();
         };
     }
+
+    /**
+     * Mode IDE: el diagrama arriba de l'IDE i cada canvi (agrupat cada 300 ms) s'hi envia sencer. Quan el document
+     * canvia fora de l'editor es torna a importar conservant la vista. Les importacions no s'envien a l'IDE.
+     */
+    const iniciarModeIde = (modeler: BpmnJS) => {
+        const canvas = modeler.get<{ viewbox: (box?: unknown) => unknown }>('canvas');
+        const eventBus = modeler.get<{
+            on: (event: string, callback: (e: { trigger?: string }) => void) => void;
+            fire: (event: string) => void;
+        }>('eventBus');
+        let important = false;
+        let temporitzador: ReturnType<typeof setTimeout> | undefined;
+        // L'IDE torna a carregar la pàgina quan canvia el tema: la vista es conserva durant la recàrrega
+        window.addEventListener('pagehide', () => {
+            try {
+                sessionStorage.setItem(CLAU_VISTA_IDE, JSON.stringify(canvas.viewbox()));
+            } catch {
+                // Sense sessionStorage la vista es reinicia
+            }
+        });
+        const vistaDesada = (): unknown => {
+            try {
+                const vista = sessionStorage.getItem(CLAU_VISTA_IDE);
+                sessionStorage.removeItem(CLAU_VISTA_IDE);
+                return vista ? JSON.parse(vista) : undefined;
+            } catch {
+                return undefined;
+            }
+        };
+        eventBus
+            .on('commandStack.changed', (event) => {
+                if (important || event.trigger === 'clear') {
+                    return;
+                }
+                clearTimeout(temporitzador);
+                temporitzador = setTimeout(enviarXmlIde, 300);
+            });
+        const enviarXmlIde = async () => {
+            const {xml} = await modeler.saveXML({format: true});
+            if (xml) {
+                enviarIde({tipus: 'canvi', xml});
+            }
+        };
+        const importar = async (xml: string, vista: unknown) => {
+            important = true;
+            try {
+                if (xml.trim()) {
+                    await importarXml(xml);
+                } else {
+                    // Fitxer nou i buit: es crea el diagrama inicial i es desa al document
+                    await modeler.createDiagram();
+                    marcarProcessosExecutables();
+                    important = false;
+                    await enviarXmlIde();
+                }
+                if (vista) {
+                    canvas.viewbox(vista);
+                }
+            } catch (e) {
+                enviarIde({tipus: 'error', missatge: e instanceof Error ? e.message : String(e)});
+            } finally {
+                important = false;
+            }
+        };
+        registrarIde({
+            carregar: (xml, handlers) => {
+                establirHandlers(handlers || []);
+                importar(xml || '', vistaDesada());
+            },
+            actualitzar: (xml) => {
+                importar(xml || '', canvas.viewbox());
+            },
+            handlers: (handlers) => {
+                establirHandlers(handlers || []);
+                // Torna a pintar el plafó perquè l'element seleccionat vegi el catàleg nou
+                eventBus.fire('propertiesPanel.providersChanged');
+            },
+        });
+        enviarIde({tipus: 'preparat'});
+    };
+
+    /**
+     * El diagrama buit de bpmn-js crea el procés amb isExecutable="false" i Flowable ignora els processos no
+     * executables. Es canvia directament al model (sense passar per la pila de comandes) per no marcar el
+     * diagrama com a modificat.
+     */
+    const marcarProcessosExecutables = () => {
+        const definitions: any = modelerRef.current?.getDefinitions();
+        for (const element of definitions?.rootElements || []) {
+            if (element.$type === 'bpmn:Process') {
+                element.isExecutable = true;
+            }
+        }
+    };
+
+    // A l'IDE desfer i refer s'apliquen al document, que és la font de veritat, i el diagrama es torna a carregar
+    const undo = React.useCallback(() => {
+        if (modeIde) {
+            enviarIde({tipus: 'desfer'});
+        } else {
+            modelerRef.current?.get<CommandStack>('commandStack').undo();
+        }
+    }, [modeIde]);
+
+    const redo = React.useCallback(() => {
+        if (modeIde) {
+            enviarIde({tipus: 'refer'});
+        } else {
+            modelerRef.current?.get<CommandStack>('commandStack').redo();
+        }
+    }, [modeIde]);
+
+    /*
+     * Ctrl+Z / Ctrl+Shift+Z (i Ctrl+Y) a tot l'editor. bpmn-js només escolta el teclat quan el llenç té el focus
+     * (i el plafó de propietats, als seus camps), així que després de fer clic a la barra d'eines o fora del llenç
+     * les dreceres no farien res. Si ja les ha gestionat bpmn-js (defaultPrevented) no es tornen a aplicar, i en
+     * altres camps de text (diàlegs, edició d'etiquetes) es deixa el comportament del navegador.
+     */
+    React.useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.defaultPrevented || event.altKey || !(event.ctrlKey || event.metaKey)
+                || esCampEditable(event.target)) {
+                return;
+            }
+            const tecla = event.key.toLowerCase();
+            const esDesfer = tecla === 'z' && !event.shiftKey;
+            const esRefer = (tecla === 'z' && event.shiftKey) || (tecla === 'y' && !event.shiftKey);
+            if (!esDesfer && !esRefer) {
+                return;
+            }
+            // Amb un diàleg obert (codi, desplegar) no es modifica el diagrama de darrere
+            if (modalOpen || modalDespOpen) {
+                return;
+            }
+            event.preventDefault();
+            if (esDesfer) {
+                undo();
+            } else {
+                redo();
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [modalOpen, modalDespOpen, undo, redo]);
+
+    /*
+     * A l'IDE, les dreceres de desfer i refer s'envien a l'IDE també des del llenç i el plafó (que en mode web
+     * desfan la pila de comandes de bpmn-js): s'intercepten en fase de captura, abans que les vegin.
+     */
+    React.useEffect(() => {
+        if (!modeIde) {
+            return;
+        }
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.altKey || !(event.ctrlKey || event.metaKey)) {
+                return;
+            }
+            const tecla = event.key.toLowerCase();
+            const desfer = tecla === 'z' && !event.shiftKey;
+            const refer = (tecla === 'z' && event.shiftKey) || (tecla === 'y' && !event.shiftKey);
+            if (desfer || refer) {
+                event.preventDefault();
+                event.stopPropagation();
+                enviarIde({tipus: desfer ? 'desfer' : 'refer'});
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown, true);
+        return () => window.removeEventListener('keydown', handleKeyDown, true);
+    }, [modeIde]);
+
+    /** El llenç ha de recalcular la mida quan canvia l'amplada del plafó o es passa a pantalla completa. */
+    React.useEffect(() => {
+        modelerRef.current?.get<Canvas>('canvas').resized();
+    }, [ampladaPropietats, pantallaCompleta]);
+
+    /*
+     * Pantalla completa: el navegador passa a pantalla completa i l'editor ocupa tota la finestra, amagant la
+     * capçalera i el peu de Helium. Si el navegador no ho permet, l'editor igualment ocupa tota la finestra.
+     */
+    const togglePantallaCompleta = () => {
+        if (pantallaCompleta) {
+            setPantallaCompleta(false);
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(() => undefined);
+            }
+        } else {
+            setPantallaCompleta(true);
+            document.documentElement.requestFullscreen?.().catch(() => undefined);
+        }
+    };
+
+    React.useEffect(() => {
+        // Sortir de la pantalla completa del navegador (Esc, F11...) també surt del mode de l'editor
+        const handleFullscreenChange = () => {
+            if (!document.fullscreenElement) {
+                setPantallaCompleta(false);
+            }
+        };
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
+
+    React.useEffect(() => {
+        document.body.classList.toggle(CLASSE_PANTALLA_COMPLETA, pantallaCompleta);
+        return () => document.body.classList.remove(CLASSE_PANTALLA_COMPLETA);
+    }, [pantallaCompleta]);
+
+    /** Arrossegar el separador canvia l'amplada del plafó de propietats (doble clic: amplada per defecte). */
+    const iniciarRedimensio = (event: React.PointerEvent<HTMLDivElement>) => {
+        if (event.button !== 0) {
+            return;
+        }
+        event.preventDefault();
+        const separador = event.currentTarget;
+        separador.setPointerCapture(event.pointerId);
+        const xInicial = event.clientX;
+        const ampladaInicial = ampladaPropietats;
+        let amplada = ampladaInicial;
+        setRedimensionant(true);
+        const moure = (e: PointerEvent) => {
+            amplada = limitarAmpladaPropietats(ampladaInicial + xInicial - e.clientX);
+            setAmpladaPropietats(amplada);
+        };
+        const acabar = () => {
+            separador.removeEventListener('pointermove', moure);
+            separador.removeEventListener('pointerup', acabar);
+            separador.removeEventListener('pointercancel', acabar);
+            setRedimensionant(false);
+            desarAmpladaPropietats(amplada);
+        };
+        separador.addEventListener('pointermove', moure);
+        separador.addEventListener('pointerup', acabar);
+        separador.addEventListener('pointercancel', acabar);
+    };
+
+    const canviarAmpladaPropietats = (amplada: number) => {
+        const nova = limitarAmpladaPropietats(amplada);
+        setAmpladaPropietats(nova);
+        desarAmpladaPropietats(nova);
+    };
+
+    const handleSeparadorKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        const pas = event.shiftKey ? 80 : 20;
+        if (event.key === 'ArrowLeft') {
+            canviarAmpladaPropietats(ampladaPropietats + pas);
+        } else if (event.key === 'ArrowRight') {
+            canviarAmpladaPropietats(ampladaPropietats - pas);
+        } else if (event.key === 'Home') {
+            canviarAmpladaPropietats(ampladaPropietatsMax());
+        } else if (event.key === 'End') {
+            canviarAmpladaPropietats(AMPLADA_PROPIETATS_MIN);
+        } else {
+            return;
+        }
+        event.preventDefault();
+    };
 
     const showCode = () => {
         modelerRef.current?.saveXML({format: true}).then((response) => {
@@ -198,9 +534,27 @@ const App = () => {
     }
 
     const loadDiagram = async () => {
-        const response = await fetch(`${document.URL}/editorXml`);
+        // La pestanya Editor pot deixar la URL acabada en /editor: es normalitza igual que a handlers.ts
+        const base = document.URL.split(/[?#]/)[0].replace(/\/editor\/?$/, '').replace(/\/$/, '');
+        const response = await fetch(`${base}/editorXml`);
         const xml = await response.text();
-        await modelerRef.current!.importXML(xml);
+        await importarXml(xml);
+    }
+
+    /** Importa el diagrama i passa els atributs i handlers del format antic (flowable:*) al BPMN genèric. */
+    const importarXml = async (xml: string) => {
+        const modeler = modelerRef.current!;
+        await modeler.importXML(xml);
+        const classesHandlers = new Set(getHandlersSync().map((h) => h.classe));
+        const definitions = modeler.getDefinitions();
+        const moddle = modeler.get('moddle');
+        const handlers = migrarHandlersFlowable(definitions, moddle, classesHandlers);
+        const atributs = migrarAtributsFlowable(definitions, moddle);
+        const parametresVar = migrarParametresVar(definitions, getHandlersSync());
+        if (handlers > 0 || atributs > 0 || parametresVar > 0) {
+            console.info(`Convertit a BPMN genèric: ${handlers} handlers, ${atributs} atributs de Flowable i ${parametresVar} paràmetres varXXX`);
+            setIsDirty(true);
+        }
     }
 
     const deploy = async () => {
@@ -254,7 +608,7 @@ const App = () => {
             return;
         }
         try {
-            await modelerRef.current?.importXML(await f.text());
+            await importarXml(await f.text());
         } catch (e: any) {
             alert(e.message);
         }
@@ -301,10 +655,11 @@ const App = () => {
             />
             <LoadingOverlay isLoading={isLoading}/>
             <div
+                className={`helium-editor${pantallaCompleta ? ' pantalla-completa' : ''}${redimensionant ? ' redimensionant' : ''}`}
                 style={{
                     display: 'flex',
+                    position: 'relative',
                     border: `${isDragging ? "2px dashed  #3b82f6" : "none"}`,
-                    zIndex: 999,
                 }}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -324,9 +679,28 @@ const App = () => {
                 }}>
                     <UploadIcon animate={true} scale={5}></UploadIcon>
                 </div>)}
-                <Toolbar showCode={showCode} download={download} save={save} upload={isNew ? upload : undefined}/>
-                <div id="canvas" ref={canvasRef} style={{flexGrow: 1, height: '100vh'}}></div>
-                <div id="properties" ref={propertiesRef} style={{width: '340px'}}></div>
+                {/* A l'IDE el codi és a la pestanya de text, i desar o publicar es fa des de l'IDE */}
+                <Toolbar showCode={modeIde ? undefined : showCode} download={modeIde ? undefined : download}
+                         save={modeIde ? undefined : save} upload={isNew && !modeIde ? upload : undefined}
+                         undo={undo} redo={redo} canUndo={modeIde || canUndo} canRedo={modeIde || canRedo}
+                         pantallaCompleta={pantallaCompleta}
+                         togglePantallaCompleta={modeIde ? undefined : togglePantallaCompleta}
+                         style={{right: ampladaPropietats + 40}}/>
+                <div id="canvas" ref={canvasRef} style={{flexGrow: 1, minWidth: 0, height: '100vh'}}></div>
+                <div
+                    className="helium-editor-separador"
+                    role="separator"
+                    aria-orientation="vertical"
+                    aria-label="Amplada del plafó de propietats"
+                    aria-valuenow={ampladaPropietats}
+                    aria-valuemin={AMPLADA_PROPIETATS_MIN}
+                    title="Arrossegar per canviar l'amplada del plafó (doble clic: amplada per defecte)"
+                    tabIndex={0}
+                    onPointerDown={iniciarRedimensio}
+                    onDoubleClick={() => canviarAmpladaPropietats(AMPLADA_PROPIETATS_DEFECTE)}
+                    onKeyDown={handleSeparadorKeyDown}
+                ></div>
+                <div id="properties" ref={propertiesRef} style={{width: ampladaPropietats, flexShrink: 0}}></div>
             </div>
 
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Codi BPMN">

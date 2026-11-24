@@ -1,5 +1,6 @@
 .toolbar {
 	position: absolute;
+	top: 0;
 	right: 380px;
 	z-index: 10;
 	display: flex;
@@ -40,6 +41,17 @@
 
 .grup button:active {
 	background: #e6e6e6;
+}
+
+.grup button:disabled {
+	color: #bbb;
+	background: transparent;
+	cursor: default;
+}
+
+.grup button:focus-visible {
+	outline: 2px solid #1a73e8;
+	outline-offset: -2px;
 }
 
 .separator {

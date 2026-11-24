@@ -5,93 +5,81 @@ import {
     isSelectEntryEdited,
 } from '@bpmn-io/properties-panel';
 import { useService } from 'bpmn-js-properties-panel';
-import {getHandlersSync, type HandlerDto, type HandlerParametreDto} from './handlers';
+import {
+    HELIUM_IMPLEMENTATION,
+    configurarHeliumHandler,
+    getHeliumHandler,
+    isHandlerPerExpressio,
+    isHeliumHandlerTask,
+    removeHeliumHandler,
+} from '../helium/heliumHandler';
+import { createHeliumHandlerClassEntry } from '../helium/HeliumHandlerPropertiesGroup';
 
 type BpmnElement = {
     businessObject: any;
-};
-
-type Modeling = {
-    updateProperties: (element: BpmnElement, properties: Record<string, any>) => void;
-    updateModdleProperties: (
-        element: BpmnElement,
-        moddleElement: any,
-        properties: Record<string, any>
-    ) => void;
 };
 
 type PropertiesEntryProps = {
     element: BpmnElement;
 };
 
-const getTypeValue = (businessObject: any) => {
-    const classValue = businessObject.get('flowable:class');
-    const expressionValue = businessObject.get('flowable:expression');
-    const delegateExpressionValue = businessObject.get('flowable:delegateExpression');
-    return classValue != null
-        ? 'class'
-        : expressionValue != null
-          ? 'expression'
-          : delegateExpressionValue != null
-            ? 'delegateExpression'
-            : undefined;
-};
+/**
+ * Tipus d'implementació de la service task. Els de Helium són BPMN 2.0 genèric:
+ *  - helium: handler de Helium indicat per classe (<helium:handler classe="...">).
+ *  - heliumExpressio: handler de Helium obtingut d'una expressió (<helium:handler expressio="${...}">).
+ *  - expressio: expressió avaluada pel motor (helium:expression, amb helium:resultVariableName opcional).
+ *
+ * Els de Flowable (class, delegateExpression) només es mostren si la tasca ja els fa servir (diagrames antics),
+ * perquè no es perdin en editar-los. Les flowable:expression es converteixen a helium:expression en obrir el diagrama.
+ */
+export type TipusImplementacio = 'helium' | 'heliumExpressio' | 'expressio' | 'class' | 'delegateExpression';
 
-const fillFieldsFromHandler = (element: BpmnElement, modeling: Modeling, handler: HandlerDto) => {
-    const moddle = element.businessObject.$model;
-    const bpmnElement = element.businessObject;
-    let extensionElements = bpmnElement.extensionElements;
-    if (!extensionElements) {
-        debugger
-        extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] });
-        modeling.updateProperties(element, { extensionElements });
+export const getTypeValue = (businessObject: any): TipusImplementacio | undefined => {
+    if (isHeliumHandlerTask(businessObject)) {
+        return isHandlerPerExpressio(businessObject) ? 'heliumExpressio' : 'helium';
     }
-    debugger;
-    const nonFieldValues = extensionElements.values?.filter((v: any) => v.$type !== 'flowable:Field') ?? [];
-    const fields = (handler.parametres || []).reduce((acumulator: any[], p: HandlerParametreDto) => {
-        const field = moddle.create('flowable:Field', {
-            name: p.codi || p.nom || '',
-            stringValue: '',
-        });
-        field.$parent = extensionElements;
-
-        acumulator.push(field);
-        if(p.varParam) {
-            const fieldVar = moddle.create('flowable:Field', {
-                name: p.varParam || '',
-                stringValue: '',
-            });
-            fieldVar.$parent = extensionElements;
-            acumulator.push(fieldVar);
-        }
-
-        return acumulator;
-    }, []);
-    modeling.updateModdleProperties(element, extensionElements, {
-        values: [...nonFieldValues, ...fields],
-    });
+    if (businessObject.get('helium:expression') != null) {
+        return 'expressio';
+    }
+    if (businessObject.get('flowable:class') != null) {
+        return 'class';
+    }
+    if (businessObject.get('flowable:delegateExpression') != null) {
+        return 'delegateExpression';
+    }
+    return undefined;
 };
 
 export const createJavaPropertiesGroup = (element: BpmnElement) => {
     const entries: any[] = [
         {
             id: 'flowable-java-group-type',
-            component: FlowableJavaTypeField,
+            component: TipusField,
             isEdited: isSelectEntryEdited,
         },
     ];
     const typeValue = getTypeValue(element.businessObject);
+    if (typeValue === 'helium') {
+        entries.push(createHeliumHandlerClassEntry());
+    }
+    if (typeValue === 'heliumExpressio') {
+        entries.push({
+            id: 'helium-handler-expressio',
+            component: HandlerExpressioField,
+            isEdited: isTextFieldEntryEdited,
+        });
+    }
+    if (typeValue === 'expressio') {
+        entries.push({
+            id: 'helium-expression',
+            component: ExpressioField,
+            isEdited: isTextFieldEntryEdited,
+        });
+    }
     if (typeValue === 'class') {
         entries.push({
             id: 'flowable-java-group-class',
             component: FlowableJavaClassField,
-            isEdited: isSelectEntryEdited,
-        });
-    }
-    if (typeValue === 'expression') {
-        entries.push({
-            id: 'flowable-java-group-expression',
-            component: FlowableJavaExpressionField,
             isEdited: isTextFieldEntryEdited,
         });
     }
@@ -104,111 +92,106 @@ export const createJavaPropertiesGroup = (element: BpmnElement) => {
     }
     return {
         id: 'flowable-java',
-        label: 'Flowable Java',
+        label: 'Implementació',
         entries,
     };
 };
 
-const FlowableJavaTypeField = (props: PropertiesEntryProps) => {
+const TipusField = (props: PropertiesEntryProps) => {
     const { element } = props;
     const modeling = useService('modeling');
     return SelectEntry({
         element,
         id: 'flowable-java-type',
-        label: 'Type',
+        label: 'Tipus',
         getValue: () => getTypeValue(element.businessObject),
-        setValue: (value: string | undefined) => {
-            const valueChanged = getTypeValue(element.businessObject) !== value;
-            const updates: Record<string, string | undefined> = {};
-            if (valueChanged) {
-                updates['flowable:class'] = undefined;
-                updates['flowable:expression'] = undefined;
-                updates['flowable:delegateExpression'] = undefined;
+        setValue: (value: TipusImplementacio | undefined) => {
+            if (getTypeValue(element.businessObject) === value) {
+                return;
             }
-            if (value) {
-                updates['flowable:' + value] = '';
+            const esHandler = value === 'helium' || value === 'heliumExpressio';
+            modeling.updateProperties(element, {
+                'flowable:class': undefined,
+                'flowable:delegateExpression': undefined,
+                'helium:expression': value === 'expressio' ? '' : undefined,
+                implementation: esHandler ? HELIUM_IMPLEMENTATION : undefined,
+            });
+            if (esHandler) {
+                configurarHeliumHandler(element, modeling, value === 'heliumExpressio');
+            } else {
+                removeHeliumHandler(element, modeling);
             }
-            modeling.updateProperties(element, updates);
         },
-        getOptions: () => [
-            { value: undefined, label: '<none>' },
-            { value: 'class', label: 'Java class' },
-            { value: 'expression', label: 'Expression' },
-            { value: 'delegateExpression', label: 'Delegate expression' },
-        ],
+        getOptions: () => {
+            const options: { value: string | undefined; label: string }[] = [
+                { value: undefined, label: '<cap>' },
+                { value: 'helium', label: 'Handler de Helium' },
+                { value: 'heliumExpressio', label: 'Handler de Helium (expressió)' },
+                { value: 'expressio', label: 'Expressió' },
+            ];
+            // Les opcions de Flowable només per als diagrames que ja les fan servir
+            const actual = getTypeValue(element.businessObject);
+            if (actual === 'class') {
+                options.push({ value: 'class', label: 'Classe Java (Flowable)' });
+            }
+            if (actual === 'delegateExpression') {
+                options.push({ value: 'delegateExpression', label: 'Expressió delegada (Flowable)' });
+            }
+            return options;
+        },
+    });
+};
+
+const HandlerExpressioField = (props: PropertiesEntryProps) => {
+    const { element } = props;
+    const modeling = useService('modeling');
+    const debounce = useService('debounceInput');
+    return TextFieldEntry({
+        element,
+        id: 'helium-handler-expressio',
+        label: 'Expressió del handler',
+        description: 'Ha de retornar un objecte que implementi HeliumBpmnHandler. Ex: ${nomDelBean}',
+        getValue: () => getHeliumHandler(element.businessObject)?.expressio || '',
+        setValue: (value: string) => {
+            const handler = configurarHeliumHandler(element, modeling, true);
+            modeling.updateModdleProperties(element, handler, { expressio: value || '' });
+        },
+        debounce,
+    });
+};
+
+const ExpressioField = (props: PropertiesEntryProps) => {
+    const { element } = props;
+    const modeling = useService('modeling');
+    const debounce = useService('debounceInput');
+    return TextFieldEntry({
+        element,
+        id: 'helium-expression',
+        label: 'Expressió',
+        description: 'S\'avalua en executar la tasca. El resultat es pot desar amb "Dada del resultat".',
+        getValue: () => element.businessObject.get('helium:expression') || '',
+        setValue: (value: string) => {
+            modeling.updateProperties(element, {
+                'helium:expression': value || '',
+            });
+        },
+        debounce,
     });
 };
 
 const FlowableJavaClassField = (props: PropertiesEntryProps) => {
     const { element } = props;
     const modeling = useService('modeling');
-    const translate = useService('translate');
-    const currentValue = element.businessObject.get('flowable:class');
-    return SelectEntry({
-        element,
-        id: 'flowable-java-class',
-        label: translate('Java class'),
-        getValue: () => {
-            return element.businessObject.get('flowable:class');
-        },
-        setValue: (value: string) => {
-            const previousClass = element.businessObject.get('flowable:class');
-            modeling.updateProperties(element, {
-                'flowable:class': value,
-            });
-            if (value && value !== previousClass) {
-                const handler = getHandlersSync().find((h) => h.classe === value);
-                if (handler?.parametres?.length) {
-                    fillFieldsFromHandler(element, modeling, handler);
-                }
-            }
-        },
-        getOptions: () => {
-            const handlers = getHandlersSync();
-
-            const options= [];
-            let agrupacio = null;
-            for (const handler of handlers) {
-                if(handler.agrupacio != agrupacio) {
-                    agrupacio = handler.agrupacio;
-                    options.push({
-                        value: null,
-                        label: handler.agrupacio,
-                        disabled: true
-                    });
-                }
-
-                options.push({
-                    value: handler.classe,
-                    label: handler.nom || handler.classe,
-                });
-            }
-            // const options = handlers.map((h) => ({
-            //     value: h.classe,
-            //     label: h.nom || h.classe,
-            // }));
-
-            // Ensure current value is always in the options list
-            if (currentValue && !options.some((o) => o.value === currentValue)) {
-                options.unshift({ value: currentValue, label: currentValue });
-            }
-            return [{ value: '', label: '<none>' }, ...options];
-        },
-    });
-};
-
-const FlowableJavaExpressionField = (props: PropertiesEntryProps) => {
-    const { element } = props;
-    const modeling = useService('modeling');
     const debounce = useService('debounceInput');
     return TextFieldEntry({
         element,
-        id: 'flowable-java-expression',
-        label: 'Expression',
-        getValue: () => element.businessObject.get('flowable:expression') || '',
+        id: 'flowable-java-class',
+        label: 'Classe Java',
+        description: 'Específic de Flowable: classe que implementa org.flowable.engine.delegate.JavaDelegate.',
+        getValue: () => element.businessObject.get('flowable:class') || '',
         setValue: (value: string) => {
             modeling.updateProperties(element, {
-                'flowable:expression': value,
+                'flowable:class': value,
             });
         },
         debounce,
@@ -222,7 +205,8 @@ const FlowableJavaDelegateExpressionField = (props: PropertiesEntryProps) => {
     return TextFieldEntry({
         element,
         id: 'flowable-java-delegate-expression',
-        label: 'Delegate expression',
+        label: 'Expressió delegada',
+        description: 'Específic de Flowable: ha de retornar un org.flowable.engine.delegate.JavaDelegate.',
         getValue: () => element.businessObject.get('flowable:delegateExpression') || '',
         setValue: (value: string) => {
             modeling.updateProperties(element, {

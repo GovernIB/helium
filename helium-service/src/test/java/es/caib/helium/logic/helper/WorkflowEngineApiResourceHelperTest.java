@@ -36,22 +36,6 @@ public class WorkflowEngineApiResourceHelperTest {
 
 	@Mock
 	private WorkflowEngineApi workflowEngineApi;
-	@Mock
-	private ExpedientDadaHelper expedientDadaHelper;
-	@Mock
-	private ExpedientHelper expedientHelper;
-	@Mock
-	private ExpedientDocumentHelper expedientDocumentHelper;
-	@Mock
-	private DocumentHelperV3 documentHelperV3;
-	@Mock
-	private PluginHelper pluginHelper;
-	@Mock
-	private AlertaHelper alertaHelper;
-	@Mock
-	private ExpedientInteressatHelper expedientInteressatHelper;
-	@Mock
-	private MailHelper mailHelper;
 
 	private WorkflowEngineApiResourceHelper workflowEngineApiResourceHelper;
 
@@ -59,17 +43,7 @@ public class WorkflowEngineApiResourceHelperTest {
 
 	@BeforeEach
 	public void setUp() {
-		workflowEngineApiResourceHelper = new WorkflowEngineApiResourceHelper(
-			workflowEngineApi,
-			expedientDadaHelper,
-			expedientHelper,
-			expedientDocumentHelper,
-			documentHelperV3,
-			pluginHelper,
-			alertaHelper,
-			expedientInteressatHelper,
-			mailHelper
-		);
+		workflowEngineApiResourceHelper = new WorkflowEngineApiResourceHelper(workflowEngineApi);
 	}
 
 	// --------------------------------------------------

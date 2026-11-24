@@ -296,6 +296,23 @@ public interface WorkflowEngineApi {
             String processDefinitionId);
 
 	/**
+	 * Inicia una nova instància de procés amb un identificador ja assignat.
+	 *
+	 * <p>Permet que l'expedient conegui l'identificador de la instància de procés abans d'iniciar-la, de
+	 * manera que els handlers que s'executen durant l'inici (abans del primer estat d'espera) poden trobar
+	 * l'expedient.</p>
+	 *
+	 * @param actorId
+	 * @param processDefinitionId
+	 * @param processInstanceId l'identificador de la nova instància de procés.
+	 * @return
+	 */
+	public WProcessInstance startProcessInstanceById(
+            String actorId,
+            String processDefinitionId,
+            String processInstanceId);
+
+	/**
 	 * Envia un disparador extern a una instància de procés
 	 *
 	 * @param processInstanceId

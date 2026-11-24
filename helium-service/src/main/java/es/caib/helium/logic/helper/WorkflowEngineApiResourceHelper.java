@@ -1,10 +1,10 @@
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.bpmn.handler.HandlerParametres;
 import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.classloader.WorkflowEngineApiClassLoader;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 
 import java.beans.BeanInfo;
@@ -25,14 +25,6 @@ import java.util.*;
 public class WorkflowEngineApiResourceHelper {
 
 	private final WorkflowEngineApi workflowEngineApi;
-	private final ExpedientDadaHelper expedientDadaHelper;
-	private final ExpedientHelper expedientHelper;
-	private final ExpedientDocumentHelper expedientDocumentHelper;
-	private final DocumentHelperV3 documentHelperV3;
-	private final PluginHelper pluginHelper;
-	private final AlertaHelper alertaHelper;
-	private final ExpedientInteressatHelper expedientInteressatHelper;
-	private final MailHelper mailHelper;
 
 	/**
 	 * Carrega la classe amb el nom especificat des del classloader.
@@ -159,20 +151,12 @@ public class WorkflowEngineApiResourceHelper {
 			deploymentId,
 			className,
 			HeliumBpmnHandler.class);
-		new BeanWrapperImpl(actionHandler).setPropertyValues(values);
+		HandlerParametres.injectar(actionHandler, values);
 		return actionHandler;
 	}
 
 	private ClassLoader getRepositoryClassLoader(String deploymentId) {
-		WorkflowEngineApiClassLoader classLoader = new WorkflowEngineApiClassLoader(workflowEngineApi,
-																					expedientDadaHelper,
-																					expedientHelper,
-																					expedientDocumentHelper,
-																					documentHelperV3,
-																					pluginHelper,
-																					alertaHelper,
-																					expedientInteressatHelper,
-																					mailHelper);
+		WorkflowEngineApiClassLoader classLoader = new WorkflowEngineApiClassLoader(workflowEngineApi);
 		WorkflowEngineApiClassLoader.setDeploymentId(deploymentId);
 		return classLoader;
 	}

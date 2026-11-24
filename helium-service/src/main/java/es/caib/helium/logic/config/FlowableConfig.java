@@ -1,5 +1,11 @@
 package es.caib.helium.logic.config;
 
+import es.caib.helium.logic.flowable.HeliumBpmnPreDeployer;
+import es.caib.helium.logic.flowable.HeliumDadesELResolver;
+import org.springframework.beans.factory.ObjectProvider;
+import es.caib.helium.logic.flowable.HeliumServiceTaskXMLConverter;
+import org.flowable.common.engine.impl.EngineDeployer;
+import org.flowable.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import es.caib.helium.logic.flowable.FlowableTaskEventListener;
 import es.caib.helium.logic.helper.*;
 import es.caib.helium.logic.intf.service.TascaService;
@@ -26,14 +32,46 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 	private final ComandaHelper comandaHelper;
 	private final TascaService tascaService;
 	private final ExpedientHelper expedientHelper;
+	private final ObjectProvider<ExpedientDadaHelper> expedientDadaHelperProvider;
+
+	static {
+		// Ha d'estar registrat abans que Flowable llegeixi cap BPMN (desplegaments i parseProcess)
+		HeliumServiceTaskXMLConverter.registrar();
+	}
 
 	@Override
 	public void configure(SpringProcessEngineConfiguration processEngineConfiguration) {
+		HeliumServiceTaskXMLConverter.registrar();
+		afegirHeliumPreDeployer(processEngineConfiguration);
+		afegirResolutorDadesHelium(
+			processEngineConfiguration,
+			processInstanceId -> expedientDadaHelperProvider.getObject().getDadesValors(null, processInstanceId, null));
 		processEngineConfiguration.setEventListeners(List.of(new CurrentDeploymentIdEventListener(processEngineConfiguration)));
 		List<FlowableEventListener> listeners = new ArrayList<>(((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().getEventListeners());
 		listeners.add(new FlowableTaskEventListener(processEngineConfiguration, comandaHelper, tascaService, expedientHelper));
 		((TaskServiceImpl) processEngineConfiguration.getTaskService()).getConfiguration().setEventListeners(listeners);
 		processEngineConfiguration.setUseClassForNameClassLoading(false);
+	}
+
+	/**
+	 * Fa que les expressions del motor vegin les dades de l'expedient (veure HeliumDadesELResolver). Es consulta
+	 * després de les variables del motor i abans dels beans.
+	 */
+	public static void afegirResolutorDadesHelium(
+			ProcessEngineConfigurationImpl processEngineConfiguration,
+			java.util.function.Function<String, Map<String, Object>> dadesProces) {
+		processEngineConfiguration.addPreDefaultELResolver(new HeliumDadesELResolver(dadesProces));
+	}
+
+	/** Afegeix el deployer que tradueix els atributs helium:* als de Flowable (veure HeliumBpmnPreDeployer). */
+	public static void afegirHeliumPreDeployer(ProcessEngineConfigurationImpl processEngineConfiguration) {
+		List<EngineDeployer> preDeployers = processEngineConfiguration.getCustomPreDeployers() != null
+			? new ArrayList<>(processEngineConfiguration.getCustomPreDeployers())
+			: new ArrayList<>();
+		if (preDeployers.stream().noneMatch(d -> d instanceof HeliumBpmnPreDeployer)) {
+			preDeployers.add(0, new HeliumBpmnPreDeployer());
+		}
+		processEngineConfiguration.setCustomPreDeployers(preDeployers);
 	}
 
 	@Slf4j

@@ -1,6 +1,7 @@
 package es.caib.helium.logic.helper;
 
 import aj.org.objectweb.asm.ClassReader;
+import es.caib.helium.bpmn.handler.HandlerParametres;
 import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.classloader.RecursListClassLoader;
 import es.caib.helium.logic.classloader.RecursRepositoryClassLoader;
@@ -11,9 +12,9 @@ import es.caib.helium.persistence.entity.Recurs;
 import es.caib.helium.persistence.repository.DefinicioProcesRepository;
 import es.caib.helium.persistence.repository.ExpedientTipusRepository;
 import es.caib.helium.persistence.repository.RecursRepository;
+import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
@@ -34,6 +35,7 @@ import java.util.jar.JarInputStream;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ExpedientTipusRecursHelper {
@@ -312,7 +314,7 @@ public class ExpedientTipusRecursHelper {
 			definicioProcesId,
 			className,
 			HeliumBpmnHandler.class);
-		new BeanWrapperImpl(actionHandler).setPropertyValues(values);
+		HandlerParametres.injectar(actionHandler, values);
 		return actionHandler;
 	}
 
@@ -346,7 +348,12 @@ public class ExpedientTipusRecursHelper {
 						replace(".class", "");
 					Class<?> clazz = classLoader.loadClass(className);
 					r.setHandler(HeliumBpmnHandler.class.isAssignableFrom(clazz));
-				} catch (ClassNotFoundException ignored) { }
+				} catch (ClassNotFoundException ignored) {
+				} catch (LinkageError ex) {
+					// P. ex. una classe compilada contra una versió antiga de helium-disseny: es desa el recurs però
+					// no es marca com a handler
+					log.warn("No s'ha pogut carregar la classe del recurs {}: {}", r.getNom(), ex.toString());
+				}
 			});
 	}
 

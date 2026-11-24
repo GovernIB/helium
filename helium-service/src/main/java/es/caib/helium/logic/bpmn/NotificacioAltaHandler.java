@@ -19,7 +19,6 @@ import java.util.zip.ZipOutputStream;
 import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
 import es.caib.helium.bpmn.model.*;
 import org.apache.commons.lang.StringUtils;
-import org.flowable.common.engine.api.delegate.Expression;
 import org.springframework.security.crypto.codec.Base64;
 
 import es.caib.helium.bpmn.api.HeliumApi;
@@ -34,179 +33,123 @@ import lombok.Setter;
 @Setter
 public class NotificacioAltaHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.NotificacioAltaHandler {
 
-	private Expression caducitat;
-	private Expression varCaducitat;
+	private String caducitat;
 
-	private Expression concepte;
-	private Expression varConcepte;
+	private String concepte;
 
-	private Expression serveiTipus;
-	private Expression varServeiTipus;
+	private String serveiTipus;
 
-	private Expression grupCodi;
-	private Expression varGrupCodi;
+	private String grupCodi;
 
-	private Expression descripcio;
-	private Expression varDescripcio;
+	private String descripcio;
 
-	private Expression document;
-	private Expression varDocument;
+	private String document;
 
-	private Expression emisorDir3Codi;
-	private Expression varEmisorDir3Codi;
+	private String emisorDir3Codi;
 
-	private Expression destinatariDir3Codi;
-	private Expression varDestinatariDir3Codi;
+	private String destinatariDir3Codi;
 
-	private Expression enviamentTipus;	// Possibles valors: [NOTIFICACIO, COMUNICACIO]
-	private Expression varEnviamentTipus;
+	private String enviamentTipus;	// Possibles valors: [NOTIFICACIO, COMUNICACIO]
 
-	private Expression enviamentDataProgramada;
-	private Expression varEnviamentDataProgramada;
+	private String enviamentDataProgramada;
 
-	private Expression retard;
-	private Expression varRetard;
+	private String retard;
 
 
-	private Expression procedimentCodi;
-	private Expression varProcedimentCodi;
+	private String procedimentCodi;
 
-	private Expression idioma;	// Possibles valors [ES, CA]
-	private Expression varIdioma;
+	private String idioma;	// Possibles valors [ES, CA]
 
 
 	// ENVIAMENT
 	// Titular
-	private Expression titularNif;
-	private Expression varTitularNif;
+	private String titularNif;
 
-	private Expression titularNom;
-	private Expression varTitularNom;
+	private String titularNom;
 
-	private Expression titularLlin1;
-	private Expression varTitularLlin1;
+	private String titularLlin1;
 
-	private Expression titularLlin2;
-	private Expression varTitularLlin2;
+	private String titularLlin2;
 
-	private Expression titularEmail;
-	private Expression varTitularEmail;
+	private String titularEmail;
 
-	private Expression titularMobil;
-	private Expression varTitularMobil;
+	private String titularMobil;
 
-	private Expression titularCodiDir3;
-	private Expression varTitularCodiDir3;
+	private String titularCodiDir3;
 
-	private Expression titularTipus;
-	private Expression varTitularTipus;
+	private String titularTipus;
 
 	// Destinatari
-	private Expression destinatariNif;
-	private Expression varDestinatariNif;
+	private String destinatariNif;
 
-	private Expression destinatariNom;
-	private Expression varDestinatariNom;
+	private String destinatariNom;
 
-	private Expression destinatariLlin1;
-	private Expression varDestinatariLlin1;
+	private String destinatariLlin1;
 
-	private Expression destinatariLlin2;
-	private Expression varDestinatariLlin2;
+	private String destinatariLlin2;
 
-	private Expression destinatariEmail;
-	private Expression varDestinatariEmail;
+	private String destinatariEmail;
 
-	private Expression destinatariMobil;
-	private Expression varDestinatariMobil;
+	private String destinatariMobil;
 
-	private Expression destinatariCodiDir3;
-	private Expression varDestinatariCodiDir3;
+	private String destinatariCodiDir3;
 
-	private Expression destinatariTipus;
-	private Expression varDestinatariTipus;
+	private String destinatariTipus;
 
 	// Dades d'entrega
-	private Expression entregaPostalActiva;
-	private Expression varEntregaPostalActiva;
+	private String entregaPostalActiva;
 
-	private Expression entregaPostalTipus; // Possibles valors: [NACIONAL, ESTRANGER, APARTAT_CORREUS, SENSE_NORMALITZAR]
-	private Expression varEntregaPostalTipus;
+	private String entregaPostalTipus; // Possibles valors: [NACIONAL, ESTRANGER, APARTAT_CORREUS, SENSE_NORMALITZAR]
 
-	private Expression  entregaPostalViaTipus; // Possibles valors: [ALAMEDA, CALLE, CAMINO, CARRER, CARRETERA, GLORIETA, KALEA, PASAJE, PASEO, PLAÇA, PLAZA, RAMBLA, RONDA,	RUA, SECTOR, TRAVESIA, URBANIZACION, AVENIDA, AVINGUDA, BARRIO, CALLEJA, CAMI, CAMPO, CARRERA, CUESTA, EDIFICIO, ENPARANTZA, ESTRADA, JARDINES, JARDINS, PARQUE, PASSEIG, PRAZA, PLAZUELA, PLACETA, POBLADO, VIA, TRAVESSERA, PASSATGE, BULEVAR, POLIGONO, OTROS]
-	private Expression  varEntregaPostalViaTipus;
+	private String  entregaPostalViaTipus; // Possibles valors: [ALAMEDA, CALLE, CAMINO, CARRER, CARRETERA, GLORIETA, KALEA, PASAJE, PASEO, PLAÇA, PLAZA, RAMBLA, RONDA,	RUA, SECTOR, TRAVESIA, URBANIZACION, AVENIDA, AVINGUDA, BARRIO, CALLEJA, CAMI, CAMPO, CARRERA, CUESTA, EDIFICIO, ENPARANTZA, ESTRADA, JARDINES, JARDINS, PARQUE, PASSEIG, PRAZA, PLAZUELA, PLACETA, POBLADO, VIA, TRAVESSERA, PASSATGE, BULEVAR, POLIGONO, OTROS]
 
-	private Expression entregaPostalViaNom;
-	private Expression varEntregaPostalViaNom;
+	private String entregaPostalViaNom;
 
-	private Expression entregaPostalNumeroCasa;
-	private Expression varEntregaPostalNumeroCasa;
+	private String entregaPostalNumeroCasa;
 
-	private Expression entregaPostalNumeroQualificador;
-	private Expression varEntregaPostalNumeroQualificador;
+	private String entregaPostalNumeroQualificador;
 
-	private Expression entregaPostalPuntKm;
-	private Expression varEntregaPostalPuntKm;
+	private String entregaPostalPuntKm;
 
-	private Expression entregaPostalApartatCorreus;
-	private Expression varEntregaPostalApartatCorreus;
+	private String entregaPostalApartatCorreus;
 
-	private Expression entregaPostalPortal;
-	private Expression varEntregaPostalPortal;
+	private String entregaPostalPortal;
 
-	private Expression entregaPostalEscala;
-	private Expression varEntregaPostalEscala;
+	private String entregaPostalEscala;
 
-	private Expression entregaPostalPlanta;
-	private Expression varEntregaPostalPlanta;
+	private String entregaPostalPlanta;
 
-	private Expression entregaPostalPorta;
-	private Expression varEntregaPostalPorta;
+	private String entregaPostalPorta;
 
-	private Expression entregaPostalBloc;
-	private Expression varEntregaPostalBloc;
+	private String entregaPostalBloc;
 
-	private Expression entregaPostalComplement;
-	private Expression varEntregaPostalComplement;
+	private String entregaPostalComplement;
 
-	private Expression entregaPostalCodiPostal;
-	private Expression varEntregaPostalCodiPostal;
+	private String entregaPostalCodiPostal;
 
-	private Expression entregaPostalPoblacio;
-	private Expression varEntregaPostalPoblacio;
+	private String entregaPostalPoblacio;
 
-	private Expression entregaPostalMunicipiCodi;
-	private Expression varEntregaPostalMunicipiCodi;
+	private String entregaPostalMunicipiCodi;
 
-	private Expression entregaPostalProvinciaCodi;
-	private Expression varEntregaPostalProvinciaCodi;
+	private String entregaPostalProvinciaCodi;
 
-	private Expression entregaPostalPaisCodi;
-	private Expression varEntregaPostalPaisCodi;
+	private String entregaPostalPaisCodi;
 
-	private Expression entregaPostalLinea1;
-	private Expression varEntregaPostalLinea1;
+	private String entregaPostalLinea1;
 
-	private Expression entregaPostalLinea2;
-	private Expression varEntregaPostalLinea2;
+	private String entregaPostalLinea2;
 
-	private Expression entregaPostalCie;
-	private Expression varEntregaPostalCie;
+	private String entregaPostalCie;
 
-	private Expression entregaPostalFormatSobre;
-	private Expression varEntregaPostalFormatSobre;
+	private String entregaPostalFormatSobre;
 
-	private Expression entregaPostalFormatFulla;
-	private Expression varEntregaPostalFormatFulla;
+	private String entregaPostalFormatFulla;
 
-	private Expression entregaDehActiva;
-	private Expression varEntregaDehActiva;
+	private String entregaDehActiva;
 
-	private Expression entregaDehObligat;
-	private Expression varEntregaDehObligat;
+	private String entregaDehObligat;
 
-	private Expression entregaDehProcedimentCodi;
-	private Expression varEntregaDehProcedimentCodi;
+	private String entregaDehProcedimentCodi;
 
 
 	public void execute(HeliumApi heliumApi) throws BpmnException {
@@ -217,10 +160,10 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 
 		DadesNotificacio dadesNotificacio = new DadesNotificacio();
 
-		String emisorCodi = getValue(emisorDir3Codi);
+		String emisorCodi = emisorDir3Codi;
 		dadesNotificacio.setEmisorDir3Codi(emisorCodi != null ? emisorCodi : notibEmisor);
 
-		String strTipusEnviament = getValue(enviamentTipus);
+		String strTipusEnviament = enviamentTipus;
 
 		DadesNotificacio.EnviamentTipus enviamentTipus =
 				"COMUNICACIO".equalsIgnoreCase(strTipusEnviament) ?
@@ -229,21 +172,21 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 
 		dadesNotificacio.setEnviamentTipus(enviamentTipus);
 
-		dadesNotificacio.setConcepte(heliumApi.getVariableDefaultValue(getValue(varConcepte), getValue(concepte)));
+		dadesNotificacio.setConcepte(concepte);
 
-		String serveiTipusStr = heliumApi.getVariableDefaultValue(getValue(varServeiTipus), getValue(serveiTipus));
+		String serveiTipusStr = serveiTipus;
 		if(serveiTipusStr != null)
 			dadesNotificacio.setServeiTipus(serveiTipusStr);
 
-		dadesNotificacio.setGrupCodi(heliumApi.getVariableDefaultValue(getValue(varGrupCodi), getValue(grupCodi)));
+		dadesNotificacio.setGrupCodi(grupCodi);
 
-		dadesNotificacio.setDescripcio(heliumApi.getVariableDefaultValue(getValue(varDescripcio), getValue(descripcio)));
+		dadesNotificacio.setDescripcio(descripcio);
 
-		dadesNotificacio.setEnviamentDataProgramada(getValueAsDate(enviamentDataProgramada));
-		dadesNotificacio.setRetard(heliumApi.getVariableDefaultValueAsInteger(getValue(varRetard), getValueAsInteger(retard)));
-		dadesNotificacio.setCaducitat(heliumApi.getVariableDefaultValueAsDate(getValue(varCaducitat), getValueAsDate(caducitat)));
+		dadesNotificacio.setEnviamentDataProgramada(asDate(enviamentDataProgramada));
+		dadesNotificacio.setRetard(asInteger(retard));
+		dadesNotificacio.setCaducitat(asDate(caducitat));
 
-		String idioma = getValue(this.idioma);
+		String idioma = this.idioma;
 		if (idioma != null) {
 			try {
 				dadesNotificacio.setIdioma(DadesNotificacio.Idioma.valueOf(idioma));
@@ -254,7 +197,7 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 		DocumentInfo documentInfo = null;
 		List<DocumentInfo> annexos_notificacio = new ArrayList<DocumentInfo>();
 
-		String doc = getValue(document);
+		String doc = document;
 		boolean multiDocumentsZip = false;
 		if (doc != null && !doc.isEmpty()) {
 			List<DocumentInfo> documentsPerNotificar = new ArrayList<DocumentInfo>();
@@ -300,7 +243,7 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 			throw new BpmnException("No s'ha informat cap document per notificar.");
 		}
 
-		String codiProcediment = getValue(procedimentCodi);
+		String codiProcediment = procedimentCodi;
 		dadesNotificacio.setProcedimentCodi(codiProcediment != null ? codiProcediment : notibProcedimentCodi);
 
 
@@ -325,18 +268,18 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 		DadesEnviament enviament = new DadesEnviament();
 
 		PersonaInfo titular = new PersonaInfo();
-		titular.setNom(getValue(titularNom));
-		titular.setLlinatge1(getValue(titularLlin1));
-		titular.setLlinatge2(getValue(titularLlin2));
-		titular.setDni(getValue(titularNif));
-		titular.setCodiDir3(getValue(titularCodiDir3));
+		titular.setNom(titularNom);
+		titular.setLlinatge1(titularLlin1);
+		titular.setLlinatge2(titularLlin2);
+		titular.setDni(titularNif);
+		titular.setCodiDir3(titularCodiDir3);
 
-		titular.setTipus(getValue(titularTipus));
-		String mobil = getValue(titularMobil);
+		titular.setTipus(titularTipus);
+		String mobil = titularMobil;
 		if (mobil == null || mobil.isEmpty())
 			mobil = expedient.getAvisosMobil();
 		titular.setTelefon(mobil);
-		String email = getValue(titularEmail);
+		String email = titularEmail;
 		if (email == null || email.isEmpty())
 			email = expedient.getAvisosEmail();
 		titular.setEmail(email);
@@ -344,56 +287,56 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 
 		List<PersonaInfo> destinataris = new ArrayList<PersonaInfo>();
 		PersonaInfo destinatari = new PersonaInfo();
-		destinatari.setNom(getValue(destinatariNom));
-		destinatari.setLlinatge1(getValue(destinatariLlin1));
-		destinatari.setLlinatge2(getValue(destinatariLlin2));
-		destinatari.setDni(getValue(destinatariNif));
-		destinatari.setTelefon(getValue(destinatariMobil));
-		destinatari.setEmail(getValue(destinatariEmail));
-		destinatari.setCodiDir3(getValue(destinatariCodiDir3));
-		destinatari.setTipus(getValue(destinatariTipus));
+		destinatari.setNom(destinatariNom);
+		destinatari.setLlinatge1(destinatariLlin1);
+		destinatari.setLlinatge2(destinatariLlin2);
+		destinatari.setDni(destinatariNif);
+		destinatari.setTelefon(destinatariMobil);
+		destinatari.setEmail(destinatariEmail);
+		destinatari.setCodiDir3(destinatariCodiDir3);
+		destinatari.setTipus(destinatariTipus);
 		// El destinatari no és obligatori, s'afegeix si s'ha escollit el tipus
 		if (destinatari.getTipus() != null) {
 			destinataris.add(destinatari);
 		}
 		enviament.setDestinataris(destinataris);
 
-		String strEntragaPostalTipus = getValue(entregaPostalTipus);
+		String strEntragaPostalTipus = entregaPostalTipus;
 
 		if (strEntragaPostalTipus != null && !strEntragaPostalTipus.isEmpty())
 			enviament.setEntregaPostalTipus(DadesEnviament.EntregaPostalTipus.valueOf(strEntragaPostalTipus));
 
-		Boolean entregaPostalActivaVal = getValueAsBoolean(entregaPostalActiva);
+		Boolean entregaPostalActivaVal = asBoolean(entregaPostalActiva);
 		enviament.setEntregaPostalActiva(false); //(entregaPostalActivaVal != null ? entregaPostalActivaVal.booleanValue() : false); //Forcem false issue #1675
-		String strEntregaPostalViaTipus = getValue(entregaPostalViaTipus);
+		String strEntregaPostalViaTipus = entregaPostalViaTipus;
 		if (strEntregaPostalViaTipus != null && !strEntregaPostalViaTipus.isEmpty())
 			enviament.setEntregaPostalViaTipus(DadesEnviament.EntregaPostalViaTipus.valueOf(strEntregaPostalViaTipus));
-		enviament.setEntregaPostalViaNom(getValue(entregaPostalViaNom));
-		enviament.setEntregaPostalNumeroCasa(getValue(entregaPostalNumeroCasa));
-		enviament.setEntregaPostalNumeroQualificador(getValue(entregaPostalNumeroQualificador));
-		enviament.setEntregaPostalPuntKm(getValue(entregaPostalPuntKm));
-		enviament.setEntregaPostalApartatCorreus(getValue(entregaPostalApartatCorreus));
-		enviament.setEntregaPostalPortal(getValue(entregaPostalPortal));
-		enviament.setEntregaPostalEscala(getValue(entregaPostalEscala));
-		enviament.setEntregaPostalPlanta(getValue(entregaPostalPlanta));
-		enviament.setEntregaPostalPorta(getValue(entregaPostalPorta));
-		enviament.setEntregaPostalBloc(getValue(entregaPostalBloc));
-		enviament.setEntregaPostalComplement(getValue(entregaPostalComplement));
-		enviament.setEntregaPostalCodiPostal(getValue(entregaPostalCodiPostal));
-		enviament.setEntregaPostalPoblacio(getValue(entregaPostalPoblacio));
-		enviament.setEntregaPostalMunicipiCodi(getValue(entregaPostalMunicipiCodi));
-		enviament.setEntregaPostalProvinciaCodi(getValue(entregaPostalProvinciaCodi));
-		enviament.setEntregaPostalPaisCodi(getValue(entregaPostalPaisCodi));
-		enviament.setEntregaPostalLinea1(getValue(entregaPostalLinea1));
-		enviament.setEntregaPostalLinea2(getValue(entregaPostalLinea2));
-		enviament.setEntregaPostalCie(getValueAsInteger(entregaPostalCie));
-		enviament.setEntregaPostalFormatSobre(getValue(entregaPostalFormatSobre));
-		enviament.setEntregaPostalFormatFulla(getValue(entregaPostalFormatFulla));
-		Boolean entregaDehActivaVal = getValueAsBoolean(entregaDehActiva);
+		enviament.setEntregaPostalViaNom(entregaPostalViaNom);
+		enviament.setEntregaPostalNumeroCasa(entregaPostalNumeroCasa);
+		enviament.setEntregaPostalNumeroQualificador(entregaPostalNumeroQualificador);
+		enviament.setEntregaPostalPuntKm(entregaPostalPuntKm);
+		enviament.setEntregaPostalApartatCorreus(entregaPostalApartatCorreus);
+		enviament.setEntregaPostalPortal(entregaPostalPortal);
+		enviament.setEntregaPostalEscala(entregaPostalEscala);
+		enviament.setEntregaPostalPlanta(entregaPostalPlanta);
+		enviament.setEntregaPostalPorta(entregaPostalPorta);
+		enviament.setEntregaPostalBloc(entregaPostalBloc);
+		enviament.setEntregaPostalComplement(entregaPostalComplement);
+		enviament.setEntregaPostalCodiPostal(entregaPostalCodiPostal);
+		enviament.setEntregaPostalPoblacio(entregaPostalPoblacio);
+		enviament.setEntregaPostalMunicipiCodi(entregaPostalMunicipiCodi);
+		enviament.setEntregaPostalProvinciaCodi(entregaPostalProvinciaCodi);
+		enviament.setEntregaPostalPaisCodi(entregaPostalPaisCodi);
+		enviament.setEntregaPostalLinea1(entregaPostalLinea1);
+		enviament.setEntregaPostalLinea2(entregaPostalLinea2);
+		enviament.setEntregaPostalCie(asInteger(entregaPostalCie));
+		enviament.setEntregaPostalFormatSobre(entregaPostalFormatSobre);
+		enviament.setEntregaPostalFormatFulla(entregaPostalFormatFulla);
+		Boolean entregaDehActivaVal = asBoolean(entregaDehActiva);
 		enviament.setEntregaDehActiva(entregaDehActivaVal != null? entregaDehActivaVal.booleanValue() : false );
-		Boolean entregaDehObligatVal = getValueAsBoolean(entregaDehObligat);
+		Boolean entregaDehObligatVal = asBoolean(entregaDehObligat);
 		enviament.setEntregaDehObligat(entregaDehObligatVal != null ? entregaDehObligatVal : false);
-		enviament.setEntregaDehProcedimentCodi(getValue(entregaDehProcedimentCodi));
+		enviament.setEntregaDehProcedimentCodi(entregaDehProcedimentCodi);
 
 		enviaments.add(enviament);
 		dadesNotificacio.setEnviaments(enviaments);
