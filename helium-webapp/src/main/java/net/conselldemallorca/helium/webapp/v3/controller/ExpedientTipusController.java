@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import es.caib.plugins.arxiu.caib.ArxiuCaibException;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
@@ -607,7 +608,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		return "v3/expedientTipusImportarForm";
 	}	
 	
-	/** Carrega el formulari per ajax i mostra les opcions per importar les dades del fitxer importat. */
+	/** Carrega el formulari per ajax i mostra les opcions per importar les dades del fitxer importat. 
+	 * @throws Exception */
 	@RequestMapping(value = "/importar/upload", method = RequestMethod.POST)
 	public String importarUploadPost(
 			HttpServletRequest request,
@@ -615,32 +617,38 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@ModelAttribute("command")
 			ExpedientTipusExportarCommand command,
 			BindingResult bindingResult,
-			Model model) {
-
-		// Processament del fitxer fet en el validador ExpedientTipusUploadValidator
-		ExpedientTipusExportacio exportacio = command.getExportacio(); 	
-		
-		if (bindingResult.hasErrors()) {
-			// es limitarà a mostrar els errors de validació
-		}
-		command.setIntegracioSistra(true);
-		command.setIntegracioForms(true);
-		if (exportacio != null) {
-			if (exportacio.getExpedientTipusPareCodi() != null) {
-				command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
-				command.setTasquesHerencia(true);
+			Model model) throws Exception {
+		try {
+			// Processament del fitxer fet en el validador ExpedientTipusUploadValidator
+			ExpedientTipusExportacio exportacio = command.getExportacio();
+			
+			if (bindingResult.hasErrors()) {
+				// es limitarà a mostrar els errors de validació
+			}
+			command.setIntegracioSistra(true);
+			command.setIntegracioForms(true);
+			if (exportacio != null) {
+				if (exportacio.getExpedientTipusPareCodi() != null) {
+					command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
+					command.setTasquesHerencia(true);
+				}
+				
+				command.setNtiActiu(exportacio.isNtiActiu());
+				command.setNtiSerieDocumental(exportacio.getNtiSerieDocumental());
+				
+				EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+				this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, request, model);			
 			}
 			
-			command.setNtiActiu(exportacio.isNtiActiu());
-			command.setNtiSerieDocumental(exportacio.getNtiSerieDocumental());
-			
-		 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, request, model);			
+			model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
+			model.addAttribute("command", command);
+		} catch(Exception ex) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(request, "error.inesperat"), 
+					ex);
+			throw ex;
 		}
-		
-		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
-		model.addAttribute("command", command);
-
 		return "v3/expedientTipusImportarOpcions";
 	}	
 
@@ -760,13 +768,23 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			}
 		}
 		
-		if(exportacio.isArxiuActiu() && !expedientTipusService.arxiuCheckSerieDocumental(
-				exportacio.getNtiSerieDocumental(),
-				exportacio.getNtiOrgano(),
-				exportacio.getNtiClasificacion())) {
+		boolean checkSerieDocumental = false;
+		try {
+			checkSerieDocumental = expedientTipusService.arxiuCheckSerieDocumental(
+					exportacio.getNtiSerieDocumental(),
+					exportacio.getNtiOrgano(),
+					exportacio.getNtiClasificacion());
+		} catch(ArxiuCaibException ex) {
+			checkSerieDocumental = true;
+			MissatgesHelper.warning(
+					request,
+					ex.getMessage());
+		}
+		
+		if(exportacio.isArxiuActiu() && !checkSerieDocumental) {
 			model.addAttribute("avisSerieDocumentalNoTrobada", true);
 		}
-	 	
+		
 		// Per indicar a la pàgina si s'ha pogut fer una importació del fitxer.
 		model.addAttribute("fitxerImportat", exportacio != null);
 		

@@ -225,6 +225,8 @@
 	</bean>
 
 	<bean id="localeResolver" class="net.conselldemallorca.helium.webapp.mvc.util.IdiomaResolver" />
+	
+	<bean id="uploadExceptionHandler" class="net.conselldemallorca.helium.webapp.v3.config.UploadExceptionHandler" />
 
 	<bean name="arxiuView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuView"/>
 	<bean name="arxiuConvertirView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuConvertirView"/>

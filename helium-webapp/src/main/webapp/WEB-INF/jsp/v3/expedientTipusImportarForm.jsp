@@ -266,9 +266,10 @@
 				        	webutilAlertaError(errorMsg);
 				        },
 				        complete: function() {
-				        	$('#carregarButton').show();
+							$('#carregarButton').show();
 							$('progress').hide();
 							$('#carregant').hide();
+							webutilRefreshMissatges();
 				        },
 				        //Options to tell jQuery not to process data or worry about content-type.
 				        cache: false,
