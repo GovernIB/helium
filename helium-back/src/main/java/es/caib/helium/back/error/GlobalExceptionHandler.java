@@ -3,12 +3,14 @@
  */
 package es.caib.helium.back.error;
 
+import es.caib.helium.back.helper.MissatgesHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.ejb.EJBAccessException;
@@ -68,6 +70,18 @@ public class GlobalExceptionHandler {
 		errorObject.setStackTrace(ExceptionUtils.getStackTrace(ex));
 		model.addObject("errorObject", errorObject);
 		return model;
+	}
+
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	public ModelAndView handleMaxUploadSizeExceededException(
+		Exception ex,
+		HttpServletRequest request) {
+		if(ex instanceof MaxUploadSizeExceededException) {
+			MissatgesHelper.error(
+				request,
+				"El fitxer excedeix la mida màxima permesa");
+		}
+		return null;
 	}
 
 }

@@ -22,6 +22,7 @@ import es.caib.helium.commons.exportacio.DocumentExportacio;
 import es.caib.helium.commons.exportacio.ExpedientTipusExportacio;
 import es.caib.helium.commons.exportacio.ExpedientTipusExportacioCommandDto;
 import es.caib.helium.logic.intf.service.*;
+import es.caib.pluginsib.arxiu.caib.ArxiuCaibException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -555,47 +556,53 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		return "expedientTipusImportarForm";
 	}
 
-	/** Carrega el formulari per ajax i mostra les opcions per importar les dades del fitxer importat. */
+	/** Carrega el formulari per ajax i mostra les opcions per importar les dades del fitxer importat.
+	 * @throws Exception */
 	@RequestMapping(value = "/importar/upload", method = RequestMethod.POST)
 	public String importarUploadPost(
-			HttpServletRequest request,
-			@Validated(Upload.class)
-			@ModelAttribute("command")
-			ExpedientTipusExportarCommand command,
-			BindingResult bindingResult,
-			Model model) {
+		HttpServletRequest request,
+		@Validated(Upload.class)
+		@ModelAttribute("command")
+		ExpedientTipusExportarCommand command,
+		BindingResult bindingResult,
+		Model model) throws Exception {
+		try {
+			// Processament del fitxer fet en el validador ExpedientTipusUploadValidator
+			ExpedientTipusExportacio exportacio = command.getExportacio();
 
-		// Processament del fitxer fet en el validador ExpedientTipusUploadValidator
-		ExpedientTipusExportacio exportacio = command.getExportacio();
+			if (bindingResult.hasErrors()) {
+				// es limitarà a mostrar els errors de validació
+			}
+			command.setIntegracioSistra(true);
+			command.setIntegracioForms(true);
+			if (exportacio != null) {
+				if (exportacio.getExpedientTipusPareCodi() != null) {
+					command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
+					command.setTasquesHerencia(true);
+				}
 
-		if (bindingResult.hasErrors()) {
-			// es limitarà a mostrar els errors de validació
-		}
-		command.setIntegracioSistra(true);
-		command.setIntegracioForms(true);
-		if (exportacio != null) {
-			if (exportacio.getExpedientTipusPareCodi() != null) {
-				command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
-				command.setTasquesHerencia(true);
+				command.setNtiActiu(exportacio.isNtiActiu());
+				command.setNtiSerieDocumental(exportacio.getNtiSerieDocumental());
+
+				EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+				this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, request, model);
 			}
 
-			command.setNtiActiu(exportacio.isNtiActiu());
-			command.setNtiSerieDocumental(exportacio.getNtiSerieDocumental());
-
-		 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, request, model);
+			model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
+			model.addAttribute("command", command);
+		} catch(Exception ex) {
+			MissatgesHelper.error(
+				request,
+				getMessage(request, "error.inesperat"),
+				ex);
+			throw ex;
 		}
-
-		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
-		model.addAttribute("command", command);
-
-		return "expedientTipusImportarOpcions";
+		return "v3/expedientTipusImportarOpcions";
 	}
 
 	/** Acció d'enviament del fitxer i les opcions sobre les dades de l'expedient d'exportació.
 	 * La validació es fa en el <i>ExpedientTipusImportarValidator</i>.
 	 * @param request
-	 * @param expedientTipusId
 	 * @param command
 	 * @param bindingResult
 	 * @param model
@@ -670,16 +677,16 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	}
 
 	private void omplirModelFormulariImportacio(
-			Long entornId,
-			Long expedientTipusId,
-			ExpedientTipusExportacio exportacio,
-			HttpServletRequest request,
-			Model model) {
+		Long entornId,
+		Long expedientTipusId,
+		ExpedientTipusExportacio exportacio,
+		HttpServletRequest request,
+		Model model) {
 		ExpedientTipusDto dto = null;
 		if (expedientTipusId != null) {
 			dto = expedientTipusService.findAmbIdPermisDissenyar(
-					entornId,
-					expedientTipusId);
+				entornId,
+				expedientTipusId);
 			model.addAttribute("expedientTipus", dto);
 
 			// avisa si el codi de la exportació és diferent del codi al qual s'importa
@@ -687,31 +694,41 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				model.addAttribute("exportacio", exportacio);
 				model.addAttribute("avisImportacioExpedientTipusDiferent", true);
 			}
-	 	}
+		}
 		// Comprova si posar un avís que ja existeix un codi de procediment
 		if (exportacio.isDistribucioActiu()) {
 			ExpedientTipusDto expedientTipusPerDistribucio =
-					expedientTipusService.findPerDistribucio(exportacio.getDistribucioCodiProcediment(), exportacio.getDistribucioCodiProcediment());
+				expedientTipusService.findPerDistribucio(exportacio.getDistribucioCodiProcediment(), exportacio.getDistribucioCodiProcediment());
 			if (expedientTipusPerDistribucio != null
-					&& !expedientTipusPerDistribucio.getId().equals(expedientTipusId) ) {
+				&& !expedientTipusPerDistribucio.getId().equals(expedientTipusId) ) {
 				model.addAttribute("avisImportacioPerDistribucioTipusDiferent",
-							this.getMessage(request,
-									"expedient.tipus.importar.form.avis.distribucio.procediment.diferent",
-									new Object[] {
-											expedientTipusPerDistribucio.getCodi(),
-											expedientTipusPerDistribucio.getNom(),
-											expedientTipusPerDistribucio.getEntorn().getCodi(),
-											expedientTipusPerDistribucio.getEntorn().getNom(),
-											exportacio.getDistribucioCodiProcediment(),
-											exportacio.getDistribucioCodiAssumpte() != null ? exportacio.getDistribucioCodiAssumpte() : ""
-									}));
+					this.getMessage(request,
+						"expedient.tipus.importar.form.avis.distribucio.procediment.diferent",
+						new Object[] {
+							expedientTipusPerDistribucio.getCodi(),
+							expedientTipusPerDistribucio.getNom(),
+							expedientTipusPerDistribucio.getEntorn().getCodi(),
+							expedientTipusPerDistribucio.getEntorn().getNom(),
+							exportacio.getDistribucioCodiProcediment(),
+							exportacio.getDistribucioCodiAssumpte() != null ? exportacio.getDistribucioCodiAssumpte() : ""
+						}));
 			}
 		}
 
-		if(exportacio.isArxiuActiu() && !expedientTipusService.arxiuCheckSerieDocumental(
+		boolean checkSerieDocumental = false;
+		try {
+			checkSerieDocumental = expedientTipusService.arxiuCheckSerieDocumental(
 				exportacio.getNtiSerieDocumental(),
 				exportacio.getNtiOrgano(),
-				exportacio.getNtiClasificacion())) {
+				exportacio.getNtiClasificacion());
+		} catch(ArxiuCaibException ex) {
+			checkSerieDocumental = true;
+			MissatgesHelper.warning(
+				request,
+				ex.getMessage());
+		}
+
+		if(exportacio.isArxiuActiu() && !checkSerieDocumental) {
 			model.addAttribute("avisSerieDocumentalNoTrobada", true);
 		}
 
@@ -726,7 +743,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				if (responsableCodi != null) {
 					try {
 						aplicacioService.findPersonaAmbCodi(
-								responsableCodi);
+							responsableCodi);
 					} catch (NoTrobatException nte) {
 						model.addAttribute("exportacio", exportacio);
 						model.addAttribute("avisResonsableNoTrobat", true);
