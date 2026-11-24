@@ -86,6 +86,16 @@ activat. No cal compilar res ni tenir Node.
 
 `RepositoriPluginsTest` comprova que IntelliJ pot llegir `dist/updatePlugins.xml` i que el ZIP que anuncia és a `dist/`.
 
+## Si la pestanya Disseny es veu buida
+
+- Si la pàgina no es carrega o l'editor no respon en 20 segons, la pestanya mostra un avís amb el motiu i accions per
+  tornar-ho a provar, obrir les DevTools del navegador o obrir el registre de l'IDE.
+- Cada pas de la càrrega, i els errors de la consola de JavaScript, queden al registre (*Help → Show Log in Files*,
+  línies `Editor BPMN de <fitxer>`). El menú del botó dret de la pestanya té *Open DevTools*.
+- Si el registre diu `editor preparat` però la pestanya continua buida, el navegador de l'IDE no pinta: la vista prèvia
+  de Markdown també es veurà buida. Es resol activant `ide.browser.jcef.gpu.disable` a *Help → Find Action → Registry*
+  i reiniciant l'IDE.
+
 ## Limitacions
 
 - Requereix IntelliJ IDEA 2026.3 o posterior (`pluginSinceBuild`). Per suportar versions anteriors cal compilar contra la

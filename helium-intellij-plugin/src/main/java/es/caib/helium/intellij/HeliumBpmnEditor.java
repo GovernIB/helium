@@ -89,6 +89,7 @@ final class HeliumBpmnEditor extends UserDataHolderBase implements FileEditor, D
 	private final Alarm alarm;
 	private final Alarm alarmHandlers;
 	private final Alarm alarmTema;
+	private final DiagnosticEditor diagnostic;
 	/** Codi JavaScript que envia un missatge al plugin (veure {@link RecursosEditor#paginaEditor}). */
 	private final String codiEnviar;
 
@@ -115,11 +116,14 @@ final class HeliumBpmnEditor extends UserDataHolderBase implements FileEditor, D
 		this.file = file;
 		this.document = FileDocumentManager.getInstance().getDocument(file);
 		if (!JBCefApp.isSupported() || document == null) {
+			LOG.warn("No es pot obrir l'editor BPMN de " + file.getPath()
+					+ (document == null ? ": el fitxer no es pot llegir com a text" : ": JCEF no està disponible"));
 			this.browser = null;
 			this.alarm = null;
 			this.alarmHandlers = null;
 			this.alarmTema = null;
 			this.codiEnviar = null;
+			this.diagnostic = null;
 			this.component = new JBLabel(
 					document == null
 							? "No s'ha pogut obrir el fitxer com a text."
@@ -127,11 +131,14 @@ final class HeliumBpmnEditor extends UserDataHolderBase implements FileEditor, D
 					SwingConstants.CENTER);
 			return;
 		}
-		this.browser = JBCefBrowser.createBuilder().build();
+		LOG.info("Obrint l'editor BPMN de " + file.getPath());
+		// "Open DevTools" al menú del botó dret, per veure els errors de l'editor
+		this.browser = JBCefBrowser.createBuilder().setEnableOpenDevToolsMenuItem(true).build();
 		Disposer.register(this, browser);
 		this.alarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, this);
 		this.alarmHandlers = new Alarm(Alarm.ThreadToUse.SWING_THREAD, this);
 		this.alarmTema = new Alarm(Alarm.ThreadToUse.SWING_THREAD, this);
+		this.diagnostic = new DiagnosticEditor(this, project, file.getName(), browser, this::recarregar);
 
 		JBCefJSQuery query = JBCefJSQuery.create((JBCefBrowserBase) browser);
 		Disposer.register(this, query);
@@ -181,8 +188,25 @@ final class HeliumBpmnEditor extends UserDataHolderBase implements FileEditor, D
 			}
 		});
 
-		browser.loadURL(RecursosEditor.URL_EDITOR);
-		this.component = browser.getComponent();
+		carregarPagina(RecursosEditor.URL_EDITOR);
+		this.component = diagnostic.component();
+	}
+
+	private void carregarPagina(String url) {
+		diagnostic.carregant(url);
+		browser.loadURL(url);
+	}
+
+	/** Torna a carregar la pàgina de l'editor; el diagrama surt del document i l'editor conserva la vista. */
+	private void recarregar() {
+		if (disposed) {
+			return;
+		}
+		carregat = false;
+		alarm.cancelAllRequests();
+		alarmHandlers.cancelAllRequests();
+		// URL diferent a cada recàrrega: el navegador no pot reaprofitar la pàgina anterior
+		carregarPagina(RecursosEditor.URL_EDITOR + "?v=" + (++recarregues));
 	}
 
 	private static void programar(Alarm alarm, Runnable accio, int retard) {
@@ -202,11 +226,7 @@ final class HeliumBpmnEditor extends UserDataHolderBase implements FileEditor, D
 		LOG.info("Tema de l'IDE canviat: es torna a carregar l'editor BPMN de " + file.getName() + " (" + nou + ")");
 		tema = nou;
 		pagina = RecursosEditor.paginaEditor(codiEnviar, nou);
-		carregat = false;
-		alarm.cancelAllRequests();
-		alarmHandlers.cancelAllRequests();
-		// URL diferent a cada recàrrega: el navegador no pot reaprofitar la pàgina anterior
-		browser.loadURL(RecursosEditor.URL_EDITOR + "?v=" + (++recarregues));
+		recarregar();
 	}
 
 	/** Colors de l'editor a partir de l'esquema de colors de l'editor de text de l'IDE. */
@@ -241,7 +261,10 @@ final class HeliumBpmnEditor extends UserDataHolderBase implements FileEditor, D
 		}
 		String tipus = missatge.has("tipus") ? missatge.get("tipus").getAsString() : "";
 		switch (tipus) {
-			case "preparat" -> carregar();
+			case "preparat" -> {
+				diagnostic.editorPreparat();
+				carregar();
+			}
 			case "canvi" -> aplicarCanvi(missatge.get("xml").getAsString());
 			case "desfer" -> desferORefer(true);
 			case "refer" -> desferORefer(false);
