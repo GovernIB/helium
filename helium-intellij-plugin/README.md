@@ -53,17 +53,38 @@ cd helium-intellij-plugin
   `platformVersion`).
 - `buildPlugin` compila l'editor amb `npm run build`. Amb `-PsenseBuildDesigner` es fa servir el `dist/` de l'editor
   que ja hi hagi.
-- El plugin queda a `build/distributions/helium-intellij-plugin-<versió>.zip`. Per a una entrega es pot fixar la versió
-  amb `-PpluginVersion=<versió>` (o a `gradle.properties`); IntelliJ la fa servir per saber si un ZIP és una actualització.
+- El plugin queda a `build/distributions/helium-intellij-plugin-<versió>.zip`. Per distribuir-lo, vegeu *Publicar una
+  versió nova*.
 
 ## Instal·lar
 
-El ZIP per passar als desenvolupadors es guarda a `dist/` (s'hi ha de copiar el de `build/distributions/` cada cop que
-es genera una versió nova). S'instal·la, sense descomprimir-lo, des de *Settings → Plugins → ⚙ → Install Plugin from
-Disk...* i reiniciant l'IDE; per actualitzar-lo es fa igual amb el ZIP nou.
+El plugin es distribueix des d'un repositori de plugins propi: el directori `dist/` d'aquest mòdul publicat a la
+branca `helium-4.0` de GitHub. Així IntelliJ sap d'on ve el plugin (sense l'avís *Cannot update plugin*) i n'instal·la
+sol les versions noves.
+
+1. *Settings → Plugins → ⚙ → Manage Plugin Repositories...*, afegir
+   `https://raw.githubusercontent.com/GovernIB/helium/helium-4.0/helium-intellij-plugin/dist/updatePlugins.xml`
+2. A la pestanya *Marketplace* de *Plugins*, cercar **Helium BPMN**, instal·lar-lo i reiniciar l'IDE.
+
+Si ja estava instal·lat des del disc, n'hi ha prou amb afegir el repositori: IntelliJ hi troba el plugin en arrencar i
+el fa servir com a origen de les actualitzacions.
+
+Sense repositori també es pot instal·lar el ZIP de `dist/` amb *⚙ → Install Plugin from Disk...*, però llavors
+IntelliJ avisa que no pot actualitzar-lo.
 
 Cal IntelliJ IDEA 2026.3 o posterior amb el runtime per defecte (JetBrains Runtime, que porta JCEF) i el plugin Java
 activat. No cal compilar res ni tenir Node.
+
+## Publicar una versió nova
+
+1. Augmentar `pluginVersion` a `gradle.properties` (no pot ser `SNAPSHOT`: IntelliJ compara versions per saber si hi
+   ha una actualització).
+2. `./gradlew distribuir -PplatformLocalPath=/ruta/a/intellij-idea`: compila el plugin, en copia el ZIP a `dist/`
+   (esborrant l'anterior) i genera `dist/updatePlugins.xml` amb la versió i la URL de `pluginRepositoryUrl`.
+3. Fer commit de `dist/` i portar-lo a la branca `helium-4.0` de GitHub. Fins llavors la URL del repositori no té la
+   versió nova.
+
+`RepositoriPluginsTest` comprova que IntelliJ pot llegir `dist/updatePlugins.xml` i que el ZIP que anuncia és a `dist/`.
 
 ## Limitacions
 

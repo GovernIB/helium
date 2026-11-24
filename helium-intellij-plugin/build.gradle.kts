@@ -91,3 +91,53 @@ tasks.processResources {
         into("helium")
     }
 }
+
+// --- Distribució: repositori de plugins propi ----------------------------------------------------------------------
+
+/**
+ * Prepara dist/ per publicar-lo: el ZIP del plugin i updatePlugins.xml, el fitxer que IntelliJ llegeix d'un
+ * repositori de plugins propi (Settings → Plugins → ⚙ → Manage Plugin Repositories). Amb el repositori configurat,
+ * IntelliJ sap d'on ve el plugin (sense l'avís "Cannot update plugin") i n'instal·la les versions noves.
+ *
+ * dist/ es publica a la URL de pluginRepositoryUrl (la branca helium-4.0 de GitHub): després d'executar la tasca cal
+ * fer commit de dist/ i que arribi a aquesta branca.
+ */
+tasks.register("distribuir") {
+    description = "Copia el ZIP del plugin a dist/ i genera dist/updatePlugins.xml (repositori de plugins propi)"
+    group = "distribution"
+    val zip = tasks.named<Zip>("buildPlugin").flatMap { it.archiveFile }
+    val versio = providers.gradleProperty("pluginVersion")
+    val urlBase = providers.gradleProperty("pluginRepositoryUrl").map { it.trimEnd('/') }
+    val sinceBuild = providers.gradleProperty("pluginSinceBuild")
+    val dist = layout.projectDirectory.dir("dist").asFile
+    inputs.file(zip)
+    inputs.property("pluginVersion", versio)
+    inputs.property("pluginRepositoryUrl", urlBase)
+    outputs.dir(dist)
+    doFirst {
+        check(!versio.get().endsWith("SNAPSHOT")) {
+            "La versió ${versio.get()} no es pot distribuir: IntelliJ no detectaria les actualitzacions. " +
+                "Canvia pluginVersion a gradle.properties."
+        }
+    }
+    doLast {
+        val fitxerZip = zip.get().asFile
+        dist.mkdirs()
+        // Només la versió actual: updatePlugins.xml apunta a un sol ZIP
+        dist.listFiles { f -> f.name.endsWith(".zip") }?.forEach { it.delete() }
+        fitxerZip.copyTo(dist.resolve(fitxerZip.name))
+        fun xml(text: String) = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
+        dist.resolve("updatePlugins.xml").writeText("""
+            |<?xml version="1.0" encoding="UTF-8"?>
+            |<!-- Generat per ./gradlew distribuir: no s'ha d'editar a mà -->
+            |<plugins>
+            |  <plugin id="es.caib.helium.bpmn" url="${xml(urlBase.get() + "/" + fitxerZip.name)}" version="${xml(versio.get())}">
+            |    <idea-version since-build="${xml(sinceBuild.get())}"/>
+            |    <name>Helium BPMN</name>
+            |    <vendor email="limit@limit.es">Limit Tecnologies</vendor>
+            |    <description>Edita les definicions de procés BPMN 2.0 de Helium amb el mateix editor visual que Helium.</description>
+            |  </plugin>
+            |</plugins>
+            |""".trimMargin())
+    }
+}
