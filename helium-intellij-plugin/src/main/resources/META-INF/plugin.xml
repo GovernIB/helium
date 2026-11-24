@@ -1,0 +1,23 @@
+<idea-plugin>
+	<id>es.caib.helium.bpmn</id>
+	<name>Helium BPMN</name>
+	<vendor email="limit@limit.es">Limit Tecnologies</vendor>
+	<description><![CDATA[
+		Edita les definicions de procés BPMN 2.0 de Helium (<code>.bpmn</code>, <code>.bpmn20.xml</code>) amb el
+		mateix editor visual que Helium: pestanya <b>Disseny</b> al costat de l'XML, handlers predefinits de
+		<code>helium-disseny</code> i handlers propis del projecte (classes que implementen
+		<code>HeliumBpmnHandler</code>).
+	]]></description>
+
+	<depends>com.intellij.modules.platform</depends>
+	<depends>com.intellij.modules.xml</depends>
+	<depends>com.intellij.java</depends>
+	<!-- Navegador incrustat on s'executa l'editor visual -->
+	<depends>com.intellij.modules.jcef</depends>
+
+	<extensions defaultExtensionNs="com.intellij">
+		<fileType name="XML" extensions="bpmn"/>
+		<fileEditorProvider implementation="es.caib.helium.intellij.HeliumBpmnEditorProvider"/>
+		<notificationGroup id="Helium BPMN" displayType="BALLOON"/>
+	</extensions>
+</idea-plugin>
