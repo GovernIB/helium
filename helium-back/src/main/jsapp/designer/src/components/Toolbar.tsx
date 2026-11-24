@@ -2,16 +2,16 @@ import type {CSSProperties, ReactNode} from 'react';
 import './Toolbar.css';
 
 interface ToolbarProps {
-    showCode: () => void;
-    download: () => void;
-    save: () => void;
+    showCode?: () => void;
+    download?: () => void;
+    save?: () => void;
     upload?: (() => void);
     undo: () => void;
     redo: () => void;
     canUndo: boolean;
     canRedo: boolean;
     pantallaCompleta: boolean;
-    togglePantallaCompleta: () => void;
+    togglePantallaCompleta?: () => void;
     style?: CSSProperties;
 }
 
@@ -46,32 +46,32 @@ const Toolbar = (props: ToolbarProps) => {
                     </Icona>
                 </button>
             </div>
-            <div className="separator"/>
+            {(showCode || upload || download || save) && <div className="separator"/>}
             <div className="grup">
-                <button title="Codi" onClick={showCode}>
+                {showCode && (<button title="Codi" onClick={showCode}>
                     <Icona>
                         <path d="M15 7L20 12L15 17M9 17L4 12L9 7"/>
                     </Icona>
-                </button>
+                </button>)}
                 {upload && (<button title="Carregar" onClick={upload}>
                     <Icona>
                         <path d="M6 21H18M12 3V17M12 3L17 8M12 3L7 8"/>
                     </Icona>
                 </button>)}
-                <button title="Descarregar" onClick={download}>
+                {download && (<button title="Descarregar" onClick={download}>
                     <Icona>
                         <path d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12"/>
                     </Icona>
-                </button>
-                <button title="Publicar" onClick={save}>
+                </button>)}
+                {save && (<button title="Publicar" onClick={save}>
                     <Icona>
                         <path d="M4 4H16L20 8V20H4V4Z"/>
                         <path d="M7 4V10H15V4"/>
                     </Icona>
-                </button>
+                </button>)}
             </div>
-            <div className="separator"/>
-            <div className="grup">
+            {togglePantallaCompleta && <div className="separator"/>}
+            {togglePantallaCompleta && <div className="grup">
                 <button title={pantallaCompleta ? 'Sortir de la pantalla completa' : 'Pantalla completa'}
                         aria-label={pantallaCompleta ? 'Sortir de la pantalla completa' : 'Pantalla completa'}
                         aria-pressed={pantallaCompleta}
@@ -86,7 +86,7 @@ const Toolbar = (props: ToolbarProps) => {
                         </Icona>
                     )}
                 </button>
-            </div>
+            </div>}
         </div>
     );
 };

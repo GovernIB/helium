@@ -106,3 +106,108 @@ body.helium-editor-pantalla-completa .container-foot,
 body.helium-editor-pantalla-completa #topBtn {
 	display: none !important;
 }
+
+/*
+ * Tema fosc (plugin d'IntelliJ amb un tema fosc). La pàgina porta data-tema="fosc" i els colors de l'IDE a
+ * --ide-fons i --ide-text. Les biblioteques (diagram-js, bpmn-js, plafó de propietats) defineixen els colors amb una
+ * escala de grisos (--color-grey-225-10-<lluminositat>): aquí s'inverteix barrejant el text amb el fons, de manera
+ * que el resultat segueix el tema de l'IDE. Els colors dels elements del diagrama es configuren a bpmnRenderer.
+ */
+html[data-tema="fosc"] {
+	color-scheme: dark;
+	--fosc-elevat: color-mix(in srgb, var(--ide-text) 6%, var(--ide-fons));
+	--fosc-vora: color-mix(in srgb, var(--ide-text) 30%, var(--ide-fons));
+}
+html[data-tema="fosc"] body {
+	background: var(--ide-fons);
+	color: var(--ide-text);
+}
+html[data-tema="fosc"] :is(.djs-parent, .bjs-container, .bio-properties-panel) {
+	--color-grey-225-10-15: var(--ide-text);
+	--color-grey-225-10-35: color-mix(in srgb, var(--ide-text) 75%, var(--ide-fons));
+	--color-grey-225-10-55: color-mix(in srgb, var(--ide-text) 55%, var(--ide-fons));
+	--color-grey-225-10-75: var(--fosc-vora);
+	--color-grey-225-10-80: color-mix(in srgb, var(--ide-text) 26%, var(--ide-fons));
+	--color-grey-225-10-85: color-mix(in srgb, var(--ide-text) 20%, var(--ide-fons));
+	--color-grey-225-10-90: color-mix(in srgb, var(--ide-text) 14%, var(--ide-fons));
+	--color-grey-225-10-95: color-mix(in srgb, var(--ide-text) 9%, var(--ide-fons));
+	--color-grey-225-10-97: var(--fosc-elevat);
+
+	--color-blue-205-100-85: color-mix(in srgb, hsl(205, 100%, 50%) 40%, var(--ide-fons));
+	--color-blue-205-100-95: color-mix(in srgb, hsl(205, 100%, 50%) 18%, var(--ide-fons));
+	--color-red-360-100-40: hsl(0, 85%, 62%);
+	--color-red-360-100-45: hsl(0, 85%, 66%);
+	--color-red-360-100-92: color-mix(in srgb, hsl(0, 85%, 60%) 30%, var(--ide-fons));
+	--color-red-360-100-97: color-mix(in srgb, hsl(0, 85%, 60%) 15%, var(--ide-fons));
+
+	--color-white: var(--ide-fons);
+	--color-black: var(--ide-text);
+
+	/* Superfícies que s'han de distingir del llenç */
+	--palette-background-color: var(--fosc-elevat);
+	--popup-background-color: var(--fosc-elevat);
+	--popup-border-color: var(--fosc-vora);
+	--context-pad-entry-background-color: var(--fosc-elevat);
+	--search-container-background-color: var(--fosc-elevat);
+	--canvas-fill-color: var(--ide-fons);
+
+	/* Text blanc sobre els botons blaus */
+	--add-entry-label-color: #fff;
+	--add-entry-hover-fill-color: #fff;
+	--list-badge-color: #fff;
+	--list-entry-add-entry-label-color: #fff;
+	--list-entry-add-entry-fill-color: #fff;
+	--toggle-switch-switcher-background-color: #fff;
+	--drilldown-fill-color: #fff;
+	--dropdown-item-background-color: var(--fosc-elevat);
+}
+html[data-tema="fosc"] .bio-properties-panel {
+	color: var(--ide-text);
+}
+html[data-tema="fosc"] .djs-popup-breadcrumbs-item--back:hover {
+	background: color-mix(in srgb, var(--ide-text) 9%, var(--ide-fons));
+}
+/* Edició del text d'un element (bpmn-js hi posa fons blanc als textos externs) */
+html[data-tema="fosc"] .djs-direct-editing-parent {
+	background-color: var(--fosc-elevat) !important;
+	color: var(--ide-text);
+	border-color: var(--fosc-vora) !important;
+}
+html[data-tema="fosc"] .toolbar {
+	background: var(--fosc-elevat);
+	border-color: var(--fosc-vora);
+	color: var(--ide-text);
+}
+html[data-tema="fosc"] .grup button {
+	color: inherit;
+}
+html[data-tema="fosc"] .grup button:hover {
+	background: color-mix(in srgb, var(--ide-text) 12%, var(--ide-fons));
+}
+html[data-tema="fosc"] .grup button:active {
+	background: color-mix(in srgb, var(--ide-text) 18%, var(--ide-fons));
+}
+html[data-tema="fosc"] .grup button:disabled {
+	color: color-mix(in srgb, var(--ide-text) 35%, var(--ide-fons));
+	background: transparent;
+}
+html[data-tema="fosc"] .separator {
+	background: var(--fosc-vora);
+}
+html[data-tema="fosc"] .helium-editor-separador {
+	background: var(--fosc-elevat);
+	border-color: var(--fosc-vora);
+}
+html[data-tema="fosc"] .helium-editor-separador:hover,
+html[data-tema="fosc"] .helium-editor-separador:focus-visible,
+html[data-tema="fosc"] .helium-editor.redimensionant .helium-editor-separador {
+	background: #1a73e8;
+	border-color: #1a73e8;
+}
+html[data-tema="fosc"] .helium-parametres-eliminar {
+	color: color-mix(in srgb, var(--ide-text) 60%, var(--ide-fons));
+}
+html[data-tema="fosc"] .helium-parametres-eliminar:hover,
+html[data-tema="fosc"] .helium-parametres-eliminar:focus-visible {
+	color: hsl(0, 85%, 66%);
+}

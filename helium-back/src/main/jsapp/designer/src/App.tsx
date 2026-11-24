@@ -12,7 +12,8 @@ import {
 } from 'bpmn-js-properties-panel';
 import FlowablePropertiesProviderModule from './flowable/FlowablePropertiesProviderModule';
 import TraduccionsModule from './helium/traduccions';
-import {fetchHandlers, getHandlersSync} from './flowable/handlers';
+import {establirHandlers, fetchHandlers, getHandlersSync} from './flowable/handlers';
+import {enviarIde, esModeIde, registrarIde} from './ide';
 
 import Modal from './components/Modal';
 import Toolbar from './components/Toolbar';
@@ -46,6 +47,8 @@ interface ProcessDefinitionDataType {
 const AMPLADA_PROPIETATS_DEFECTE = 340;
 const AMPLADA_PROPIETATS_MIN = 260;
 const AMPLADA_PROPIETATS_CLAU = 'helium.designer.ampladaPropietats';
+/** Vista del diagrama durant una recàrrega de la pàgina dins l'IDE (sessionStorage). */
+const CLAU_VISTA_IDE = 'helium.designer.vistaIde';
 const CLASSE_PANTALLA_COMPLETA = 'helium-editor-pantalla-completa';
 
 const ampladaPropietatsMax = () => Math.max(AMPLADA_PROPIETATS_MIN, Math.round(window.innerWidth * 0.7));
@@ -103,6 +106,8 @@ interface FormResponse {
 const App = () => {
     const config = window.__APP_CONFIG__ || {};
     const isNew: boolean = config.isNew;
+    /** Dins el plugin d'IntelliJ: sense servidor de Helium, el diagrama és el document de l'IDE (veure ide.ts). */
+    const modeIde = esModeIde();
 
     const initializedRef = React.useRef<boolean>(false);
     const canvasRef = React.useRef<HTMLDivElement | null>(null);
@@ -135,7 +140,8 @@ const App = () => {
 
     React.useEffect(() => {
         const handleBeforeUnload = (event: Event) => {
-            if (isDirty) {
+            // A l'IDE els canvis ja són al document: l'avís bloquejaria el navegador en tancar l'editor
+            if (isDirty && !modeIde) {
                 event.preventDefault();
                 event.returnValue = false;
             }
@@ -143,7 +149,7 @@ const App = () => {
 
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, [isDirty]);
+    }, [isDirty, modeIde]);
 
     React.useEffect(() => {
         if(initializedRef.current)
@@ -157,8 +163,17 @@ const App = () => {
 
     const init = async () => {
         if (!canvasRef.current) return;
+        const tema = config.tema;
         const modeler = new BpmnJS({
             container: canvasRef.current,
+            // Colors per defecte dels elements; els que l'usuari hagi pintat (bioc:fill/stroke) es mantenen
+            ...(tema?.fosc ? {
+                bpmnRenderer: {
+                    defaultFillColor: tema.farciment,
+                    defaultStrokeColor: tema.text,
+                    defaultLabelColor: tema.text,
+                },
+            } : {}),
             propertiesPanel: {
                 parent: propertiesRef.current,
             },
@@ -187,6 +202,11 @@ const App = () => {
         eventBus.on('commandStack.changed', handleCommandStackChange);
         modelerRef.current = modeler;
 
+        if (modeIde) {
+            iniciarModeIde(modeler);
+            return;
+        }
+
         setDeployForm({
             expedientTipusId: config.expedientTipusId,
             etiqueta: config.definicioProcesEtiqueta,
@@ -211,6 +231,87 @@ const App = () => {
     }
 
     /**
+     * Mode IDE: el diagrama arriba de l'IDE i cada canvi (agrupat cada 300 ms) s'hi envia sencer. Quan el document
+     * canvia fora de l'editor es torna a importar conservant la vista. Les importacions no s'envien a l'IDE.
+     */
+    const iniciarModeIde = (modeler: BpmnJS) => {
+        const canvas = modeler.get<{ viewbox: (box?: unknown) => unknown }>('canvas');
+        const eventBus = modeler.get<{
+            on: (event: string, callback: (e: { trigger?: string }) => void) => void;
+            fire: (event: string) => void;
+        }>('eventBus');
+        let important = false;
+        let temporitzador: ReturnType<typeof setTimeout> | undefined;
+        // L'IDE torna a carregar la pàgina quan canvia el tema: la vista es conserva durant la recàrrega
+        window.addEventListener('pagehide', () => {
+            try {
+                sessionStorage.setItem(CLAU_VISTA_IDE, JSON.stringify(canvas.viewbox()));
+            } catch {
+                // Sense sessionStorage la vista es reinicia
+            }
+        });
+        const vistaDesada = (): unknown => {
+            try {
+                const vista = sessionStorage.getItem(CLAU_VISTA_IDE);
+                sessionStorage.removeItem(CLAU_VISTA_IDE);
+                return vista ? JSON.parse(vista) : undefined;
+            } catch {
+                return undefined;
+            }
+        };
+        eventBus
+            .on('commandStack.changed', (event) => {
+                if (important || event.trigger === 'clear') {
+                    return;
+                }
+                clearTimeout(temporitzador);
+                temporitzador = setTimeout(enviarXmlIde, 300);
+            });
+        const enviarXmlIde = async () => {
+            const {xml} = await modeler.saveXML({format: true});
+            if (xml) {
+                enviarIde({tipus: 'canvi', xml});
+            }
+        };
+        const importar = async (xml: string, vista: unknown) => {
+            important = true;
+            try {
+                if (xml.trim()) {
+                    await importarXml(xml);
+                } else {
+                    // Fitxer nou i buit: es crea el diagrama inicial i es desa al document
+                    await modeler.createDiagram();
+                    marcarProcessosExecutables();
+                    important = false;
+                    await enviarXmlIde();
+                }
+                if (vista) {
+                    canvas.viewbox(vista);
+                }
+            } catch (e) {
+                enviarIde({tipus: 'error', missatge: e instanceof Error ? e.message : String(e)});
+            } finally {
+                important = false;
+            }
+        };
+        registrarIde({
+            carregar: (xml, handlers) => {
+                establirHandlers(handlers || []);
+                importar(xml || '', vistaDesada());
+            },
+            actualitzar: (xml) => {
+                importar(xml || '', canvas.viewbox());
+            },
+            handlers: (handlers) => {
+                establirHandlers(handlers || []);
+                // Torna a pintar el plafó perquè l'element seleccionat vegi el catàleg nou
+                eventBus.fire('propertiesPanel.providersChanged');
+            },
+        });
+        enviarIde({tipus: 'preparat'});
+    };
+
+    /**
      * El diagrama buit de bpmn-js crea el procés amb isExecutable="false" i Flowable ignora els processos no
      * executables. Es canvia directament al model (sense passar per la pila de comandes) per no marcar el
      * diagrama com a modificat.
@@ -224,13 +325,22 @@ const App = () => {
         }
     };
 
-    const undo = () => {
-        modelerRef.current?.get<CommandStack>('commandStack').undo();
-    };
+    // A l'IDE desfer i refer s'apliquen al document, que és la font de veritat, i el diagrama es torna a carregar
+    const undo = React.useCallback(() => {
+        if (modeIde) {
+            enviarIde({tipus: 'desfer'});
+        } else {
+            modelerRef.current?.get<CommandStack>('commandStack').undo();
+        }
+    }, [modeIde]);
 
-    const redo = () => {
-        modelerRef.current?.get<CommandStack>('commandStack').redo();
-    };
+    const redo = React.useCallback(() => {
+        if (modeIde) {
+            enviarIde({tipus: 'refer'});
+        } else {
+            modelerRef.current?.get<CommandStack>('commandStack').redo();
+        }
+    }, [modeIde]);
 
     /*
      * Ctrl+Z / Ctrl+Shift+Z (i Ctrl+Y) a tot l'editor. bpmn-js només escolta el teclat quan el llenç té el focus
@@ -263,7 +373,32 @@ const App = () => {
         };
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [modalOpen, modalDespOpen]);
+    }, [modalOpen, modalDespOpen, undo, redo]);
+
+    /*
+     * A l'IDE, les dreceres de desfer i refer s'envien a l'IDE també des del llenç i el plafó (que en mode web
+     * desfan la pila de comandes de bpmn-js): s'intercepten en fase de captura, abans que les vegin.
+     */
+    React.useEffect(() => {
+        if (!modeIde) {
+            return;
+        }
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.altKey || !(event.ctrlKey || event.metaKey)) {
+                return;
+            }
+            const tecla = event.key.toLowerCase();
+            const desfer = tecla === 'z' && !event.shiftKey;
+            const refer = (tecla === 'z' && event.shiftKey) || (tecla === 'y' && !event.shiftKey);
+            if (desfer || refer) {
+                event.preventDefault();
+                event.stopPropagation();
+                enviarIde({tipus: desfer ? 'desfer' : 'refer'});
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown, true);
+        return () => window.removeEventListener('keydown', handleKeyDown, true);
+    }, [modeIde]);
 
     /** El llenç ha de recalcular la mida quan canvia l'amplada del plafó o es passa a pantalla completa. */
     React.useEffect(() => {
@@ -544,9 +679,12 @@ const App = () => {
                 }}>
                     <UploadIcon animate={true} scale={5}></UploadIcon>
                 </div>)}
-                <Toolbar showCode={showCode} download={download} save={save} upload={isNew ? upload : undefined}
-                         undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
-                         pantallaCompleta={pantallaCompleta} togglePantallaCompleta={togglePantallaCompleta}
+                {/* A l'IDE el codi és a la pestanya de text, i desar o publicar es fa des de l'IDE */}
+                <Toolbar showCode={modeIde ? undefined : showCode} download={modeIde ? undefined : download}
+                         save={modeIde ? undefined : save} upload={isNew && !modeIde ? upload : undefined}
+                         undo={undo} redo={redo} canUndo={modeIde || canUndo} canRedo={modeIde || canRedo}
+                         pantallaCompleta={pantallaCompleta}
+                         togglePantallaCompleta={modeIde ? undefined : togglePantallaCompleta}
                          style={{right: ampladaPropietats + 40}}/>
                 <div id="canvas" ref={canvasRef} style={{flexGrow: 1, minWidth: 0, height: '100vh'}}></div>
                 <div

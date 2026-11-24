@@ -44,3 +44,9 @@ export async function fetchHandlers(): Promise<HandlerDto[]> {
 export function getHandlersSync(): HandlerDto[] {
     return cachedHandlers;
 }
+
+/** Catàleg de handlers que no ve del servidor (p. ex. el que envia l'IDE). */
+export function establirHandlers(handlers: HandlerDto[]): void {
+    cachedHandlers = handlers;
+    fetchPromise = Promise.resolve(handlers);
+}
