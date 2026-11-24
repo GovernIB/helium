@@ -211,3 +211,79 @@ html[data-tema="fosc"] .helium-parametres-eliminar:hover,
 html[data-tema="fosc"] .helium-parametres-eliminar:focus-visible {
 	color: hsl(0, 85%, 66%);
 }
+
+/*
+ * Desplegable amb cerca (Desplegable.ts), amb l'aspecte d'un select del plafó. La llista té posició fixa perquè no
+ * la talli el plafó, i alçada màxima segons l'espai que hi ha a sota o a sobre.
+ */
+.helium-desplegable-boto {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	width: 100%;
+	min-height: 28px;
+	text-align: left;
+	color: inherit;
+	cursor: pointer;
+}
+.helium-desplegable-text {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.helium-desplegable-boto svg {
+	flex-shrink: 0;
+}
+.helium-desplegable-capa {
+	position: fixed;
+	z-index: 950;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	padding: 4px;
+	background: var(--dropdown-item-background-color, #fff);
+	border: 1px solid var(--input-border-color, #c3c5cc);
+	border-radius: 2px;
+	box-shadow: 0 2px 8px var(--color-black-opacity-30, rgba(0, 0, 0, 0.3));
+	color: var(--text-base-color, #22242a);
+}
+.helium-desplegable-cerca {
+	flex-shrink: 0;
+	width: 100%;
+	box-sizing: border-box;
+	margin-bottom: 4px;
+}
+.helium-desplegable-llista {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: var(--text-size-base, 14px);
+}
+.helium-desplegable-grup {
+	padding: 6px 6px 2px;
+	font-size: var(--text-size-smallest, 12px);
+	font-weight: 600;
+	color: var(--description-color, #555);
+	text-transform: uppercase;
+}
+.helium-desplegable-opcio {
+	padding: 3px 6px 3px 14px;
+	cursor: pointer;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.helium-desplegable-opcio.seleccionat {
+	font-weight: 600;
+}
+.helium-desplegable-opcio.actiu {
+	background: var(--dropdown-item-hover-background-color, #eef0f3);
+}
+.helium-desplegable-buit {
+	padding: 6px;
+	color: var(--description-color, #555);
+}

@@ -1,8 +1,9 @@
-import { ArrowIcon, CreateIcon, SelectEntry, isSelectEntryEdited, useLayoutState } from '@bpmn-io/properties-panel';
+import { ArrowIcon, CreateIcon, isSelectEntryEdited, useLayoutState } from '@bpmn-io/properties-panel';
 import { h } from '@bpmn-io/properties-panel/preact';
 import { useEffect, useMemo, useRef, useState } from '@bpmn-io/properties-panel/preact/hooks';
 import { useService } from 'bpmn-js-properties-panel';
 import { getHandlersSync } from '../flowable/handlers';
+import { Desplegable, type ElementDesplegable } from './Desplegable';
 import {
     PARAMETRE_TYPE,
     assignarTextParametre,
@@ -37,13 +38,14 @@ const HeliumHandlerClassField = (props: EntryProps) => {
     const { element } = props;
     const modeling = useService('modeling');
     const translate = useService('translate');
-    const currentValue = getHeliumHandler(element.businessObject)?.classe;
-    return SelectEntry({
-        element,
+    const valor: string = getHeliumHandler(element.businessObject)?.classe || '';
+    // Desplegable propi en lloc del select del plafó: la llista és llarga i dins l'IDE la d'un select queda tallada
+    return Desplegable({
         id: 'helium-handler-classe',
         label: translate('Handler'),
-        getValue: () => getHeliumHandler(element.businessObject)?.classe || '',
-        setValue: (value: string) => {
+        valor,
+        elements: elementsHandlers(valor),
+        onChange: (value: string) => {
             const heliumHandler = ensureHeliumHandler(element, modeling);
             const anterior = heliumHandler.classe;
             modeling.updateModdleProperties(element, heliumHandler, { classe: value });
@@ -54,38 +56,42 @@ const HeliumHandlerClassField = (props: EntryProps) => {
                 }
             }
         },
-        getOptions: () => {
-            const options: { value: string | null; label: string; disabled?: boolean }[] = [];
-            const handlers = getHandlersSync();
-            // Els predefinits arriben agrupats; els propis (pujats com a recursos) no tenen agrupació
-            const predefinits = handlers.filter((h) => h.agrupacio);
-            const propis = handlers.filter((h) => !h.agrupacio);
-            let agrupacio: string | undefined | null = null;
-            for (const handler of predefinits) {
-                if (handler.agrupacio !== agrupacio) {
-                    agrupacio = handler.agrupacio;
-                    options.push({ value: null, label: String(agrupacio), disabled: true });
-                }
-                options.push({ value: handler.classe, label: handler.nom || handler.classe });
-            }
-            if (propis.length) {
-                options.push({ value: null, label: TITOL_HANDLERS_PROPIS, disabled: true });
-                for (const handler of propis) {
-                    // Si dues classes de paquets diferents tenen el mateix nom es mostra el nom complet
-                    const repetit = propis.some((h) => h !== handler && h.nom === handler.nom);
-                    options.push({
-                        value: handler.classe,
-                        label: !handler.nom || repetit ? handler.classe : handler.nom,
-                    });
-                }
-            }
-            // El valor actual sempre ha de ser a la llista, encara que no sigui al catàleg
-            if (currentValue && !options.some((o) => o.value === currentValue)) {
-                options.unshift({ value: currentValue, label: currentValue });
-            }
-            return [{ value: '', label: '<cap>' }, ...options];
-        },
     });
+};
+
+/** Opcions del desplegable: els predefinits per agrupació i després els propis. */
+const elementsHandlers = (valorActual: string): ElementDesplegable[] => {
+    const elements: ElementDesplegable[] = [];
+    const handlers = getHandlersSync();
+    // Els predefinits arriben agrupats; els propis (del projecte o pujats com a recursos) no tenen agrupació
+    const predefinits = handlers.filter((h) => h.agrupacio);
+    const propis = handlers.filter((h) => !h.agrupacio);
+    let agrupacio: string | undefined | null = null;
+    for (const handler of predefinits) {
+        if (handler.agrupacio !== agrupacio) {
+            agrupacio = handler.agrupacio;
+            elements.push({ tipus: 'grup', text: String(agrupacio) });
+        }
+        elements.push({ tipus: 'opcio', valor: handler.classe, text: handler.nom || handler.classe, detall: handler.classe });
+    }
+    if (propis.length) {
+        elements.push({ tipus: 'grup', text: TITOL_HANDLERS_PROPIS });
+        for (const handler of propis) {
+            // Si dues classes de paquets diferents tenen el mateix nom es mostra el nom complet
+            const repetit = propis.some((h) => h !== handler && h.nom === handler.nom);
+            elements.push({
+                tipus: 'opcio',
+                valor: handler.classe,
+                text: !handler.nom || repetit ? handler.classe : handler.nom,
+                detall: handler.classe,
+            });
+        }
+    }
+    // El valor actual sempre ha de ser a la llista, encara que no sigui al catàleg
+    if (valorActual && !elements.some((e) => e.tipus === 'opcio' && e.valor === valorActual)) {
+        elements.unshift({ tipus: 'opcio', valor: valorActual, text: valorActual, detall: valorActual });
+    }
+    return [{ tipus: 'opcio', valor: '', text: '<cap>' }, ...elements];
 };
 
 /**
