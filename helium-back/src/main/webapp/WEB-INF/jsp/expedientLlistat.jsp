@@ -200,6 +200,9 @@ $(document).ready(function() {
 			url: '<c:url value="/expedient/generardades"/>',
 		}).done(function(data) {
 			checkDescarregaDades(event);
+		}).fail(function(data) {
+			$("#overlay").hide();
+			window.location.reload();
 		});
 	});
 });
@@ -214,7 +217,7 @@ function checkDescarregaDades(event) {
 	}).done(function(data) {
 		if(data == 1) {
 			descarregaDades(event);
-		} else if(data == 0) {
+		} else if(data === 0) {
 			setTimeout(function() {
 				checkDescarregaDades();
 			}, 5000);

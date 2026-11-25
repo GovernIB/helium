@@ -2709,16 +2709,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			return resposta;
 		}
 
-		List<Expedient> listExpedients = new ArrayList<Expedient>();
 		// Issue: https://github.com/GovernIB/helium/issues/2106
 		// Cream chunks del ids a consultar per evitar errors de llargaria de la query
 		List<List<Long>> chunks = Lists.partition(ids, 100);
-		for(List<Long> chunk : chunks) {
-			listExpedients.addAll(expedientRepository.findByIdIn(chunk));
-		}
 
 		List<Camp> camps = new ArrayList<Camp>();
-		ExpedientTipus expedientTipus = expedientRepository.findById(listExpedients.get(0).getId()).orElse(null).getTipus();
+		ExpedientTipus expedientTipus = expedientRepository.getReferenceById(ids.get(0)).getTipus();
 		if(expedientTipus.isAmbInfoPropia()) {
 			camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
 		} else {

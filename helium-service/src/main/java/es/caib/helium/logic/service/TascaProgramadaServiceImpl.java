@@ -530,9 +530,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	public void comprovarEmailAnotacionsNoAgrupats() {
 		// Consultar entrades de la taula HEL_ANOTACIO_EMAIL amb agrupat = 0
 		List<AnotacioEmail> anotacioEmailListNoAgrupats=anotacioEmailRepository.findByEnviamentAgrupatOrderByDestinatariCodi(false);
+		List<AnotacioEmail> anotacioEmailListNoAgrupatsItr = new ArrayList<AnotacioEmail>(anotacioEmailListNoAgrupats);
 		List<AnotacioEmail> emailsPerEsborrar = new ArrayList<AnotacioEmail>();
 		Set<String> emailAnotacioEnviats = new HashSet<String>();
-		for(AnotacioEmail anotacioEmail: anotacioEmailListNoAgrupats) {
+		for(AnotacioEmail anotacioEmail: anotacioEmailListNoAgrupatsItr) {
 			String emailAnotacio = String.format("%s %s",
 				anotacioEmail.getDestinatariEmail(),
 				anotacioEmail.getAnotacio().getId());
