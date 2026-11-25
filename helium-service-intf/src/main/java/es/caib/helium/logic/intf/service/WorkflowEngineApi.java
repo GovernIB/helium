@@ -257,6 +257,9 @@ public interface WorkflowEngineApi {
 	 */
 	public WProcessInstance getRootProcessInstance(String processInstanceId);
 
+	/** Modifica el títol de la instància de procés (el que es mostra a l'arbre de processos de l'expedient). */
+	public void setProcessInstanceTitol(String processInstanceId, String titol);
+
 	/**
 	 * Obté les instàncies de procés principals filtrades
 	 *

@@ -103,6 +103,10 @@ import liquibase.repackaged.org.apache.commons.text.StringSubstitutor;
 @Component
 public class ExpedientHelper {
 
+	@Autowired
+	@org.springframework.context.annotation.Lazy
+	private es.caib.helium.logic.bpmn.HeliumApiServeis heliumApiServeis;
+
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -2490,7 +2494,8 @@ public class ExpedientHelper {
 			pluginHelper,
 			alertaHelper,
 			expedientInteressatHelper,
-			mailHelper);
+			mailHelper,
+			heliumApiServeis);
 	}
 
 	/**

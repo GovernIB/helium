@@ -71,6 +71,31 @@ public interface HeliumApi {
 
 	public void expedientTitolModificar(String titol);
 
+	/** Igual que la versió amb {@code codiPostal}, sense codi postal. */
+	public default void interessatCrear(
+		String codi,
+		String nom,
+		String tipusDocIdent,
+		String documentIdent,
+		String dir3Codi,
+		String llinatge1,
+		String llinatge2,
+		String tipus,
+		String email,
+		String telefon,
+		Boolean entregaPostal,
+		String entregaTipus,
+		String linia1,
+		String linia2,
+		Boolean entregaDeh,
+		Boolean entregaDehObligat,
+		String direccio,
+		String pais,
+		String provincia,
+		String municipi,
+		String canalNotif) {
+		interessatCrear(codi, nom, tipusDocIdent, documentIdent, dir3Codi, llinatge1, llinatge2, tipus, email, telefon, entregaPostal, entregaTipus, linia1, linia2, entregaDeh, entregaDehObligat, direccio, pais, provincia, municipi, canalNotif, null);
+	}
 	public void interessatCrear(
 		String codi,
 		String nom,
@@ -92,8 +117,34 @@ public interface HeliumApi {
 		String pais,
 		String provincia,
 		String municipi,
-		String canalNotif);
+		String canalNotif,
+		String codiPostal);
 
+	/** Igual que la versió amb {@code codiPostal}, sense codi postal. */
+	public default void interessatModificar(
+		String codi,
+		String nom,
+		String tipusDocIdent,
+		String documentIdent,
+		String dir3Codi,
+		String llinatge1,
+		String llinatge2,
+		String tipus,
+		String email,
+		String telefon,
+		Boolean entregaPostal,
+		String entregaTipus,
+		String linia1,
+		String linia2,
+		Boolean entregaDeh,
+		Boolean entregaDehObligat,
+		String direccio,
+		String pais,
+		String provincia,
+		String municipi,
+		String canalNotif) {
+		interessatModificar(codi, nom, tipusDocIdent, documentIdent, dir3Codi, llinatge1, llinatge2, tipus, email, telefon, entregaPostal, entregaTipus, linia1, linia2, entregaDeh, entregaDehObligat, direccio, pais, provincia, municipi, canalNotif, null);
+	}
 	public void interessatModificar(
 		String codi,
 		String nom,
@@ -115,7 +166,8 @@ public interface HeliumApi {
 		String pais,
 		String provincia,
 		String municipi,
-		String canalNotif);
+		String canalNotif,
+		String codiPostal);
 
 	public void interessatEliminar(String codi);
 
@@ -148,4 +200,62 @@ public interface HeliumApi {
 	public WProcessInstance getProcessInstance();
 	public WTaskInstance getTaskInstance();
 	public TerminiInfo getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi);
+
+	/** Modifica la georeferència de l'expedient. */
+	public void expedientGeorefModificar(Double posx, Double posy, String referencia);
+
+	/** Reprèn l'expedient aturat. */
+	public void expedientReprendre();
+
+	/** Modifica el títol de la instància de procés on s'executa el handler (p. ex. d'un subprocés). */
+	public void procesTitolModificar(String titol);
+
+	/**
+	 * Fa que el procés pare tingui el document de la instància de procés actual (el mateix document, no una
+	 * còpia). Si el document no existeix no fa res.
+	 */
+	public void documentEscriureProcesPare(String documentCodi);
+
+	/** Fa que la instància de procés actual tingui el document del procés pare (el mateix document). */
+	public void documentLlegirProcesPare(String documentCodi);
+
+	/**
+	 * Copia un document de l'expedient actual a un altre expedient del mateix entorn.
+	 *
+	 * @param documentCodi codi del document a copiar.
+	 * @param expedientTipusCodi tipus de l'expedient destí.
+	 * @param expedientNumero número de l'expedient destí.
+	 * @param documentDestiCodi codi del document a l'expedient destí (si és null, el mateix codi).
+	 */
+	public void documentCopiarAExpedient(
+			String documentCodi,
+			String expedientTipusCodi,
+			String expedientNumero,
+			String documentDestiCodi);
+
+	/**
+	 * Copia un document d'un altre expedient del mateix entorn a l'expedient actual.
+	 *
+	 * @param expedientTipusCodi tipus de l'expedient origen.
+	 * @param expedientNumero número de l'expedient origen.
+	 * @param documentOrigenCodi codi del document a l'expedient origen (si és null, el mateix codi).
+	 * @param documentCodi codi del document a l'expedient actual.
+	 */
+	public void documentCopiarDesDExpedient(
+			String expedientTipusCodi,
+			String expedientNumero,
+			String documentOrigenCodi,
+			String documentCodi);
+
+	/** Genera el document a partir de la seva plantilla i el desa a la instància de procés actual. */
+	public DocumentInfo documentGenerar(String documentCodi, Date data);
+
+	/** Registra la sortida d'un document de l'expedient (RegWeb3) i desa les dades de registre al document. */
+	public RespostaRegistre registreSortida(DadesRegistreSortida dades);
+
+	/**
+	 * Consulta PINBAL i desa el justificant al document indicat. Si la consulta és asíncrona, la tasca del handler
+	 * queda esperant la resposta.
+	 */
+	public void consultaPinbal(ConsultaPinbal consulta);
 }

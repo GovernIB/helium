@@ -409,6 +409,18 @@
                 "obligatori" : false,
                 "param" : "transicioOK",
                 "paramDesc" : "Transició de sortida per a signatura correcta"
+            },{
+                "codi": "transicioKO",
+                "nom" : "Transició de sortida per a signatura rebutjada",
+                "obligatori" : false,
+                "param" : "transicioKO",
+                "paramDesc" : "Transició de sortida per a signatura rebutjada"
+            },{
+                "codi": "portafirmesFluxId",
+                "nom" : "Identificador del flux de firma del Portafirmes",
+                "obligatori" : false,
+                "param" : "portafirmesFluxId",
+                "paramDesc" : "Identificador d'una plantilla de flux de firma del Portafirmes, en lloc dels responsables de cada passa"
             }],
         "agrupacio" : "DOCUMENTS"
     },

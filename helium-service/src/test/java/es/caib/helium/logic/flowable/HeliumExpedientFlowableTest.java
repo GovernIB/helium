@@ -160,6 +160,22 @@ public class HeliumExpedientFlowableTest {
 		assertEquals(0, processEngine.getManagementService().createTimerJobQuery().processInstanceId(pi.getId()).count());
 	}
 
+	// Subprocessos: procés pare i títol (handlers de documents del procés pare i ProcesTitolModificarHandler)
+
+	@Test
+	void unSubprocesEnCursConeixElSeuPareIPotCanviarDeTitol() {
+		ProcessInstance pi = iniciarExpedient();
+		String subproces = idsArbre(pi.getId()).stream().filter(id -> !id.equals(pi.getId())).findFirst().orElseThrow();
+		assertEquals(pi.getId(), engine.getProcessInstance(subproces).getParentProcessInstanceId());
+		assertNull(engine.getProcessInstance(pi.getId()).getParentProcessInstanceId());
+
+		engine.setProcessInstanceTitol(subproces, "Al·legació 1");
+
+		assertEquals("Al·legació 1", engine.getProcessInstance(subproces).getDescription());
+		assertTrue(engine.getProcessInstanceTree(pi.getId()).stream()
+			.anyMatch(p -> p.getId().equals(subproces) && "Al·legació 1".equals(p.getDescription())));
+	}
+
 	// Anul·lar / desanul·lar (punt 2)
 
 	@Test

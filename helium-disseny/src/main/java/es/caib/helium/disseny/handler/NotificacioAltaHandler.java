@@ -58,4 +58,9 @@ public interface NotificacioAltaHandler {
 	public void setEntregaPostalFormatFulla(String entregaPostalFormatFulla);
 	public void setEntregaDehObligat(String entregaDehObligat);
 	public void setEntregaDehProcedimentCodi(String entregaDehProcedimentCodi);
+	void setGrupCodi(String grupCodi);
+	void setTitularDir3Codi(String titularDir3Codi);
+	void setDestinatariDir3Codi(String destinatariDir3Codi);
+	void setEntregaPostalActiva(String entregaPostalActiva);
+	void setEntregaDehActiva(String entregaDehActiva);
 }

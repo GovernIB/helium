@@ -14,7 +14,11 @@ import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.engine.WProcessInstance;
 import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
+import es.caib.helium.bpmn.model.ConsultaPinbal;
 import es.caib.helium.bpmn.model.DadesNotificacio;
+import es.caib.helium.bpmn.model.DadesRegistreInteressat;
+import es.caib.helium.bpmn.model.DadesRegistreSortida;
+import es.caib.helium.bpmn.model.RespostaRegistre;
 import es.caib.helium.bpmn.model.DocumentInfo;
 import es.caib.helium.bpmn.model.ExpedientInfo;
 import es.caib.helium.bpmn.model.ExpedientTipusInfo;
@@ -29,6 +33,14 @@ import es.caib.helium.commons.dto.InteressatTipusEnumDto;
 import es.caib.helium.commons.dto.PortafirmesFluxBlocDto;
 import es.caib.helium.commons.dto.PortafirmesSimpleTipusEnumDto;
 import es.caib.helium.commons.dto.PortafirmesTipusEnumDto;
+import es.caib.helium.commons.dto.RegistreIdDto;
+import es.caib.helium.commons.registre.RegistreAnnex;
+import es.caib.helium.commons.registre.RegistreAnotacio;
+import es.caib.helium.commons.registre.RegistreInteressat;
+import es.caib.helium.commons.registre.RegistreInteressatDocumentTipusEnum;
+import es.caib.helium.commons.registre.RegistreInteressatTipusEnum;
+import es.caib.helium.commons.utils.GlobalProperties;
+import es.caib.helium.commons.utils.StringUtilsHelium;
 import es.caib.helium.commons.exception.SistemaExternException;
 import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
 import es.caib.helium.logic.helper.AlertaHelper;
@@ -67,6 +79,7 @@ public class HeliumApiImpl implements HeliumApi {
 	private final AlertaHelper alertaHelper;
 	private final ExpedientInteressatHelper expedientInteressatHelper;
 	private final MailHelper mailHelper;
+	private final HeliumApiServeis serveis;
 
 	@Override
 	public <T> T getVariable(String codi) {
@@ -204,6 +217,16 @@ public class HeliumApiImpl implements HeliumApi {
 
 	@Override
 	public DocumentInfo getDocumentInfo(String documentCodi, boolean ambCongingut) {
+		return documentInfo(expedient, processId, taskId, documentCodi, ambCongingut);
+	}
+
+	/** Informació d'un document d'una instància de procés de qualsevol expedient. */
+	private DocumentInfo documentInfo(
+			Expedient expedient,
+			String processId,
+			String taskId,
+			String documentCodi,
+			boolean ambCongingut) {
 		
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
 			expedient.getId(),
@@ -532,7 +555,8 @@ public class HeliumApiImpl implements HeliumApi {
 		String pais,
 		String provincia,
 		String municipi,
-		String canalNotif) {
+		String canalNotif,
+		String codiPostal) {
 		InteressatDto interessat = new InteressatDto();
 		interessat.setCodi(codi);
 		interessat.setNom(nom);
@@ -558,6 +582,7 @@ public class HeliumApiImpl implements HeliumApi {
 		interessat.setProvincia(provincia);
 		interessat.setMunicipi(municipi);
 		interessat.setCanalNotif(canalNotif);
+		interessat.setCodiPostal(codiPostal);
 		expedientInteressatHelper.create(expedient, interessat);
 	}
 
@@ -583,7 +608,8 @@ public class HeliumApiImpl implements HeliumApi {
 		String pais,
 		String provincia,
 		String municipi,
-		String canalNotif) {
+		String canalNotif,
+		String codiPostal) {
 		Interessat interessat = expedientInteressatHelper.findByExpedientAndCodi(expedient, codi);
 
 		if(interessat == null)
@@ -615,6 +641,7 @@ public class HeliumApiImpl implements HeliumApi {
 		interessatUpdate.setProvincia(provincia);
 		interessatUpdate.setMunicipi(municipi);
 		interessatUpdate.setCanalNotif(canalNotif);
+		interessatUpdate.setCodiPostal(codiPostal);
 		expedientInteressatHelper.update(interessatUpdate);
 	}
 
@@ -726,12 +753,323 @@ public class HeliumApiImpl implements HeliumApi {
 
 	@Override
 	public WProcessInstance getProcessInstance() {
-		return null;
+		return processId != null ? serveis.getWorkflowEngineApi().getProcessInstance(processId) : null;
 	}
 
 	@Override
 	public WTaskInstance getTaskInstance() {
-		return null;
+		return taskId != null ? serveis.getWorkflowEngineApi().getTaskById(taskId) : null;
+	}
+
+	@Override
+	public void expedientGeorefModificar(Double posx, Double posy, String referencia) {
+		expedientHelper.update(
+			expedient,
+			expedient.getNumero(),
+			expedient.getTitol(),
+			expedient.getResponsableCodi(),
+			expedient.getDataInici(),
+			expedient.getComentari(),
+			(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
+			posx,
+			posy,
+			referencia,
+			expedient.getGrupCodi(),
+			expedient.getUnitatOrganitzativa() != null? expedient.getUnitatOrganitzativa().getCodi() : null,
+			false);
+	}
+
+	@Override
+	public void expedientReprendre() {
+		expedientHelper.reprendre(expedient, null);
+	}
+
+	@Override
+	public void procesTitolModificar(String titol) {
+		serveis.getWorkflowEngineApi().setProcessInstanceTitol(processIdObligatori(), titol);
+	}
+
+	@Override
+	public void documentEscriureProcesPare(String documentCodi) {
+		comprovarCodiDocument(documentCodi);
+		String processPareId = processPareId();
+		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
+			expedient.getId(),
+			processId,
+			null,
+			documentCodi);
+		if (documentStore == null) {
+			// Com a Helium 3: si el subprocés no té el document no es fa res
+			return;
+		}
+		expedientDocumentHelper.setDocument(expedient.getId(), processPareId, null, documentStore);
+	}
+
+	@Override
+	public void documentLlegirProcesPare(String documentCodi) {
+		comprovarCodiDocument(documentCodi);
+		String processPareId = processPareId();
+		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
+			expedient.getId(),
+			processPareId,
+			null,
+			documentCodi);
+		if (documentStore == null) {
+			throw new HeliumHandlerException("No s'ha trobat el document " + documentCodi + " al procés pare (id=" + processPareId + ")");
+		}
+		expedientDocumentHelper.setDocument(expedient.getId(), processIdObligatori(), null, documentStore);
+	}
+
+	@Override
+	public void documentCopiarAExpedient(
+			String documentCodi,
+			String expedientTipusCodi,
+			String expedientNumero,
+			String documentDestiCodi) {
+		comprovarCodiDocument(documentCodi);
+		DocumentInfo document = getDocumentInfo(documentCodi, true);
+		Expedient desti = findExpedientEntorn(expedientTipusCodi, expedientNumero);
+		guardarCopiaDocument(
+			desti.getProcessInstanceId(),
+			documentDestiCodi != null ? documentDestiCodi : documentCodi,
+			document);
+	}
+
+	@Override
+	public void documentCopiarDesDExpedient(
+			String expedientTipusCodi,
+			String expedientNumero,
+			String documentOrigenCodi,
+			String documentCodi) {
+		comprovarCodiDocument(documentCodi);
+		Expedient origen = findExpedientEntorn(expedientTipusCodi, expedientNumero);
+		DocumentInfo document = documentInfo(
+			origen,
+			origen.getProcessInstanceId(),
+			null,
+			documentOrigenCodi != null ? documentOrigenCodi : documentCodi,
+			true);
+		guardarCopiaDocument(processIdObligatori(), documentCodi, document);
+	}
+
+	@Override
+	public DocumentInfo documentGenerar(String documentCodi, Date data) {
+		comprovarCodiDocument(documentCodi);
+		Document document = documentHelperV3.findDocumentDisseny(expedient.getId(), processId, documentCodi);
+		if (document == null) {
+			throw new HeliumHandlerException("No s'ha trobat el document " + documentCodi);
+		}
+		if (!document.isPlantilla()) {
+			throw new HeliumHandlerException("El document " + documentCodi + " no té plantilla");
+		}
+		Date dataDocument = data != null ? data : new Date();
+		ArxiuDto generat = documentHelperV3.generarDocumentAmbPlantillaIConvertir(
+			expedient,
+			document,
+			taskId,
+			processIdObligatori(),
+			dataDocument);
+		return setDocument(
+			documentCodi,
+			generat.getNom(),
+			generat.getContingut(),
+			dataDocument,
+			false,
+			false,
+			null);
+	}
+
+	@Override
+	public RespostaRegistre registreSortida(DadesRegistreSortida dades) {
+		comprovarCodiDocument(dades.getDocumentCodi());
+		DocumentInfo document = getDocumentInfo(dades.getDocumentCodi(), true);
+		String usuariCodi = dades.getUsuariCodi() != null ? dades.getUsuariCodi() : usuariActual();
+
+		RegistreAnotacio anotacio = new RegistreAnotacio();
+		anotacio.setExpedientNumero(expedient.getNumero());
+		anotacio.setEntitatCodi(dades.getEntitatCodi());
+		anotacio.setOrgan(dades.getOrganOrigen());
+		anotacio.setOficinaCodi(dades.getOficinaCodi());
+		anotacio.setLlibreCodi(dades.getLlibreCodi());
+		anotacio.setExtracte(dades.getExtracte() != null && !dades.getExtracte().isEmpty()
+			? dades.getExtracte()
+			: extracteRegistre(document));
+		anotacio.setDocumentacioFisicaCodi(dades.getDocumentacioFisicaCodi());
+		anotacio.setAssumpteTipusCodi(dades.getAssumpteTipusCodi());
+		anotacio.setAssumpteCodi(dades.getAssumpteCodi());
+		anotacio.setUsuariCodi(usuariCodi);
+		anotacio.setIdiomaCodi(dades.getIdiomaCodi() != null ? dades.getIdiomaCodi() : "ca");
+		RegistreInteressat interessat = toRegistreInteressat(dades.getInteressat());
+		RegistreInteressat representant = toRegistreInteressat(dades.getRepresentant());
+		interessat.setRepresentant(representant.getTipus() != null ? representant : null);
+		anotacio.setInteressats(new ArrayList<>(List.of(interessat)));
+
+		RegistreAnnex annex = new RegistreAnnex();
+		annex.setTitol(document.getTitol());
+		annex.setDataCaptura(document.getDataDocument());
+		annex.setFitxerNom(document.getArxiuNom());
+		annex.setFitxerContingut(document.getArxiuContingut());
+		annex.setTipusDocument(dades.getDocumentTipus());
+		annex.setTipusDocumental(dades.getDocumentTipusDocumental());
+		annex.setOrigen(dades.getDocumentOrigen());
+		annex.setFirmaMode(dades.getDocumentModeFirma());
+		annex.setObservacions(dades.getDocumentObservacions());
+		annex.setValidesa(dades.getDocumentValidesa());
+		anotacio.setAnnexos(new ArrayList<>(List.of(annex)));
+
+		RegistreIdDto registreId = pluginHelper.registreAnotacioSortida(anotacio, expedient);
+		String entitatRegistre = GlobalProperties.getInstance().getProperty("app.registre.codi.entitat");
+		String oficinaNom = pluginHelper.registreOficinaNom(
+			registreId.getNumero(),
+			usuariCodi,
+			entitatRegistre != null ? entitatRegistre : dades.getEntitatCodi(),
+			expedient);
+		documentHelperV3.guardarDadesRegistre(
+			document.getId(),
+			registreId.getNumero(),
+			registreId.getData(),
+			anotacio.getOficinaCodi(),
+			oficinaNom,
+			false);
+		RespostaRegistre resposta = new RespostaRegistre();
+		resposta.setNumero(registreId.getNumero());
+		resposta.setData(registreId.getData());
+		return resposta;
+	}
+
+	@Override
+	public void consultaPinbal(ConsultaPinbal consulta) {
+		// Els serveis amb client propi al plugin; la resta, pel client genèric
+		String serveiEspecific = consulta.getServeiCodi() != null
+				&& List.of(
+					PluginHelper.serveiConsultaDades,
+					PluginHelper.serveiVerificacioDades,
+					PluginHelper.serveiObligacionsTributaries).contains(consulta.getServeiCodi())
+			? consulta.getServeiCodi()
+			: null;
+		// Una consulta asíncrona deixa la tasca del handler esperant la resposta, que la reprèn per transicioOK
+		String tokenId = null;
+		ExecucioHandler execucio = ExecucioHandler.actual();
+		if (consulta.isAsincrona() && execucio != null) {
+			tokenId = execucio.esperarResposta();
+		}
+		serveis.getConsultaPinbalHelper().consultaDesDeHandler(
+			expedient,
+			processIdObligatori(),
+			tokenId,
+			consulta,
+			serveiEspecific);
+	}
+
+	private String processIdObligatori() {
+		if (processId == null) {
+			throw new HeliumHandlerException("Aquesta operació només es pot fer dins una instància de procés");
+		}
+		return processId;
+	}
+
+	private String processPareId() {
+		WProcessInstance processInstance = serveis.getWorkflowEngineApi().getProcessInstance(processIdObligatori());
+		if (processInstance == null || processInstance.getParentProcessInstanceId() == null) {
+			throw new HeliumHandlerException("El procés no té pare (id=" + processId + ")");
+		}
+		return processInstance.getParentProcessInstanceId();
+	}
+
+	private static void comprovarCodiDocument(String documentCodi) {
+		if (documentCodi == null || documentCodi.isEmpty()) {
+			throw new HeliumHandlerException("No s'ha especificat cap codi de document");
+		}
+	}
+
+	/** Expedient del mateix entorn. Si no s'indica el tipus, el de l'expedient actual. */
+	private Expedient findExpedientEntorn(String expedientTipusCodi, String expedientNumero) {
+		ExpedientTipus tipus = expedientTipusCodi != null
+			? serveis.getExpedientTipusRepository().findByEntornAndCodi(expedient.getEntorn(), expedientTipusCodi)
+			: expedient.getTipus();
+		if (tipus == null) {
+			throw new HeliumHandlerException("No s'ha trobat el tipus d'expedient " + expedientTipusCodi);
+		}
+		Expedient trobat = serveis.getExpedientRepository().findByTipusAndNumero(tipus, expedientNumero);
+		if (trobat == null) {
+			throw new HeliumHandlerException("No s'ha trobat l'expedient (expedientTipusCodi=" + tipus.getCodi() + ", expedientNumero=" + expedientNumero + ")");
+		}
+		return trobat;
+	}
+
+	/** Desa una còpia del document (contingut i dades de registre) a la instància de procés indicada. */
+	private void guardarCopiaDocument(String processInstanceId, String documentCodi, DocumentInfo document) {
+		DocumentStore copia = documentHelperV3.crearActualitzarDocument(
+			null,
+			processInstanceId,
+			documentCodi,
+			document.getDataDocument(),
+			document.getArxiuNom(),
+			document.getArxiuContingut(),
+			null,
+			document.isSignat(),
+			false,
+			null,
+			null,
+			null,
+			null,
+			null);
+		if (document.isRegistrat()) {
+			documentHelperV3.guardarDadesRegistre(
+				copia.getId(),
+				document.getRegistreNumero(),
+				document.getRegistreData(),
+				document.getRegistreOficinaCodi(),
+				document.getRegistreOficinaNom(),
+				document.isRegistreEntrada());
+		}
+	}
+
+	/** Extracte per defecte, com a Helium 3: "[número] títol: document". */
+	private String extracteRegistre(DocumentInfo document) {
+		StringBuilder extracte = new StringBuilder();
+		if (expedient.getNumero() != null && !expedient.getNumero().isEmpty()) {
+			extracte.append("[").append(expedient.getNumero()).append("]");
+		}
+		if (expedient.getTitol() != null && !expedient.getTitol().isEmpty()) {
+			if (extracte.length() > 0) {
+				extracte.append(" ");
+			}
+			extracte.append(StringUtilsHelium.abreuja(expedient.getTitol(), 50));
+		}
+		if (extracte.length() > 0) {
+			extracte.append(": ");
+		}
+		extracte.append(document.getTitol() != null ? document.getTitol() : document.getCodiDocument());
+		return StringUtilsHelium.abreuja(extracte.toString(), 250);
+	}
+
+	private static RegistreInteressat toRegistreInteressat(DadesRegistreInteressat dades) {
+		RegistreInteressat interessat = new RegistreInteressat();
+		if (dades == null) {
+			return interessat;
+		}
+		interessat.setTipus(dades.getTipus() != null ? RegistreInteressatTipusEnum.valueOf(dades.getTipus()) : null);
+		interessat.setDocumentTipus(dades.getDocumentTipus() != null ? RegistreInteressatDocumentTipusEnum.valueOf(dades.getDocumentTipus()) : null);
+		interessat.setDocumentNum(dades.getDocumentNum());
+		interessat.setEmail(dades.getEmail());
+		interessat.setTelefon(dades.getTelefon());
+		interessat.setNom(dades.getNom());
+		interessat.setLlinatge1(dades.getLlinatge1());
+		interessat.setLlinatge2(dades.getLlinatge2());
+		interessat.setRaoSocial(dades.getRaoSocial());
+		interessat.setPais(dades.getPais());
+		interessat.setProvincia(dades.getProvincia());
+		interessat.setMunicipi(dades.getMunicipi());
+		interessat.setCodiPostal(dades.getCodiPostal());
+		interessat.setAdresa(dades.getAdresa());
+		return interessat;
+	}
+
+	private String usuariActual() {
+		org.springframework.security.core.Authentication auth =
+			org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+		return auth != null ? auth.getName() : expedient.getResponsableCodi();
 	}
 
 	@Override

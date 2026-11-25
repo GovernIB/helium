@@ -22,6 +22,10 @@ import java.util.Date;
 public class BpmHeliumHelper implements BpmnHeliumService {
 
 	@Autowired
+	@org.springframework.context.annotation.Lazy
+	private es.caib.helium.logic.bpmn.HeliumApiServeis heliumApiServeis;
+
+	@Autowired
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Autowired
 	private PluginHelper pluginHelper;
@@ -59,7 +63,8 @@ public class BpmHeliumHelper implements BpmnHeliumService {
 			pluginHelper,
 			alertaHelper,
 			expedientInteressatHelper,
-			mailHelper);
+			mailHelper,
+			heliumApiServeis);
 	}
 
 	@Override

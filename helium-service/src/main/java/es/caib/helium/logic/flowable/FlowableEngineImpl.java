@@ -347,7 +347,23 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			return toWProcessInstance(hpi);
 		}
 
-		return toWProcessInstance(pi);
+		WProcessInstance wpi = toWProcessInstance(pi);
+		if (pi.getSuperExecutionId() != null) {
+			// Subprocés (activitat de crida): el pare és la instància de l'execució que l'ha cridat
+			Execution superExecution = processEngine.getRuntimeService()
+				.createExecutionQuery()
+				.executionId(pi.getSuperExecutionId())
+				.singleResult();
+			if (superExecution != null) {
+				wpi.setParentProcessInstanceId(superExecution.getProcessInstanceId());
+			}
+		}
+		return wpi;
+	}
+
+	@Override
+	public void setProcessInstanceTitol(String processInstanceId, String titol) {
+		processEngine.getRuntimeService().setProcessInstanceName(processInstanceId, titol);
 	}
 
 	@Override
@@ -1397,7 +1413,8 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			wpi.setParentProcessInstanceId(pi.getParentId());
 			wpi.setRootProcessInstanceId(pi.getRootProcessInstanceId());
 			wpi.setStartTime(pi.getStartTime());
-			wpi.setDescription(pi.getDescription());
+			// El títol de la instància (ProcesTitolModificarHandler) és el nom de la instància de Flowable
+			wpi.setDescription(pi.getName() != null ? pi.getName() : pi.getDescription());
 			wpi.setSuspended(pi.isSuspended());
 		}
 		return wpi;
@@ -1421,7 +1438,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			wpi.setParentProcessInstanceId(pi.getSuperProcessInstanceId());
 			wpi.setStartTime(pi.getStartTime());
 			wpi.setEndTime(pi.getEndTime());
-			wpi.setDescription(pi.getDescription());
+			wpi.setDescription(pi.getName() != null ? pi.getName() : pi.getDescription());
 		}
 		return wpi;
 	}

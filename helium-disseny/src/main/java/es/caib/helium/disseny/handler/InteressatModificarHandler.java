@@ -29,4 +29,5 @@ public interface InteressatModificarHandler {
 	void setProvincia(String provincia);
 	void setMunicipi(String municipi);
 	void setCanalNotif(String canalNotif);
+	void setCodiPostal(String codiPostal);
 }

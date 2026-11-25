@@ -75,7 +75,7 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 
 	private String titularMobil;
 
-	private String titularCodiDir3;
+	private String titularDir3Codi;
 
 	private String titularTipus;
 
@@ -92,7 +92,6 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 
 	private String destinatariMobil;
 
-	private String destinatariCodiDir3;
 
 	private String destinatariTipus;
 
@@ -272,7 +271,7 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 		titular.setLlinatge1(titularLlin1);
 		titular.setLlinatge2(titularLlin2);
 		titular.setDni(titularNif);
-		titular.setCodiDir3(titularCodiDir3);
+		titular.setCodiDir3(titularDir3Codi);
 
 		titular.setTipus(titularTipus);
 		String mobil = titularMobil;
@@ -293,7 +292,7 @@ public class NotificacioAltaHandler extends AbstractHeliumActionHandler implemen
 		destinatari.setDni(destinatariNif);
 		destinatari.setTelefon(destinatariMobil);
 		destinatari.setEmail(destinatariEmail);
-		destinatari.setCodiDir3(destinatariCodiDir3);
+		destinatari.setCodiDir3(destinatariDir3Codi);
 		destinatari.setTipus(destinatariTipus);
 		// El destinatari no és obligatori, s'afegeix si s'ha escollit el tipus
 		if (destinatari.getTipus() != null) {

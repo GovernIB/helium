@@ -34,6 +34,7 @@ public class InteressatCrearHandler extends AbstractHeliumActionHandler implemen
 	private String provincia;
 	private String municipi;
 	private String canalNotif;
+	private String codiPostal;
 
 	@Override
 	public void execute(HeliumApi heliumApi) throws HeliumHandlerException {
@@ -58,7 +59,8 @@ public class InteressatCrearHandler extends AbstractHeliumActionHandler implemen
 			pais,
 			provincia,
 			municipi,
-			canalNotif
+			canalNotif,
+			codiPostal
 		);
 	}
 

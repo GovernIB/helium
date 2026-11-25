@@ -207,6 +207,10 @@ import es.caib.pluginsib.arxiu.caib.ArxiuConversioHelper;
 @Service("expedientServiceV3")
 public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListener {
 
+	@Autowired
+	@org.springframework.context.annotation.Lazy
+	private es.caib.helium.logic.bpmn.HeliumApiServeis heliumApiServeis;
+
 	private static List<Long> currentlyMigratingExpedients = Collections.synchronizedList(new ArrayList<Long>());
 
 	private ExpedientService self;
@@ -1897,7 +1901,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			pluginHelper,
 			alertaHelper,
 			expedientInteressatHelper,
-			mailHelper), script);
+			mailHelper,
+			heliumApiServeis), script);
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				expedientId,
