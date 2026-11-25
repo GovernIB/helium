@@ -365,9 +365,15 @@ const createScriptTaskPropertiesGroup = () => {
 // Flowable Call Activity
 // ---------------------------------------------------------------------------
 
+/** Clau del procés que es crida: atribut estàndard bpmn:callActivity/@calledElement. */
+const CalledElement = createTextField({
+    property: 'bpmn:calledElement',
+    label: 'Procés cridat',
+});
+
 const CalledElementType = createTextField({
     property: 'calledElementType',
-    label: 'Element cridat',
+    label: "Tipus de referència del procés cridat (key o id)",
 });
 
 const BusinessKey = createTextField({
@@ -398,6 +404,11 @@ const createCallActivityPropertiesGroup = () => {
         id: 'flowable-call-activity',
         label: 'Activitat de crida',
         entries: [
+            {
+                id: 'flowable-called-element',
+                component: CalledElement,
+                isEdited: isTextFieldEntryEdited,
+            },
             {
                 id: 'flowable-called-element-type',
                 component: CalledElementType,

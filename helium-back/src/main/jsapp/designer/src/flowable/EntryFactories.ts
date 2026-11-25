@@ -39,8 +39,11 @@ export type EntryFactories = {
 };
 
 export function createEntryFactories(prefix: string): EntryFactories {
+    /** Els atributs estàndard s'indiquen amb 'bpmn:' i es desen sense prefix; la resta van amb el prefix de l'extensió. */
     const fullProperty = (property: string) =>
-        property.includes(':') ? property : `${prefix}:${property}`;
+        property.startsWith('bpmn:')
+            ? property.substring('bpmn:'.length)
+            : property.includes(':') ? property : `${prefix}:${property}`;
 
     const createTextField =
         (config: TextFieldConfig) =>
