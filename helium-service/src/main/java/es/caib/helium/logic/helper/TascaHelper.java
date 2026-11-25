@@ -3,6 +3,7 @@ package es.caib.helium.logic.helper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -768,6 +769,56 @@ public class TascaHelper {
 	/// Crea o actualitza la tasca d'expedient a base de dades
 	/// @param taskInstanceId Identificador de la tasca
 	///
+	/**
+	 * Marca la tasca per finalitzar-la en segon pla. Es desa a ExpedientTasca (amb jBPM eren columnes de
+	 * JBPM_TASKINSTANCE) perquè no es perdi si l'aplicació es reinicia abans de finalitzar-la.
+	 *
+	 * @param outcome transició triada per l'usuari.
+	 * @param rols rols de l'usuari, separats per comes, amb què es finalitzarà la tasca.
+	 */
+	public void marcarFinalitzarSegonPla(String taskId, Date marcadaFinalitzar, String outcome, String rols) {
+		ExpedientTasca tasca = getExpedientTascaSegonPla(taskId);
+		tasca.setMarcadaFinalitzar(marcadaFinalitzar);
+		tasca.setIniciFinalitzacio(null);
+		tasca.setErrorFinalitzacio(null);
+		tasca.setSelectedOutcome(outcome);
+		tasca.setRols(rols);
+	}
+
+	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio) {
+		getExpedientTascaSegonPla(taskId).setIniciFinalitzacio(iniciFinalitzacio);
+	}
+
+	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio) {
+		if (errorFinalitzacio != null && errorFinalitzacio.length() > 1000) {
+			errorFinalitzacio = errorFinalitzacio.substring(0, 1000);
+		}
+		getExpedientTascaSegonPla(taskId).setErrorFinalitzacio(errorFinalitzacio);
+	}
+
+	/** Informació de la tasca per finalitzar-la en segon pla. */
+	public ExpedientTasca getExpedientTascaSegonPla(String taskId) {
+		ExpedientTasca tasca = expedientTascaRepository.findByTaskId(taskId);
+		if (tasca == null) {
+			refreshExpedientTasca(taskId);
+			tasca = expedientTascaRepository.findByTaskId(taskId);
+		}
+		if (tasca == null) {
+			throw new NoTrobatException(ExpedientTasca.class, taskId);
+		}
+		return tasca;
+	}
+
+	/**
+	 * Actualitza a ExpedientTasca l'estat de les tasques de l'expedient que no consten com a completades, després
+	 * d'una operació del motor que les afecta (finalitzar, anul·lar, desanul·lar...).
+	 */
+	public void refrescarTasquesNoCompletades(Long expedientId) {
+		for (ExpedientTasca tasca : expedientTascaRepository.findNoCompletadesByExpedientId(expedientId)) {
+			refreshExpedientTasca(tasca.getTaskId());
+		}
+	}
+
 	public void refreshExpedientTasca(String taskInstanceId) {
 		this.refreshExpedientTasca(taskInstanceId, null);
 	}

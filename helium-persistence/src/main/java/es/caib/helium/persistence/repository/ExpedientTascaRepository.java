@@ -22,6 +22,21 @@ import java.util.List;
 public interface ExpedientTascaRepository extends JpaRepository<ExpedientTasca, Long> {
 	public ExpedientTasca findByTaskId(String taskId);
 
+	/**
+	 * Tasques marcades per finalitzar en segon pla que encara estan pendents (no completades, cancel·lades ni
+	 * suspeses), per ordre de marca.
+	 */
+	@Query("FROM ExpedientTasca et WHERE et.marcadaFinalitzar IS NOT NULL " +
+			"	AND (et.completed IS NULL OR et.completed = false) " +
+			"	AND (et.cancelled IS NULL OR et.cancelled = false) " +
+			"	AND (et.suspended IS NULL OR et.suspended = false) " +
+			"	ORDER BY et.marcadaFinalitzar ASC")
+	List<ExpedientTasca> findPendentsFinalitzarSegonPla();
+
+	/** Tasques de l'expedient que no consten com a completades. */
+	@Query("FROM ExpedientTasca et WHERE et.expedient.id = :expedientId AND (et.completed IS NULL OR et.completed = false)")
+	List<ExpedientTasca> findNoCompletadesByExpedientId(@Param("expedientId") Long expedientId);
+
 
 	@Query(	" FROM ExpedientTasca et " +
 			"	WHERE et.expedient.entorn.id = :entornId " +

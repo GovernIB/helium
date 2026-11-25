@@ -145,7 +145,7 @@
 
 	<script type="text/javascript">
 		// <![CDATA[
-		var tokenId = ${psignaPendentActual.tokenId != null ? psignaPendentActual.tokenId : "null"};
+		var ambFlux = ${psignaPendentActual.tokenId != null};
 
 		$(document).ready(function() {
 
@@ -155,7 +155,7 @@
 
 			$('button[name=btnCancelarEnviament]').click(function(e) {
 				let confirmMsg = "Esteu segur que voleu cancel·lar la petició de firma del document?";
-				if (tokenId != null) {
+				if (ambFlux) {
 					confirmMsg = confirmMsg + " Si confirmeu es cancel·larà la petició al Portafirmes i el flux associat continuarà com si s'hagués rebutjat.";
 				}
 				if (confirm(confirmMsg)) {

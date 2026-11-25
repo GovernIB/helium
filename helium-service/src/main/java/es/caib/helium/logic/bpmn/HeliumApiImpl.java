@@ -658,6 +658,12 @@ public class HeliumApiImpl implements HeliumApi {
 		if (personaCodisPas3 != null) {
 			blocList.add(toPortafirmesFluxBlocDto(personaCodisPas3, minSignatarisPas3));
 		}
+		// Dins el motor, la tasca del handler queda esperant la resposta del portasignatures (com l'estat de jBPM on
+		// s'aturava el token) i el callback la reprèn per transicioOK/transicioKO. Fora del motor (accions) no hi ha
+		// cap execució per reprendre.
+		ExecucioHandler execucio = ExecucioHandler.actual();
+		String executionId = execucio != null ? execucio.esperarResposta() : null;
+		String processInstanceId = execucio != null ? execucio.getProcessInstanceId() : null;
 		return pluginHelper.portasignaturesEnviar(
 			toPortafirmesDocumentDto(documentCodi),
 			annexos,
@@ -665,8 +671,8 @@ public class HeliumApiImpl implements HeliumApi {
 			expedient,
 			importancia,
 			dataLimit,
-			null,
-			null,
+			executionId,
+			processInstanceId,
 			transicioOK,
 			transicioKO,
 			PortafirmesSimpleTipusEnumDto.SERIE,

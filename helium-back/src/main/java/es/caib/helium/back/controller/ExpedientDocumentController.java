@@ -2596,7 +2596,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		PortasignaturesDto psignaPendentActual = expedientDocumentService.getPortasignaturesByDocumentStoreId(processInstanceId, documentStoreId);
 		model.addAttribute("psignaPendentActual", psignaPendentActual);
 		if (psignaPendentActual.getTokenId() != null) {
-			TokenDto token = expedientTokenService.findById(expedientId, processInstanceId, psignaPendentActual.getTokenId().toString());
+			TokenDto token = expedientTokenService.findById(expedientId, processInstanceId, psignaPendentActual.getTokenId());
 			model.addAttribute("token", token);
 		}
 		if(psignaPendentActual.getDocumentId() != null) {
@@ -2742,13 +2742,16 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				expedientDocumentService.portafirmesCancelar(
 							psignaPendentActual.getDocumentId());
 			} else {
-				// TODO: Substituir la crida del core 2.6
+				// El flux espera la resposta del portasignatures: es cancel·la la petició i el flux continua com si
+				// s'hagués rebutjat (transicioKO)
 				PersonaDto usuariActual = aplicacioService.findPersonaActual();
 				String motiu = "Petició de firma cancel·lada des d'Helium per l'usuari " + usuariActual.getCodi() + " " + usuariActual.getNomSencer();
-//				pluginService.processarDocumentCallbackPortasignatures(
-//							psignaPendentActual.getDocumentId(),
-//							true,
-//							motiu);
+				expedientDocumentService.portafirmesCancelar(
+							psignaPendentActual.getDocumentId());
+				portasignaturesService.processarDocumentCallbackPortasignatures(
+							psignaPendentActual.getDocumentId(),
+							true,
+							motiu);
 			}
 			MissatgesHelper.success(
 					request,

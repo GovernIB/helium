@@ -424,7 +424,7 @@ public class ExpedientDocumentServiceBean extends AbstractServiceEjb<ExpedientDo
 			ExpedientDto expedient,
 			String importancia,
 			Date dataLimit,
-			Long tokenId,
+			String tokenId,
 			String processInstanceId,
 			String transicioOK,
 			String transicioKO,

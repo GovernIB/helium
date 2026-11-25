@@ -639,6 +639,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			Date dataFinalitzacio = new Date();
 			workflowEngineApi.finalitzarExpedient(ids, dataFinalitzacio);
 			expedient.setDataFi(dataFinalitzacio);
+			tascaHelper.refrescarTasquesNoCompletades(expedient.getId());
 			expedientLoggerHelper.afegirLogExpedientPerExpedient(
 					expedient.getId(),
 					ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR,
@@ -1398,6 +1399,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		for (WProcessInstance pi: processInstancesTree)
 			ids[i++] = pi.getId().toString();
 		workflowEngineApi.suspendProcessInstances(ids);
+		tascaHelper.refrescarTasquesNoCompletades(expedient.getId());
 		expedient.setAnulat(true);
 		expedient.setComentariAnulat(motiu);
 		expedientDadaHelper.deleteByExpedient(expedient.getId());
@@ -1435,7 +1437,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		int i = 0;
 		for (WProcessInstance pi: processInstancesTree)
 			ids[i++] = pi.getId().toString();
-		workflowEngineApi.resumeProcessInstances(ids);
+		// Un expedient finalitzat manualment ha de continuar amb les instàncies suspeses
+		if (expedient.getDataFi() == null) {
+			workflowEngineApi.resumeProcessInstances(ids);
+			tascaHelper.refrescarTasquesNoCompletades(expedient.getId());
+		}
 		expedient.setAnulat(false);
 	}
 

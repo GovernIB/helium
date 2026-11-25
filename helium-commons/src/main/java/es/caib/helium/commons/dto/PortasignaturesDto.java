@@ -16,7 +16,7 @@ public class PortasignaturesDto implements Serializable {
 	private Integer documentId;
 	private String documentNom;
 	private String documentUUID;
-	private Long tokenId;
+	private String tokenId;
 	private Date dataEnviat;
 	private String estat;
 	private String transicio;
@@ -64,10 +64,10 @@ public class PortasignaturesDto implements Serializable {
 	public void setDocumentId(Integer documentId) {
 		this.documentId = documentId;
 	}
-	public Long getTokenId() {
+	public String getTokenId() {
 		return tokenId;
 	}
-	public void setTokenId(Long tokenId) {
+	public void setTokenId(String tokenId) {
 		this.tokenId = tokenId;
 	}
 	public Date getDataEnviat() {

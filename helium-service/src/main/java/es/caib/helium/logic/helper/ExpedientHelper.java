@@ -14,6 +14,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -171,6 +172,9 @@ public class ExpedientHelper {
 	private MailHelper mailHelper;
 	@Autowired
 	private HeliumHandlerFactory heliumHandlerFactory;
+	@Autowired
+	@Lazy
+	private TascaHelper tascaHelper;
 
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
 
@@ -746,6 +750,8 @@ public class ExpedientHelper {
 		Date dataFinalitzacio = new Date();
 		workflowEngineApi.finalitzarExpedient(ids.toArray(new String[0]), dataFinalitzacio);
 		expedient.setDataFi(dataFinalitzacio);
+		// Les tasques obertes s'han cancel·lat
+		tascaHelper.refrescarTasquesNoCompletades(expedient.getId());
 
 		//tancam l'expedient de l'arxiu si escau
 		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
@@ -834,7 +840,10 @@ public class ExpedientHelper {
 
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 		logger.debug("Desfer finalització de l'expedient (id=" + expedient.getId() + ")");
-		workflowEngineApi.desfinalitzarExpedient(expedient.getProcessInstanceId());
+		// Un expedient anul·lat ha de continuar amb les instàncies suspeses fins que es desanul·li
+		if (!expedient.isAnulat()) {
+			workflowEngineApi.desfinalitzarExpedient(expedient.getProcessInstanceId());
+		}
 		expedient.setDataFi(null);
 		expedientRegistreHelper.crearRegistreReprendreExpedient(
 				expedient.getId(),

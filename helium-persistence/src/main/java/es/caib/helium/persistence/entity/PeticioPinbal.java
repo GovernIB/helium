@@ -47,8 +47,8 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 	@NotFound(action=NotFoundAction.IGNORE)
 	@JoinColumn(name="DOCUMENT_ID")
 	private DocumentStore document;
-	@Column(name="TOKEN_ID")
-	private Long tokenId;
+	@Column(name="TOKEN_ID", length=64)
+	private String tokenId;
 	private String procediment;
 	@Column(name="SERVEI_CODI")
 	private String serveiCodi;
@@ -239,10 +239,10 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 	public void setErrorProcessament(String errorProcessament) {
 		this.errorProcessament = errorProcessament;
 	}
-	public Long getTokenId() {
+	public String getTokenId() {
 		return tokenId;
 	}
-	public void setTokenId(Long tokenId) {
+	public void setTokenId(String tokenId) {
 		this.tokenId = tokenId;
 	}
 }

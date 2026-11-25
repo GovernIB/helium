@@ -92,6 +92,22 @@ public class ExpedientTasca implements Serializable, GenericEntity<Long> {
 	@Column(name="VALIDATED")
 	private Boolean validated;
 
+	// Finalització en segon pla (amb jBPM eren columnes de JBPM_TASKINSTANCE)
+	/** Data en què l'usuari ha completat la tasca i ha quedat pendent de finalitzar en segon pla. */
+	@Column(name="MARCADA_FINALITZAR")
+	private Date marcadaFinalitzar;
+	/** Data en què el procés en segon pla ha començat a finalitzar la tasca. */
+	@Column(name="INICI_FINALITZACIO")
+	private Date iniciFinalitzacio;
+	@Column(name="ERROR_FINALITZACIO", length = 1000)
+	private String errorFinalitzacio;
+	/** Transició triada per l'usuari en completar la tasca. */
+	@Column(name="SELECTED_OUTCOME", length = 255)
+	private String selectedOutcome;
+	/** Rols de l'usuari que ha completat la tasca, separats per comes, per finalitzar-la en el seu nom. */
+	@Column(name="ROLS", length = 2000)
+	private String rols;
+
 	@OneToMany(mappedBy="tasca", fetch=FetchType.LAZY, cascade={CascadeType.ALL})
 	private List<TascaCandidate> candidates;
 

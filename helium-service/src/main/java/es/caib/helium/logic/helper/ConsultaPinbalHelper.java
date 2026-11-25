@@ -48,10 +48,11 @@ public class ConsultaPinbalHelper {
 
 				// Segons el resultat de la resposta avança l'expedient
 				if (pi.getTokenId() != null) {
-					WToken token = workflowEngineApi.getTokenById(pi.getTokenId().toString());
-					if (token!=null && token.isReceiveTask()) {
+					// Execució que espera la resposta (tasca del handler de PINBAL)
+					WToken token = workflowEngineApi.getTokenById(pi.getTokenId());
+					if (token != null) {
 						if (pi.getTransicioOK() != null && token.getSortides().contains(pi.getTransicioOK())) {
-							workflowEngineApi.signalToken(pi.getTokenId().longValue(), pi.getTransicioOK());
+							workflowEngineApi.signalToken(pi.getTokenId(), pi.getTransicioOK());
 						} else {
 							workflowEngineApi.signalToken(pi.getTokenId(), null);
 						}

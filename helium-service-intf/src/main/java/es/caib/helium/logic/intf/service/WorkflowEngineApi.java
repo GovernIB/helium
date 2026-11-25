@@ -751,12 +751,6 @@ public interface WorkflowEngineApi {
 	public void desfinalitzarExpedient(String processInstanceId);
 
 
-	/** Tasques en segón pla */
-	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome, String rols);
-	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio);
-	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio);
-	public List<Object[]> getTasquesSegonPlaPendents();
-
 	/** Eliminació de definicions de procés */
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId);
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId);
@@ -836,7 +830,6 @@ public interface WorkflowEngineApi {
 
 	public void executeHandlerPredefinit(String processInstanceId, String handlerClasse, Map<String, String> dades);
 
-	public void signalToken(long longValue, String transicioOK);
 
 	/** Mètode per interpretar, validar i retornar la definició de procés a partir del contingut.
 	 *

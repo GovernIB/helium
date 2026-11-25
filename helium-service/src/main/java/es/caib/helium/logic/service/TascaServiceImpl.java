@@ -5,6 +5,7 @@ package es.caib.helium.logic.service;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -1328,9 +1329,9 @@ public class TascaServiceImpl implements TascaService {
 			//recollim els rols del tipus de l'expedient
 			String rols = expedientTipusHelper.getRolsTipusExpedient(auth, expedient.getTipus());
 
-			workflowEngineApi.marcarFinalitzar(taskInstanceId, marcadaFinalitzar, outcome, rols);
-			checkFinalitzarSegonPla(taskInstanceId, marcadaFinalitzar);
 			tascaHelper.refreshExpedientTasca(taskInstanceId);
+			tascaHelper.marcarFinalitzarSegonPla(taskInstanceId, marcadaFinalitzar, outcome, rols);
+			checkFinalitzarSegonPla(taskInstanceId, marcadaFinalitzar);
 			expedientLoggerHelper.afegirLogExpedientPerTasca(
 					taskInstanceId,
 					expedient.getId(),
@@ -1626,6 +1627,7 @@ public class TascaServiceImpl implements TascaService {
 
 					try {
 						tascaSegonPlaHelper.completaTascaSegonPla(tascaId, iniciFinalitzacio);
+						infoSegonPla.setCompletada(true);
 					} catch (Exception ex) {
 						if (infoSegonPla.getError() == null || infoSegonPla.getError() == "") {
 							String nouError;
@@ -1673,13 +1675,15 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional
 	public void carregaTasquesSegonPla() {
 		if (!tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			//Primer carregam les ids de les tasques pendents d'executar en segon pla
-			List<Object[]> tasquesSegonPlaIds = workflowEngineApi.getTasquesSegonPlaPendents();
+			// Primer carregam les tasques pendents d'executar en segon pla (desades a ExpedientTasca)
+			List<ExpedientTasca> tasquesSegonPla = expedientTascaRepository.findPendentsFinalitzarSegonPla();
 			tascaSegonPlaHelper.loadTasquesSegonPla();
-			if(tasquesSegonPlaIds.size() > 0) {
-				for(Object[] taskResult: tasquesSegonPlaIds) {
-					tascaSegonPlaHelper.afegirTasca((String)taskResult[0], (Date)taskResult[1], (Date)taskResult[2], (String)taskResult[3]);
-				}
+			for (ExpedientTasca tasca : tasquesSegonPla) {
+				tascaSegonPlaHelper.afegirTasca(
+						tasca.getTaskId(),
+						tasca.getMarcadaFinalitzar(),
+						tasca.getIniciFinalitzacio(),
+						tasca.getErrorFinalitzacio());
 			}
 		}
 	}
@@ -1688,6 +1692,8 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional
 	public void completaTascaSegonPla(String taskInstanceId, Date iniciFinalitzacio) {
         WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
+        // Transició i rols desats quan l'usuari va completar la tasca
+        ExpedientTasca infoSegonPla = tascaHelper.getExpedientTascaSegonPla(taskInstanceId);
 
         Authentication orgAuth = SecurityContextHolder.getContext().getAuthentication();
         if (orgAuth == null) {
@@ -1703,18 +1709,20 @@ public class TascaServiceImpl implements TascaService {
             Authentication authentication =  new UsernamePasswordAuthenticationToken (
             		principal,
 					"N/A",
-					getAuthenticationRoles(task.getRols()));
+					getAuthenticationRoles(infoSegonPla.getRols() != null
+							? Arrays.asList(infoSegonPla.getRols().split(","))
+							: null));
 
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
-        workflowEngineApi.marcarIniciFinalitzacioSegonPla(taskInstanceId, iniciFinalitzacio);
+        tascaHelper.marcarIniciFinalitzacioSegonPla(taskInstanceId, iniciFinalitzacio);
 		tascaHelper.refreshExpedientTasca(taskInstanceId);
 
         completarTasca(
                 taskInstanceId,
                 task,
-                task.getSelectedOutcome(),
+                infoSegonPla.getSelectedOutcome(),
                 task.getActorId());
 
         SecurityContextHolder.getContext().setAuthentication(orgAuth);
@@ -1723,7 +1731,7 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional
 	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio) {
-		workflowEngineApi.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
+		tascaHelper.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
 	}
 
 	@Override

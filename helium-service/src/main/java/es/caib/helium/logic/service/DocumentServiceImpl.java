@@ -913,7 +913,7 @@ public class DocumentServiceImpl implements DocumentService {
 			String idPeticioPinbal,
 			Date dataPeticio,
 			Date dataPrevista,
-			Long tokenId) {
+			String tokenId) {
 		//Cream la petició pinbal per el historic de peticions
 		PeticioPinbal peticio = new PeticioPinbal();
 		peticio.setDataPeticio(dataPeticio);

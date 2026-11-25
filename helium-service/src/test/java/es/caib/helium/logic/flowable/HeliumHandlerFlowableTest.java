@@ -107,6 +107,8 @@ public class HeliumHandlerFlowableTest {
 		ServiceTask tasca = (ServiceTask) model.getMainProcess().getFlowElement("tascaHandlerPropi");
 		assertEquals(ImplementationType.IMPLEMENTATION_TYPE_DELEGATEEXPRESSION, tasca.getImplementationType());
 		assertEquals(HeliumHandlerJavaDelegate.DELEGATE_EXPRESSION, tasca.getImplementation());
+		// L'adaptador decideix si continua o espera una resposta externa
+		assertTrue(tasca.isTriggerable());
 		HandlerDefinicio definicio = FlowableHeliumBpmn.llegirHandler(tasca);
 		assertNotNull(definicio);
 		assertEquals("es.caib.helium.logic.flowable.HandlerProva", definicio.getClasse());

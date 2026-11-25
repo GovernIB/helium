@@ -2444,7 +2444,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			ExpedientDto expedientDto,
 			String importancia,
 			Date dataLimit,
-			Long tokenId,
+			String tokenId,
 			String processInstanceId,
 			String transicioOK,
 			String transicioKO,

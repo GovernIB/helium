@@ -8,7 +8,10 @@ import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.common.engine.impl.el.ExpressionManager;
 import org.flowable.common.engine.impl.javax.el.PropertyNotFoundException;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.ServiceTask;
 import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.engine.impl.util.CommandContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -22,6 +25,7 @@ import es.caib.helium.bpmn.handler.HandlerParametres;
 import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.bpmn.handler.ParametresVar;
 import es.caib.helium.bpmn.service.BpmnHeliumService;
+import es.caib.helium.logic.bpmn.ExecucioHandler;
 import es.caib.helium.logic.bpmn.HeliumHandlerFactory;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.persistence.entity.DefinicioProces;
@@ -94,6 +98,7 @@ public class HeliumHandlerJavaDelegate implements JavaDelegate {
 				resoldreParametres(ParametresVar.migrar(definicio, handlerClass), execution));
 		}
 		HeliumApi heliumApi = bpmnHeliumService.buildHeliumApi(execution.getProcessInstanceId(), null);
+		ExecucioHandler execucio = ExecucioHandler.obrir(execution.getId(), execution.getProcessInstanceId());
 		try {
 			handler.execute(heliumApi);
 		} catch (BpmnException ex) {
@@ -101,6 +106,34 @@ public class HeliumHandlerJavaDelegate implements JavaDelegate {
 				"Error executant el handler " + (definicio.isPerExpressio() ? definicio.getExpressio() : definicio.getClasse()) +
 					" a la tasca " + execution.getCurrentActivityId(),
 				ex);
+		} finally {
+			execucio.tancar();
+		}
+		continuarSiNoEsperaResposta(execution, execucio);
+	}
+
+	/**
+	 * Les service tasks amb handler de Helium són <i>triggerable</i> (veure {@link HeliumServiceTaskXMLConverter}):
+	 * Flowable no en surt en acabar el handler. Si el handler no espera cap resposta externa, es continua tot d'una,
+	 * dins la mateixa transacció. Si n'espera (p. ex. el portasignatures), l'execució es queda a la tasca fins que
+	 * es reprengui amb {@code WorkflowEngineApi.signalToken}.
+	 */
+	private static void continuarSiNoEsperaResposta(DelegateExecution execution, ExecucioHandler execucio) {
+		FlowElement element = execution.getCurrentFlowElement();
+		boolean triggerable = element instanceof ServiceTask && ((ServiceTask) element).isTriggerable();
+		if (!triggerable) {
+			// Flowable ja en surt tot sol. Si el handler esperava resposta no es pot aturar l'execució.
+			if (execucio.isEsperaResposta()) {
+				log.warn("El handler de la tasca {} espera una resposta, però la tasca no és triggerable: el procés continua",
+					execution.getCurrentActivityId());
+			}
+			return;
+		}
+		if (!execucio.isEsperaResposta()) {
+			CommandContextUtil.getAgenda().planTriggerExecutionOperation((ExecutionEntity) execution);
+		} else {
+			log.debug("La tasca {} queda esperant una resposta externa (executionId={})",
+				execution.getCurrentActivityId(), execution.getId());
 		}
 	}
 

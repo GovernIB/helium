@@ -271,15 +271,20 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 				portasignatures.setDataProcessamentPrimer(new Date());
 			portasignatures.setDataProcessamentDarrer(new Date());
 			DocumentStore documentStore = documentStoreRepository.getReferenceById(portasignatures.getDocumentStoreId());
-			Long tokenId = portasignatures.getTokenId();
-			WToken token;
+			// Execució que espera la resposta del portasignatures (tasca del handler)
+			String tokenId = portasignatures.getTokenId();
+			WToken token = tokenId != null ? workflowEngineApi.getTokenById(tokenId) : null;
+			if (tokenId != null && token == null) {
+				log.warn("L'execució " + tokenId + " que esperava la resposta del portasignatures (id=" +
+					portasignatures.getDocumentId() + ") ja no existeix: el document es processa sense continuar el flux");
+			}
 			String processInstanceId;
-			if (tokenId != null) {
-				token = workflowEngineApi.getTokenById(tokenId.toString());
+			if (token != null) {
 				processInstanceId = token.getProcessInstanceId();
+			} else if (portasignatures.getProcessInstanceId() != null) {
+				processInstanceId = portasignatures.getProcessInstanceId();
 			} else {
-				token = null;
-				processInstanceId = documentStore.getProcessInstanceId();
+				processInstanceId = documentStore != null ? documentStore.getProcessInstanceId() : null;
 			}
 
 			if (documentStore != null) {

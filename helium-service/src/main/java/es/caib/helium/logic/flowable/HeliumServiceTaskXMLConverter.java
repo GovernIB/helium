@@ -1,6 +1,7 @@
 package es.caib.helium.logic.flowable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -14,6 +15,7 @@ import org.flowable.bpmn.model.ExtensionElement;
 import org.flowable.bpmn.model.FieldExtension;
 import org.flowable.bpmn.model.ImplementationType;
 import org.flowable.bpmn.model.ServiceTask;
+import org.flowable.bpmn.model.SubProcess;
 import org.flowable.engine.delegate.JavaDelegate;
 
 import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
@@ -50,6 +52,28 @@ public class HeliumServiceTaskXMLConverter extends ServiceTaskXMLConverter {
 		}
 	}
 
+	/** Tasca de handler adaptada per l'element que s'està convertint (veure {@link #convertToBpmnModel}). */
+	private static final ThreadLocal<ServiceTask> TASCA_HANDLER_ADAPTADA = new ThreadLocal<>();
+
+	@Override
+	public void convertToBpmnModel(
+			XMLStreamReader xtr,
+			BpmnModel model,
+			org.flowable.bpmn.model.Process activeProcess,
+			List<SubProcess> activeSubProcessList) throws Exception {
+		try {
+			super.convertToBpmnModel(xtr, model, activeProcess, activeSubProcessList);
+			// Flowable llegeix flowable:triggerable abans de convertir l'element i en desa el valor després,
+			// per sobre del que hagi posat adaptarHandlerHelium
+			ServiceTask adaptada = TASCA_HANDLER_ADAPTADA.get();
+			if (adaptada != null) {
+				adaptada.setTriggerable(true);
+			}
+		} finally {
+			TASCA_HANDLER_ADAPTADA.remove();
+		}
+	}
+
 	@Override
 	protected BaseElement convertXMLToElement(XMLStreamReader xtr, BpmnModel model) throws Exception {
 		// S'ha de llegir abans de super, que avança el lector pels elements fills
@@ -59,6 +83,9 @@ public class HeliumServiceTaskXMLConverter extends ServiceTaskXMLConverter {
 			ServiceTask serviceTask = (ServiceTask) element;
 			if (!adaptarExpressioHelium(serviceTask, expressio)) {
 				adaptarHandlerHelium(serviceTask);
+				if (serviceTask.isTriggerable()) {
+					TASCA_HANDLER_ADAPTADA.set(serviceTask);
+				}
 			}
 		}
 		return element;
@@ -137,6 +164,9 @@ public class HeliumServiceTaskXMLConverter extends ServiceTaskXMLConverter {
 		}
 		serviceTask.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_DELEGATEEXPRESSION);
 		serviceTask.setImplementation(HeliumHandlerJavaDelegate.DELEGATE_EXPRESSION);
+		// Flowable no en surt en acabar el handler: ho decideix l'adaptador, que la deixa esperant si el handler
+		// espera una resposta externa (portasignatures, PINBAL...) i, si no, continua tot d'una.
+		serviceTask.setTriggerable(true);
 	}
 
 	/** Indica si la classe és a l'aplicació i és un handler de Helium (i no un JavaDelegate de Flowable). */

@@ -1354,7 +1354,7 @@ public class PluginHelper {
 			Expedient expedient,
 			String importancia,
 			Date dataLimit,
-			Long tokenId,
+			String tokenId,
 			String processInstanceId,
 			String transicioOK,
 			String transicioKO,

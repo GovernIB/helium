@@ -21,6 +21,7 @@ import org.flowable.bpmn.model.Process;
 import org.flowable.common.engine.api.FlowableIllegalArgumentException;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.api.io.InputStreamProvider;
+import org.flowable.common.engine.impl.context.Context;
 import org.flowable.common.engine.impl.db.SuspensionState;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.common.engine.impl.util.io.BytesStreamSource;
@@ -60,6 +61,8 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	/** Motiu de fi (deleteReason) amb què queden a l'historial les tasques cancel·lades des de Helium. */
 	public static final String MOTIU_TASCA_CANCELADA = "helium:tascaCancelada";
+	/** Motiu amb què s'aturen les instàncies de procés d'un expedient que s'esborra. */
+	public static final String MOTIU_EXPEDIENT_ESBORRAT = "helium:expedientEsborrat";
 
 	@Autowired
 	private ProcessEngine processEngine;
@@ -453,19 +456,66 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	}
 
+	/**
+	 * Esborra la instància de procés: si està en curs l'atura (Flowable també esborra les instàncies dels seus
+	 * subprocessos, les tasques i els timers) i n'esborra l'historial, com feia jBPM amb
+	 * {@code GraphSession.deleteProcessInstance}. Si la instància ja no existeix no fa res, perquè l'esborrat de
+	 * l'expedient recorre tot l'arbre d'instàncies i en esborrar el pare ja s'han esborrat els fills.
+	 */
 	@Override
 	public void deleteProcessInstance(String processInstanceId) {
-		// TODO Auto-generated method stub
+		if (processInstanceId == null) {
+			return;
+		}
+		ProcessInstance pi = processEngine.getRuntimeService()
+			.createProcessInstanceQuery()
+			.processInstanceId(processInstanceId)
+			.singleResult();
+		if (pi != null) {
+			processEngine.getRuntimeService().deleteProcessInstance(processInstanceId, MOTIU_EXPEDIENT_ESBORRAT);
+		}
+		HistoricProcessInstance hpi = processEngine.getHistoryService()
+			.createHistoricProcessInstanceQuery()
+			.processInstanceId(processInstanceId)
+			.singleResult();
+		if (hpi != null) {
+			processEngine.getHistoryService().deleteHistoricProcessInstance(processInstanceId);
+		}
 	}
 
+	/**
+	 * Suspèn les instàncies de procés en curs: Flowable suspèn les seves execucions, tasques i jobs (els timers no
+	 * es disparen). Les instàncies finalitzades o ja suspeses s'ignoren.
+	 */
 	@Override
 	public void suspendProcessInstances(String[] processInstanceIds) {
-		// TODO Auto-generated method stub
+		for (String processInstanceId : processInstanceIds) {
+			ProcessInstance pi = getProcessInstanceEnCurs(processInstanceId);
+			if (pi != null && !pi.isSuspended()) {
+				processEngine.getRuntimeService().suspendProcessInstanceById(processInstanceId);
+			}
+		}
 	}
 
+	/** Reactiva les instàncies de procés suspeses. Les finalitzades o actives s'ignoren. */
 	@Override
 	public void resumeProcessInstances(String[] processInstanceIds) {
-		// TODO Auto-generated method stub
+		for (String processInstanceId : processInstanceIds) {
+			ProcessInstance pi = getProcessInstanceEnCurs(processInstanceId);
+			if (pi != null && pi.isSuspended()) {
+				processEngine.getRuntimeService().activateProcessInstanceById(processInstanceId);
+			}
+		}
+	}
+
+	private ProcessInstance getProcessInstanceEnCurs(String processInstanceId) {
+		if (processInstanceId == null) {
+			return null;
+		}
+		return processEngine.getRuntimeService()
+			.createProcessInstanceQuery()
+			.processInstanceId(processInstanceId)
+			.singleResult();
 	}
 
 	@Override
@@ -540,12 +590,18 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WTaskInstance getTaskById(String taskId) {
-		return toWTaskInstance(processEngine
+		WTaskInstance task = toWTaskInstance(processEngine
 				.getHistoryService()
 				.createHistoricTaskInstanceQuery()
 				.taskId(taskId)
 				.includeIdentityLinks()
 				.singleResult());
+		if (task != null && task.getEndTime() == null) {
+			// L'historial no guarda la suspensió (tasca o procés suspès): es consulta la tasca en curs
+			Task enCurs = processEngine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+			task.setSuspended(enCurs != null && enCurs.isSuspended());
+		}
+		return task;
 	}
 
 	@Override
@@ -857,12 +913,12 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WToken getTokenById(String tokenId) {
-		Execution e = processEngine
+		// Dins una comanda: toWToken consulta l'activitat actual, que Flowable carrega del model de procés
+		return processEngine.getManagementService().executeCommand(commandContext -> toWToken(processEngine
 				.getRuntimeService()
 					.createExecutionQuery()
 					.executionId(tokenId)
-					.singleResult();
-		return toWToken(e);
+					.singleResult()));
 	}
 
 	@Override
@@ -873,14 +929,14 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public Map<String, WToken> getAllTokens(String processInstanceId) {
-		List<WToken> tokens = processEngine
+		List<WToken> tokens = processEngine.getManagementService().executeCommand(commandContext -> processEngine
 								.getRuntimeService()
 								.createExecutionQuery()
 								.processInstanceId(processInstanceId)
 								.list()
 								.stream()
 								.map(FlowableEngineImpl::toWToken)
-								.collect(Collectors.toList());
+								.collect(Collectors.toList()));
 		Map<String, WToken> resposta = new HashMap<String, WToken>();
 		for(WToken t : tokens)
 			resposta.put(t.getId(), t);
@@ -901,10 +957,35 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		return false;
 	}
 
+	/**
+	 * Reprèn una execució que espera una resposta externa (p. ex. la tasca d'un handler de portasignatures). Si
+	 * s'indica la transició (id del flux de sortida o, per compatibilitat, id de l'activitat destí), el procés
+	 * continua només per aquest flux; si no, pels fluxos de sortida habituals.
+	 */
 	@Override
 	public void signalToken(String tokenId, String transitionName) {
-		// TODO Auto-generated method stub
-
+		processEngine.getManagementService().executeCommand(commandContext -> {
+			Execution execution = processEngine.getRuntimeService()
+				.createExecutionQuery()
+				.executionId(tokenId)
+				.singleResult();
+			if (execution == null) {
+				throw new FlowableObjectNotFoundException("No s'ha trobat l'execució " + tokenId, Execution.class);
+			}
+			if (transitionName != null) {
+				SequenceFlow transicio = cercarTransicioSortida(
+					((ExecutionEntity) execution).getProcessDefinitionId(),
+					execution.getActivityId(),
+					transitionName);
+				if (transicio == null) {
+					throw new FlowableIllegalArgumentException(
+						"L'activitat '" + execution.getActivityId() + "' no té la transició de sortida '" + transitionName + "'");
+				}
+				HeliumFlowableEngineAgenda.seleccionarTransicio(commandContext, tokenId, transicio);
+			}
+			processEngine.getRuntimeService().trigger(tokenId);
+			return null;
+		});
 	}
 
 	@Override
@@ -1006,64 +1087,53 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		return null;
 	}
 
+	/**
+	 * Finalització manual de l'expedient. Com feia Helium 3 amb jBPM ({@code ProcessInstanceEndCommand}), es
+	 * cancel·len les tasques obertes sense fer avançar el procés. A més, les instàncies es suspenen perquè els
+	 * timers i els jobs no continuïn el procés d'un expedient finalitzat. Les instàncies no s'esborren, així es pot
+	 * desfer la finalització ({@link #desfinalitzarExpedient}). La data de finalització la desa Helium a
+	 * l'expedient.
+	 *
+	 * <p>Si es crida des d'un handler que s'executa dins el motor (p. ex. {@code ExpedientFinalitzarHandler}), no es
+	 * suspenen les instàncies: el procés s'està executant i ha de poder continuar fins al final.</p>
+	 */
 	@Override
 	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio) {
-		for(String processInstanceId : processInstanceIds) {
-			processEngine
-				.getRuntimeService()
-				.deleteProcessInstance(processInstanceId, "Closed manually");
-//			List<ProcessInstance> children = processEngine.getRuntimeService().createProcessInstanceQuery()
-//				.superProcessInstanceId(processInstanceId)
-//				.list();
-//
-//			if(!children.isEmpty()) {
-//				finalitzarExpedient(children.stream().map(Execution::getProcessInstanceId).toArray(String[]::new), dataFinalitzacio);
-//			}
-
-//			List<String> activeActivityIds = processEngine.getRuntimeService().getActiveActivityIds(processInstanceId);
-//			ProcessInstance pi = processEngine.getRuntimeService().createProcessInstanceQuery()
-//				.processInstanceId(processInstanceId)
-//				.singleResult();
-//			BpmnModel model = processEngine.getRepositoryService().getBpmnModel(pi.getProcessDefinitionId());
-//			List<EndEvent> endEvents = model.getMainProcess()
-//				.findFlowElementsOfType(EndEvent.class, false);
-//			String endEventId = endEvents.get(0).getId();
-//			processEngine.getRuntimeService().
-//				createChangeActivityStateBuilder()
-//				.processInstanceId(processInstanceId)
-//				.moveActivityIdsToSingleActivityId(activeActivityIds, endEventId)
-//				.changeState();
+		boolean dinsElMotor = Context.getCommandContext() != null;
+		for (String processInstanceId : processInstanceIds) {
+			if (getProcessInstanceEnCurs(processInstanceId) == null) {
+				continue;
+			}
+			processEngine.getManagementService().executeCommand(commandContext -> {
+				List<TaskEntity> tasques = CommandContextUtil
+					.getProcessEngineConfiguration(commandContext)
+					.getTaskServiceConfiguration()
+					.getTaskService()
+					.findTasksByProcessInstanceId(processInstanceId);
+				for (TaskEntity tasca : new ArrayList<>(tasques)) {
+					TaskHelper.deleteTask(tasca, MOTIU_TASCA_CANCELADA, false, true, true);
+				}
+				return null;
+			});
+			if (!dinsElMotor) {
+				suspendProcessInstances(new String[] { processInstanceId });
+			}
 		}
 	}
 
+	/**
+	 * Desfà la finalització de l'expedient: reactiva les instàncies que la finalització manual havia suspès. Les
+	 * tasques cancel·lades en finalitzar no es tornen a crear (tampoc ho feia jBPM). Si el procés havia acabat
+	 * (havia arribat a un esdeveniment de fi), Flowable no permet reobrir-lo: l'expedient es reobre però no té cap
+	 * flux en curs.
+	 */
 	@Override
 	public void desfinalitzarExpedient(String processInstanceId) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome, String rols) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public List<Object[]> getTasquesSegonPlaPendents() {
-		// TODO Auto-generated method stub
-		return new ArrayList<Object[]>();
+		List<String> ids = getProcessInstanceTree(processInstanceId)
+			.stream()
+			.map(WProcessInstance::getId)
+			.collect(Collectors.toList());
+		resumeProcessInstances(ids.toArray(new String[0]));
 	}
 
 	@Override
@@ -1277,12 +1347,6 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void signalToken(long longValue, String transicioOK) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public WProcessDefinition parseProcess(byte[] contingut) {
 		InputStreamProvider in = new BytesStreamSource(contingut);
 		BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(in, false, false);
@@ -1390,13 +1454,15 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 				wt.setProcessDefinitionKey(fe.getProcessDefinitionName());
 				wt.setProcessDefinitionName(fe.getProcessDefinitionName());
 				wt.setProcessDefinitionversion(fe.getProcessDefinitionVersion());
-				wt.setNodeName(fe.getCurrentFlowElement().getName());
-				if (fe.getCurrentFlowElement() instanceof ReceiveTask) {
-					wt.setReceiveTask(true);
-					ReceiveTask rt = (ReceiveTask) fe.getCurrentFlowElement();
-					List<SequenceFlow> sortides = rt.getOutgoingFlows();
-					for(SequenceFlow sortida : sortides) {
+				FlowElement actual = fe.getCurrentFlowElement();
+				wt.setNodeName(actual != null ? actual.getName() : null);
+				wt.setReceiveTask(actual instanceof ReceiveTask);
+				if (actual instanceof FlowNode) {
+					// Transicions per les quals es pot reprendre l'execució (signalToken): l'id de cada flux de
+					// sortida i, per compatibilitat, l'id de l'activitat destí
+					for (SequenceFlow sortida : ((FlowNode) actual).getOutgoingFlows()) {
 						wt.getSortides().add(sortida.getId());
+						wt.getSortides().add(sortida.getTargetRef());
 					}
 				}
 			}

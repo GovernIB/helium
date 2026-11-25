@@ -37,7 +37,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	private Integer documentId;
-	private Long tokenId;
+	private String tokenId;
 	private Date dataEnviat;
 	@Enumerated
 	private PortafirmesEstatEnum estat;
@@ -59,7 +59,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	public Portasignatures() {}
 	public Portasignatures(
 			Integer documentId,
-			Long tokenId,
+			String tokenId,
 			Date dataEnviat,
 			PortafirmesEstatEnum estat,
 			Transicio transition,
@@ -97,11 +97,11 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 		this.documentId = documentId;
 	}
 
-	@Column(name="token_id", nullable=false)
-	public Long getTokenId() {
+	@Column(name="token_id", length=64)
+	public String getTokenId() {
 		return tokenId;
 	}
-	public void setTokenId(Long tokenId) {
+	public void setTokenId(String tokenId) {
 		this.tokenId = tokenId;
 	}
 
