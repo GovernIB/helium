@@ -1,6 +1,7 @@
 package es.caib.helium.logic.config;
 
 import es.caib.helium.logic.flowable.HeliumBpmnPreDeployer;
+import es.caib.helium.logic.flowable.HeliumFlowableEngineAgenda;
 import es.caib.helium.logic.flowable.HeliumDadesELResolver;
 import org.springframework.beans.factory.ObjectProvider;
 import es.caib.helium.logic.flowable.HeliumServiceTaskXMLConverter;
@@ -43,6 +44,7 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 	public void configure(SpringProcessEngineConfiguration processEngineConfiguration) {
 		HeliumServiceTaskXMLConverter.registrar();
 		afegirHeliumPreDeployer(processEngineConfiguration);
+		afegirAgendaHelium(processEngineConfiguration);
 		afegirResolutorDadesHelium(
 			processEngineConfiguration,
 			processInstanceId -> expedientDadaHelperProvider.getObject().getDadesValors(null, processInstanceId, null));
@@ -61,6 +63,14 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 			ProcessEngineConfigurationImpl processEngineConfiguration,
 			java.util.function.Function<String, Map<String, Object>> dadesProces) {
 		processEngineConfiguration.addPreDefaultELResolver(new HeliumDadesELResolver(dadesProces));
+	}
+
+	/**
+	 * Fa servir l'agenda de Helium, que permet completar una tasca seguint només la transició triada per
+	 * l'usuari (veure HeliumFlowableEngineAgenda).
+	 */
+	public static void afegirAgendaHelium(ProcessEngineConfigurationImpl processEngineConfiguration) {
+		processEngineConfiguration.setAgendaFactory(new HeliumFlowableEngineAgenda.Factory());
 	}
 
 	/** Afegeix el deployer que tradueix els atributs helium:* als de Flowable (veure HeliumBpmnPreDeployer). */

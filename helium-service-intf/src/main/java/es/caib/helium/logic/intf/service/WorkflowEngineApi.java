@@ -496,8 +496,9 @@ public interface WorkflowEngineApi {
 	 * Completa la tramitació d'una tasca
 	 *
 	 * @param taskId
-	 * @param outcome
-	 * @return
+	 * @param outcome Transició de sortida triada (id retornat per {@link #findTaskInstanceOutcomes}). Si és
+	 *                null, el procés continua pels fluxos de sortida que determini el motor.
+	 * @param variables
 	 */
 	public void endTaskInstance(String taskId, String outcome, Map<String, Object> variables);
 //	public ResultatCompleteTask completeTaskInstance(
@@ -505,7 +506,8 @@ public interface WorkflowEngineApi {
 //            String outcome);
 
 	/**
-	 * Cancel·la una tasca i continua amb l'execució de la instància de procés
+	 * Cancel·la una tasca sense continuar l'execució de la instància de procés: l'execució es queda aturada a
+	 * l'activitat de la tasca.
 	 *
 	 * @param taskId
 	 * @return
@@ -804,9 +806,6 @@ public interface WorkflowEngineApi {
 	public List<WTaskInstance> findTaskInstancesForProcessInstance(String processInstanceId, boolean completed);
 
 	public void deleteProcessInstanceTreeLogs(String processInstanceId);
-
-	public List<String> findRootProcessInstancesWithTasksCommand(String name, List<String> idsPI, boolean nomesMeves,
-			boolean nomesTasquesPersonals, boolean nomesTasquesGrup);
 
 	public void describeTaskInstance(String id, String titol, Object descriptionWithFields);
 

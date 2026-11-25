@@ -18,6 +18,7 @@ import groovy.lang.GroovyShell;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.*;
 import org.flowable.bpmn.model.Process;
+import org.flowable.common.engine.api.FlowableIllegalArgumentException;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.api.io.InputStreamProvider;
 import org.flowable.common.engine.impl.db.SuspensionState;
@@ -38,9 +39,11 @@ import org.flowable.engine.impl.persistence.entity.ExecutionEntityManager;
 import org.flowable.engine.impl.persistence.entity.HistoricProcessInstanceEntity;
 import org.flowable.engine.impl.persistence.entity.HistoricProcessInstanceEntityManager;
 import org.flowable.engine.impl.util.CommandContextUtil;
+import org.flowable.engine.impl.util.TaskHelper;
 import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.history.HistoricTaskInstance;
+import org.flowable.task.service.impl.persistence.entity.TaskEntity;
 import org.flowable.task.service.impl.persistence.entity.TaskEntityImpl;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +57,9 @@ import es.caib.helium.logic.intf.service.WorkflowEngineApi;
  */
 @Component
 public class FlowableEngineImpl implements WorkflowEngineApi {
+
+	/** Motiu de fi (deleteReason) amb què queden a l'historial les tasques cancel·lades des de Helium. */
+	public static final String MOTIU_TASCA_CANCELADA = "helium:tascaCancelada";
 
 	@Autowired
 	private ProcessEngine processEngine;
@@ -260,8 +266,15 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId) {
-		// TODO Auto-generated method stub
-		return null;
+		if (processInstanceId == null) {
+			return null;
+		}
+		// getProcessInstance també troba les instàncies finalitzades (historial)
+		WProcessInstance processInstance = getProcessInstance(processInstanceId);
+		if (processInstance == null) {
+			return null;
+		}
+		return getProcessDefinition(processInstance.getProcessDefinitionId());
 	}
 
 	@Override
@@ -598,69 +611,94 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 		return null;
 	}
 
+	/**
+	 * Completa la tasca. Si s'indica {@code outcome}, el procés continua només per aquesta transició (l'id
+	 * del <i>sequence flow</i> de sortida o, per compatibilitat, l'id de l'activitat destí), tal com feia
+	 * jBPM 3. Sense {@code outcome}, Flowable segueix els fluxos de sortida habituals (condicions incloses).
+	 *
+	 * <p>Les variables es passen com a transitòries: les dades de l'expedient es desen a ExpedientDades,
+	 * no al motor, però així són visibles a les expressions que s'avaluen en completar la tasca.</p>
+	 */
 	@Override
 	public void endTaskInstance(String taskId, String outcome, Map<String, Object> variables) {
-		if(outcome == null) {
+		if (outcome == null) {
 			processEngine
 				.getTaskService()
 				.complete(taskId, null, variables);
 			return;
 		}
-		TaskEntityImpl task = (TaskEntityImpl) processEngine
-			.getTaskService()
-			.createTaskQuery()
-			.taskId(taskId)
-			.singleResult();
-		processEngine
-			.getRuntimeService()
-			.createChangeActivityStateBuilder()
-			.processInstanceId(task.getProcessDefinitionId())
-			.processVariables(variables)
-			.moveExecutionToActivityId(task.getExecutionId(), outcome)
-			.changeState();
-	}
-
-	@Override
-	public WTaskInstance cancelTaskInstance(String taskId) {
-		try {
-//			processEngine
-//				.getTaskService()
-//				.deleteTask(taskId);
-//			TaskEntityImpl task = (TaskEntityImpl)processEngine
-//				.getTaskService()
-//				.createTaskQuery()
-//				.taskId(taskId)
-//				.includeIdentityLinks()
-//				.singleResult();
-//			WTaskInstance task = getTaskById(taskId);
-
-//			TaskEntityImpl task = (TaskEntityImpl)processEngine
-//				.getTaskService()
-//					.complete(taskId);
-
-//			task.setCanceled(true);
-//			processEngine
-//				.getTaskService()
-//				.saveTask(task);
-			Map<String, Object> variables = new HashMap<>();
-			variables.put("canceled", true);
-
+		processEngine.getManagementService().executeCommand(commandContext -> {
+			Task task = processEngine
+				.getTaskService()
+				.createTaskQuery()
+				.taskId(taskId)
+				.singleResult();
+			if (task == null) {
+				throw new FlowableObjectNotFoundException("No s'ha trobat la tasca activa " + taskId, Task.class);
+			}
+			SequenceFlow transicio = cercarTransicioSortida(
+				task.getProcessDefinitionId(),
+				task.getTaskDefinitionKey(),
+				outcome);
+			if (transicio == null) {
+				throw new FlowableIllegalArgumentException(
+					"La tasca '" + task.getTaskDefinitionKey() + "' no té la transició de sortida '" + outcome + "'");
+			}
+			// L'agenda de Helium farà que, en sortir de la tasca, només se segueixi aquesta transició
+			HeliumFlowableEngineAgenda.seleccionarTransicio(commandContext, task.getExecutionId(), transicio);
 			processEngine
 				.getTaskService()
-				.complete(taskId, variables, true);
+				.complete(taskId, null, variables);
+			return null;
+		});
+	}
 
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+	/**
+	 * Cerca el flux de sortida d'una activitat a partir del seu id o, si no n'hi ha cap, de l'id de
+	 * l'activitat destí (format de les transicions anterior).
+	 */
+	private SequenceFlow cercarTransicioSortida(String processDefinitionId, String activityId, String outcome) {
+		FlowElement element = processEngine
+			.getRepositoryService()
+			.getBpmnModel(processDefinitionId)
+			.getFlowElement(activityId);
+		if (!(element instanceof FlowNode)) {
+			return null;
 		}
+		List<SequenceFlow> sortides = ((FlowNode) element).getOutgoingFlows();
+		for (SequenceFlow sortida : sortides) {
+			if (outcome.equals(sortida.getId())) {
+				return sortida;
+			}
+		}
+		for (SequenceFlow sortida : sortides) {
+			if (outcome.equals(sortida.getTargetRef())) {
+				return sortida;
+			}
+		}
+		return null;
+	}
 
-//		((TaskServiceImpl)processEngine.getTaskService()).can
-
-//		processEngine.getRuntimeService().suspendProcessInstanceById(task.getProcessInstanceId());
-
-//		processEngine
-//			.getRuntimeService()
-//			.deleteProcessInstance(task.getProcessInstanceId(), "Tasca cancelada per l'usuari");
-
+	/**
+	 * Cancel·la la tasca sense fer avançar el procés, com feia Helium 3 amb jBPM ({@code setSignalling(false)}
+	 * + {@code cancel()}): la tasca s'acaba a l'historial amb el motiu {@link #MOTIU_TASCA_CANCELADA} i
+	 * l'execució es queda aturada a l'activitat de la tasca.
+	 */
+	@Override
+	public WTaskInstance cancelTaskInstance(String taskId) {
+		processEngine.getManagementService().executeCommand(commandContext -> {
+			TaskEntity task = CommandContextUtil
+				.getProcessEngineConfiguration(commandContext)
+				.getTaskServiceConfiguration()
+				.getTaskService()
+				.getTask(taskId);
+			if (task == null) {
+				throw new FlowableObjectNotFoundException("No s'ha trobat la tasca activa " + taskId, Task.class);
+			}
+			// A diferència de TaskService.complete, no planifica el trigger de l'execució
+			TaskHelper.deleteTask(task, MOTIU_TASCA_CANCELADA, false, true, true);
+			return null;
+		});
 		return getTaskById(taskId);
 	}
 
@@ -768,17 +806,22 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			taskDefinitionKey =  htask.getTaskDefinitionKey();
 		}
 
+		// Cada transició és un flux de sortida: l'id és el del flux (dos fluxos poden anar a la mateixa
+		// activitat) i el nom és el del flux o, si no en té, el de l'activitat destí.
 		List<TascaOutcomeDto> outcomes = new ArrayList<TascaOutcomeDto>();
 		BpmnModel model = processEngine.getRepositoryService().getBpmnModel(processDefinitionId);
-		FlowElement current = model.getMainProcess().getFlowElement(taskDefinitionKey);
+		FlowElement current = model.getFlowElement(taskDefinitionKey);
 		if(current instanceof FlowNode) {
 			List<SequenceFlow> sequences = ((FlowNode) current).getOutgoingFlows();
 			if(sequences == null)
 				return outcomes;
 			for(SequenceFlow sequenceFlow : sequences) {
-				outcomes.add(new TascaOutcomeDto(
-					sequenceFlow.getTargetRef(),
-					sequenceFlow.getTargetFlowElement().getName()));
+				String nom = sequenceFlow.getName();
+				if (nom == null || nom.isBlank()) {
+					FlowElement desti = sequenceFlow.getTargetFlowElement();
+					nom = desti != null ? desti.getName() : null;
+				}
+				outcomes.add(new TascaOutcomeDto(sequenceFlow.getId(), nom));
 			}
 		}
 
@@ -1154,13 +1197,6 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			.deleteHistoricProcessInstance(processInstanceId);
 	}
 
-	@Override
-	public List<String> findRootProcessInstancesWithTasksCommand(String name, List<String> idsPI, boolean nomesMeves,
-			boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	/** Mètode per modificar la descripció d'una tasca. */
 	@Override
 	public void describeTaskInstance(String id, String titol, Object descriptionWithFields) {
@@ -1433,6 +1469,7 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 			wt.setActorId(t.getAssignee());
 			wt.setProcessInstanceId(t.getProcessInstanceId());
 			wt.setProcessDefinitionId(t.getProcessDefinitionId());
+			wt.setCancelled(MOTIU_TASCA_CANCELADA.equals(t.getDeleteReason()));
 
 			for (var identityLink : t.getIdentityLinks()) {
 				if (identityLink.getUserId() != null) {

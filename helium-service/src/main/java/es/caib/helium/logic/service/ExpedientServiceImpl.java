@@ -3220,6 +3220,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 	}
 
+	/**
+	 * Deixa a la llista només els expedients amb tasques actives del tipus demanat (personals, de grup o
+	 * totes) i, si {@code nomesMeves}, de l'usuari actual. Es consulta la taula de tasques de Helium
+	 * (ExpedientTasca), la mateixa que fa servir el llistat de tasques. Com que cada tasca hi està lligada
+	 * a l'expedient, no cal pujar des dels subprocessos fins a la instància arrel.
+	 */
 	private void filtrarExpedientsAmbTasques(
 			List<Long> llistaExpedientIds,
 			boolean nomesMeves,
@@ -3227,67 +3233,24 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
-		Set<Long> ids1 = null;
-		Set<Long> ids2 = null;
-		Set<Long> ids3 = null;
-		Set<Long> ids4 = null;
-		Set<Long> ids5 = null;
-		int index = 0;
-		for (Long id: llistaExpedientIds) {
-			if (index == 0)
-				ids1 = new HashSet<Long>();
-			if (index == 1000)
-				ids2 = new HashSet<Long>();
-			if (index == 2000)
-				ids3 = new HashSet<Long>();
-			if (index == 3000)
-				ids4 = new HashSet<Long>();
-			if (index == 4000)
-				ids5 = new HashSet<Long>();
-			if (index < 1000)
-				ids1.add(id);
-			else if (index < 2000)
-				ids2.add(id);
-			else if (index < 3000)
-				ids3.add(id);
-			else if (index < 4000)
-				ids4.add(id);
-			else
-				ids5.add(id);
-			index++;
+		// Sense cap opció marcada (o amb les dues) es mostren les tasques personals i les de grup
+		boolean personals = nomesTasquesPersonals || !nomesTasquesGrup;
+		boolean grup = nomesTasquesGrup || !nomesTasquesPersonals;
+		String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		Set<Long> expedientsAmbTasques = new HashSet<Long>();
+		// Es consulta en blocs de 1000 pel límit de l'IN d'Oracle
+		for (int i = 0; i < llistaExpedientIds.size(); i += 1000) {
+			expedientsAmbTasques.addAll(
+					expedientTascaRepository.findExpedientIdsAmbTasquesActives(
+							llistaExpedientIds.subList(i, Math.min(i + 1000, llistaExpedientIds.size())),
+							usuari,
+							nomesMeves,
+							personals,
+							grup,
+							mostrarAnulats,
+							nomesAlertes));
 		}
-		List<Object[]> idsInstanciesProces = expedientRepository.findAmbIdsByFiltreConsultesTipus(
-				ids1,
-				ids2,
-				ids3,
-				ids4,
-				ids5,
-				mostrarAnulats,
-				nomesAlertes);
-
-		List<String> idsPI = new ArrayList<String>();
-		List<Long> idsExp = new ArrayList<Long>();
-		for (Object[] id : idsInstanciesProces) {
-			idsExp.add((Long) id[0]);
-			idsPI.add((String) id[1]);
-		}
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		List<String> ids = workflowEngineApi.findRootProcessInstancesWithTasksCommand(
-						auth.getName(),
-						idsPI,
-						nomesMeves,
-						nomesTasquesPersonals,
-						nomesTasquesGrup);
-		Iterator<Long> itExps = llistaExpedientIds.iterator();
-		ArrayList<Long> removeList = new ArrayList<Long>();
-		while (itExps.hasNext()) {
-			Long elem = itExps.next();
-			int pos = idsExp.indexOf(elem);
-			if (pos == -1 || !ids.contains(idsPI.get(pos))) {
-				removeList.add(elem);
-			}
-		}
-		llistaExpedientIds.removeAll(removeList);
+		llistaExpedientIds.retainAll(expedientsAmbTasques);
 	}
 
 	@Override

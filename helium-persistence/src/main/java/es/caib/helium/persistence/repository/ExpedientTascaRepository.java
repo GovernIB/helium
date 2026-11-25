@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -69,6 +71,40 @@ public interface ExpedientTascaRepository extends JpaRepository<ExpedientTasca, 
 		@Param("mostrarAssignadesGrup") boolean mostrarAssignadesGrup,
 		@Param("administrador") boolean administrador,
 		Pageable pageable);
+
+	/**
+	 * Retorna, d'entre els expedients indicats, els que tenen alguna tasca activa (no completada, cancel·lada
+	 * ni suspesa) del tipus demanat:
+	 * <ul>
+	 *   <li>personals: tasques assignades (a l'usuari, si {@code nomesMeves});</li>
+	 *   <li>de grup: tasques sense assignar amb candidats o grup (amb l'usuari com a candidat, si
+	 *       {@code nomesMeves}).</li>
+	 * </ul>
+	 * La llista d'expedients no pot tenir més de 1000 elements (límit de l'IN d'Oracle).
+	 */
+	@Query(	"SELECT DISTINCT et.expedient.id FROM ExpedientTasca et " +
+			"	WHERE et.expedient.id IN (:expedientIds) " +
+			"	AND (:mostrarAnulats = true OR et.expedient.anulat = false) " +
+			"	AND (:nomesAlertes = false OR et.expedient.errorDesc IS NOT NULL) " +
+			"	AND (et.completed IS NULL OR et.completed = false) " +
+			"	AND (et.cancelled IS NULL OR et.cancelled = false) " +
+			"	AND (et.suspended IS NULL OR et.suspended = false) " +
+			"	AND ( " +
+			"		(:personals = true AND et.assignee IS NOT NULL " +
+			"			AND (:nomesMeves = false OR et.assignee = :usuari)) " +
+			"		OR (:grup = true AND et.assignee IS NULL AND ( " +
+			"			(:nomesMeves = false AND (et.groupId IS NOT NULL " +
+			"				OR EXISTS (SELECT c.id FROM TascaCandidate c WHERE c.tasca = et))) " +
+			"			OR EXISTS (SELECT c.id FROM TascaCandidate c WHERE c.tasca = et AND c.userId = :usuari))) " +
+			"	)")
+	List<Long> findExpedientIdsAmbTasquesActives(
+		@Param("expedientIds") Collection<Long> expedientIds,
+		@Param("usuari") String usuari,
+		@Param("nomesMeves") boolean nomesMeves,
+		@Param("personals") boolean personals,
+		@Param("grup") boolean grup,
+		@Param("mostrarAnulats") boolean mostrarAnulats,
+		@Param("nomesAlertes") boolean nomesAlertes);
 
     void deleteByExpedientId(Long id);
 }

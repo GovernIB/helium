@@ -298,23 +298,6 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("mostrarNomesAnulats") boolean mostrarNomesAnulats,
 			@Param("nomesAlertes") boolean nomesAlertes);
 
-	@Query("select e.id, e.processInstanceId from Expedient e where " +
-			"       ( e.id in (:ids1) " +
-			"        or e.id in (:ids2) " +
-			"        or e.id in (:ids3) " +
-			"        or e.id in (:ids4) " +
-			"        or e.id in (:ids5) )" +
-			"and (:mostrarAnulats = true or e.anulat = false) " +
-			"and (:nomesAlertes = false or e.errorDesc is not null)")
-	List<Object[]> findAmbIdsByFiltreConsultesTipus(
-			@Param("ids1") Collection<Long> ids1,
-			@Param("ids2") Collection<Long> ids2,
-			@Param("ids3") Collection<Long> ids3,
-			@Param("ids4") Collection<Long> ids4,
-			@Param("ids5") Collection<Long> ids5,
-			@Param("mostrarAnulats") boolean mostrarAnulats,
-			@Param("nomesAlertes") boolean nomesAlertes);
-
 	@Query(	"select " +
 			"    e " +
 			"from " +
