@@ -20,6 +20,8 @@ public class WToken {
 	private String processInstanceId;
 	private String processInstanceKey;
 	boolean root;
+	/** Si l'execució està suspesa (la instància de procés està suspesa). */
+	private boolean suspended;
 	private String superRootTokenId;
 
 	private WToken parent;

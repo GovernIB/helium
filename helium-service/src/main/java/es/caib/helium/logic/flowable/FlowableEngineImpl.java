@@ -30,8 +30,10 @@ import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.TaskServiceImpl;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.migration.ProcessInstanceMigrationValidationResult;
+import org.flowable.engine.RepositoryService;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ActivityInstance;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.runtime.ProcessInstanceBuilder;
@@ -929,12 +931,16 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public WToken getTokenById(String tokenId) {
-		// Dins una comanda: toWToken consulta l'activitat actual, que Flowable carrega del model de procés
-		return processEngine.getManagementService().executeCommand(commandContext -> toWToken(processEngine
+		Execution e = processEngine
 				.getRuntimeService()
 					.createExecutionQuery()
 					.executionId(tokenId)
-					.singleResult()));
+					.singleResult();
+		WToken token = toWToken(e, processEngine.getRepositoryService());
+		if (token != null) {
+			token.setNodeEnter(getDatesEntradaNode(token.getProcessInstanceId()).get(token.getId()));
+		}
+		return token;
 	}
 
 	@Override
@@ -945,19 +951,54 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 
 	@Override
 	public Map<String, WToken> getAllTokens(String processInstanceId) {
-		List<WToken> tokens = processEngine.getManagementService().executeCommand(commandContext -> processEngine
-								.getRuntimeService()
-								.createExecutionQuery()
-								.processInstanceId(processInstanceId)
-								.list()
-								.stream()
-								.map(FlowableEngineImpl::toWToken)
-								.collect(Collectors.toList()));
-		Map<String, WToken> resposta = new HashMap<String, WToken>();
-		for(WToken t : tokens)
-			resposta.put(t.getId(), t);
-
+		RepositoryService repositoryService = processEngine.getRepositoryService();
+		Map<String, WToken> resposta = new LinkedHashMap<>();
+		Map<String, String> pares = new HashMap<>();
+		for (Execution e: processEngine
+				.getRuntimeService()
+				.createExecutionQuery()
+				.processInstanceId(processInstanceId)
+				.list()) {
+			resposta.put(e.getId(), toWToken(e, repositoryService));
+			pares.put(e.getId(), e.getParentId());
+		}
+		// Les execucions de la consulta no carreguen les relacions (fora d'una comanda de Flowable
+		// no es poden carregar de forma diferida), així que s'enllacen aquí a partir dels ids
+		WToken arrel = resposta.get(processInstanceId);
+		String clauInstancia = arrel != null ? arrel.getProcessInstanceKey() : null;
+		Map<String, Date> datesEntrada = getDatesEntradaNode(processInstanceId);
+		for (WToken t: resposta.values()) {
+			String parentId = pares.get(t.getId());
+			if (parentId != null) {
+				t.setParent(resposta.get(parentId));
+			}
+			if (t.getProcessInstanceKey() == null) {
+				t.setProcessInstanceKey(clauInstancia);
+			}
+			t.setNodeEnter(datesEntrada.get(t.getId()));
+		}
 		return resposta;
+	}
+
+	/** Data d'entrada al node actual de cada execució activa de la instància de procés, per id d'execució. */
+	private Map<String, Date> getDatesEntradaNode(String processInstanceId) {
+		Map<String, Date> dates = new HashMap<>();
+		if (processInstanceId == null) {
+			return dates;
+		}
+		for (ActivityInstance ai: processEngine
+				.getRuntimeService()
+				.createActivityInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.unfinished()
+				.list()) {
+			// Una execució pot tenir més d'una activitat oberta (p.ex. un subprocés i la seva tasca): es queda la més recent
+			Date anterior = dates.get(ai.getExecutionId());
+			if (ai.getStartTime() != null && (anterior == null || ai.getStartTime().after(anterior))) {
+				dates.put(ai.getExecutionId(), ai.getStartTime());
+			}
+		}
+		return dates;
 	}
 
 	@Override
@@ -1448,42 +1489,52 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 	 * @param e
 	 * @return
 	 */
-	public static WToken toWToken(Execution e) {
-		WToken wt = null;
-		if (e != null) {
-			wt = new WToken();
-			wt.setId(e.getId());
-			wt.setName(e.getName());
-			wt.setProcessInstanceId(e.getProcessInstanceId());
-			wt.setSuperRootTokenId(e.getSuperExecutionId());
-			if (e instanceof ExecutionEntityImpl) {
-				ExecutionEntityImpl fe = (ExecutionEntityImpl) e;
-				wt.setProcessInstanceKey(fe.getProcessInstance() != null? fe.getProcessInstance().getBusinessKey() : null);
-				wt.setStart(fe.getStartTime());
-				wt.setRoot(fe.isMultiInstanceRoot());
-				if (fe.getParent() != null && !fe.equals(fe.getParent())) {
-					wt.setParent(toWToken(fe.getParent()));
-				}
-				if (fe.getSuperExecution() != null && !fe.equals(fe.getSuperExecution())) {
-					wt.setSuperToken(toWToken(fe.getParent()));
-				}
-				wt.setProcessDefinitionId(fe.getProcessDefinitionId());
-				wt.setProcessDefinitionKey(fe.getProcessDefinitionName());
-				wt.setProcessDefinitionName(fe.getProcessDefinitionName());
-				wt.setProcessDefinitionversion(fe.getProcessDefinitionVersion());
-				FlowElement actual = fe.getCurrentFlowElement();
-				wt.setNodeName(actual != null ? actual.getName() : null);
-				wt.setReceiveTask(actual instanceof ReceiveTask);
-				if (actual instanceof FlowNode) {
-					// Transicions per les quals es pot reprendre l'execució (signalToken): l'id de cada flux de
-					// sortida i, per compatibilitat, l'id de l'activitat destí
-					for (SequenceFlow sortida : ((FlowNode) actual).getOutgoingFlows()) {
-						wt.getSortides().add(sortida.getId());
-						wt.getSortides().add(sortida.getTargetRef());
+	/**
+	 * Converteix una execució de Flowable a {@link WToken}. Funciona fora d'una comanda de Flowable: la informació de
+	 * la definició i del node es consulta al {@link RepositoryService} en lloc de carregar-la de l'execució. El pare
+	 * dels tokens fills s'han d'omplir des de fora (vegeu getAllTokens).
+	 */
+	public static WToken toWToken(Execution e, RepositoryService repositoryService) {
+		if (e == null) {
+			return null;
+		}
+		WToken wt = new WToken();
+		wt.setId(e.getId());
+		wt.setName(e.getName());
+		wt.setProcessInstanceId(e.getProcessInstanceId());
+		wt.setSuperRootTokenId(e.getSuperExecutionId());
+		// L'execució arrel (la de la instància de procés) és l'equivalent al token arrel de jBPM
+		wt.setRoot(e.getParentId() == null);
+		wt.setSuspended(e.isSuspended());
+		if (e instanceof ProcessInstance && e.getParentId() == null) {
+			wt.setProcessInstanceKey(((ProcessInstance) e).getBusinessKey());
+		}
+		if (e instanceof ExecutionEntity) {
+			wt.setStart(((ExecutionEntity) e).getStartTime());
+		}
+		String processDefinitionId = e instanceof ExecutionEntity ? ((ExecutionEntity) e).getProcessDefinitionId() : null;
+		if (processDefinitionId != null) {
+			ProcessDefinition pd = repositoryService.getProcessDefinition(processDefinitionId);
+			wt.setProcessDefinitionId(processDefinitionId);
+			wt.setProcessDefinitionKey(pd.getKey());
+			wt.setProcessDefinitionName(pd.getName());
+			wt.setProcessDefinitionversion(pd.getVersion());
+			if (e.getActivityId() != null) {
+				FlowElement node = repositoryService.getBpmnModel(processDefinitionId).getFlowElement(e.getActivityId());
+				if (node != null) {
+					wt.setNodeName(node.getName() != null ? node.getName() : node.getId());
+					wt.setReceiveTask(node instanceof ReceiveTask);
+					if (node instanceof FlowNode) {
+						// Transicions per les quals es pot reprendre l'execució (signalToken). Mentre l'espera de
+						// portasignatures/PINBAL sigui a la tasca del handler, s'omplen per a qualsevol node.
+						for (SequenceFlow sortida: ((FlowNode) node).getOutgoingFlows()) {
+							wt.getSortides().add(sortida.getId());
+						}
 					}
+				} else {
+					wt.setNodeName(e.getActivityId());
 				}
 			}
-
 		}
 		return wt;
 	}

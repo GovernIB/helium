@@ -256,7 +256,7 @@ public class HeliumExpedientFlowableTest {
 		assertEquals(0, processEngine.getTaskService().createTaskQuery().processInstanceId(pi.getId()).count());
 		// El token exposa les transicions per les quals es pot reprendre
 		WToken token = engine.getTokenById(executionId);
-		assertTrue(token.getSortides().containsAll(List.of("fSignat", "fRebutjat", "signat", "rebutjat")));
+		assertEquals(List.of("fSignat", "fRebutjat"), token.getSortides());
 	}
 
 	@Test
