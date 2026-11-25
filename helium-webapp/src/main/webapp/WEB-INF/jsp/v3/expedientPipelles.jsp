@@ -497,13 +497,9 @@ dd.subproc {
 						<dd class="proces">	
 							<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
 							&nbsp;<label id="desc_def_proc"><c:out value="${definicioProces.etiqueta}"/></label>&nbsp;
-	<%-- 						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span></c:if> --%>
-							<c:if test="${expedient.permisDefprocUpdate}"><a id="canviversio" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/canviVersio"/>"><span class="fa fa-pencil edita"></span></a></c:if>
-							<%-- 				
-							<div id="imgDefinicioProcesJbpm" class="hide">
-								<img src="<c:url value="/v3/expedient/${expedientId}/imatgeDefProces"/>"/>
-							</div> 
-							--%>
+							<c:if test="${expedient.permisAdministration}">
+								<a id="canviversio" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/canviVersio"/>"><span class="fa fa-pencil edita"></span></a>
+							</c:if>
 							<c:if test="${not empty subprocessos}">
 								<dt class="subproc"><spring:message code="expedient.info.camp.defproc.subprocessos"/></dt>
 								<c:forEach var="subproces" items="${subprocessos}">
