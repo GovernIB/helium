@@ -27,7 +27,6 @@ import java.util.zip.ZipOutputStream;
 import javax.annotation.Resource;
 
 import es.caib.helium.commons.dto.handlers.HandlerParametreDto;
-import org.flowable.common.engine.impl.util.IoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -1403,7 +1402,7 @@ public class DissenyServiceImpl implements DissenyService {
 			if (nom.endsWith(".class")) {
 				// Assegura que tingui el nom de recurs
 				nom = expedientHelper.handlerToResource(nom);
-				byte[] bytes = IoUtil.readInputStream(zipInputStream, nom);
+				byte[] bytes = zipInputStream.readAllBytes();
 				if (bytes != null) {
 					handlers.put(nom, bytes);
 				}

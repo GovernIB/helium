@@ -60,6 +60,12 @@
 			<artifactId>helium-service</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<!-- Implementació del bpmn BPMN 2.0 (WorkflowEngineApi) -->
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-flowable</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

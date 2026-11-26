@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- pare → (call activity) fill, amb un handler síncron → (call activity) nét, amb una tasca d'usuari -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:helium="http://www.caib.es/helium/bpmn"
+                  id="definicions"
+                  targetNamespace="http://www.caib.es/helium/test">
+  <bpmn:process id="procesArrelPare" isExecutable="true">
+    <bpmn:startEvent id="iniciPare"/>
+    <bpmn:sequenceFlow id="p1" sourceRef="iniciPare" targetRef="cridaFill"/>
+    <bpmn:callActivity id="cridaFill" calledElement="procesArrelFill"/>
+    <bpmn:sequenceFlow id="p2" sourceRef="cridaFill" targetRef="fiPare"/>
+    <bpmn:endEvent id="fiPare"/>
+  </bpmn:process>
+  <bpmn:process id="procesArrelFill" isExecutable="true">
+    <bpmn:startEvent id="iniciFill"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="iniciFill" targetRef="handlerFill"/>
+    <bpmn:serviceTask id="handlerFill" implementation="http://www.caib.es/helium/bpmn/handler">
+      <bpmn:extensionElements>
+        <helium:handler classe="es.caib.helium.flowable.HandlerProva">
+          <helium:parametre nom="text" valor="dins el fill"/>
+        </helium:handler>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="f2" sourceRef="handlerFill" targetRef="cridaNet"/>
+    <bpmn:callActivity id="cridaNet" calledElement="procesArrelNet"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="cridaNet" targetRef="fiFill"/>
+    <bpmn:endEvent id="fiFill"/>
+  </bpmn:process>
+  <bpmn:process id="procesArrelNet" isExecutable="true">
+    <bpmn:startEvent id="iniciNet"/>
+    <bpmn:sequenceFlow id="n1" sourceRef="iniciNet" targetRef="tascaNet"/>
+    <bpmn:userTask id="tascaNet"/>
+    <bpmn:sequenceFlow id="n2" sourceRef="tascaNet" targetRef="fiNet"/>
+    <bpmn:endEvent id="fiNet"/>
+  </bpmn:process>
+</bpmn:definitions>

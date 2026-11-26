@@ -60,6 +60,7 @@ import lombok.extern.slf4j.Slf4j;
 						type = FilterType.REGEX,
 						pattern = {
 								"es\\.caib\\." + BaseConfig.APP_NAME + "\\.logic\\..*",
+								"es\\.caib\\." + BaseConfig.APP_NAME + "\\.flowable\\..*",
 								"es\\.caib\\." + BaseConfig.APP_NAME + "\\.persistence\\..*",
 								"es\\.caib\\." + BaseConfig.APP_NAME + "\\.ejb\\..*" })
 		})

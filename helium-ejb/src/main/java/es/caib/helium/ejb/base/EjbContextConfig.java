@@ -33,6 +33,7 @@ import java.util.Locale;
 		BaseConfig.BASE_PACKAGE + ".persistence",
 		BaseConfig.BASE_PACKAGE + ".commons",
 		BaseConfig.BASE_PACKAGE + ".logic",
+		BaseConfig.BASE_PACKAGE + ".flowable",
 })
 //@EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 @PropertySource(ignoreResourceNotFound = true, value = {

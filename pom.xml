@@ -94,6 +94,7 @@
 		<module>helium-plugin</module>
 		<module>helium-plugin-impl</module>
 		<module>helium-service-intf</module>
+		<module>helium-flowable</module>
 		<module>helium-service</module>
 		<module>helium-ejb</module>
 		<module>helium-back</module>

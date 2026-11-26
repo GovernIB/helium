@@ -93,7 +93,7 @@ import es.caib.pluginsib.arxiu.api.ExpedientEstat;
 import es.caib.pluginsib.arxiu.api.ExpedientMetadades;
 import javassist.ClassPool;
 import javassist.CtClass;
-import liquibase.repackaged.org.apache.commons.text.StringSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 
 /**
  * Helper per a gestionar els expedients.

@@ -3,7 +3,6 @@ package es.caib.helium.logic.helper;
 import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
 import net.bytebuddy.ByteBuddy;
-import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -112,7 +111,7 @@ public class WorkflowEngineApiResourceHelperTest {
 	@Test
 	public void shouldReturnNullWhenResourceNotFound() throws Exception {
 		when(workflowEngineApi.getResourceBytes(any(), any())).
-			thenThrow(new FlowableObjectNotFoundException(deploymentId));
+			thenThrow(new RuntimeException("No existeix el recurs al desplegament " + deploymentId));
 		byte[] result = workflowEngineApiResourceHelper.loadResource(deploymentId, "missing.txt");
 		assertNull(result);
 	}

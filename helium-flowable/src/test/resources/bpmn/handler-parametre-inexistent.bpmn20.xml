@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:helium="http://www.caib.es/helium/bpmn"
+                  id="definicions"
+                  targetNamespace="http://www.caib.es/helium/test">
+  <bpmn:process id="procesParametreInexistent" isExecutable="true">
+    <bpmn:startEvent id="inici"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="inici" targetRef="tascaHandler"/>
+    <bpmn:serviceTask id="tascaHandler" implementation="http://www.caib.es/helium/bpmn/handler">
+      <bpmn:extensionElements>
+        <helium:handler classe="es.caib.helium.flowable.HandlerProva">
+          <helium:parametre nom="parametreQueNoExisteix" valor="x"/>
+        </helium:handler>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="f2" sourceRef="tascaHandler" targetRef="fi"/>
+    <bpmn:endEvent id="fi"/>
+  </bpmn:process>
+</bpmn:definitions>

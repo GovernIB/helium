@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- BPMN 2.0 sense cap atribut ni element de Flowable: els handlers fan servir l'extensió de Helium -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:helium="http://www.caib.es/helium/bpmn"
+                  id="definicions"
+                  targetNamespace="http://www.caib.es/helium/test">
+  <bpmn:process id="procesHandlerGeneric" isExecutable="true">
+    <bpmn:startEvent id="inici"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="inici" targetRef="tascaHandlerPropi"/>
+    <bpmn:serviceTask id="tascaHandlerPropi" name="Handler de prova" implementation="http://www.caib.es/helium/bpmn/handler">
+      <bpmn:extensionElements>
+        <helium:handler classe="es.caib.helium.flowable.HandlerProva">
+          <helium:parametre nom="text" valor="Valor literal"/>
+          <helium:parametre nom="valorVariable" expressio="${variableEntrada}"/>
+          <helium:parametre nom="numero" expressio="${2 + 3}"/>
+        </helium:handler>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="f2" sourceRef="tascaHandlerPropi" targetRef="tascaHandlerPredefinit"/>
+    <bpmn:serviceTask id="tascaHandlerPredefinit" name="Modificar comentari" implementation="http://www.caib.es/helium/bpmn/handler">
+      <bpmn:extensionElements>
+        <helium:handler classe="es.caib.helium.disseny.handler.ExpedientComentariModificarHandler">
+          <helium:parametre nom="comentari" valor="Comentari nou"/>
+          <helium:parametre nom="varComentari" valor=""/>
+        </helium:handler>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="f3" sourceRef="tascaHandlerPredefinit" targetRef="fi"/>
+    <bpmn:endEvent id="fi"/>
+  </bpmn:process>
+</bpmn:definitions>

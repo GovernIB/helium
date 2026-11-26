@@ -15,6 +15,7 @@ import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import es.caib.helium.logic.intf.bpmn.ExecucioHandler;
 import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import es.caib.helium.bpmn.model.ConsultaPinbal;

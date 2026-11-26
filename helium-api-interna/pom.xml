@@ -212,6 +212,11 @@
 					<artifactId>helium-service</artifactId>
 					<version>${project.version}</version>
 				</dependency>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>helium-flowable</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 			</dependencies>
 			<build>
 				<resources>

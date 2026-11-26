@@ -33,9 +33,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
-import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -319,8 +316,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private ApplicationEventPublisher eventPublisher;
 	@Autowired
 	private EntityManager entityManager;
-	@Autowired
-	private ProcessEngine processEngine;
 
 	private final ConcurrentMap<Long, Object> anotaciosInPorcess = new ConcurrentHashMap<Long, Object>();
 
@@ -1875,18 +1870,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 		if (MesuresTemporalsHelper.isActiu()) {
 			mesuresTemporalsHelper.mesuraIniciar("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
-		}
-
-		DelegateExecution delegateExecution = null;
-		// TODO: S'ha de llevar aquest codi per a que sigui agnostic al motor de workflow usat
-		if(expedient.getTipus().getTipus() == ExpedientTipusTipusEnumDto.FLOW) {
-			Execution e = processEngine
-				.getRuntimeService()
-				.createExecutionQuery()
-				.processInstanceId(processInstanceId)
-				.onlyProcessInstanceExecutions()
-				.singleResult();
-			delegateExecution = (DelegateExecution) e;
 		}
 
 		// executa l'script

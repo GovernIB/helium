@@ -14,7 +14,6 @@ import java.util.zip.ZipOutputStream;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
-import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1845,7 +1844,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			byte[] contingut)
 	{
 		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
-		ProcessDefinition processDefinition;
 		try {
 			//processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
 		} catch (Exception e) {

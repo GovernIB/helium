@@ -8,7 +8,7 @@ import java.io.IOException;
  * Implementació de ClassLoader que carrega els recursos del WorkflowEngineApi.
  *
  * <p>Els handlers es carreguen tal qual: és l'adaptador de cada motor de workflow qui els
- * executa (veure {@code es.caib.helium.logic.flowable.HeliumHandlerJavaDelegate}).</p>
+ * executa (veure {@code es.caib.helium.flowable.HeliumHandlerJavaDelegate}, a helium-flowable).</p>
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
