@@ -2,6 +2,7 @@ package es.caib.helium.bpmn.api;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import es.caib.helium.bpmn.engine.WProcessInstance;
 import es.caib.helium.bpmn.engine.WTaskInstance;
@@ -315,4 +316,41 @@ public interface HeliumApi {
 	 * {@code transicioOK}.
 	 */
 	public void consultaPinbal(ConsultaPinbal consulta);
+
+	/*
+	 * Enumeracions. L'enumeració es cerca primer al tipus d'expedient i, si no hi és, entre les globals de l'entorn
+	 * (com a Helium 3). Si no existeix, es llança HeliumHandlerException.
+	 */
+
+	/** Valors de l'enumeració, en l'ordre definit: el codi és el codi del valor i el valor, el seu nom. */
+	public List<ParellaCodiValor> consultaEnumeracio(String codiEnumeracio);
+
+	/** Nom del valor amb aquest codi de l'enumeració, o null si l'enumeració no el té. */
+	public String enumeracioGetValor(String codiEnumeracio, String codi);
+
+	/**
+	 * Canvia el nom del valor amb aquest codi de l'enumeració. Llança HeliumHandlerException si l'enumeració no té cap
+	 * valor amb aquest codi.
+	 */
+	public void enumeracioSetValor(String codiEnumeracio, String codi, String valor);
+
+	/*
+	 * Dominis. El domini es cerca primer al tipus d'expedient (amb herència) i, si no hi és, entre els globals de
+	 * l'entorn (com a Helium 3). Si no existeix, es llança HeliumHandlerException.
+	 */
+
+	/**
+	 * Consulta un domini i en retorna les files.
+	 *
+	 * @param codiDomini codi del domini.
+	 * @param id identificador de la consulta dins el domini (p. ex. el de la consulta SQL o del servei web).
+	 * @param parametres paràmetres de la consulta (pot ser null).
+	 */
+	public List<FilaResultat> consultaDomini(String codiDomini, String id, Map<String, Object> parametres);
+
+	/**
+	 * Consulta el domini intern de Helium (p. ex. {@code PERSONA_AMB_CODI}, {@code PERSONES_AMB_AREA},
+	 * {@code UNITAT_PER_CODI}) i en retorna les files.
+	 */
+	public List<FilaResultat> consultaDominiIntern(String id, Map<String, Object> parametres);
 }

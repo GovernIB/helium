@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
@@ -23,6 +24,8 @@ import es.caib.helium.bpmn.model.RespostaRegistre;
 import es.caib.helium.bpmn.model.DocumentInfo;
 import es.caib.helium.bpmn.model.ExpedientInfo;
 import es.caib.helium.bpmn.model.ExpedientTipusInfo;
+import es.caib.helium.bpmn.model.FilaResultat;
+import es.caib.helium.bpmn.model.ParellaCodiValor;
 import es.caib.helium.bpmn.model.TerminiInfo;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.DadesEnviamentDto;
@@ -55,6 +58,9 @@ import es.caib.helium.logic.helper.MailHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.Document;
+import es.caib.helium.persistence.entity.Domini;
+import es.caib.helium.persistence.entity.Enumeracio;
+import es.caib.helium.persistence.entity.EnumeracioValors;
 import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.Estat;
 import es.caib.helium.persistence.entity.Expedient;
@@ -1332,6 +1338,92 @@ public class HeliumApiImpl implements HeliumApi {
 		} else {
 			throw new HeliumHandlerException("Document store no trobat pel codi: " + documentCodi);
 		}
+	}
+
+	@Override
+	public List<ParellaCodiValor> consultaEnumeracio(String codiEnumeracio) {
+		return serveis.getEnumeracioValorsRepository()
+			.findByEnumeracioOrderByOrdreAsc(enumeracio(codiEnumeracio))
+			.stream()
+			.map(v -> new ParellaCodiValor(v.getCodi(), v.getNom()))
+			.collect(Collectors.toList());
+	}
+
+	@Override
+	public String enumeracioGetValor(String codiEnumeracio, String codi) {
+		EnumeracioValors valor = serveis.getEnumeracioValorsRepository().findByEnumeracioAndCodi(
+			enumeracio(codiEnumeracio),
+			codi);
+		return valor != null ? valor.getNom() : null;
+	}
+
+	@Override
+	public void enumeracioSetValor(String codiEnumeracio, String codi, String valor) {
+		EnumeracioValors enumeracioValor = serveis.getEnumeracioValorsRepository().findByEnumeracioAndCodi(
+			enumeracio(codiEnumeracio),
+			codi);
+		if (enumeracioValor == null) {
+			throw new HeliumHandlerException(
+				"L'enumeració '" + codiEnumeracio + "' no té cap valor amb el codi '" + codi + "'");
+		}
+		enumeracioValor.setNom(valor);
+		serveis.getEnumeracioValorsRepository().save(enumeracioValor);
+	}
+
+	@Override
+	public List<FilaResultat> consultaDomini(String codiDomini, String id, Map<String, Object> parametres) {
+		Domini domini = serveis.getDominiRepository().findByExpedientTipusAndCodiAmbHerencia(
+			expedient.getTipus().getId(),
+			codiDomini);
+		if (domini == null) {
+			domini = serveis.getDominiRepository().findByEntornAndCodi(expedient.getEntorn(), codiDomini);
+		}
+		if (domini == null) {
+			throw new HeliumHandlerException("No existeix cap domini amb el codi '" + codiDomini + "'");
+		}
+		return filesResultat(serveis.getDominiHelper().consultar(domini, id, parametres));
+	}
+
+	@Override
+	public List<FilaResultat> consultaDominiIntern(String id, Map<String, Object> parametres) {
+		return filesResultat(serveis.getDominiHelper().consultarIntern(
+			expedient.getEntorn(),
+			expedient.getTipus(),
+			id,
+			parametres));
+	}
+
+	/**
+	 * Enumeració amb aquest codi: la del tipus d'expedient o, si no n'hi ha, la global de l'entorn (com a
+	 * Helium 3).
+	 */
+	private Enumeracio enumeracio(String codiEnumeracio) {
+		Enumeracio enumeracio = serveis.getEnumeracioRepository().findByEntornAndExpedientTipusAndCodi(
+			expedient.getEntorn(),
+			expedient.getTipus(),
+			codiEnumeracio);
+		if (enumeracio == null) {
+			enumeracio = serveis.getEnumeracioRepository().findByEntornAndCodi(expedient.getEntorn(), codiEnumeracio);
+		}
+		if (enumeracio == null) {
+			throw new HeliumHandlerException("No existeix cap enumeració amb el codi '" + codiEnumeracio + "'");
+		}
+		return enumeracio;
+	}
+
+	/** Converteix les files del domini al model de helium-disseny, que no depèn de helium-commons. */
+	private static List<FilaResultat> filesResultat(List<es.caib.helium.commons.domini.FilaResultat> files) {
+		List<FilaResultat> resultat = new ArrayList<>();
+		if (files != null) {
+			for (es.caib.helium.commons.domini.FilaResultat fila : files) {
+				FilaResultat filaResultat = new FilaResultat();
+				for (es.caib.helium.commons.domini.ParellaCodiValor columna : fila.getColumnes()) {
+					filaResultat.addColumna(new ParellaCodiValor(columna.getCodi(), columna.getValor()));
+				}
+				resultat.add(filaResultat);
+			}
+		}
+		return resultat;
 	}
 
 }
