@@ -217,7 +217,7 @@ public class HeliumApiImpl implements HeliumApi {
 
 	@Override
 	public DocumentInfo getDocumentInfo(String documentCodi, boolean ambCongingut) {
-		return documentInfo(expedient, processId, taskId, documentCodi, ambCongingut);
+		return documentInfo(expedient, processIdDocuments(), taskId, documentCodi, ambCongingut);
 	}
 
 	/** Informació d'un document d'una instància de procés de qualsevol expedient. */
@@ -296,7 +296,7 @@ public class HeliumApiImpl implements HeliumApi {
 		byte[] firmaContingut) {
 		DocumentStore documentStore = documentHelperV3.crearActualitzarDocument(
 			taskId,
-			processId,
+			processIdDocuments(),
 			documentCodi,
 			dataDocument,
 			arxiuNom,
@@ -311,7 +311,7 @@ public class HeliumApiImpl implements HeliumApi {
 			null);
 
 		DocumentInfo resposta = new DocumentInfo();
-		resposta.setProcessInstanceId(processId);
+		resposta.setProcessInstanceId(processIdDocuments());
 		resposta.setId(documentStore.getId());
 		resposta.setCodiDocument(documentCodi);
 		resposta.setTitol(documentStore.getArxiuNom() != null? documentStore.getArxiuNom() : documentStore.getAdjuntTitol());
@@ -335,7 +335,7 @@ public class HeliumApiImpl implements HeliumApi {
 	public void deleteDocument(String documentCodi) {
 		documentHelperV3.esborrarDocument(
 				taskId, 
-				processId, 
+				processIdDocuments(), 
 				documentCodi);
 	}
 
@@ -383,7 +383,7 @@ public class HeliumApiImpl implements HeliumApi {
 		String adjuntTitol = concatenarTitol ? documentInfo.getTitol() + " " + titol : titol;
 		documentHelperV3.crearDocument(
 				taskId,
-				processId,
+				processIdDocuments(),
 				null, //documentCodi
 				data,
 				true, //isAdjunt
@@ -397,7 +397,7 @@ public class HeliumApiImpl implements HeliumApi {
 		if (esborrarDocument) {
 			documentHelperV3.esborrarDocument(
 					taskId, 
-					processId, 
+					processIdDocuments(), 
 					documentOrigen);
 		}
 	}
@@ -849,13 +849,13 @@ public class HeliumApiImpl implements HeliumApi {
 			null,
 			documentOrigenCodi != null ? documentOrigenCodi : documentCodi,
 			true);
-		guardarCopiaDocument(processIdObligatori(), documentCodi, document);
+		guardarCopiaDocument(processIdDocuments(), documentCodi, document);
 	}
 
 	@Override
 	public DocumentInfo documentGenerar(String documentCodi, Date data) {
 		comprovarCodiDocument(documentCodi);
-		Document document = documentHelperV3.findDocumentDisseny(expedient.getId(), processId, documentCodi);
+		Document document = documentHelperV3.findDocumentDisseny(expedient.getId(), processIdDocuments(), documentCodi);
 		if (document == null) {
 			throw new HeliumHandlerException("No s'ha trobat el document " + documentCodi);
 		}
@@ -867,7 +867,7 @@ public class HeliumApiImpl implements HeliumApi {
 			expedient,
 			document,
 			taskId,
-			processIdObligatori(),
+			processIdDocuments(),
 			dataDocument);
 		return setDocument(
 			documentCodi,
@@ -956,17 +956,27 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 		serveis.getConsultaPinbalHelper().consultaDesDeHandler(
 			expedient,
-			processIdObligatori(),
+			processIdDocuments(),
 			tokenId,
 			consulta,
 			serveiEspecific);
 	}
 
+	/** Instància de procés del handler. Les operacions sobre processos no es poden fer en expedients per estats. */
 	private String processIdObligatori() {
 		if (processId == null) {
-			throw new HeliumHandlerException("Aquesta operació només es pot fer dins una instància de procés");
+			throw new HeliumHandlerException("Aquesta operació només es pot fer en un expedient per flux, dins una instància de procés");
 		}
 		return processId;
+	}
+
+	/**
+	 * Instància de procés on són els documents. Les accions dels expedients per estats s'executen sense instància de
+	 * procés: els seus documents són a l'identificador de procés de l'expedient, com quan es gestionen des de la
+	 * pàgina de l'expedient. Les dades, en canvi, són de l'expedient ({@code processId} null).
+	 */
+	private String processIdDocuments() {
+		return processId != null ? processId : expedient.getProcessInstanceId();
 	}
 
 	private String processPareId() {
@@ -1126,11 +1136,11 @@ public class HeliumApiImpl implements HeliumApi {
 		DocumentDto document = new DocumentDto();
 		Document documentDisseny = documentHelperV3.findDocumentDisseny(
 			expedient.getId(),
-			processId,
+			processIdDocuments(),
 			documentCodi);
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
 			expedient.getId(),
-			processId,
+			processIdDocuments(),
 			taskId,
 			documentCodi);
 
@@ -1184,7 +1194,7 @@ public class HeliumApiImpl implements HeliumApi {
 	private ArxiuDto toEmailAttachment(String documentCodi) {
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
 			expedient.getId(),
-			processId,
+			processIdDocuments(),
 			taskId,
 			documentCodi);
 		if (documentStore != null) {
