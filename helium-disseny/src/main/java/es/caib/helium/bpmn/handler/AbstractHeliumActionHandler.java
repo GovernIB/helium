@@ -8,6 +8,7 @@ import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.exception.BpmnException;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import es.caib.helium.bpmn.model.TerminiInfo;
+import es.caib.helium.bpmn.model.TerminiIniciatInfo;
 
 /**
  * Handler base amb accés a la funcionalitat de Helium.
@@ -22,7 +23,7 @@ public abstract class AbstractHeliumActionHandler implements HeliumBpmnHandler {
 	public static final String FORMAT_DATA = "dd/MM/yyyy";
 
 	/** Termini iniciat a la instància de procés del handler, o null si no s'ha iniciat (veure {@link HeliumApi#getTerminiIniciat}). */
-	protected TerminiInfo getTerminiIniciatAmbCodi(HeliumApi executionContext, String codi) throws BpmnException {
+	protected TerminiIniciatInfo getTerminiIniciatAmbCodi(HeliumApi executionContext, String codi) throws BpmnException {
 		return executionContext.getTerminiIniciat(codi);
 	}
 
@@ -72,6 +73,18 @@ public abstract class AbstractHeliumActionHandler implements HeliumBpmnHandler {
 		} catch (NumberFormatException ex) {
 			throw new HeliumHandlerException("No s'ha pogut convertir a enter el valor " + value);
 		}
+	}
+
+	protected Object getValorOVariable(HeliumApi api, Object valor, String variable) {
+		if(valor != null)
+			return valor;
+		return api.getVariable(variable);
+	}
+
+	protected Integer getValorOVariableInteger(HeliumApi api, String valor, String variable) {
+		if(valor != null && !valor.isEmpty())
+			return Integer.valueOf(valor);
+		return api.getVariable(variable);
 	}
 
 }

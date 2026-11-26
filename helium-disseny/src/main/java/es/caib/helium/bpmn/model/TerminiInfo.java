@@ -1,90 +1,104 @@
 package es.caib.helium.bpmn.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.Date;
 
-/**
- * Termini iniciat en una instància de procés: durada i dates.
- *
- * @author Limit Tecnologies <limit@limit.es>
- */
+@Getter
+@Setter
+@NoArgsConstructor
 public class TerminiInfo {
 
-	private long id;
+	private Long id;
 	private String codi;
-	private int anys = 0;
-	private int mesos = 0;
-	private int dies = 0;
+	private String nom;
+	private String descripcio;
+	private boolean duradaPredefinida;
+	private int anys;
+	private int mesos;
+	private Integer dies;
+	private boolean laborable;
+	private boolean manual = true;
+	private Integer diesPrevisAvis;
+	private boolean alertaPrevia;
+	private boolean alertaFinal;
+	private boolean alertaCompletat;
 	private Date dataInici;
 	private Date dataFi;
 	private Date dataAturada;
 	private Date dataCancelacio;
 
-	public TerminiInfo() {
+	public TerminiInfo(String valor) {
+		super();
+		if (valor != null) {
+			String[] dades = valor.split("/");
+			if (dades.length >= 3) {
+				this.anys = Integer.parseInt(dades[0]);
+				this.mesos = Integer.parseInt(dades[1]);
+				this.dies = Integer.parseInt(dades[2]);
+			}
+		}
 	}
 
 	public TerminiInfo(int anys, int mesos, int dies) {
-		super();
 		this.anys = anys;
 		this.mesos = mesos;
 		this.dies = dies;
 	}
 
-	public long getId() {
-		return id;
+	public static TerminiInfo valueFromString(String valorTermini) {
+		TerminiInfo termini = new TerminiInfo();
+		try {
+			String[] parts = valorTermini.split("/");
+			if (parts.length == 3) {
+				termini.setAnys(Integer.parseInt(parts[0]));
+				termini.setMesos(Integer.parseInt(parts[1]));
+				termini.setDies(Integer.parseInt(parts[2]));
+			}
+		} catch (Exception ex) {}
+		return termini;
 	}
-	public void setId(long id) {
-		this.id = id;
+
+	public String getDurada() {
+		return toString() + ((dies > 0) ? ((laborable) ? " laborables" : " naturals") : "");
 	}
-	/** Codi del termini, tal com està definit al tipus d'expedient o a la definició de procés. */
-	public String getCodi() {
-		return codi;
+
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		boolean plural = false;
+		if (anys > 0) {
+			sb.append(anys);
+			plural = anys > 1;
+			sb.append((plural) ? " anys": " any");
+			if (mesos > 0 && dies > 0)
+				sb.append(", ");
+			else if (mesos > 0 || dies > 0)
+				sb.append(" i ");
+		}
+		if (mesos > 0) {
+			sb.append(mesos);
+			plural = mesos > 1;
+			sb.append((plural) ? " mesos": " mes");
+			if (dies > 0)
+				sb.append(" i ");
+		}
+		if (dies != null && dies > 0) {
+			sb.append(dies);
+			plural = dies > 1;
+			sb.append((plural) ? " dies": " dia");
+		}
+		return sb.toString();
 	}
-	public void setCodi(String codi) {
-		this.codi = codi;
+
+	public String toSavinString() {
+		if (isEmpty())
+			return null;
+		return anys + "/" + mesos + "/" + (dies == null ? 0 : dies);
 	}
-	public int getAnys() {
-		return anys;
-	}
-	public void setAnys(int anys) {
-		this.anys = anys;
-	}
-	public int getMesos() {
-		return mesos;
-	}
-	public void setMesos(int mesos) {
-		this.mesos = mesos;
-	}
-	public int getDies() {
-		return dies;
-	}
-	public void setDies(int dies) {
-		this.dies = dies;
-	}
-	public Date getDataInici() {
-		return dataInici;
-	}
-	public void setDataInici(Date dataInici) {
-		this.dataInici = dataInici;
-	}
-	public Date getDataFi() {
-		return dataFi;
-	}
-	public void setDataFi(Date dataFi) {
-		this.dataFi = dataFi;
-	}
-	/** Data en què s'ha pausat el termini, si està pausat. */
-	public Date getDataAturada() {
-		return dataAturada;
-	}
-	public void setDataAturada(Date dataAturada) {
-		this.dataAturada = dataAturada;
-	}
-	/** Data en què s'ha cancel·lat el termini, si està cancel·lat. */
-	public Date getDataCancelacio() {
-		return dataCancelacio;
-	}
-	public void setDataCancelacio(Date dataCancelacio) {
-		this.dataCancelacio = dataCancelacio;
+	public boolean isEmpty() {
+		return (anys == 0 && mesos == 0 && dies == null);
 	}
 
 }
