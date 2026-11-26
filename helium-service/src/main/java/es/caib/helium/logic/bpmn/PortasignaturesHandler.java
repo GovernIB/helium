@@ -12,6 +12,9 @@ import java.util.List;
 /**
  * Implementació del handler per a enviar documents al portafirmes.
  *
+ * <p>El procés ha d'esperar la resposta en una <i>receive task</i> just després de la tasca del handler (com el node
+ * d'estat de jBPM): quan el document es signa o es rebutja, continua per {@code transicioOK} o {@code transicioKO}.</p>
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter

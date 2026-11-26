@@ -246,9 +246,9 @@ public class ConsultaPinbalHelper {
 
 				// Segons el resultat de la resposta avança l'expedient
 				if (pi.getTokenId() != null) {
-					// Execució que espera la resposta (tasca del handler de PINBAL)
+					// Execució del handler de PINBAL: només es reprèn si està aturada a una receive task
 					WToken token = workflowEngineApi.getTokenById(pi.getTokenId());
-					if (token != null) {
+					if (token != null && token.isReceiveTask()) {
 						if (pi.getTransicioOK() != null && token.getSortides().contains(pi.getTransicioOK())) {
 							workflowEngineApi.signalToken(pi.getTokenId(), pi.getTransicioOK());
 						} else {

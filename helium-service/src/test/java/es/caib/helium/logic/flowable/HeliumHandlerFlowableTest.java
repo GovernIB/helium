@@ -1,6 +1,7 @@
 package es.caib.helium.logic.flowable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -107,8 +108,8 @@ public class HeliumHandlerFlowableTest {
 		ServiceTask tasca = (ServiceTask) model.getMainProcess().getFlowElement("tascaHandlerPropi");
 		assertEquals(ImplementationType.IMPLEMENTATION_TYPE_DELEGATEEXPRESSION, tasca.getImplementationType());
 		assertEquals(HeliumHandlerJavaDelegate.DELEGATE_EXPRESSION, tasca.getImplementation());
-		// L'adaptador decideix si continua o espera una resposta externa
-		assertTrue(tasca.isTriggerable());
+		// La tasca del handler no espera: l'espera de les respostes asíncrones és a una receive task
+		assertFalse(tasca.isTriggerable());
 		HandlerDefinicio definicio = FlowableHeliumBpmn.llegirHandler(tasca);
 		assertNotNull(definicio);
 		assertEquals("es.caib.helium.logic.flowable.HandlerProva", definicio.getClasse());

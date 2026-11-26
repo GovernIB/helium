@@ -171,6 +171,10 @@ public interface HeliumApi {
 
 	public void interessatEliminar(String codi);
 
+	/**
+	 * Envia un document al portasignatures. El procés ha d'esperar la resposta en una <i>receive task</i> just després
+	 * de la tasca del handler: quan es signa o es rebutja, es reprèn per {@code transicioOK} o {@code transicioKO}.
+	 */
 	public Integer portasignaturesEnviar(
 		String documentCodi,
 		String personaCodi,
@@ -254,8 +258,9 @@ public interface HeliumApi {
 	public RespostaRegistre registreSortida(DadesRegistreSortida dades);
 
 	/**
-	 * Consulta PINBAL i desa el justificant al document indicat. Si la consulta és asíncrona, la tasca del handler
-	 * queda esperant la resposta.
+	 * Consulta PINBAL i desa el justificant al document indicat. Si la consulta és asíncrona, el procés ha d'esperar
+	 * la resposta en una <i>receive task</i> just després de la tasca del handler: quan arriba, es reprèn per
+	 * {@code transicioOK}.
 	 */
 	public void consultaPinbal(ConsultaPinbal consulta);
 }

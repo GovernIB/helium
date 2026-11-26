@@ -7,8 +7,9 @@ import lombok.Setter;
  * Dades d'una consulta a PINBAL feta des d'un handler.
  *
  * <p>El titular es pot indicar amb el codi d'un interessat de l'expedient ({@code interessatCodi}) o amb les seves
- * dades. El justificant es desa al document {@code documentCodi}. Si la consulta és asíncrona, la tasca del handler
- * espera la resposta i el procés continua per {@code transicioOK} quan arriba.</p>
+ * dades. El justificant es desa al document {@code documentCodi}. Si la consulta és asíncrona, el procés espera la
+ * resposta en una <i>receive task</i> després de la tasca del handler i continua per {@code transicioOK} quan
+ * arriba.</p>
  *
  * @author Limit Tecnologies <limit@limit.es>
  */

@@ -77,7 +77,10 @@ public class HeliumExpedientFlowableTest {
 		"  </process>" +
 		"</definitions>";
 
-	/** Handler que espera una resposta externa, amb dues transicions de sortida. */
+	/**
+	 * Handler que envia una petició amb resposta asíncrona (com el de portasignatures) i, després, una receive task
+	 * que espera la resposta amb dues transicions de sortida.
+	 */
 	private static final String BPMN_ESPERA =
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?><definitions " + XMLNS + ">" +
 		"  <process id=\"procesEspera\" isExecutable=\"true\">" +
@@ -86,13 +89,26 @@ public class HeliumExpedientFlowableTest {
 		"    <serviceTask id=\"enviar\" name=\"Enviar a firmar\" implementation=\"http://www.caib.es/helium/bpmn/handler\">" +
 		"      <extensionElements><helium:handler classe=\"es.caib.helium.logic.flowable.HandlerEsperaProva\"/></extensionElements>" +
 		"    </serviceTask>" +
-		"    <sequenceFlow id=\"fSignat\" name=\"Signat\" sourceRef=\"enviar\" targetRef=\"signat\"/>" +
-		"    <sequenceFlow id=\"fRebutjat\" name=\"Rebutjat\" sourceRef=\"enviar\" targetRef=\"rebutjat\"/>" +
+		"    <sequenceFlow id=\"fEnviat\" sourceRef=\"enviar\" targetRef=\"esperarFirma\"/>" +
+		"    <receiveTask id=\"esperarFirma\" name=\"Esperar la firma\"/>" +
+		"    <sequenceFlow id=\"fSignat\" name=\"Signat\" sourceRef=\"esperarFirma\" targetRef=\"signat\"/>" +
+		"    <sequenceFlow id=\"fRebutjat\" name=\"Rebutjat\" sourceRef=\"esperarFirma\" targetRef=\"rebutjat\"/>" +
 		"    <userTask id=\"signat\" name=\"Signat\"/>" +
 		"    <userTask id=\"rebutjat\" name=\"Rebutjat\"/>" +
 		"    <sequenceFlow id=\"f2\" sourceRef=\"signat\" targetRef=\"fiS\"/>" +
 		"    <sequenceFlow id=\"f3\" sourceRef=\"rebutjat\" targetRef=\"fiR\"/>" +
 		"    <endEvent id=\"fiS\"/><endEvent id=\"fiR\"/>" +
+		"  </process>" +
+		"  <process id=\"procesSenseEspera\" isExecutable=\"true\">" +
+		"    <startEvent id=\"iniciSE\"/>" +
+		"    <sequenceFlow id=\"se1\" sourceRef=\"iniciSE\" targetRef=\"enviarSE\"/>" +
+		"    <serviceTask id=\"enviarSE\" implementation=\"http://www.caib.es/helium/bpmn/handler\">" +
+		"      <extensionElements><helium:handler classe=\"es.caib.helium.logic.flowable.HandlerEsperaProva\"/></extensionElements>" +
+		"    </serviceTask>" +
+		"    <sequenceFlow id=\"se2\" sourceRef=\"enviarSE\" targetRef=\"revisarSE\"/>" +
+		"    <userTask id=\"revisarSE\"/>" +
+		"    <sequenceFlow id=\"se3\" sourceRef=\"revisarSE\" targetRef=\"fiSE\"/>" +
+		"    <endEvent id=\"fiSE\"/>" +
 		"  </process>" +
 		"</definitions>";
 
@@ -247,16 +263,27 @@ public class HeliumExpedientFlowableTest {
 	// Espera de resposta externa (punts 15 i 16)
 
 	@Test
-	void unHandlerQueEsperaRespostaDeixaLExecucioAturada() {
+	void lExecucioDelHandlerEsperaALaReceiveTaskQueVeDespres() {
 		ProcessInstance pi = processEngine.getRuntimeService().startProcessInstanceByKey("procesEspera");
 
 		assertEquals(1, HandlerEsperaProva.EXECUCIONS_EN_ESPERA.size());
 		String executionId = HandlerEsperaProva.EXECUCIONS_EN_ESPERA.get(0);
-		assertEquals(List.of("enviar"), processEngine.getRuntimeService().getActiveActivityIds(pi.getId()));
-		assertEquals(0, processEngine.getTaskService().createTaskQuery().processInstanceId(pi.getId()).count());
-		// El token exposa les transicions per les quals es pot reprendre
+		assertEquals(List.of("esperarFirma"), processEngine.getRuntimeService().getActiveActivityIds(pi.getId()));
+		// L'execució que ha desat el handler és la que espera a la receive task
 		WToken token = engine.getTokenById(executionId);
+		assertTrue(token.isReceiveTask());
+		assertEquals("Esperar la firma", token.getNodeName());
 		assertEquals(List.of("fSignat", "fRebutjat"), token.getSortides());
+	}
+
+	@Test
+	void unaTascaDeHandlerNoEsperaSiNoHiHaReceiveTask() {
+		ProcessInstance pi = processEngine.getRuntimeService().startProcessInstanceByKey("procesSenseEspera");
+
+		// El procés continua: la resposta no trobarà l'execució esperant a cap receive task
+		assertEquals(List.of("revisarSE"), tasquesActives(pi.getId()));
+		WToken token = engine.getTokenById(HandlerEsperaProva.EXECUCIONS_EN_ESPERA.get(0));
+		assertFalse(token.isReceiveTask());
 	}
 
 	@Test

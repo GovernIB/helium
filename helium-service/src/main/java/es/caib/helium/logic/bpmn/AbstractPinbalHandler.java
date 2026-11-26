@@ -13,9 +13,10 @@ import lombok.Setter;
  * dades; el tipus de documentació sempre s'ha d'indicar. El justificant es desa al document {@code documentCodi}.
  * {@code consentiment} és {@code SI} o {@code LLEI}.</p>
  *
- * <p>Si {@code asincrona} és {@code true}, la tasca del handler espera la resposta de PINBAL i el procés continua per
- * {@code transicioOK} (id del flux de sortida o de l'activitat destí) quan arriba; mentrestant el document conté un
- * justificant provisional. Una consulta síncrona continua tot d'una.</p>
+ * <p>Si {@code asincrona} és {@code true}, el procés ha d'esperar la resposta en una <i>receive task</i> just després
+ * de la tasca del handler: quan arriba, continua per {@code transicioOK} (id d'un flux de sortida de la
+ * <i>receive task</i> o de l'activitat destí). Mentrestant el document conté un justificant provisional. Una consulta
+ * síncrona no espera.</p>
  *
  * @author Limit Tecnologies <limit@limit.es>
  */

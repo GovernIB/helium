@@ -685,11 +685,11 @@ public class HeliumApiImpl implements HeliumApi {
 		if (personaCodisPas3 != null) {
 			blocList.add(toPortafirmesFluxBlocDto(personaCodisPas3, minSignatarisPas3));
 		}
-		// Dins el motor, la tasca del handler queda esperant la resposta del portasignatures (com l'estat de jBPM on
-		// s'aturava el token) i el callback la reprèn per transicioOK/transicioKO. Fora del motor (accions) no hi ha
-		// cap execució per reprendre.
+		// Es desa l'execució del handler: continua fins a la receive task que hi ha després i el callback la reprèn
+		// per transicioOK/transicioKO, com el token de jBPM que s'aturava al node d'estat. Fora del motor (accions)
+		// no hi ha cap execució per reprendre.
 		ExecucioHandler execucio = ExecucioHandler.actual();
-		String executionId = execucio != null ? execucio.esperarResposta() : null;
+		String executionId = execucio != null ? execucio.getExecutionId() : null;
 		String processInstanceId = execucio != null ? execucio.getProcessInstanceId() : null;
 		return pluginHelper.portasignaturesEnviar(
 			toPortafirmesDocumentDto(documentCodi),
@@ -947,11 +947,12 @@ public class HeliumApiImpl implements HeliumApi {
 					PluginHelper.serveiObligacionsTributaries).contains(consulta.getServeiCodi())
 			? consulta.getServeiCodi()
 			: null;
-		// Una consulta asíncrona deixa la tasca del handler esperant la resposta, que la reprèn per transicioOK
+		// Consulta asíncrona: es desa l'execució del handler, que espera la resposta a la receive task que hi ha
+		// després; quan arriba la resposta es reprèn per transicioOK
 		String tokenId = null;
 		ExecucioHandler execucio = ExecucioHandler.actual();
 		if (consulta.isAsincrona() && execucio != null) {
-			tokenId = execucio.esperarResposta();
+			tokenId = execucio.getExecutionId();
 		}
 		serveis.getConsultaPinbalHelper().consultaDesDeHandler(
 			expedient,

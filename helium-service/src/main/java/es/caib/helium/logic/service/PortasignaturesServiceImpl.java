@@ -271,16 +271,20 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 				portasignatures.setDataProcessamentPrimer(new Date());
 			portasignatures.setDataProcessamentDarrer(new Date());
 			DocumentStore documentStore = documentStoreRepository.getReferenceById(portasignatures.getDocumentStoreId());
-			// Execució que espera la resposta del portasignatures (tasca del handler)
+			// Execució del handler que ha enviat el document. Només es reprèn si està aturada a una receive task
+			// esperant la resposta (com el node d'estat de jBPM).
 			String tokenId = portasignatures.getTokenId();
-			WToken token = tokenId != null ? workflowEngineApi.getTokenById(tokenId) : null;
+			WToken tokenExecucio = tokenId != null ? workflowEngineApi.getTokenById(tokenId) : null;
+			WToken token = tokenExecucio != null && tokenExecucio.isReceiveTask() ? tokenExecucio : null;
 			if (tokenId != null && token == null) {
-				log.warn("L'execució " + tokenId + " que esperava la resposta del portasignatures (id=" +
-					portasignatures.getDocumentId() + ") ja no existeix: el document es processa sense continuar el flux");
+				log.warn("L'execució " + tokenId + " del document enviat al portasignatures (id=" +
+					portasignatures.getDocumentId() + ") no espera a cap receive task (" +
+					(tokenExecucio != null ? "és al node " + tokenExecucio.getNodeName() : "ja no existeix") +
+					"): el document es processa sense continuar el flux");
 			}
 			String processInstanceId;
-			if (token != null) {
-				processInstanceId = token.getProcessInstanceId();
+			if (tokenExecucio != null) {
+				processInstanceId = tokenExecucio.getProcessInstanceId();
 			} else if (portasignatures.getProcessInstanceId() != null) {
 				processInstanceId = portasignatures.getProcessInstanceId();
 			} else {

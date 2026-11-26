@@ -1523,11 +1523,10 @@ public class FlowableEngineImpl implements WorkflowEngineApi {
 				FlowElement node = repositoryService.getBpmnModel(processDefinitionId).getFlowElement(e.getActivityId());
 				if (node != null) {
 					wt.setNodeName(node.getName() != null ? node.getName() : node.getId());
-					wt.setReceiveTask(node instanceof ReceiveTask);
-					if (node instanceof FlowNode) {
-						// Transicions per les quals es pot reprendre l'execució (signalToken). Mentre l'espera de
-						// portasignatures/PINBAL sigui a la tasca del handler, s'omplen per a qualsevol node.
-						for (SequenceFlow sortida: ((FlowNode) node).getOutgoingFlows()) {
+					if (node instanceof ReceiveTask) {
+						// Execució aturada esperant un senyal: transicions per les quals es pot reprendre (signalToken)
+						wt.setReceiveTask(true);
+						for (SequenceFlow sortida: ((ReceiveTask) node).getOutgoingFlows()) {
 							wt.getSortides().add(sortida.getId());
 						}
 					}

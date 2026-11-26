@@ -8,8 +8,8 @@ import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.bpmn.ExecucioHandler;
 
 /**
- * Handler de prova que, com el de portasignatures, envia una petició a un sistema extern i n'espera la resposta.
- * Guarda l'execució que s'haurà de reprendre.
+ * Handler de prova que, com el de portasignatures, envia una petició a un sistema extern amb resposta asíncrona.
+ * Guarda l'execució del handler, que és la que s'haurà de reprendre quan arribi la resposta.
  */
 public class HandlerEsperaProva implements HeliumBpmnHandler {
 
@@ -17,7 +17,7 @@ public class HandlerEsperaProva implements HeliumBpmnHandler {
 
 	@Override
 	public void execute(HeliumApi heliumApi) {
-		EXECUCIONS_EN_ESPERA.add(ExecucioHandler.actual().esperarResposta());
+		EXECUCIONS_EN_ESPERA.add(ExecucioHandler.actual().getExecutionId());
 	}
 
 }

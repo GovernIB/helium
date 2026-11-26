@@ -335,7 +335,7 @@
     {
         "classe" : "es.caib.helium.logic.bpmn.PortasignaturesHandler",
         "nom" : "Enviament d'un document al portasignatures",
-        "descripcio" : "Aquest handler ens permet enviar un document a signar al portasignatures. El document pot passar per tres passes de signatura, i on en cada passa es pot signar per una o més persones.",
+        "descripcio" : "Aquest handler ens permet enviar un document a signar al portasignatures. El document pot passar per tres passes de signatura, i on en cada passa es pot signar per una o més persones. Per continuar quan es signi o es rebutgi, el procés ha d'esperar en una tasca de recepció (receive task) just després d'aquesta tasca: la resposta el fa continuar per transicioOK o transicioKO.",
         "parametres" : [
             {
                 "codi": "responsableCodi",
@@ -1717,7 +1717,7 @@
     {
         "classe" : "es.caib.helium.logic.bpmn.PinbalConsultaGenericaHandler",
         "nom" : "Consulta genèrica a PINBAL",
-        "descripcio" : "Handler per invocar de forma genèrica una consulta a PINBAL i obtenir el justificant i guardar-lo en un document. Per poder fer la consulta s'ha d'indicar el codi de l'interessat o les dades del titular, les dades genèriques i del procediment i indicar en quin document guardar el justificant.",
+        "descripcio" : "Handler per invocar de forma genèrica una consulta a PINBAL i obtenir el justificant i guardar-lo en un document. Per poder fer la consulta s'ha d'indicar el codi de l'interessat o les dades del titular, les dades genèriques i del procediment i indicar en quin document guardar el justificant. Si la consulta és asíncrona, el procés ha d'esperar la resposta en una tasca de recepció (receive task) just després d'aquesta tasca: la resposta el fa continuar per transicioOK.",
         "parametres" : [
             {
                 "codi": "serveiCodi",
@@ -1810,7 +1810,7 @@
     {
         "classe" : "es.caib.helium.logic.bpmn.PinbalSvddgpciws02Handler",
         "nom" : "Consulta dades d'intentitat a PINBAL",
-        "descripcio" : "Handler de consulta al servei SVDDGPCIWS02 de consulta de dades d'indentitat a partir del número de document",
+        "descripcio" : "Handler de consulta al servei SVDDGPCIWS02 de consulta de dades d'indentitat a partir del número de document. Si la consulta és asíncrona, el procés ha d'esperar la resposta en una tasca de recepció (receive task) just després d'aquesta tasca: la resposta el fa continuar per transicioOK.",
         "parametres" : [
             {
                 "codi": "documentCodi",
@@ -1897,7 +1897,7 @@
     {
         "classe" : "es.caib.helium.logic.bpmn.PinbalSvddgpviws02Handler",
         "nom" : "Consulta de verificació de dades d'intentitat a PINBAL",
-        "descripcio" : "Handler de consulta al servei SVDDGPVIWS02 de verificació de dades d'identitat. Conté dades específiques de data, número, província o país",
+        "descripcio" : "Handler de consulta al servei SVDDGPVIWS02 de verificació de dades d'identitat. Conté dades específiques de data, número, província o país. Si la consulta és asíncrona, el procés ha d'esperar la resposta en una tasca de recepció (receive task) just després d'aquesta tasca: la resposta el fa continuar per transicioOK.",
         "parametres" : [
             {
                 "codi": "documentCodi",
@@ -1978,7 +1978,7 @@
     {
         "classe" : "es.caib.helium.logic.bpmn.PinbalSvdccaacpasws01Handler",
         "nom" : "Consulta a PINBAL d'estar al corrent d'oblicacions tributàries",
-        "descripcio" : "Handler de consulta al servei SVDCCAACPASWS01 de consulta d'estar al corrent d'obligacions tributàries per la sol·licitud de subvencions i ajudes de la CCAA. Les dades específiques que permetria informar són el codi de la comunitat autònoma o el codi de la província.",
+        "descripcio" : "Handler de consulta al servei SVDCCAACPASWS01 de consulta d'estar al corrent d'obligacions tributàries per la sol·licitud de subvencions i ajudes de la CCAA. Les dades específiques que permetria informar són el codi de la comunitat autònoma o el codi de la província. Si la consulta és asíncrona, el procés ha d'esperar la resposta en una tasca de recepció (receive task) just després d'aquesta tasca: la resposta el fa continuar per transicioOK.",
         "parametres" : [
             {
                 "codi": "documentCodi",
