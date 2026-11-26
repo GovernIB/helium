@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generat per ./gradlew distribuir: no s'ha d'editar a mà -->
 <plugins>
-  <plugin id="es.caib.helium.bpmn" url="https://raw.githubusercontent.com/GovernIB/helium/helium-4.0/helium-intellij-plugin/dist/helium-intellij-plugin-4.0.3.zip" version="4.0.3">
+  <plugin id="es.caib.helium.bpmn" url="https://raw.githubusercontent.com/GovernIB/helium/helium-4.0/helium-intellij-plugin/dist/helium-intellij-plugin-4.0.4.zip" version="4.0.4">
     <idea-version since-build="263"/>
     <name>Helium BPMN</name>
     <vendor email="limit@limit.es">Limit Tecnologies</vendor>
