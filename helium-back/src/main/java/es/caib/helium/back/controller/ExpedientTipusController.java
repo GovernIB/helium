@@ -22,7 +22,6 @@ import es.caib.helium.commons.exportacio.DocumentExportacio;
 import es.caib.helium.commons.exportacio.ExpedientTipusExportacio;
 import es.caib.helium.commons.exportacio.ExpedientTipusExportacioCommandDto;
 import es.caib.helium.logic.intf.service.*;
-import es.caib.pluginsib.arxiu.caib.ArxiuCaibException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -721,7 +720,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				exportacio.getNtiSerieDocumental(),
 				exportacio.getNtiOrgano(),
 				exportacio.getNtiClasificacion());
-		} catch(ArxiuCaibException ex) {
+		} catch(Exception ex) {
 			checkSerieDocumental = true;
 			MissatgesHelper.warning(
 				request,

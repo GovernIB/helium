@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.common.engine.api.delegate.event.*;
 import org.flowable.common.engine.impl.cfg.TransactionState;
+import org.flowable.common.engine.impl.interceptor.CommandConfig;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.identitylink.service.impl.persistence.entity.IdentityLinkEntity;
@@ -47,7 +48,9 @@ public class FlowableTaskEventListener implements FlowableEventListener {
 		}
 
 		FlowableEngineEventType eventType = (FlowableEngineEventType) event.getType();
-		processEngineConfiguration.getManagementService().executeCommand(commandContext -> {
+		// L'event arriba després del commit (getOnTransaction). Amb JTA (JBoss) la transacció confirmada continua
+		// associada al fil i qualsevol consulta hi falla (IJ031070 STATUS_COMMITTED): cal una transacció nova.
+		processEngineConfiguration.getManagementService().executeCommand(new CommandConfig().transactionRequiresNew(), commandContext -> {
 			try {
 				TaskEntity currentTask = (TaskEntity) processEngineConfiguration
 					.getTaskService()

@@ -225,7 +225,14 @@ public class ExpedientDadaHelperTest {
 
 		expedientDades = new AtomicReference<ExpedientDades>();
 
-		when(expedientDadesRepository.save(any())).
+		// setDada desa amb saveAndFlush (perquè el motor vegi la dada dins la mateixa transacció) i setDades amb save
+		lenient().when(expedientDadesRepository.save(any())).
+			thenAnswer(invocation -> {
+				ExpedientDades x = (ExpedientDades) invocation.getArgument(0);
+				expedientDades.set(x);
+				return x;
+			});
+		lenient().when(expedientDadesRepository.saveAndFlush(any())).
 			thenAnswer(invocation -> {
 				ExpedientDades x = (ExpedientDades) invocation.getArgument(0);
 				expedientDades.set(x);
