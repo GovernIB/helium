@@ -138,7 +138,7 @@ public class HeliumApiImplTerminisTest {
 		iniciat.setId(5L);
 		when(terminiIniciatRepository.findByTerminiAndProcessInstanceId(termini, PROCES)).thenReturn(iniciat);
 
-		TerminiInfo info = api.getTerminiIniciat("resposta");
+		TerminiInfo info = api.getTermini("resposta");
 		assertEquals(5L, info.getId());
 		assertEquals("resposta", info.getCodi());
 		assertEquals(1, info.getMesos());

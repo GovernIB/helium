@@ -210,7 +210,7 @@ public interface HeliumApi {
 	 * @return el termini iniciat, o null si encara no s'ha iniciat.
 	 * @throws es.caib.helium.bpmn.exception.HeliumHandlerException si no hi ha cap termini amb aquest codi.
 	 */
-	public TerminiInfo getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi);
+	public TerminiIniciatInfo getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi);
 
 	/*
 	 * Terminis. Els terminis es defineixen al tipus d'expedient (o a la definició de procés, si el tipus no té
@@ -223,7 +223,9 @@ public interface HeliumApi {
 	 *
 	 * @return el termini iniciat, o null si encara no s'ha iniciat.
 	 */
-	public TerminiInfo getTerminiIniciat(String terminiCodi);
+	public TerminiIniciatInfo getTerminiIniciat(String terminiCodi);
+
+	public TerminiInfo getTermini(String terminiCodi);
 
 	/**
 	 * Inicia el termini amb la durada configurada (o la del termini iniciat, si ja s'havia iniciat abans). Si ja

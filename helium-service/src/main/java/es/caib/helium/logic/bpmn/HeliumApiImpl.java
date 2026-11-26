@@ -10,20 +10,12 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import es.caib.helium.bpmn.model.*;
 import es.caib.helium.logic.intf.bpmn.ExecucioHandler;
 import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.engine.WProcessInstance;
 import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
-import es.caib.helium.bpmn.model.ConsultaPinbal;
-import es.caib.helium.bpmn.model.DadesNotificacio;
-import es.caib.helium.bpmn.model.DadesRegistreInteressat;
-import es.caib.helium.bpmn.model.DadesRegistreSortida;
-import es.caib.helium.bpmn.model.RespostaRegistre;
-import es.caib.helium.bpmn.model.DocumentInfo;
-import es.caib.helium.bpmn.model.ExpedientInfo;
-import es.caib.helium.bpmn.model.ExpedientTipusInfo;
-import es.caib.helium.bpmn.model.TerminiInfo;
 import es.caib.helium.commons.dto.ArxiuDto;
 import es.caib.helium.commons.dto.DadesEnviamentDto;
 import es.caib.helium.commons.dto.DadesNotificacioDto;
@@ -231,17 +223,17 @@ public class HeliumApiImpl implements HeliumApi {
 			String taskId,
 			String documentCodi,
 			boolean ambCongingut) {
-		
+
 		DocumentStore documentStore = expedientDocumentHelper.findDocumentStore(
 			expedient.getId(),
 			processId,
 			taskId,
 			documentCodi);
-		
+
 		if (documentStore != null) {
 			Document documentDisseny = documentHelperV3.findDocumentDisseny(
-					expedient.getId(), 
-					processId, 
+					expedient.getId(),
+					processId,
 					documentCodi);
 			DocumentDto docV3 = documentHelperV3.toDocumentDto(
 				documentStore.getId(),
@@ -338,8 +330,8 @@ public class HeliumApiImpl implements HeliumApi {
 	@Override
 	public void deleteDocument(String documentCodi) {
 		documentHelperV3.esborrarDocument(
-				taskId, 
-				processIdDocuments(), 
+				taskId,
+				processIdDocuments(),
 				documentCodi);
 	}
 
@@ -400,8 +392,8 @@ public class HeliumApiImpl implements HeliumApi {
 				null);
 		if (esborrarDocument) {
 			documentHelperV3.esborrarDocument(
-					taskId, 
-					processIdDocuments(), 
+					taskId,
+					processIdDocuments(),
 					documentOrigen);
 		}
 	}
@@ -1088,13 +1080,18 @@ public class HeliumApiImpl implements HeliumApi {
 	}
 
 	@Override
-	public TerminiInfo getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi) {
-		return terminiInfo(terminiIniciat(processInstanceId, codi));
+	public TerminiInfo getTermini(String terminiCodi) {
+		return terminiInfo(termini(processIdDocuments(), terminiCodi));
 	}
 
 	@Override
-	public TerminiInfo getTerminiIniciat(String terminiCodi) {
-		return terminiInfo(terminiIniciat(processIdDocuments(), terminiCodi));
+	public TerminiIniciatInfo getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi) {
+		return terminiIniciatInfo(terminiIniciat(processInstanceId, codi));
+	}
+
+	@Override
+	public TerminiIniciatInfo getTerminiIniciat(String terminiCodi) {
+		return terminiIniciatInfo(terminiIniciat(processIdDocuments(), terminiCodi));
 	}
 
 	@Override
@@ -1199,18 +1196,45 @@ public class HeliumApiImpl implements HeliumApi {
 		return data != null ? data : new Date();
 	}
 
-	private static TerminiInfo terminiInfo(TerminiIniciat terminiIniciat) {
-		if (terminiIniciat == null) {
+	private static TerminiIniciatInfo terminiIniciatInfo(TerminiIniciat terminiIniciat) {
+		if(terminiIniciat == null)
 			return null;
-		}
-		TerminiInfo info = new TerminiInfo(terminiIniciat.getAnys(), terminiIniciat.getMesos(), terminiIniciat.getDies());
-		info.setId(terminiIniciat.getId());
-		info.setCodi(terminiIniciat.getTermini().getCodi());
-		info.setDataInici(terminiIniciat.getDataInici());
-		info.setDataFi(terminiIniciat.getDataFi());
-		info.setDataAturada(terminiIniciat.getDataAturada());
-		info.setDataCancelacio(terminiIniciat.getDataCancelacio());
-		return info;
+		TerminiIniciatInfo terminiInfoIniciat = new TerminiIniciatInfo();
+		terminiInfoIniciat.setId(terminiIniciat.getId());
+		terminiInfoIniciat.setDataInici(terminiIniciat.getDataInici());
+		terminiInfoIniciat.setDataFi(terminiIniciat.getDataFi());
+		terminiInfoIniciat.setDataAturada(terminiIniciat.getDataAturada());
+		terminiInfoIniciat.setDataCancelacio(terminiIniciat.getDataCancelacio());
+		terminiInfoIniciat.setDataFiProrroga(terminiIniciat.getDataFiProrroga());
+		terminiInfoIniciat.setDataCompletat(terminiIniciat.getDataCompletat());
+		terminiInfoIniciat.setDiesAturat(terminiIniciat.getDiesAturat());
+		terminiInfoIniciat.setAnys(terminiIniciat.getAnys());
+		terminiInfoIniciat.setMesos(terminiIniciat.getMesos());
+		terminiInfoIniciat.setDies(terminiIniciat.getDies());
+		terminiInfoIniciat.setTaskInstanceId(terminiIniciat.getTaskInstanceId());
+		terminiInfoIniciat.setTermini(terminiInfo(terminiIniciat.getTermini()));
+
+		return terminiInfoIniciat;
+	}
+
+	private static TerminiInfo terminiInfo(Termini termini) {
+		if(termini == null)
+			return null;
+		TerminiInfo terminiInfo = new TerminiInfo();
+		terminiInfo.setId(termini.getId());
+		terminiInfo.setCodi(termini.getCodi());
+		terminiInfo.setNom(termini.getNom());
+		terminiInfo.setDescripcio(termini.getDescripcio());
+		terminiInfo.setAnys(termini.getAnys());
+		terminiInfo.setMesos(termini.getMesos());
+		terminiInfo.setDies(termini.getDies());
+		terminiInfo.setLaborable(termini.isLaborable());
+		terminiInfo.setManual(termini.isManual());
+		terminiInfo.setDiesPrevisAvis(termini.getDiesPrevisAvis());
+		terminiInfo.setAlertaPrevia(termini.isAlertaPrevia());
+		terminiInfo.setAlertaFinal(termini.isAlertaFinal());
+		terminiInfo.setAlertaCompletat(termini.isAlertaCompletat());
+		return terminiInfo;
 	}
 
 	@Override
