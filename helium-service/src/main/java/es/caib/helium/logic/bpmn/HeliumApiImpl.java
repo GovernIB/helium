@@ -53,12 +53,15 @@ import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientInteressatHelper;
 import es.caib.helium.logic.helper.MailHelper;
 import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.persistence.entity.DefinicioProces;
 import es.caib.helium.persistence.entity.Document;
 import es.caib.helium.persistence.entity.DocumentStore;
 import es.caib.helium.persistence.entity.Estat;
 import es.caib.helium.persistence.entity.Expedient;
 import es.caib.helium.persistence.entity.ExpedientTipus;
 import es.caib.helium.persistence.entity.Interessat;
+import es.caib.helium.persistence.entity.Termini;
+import es.caib.helium.persistence.entity.TerminiIniciat;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -1086,7 +1089,128 @@ public class HeliumApiImpl implements HeliumApi {
 
 	@Override
 	public TerminiInfo getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi) {
-		return null;
+		return terminiInfo(terminiIniciat(processInstanceId, codi));
+	}
+
+	@Override
+	public TerminiInfo getTerminiIniciat(String terminiCodi) {
+		return terminiInfo(terminiIniciat(processIdDocuments(), terminiCodi));
+	}
+
+	@Override
+	public void terminiIniciar(String terminiCodi, Date data, boolean esDataFi) {
+		String processInstanceId = processIdDocuments();
+		Termini termini = termini(processInstanceId, terminiCodi);
+		serveis.getTerminiHelper().iniciar(termini.getId(), processInstanceId, dataOActual(data), esDataFi, false);
+	}
+
+	@Override
+	public void terminiIniciar(String terminiCodi, Date data, int anys, int mesos, int dies, boolean esDataFi) {
+		String processInstanceId = processIdDocuments();
+		Termini termini = termini(processInstanceId, terminiCodi);
+		serveis.getTerminiHelper().iniciar(
+			termini.getId(),
+			processInstanceId,
+			dataOActual(data),
+			anys,
+			mesos,
+			dies,
+			esDataFi,
+			false);
+	}
+
+	@Override
+	public void terminiPausar(String terminiCodi, Date data) {
+		Long id = terminiIniciatObligatori(terminiCodi).getId();
+		ambErrorDeTermini(() -> serveis.getTerminiHelper().pausar(id, dataOActual(data), false));
+	}
+
+	@Override
+	public void terminiContinuar(String terminiCodi, Date data) {
+		Long id = terminiIniciatObligatori(terminiCodi).getId();
+		ambErrorDeTermini(() -> serveis.getTerminiHelper().continuar(id, dataOActual(data), false));
+	}
+
+	@Override
+	public void terminiCancelar(String terminiCodi, Date data) {
+		Long id = terminiIniciatObligatori(terminiCodi).getId();
+		ambErrorDeTermini(() -> serveis.getTerminiHelper().cancelar(id, dataOActual(data), false));
+	}
+
+	@Override
+	public Date terminiCalcularDataFi(Date inici, int anys, int mesos, int dies, boolean laborable) {
+		return serveis.getTerminiHelper().getDataFiTermini(
+			dataOActual(inici), anys, mesos, dies, laborable, processIdDocuments());
+	}
+
+	@Override
+	public Date terminiCalcularDataInici(Date fi, int anys, int mesos, int dies, boolean laborable) {
+		return serveis.getTerminiHelper().getDataIniciTermini(
+			dataOActual(fi), anys, mesos, dies, laborable, processIdDocuments());
+	}
+
+	/**
+	 * Termini amb aquest codi. És del tipus d'expedient si té informació pròpia; si no, de la definició de procés de
+	 * la instància.
+	 */
+	private Termini termini(String processInstanceId, String terminiCodi) {
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		Termini termini;
+		if (expedientTipus.isAmbInfoPropia()) {
+			termini = serveis.getTerminiHelper().findAmbExpedientTipusICodi(expedientTipus, terminiCodi);
+		} else {
+			WProcessInstance processInstance = serveis.getWorkflowEngineApi().getProcessInstance(processInstanceId);
+			DefinicioProces definicioProces = processInstance != null
+				? serveis.getDefinicioProcesRepository().findByBpmId(processInstance.getProcessDefinitionId())
+				: null;
+			termini = definicioProces != null
+				? serveis.getTerminiHelper().findAmbDefinicioProcesICodi(definicioProces, terminiCodi)
+				: null;
+		}
+		if (termini == null) {
+			throw new HeliumHandlerException("No existeix cap termini amb el codi '" + terminiCodi + "'");
+		}
+		return termini;
+	}
+
+	private TerminiIniciat terminiIniciat(String processInstanceId, String terminiCodi) {
+		Termini termini = termini(processInstanceId, terminiCodi);
+		return serveis.getTerminiIniciatRepository().findByTerminiAndProcessInstanceId(termini, processInstanceId);
+	}
+
+	private TerminiIniciat terminiIniciatObligatori(String terminiCodi) {
+		TerminiIniciat terminiIniciat = terminiIniciat(processIdDocuments(), terminiCodi);
+		if (terminiIniciat == null) {
+			throw new HeliumHandlerException("El termini '" + terminiCodi + "' no s'ha iniciat");
+		}
+		return terminiIniciat;
+	}
+
+	/** Els errors d'estat del termini (no iniciat, no pausat) arriben al handler com a error de handler. */
+	private static void ambErrorDeTermini(Runnable operacio) {
+		try {
+			operacio.run();
+		} catch (IllegalStateException ex) {
+			throw new HeliumHandlerException(ex.getMessage(), ex);
+		}
+	}
+
+	private static Date dataOActual(Date data) {
+		return data != null ? data : new Date();
+	}
+
+	private static TerminiInfo terminiInfo(TerminiIniciat terminiIniciat) {
+		if (terminiIniciat == null) {
+			return null;
+		}
+		TerminiInfo info = new TerminiInfo(terminiIniciat.getAnys(), terminiIniciat.getMesos(), terminiIniciat.getDies());
+		info.setId(terminiIniciat.getId());
+		info.setCodi(terminiIniciat.getTermini().getCodi());
+		info.setDataInici(terminiIniciat.getDataInici());
+		info.setDataFi(terminiIniciat.getDataFi());
+		info.setDataAturada(terminiIniciat.getDataAturada());
+		info.setDataCancelacio(terminiIniciat.getDataCancelacio());
+		return info;
 	}
 
 	@Override

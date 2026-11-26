@@ -7,7 +7,6 @@ import java.util.Date;
 import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.exception.BpmnException;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
-import es.caib.helium.bpmn.integracio.HeliumBridge;
 import es.caib.helium.bpmn.model.TerminiInfo;
 
 /**
@@ -22,8 +21,9 @@ public abstract class AbstractHeliumActionHandler implements HeliumBpmnHandler {
 
 	public static final String FORMAT_DATA = "dd/MM/yyyy";
 
+	/** Termini iniciat a la instància de procés del handler, o null si no s'ha iniciat (veure {@link HeliumApi#getTerminiIniciat}). */
 	protected TerminiInfo getTerminiIniciatAmbCodi(HeliumApi executionContext, String codi) throws BpmnException {
-		return HeliumBridge.getInstanceService().getTerminiIniciatAmbCodi(executionContext, codi);
+		return executionContext.getTerminiIniciat(codi);
 	}
 
 	protected String getProcessInstanceId(HeliumApi executionContext) {

@@ -5,9 +5,12 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import es.caib.helium.logic.helper.ConsultaPinbalHelper;
+import es.caib.helium.logic.helper.TerminiHelper;
 import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.persistence.repository.DefinicioProcesRepository;
 import es.caib.helium.persistence.repository.ExpedientRepository;
 import es.caib.helium.persistence.repository.ExpedientTipusRepository;
+import es.caib.helium.persistence.repository.TerminiIniciatRepository;
 import lombok.Getter;
 
 /**
@@ -29,5 +32,11 @@ public class HeliumApiServeis {
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Autowired @Lazy
 	private ConsultaPinbalHelper consultaPinbalHelper;
+	@Autowired @Lazy
+	private TerminiHelper terminiHelper;
+	@Autowired @Lazy
+	private TerminiIniciatRepository terminiIniciatRepository;
+	@Autowired @Lazy
+	private DefinicioProcesRepository definicioProcesRepository;
 
 }

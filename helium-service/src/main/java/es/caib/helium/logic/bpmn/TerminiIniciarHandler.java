@@ -2,12 +2,9 @@ package es.caib.helium.logic.bpmn;
 
 
 import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
-import es.caib.helium.bpmn.integracio.HeliumBridge;
 import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.integracio.Termini;
 import es.caib.helium.bpmn.exception.BpmnException;
-import es.caib.helium.disseny.handler.TerminiIniciarHandler;
-import es.caib.helium.bpmn.model.TerminiInfo;
 import lombok.Setter;
 
 import java.util.Calendar;
@@ -24,7 +21,7 @@ import java.util.Date;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Setter
-public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler implements TerminiIniciarHandler {
+public class TerminiIniciarHandler extends AbstractHeliumActionHandler implements es.caib.helium.disseny.handler.TerminiIniciarHandler {
 
 	private String terminiCodi;
 	private String data;
@@ -33,34 +30,21 @@ public class TerminiIniciarHandlerImpl extends AbstractHeliumActionHandler imple
 	private String esDataFi;
 
 	public void execute(HeliumApi executionContext) throws BpmnException {
-		String tercod = terminiCodi;
-		TerminiInfo terminiInfo = HeliumBridge
-			    				.getInstanceService()
-								.getTerminiIniciatAmbCodi(executionContext, tercod);
-		if (terminiInfo != null) {
-			if (!isBuit(termini)) {
-				Termini vt = Termini.valueFromString(termini.trim());
-				executionContext.getTerminiIniciatAmbProcessInstanceITerminiCodi(
-					executionContext.getProcessInstance().getId(),
-					tercod
-				);
-				HeliumBridge.getInstanceService().terminiIniciar(
-					tercod,
-					getProcessInstanceId(executionContext),
-					getData(),
-					vt.getAnys(),
-					vt.getMesos(),
-					vt.getDies(),
-					esDataFi());
-			} else {
-				HeliumBridge.getInstanceService().terminiIniciar(
-					tercod,
-					getProcessInstanceId(executionContext),
-					getData(),
-					esDataFi());
-			}
+		// Si no hi ha cap termini amb aquest codi, la HeliumApi llança l'error
+		if (!isBuit(termini)) {
+			Termini vt = Termini.valueFromString(termini.trim());
+			executionContext.terminiIniciar(
+				terminiCodi,
+				getData(),
+				vt.getAnys(),
+				vt.getMesos(),
+				vt.getDies(),
+				esDataFi());
 		} else {
-			throw new BpmnException("No existeix cap termini amb aquest codi '" + terminiCodi + "'");
+			executionContext.terminiIniciar(
+				terminiCodi,
+				getData(),
+				esDataFi());
 		}
 	}
 

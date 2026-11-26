@@ -2482,7 +2482,8 @@ public class ExpedientHelper {
 		return resultat;
 	}
 
-	private HeliumApi crearHeliumApi(Expedient expedient, String processInstanceId) {
+	/** HeliumApi per als handlers i les expressions que s'executen a la instància de procés indicada. */
+	public HeliumApi crearHeliumApi(Expedient expedient, String processInstanceId) {
 		return HeliumApiFactory.createInstance(
 			expedient,
 			processInstanceId,

@@ -203,7 +203,59 @@ public interface HeliumApi {
 
 	public WProcessInstance getProcessInstance();
 	public WTaskInstance getTaskInstance();
+
+	/**
+	 * Termini iniciat amb aquest codi a la instància de procés indicada (p. ex. la del procés pare).
+	 *
+	 * @return el termini iniciat, o null si encara no s'ha iniciat.
+	 * @throws es.caib.helium.bpmn.exception.HeliumHandlerException si no hi ha cap termini amb aquest codi.
+	 */
 	public TerminiInfo getTerminiIniciatAmbProcessInstanceITerminiCodi(String processInstanceId, String codi);
+
+	/*
+	 * Terminis. Els terminis es defineixen al tipus d'expedient (o a la definició de procés, si el tipus no té
+	 * informació pròpia) i s'inicien a la instància de procés on s'executa el handler. Si el codi no correspon a cap
+	 * termini, es llança HeliumHandlerException. Si la data és null, s'agafa la data actual.
+	 */
+
+	/**
+	 * Termini iniciat amb aquest codi a la instància de procés del handler.
+	 *
+	 * @return el termini iniciat, o null si encara no s'ha iniciat.
+	 */
+	public TerminiInfo getTerminiIniciat(String terminiCodi);
+
+	/**
+	 * Inicia el termini amb la durada configurada (o la del termini iniciat, si ja s'havia iniciat abans). Si ja
+	 * estava iniciat, es torna a iniciar.
+	 *
+	 * @param data data d'inici, o de fi si {@code esDataFi} és true (la d'inici es calcula a partir de la de fi).
+	 */
+	public void terminiIniciar(String terminiCodi, Date data, boolean esDataFi);
+
+	/** Inicia el termini amb la durada indicada. Vegeu {@link #terminiIniciar(String, Date, boolean)}. */
+	public void terminiIniciar(String terminiCodi, Date data, int anys, int mesos, int dies, boolean esDataFi);
+
+	/** Pausa el termini iniciat. Llança HeliumHandlerException si el termini no s'ha iniciat. */
+	public void terminiPausar(String terminiCodi, Date data);
+
+	/** Continua el termini pausat. Llança HeliumHandlerException si el termini no s'ha iniciat o no està pausat. */
+	public void terminiContinuar(String terminiCodi, Date data);
+
+	/** Cancel·la el termini iniciat. Llança HeliumHandlerException si el termini no s'ha iniciat. */
+	public void terminiCancelar(String terminiCodi, Date data);
+
+	/**
+	 * Calcula la data de fi d'un termini que comença a {@code inici}, tenint en compte els festius del tipus
+	 * d'expedient si és laborable.
+	 */
+	public Date terminiCalcularDataFi(Date inici, int anys, int mesos, int dies, boolean laborable);
+
+	/**
+	 * Calcula la data d'inici d'un termini que acaba a {@code fi}, tenint en compte els festius del tipus
+	 * d'expedient si és laborable.
+	 */
+	public Date terminiCalcularDataInici(Date fi, int anys, int mesos, int dies, boolean laborable);
 
 	/** Modifica la georeferència de l'expedient. */
 	public void expedientGeorefModificar(Double posx, Double posy, String referencia);

@@ -3,18 +3,14 @@ package es.caib.helium.logic.bpmn;
 import java.util.Date;
 
 import es.caib.helium.bpmn.handler.AbstractHeliumActionHandler;
-import es.caib.helium.bpmn.integracio.HeliumBridge;
-import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.bpmn.api.HeliumApi;
-import es.caib.helium.bpmn.exception.BpmnException;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
-import es.caib.helium.bpmn.model.TerminiInfo;
 import lombok.Setter;
 /**
  * Handler per pausar un termini.
  *
  * <p>{@code data} és la data de pausa en format {@value #FORMAT_DATA} (o una expressió, p. ex.
- * {@code ${dataPausa}}); si no s'informa s'agafa la data actual.</p>
+ * {@code ${dataPausa}}); si no s'informa s'agafa la data actual. Si el termini no s'ha iniciat, no fa res.</p>
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -27,19 +23,10 @@ public class TerminiPausarHandler extends AbstractHeliumActionHandler implements
 
 	@Override
 	public void execute(HeliumApi executionContext) throws HeliumHandlerException {
-		TerminiInfo termini;
-		try {
-			termini = HeliumBridge.getInstanceService().getTerminiIniciatAmbCodi(
-				executionContext,
-				terminiCodi);
-		} catch (NoTrobatException ex) {
-			termini = null;
-		} catch (BpmnException e) {
-			throw new HeliumHandlerException(e);
-		}
-		if (termini != null) {
-			HeliumBridge.getInstanceService().terminiPausar(
-				termini.getId(),
+		// Si no hi ha cap termini amb aquest codi, la HeliumApi llança l'error
+		if (executionContext.getTerminiIniciat(terminiCodi) != null) {
+			executionContext.terminiPausar(
+				terminiCodi,
 				isBuit(data) ? new Date() : asDate(data));
 		}
 	}

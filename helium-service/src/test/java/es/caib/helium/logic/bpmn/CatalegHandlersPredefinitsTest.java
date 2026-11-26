@@ -36,7 +36,6 @@ public class CatalegHandlersPredefinitsTest {
 	 * (va amb les funcionalitats de retrocés).
 	 */
 	private static final Set<String> PENDENTS = Set.of(
-		"TerminiIniciarHandler",
 		"TerminiContinuarHandler",
 		"TerminiCancelarHandler",
 		"TerminiCalcularDataIniciHandler",

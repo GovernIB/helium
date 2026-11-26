@@ -13,7 +13,6 @@ import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.engine.WTaskInstance;
 import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 import es.caib.helium.logic.intf.bpmn.MotorHeliumService;
-import es.caib.helium.bpmn.service.BpmnHeliumService;
 import es.caib.helium.commons.dto.PersonaDto;
 import es.caib.helium.logic.helper.ComandaHelper;
 import es.caib.helium.logic.helper.ExpedientDadaHelper;
@@ -37,8 +36,6 @@ public class MotorHeliumServiceImpl implements MotorHeliumService {
 	@Autowired @Lazy
 	private ExpedientDadaHelper expedientDadaHelper;
 	@Autowired @Lazy
-	private BpmnHeliumService bpmnHeliumService;
-	@Autowired @Lazy
 	private HeliumHandlerFactory heliumHandlerFactory;
 	@Autowired @Lazy
 	private ExpedientHelper expedientHelper;
@@ -60,7 +57,9 @@ public class MotorHeliumServiceImpl implements MotorHeliumService {
 
 	@Override
 	public HeliumApi getHeliumApi(String processInstanceId) {
-		return bpmnHeliumService.buildHeliumApi(processInstanceId, null);
+		return expedientHelper.crearHeliumApi(
+			expedientHelper.findExpedientByProcessInstanceId(processInstanceId),
+			processInstanceId);
 	}
 
 	@Override
