@@ -13,7 +13,7 @@ import {
 import FlowablePropertiesProviderModule from './flowable/FlowablePropertiesProviderModule';
 import TraduccionsModule from './helium/traduccions';
 import {establirHandlers, fetchHandlers, getHandlersSync} from './flowable/handlers';
-import {enviarIde, esModeIde, registrarIde} from './ide';
+import {demanarRepintat, enviarIde, esModeIde, registrarIde} from './ide';
 
 import Modal from './components/Modal';
 import Toolbar from './components/Toolbar';
@@ -267,6 +267,14 @@ const App = () => {
                 clearTimeout(temporitzador);
                 temporitzador = setTimeout(enviarXmlIde, 300);
             });
+        // Dins l'IDE el navegador de vegades no actualitza la imatge: es demana a l'IDE que la torni a pintar després
+        // de les interaccions que canvien la vista (veure demanarRepintat)
+        for (const nom of ['selection.changed', 'elements.changed', 'propertiesPanel.updated']) {
+            eventBus.on(nom, demanarRepintat);
+        }
+        document.addEventListener('pointerup', demanarRepintat, true);
+        document.addEventListener('keyup', demanarRepintat, true);
+        document.addEventListener('transitionend', demanarRepintat, true);
         const enviarXmlIde = async () => {
             const {xml} = await modeler.saveXML({format: true});
             if (xml) {

@@ -287,3 +287,24 @@ html[data-tema="fosc"] .helium-parametres-eliminar:focus-visible {
 	padding: 6px;
 	color: var(--description-color, #555);
 }
+
+/* Tooltips propis (helium/Tooltips.ts): dins l'IDE el navegador no mostra els natius */
+.helium-tooltip {
+	position: fixed;
+	z-index: 10000;
+	display: none;
+	max-width: 320px;
+	padding: 4px 8px;
+	border-radius: 3px;
+	background: #333;
+	color: #fff;
+	font: 12px/1.35 Arial, sans-serif;
+	white-space: pre-line;
+	pointer-events: none;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+html[data-tema="fosc"] .helium-tooltip {
+	background: var(--fosc-elevat);
+	color: var(--ide-text);
+	border: 1px solid var(--fosc-vora);
+}

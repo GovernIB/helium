@@ -245,6 +245,52 @@
                     "type": "String"
                 }
             ]
+        },
+        {
+            "name": "Entrada",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "origen",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "expressio",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "desti",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "Sortida",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "origen",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "expressio",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "desti",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
         }
     ]
 }

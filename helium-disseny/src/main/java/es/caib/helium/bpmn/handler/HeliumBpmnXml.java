@@ -31,6 +31,23 @@ public final class HeliumBpmnXml {
 	public static final String ATTR_EXPRESSIO = "expressio";
 
 	/**
+	 * Dades que es passen a un subprocés: dins l'{@code extensionElements} d'una {@code callActivity},
+	 * {@code <helium:entrada origen="dadaPare" desti="dadaFill"/>} copia una dada del procés al subprocés abans que
+	 * comenci. En lloc d'{@link #ATTR_ORIGEN} pot tenir {@link #ATTR_EXPRESSIO}, que s'avalua al procés. Si no té
+	 * {@link #ATTR_DESTI}, la dada del subprocés té el mateix codi.
+	 */
+	public static final String ELEMENT_ENTRADA = "entrada";
+	/**
+	 * Dades que retorna un subprocés: {@code <helium:sortida origen="dadaFill" desti="dadaPare"/>} copia una dada del
+	 * subprocés al procés quan el subprocés acaba. L'{@link #ATTR_EXPRESSIO} s'avalua al subprocés.
+	 */
+	public static final String ELEMENT_SORTIDA = "sortida";
+	/** Codi de la dada d'origen d'una entrada o sortida. */
+	public static final String ATTR_ORIGEN = "origen";
+	/** Codi de la dada de destí d'una entrada o sortida. */
+	public static final String ATTR_DESTI = "desti";
+
+	/**
 	 * Atributs d'extensió de Helium ({@code helium:xxx}) per a les propietats d'execució que el
 	 * BPMN 2.0 no defineix. Es posen directament sobre l'element BPMN corresponent
 	 * (p. ex. {@code <bpmn:userTask helium:formKey="..." helium:dueDate="...">}) i cada motor de

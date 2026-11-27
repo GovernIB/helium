@@ -1,6 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot, type Root} from 'react-dom/client';
 import App from './App.tsx';
+import { activarTooltips } from './helium/Tooltips';
+
+// Tooltips propis: dins l'IDE el navegador no mostra els natius (atribut title)
+activarTooltips();
 
 let root: Root | null = null;
 

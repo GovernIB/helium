@@ -436,7 +436,65 @@ public class ExpedientDadaHelperTest {
 		Object dadaNullString = expedientDadaHelper.getDada(expedient, processId, taskId, CAMP_NULL_STR + "_x");
 		assertNull(dadaNullString);
 
+		// Desar una dada amb valor null l'elimina: el JSON no desa els valors null (NON_NULL), i per tant
+		// getDadesValors no en retorna cap
+		java.util.Map<String, Object> dades = expedientDadaHelper.getDadesValors(expedient, processId, taskId);
+		assertEquals(varString, dades.get(CAMP_STRING + "_x"));
+		assertEquals(varInteger, dades.get(CAMP_INTEGER + "_x"));
+		assertFalse(dades.containsKey(CAMP_NULL_STR + "_x"));
+
 		log.info("Finalitzat test d'insert de dades d'expedient sense Camp");
+	}
+
+	/**
+	 * Només són principals les dades del procés arrel: les d'un subprocés (activitat de crida) no, perquè la consulta
+	 * de les dades de l'expedient sense procés espera unes sola dades principals.
+	 */
+	@Test
+	public void nomesLesDadesDelProcesArrelSonPrincipals() {
+		Expedient expedient = buildExpedient();
+		expedient.setProcessInstanceId("pi-arrel");
+
+		expedientDadaHelper.setDada(expedient, "pi-subproces", null, CAMP_STRING + "_x", "fill");
+		assertEquals(Boolean.FALSE, expedientDades.get().getPrincipal());
+
+		expedientDades.set(null);
+		expedientDadaHelper.setDada(expedient, "pi-arrel", null, CAMP_STRING + "_x", "arrel");
+		assertEquals(Boolean.TRUE, expedientDades.get().getPrincipal());
+	}
+
+	/**
+	 * Copiar una dada a una altra instància de procés (entrades i sortides d'un subprocés): el valor llegit amb
+	 * getDadesValors i desat amb setDada ha de quedar igual al JSON, també per a dades múltiples i registres.
+	 */
+	@Test
+	public void copiarDadesMultiplesIRegistresEntreProcessosConservaElValor() throws Exception {
+		Expedient expedient = buildExpedient();
+		expedient.setProcessInstanceId("pi-pare");
+		java.util.Date data = new java.text.SimpleDateFormat("yyyy-MM-dd").parse("2026-11-27");
+		java.util.Map<String, Object> originals = new java.util.LinkedHashMap<>();
+		originals.put("multipleInt", new Object[] {1, 2L, null});
+		originals.put("multipleData", new Object[] {data});
+		originals.put("registre", new Object[] {"a", 3L, new java.math.BigDecimal("12.34"), data});
+		originals.put("registreMultiple", new Object[][] {{"a", 1L}, {"b", null}});
+		originals.put("data", data);
+		originals.put("preu", new java.math.BigDecimal("12.34"));
+		for (java.util.Map.Entry<String, Object> e : originals.entrySet()) {
+			expedientDadaHelper.setDada(expedient, "pi-pare", null, e.getKey(), e.getValue());
+		}
+		String jsonPare = expedientDades.get().getDades();
+
+		java.util.Map<String, Object> llegides = expedientDadaHelper.getDadesValors(expedient, "pi-pare", null);
+		expedientDades.set(null);
+		for (String codi : originals.keySet()) {
+			expedientDadaHelper.setDada(expedient, "pi-fill", null, codi, llegides.get(codi));
+		}
+		String jsonFill = expedientDades.get().getDades();
+
+		com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
+		log.info("pare: {}", jsonPare);
+		log.info("fill: {}", jsonFill);
+		assertEquals(om.readTree(jsonPare), om.readTree(jsonFill));
 	}
 
 }

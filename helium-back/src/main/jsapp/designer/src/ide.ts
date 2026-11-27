@@ -13,6 +13,7 @@
  *      {tipus: 'canvi', xml}          el diagrama ha canviat
  *      {tipus: 'desfer' | 'refer'}    Ctrl+Z / Ctrl+Shift+Z: els aplica l'IDE sobre el document
  *      {tipus: 'error', missatge}     error en importar el XML
+ *      {tipus: 'repintar'}            l'IDE ha de tornar a pintar la vista (vegeu demanarRepintat)
  *  - IDE → editor, amb les funcions de window.heliumIde (registrarIde):
  *      carregar(xml, handlers)        primera càrrega
  *      actualitzar(xml)               el document ha canviat fora de l'editor
@@ -25,7 +26,8 @@ export type MissatgeIde =
     | { tipus: 'canvi'; xml: string }
     | { tipus: 'desfer' }
     | { tipus: 'refer' }
-    | { tipus: 'error'; missatge: string };
+    | { tipus: 'error'; missatge: string }
+    | { tipus: 'repintar' };
 
 export interface ReceptorIde {
     carregar: (xml: string, handlers: HandlerDto[]) => void;
@@ -70,6 +72,27 @@ window.__heliumIdeConnectat = () => {
     while (pendents.length > 0 && intentarEnviar(pendents[0])) {
         pendents.shift();
     }
+};
+
+let repintatProper: ReturnType<typeof setTimeout> | undefined;
+let repintatFinal: ReturnType<typeof setTimeout> | undefined;
+
+/**
+ * Demana a l'IDE que torni a pintar tota la vista. Dins l'IDE el navegador (JCEF fora de pantalla) de vegades no
+ * actualitza la imatge després d'un canvi: elements que es veuen encara seleccionats, o parts tallades del plafó de
+ * propietats en plegar o desplegar un grup. Es corregeix quan es canvia de vista; amb això, de seguida.
+ *
+ * S'envia dues vegades: poc després de la interacció i quan ja han acabat les transicions del plafó. Les crides
+ * seguides s'agrupen.
+ */
+export const demanarRepintat = () => {
+    if (!esModeIde()) {
+        return;
+    }
+    clearTimeout(repintatProper);
+    clearTimeout(repintatFinal);
+    repintatProper = setTimeout(() => enviarIde({ tipus: 'repintar' }), 60);
+    repintatFinal = setTimeout(() => enviarIde({ tipus: 'repintar' }), 450);
 };
 
 export const registrarIde = (receptor: ReceptorIde) => {

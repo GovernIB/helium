@@ -1568,7 +1568,7 @@ public class DissenyServiceImpl implements DissenyService {
 
 	/**
 	 * Converteix els recursos que són handlers propis al catàleg de handlers. El nom és el de la classe (sense
-	 * paquet) i no s'agrupen (l'editor els mostra sota "HANDLERS PROPIS"). Una mateixa classe pot ser a diversos
+	 * paquet) i no s'agrupen (l'editor els ofereix al tipus "Handler propi"). Una mateixa classe pot ser a diversos
 	 * recursos (p. ex. a cada versió d'una definició de procés): només s'inclou una vegada.
 	 */
 	private List<HandlerDto> toHandlersPropis(List<Recurs> recursos) {

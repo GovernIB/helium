@@ -1118,6 +1118,26 @@ public class VariableHelper {
 		}
 	}
 
+	/**
+	 * Fila d'un registre: el valor sencer si no és múltiple, o la fila {@code registreIndex} si ho és. Un registre
+	 * múltiple llegit de les dades de l'expedient (JSON) arriba com a {@code Object[]} de files {@code Object[]}, no
+	 * com a {@code Object[][]}: s'accepten les dues formes.
+	 */
+	static Object[] filaRegistre(boolean multiple, Object registreValor, Integer registreIndex) {
+		if (!(registreValor instanceof Object[])) {
+			return null;
+		}
+		Object[] valor = (Object[]) registreValor;
+		if (!multiple) {
+			return registreIndex == null || registreIndex == 0 ? valor : null;
+		}
+		if (registreIndex == null || registreIndex < 0 || registreIndex >= valor.length) {
+			return null;
+		}
+		Object fila = valor[registreIndex];
+		return fila instanceof Object[] ? (Object[]) fila : null;
+	}
+
 	private Object getValorCampRegistre(
 			String taskInstanceId,
 			String processInstanceId,
@@ -1134,22 +1154,13 @@ public class VariableHelper {
 					processInstanceId,
 					registreCamp.getCodi());
 		if (registreValor != null) {
-			Object[] filaValor = null;
-			if (registreCamp.isMultiple() && registreValor instanceof Object[][]) {
-				Object[][] registreArray = (Object[][])registreValor;
-				if (registreArray.length > registreIndex)
-					filaValor = registreArray[registreIndex];
-			}
-			if (!registreCamp.isMultiple() && registreValor instanceof Object[]) {
-				if (registreIndex == null || registreIndex == 0)
-					filaValor = (Object[])registreValor;
-			}
+			Object[] filaValor = filaRegistre(registreCamp.isMultiple(), registreValor, registreIndex);
 			if (filaValor != null) {
 				Object valor = null;
 				int index = 0;
 				for (CampRegistre campRegistre: registreCamp.getRegistreMembres()) {
 					if (campCodi.equals(campRegistre.getMembre().getCodi())) {
-						valor = filaValor[index];
+						valor = index < filaValor.length ? filaValor[index] : null;
 						break;
 					}
 					index++;

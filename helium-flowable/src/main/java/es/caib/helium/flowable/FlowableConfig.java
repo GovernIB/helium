@@ -40,6 +40,7 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 		HeliumServiceTaskXMLConverter.registrar();
 		afegirHeliumPreDeployer(processEngineConfiguration);
 		afegirAgendaHelium(processEngineConfiguration);
+		afegirDadesSubprocessos(processEngineConfiguration, motorHeliumService::getObject);
 		afegirResolutorDadesHelium(
 			processEngineConfiguration,
 			processInstanceId -> motorHeliumService.getObject().getDadesProces(processInstanceId));
@@ -66,6 +67,16 @@ public class FlowableConfig implements EngineConfigurationConfigurer<SpringProce
 	 */
 	public static void afegirAgendaHelium(ProcessEngineConfigurationImpl processEngineConfiguration) {
 		processEngineConfiguration.setAgendaFactory(new HeliumFlowableEngineAgenda.Factory());
+	}
+
+	/**
+	 * Fa que les crides a subprocés passin les dades de l'expedient declarades amb helium:entrada i helium:sortida
+	 * (veure HeliumCallActivityBehavior).
+	 */
+	public static void afegirDadesSubprocessos(
+			ProcessEngineConfigurationImpl processEngineConfiguration,
+			java.util.function.Supplier<MotorHeliumService> motorHeliumService) {
+		processEngineConfiguration.setActivityBehaviorFactory(new HeliumActivityBehaviorFactory(motorHeliumService));
 	}
 
 	/** Afegeix el deployer que tradueix els atributs helium:* als de Flowable (veure HeliumBpmnPreDeployer). */

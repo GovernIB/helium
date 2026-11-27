@@ -13,7 +13,8 @@ import {
     isHeliumHandlerTask,
     removeHeliumHandler,
 } from '../helium/heliumHandler';
-import { createHeliumHandlerClassEntry } from '../helium/HeliumHandlerPropertiesGroup';
+import { createHeliumHandlerClassEntry, esHandlerPredefinit, type TipusHandler } from '../helium/HeliumHandlerPropertiesGroup';
+import { getHandlersSync } from './handlers';
 
 type BpmnElement = {
     businessObject: any;
@@ -25,18 +26,49 @@ type PropertiesEntryProps = {
 
 /**
  * Tipus d'implementació de la service task. Els de Helium són BPMN 2.0 genèric:
- *  - helium: handler de Helium indicat per classe (<helium:handler classe="...">).
- *  - heliumExpressio: handler de Helium obtingut d'una expressió (<helium:handler expressio="${...}">).
+ *  - handlerPredefinit: handler del catàleg de Helium, indicat per classe (<helium:handler classe="...">).
+ *  - handlerPropi: handler propi (del projecte o pujat com a recurs), indicat per classe. Al XML és igual que un
+ *    predefinit: la diferència la fa el catàleg (els predefinits tenen agrupació).
+ *  - heliumExpressio: handler obtingut d'una expressió, p. ex. un bean (<helium:handler expressio="${...}">).
  *  - expressio: expressió avaluada pel motor (helium:expression, amb helium:resultVariableName opcional).
  *
  * Els de Flowable (class, delegateExpression) només es mostren si la tasca ja els fa servir (diagrames antics),
  * perquè no es perdin en editar-los. Les flowable:expression es converteixen a helium:expression en obrir el diagrama.
  */
-export type TipusImplementacio = 'helium' | 'heliumExpressio' | 'expressio' | 'class' | 'delegateExpression';
+export type TipusImplementacio =
+    | 'handlerPredefinit'
+    | 'handlerPropi'
+    | 'heliumExpressio'
+    | 'expressio'
+    | 'class'
+    | 'delegateExpression';
+
+/**
+ * Tipus triat per a les tasques que encara no tenen classe: el XML no permet distingir un handler predefinit d'un de
+ * propi fins que no se'n tria la classe.
+ */
+const tipusSenseClasse = new WeakMap<object, TipusHandler>();
+
+const tipusHandlerPerClasse = (businessObject: any): TipusHandler => {
+    const classe = getHeliumHandler(businessObject)?.classe;
+    if (!classe) {
+        return tipusSenseClasse.get(businessObject) ?? 'predefinit';
+    }
+    // Una classe que no és al catàleg (p. ex. un handler propi encara no compilat o pujat) es tracta com a pròpia
+    return esHandlerPredefinit(classe) || (!getHandlersSync().length && classe.startsWith('es.caib.helium.'))
+        ? 'predefinit'
+        : 'propi';
+};
+
+export const esTipusHandler = (tipus: TipusImplementacio | undefined): boolean =>
+    tipus === 'handlerPredefinit' || tipus === 'handlerPropi' || tipus === 'heliumExpressio';
 
 export const getTypeValue = (businessObject: any): TipusImplementacio | undefined => {
     if (isHeliumHandlerTask(businessObject)) {
-        return isHandlerPerExpressio(businessObject) ? 'heliumExpressio' : 'helium';
+        if (isHandlerPerExpressio(businessObject)) {
+            return 'heliumExpressio';
+        }
+        return tipusHandlerPerClasse(businessObject) === 'predefinit' ? 'handlerPredefinit' : 'handlerPropi';
     }
     if (businessObject.get('helium:expression') != null) {
         return 'expressio';
@@ -59,8 +91,8 @@ export const createJavaPropertiesGroup = (element: BpmnElement) => {
         },
     ];
     const typeValue = getTypeValue(element.businessObject);
-    if (typeValue === 'helium') {
-        entries.push(createHeliumHandlerClassEntry());
+    if (typeValue === 'handlerPredefinit' || typeValue === 'handlerPropi') {
+        entries.push(createHeliumHandlerClassEntry(typeValue === 'handlerPredefinit' ? 'predefinit' : 'propi'));
     }
     if (typeValue === 'heliumExpressio') {
         entries.push({
@@ -109,7 +141,7 @@ const TipusField = (props: PropertiesEntryProps) => {
             if (getTypeValue(element.businessObject) === value) {
                 return;
             }
-            const esHandler = value === 'helium' || value === 'heliumExpressio';
+            const esHandler = esTipusHandler(value);
             modeling.updateProperties(element, {
                 'flowable:class': undefined,
                 'flowable:delegateExpression': undefined,
@@ -117,7 +149,14 @@ const TipusField = (props: PropertiesEntryProps) => {
                 implementation: esHandler ? HELIUM_IMPLEMENTATION : undefined,
             });
             if (esHandler) {
-                configurarHeliumHandler(element, modeling, value === 'heliumExpressio');
+                const handler = configurarHeliumHandler(element, modeling, value === 'heliumExpressio');
+                if (value === 'handlerPredefinit' || value === 'handlerPropi') {
+                    // Canvi entre predefinit i propi: la classe i els paràmetres anteriors ja no serveixen
+                    tipusSenseClasse.set(element.businessObject, value === 'handlerPredefinit' ? 'predefinit' : 'propi');
+                    if (handler.classe) {
+                        modeling.updateModdleProperties(element, handler, { classe: '', parametres: [] });
+                    }
+                }
             } else {
                 removeHeliumHandler(element, modeling);
             }
@@ -125,8 +164,9 @@ const TipusField = (props: PropertiesEntryProps) => {
         getOptions: () => {
             const options: { value: string | undefined; label: string }[] = [
                 { value: undefined, label: '<cap>' },
-                { value: 'helium', label: 'Handler de Helium' },
-                { value: 'heliumExpressio', label: 'Handler de Helium (expressió)' },
+                { value: 'handlerPredefinit', label: 'Handler predefinit' },
+                { value: 'handlerPropi', label: 'Handler propi' },
+                { value: 'heliumExpressio', label: 'Handler per expressió' },
                 { value: 'expressio', label: 'Expressió' },
             ];
             // Les opcions de Flowable només per als diagrames que ja les fan servir
@@ -150,7 +190,8 @@ const HandlerExpressioField = (props: PropertiesEntryProps) => {
         element,
         id: 'helium-handler-expressio',
         label: 'Expressió del handler',
-        description: 'Ha de retornar un objecte que implementi HeliumBpmnHandler. Ex: ${nomDelBean}',
+        description: 'Ha de retornar el handler (un objecte que implementi HeliumBpmnHandler), p. ex. un bean: ${nomDelBean}. '
+            + 'Els paràmetres s\'injecten a l\'objecte retornat: si és compartit, també ho són els paràmetres.',
         getValue: () => getHeliumHandler(element.businessObject)?.expressio || '',
         setValue: (value: string) => {
             const handler = configurarHeliumHandler(element, modeling, true);

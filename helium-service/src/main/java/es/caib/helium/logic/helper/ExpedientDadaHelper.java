@@ -89,7 +89,7 @@ public class ExpedientDadaHelper {
 			expedientDadesEntity.setExpedientTipus(expedient.getTipus());
 			expedientDadesEntity.setProcessId(processId);
 			expedientDadesEntity.setTaskId(taskId);
-			expedientDadesEntity.setPrincipal(taskId == null);
+			expedientDadesEntity.setPrincipal(esPrincipal(expedient, processId, taskId));
 			expedientDadesRepository.saveAndFlush(expedientDadesEntity);
 		}
 
@@ -124,7 +124,7 @@ public class ExpedientDadaHelper {
 			expedientDadesEntity.setExpedientTipus(expedient.getTipus());
 			expedientDadesEntity.setProcessId(processId);
 			expedientDadesEntity.setTaskId(taskId);
-			expedientDadesEntity.setPrincipal(taskId == null);
+			expedientDadesEntity.setPrincipal(esPrincipal(expedient, processId, taskId));
 			expedientDadesRepository.save(expedientDadesEntity);
 		}
 
@@ -204,6 +204,20 @@ public class ExpedientDadaHelper {
 
 	private Map<String, DadesValor> dadesToMap(String dades) throws JsonProcessingException {
 	    return mapper.readValue(dades, typeRef);
+	}
+
+	/**
+	 * Les dades principals de l'expedient (les que es consulten sense procés ni tasca) són les del procés arrel. Les
+	 * d'un subprocés (activitat de crida) o d'una tasca no ho són: si no, l'expedient en tindria més d'unes.
+	 */
+	private static boolean esPrincipal(Expedient expedient, String processId, String taskId) {
+		if (taskId != null) {
+			return false;
+		}
+		return processId == null
+			|| expedient == null
+			|| expedient.getProcessInstanceId() == null
+			|| processId.equals(expedient.getProcessInstanceId());
 	}
 
 	/** Consulta les dades segons la tasca, procés i expedient. */

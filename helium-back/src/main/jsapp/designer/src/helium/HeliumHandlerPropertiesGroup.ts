@@ -25,26 +25,36 @@ type EntryProps = {
     element: BpmnElement;
 };
 
-const TITOL_HANDLERS_PROPIS = 'HANDLERS PROPIS';
+/**
+ * Tipus de handler per classe: els predefinits són els del catàleg de Helium (tenen agrupació) i els propis, els del
+ * projecte o pujats com a recursos (sense agrupació).
+ */
+export type TipusHandler = 'predefinit' | 'propi';
+
+export const esHandlerPredefinit = (classe: string | undefined | null): boolean =>
+    !!classe && getHandlersSync().some((h) => h.classe === classe && !!h.agrupacio);
 
 /** Entrada per triar la classe del handler. En canviar-la es carreguen els seus paràmetres. */
-export const createHeliumHandlerClassEntry = () => ({
+export const createHeliumHandlerClassEntry = (tipus: TipusHandler) => ({
     id: 'helium-handler-classe',
-    component: HeliumHandlerClassField,
+    // Components fixos (no una funció nova a cada crida): si no, el plafó els tornaria a muntar a cada canvi
+    component: tipus === 'predefinit' ? HandlerPredefinitField : HandlerPropiField,
     isEdited: isSelectEntryEdited,
 });
 
-const HeliumHandlerClassField = (props: EntryProps) => {
-    const { element } = props;
+const HandlerPredefinitField = (props: EntryProps) => HeliumHandlerClassField({ ...props, tipus: 'predefinit' });
+const HandlerPropiField = (props: EntryProps) => HeliumHandlerClassField({ ...props, tipus: 'propi' });
+
+const HeliumHandlerClassField = (props: EntryProps & { tipus: TipusHandler }) => {
+    const { element, tipus } = props;
     const modeling = useService('modeling');
-    const translate = useService('translate');
     const valor: string = getHeliumHandler(element.businessObject)?.classe || '';
     // Desplegable propi en lloc del select del plafó: la llista és llarga i dins l'IDE la d'un select queda tallada
     return Desplegable({
         id: 'helium-handler-classe',
-        label: translate('Handler'),
+        label: tipus === 'predefinit' ? 'Handler predefinit' : 'Handler propi',
         valor,
-        elements: elementsHandlers(valor),
+        elements: elementsHandlers(valor, tipus),
         onChange: (value: string) => {
             const heliumHandler = ensureHeliumHandler(element, modeling);
             const anterior = heliumHandler.classe;
@@ -59,23 +69,22 @@ const HeliumHandlerClassField = (props: EntryProps) => {
     });
 };
 
-/** Opcions del desplegable: els predefinits per agrupació i després els propis. */
-const elementsHandlers = (valorActual: string): ElementDesplegable[] => {
+/** Opcions del desplegable: els predefinits per agrupació, o els propis. */
+const elementsHandlers = (valorActual: string, tipus: TipusHandler): ElementDesplegable[] => {
     const elements: ElementDesplegable[] = [];
     const handlers = getHandlersSync();
     // Els predefinits arriben agrupats; els propis (del projecte o pujats com a recursos) no tenen agrupació
-    const predefinits = handlers.filter((h) => h.agrupacio);
-    const propis = handlers.filter((h) => !h.agrupacio);
-    let agrupacio: string | undefined | null = null;
-    for (const handler of predefinits) {
-        if (handler.agrupacio !== agrupacio) {
-            agrupacio = handler.agrupacio;
-            elements.push({ tipus: 'grup', text: String(agrupacio) });
+    if (tipus === 'predefinit') {
+        let agrupacio: string | undefined | null = null;
+        for (const handler of handlers.filter((h) => h.agrupacio)) {
+            if (handler.agrupacio !== agrupacio) {
+                agrupacio = handler.agrupacio;
+                elements.push({ tipus: 'grup', text: String(agrupacio) });
+            }
+            elements.push({ tipus: 'opcio', valor: handler.classe, text: handler.nom || handler.classe, detall: handler.classe });
         }
-        elements.push({ tipus: 'opcio', valor: handler.classe, text: handler.nom || handler.classe, detall: handler.classe });
-    }
-    if (propis.length) {
-        elements.push({ tipus: 'grup', text: TITOL_HANDLERS_PROPIS });
+    } else {
+        const propis = handlers.filter((h) => !h.agrupacio);
         for (const handler of propis) {
             // Si dues classes de paquets diferents tenen el mateix nom es mostra el nom complet
             const repetit = propis.some((h) => h !== handler && h.nom === handler.nom);
@@ -240,7 +249,7 @@ type CellaTextProps = {
 };
 
 /** Camp de text d'una cel·la: desa el valor amb debounce, com els camps del panell de propietats. */
-const CellaText = (props: CellaTextProps) => {
+export const CellaText = (props: CellaTextProps) => {
     const { valor, onCanvi, placeholder, title, list, expressio } = props;
     const debounce = useService('debounceInput');
     const [text, setText] = useState(valor);

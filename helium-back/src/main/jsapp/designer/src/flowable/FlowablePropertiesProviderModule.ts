@@ -13,9 +13,10 @@ import {
     resourcesAmbResponsable,
     separarPerComes,
 } from '../helium/assignacio';
-import { createJavaPropertiesGroup, getTypeValue } from './JavaPropertiesGroup';
+import { createJavaPropertiesGroup, esTipusHandler, getTypeValue } from './JavaPropertiesGroup';
 import { createHeliumParametresGroup } from '../helium/HeliumHandlerPropertiesGroup';
 import { createJavaFieldsPropertiesGroup } from './JavaFieldsPropertiesGroup';
+import { createDadesSubprocesGroup } from '../helium/DadesSubprocesGroup';
 
 const LOW_PRIORITY = 50;
 
@@ -73,7 +74,7 @@ FlowablePropertiesProvider.prototype.getGroups = function (
             groups.push(createServiceTaskPropertiesGroup());
             groups.push(createJavaPropertiesGroup(element));
             const tipus = getTypeValue(element.businessObject);
-            if (tipus === 'helium' || tipus === 'heliumExpressio') {
+            if (esTipusHandler(tipus)) {
                 groups.push(createHeliumParametresGroup());
             } else if (tipus === 'class' || tipus === 'delegateExpression') {
                 groups.push(createJavaFieldsPropertiesGroup(element, modeling));
@@ -84,6 +85,8 @@ FlowablePropertiesProvider.prototype.getGroups = function (
         }
         if (is(element, 'bpmn:CallActivity')) {
             groups.push(createCallActivityPropertiesGroup());
+            groups.push(createDadesSubprocesGroup('entrada'));
+            groups.push(createDadesSubprocesGroup('sortida'));
         }
         if (is(element, 'bpmn:Activity')) {
             groups.push(createAsyncPropertiesGroup(element));
