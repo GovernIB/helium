@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package es.caib.helium.persistence.repository;
 
@@ -18,7 +18,7 @@ import es.caib.helium.persistence.entity.TerminiIniciat;
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
  * informació relativa a un termini que està emmagatzemat a dins la base
  * de dades.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface TerminiIniciatRepository extends JpaRepository<TerminiIniciat, Long> {
@@ -29,17 +29,37 @@ public interface TerminiIniciatRepository extends JpaRepository<TerminiIniciat, 
 	TerminiIniciat findByTerminiAndProcessInstanceId(
 			Termini termini,
 			String processInstanceId);
-	
+
 	List<TerminiIniciat> findByTaskInstanceId(String taskInstanceId);
-	
+
 	@Query("select e from TerminiIniciat e "
 			+ "where e.taskInstanceId in (:taskInstanceIds)")
 	List<TerminiIniciat> findByTaskInstanceIds(
 			@Param("taskInstanceIds") Collection<String> taskInstanceIds);
-	
+
 	List<TerminiIniciat> findByProcessInstanceId(String processInstanceId);
 
 	@Query("select e from TerminiIniciat e "
 			+ "where e.dataAturada is null and e.dataCancelacio is null")
 	List<TerminiIniciat> findIniciatsActius();
+
+	TerminiIniciat findByProcessInstanceIdAndTerminiCodi(String processInstanceId, String terminiCodi);
+
+	TerminiIniciat findByProcessInstanceIdAndTerminiId(String processInstanceId, Long terminiId);
+
+	@Query("from TerminiIniciat as ti "
+		    + "where "
+			+ "    ti.dataCompletat is null "
+			+ "and (ti.termini.alertaPrevia = true and ti.alertaPrevia = false) "
+			+ "and ti.dataAturada is null "
+			+ "and ti.dataCancelacio is null")
+	List<TerminiIniciat> findIniciatsAmbAlertesPrevies();
+
+	@Query("from TerminiIniciat as ti "
+			+ "where "
+			+ "    ti.dataCompletat is null "
+			+ "and (ti.termini.alertaFinal = true and ti.alertaFinal = false) "
+			+ "and ti.dataAturada is null "
+			+ "and ti.dataCancelacio is null")
+	List<TerminiIniciat> findIniciatsAmbAlertesFinals();
 }

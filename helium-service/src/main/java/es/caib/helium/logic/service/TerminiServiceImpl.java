@@ -3,15 +3,21 @@
  */
 package es.caib.helium.logic.service;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import es.caib.helium.bpmn.engine.WProcessInstance;
+import es.caib.helium.bpmn.engine.WTaskInstance;
+import es.caib.helium.logic.intf.service.WorkflowEngineApi;
+import es.caib.helium.persistence.entity.*;
+import es.caib.helium.persistence.repository.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +28,6 @@ import es.caib.helium.commons.dto.regles.QueEnum;
 import es.caib.helium.commons.exception.NoTrobatException;
 import es.caib.helium.commons.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.TerminiService;
-import es.caib.helium.persistence.entity.ExpedientTipus;
-import es.caib.helium.persistence.entity.Termini;
-import es.caib.helium.persistence.repository.DefinicioProcesRepository;
-import es.caib.helium.persistence.repository.ExpedientTipusRepository;
-import es.caib.helium.persistence.repository.TerminiRepository;
 import es.caib.helium.logic.helper.ConversioTipusHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
@@ -38,6 +39,7 @@ import es.caib.helium.logic.regles.ReglaHelper;
  *
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Slf4j
 @Service
 public class TerminiServiceImpl implements TerminiService {
 
@@ -47,6 +49,12 @@ public class TerminiServiceImpl implements TerminiService {
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private TerminiRepository terminiRepository;
+	@Resource
+	private TerminiIniciatRepository terminiIniciatRepository;
+	@Resource
+	private AlertaRepository alertaRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
@@ -56,13 +64,15 @@ public class TerminiServiceImpl implements TerminiService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private ReglaHelper reglaHelper;
+	@Resource
+	private WorkflowEngineApi workflowEngineApi;
 
 	@Override
 	@Transactional(readOnly = true)
 	public TerminiDto findAmbId(
 			Long expedientTipusId,
 			Long terminiId) throws NoTrobatException {
-		logger.debug(
+		log.debug(
 				"Consultant el termini amb id (" +
 				"expedientTiusId=" + expedientTipusId + "," +
 				"terminiId=" + terminiId +  ")");
@@ -95,7 +105,7 @@ public class TerminiServiceImpl implements TerminiService {
 			Long expedientTipusId,
 			Long definicioProcesId,
 			String codi) {
-		logger.debug(
+		log.debug(
 				"Consultant el termini amb codi (" +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"definicioProcesId=" + definicioProcesId + ", " +
@@ -244,7 +254,7 @@ public class TerminiServiceImpl implements TerminiService {
 			Long definicioProcesId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
-		logger.debug(
+		log.debug(
 				"Consultant els terminis per al tipus d'expedient per datatable (" +
 				"expedientTipusId =" + expedientTipusId + ", " +
 				"definicioProcesId =" + definicioProcesId + ", " +
@@ -258,7 +268,7 @@ public class TerminiServiceImpl implements TerminiService {
 		Page<Termini> page = terminiRepository.findByFiltrePaginat(
 				expedientTipusId,
 				definicioProcesId,
-				filtre == null || "".equals(filtre),
+				filtre == null || filtre.isEmpty(),
 				filtre,
 				ambHerencia,
 				paginacioHelper.toSpringDataPageable(
@@ -293,5 +303,108 @@ public class TerminiServiceImpl implements TerminiService {
 		return pagina;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(TerminiServiceImpl.class);
+	@Scheduled(cron="0 */10 * * * *")
+	@Transactional
+	public void comprovarTerminisIniciats() {
+		List<TerminiIniciat> iniciatsActiusAlertesPrevies = terminiIniciatRepository.findIniciatsAmbAlertesPrevies();
+		List<TerminiIniciat> iniciatsActiusAlertesFinals = terminiIniciatRepository.findIniciatsAmbAlertesFinals();
+		for (TerminiIniciat terminiIniciat: iniciatsActiusAlertesFinals) {
+			if (terminiIniciat.getTaskInstanceId() != null && terminiIniciat.getEstat() == TerminiIniciat.TerminiIniciatEstat.CADUCAT) {
+				esborrarAlertesAntigues(terminiIniciat);
+				WTaskInstance task =  workflowEngineApi.getTaskById(terminiIniciat.getTaskInstanceId());
+				if (task.getActorId() != null) {
+					crearAlertaAmbTerminiAssociat(terminiIniciat, task.getActorId(), getExpedientPerTask(task));
+				} else {
+					for (String actor: task.getPooledActors())
+						crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
+				}
+				terminiIniciat.setAlertaFinal(true);
+			} else if(terminiIniciat.getEstat() == TerminiIniciat.TerminiIniciatEstat.CADUCAT) {
+				esborrarAlertesAntigues(terminiIniciat);
+				Expedient expedient = getExpedientForProcessInstanceId(
+					terminiIniciat.getProcessInstanceId());
+				if (expedient != null && expedient.getResponsableCodi() != null) {
+					crearAlertaAmbTerminiAssociat(
+						terminiIniciat,
+						expedient.getResponsableCodi(),
+						expedient);
+				}
+				terminiIniciat.setAlertaFinal(true);
+			}
+		}
+
+		for (TerminiIniciat terminiIniciat: iniciatsActiusAlertesPrevies) {
+			if (terminiIniciat.getTaskInstanceId() != null && terminiIniciat.getEstat() == TerminiIniciat.TerminiIniciatEstat.AVIS) {
+				WTaskInstance task = workflowEngineApi.getTaskById(terminiIniciat.getTaskInstanceId());
+				if (task.getActorId() != null) {
+					crearAlertaAmbTerminiAssociat(terminiIniciat, task.getActorId(), getExpedientPerTask(task));
+				} else {
+					for (String actor: task.getPooledActors())
+						crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
+				}
+				terminiIniciat.setAlertaPrevia(true);
+			} else if (terminiIniciat.getEstat() == TerminiIniciat.TerminiIniciatEstat.AVIS) {
+				Expedient expedient = getExpedientForProcessInstanceId(
+					terminiIniciat.getProcessInstanceId());
+				if (expedient != null && expedient.getResponsableCodi() != null) {
+					crearAlertaAmbTerminiAssociat(
+						terminiIniciat,
+						expedient.getResponsableCodi(),
+						expedient);
+				}
+				terminiIniciat.setAlertaPrevia(true);
+			}
+		}
+	}
+
+	private Expedient getExpedientPerTask(WTaskInstance task) {
+		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(task.getProcessInstanceId());
+		return expedientRepository.findByProcessInstanceId(rootProcessInstance.getId());
+	}
+
+	private void crearAlertaAmbTerminiAssociat(
+		TerminiIniciat terminiIniciat,
+		String responsable,
+		Expedient expedient) {
+		log.debug("Creació alerta per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
+		// Només crea alertes si l'expedient no està finalitzat
+		if (expedient.getDataFi() == null) {
+			Alerta.AlertaPrioritat prioritat;
+			if (TerminiIniciat.TerminiIniciatEstat.AVIS.equals(terminiIniciat.getEstat())) {
+				prioritat = Alerta.AlertaPrioritat.NORMAL;
+			} else if (TerminiIniciat.TerminiIniciatEstat.COMPLETAT_FORA.equals(terminiIniciat.getEstat())) {
+				prioritat = Alerta.AlertaPrioritat.ALTA;
+			} else if (TerminiIniciat.TerminiIniciatEstat.CADUCAT.equals(terminiIniciat.getEstat())) {
+				prioritat = Alerta.AlertaPrioritat.MOLT_ALTA;
+			} else {
+				prioritat = Alerta.AlertaPrioritat.BAIXA;
+			}
+			Alerta alerta = new Alerta(
+				new Date(),
+				responsable,
+				prioritat,
+				terminiIniciat.getTermini().getDefinicioProces() != null ?
+					terminiIniciat.getTermini().getDefinicioProces().getEntorn()
+					:terminiIniciat.getTermini().getExpedientTipus().getEntorn());
+			alerta.setExpedient(expedient);
+			alerta.setTerminiIniciat(terminiIniciat);
+			alertaRepository.save(alerta);
+		}
+	}
+
+	private Expedient getExpedientForProcessInstanceId(String processInstanceId) {
+		WProcessInstance pi = workflowEngineApi.getRootProcessInstance(processInstanceId);
+		if (pi == null) {
+			return null;
+		}
+		return expedientRepository.findByProcessInstanceId(pi.getId());
+	}
+
+	private void esborrarAlertesAntigues(TerminiIniciat terminiIniciat) {
+		List<Alerta> antigues = alertaRepository.findActivesAmbTerminiIniciatId(terminiIniciat.getId());
+		for (Alerta antiga: antigues) {
+			antiga.setDataEliminacio(new Date());
+		}
+	}
+
 }
