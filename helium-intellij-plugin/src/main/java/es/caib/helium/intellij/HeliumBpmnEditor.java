@@ -269,8 +269,25 @@ final class HeliumBpmnEditor extends UserDataHolderBase implements FileEditor, D
 			case "desfer" -> desferORefer(true);
 			case "refer" -> desferORefer(false);
 			case "error" -> notificarError(missatge.has("missatge") ? missatge.get("missatge").getAsString() : "");
+			case "repintar" -> repintar();
 			default -> LOG.warn("Missatge de l'editor BPMN desconegut: " + tipus);
 		}
+	}
+
+	/**
+	 * Torna a pintar tota la vista del navegador. Amb la renderització fora de pantalla, de vegades JCEF no actualitza
+	 * la imatge després d'un canvi (elements que es veuen encara seleccionats, parts del plafó de propietats tallades)
+	 * fins que es canvia de vista. L'editor ho demana després de les interaccions que canvien la vista (veure
+	 * demanarRepintat a designer/src/ide.ts).
+	 */
+	private void repintar() {
+		try {
+			// Només té efecte amb la renderització fora de pantalla: fa que el navegador torni a enviar tota la imatge
+			browser.getCefBrowser().invalidate();
+		} catch (RuntimeException ex) {
+			LOG.debug("No s'ha pogut invalidar la vista de l'editor BPMN", ex);
+		}
+		browser.getComponent().repaint();
 	}
 
 	/**
