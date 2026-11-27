@@ -32,15 +32,10 @@ import es.caib.helium.bpmn.handler.HeliumBpmnHandler;
 public class CatalegHandlersPredefinitsTest {
 
 	/**
-	 * Handlers del catàleg encara pendents: els de terminis (els desenvolupa un altre company) i el de buidar els logs
+	 * Handlers del catàleg encara pendents: ConfigurarAmbTerminiHandler (terminis) i el de buidar els logs
 	 * (va amb les funcionalitats de retrocés).
 	 */
 	private static final Set<String> PENDENTS = Set.of(
-		"TerminiContinuarHandler",
-		"TerminiCancelarHandler",
-		"TerminiCalcularDataIniciHandler",
-		"TerminiCalcularDataFiHandler",
-		"TerminiVariableGuardarHandler",
 		"ConfigurarAmbTerminiHandler",
 		"ExpedientBuidaLogHandler");
 

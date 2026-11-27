@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -22,6 +23,7 @@ import es.caib.helium.bpmn.api.HeliumApi;
 import es.caib.helium.bpmn.engine.WProcessInstance;
 import es.caib.helium.bpmn.exception.HeliumHandlerException;
 import es.caib.helium.bpmn.model.TerminiInfo;
+import es.caib.helium.bpmn.model.TerminiIniciatInfo;
 import es.caib.helium.logic.helper.AlertaHelper;
 import es.caib.helium.logic.helper.DocumentHelperV3;
 import es.caib.helium.logic.helper.ExpedientDadaHelper;
@@ -131,6 +133,13 @@ public class HeliumApiImplTerminisTest {
 	}
 
 	@Test
+	void retornaLaDefinicioDelTermini() {
+		TerminiInfo definicio = api.getTermini("resposta");
+		assertEquals(11L, definicio.getId());
+		assertEquals("resposta", definicio.getCodi());
+	}
+
+	@Test
 	void retornaElTerminiIniciatONullSiNoSHaIniciat() {
 		assertNull(api.getTerminiIniciat("resposta"));
 
@@ -138,9 +147,9 @@ public class HeliumApiImplTerminisTest {
 		iniciat.setId(5L);
 		when(terminiIniciatRepository.findByTerminiAndProcessInstanceId(termini, PROCES)).thenReturn(iniciat);
 
-		TerminiInfo info = api.getTermini("resposta");
+		TerminiIniciatInfo info = api.getTerminiIniciat("resposta");
 		assertEquals(5L, info.getId());
-		assertEquals("resposta", info.getCodi());
+		assertEquals("resposta", info.getTermini().getCodi());
 		assertEquals(1, info.getMesos());
 		assertEquals(DATA, info.getDataInici());
 	}
@@ -175,6 +184,77 @@ public class HeliumApiImplTerminisTest {
 		pausar.setTerminiCodi("resposta");
 		pausar.execute(api);
 		verify(terminiHelper, never()).pausar(anyLong(), any(), anyBoolean());
+	}
+
+	@Test
+	void elsHandlersDeContinuarICancelarFanServirLaHeliumApi() throws Exception {
+		TerminiIniciat iniciat = new TerminiIniciat(termini, PROCES, DATA, DATA);
+		iniciat.setId(5L);
+		when(terminiIniciatRepository.findByTerminiAndProcessInstanceId(termini, PROCES)).thenReturn(iniciat);
+
+		TerminiContinuarHandler continuar = new TerminiContinuarHandler();
+		continuar.setTerminiCodi("resposta");
+		continuar.setData("01/01/1970");
+		continuar.execute(api);
+		verify(terminiHelper).continuar(eq(5L), eq(new java.text.SimpleDateFormat("dd/MM/yyyy").parse("01/01/1970")), eq(false));
+
+		TerminiCancelarHandler cancelar = new TerminiCancelarHandler();
+		cancelar.setTerminiCodi("resposta");
+		cancelar.execute(api);
+		verify(terminiHelper).cancelar(eq(5L), any(), eq(false));
+
+		// Un codi que no correspon a cap termini dona error
+		TerminiCancelarHandler inexistent = new TerminiCancelarHandler();
+		inexistent.setTerminiCodi("inexistent");
+		assertThrows(HeliumHandlerException.class, () -> inexistent.execute(api));
+	}
+
+	@Test
+	void elHandlerDeGuardarTerminiDesaLaDuradaComUnaDadaDeTipusTermini() throws Exception {
+		HeliumApi heliumApi = mock(HeliumApi.class);
+		TerminiVariableGuardarHandler guardar = new TerminiVariableGuardarHandler();
+		guardar.setVarTermini("termini_resposta");
+		guardar.setAnys("0");
+		guardar.setMesos("1");
+		guardar.setDies("15");
+		guardar.execute(heliumApi);
+		verify(heliumApi).setVariable("termini_resposta", "0/1/15");
+
+		guardar.setDies(null);
+		assertThrows(HeliumHandlerException.class, () -> guardar.execute(heliumApi));
+		TerminiVariableGuardarHandler senseDada = new TerminiVariableGuardarHandler();
+		assertThrows(HeliumHandlerException.class, () -> senseDada.execute(heliumApi));
+	}
+
+	@Test
+	void elsHandlersDeCalcularDatesFanServirLaDuradaIndicadaOLaDelTermini() throws Exception {
+		Date dataBase = new java.text.SimpleDateFormat("dd/MM/yyyy").parse("10/01/2026");
+		Date dataSeguent = new java.text.SimpleDateFormat("dd/MM/yyyy").parse("11/01/2026");
+		Date dataAnterior = new java.text.SimpleDateFormat("dd/MM/yyyy").parse("09/01/2026");
+
+		TerminiCalcularDataFiHandler fi = new TerminiCalcularDataFiHandler();
+		fi.setTerminiCodi("resposta");
+		fi.setData("10/01/2026");
+		fi.setSumarUnDia("true");
+		fi.setTermini("0/2/10");
+		fi.setVarDataFi("dataFi");
+		fi.execute(api);
+		verify(terminiHelper).getDataFiTermini(dataSeguent, 0, 2, 10, false, PROCES);
+
+		// Sense durada: la del termini configurat
+		TerminiCalcularDataIniciHandler inici = new TerminiCalcularDataIniciHandler();
+		inici.setTerminiCodi("resposta");
+		inici.setData("10/01/2026");
+		inici.setRestarUnDia("true");
+		inici.setVarDataInici("dataInici");
+		inici.execute(api);
+		verify(terminiHelper).getDataIniciTermini(dataAnterior, termini.getAnys(), termini.getMesos(), termini.getDies(), false, PROCES);
+
+		// La dada on desar el resultat és obligatòria
+		TerminiCalcularDataFiHandler senseSortida = new TerminiCalcularDataFiHandler();
+		senseSortida.setTerminiCodi("resposta");
+		assertThrows(HeliumHandlerException.class, () -> senseSortida.execute(api));
+		verify(terminiHelper, never()).getDataFiTermini(eq(dataBase), anyInt(), anyInt(), anyInt(), anyBoolean(), any());
 	}
 
 }

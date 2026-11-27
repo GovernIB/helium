@@ -1,10 +1,14 @@
 package es.caib.helium.disseny.handler;
 
+/**
+ * Handler per calcular la data de fi d'un termini a partir d'una data d'inici.
+ *
+ * @author Limit Tecnologies <limit@limit.es>
+ */
 public interface TerminiCalcularDataFiHandler {
 	public void setTerminiCodi(String terminiCodi);
-	public void setVarTerminiCodi(String varTerminiCodi);
-	public void setVarData(String varData);
+	public void setData(String data);
 	public void setSumarUnDia(String sumarUnDia);
-	public void setVarTermini(String varTermini);
+	public void setTermini(String termini);
 	public void setVarDataFi(String varDataFi);
 }
